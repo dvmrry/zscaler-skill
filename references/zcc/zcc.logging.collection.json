@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "id": "zcc.logging.collection",
+  "title": "Getting Client Connector logs to support: Report an Issue, Fetch Logs, packet captures",
+  "aliases": [
+    "report an issue",
+    "fetch logs",
+    "fetch lightweight logs",
+    "zcc log location",
+    "where are zcc logs",
+    "zcc packet capture",
+    "client connector app logs",
+    "zcc support bundle"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.user-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Logs reach support three ways: the user sends them, an admin fetches them, or the user exports them."
+    },
+    {
+      "label": "Report an Issue.",
+      "text": "{{report-an-issue}} {{support-settings}} {{only-zscaler-decrypts}}"
+    },
+    {
+      "label": "Fetch Logs.",
+      "text": "{{fetch-prereq}} {{fetch-keepalive}} Another vendor page gives a different keepalive interval [[zcc.devices.lifecycle:keepalive-interval]]. Update Policy sends a keepalive at once [[zcc.devices.lifecycle:update-policy-sends-keepalive]]. {{fetch-scope}} {{fetch-status}} Which admin role permission Fetch Logs needs is open {{gap:fetch-logs-permission}}."
+    },
+    {
+      "label": "Zscaler-initiated collection.",
+      "text": "Zscaler can also fetch log bundles itself when User Privacy allows it: [[zcc.web-privacy.collection:auto-log-fetch]]."
+    },
+    {
+      "label": "Where the files are.",
+      "text": "{{log-locations}}"
+    },
+    {
+      "label": "Packet captures.",
+      "text": "{{packet-capture}} {{export-vs-report-pcap}} The User Privacy switch that offers capture to users is [[zcc.web-privacy.collection:packet-capture]]."
+    },
+    {
+      "label": "Operating-system logs.",
+      "text": "What Client Connector writes to the operating system's own logs is not sourced {{gap:os-log-integration}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Client Connector App Logs is on and a support email is set before expecting Fetch Logs to work.",
+      "uses": [
+        "fetch-prereq"
+      ]
+    },
+    {
+      "do": "Whether the device has sent a keepalive since the fetch was requested, from Fetch Log Status.",
+      "uses": [
+        "fetch-keepalive",
+        "fetch-status",
+        "zcc.devices.lifecycle:keepalive-interval"
+      ]
+    },
+    {
+      "do": "Whether the case needs packet captures, which travel with Export Logs and Fetch Logs but not with Report an Issue or Fetch Lightweight Logs.",
+      "uses": [
+        "export-vs-report-pcap",
+        "fetch-scope"
+      ]
+    },
+    {
+      "do": "Whether the period of interest is still inside what will be collected: 14 days for Fetch Logs, 24 hours for the lightweight fetch.",
+      "uses": [
+        "fetch-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "report-an-issue": {
+      "statement": "A Report an Issue form sends the form data with encrypted logs attached by email to the organization's support admin and anyone in the CC field, and can also open a ticket with Zscaler Support carrying the same encrypted logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "an email containing the form data and an attachment of encrypted logs is sent to your organization's support admin and anyone else in the CC field.",
+            "You can also have the support ticket containing the form data and attached encrypted logs automatically sent to Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "support-settings": {
+      "statement": "Enable Support Access in Zscaler Client Connector gives users the form, Admin Email Address to Send Logs takes one or more comma-separated addresses, and Enable End User Ticket Submission to Zscaler adds the automatic Zscaler Support ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "Enable Support Access in Zscaler Client Connector: Allows users to access the Report an Issue form.",
+            "You can enter multiple email addresses separated by commas.",
+            "select this option if you also want a ticket to be automatically sent to Zscaler Support when the user chooses Report an Issue."
+          ]
+        }
+      ]
+    },
+    "only-zscaler-decrypts": {
+      "statement": "Only Zscaler can decrypt the encrypted logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "Only Zscaler can decrypt logs."
+          ]
+        }
+      ]
+    },
+    "fetch-prereq": {
+      "statement": "An admin can pull logs from an enrolled device with Fetch Logs or Fetch Lightweight Logs on its device details, once Client Connector App Logs is enabled and an email address is configured on the App Supportability tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-device-fingerprint-enrolled-device.json",
+          "quotes": [
+            "To enable Fetch Logs or Fetch Lightweight Logs, you must first enable the option Client Connector App Logs and then configure an email address on the App Supportability tab in Client Connector Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "Client Connector App Logs: Allows users to collect Client Connector logs per enrolled device."
+          ]
+        }
+      ]
+    },
+    "fetch-keepalive": {
+      "statement": "After a fetch is requested, Client Connector uploads the logs at its next keepalive, usually once an hour while the device is active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-device-fingerprint-enrolled-device.json",
+          "quotes": [
+            "Zscaler Client Connector uploads logs from the device to the web server during the next keepalive, which is usually once every hour while the device is active."
+          ]
+        }
+      ]
+    },
+    "fetch-scope": {
+      "statement": "Fetch Logs works on every OS and version, covers the previous 14 days and includes PCAP and crash files; Fetch Lightweight Logs is for Windows 4.7 and later, covers the previous 24 hours and includes crash files but no PCAP files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-device-fingerprint-enrolled-device.json",
+          "quotes": [
+            "| Applies to all OSs for all supported versions. | Applies to Windows 4.7 and later. |",
+            "| Captures logs from the previous 14 days. | Captures logs from the previous 24 hours. |",
+            "| Includes PCAP files and crash files. | Doesn't include PCAP files. Includes crash files. |"
+          ]
+        }
+      ]
+    },
+    "fetch-status": {
+      "statement": "Fetch Log Status moves from Waiting for KeepAlive to Extraction in progress to Completion, or Error while fetching logs; on completion the device details show a Log URL for the uploaded logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-device-fingerprint-enrolled-device.json",
+          "quotes": [
+            "Waiting for KeepAlive: Displays after the fetch log request is initiated.",
+            "Extraction in progress: Displays after the KeepAlive message is displayed.",
+            "Error while fetching logs: Displays if the fetch log request fails.",
+            "Log URL: Displays the URL provided after Zscaler Client Connector completes uploading logs."
+          ]
+        }
+      ]
+    },
+    "log-locations": {
+      "statement": "Client Connector logs are stored in `%ProgramData%\\Zscaler\\log-<random numbers>` on Windows, `/Library/Application Support/com.zscaler.Zscaler` on macOS (`/Library/Application Support/Zscaler` on ARM-based Macs), and `/var/log/zscaler/.Zscaler/Logs` on Linux.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enabling-packet-capture-zscaler-client-connector.json",
+          "quotes": [
+            "Packet capture files are stored with Zscaler Client Connector logs in the following locations:",
+            "Windows: %ProgramData%\\Zscaler\\log-<random numbers>",
+            "macOS: /Library/Application Support/com.zscaler.Zscaler",
+            "For ARM processor-based macOS devices, the path is /Library/Application Support/Zscaler.",
+            "Linux: /var/log/zscaler/.Zscaler/Logs"
+          ]
+        }
+      ]
+    },
+    "packet-capture": {
+      "statement": "A user packet capture records all packets on all network adapters, installs Npcap if it is missing, and stops on its own when the session time limit expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enabling-packet-capture-zscaler-client-connector.json",
+          "quotes": [
+            "The packet capture feature captures packets at the adapter level and captures all packets on all network adapters.",
+            "Enabling packet capture automatically installs Npcap if it is not already installed.",
+            "it automatically stops after the time limit set in Run Session For has expired."
+          ]
+        }
+      ]
+    },
+    "export-vs-report-pcap": {
+      "statement": "Packet capture files go into the archive from Export Logs but not into the one from Report an Issue; they must be sent to Zscaler Support separately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enabling-packet-capture-zscaler-client-connector.json",
+          "quotes": [
+            "Packet capture files are exported to the archive that is generated when using the Export Logs option from Zscaler Client Connector.",
+            "However, these files are not exported to the archive that is generated when using the Report an Issue option from Zscaler Client Connector. You must send the files to Zscaler Support for assessment."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "os-log-integration": {
+      "kind": "semantic",
+      "title": "What Client Connector writes to operating-system logs",
+      "status": "open",
+      "former_ids": [
+        "zcc-61",
+        "zcc-62",
+        "zcc-63",
+        "zcc-69",
+        "zcc-70",
+        "zcc-71",
+        "zcc-60"
+      ],
+      "detail": "Unverified legacy statements: Windows Event Log Application and System logs carry ZCC service start/stop, driver and enrollment events under source \"Zscaler\" or \"ZscalerApp\"; the Windows log directory is %ProgramData%\\Zscaler\\logs\\ with ZCC.log (the captured path is log-<random numbers>); macOS Unified Logging under subsystem \"com.zscaler\" (log stream / log collect); iOS console process \"ZscalerApp\"; Android logcat tag \"ZscalerApp\"; MDM device-log collection captures some ZCC events. The app profile article documents only that Windows can be told to publish WFP connection-drop events to the Event Log through auditpol. Former zcc-63 asked also whether Client Connector on Linux writes to journald, and with what facility and priority; the Linux sub-policy has no log-configuration fields. Former zcc-60 asked for the log file paths on every platform; log-locations gives Windows, macOS and Linux, and no source gives the Android or iOS location.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "fetch-logs-permission": {
+      "kind": "semantic",
+      "title": "Admin permission needed for Fetch Logs",
+      "status": "open",
+      "former_ids": [
+        "zcc-72"
+      ],
+      "detail": "Whether the Fetch Logs action on an enrolled device's details needs a specific admin role permission beyond read access is not documented; the App Supportability source names only the Client Connector App Logs option and an email address as prerequisites.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

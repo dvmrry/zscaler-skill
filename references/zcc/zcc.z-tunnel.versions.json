@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "zcc.z-tunnel.versions",
+  "title": "Z-Tunnel 1.0 and 2.0: what each carries and how a profile selects one",
+  "aliases": [
+    "z-tunnel 1.0 vs 2.0",
+    "z-tunnel 2.0",
+    "z-tunnel 1.0",
+    "ztunnel",
+    "users still on z-tunnel 1.0",
+    "tunnel version selection",
+    "why is this traffic not tunneled"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles#forwardingProfileActions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.transport"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.bypasses"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.zcc"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Tunnel mode carries traffic in a Z-Tunnel, and the version decides which traffic that can be."
+    },
+    {
+      "label": "The two versions.",
+      "text": "Z-Tunnel 1.0 is a CONNECT-based proxy for proxy-aware or port 80/443 traffic, and Z-Tunnel 2.0 a DTLS or TLS packet tunnel for all ports and protocols: [[zia.traffic-forwarding.zcc:z-tunnel-1]], [[zia.traffic-forwarding.zcc:z-tunnel-2]]. Traffic Z-Tunnel 1.0 does not carry, such as QUIC, leaves the device directly: [[zia.saas-apps.quic-conferencing:tunnel1-udp-leaves]]."
+    },
+    {
+      "label": "Selecting one.",
+      "text": "{{version-select-needs-pf}} The driver setting and the 4.8 rule are in [[zcc.forwarding-profiles.internet-actions:driver-types]] and [[zcc.forwarding-profiles.internet-actions:driver-48]]. {{per-profile-version}}"
+    },
+    {
+      "label": "Z-Tunnel 1.0 on a 2.0 profile.",
+      "text": "{{web-on-1-under-2}} The NAT requirement behind the first case is [[zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat]]. Whether other traffic also lands on 1.0 is open {{gap:other-1-0-cases}}."
+    },
+    {
+      "text": "Transport, MTU and setup failure settings are in [[zcc.z-tunnel.transport]]; bypasses in [[zcc.z-tunnel.bypasses]]; the rollout sequence in [[zcc.z-tunnel.deployment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Tunnel Version the device's profile selects for its network type, and that the driver is packet filter-based.",
+      "uses": [
+        "version-select-needs-pf",
+        "zcc.forwarding-profiles.internet-actions:driver-types"
+      ]
+    },
+    {
+      "do": "For a 2.0 profile whose web traffic shows as Z-Tunnel 1.0: the NAT in front of the device, the setup failure behavior, the listening proxy options, and whether the request matched a PAC statement that names a Service Edge.",
+      "uses": [
+        "web-on-1-under-2",
+        "zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat"
+      ]
+    }
+  ],
+  "claims": {
+    "version-select-needs-pf": {
+      "statement": "In Tunnel mode the forwarding profile's Tunnel Version Selection chooses the Z-Tunnel version, and the field appears only when the Packet Filter-Based driver is selected; choosing Z-Tunnel 2.0 opens the Advanced Z-Tunnel Configuration settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "(Optional) For Tunnel Version Selection, you can select which version of Z-Tunnel to use. To see this field, you must select Packet Filter-Based for the driver method.",
+            "If you select Z-Tunnel 2.0, the Advanced Z-Tunnel Configuration menu appears."
+          ]
+        }
+      ]
+    },
+    "per-profile-version": {
+      "statement": "Because the version is a forwarding profile setting, a tenant can run Z-Tunnel 1.0 and 2.0 at once for different users through different forwarding profiles and app profiles, as the vendor's rollout does with a separate test profile.",
+      "tier": "B",
+      "conditions": "Follows from version selection living in the forwarding profile and app profiles selecting profiles per user group.",
+      "derived_from": [
+        "version-select-needs-pf",
+        "zcc.forwarding-profiles.assignment:app-profile-selects",
+        "zcc.z-tunnel.deployment:test-forwarding-profile"
+      ]
+    },
+    "web-on-1-under-2": {
+      "statement": "A profile set to Z-Tunnel 2.0 still sends web traffic over Z-Tunnel 1.0 when 2.0 cannot be set up and the setup failure behavior falls back to 1.0, when Redirect Web Traffic is on without Use Z-Tunnel 2.0 for Proxied Web Traffic, and when a request arriving on the Client Connector listening proxy matches an app profile PAC statement that sends it to a specific Public Service Edge.",
+      "tier": "B",
+      "conditions": "Collects the cases the help describes; it does not claim they are the only ones. Narrowed the PAC-statement case to connections arriving on the listening proxy, the only ones the option applies to (verifier).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-adding-bypasses-z-tunnel-2.0.json",
+          "quotes": [
+            "Use Z-Tunnel 2.0 for Proxied Web Traffic is applied to connections arriving on the Zscaler Client Connector listening proxy only if they match the default return statement in the app profile PAC."
+          ]
+        }
+      ],
+      "derived_from": [
+        "zcc.z-tunnel.transport:setup-failure-behavior",
+        "zcc.z-tunnel.bypasses:use-t2-proxied",
+        "zcc.z-tunnel.bypasses:use-t2-default-only",
+        "zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat"
+      ]
+    }
+  },
+  "gaps": {
+    "other-1-0-cases": {
+      "kind": "semantic",
+      "title": "Whether traffic matching no Z-Tunnel 2.0 rule uses Z-Tunnel 1.0",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"traffic that doesn't match any 2.0 rule\" uses 1.0 on a 2.0-configured profile, so \"'We're fully on 2.0' is almost never literally true.\" No source describes such traffic.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

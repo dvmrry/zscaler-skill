@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "id": "zcc.forwarding-profiles.network-types",
+  "title": "The four network types Client Connector detects: On-Trusted, VPN-Trusted, Split VPN-Trusted, Off-Trusted",
+  "aliases": [
+    "on-trusted network",
+    "off-trusted network",
+    "vpn-trusted network",
+    "split vpn-trusted network",
+    "network type",
+    "why is the user off-trusted on vpn",
+    "vpn not detected zcc",
+    "vpn interface description keywords"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles#forwardingProfileActions",
+    "zcc/forwarding-profiles#forwardingProfileZpaActions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.trusted-networks.detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.private-access-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.forwarding-profile-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Every forwarding-profile action is chosen per network type, so the first question in any forwarding answer is which type the device was in. Client Connector recognizes four."
+    },
+    {
+      "label": "On-Trusted.",
+      "text": "{{on-trusted}} How the criteria are matched is in [[zcc.trusted-networks.detection]]."
+    },
+    {
+      "label": "VPN-Trusted.",
+      "text": "{{vpn-trusted}} {{vpn-trusted-exclusions}} {{macos-interface-check}}"
+    },
+    {
+      "label": "Split VPN-Trusted.",
+      "text": "{{split-vpn-trusted}} {{split-vpn-needs-detection}}"
+    },
+    {
+      "label": "Off-Trusted.",
+      "text": "{{off-trusted}} Whether Off-Trusted is simply what remains when nothing else is detected, and which type wins when two could apply, is open {{gap:classification-order}}."
+    },
+    {
+      "label": "Where it shows.",
+      "text": "{{network-type-displayed}} {{firewall-ruleset-per-network-type}}"
+    },
+    {
+      "text": "On the wire each action block carries the type as an integer `networkType` whose values are not documented by the vendor: [[zcc.api.forwarding-profile-wire]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which network type the app displayed on the Internet Security and Private Access windows at the time of the problem.",
+      "uses": [
+        "network-type-displayed"
+      ]
+    },
+    {
+      "do": "For a VPN user shown as Off-Trusted: whether the VPN installs a default route, and on Windows whether the adapter description contains Cisco, Juniper, Fortinet, PanGP or VPN; on macOS whether it created a utun, PPP or GPD interface.",
+      "uses": [
+        "vpn-trusted",
+        "vpn-trusted-exclusions",
+        "macos-interface-check"
+      ]
+    },
+    {
+      "do": "For a split-tunnel VPN user: whether Enable Split VPN-Trusted Network is on in the profile and the trusted network criteria match the VPN adapter.",
+      "uses": [
+        "split-vpn-trusted",
+        "split-vpn-needs-detection"
+      ]
+    }
+  ],
+  "claims": {
+    "on-trusted": {
+      "statement": "On-Trusted Network is when the user is connected to a private network that belongs to the organization; the app detects it only through the Trusted Network Criteria set for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "On-Trusted Network: When a user is connected to a private network that belongs to your organization. To allow the app to detect this network, you must set the Trusted Network Criteria."
+          ]
+        }
+      ]
+    },
+    "vpn-trusted": {
+      "statement": "VPN-Trusted Network is when the user reaches a trusted network through a VPN in full-tunnel mode: the VPN must capture all of the user's traffic by installing a default route in the device's routing table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "VPN-Trusted Network: When a user is connected to a trusted network through a VPN in full-tunnel mode. The VPN must be configured to capture all, and not just some, of the user's traffic to the trusted network by installing a default route in the routing table of the client device."
+          ]
+        }
+      ]
+    },
+    "vpn-trusted-exclusions": {
+      "statement": "The app does not treat the network as VPN-Trusted, and treats the user as Off-Trusted, when the VPN captures all traffic without installing a default route, when the default interface description does not contain Cisco, Juniper, Fortinet, PanGP or VPN, or when the VPN runs in split-tunnel mode (routes for some subnets only, or a DNS for specific requests).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "The app does not consider the network a VPN-Trusted network and treats the user as connected to an Off-Trusted Network in the following scenarios:",
+            "The VPN doesn't install a default route and uses some other mechanism to capture all of the user's traffic.",
+            "The default interface description does not contain the words Cisco, Juniper, Fortinet, PanGP, or VPN.",
+            "The VPN runs in split-tunnel mode, so that the app takes only some of the user traffic. The VPN can do this by only installing routes for some subnets (e.g., 10/8 or 192.168/16) or by installing a DNS on the device to resolve specific requests."
+          ]
+        }
+      ]
+    },
+    "macos-interface-check": {
+      "statement": "macOS does not check the interface description for keywords; it only checks whether the VPN created a utun, PPP or GPD interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "macOS does not check the interface description for keywords. Instead, it only checks if the VPN created an utun, PPP, or GPD interface."
+          ]
+        }
+      ]
+    },
+    "split-vpn-trusted": {
+      "statement": "Split VPN-Trusted Network is when the user reaches a trusted network through a split-tunnel VPN. It does not apply when the VPN runs as a default adapter, when the VPN interface description lacks Cisco, Juniper, Fortinet, PanGP or VPN (the user is then Off-Trusted), or when the Trusted Network Criteria evaluated against the VPN adapter do not match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "Split VPN-Trusted Network: When a user is connected to a trusted network in split-tunnel mode through a VPN.",
+            "The VPN runs as a default adapter.",
+            "If these words are missing, the app treats the user as connected to an Off-Trusted Network.",
+            "The defined Trusted Network Criteria evaluated against the VPN adapter does not match."
+          ]
+        }
+      ]
+    },
+    "split-vpn-needs-detection": {
+      "statement": "So a split-tunnel VPN user is Split VPN-Trusted only when the profile has Enable Split VPN-Trusted Network on and its criteria match the VPN adapter; otherwise the split-tunnel VPN is one of the cases treated as Off-Trusted.",
+      "tier": "B",
+      "conditions": "Inference joining the network-type definitions with the profile's Trusted Network Evaluation option; no source states the combined rule in one place.",
+      "derived_from": [
+        "split-vpn-trusted",
+        "vpn-trusted-exclusions",
+        "zcc.trusted-networks.detection:enable-split-vpn"
+      ]
+    },
+    "off-trusted": {
+      "statement": "Off-Trusted Network is when the user is connected to an untrusted network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "Off-Trusted Network: When a user is connected to an untrusted network."
+          ]
+        }
+      ]
+    },
+    "network-type-displayed": {
+      "statement": "When a user connects to a network, the app determines its network type and displays it on the Internet Security window and the Private Access window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "When a user connects to a network, the app checks to determine what type of network the user is connected to and displays the network type on the Internet Security window and the Private Access window."
+          ]
+        }
+      ]
+    },
+    "firewall-ruleset-per-network-type": {
+      "statement": "The same network type also selects the app profile's location-based ruleset: with Location Policy Override, rulesets for traffic steering and endpoint firewall rules apply by the user's network type; a ruleset must be selected for On-Trusted and Off-Trusted, while VPN-Trusted and Split VPN-Trusted default to Same as On-Trusted. With Endpoint Firewall Management, host firewall rules come from the ruleset assigned for the active network type, and the Python SDK models the app profile's location ruleset policies with one entry each for `trusted`, `offTrusted`, `vpnTrusted` and `splitVpnTrusted`.",
+      "tier": "A",
+      "conditions": "Widened from a firewall ruleset to the Location Policy Override ruleset, which also covers traffic steering, with its per-network-type selection rules (verifier).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Location Policy Override: Enable this option to use location-based policies (rulesets for traffic steering and endpoint firewall rules that apply based on a user's network type, e.g, On-Trusted or Off-Trusted).",
+            "You must select a ruleset for On-Trusted Network and for Off-Trusted Network. For VPN-Trusted Network and Split VPN-Trusted Network, the default value is Same as \"On-Trusted Network,\" but you can change or clear it.",
+            "host firewall rules are created based on the assigned ruleset in the user's app profile for the active network type."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/application_profiles.py",
+          "after": "class LocationRulesetPolicies(ZscalerObject):",
+          "quotes": [
+            "if \"offTrusted\" in config:",
+            "if \"trusted\" in config:",
+            "if \"vpnTrusted\" in config:",
+            "if \"splitVpnTrusted\" in config:"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "classification-order": {
+      "kind": "semantic",
+      "title": "How Client Connector chooses a network type when none, or more than one, applies",
+      "status": "open",
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileActions"
+      ],
+      "detail": "Unverified legacy statement: Off-Trusted is \"the default branch when no other criteria match\". The vendor defines each type and names the cases that fall to Off-Trusted, but does not state an evaluation order, such as whether On-Trusted criteria that match while a full-tunnel VPN is up give On-Trusted or VPN-Trusted.",
+      "blocks": "saying which branch applies on a corporate LAN with a VPN client connected",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

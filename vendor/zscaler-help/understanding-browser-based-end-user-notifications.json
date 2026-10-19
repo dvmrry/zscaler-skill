@@ -1,0 +1,1288 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Browser-Based Global End User Notifications",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-browser-based-global-end-user-notifications",
+    "node": "1399971",
+    "revision": "3243708",
+    "updated": "2026-09-16",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "The Zscaler service provides browser-based notifications to end users when specific policy actions are triggered by their activity. You can customize these end user notification (EUN) messages in multiple languages. In addition, you customize the EUN appearance with CSS styles, HTML tags, and JavaScript."
+    },
+    {
+      "text": "You can configure the following types of notifications:"
+    },
+    {
+      "item": "Block Notification",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service displays a notification to users when a policy violation occurs based on their activity. This includes accessing blocked URL categories or security‑compromised URLs, or triggering web DLP violations, such as:",
+      "depth": 0
+    },
+    {
+      "item": "Blocked access to certain sites, files, or internet applications, or a site with a bad certificate (for example, the certificate issuer is unknown, the certificate has expired, or the Common Name in the certificate does not match).",
+      "depth": 1
+    },
+    {
+      "item": "Attempts to upload or download an infected file attachment, where access to the file is blocked.",
+      "depth": 1
+    },
+    {
+      "item": "Exceeding the daily quota for how much time they can browse social networking sites, as set by an admin, after which further access to those sites is blocked.",
+      "depth": 1
+    },
+    {
+      "item": "Attempts to access malicious domains that are blocked via the Advanced Threat Protection policy.",
+      "depth": 1
+    },
+    {
+      "item": "Depending on the protocol (HTTP or HTTPS) and the proxy mode (Transparent or Explicit) used, the service displays either a block notification or an error message, as explained in the following table:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Protocol",
+          "Proxy Mode",
+          "Block Notification Shown?"
+        ],
+        [
+          "HTTP",
+          "Transparent",
+          "Always shown"
+        ],
+        [
+          "HTTP",
+          "Explicit",
+          "Always shown"
+        ],
+        [
+          "HTTPS",
+          "Transparent",
+          "Block notification is shown if SSL/TLS Inspection is enabled, otherwise a 403 error is displayed."
+        ],
+        [
+          "HTTPS",
+          "Explicit",
+          "Block notification is shown if SSL/TLS Inspection is enabled, otherwise a Connection Refused error is displayed."
+        ]
+      ]
+    },
+    {
+      "item": "In the case of malicious HTTPS access without SSL/TLS Inspection, an HTTP error message might not always be served as the connection might sometimes be terminated before the TLS handshake.",
+      "depth": 1
+    },
+    {
+      "item": "For block notifications to be displayed, the client and the server must follow proper protocols. Malicious clients often do not follow proper protocols and an error message is displayed in such cases.",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler service provides a default notification which you can customize, or you can redirect users to an external site that hosts the notification page.",
+      "depth": 0
+    },
+    {
+      "item": "Acceptable Use Policy (AUP)",
+      "depth": 0
+    },
+    {
+      "item": "You can create an AUP notification and require users to accept it before they can browse the internet.",
+      "depth": 0
+    },
+    {
+      "item": "To display the AUP notification, users must be authenticated. However, for locations or sublocations that do not have authentication enforced, you can still enable AUP and configure the notification frequency (in days) using the corresponding settings on the Location or the Sublocation page. To learn more, see Configuring Locations and Configuring Sublocations.",
+      "depth": 0
+    },
+    {
+      "item": "When a user accepts the AUP, the service automatically logs the acceptance with the user's login name and location. AUP acceptance logging cannot be turned off.",
+      "depth": 0
+    },
+    {
+      "item": "Caution Notification",
+      "depth": 0
+    },
+    {
+      "item": "You can configure URL Filtering rules for specific URL categories to caution users about accessing sites that might conflict with your corporate internet usage policy. The caution notification includes an option to allow users to continue accessing the site by acknowledging that visiting the site might violate your corporate internet usage policy.",
+      "depth": 0
+    },
+    {
+      "item": "The caution notification has a default template, which you can customize per your requirements. You can also configure additional notification settings, such as the time interval at which the caution notification must be displayed for a user who accesses a restricted site, whether the caution notification must be displayed when a user accesses a URL in the Miscellaneous or Unknown URL category, IT Support information, etc.",
+      "depth": 0
+    },
+    {
+      "item": "The protocol requirements to show the caution notification are explained in the following table.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Protocol",
+          "Caution Notification Shown?"
+        ],
+        [
+          "HTTP",
+          "Always shown"
+        ],
+        [
+          "HTTPS",
+          "Caution notification is shown if SSL/TLS Inspection is enabled, otherwise it is not shown."
+        ]
+      ]
+    },
+    {
+      "item": "Quarantine Notification",
+      "depth": 0
+    },
+    {
+      "item": "When a Sandbox rule is triggered to quarantine (First-Time Action set to Quarantine) unknown files that users attempt to download, the Zscaler service displays a notification to inform the user about the policy action taken. This end user notification (EUN) has a default template that you can view and customize per your requirements.",
+      "depth": 0
+    },
+    {
+      "item": "Sandbox analysis might take a few minutes, depending on the size and type of the file being analyzed. If the file is determined to be safe after the analysis, the download begins automatically. If the file is determined to be unsafe, the file download is blocked. To learn more, see Configuring the Sandbox Policy.",
+      "depth": 0
+    },
+    {
+      "text": "The following sections outline the steps to configure these notifications:"
+    },
+    {
+      "item": "From the navigation menu, go to Administration > End User Notification > End User Notifications > Global EUN Configuration.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          70
+        ],
+        [
+          73,
+          95
+        ],
+        [
+          98,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The Edit drawer appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit drawer, you can configure the following:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Under Configure Notifications, choose the Notification Type:",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          42,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Default",
+      "depth": 2
+    },
+    {
+      "item": "Choose Default to display the system-generated message with limited customization options:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Display Reason: Enable this option to show end users why access to a site, file, or application was restricted in notifications.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Display Company Name: Enable this option to show your organization's name in notifications.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Display Company Logo: Enable this option to show your organization's logo in notifications. You can upload your company logo on the Organization page.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Notification Message: Enter a message to display when the Zscaler service blocks access based on the organization's policies. This message is displayed for the following block notifications: URL Categorization, Security Violation, and Web DLP Violation.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "You can customize the appearance of this notification message using CSS styles. For example, you can add a CSS style to change a row's text color to blue, and it applies to all block notifications. You cannot change the other text in block notifications because it is generated dynamically when users are blocked for policy violations. However, you can customize the appearance of this text or hide it using CSS.",
+      "depth": 3
+    },
+    {
+      "item": "Custom",
+      "depth": 2
+    },
+    {
+      "item": "The custom notification type is not applicable to AUP and Quarantine notifications.",
+      "depth": 2
+    },
+    {
+      "item": "Choose Custom to redirect to an external site. The following option appears:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URL: Enter the redirected URL that hosts the notification. When the user's browser is redirected, the URL includes query parameters, which administrators can use to customize the page that is served or for logging purposes. During the redirection, all query parameters are sent to the external site. For Web DLP Violation policy requests, the query parameters enable the administrator to find the Web Post DLP transaction. These query parameters are:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "action: Specifies the action that triggered the redirect. The action can be block or caution.",
+      "depth": 3
+    },
+    {
+      "item": "cat: Specifies the URL category of the URL, if available.",
+      "depth": 3
+    },
+    {
+      "item": "kind: Specifies the policy that triggered the URL redirection.",
+      "depth": 3
+    },
+    {
+      "item": "See a table of possible kind values and their mapping to policies",
+      "depth": 4
+    },
+    {
+      "item": "reason: Specifies the string that contains additional information about the URL.",
+      "depth": 3
+    },
+    {
+      "item": "See a table of possible block notifications",
+      "depth": 4
+    },
+    {
+      "item": "reasoncode: Specifies the reason that this notification or redirect triggered.",
+      "depth": 3
+    },
+    {
+      "item": "referer: Specifies the referer URL in URL-encoded format.",
+      "depth": 3
+    },
+    {
+      "item": "rule: Specifies the internal rule-id that triggered the block, if available.",
+      "depth": 3
+    },
+    {
+      "item": "timebound: Specifies whether this notification or redirect is triggered by a policy that includes time interval as a criterion.",
+      "depth": 3
+    },
+    {
+      "item": "url: Specifies the original URL that caused this redirect or notification.",
+      "depth": 3
+    },
+    {
+      "item": "user: Specifies the user-id (the login name) of the user, if available.",
+      "depth": 3
+    },
+    {
+      "item": "locid: Specifies the internal name of the location configured in the Zscaler Admin Console from which the traffic is originating.",
+      "depth": 3
+    },
+    {
+      "item": "lang: Specifies the language in which the site is displayed.",
+      "depth": 3
+    },
+    {
+      "item": "zsq: Specifies the parameter used by the Zscaler service.",
+      "depth": 3
+    },
+    {
+      "item": "The following is an example of the redirect URL:",
+      "depth": 2
+    },
+    {
+      "item": "https://redirectpage.com/?url=https://www.gambling.com/&referer=&reason=Not+allowed+to+browse+Gambling+category&reasoncode=CATEGORY_DENIED&timebound=1&action=deny&kind=category&rule=322760&cat=Gambling&user=user@domain.tld&locid=00000000&lang=fr_FR&zsq=JDspV0Ft81ZLq0j55Z0FsFsL6n0VSDV0F86pDD6zsq",
+      "depth": 2
+    },
+    {
+      "item": "To create a custom AUP or EUN for specific websites:",
+      "depth": 2
+    },
+    {
+      "item": "Customize the following sample code:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "<?php $url = $_GET['<url>']; $referer = $_GET['<referer>']; $reason = $_GET['<reason>']; $reason_code = $_GET['<reasoncode>']; $timebound = $_GET['<timebound>']; $action = $_GET['<action>']; $kind = $_GET['<kind>']; $rule = $_GET['<rule>']; $cat = $_GET['<cat>']; $user = $_GET['<user>']; $lang = $_GET['<lang>']; $zsq = explode(\"<zsq>\", $_GET['<zsq>']); ?>",
+      "depth": 3
+    },
+    {
+      "item": "For example:",
+      "depth": 3
+    },
+    {
+      "item": "<?php $url = $_GET['https://www.gambling.com']; $referer = $_GET['']; $reason = $_GET['Not+allowed+to+browse+Gambling+category']; $reason_code = $_GET['CATEGORY_DENIED']; $timebound = $_GET['1']; $action = $_GET['deny']; $kind = $_GET['category']; $rule = $_GET['322760']; $cat = $_GET['Gambling']; $user = $_GET['user@domain.tld']; $lang = $_GET['fr_FR']; $zsq = explode(\"JDspV0Ft81ZLq0j55Z0FsFsL6n0VSDV0F86pDD6zsq\", $_GET['JDspV0Ft81ZLq0j55Z0FsFsL6n0VSDV0F86pDD6zsq']); ?>",
+      "depth": 3
+    },
+    {
+      "item": "Customize the form action URL to that of the appropriate cloud.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Upload the file to a web server.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Configure your policy with a custom category containing the website or categories in question, and set the action to Block with a Redirect URL set to the page you uploaded.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          117,
+          122
+        ],
+        [
+          130,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "If users try to access a website that is set to block and use a custom URL, the service redirects the users to your hosted custom block notification.",
+      "depth": 2
+    },
+    {
+      "table": [
+        [
+          "Kind",
+          "Policy"
+        ],
+        [
+          "access",
+          "Malware Protection Policy (Security Exceptions)"
+        ],
+        [
+          "antivirus",
+          "Malware Protection Policy"
+        ],
+        [
+          "bandwidth_control",
+          "Bandwidth Control Policy"
+        ],
+        [
+          "blocked_ftp_access",
+          "FTP Control Policy"
+        ],
+        [
+          "category",
+          "URL Filtering Policy"
+        ],
+        [
+          "data_leakage",
+          "DLP Policy"
+        ],
+        [
+          "file_type",
+          "File Type Policy"
+        ],
+        [
+          "p2p",
+          "Advanced Threat Protection Policy"
+        ],
+        [
+          "social_networking",
+          "Cloud App Control Policy (Social Networking & Blogging)"
+        ],
+        [
+          "social_networking_upload",
+          "Cloud App Control Policy (Social Networking & Blogging > Posting)"
+        ],
+        [
+          "streamed_media",
+          "Cloud App Control Policy (Streaming Media & File Sharing)"
+        ],
+        [
+          "streamed_media_upload",
+          "Cloud App Control Policy (Streaming Media & File Sharing > Uploading)"
+        ],
+        [
+          "wac",
+          "Browser Control"
+        ],
+        [
+          "webim",
+          "Cloud App Control Policy (Instant Messaging)"
+        ],
+        [
+          "webim_attachment",
+          "Cloud App Control Policy (Instant Messaging > File Transfers)"
+        ],
+        [
+          "webmail",
+          "Cloud App Control Policy (Webmail >Viewing Mail)"
+        ],
+        [
+          "webmail_attachment",
+          "Cloud App Control Policy (Webmail > Sending Attachments)"
+        ],
+        [
+          "webmail_data_leakage",
+          "DLP Policy"
+        ],
+        [
+          "webmail_quota",
+          "Cloud App Control Policy (Webmail > Time Quota)"
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Block Notifications"
+        ],
+        [
+          "Denied access"
+        ],
+        [
+          "Not allowed to browse this category"
+        ],
+        [
+          "Time quota exceeded daily limit"
+        ],
+        [
+          "Volume quota exceeded daily limit"
+        ],
+        [
+          "Not allowed during this time of day"
+        ],
+        [
+          "Not allowed to upload/download files of size greater than configured limit"
+        ],
+        [
+          "Not allowed to upload/download files of this type"
+        ],
+        [
+          "Not allowed to use this browser"
+        ],
+        [
+          "Not allowed to upload/download encrypted or password-protected archive files"
+        ],
+        [
+          "Not allowed to upload/download unscannable file formats"
+        ],
+        [
+          "Not allowed because URL is on the denylist"
+        ],
+        [
+          "Not allowed because URL is uncategorized"
+        ],
+        [
+          "Not allowed the use of this Social Network / Blogging site"
+        ],
+        [
+          "Not allowed to post message to this site"
+        ],
+        [
+          "Not allowed to use this Streaming Media/File Share site"
+        ],
+        [
+          "Not allowed to upload media files to this site"
+        ],
+        [
+          "Not allowed to upload/download media files of this type"
+        ],
+        [
+          "Not allowed to use this Webmail site"
+        ],
+        [
+          "File Attachment not allowed"
+        ],
+        [
+          "Time bound block"
+        ],
+        [
+          "Malicious file Blocked"
+        ],
+        [
+          "Violates Compliance Category"
+        ],
+        [
+          "Not allowed to browse this Malicious URL"
+        ],
+        [
+          "Not allowed to browse this Phishing site"
+        ],
+        [
+          "Not allowed to browse this Botnet site"
+        ],
+        [
+          "Maximum sessions reached for this Bandwidth class"
+        ],
+        [
+          "Not allowed because this page contains known dangerous ActiveX controls"
+        ],
+        [
+          "Block site vulnerable to XSS attacks"
+        ],
+        [
+          "Possible browser cookie theft"
+        ],
+        [
+          "IRC use/tunneling not allowed (request)"
+        ],
+        [
+          "Use of anonymizing sites is not allowed (request)"
+        ],
+        [
+          "Detected possible botnet command and control traffic"
+        ],
+        [
+          "Secure Browsing blocked an outdated/disallowed component"
+        ],
+        [
+          "Secure Browsing warned about an outdated/disallowed component"
+        ],
+        [
+          "Not allowed to browse this P2P site"
+        ],
+        [
+          "Not allowed to access sites in country"
+        ],
+        [
+          "This page is unsafe (high PageRisk Index)"
+        ],
+        [
+          "Not allowed because this page contains known browser exploits (response)"
+        ],
+        [
+          "Not allowed to access this file type"
+        ],
+        [
+          "Not allowed to access to FTP sites"
+        ],
+        [
+          "Rate limiting done"
+        ],
+        [
+          "Denied due to closed proxy"
+        ],
+        [
+          "Not allowed to browse with unknown useragent"
+        ],
+        [
+          "Not allowed to use this IM site"
+        ],
+        [
+          "IRC use/tunneling not allowed (response)"
+        ],
+        [
+          "Use of anonymizing sites is not allowed (response)"
+        ],
+        [
+          "Detected possible botnet command and control traffic"
+        ],
+        [
+          "Destination contains potentially malicious content (response)"
+        ],
+        [
+          "Destination contains potential phishing content"
+        ],
+        [
+          "Detected possible adware/spyware traffic (request)"
+        ],
+        [
+          "Detected possible adware/spyware traffic (response)"
+        ],
+        [
+          "Not allowed to browse this webspam site"
+        ],
+        [
+          "Detected possible webspam traffic"
+        ],
+        [
+          "Request method not allowed for this category"
+        ],
+        [
+          "Not allowed to browse this category, needs override"
+        ],
+        [
+          "Violates Compliance Category, archived to mailbox"
+        ],
+        [
+          "Violates Compliance Category, archive to mailbox failed"
+        ],
+        [
+          "Not allowed to send webmail"
+        ],
+        [
+          "Not allowed to use mobile App"
+        ],
+        [
+          "Not allowed because this page contains known browser exploits (request)"
+        ],
+        [
+          "Not allowed the use of this business site"
+        ],
+        [
+          "Not allowed the use of this enterprise site"
+        ],
+        [
+          "Not allowed the use of this Mobile App Store"
+        ],
+        [
+          "Mobile App: insecure user credentials"
+        ],
+        [
+          "Mobile App: location information leak"
+        ],
+        [
+          "Mobile App: personally identifiable information (PII)"
+        ],
+        [
+          "Mobile App: information identifying the device"
+        ],
+        [
+          "Mobile App: communication with ad sites"
+        ],
+        [
+          "Mobile App: communication with unknown servers"
+        ],
+        [
+          "Mobile App: malicious behavior"
+        ],
+        [
+          "Mobile App: known security vulnerabilities"
+        ],
+        [
+          "Not allowed the use of this consumer site"
+        ],
+        [
+          "Not allowed the use of this system and development site"
+        ],
+        [
+          "Not allowed the use of this sales and marketing site"
+        ],
+        [
+          "Web application is blocked by Firewall rule"
+        ],
+        [
+          "FTP access is blocked by a firewall policy"
+        ],
+        [
+          "Not allowed to use HTTP tunnel"
+        ],
+        [
+          "Quarantined"
+        ],
+        [
+          "Not allowed to use tunnels"
+        ],
+        [
+          "Access denied due to bad server certificate"
+        ],
+        [
+          "Fake Proxy Authentication"
+        ],
+        [
+          "Not allowed the use of this site with personal credentials"
+        ]
+      ]
+    },
+    {
+      "item": "Configure the settings for required notifications:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Acceptable Use Policy (AUP)",
+      "depth": 2
+    },
+    {
+      "item": "Show AUP: Choose how often the AUP page is displayed for users. You can select one of the predefined intervals, or select Custom from the drop-down menu and manually enter the notification frequency in days.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          122,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "The AUP acceptance time and expiration are tracked for each user. The Zscaler service sets an AUP cookie when a user accepts the AUP. For example, if you select Weekly, the AUP page is displayed one week from when the AUP cookie was set. If the AUP cookie is not present, the AUP page is displayed the next time the user logs in.",
+      "depth": 3,
+      "strong": [
+        [
+          161,
+          167
+        ]
+      ]
+    },
+    {
+      "item": "AUP Message (HTML): Enter the Acceptable Use statement. You can use HTML and CSS styles to customize the AUP notification message and its appearance. You can also add image files that are hosted on the internet.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "URL Categorization Notifications",
+      "depth": 2
+    },
+    {
+      "item": "URL Categorization notifications are displayed when users are blocked from accessing URLs that might have been misclassified.",
+      "depth": 2
+    },
+    {
+      "item": "URL Categorization: Enable this option to add a custom message for the URL Categorization notification. If this option is disabled, the notification uses the default appearance or reflects changes configured under Default Notification Type > Notification Message.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          214,
+          221
+        ],
+        [
+          242,
+          262
+        ]
+      ]
+    },
+    {
+      "item": "Submit To: Users can request a review when they are blocked from accessing URLs that might have been misclassified. Choose whether users send their requests to the Zscaler service (Security Cloud) or to a site that you specify (Custom Location).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          181,
+          195
+        ],
+        [
+          228,
+          243
+        ]
+      ]
+    },
+    {
+      "item": "If you choose Custom Location, the following option appears:",
+      "depth": 3,
+      "strong": [
+        [
+          14,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "URL: Enter the URL of the site to which review requests are sent.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Notification Text: Customize the message that appears in the URL Categorization notification. You can customize the appearance of this notification with CSS styles.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Any text you enter in the Notification Message field also appears in this notification. If CSS styles modify the same properties in both Notification Text and Notification Message, the CSS styles in Notification Text take precedence.",
+      "depth": 3,
+      "strong": [
+        [
+          26,
+          46
+        ],
+        [
+          137,
+          154
+        ],
+        [
+          159,
+          179
+        ],
+        [
+          199,
+          216
+        ]
+      ]
+    },
+    {
+      "item": "Security Violation Notifications",
+      "depth": 2
+    },
+    {
+      "item": "Security Violation notifications are displayed when users are blocked from accessing URLs that were identified as being infected with malware.",
+      "depth": 2
+    },
+    {
+      "item": "Security Violation: Enable this option to add a custom message for the Security Violation notification. If this option is disabled, the notification uses the default appearance or reflects changes configured under Default Notification Type > Notification Message.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          214,
+          221
+        ],
+        [
+          242,
+          262
+        ]
+      ]
+    },
+    {
+      "item": "Submit To: Users can submit a review request when they are blocked from accessing URLs that were mistakenly classified as malware-infected. Choose whether users send their requests to the Zscaler service (Security Cloud) or to a site that you specify (Custom Location).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          205,
+          219
+        ],
+        [
+          252,
+          267
+        ]
+      ]
+    },
+    {
+      "item": "If you choose Custom Location, the following option appears:",
+      "depth": 3,
+      "strong": [
+        [
+          14,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "URL: Enter the URL of the site to which review requests are sent.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Notification Text: Customize the message that appears in the Security Violation notification. You can customize the appearance of this notification with CSS styles.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Any text you enter in the Notification Message field also appears in this notification. If CSS styles modify the same properties in both Notification Text and Notification Message, the CSS styles in Notification Text take precedence.",
+      "depth": 3,
+      "strong": [
+        [
+          26,
+          46
+        ],
+        [
+          137,
+          154
+        ],
+        [
+          159,
+          179
+        ],
+        [
+          199,
+          216
+        ]
+      ]
+    },
+    {
+      "item": "Web DLP Violation Notifications",
+      "depth": 2
+    },
+    {
+      "item": "This notification is displayed when users are blocked from posting to certain sites due to a Web DLP policy violation.",
+      "depth": 2
+    },
+    {
+      "item": "Web DLP Violation: Enable this option to add a custom message for the Web DLP violation notification. If this option is disabled, the notification uses the default appearance or reflects changes configured under Default Notification Type > Notification Message.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          212,
+          219
+        ],
+        [
+          240,
+          260
+        ]
+      ]
+    },
+    {
+      "item": "Submit To: Users can submit a review request when they are blocked from accessing or posting to certain sites because a Web DLP policy violation was incorrectly triggered. Choose whether users send their requests to the Zscaler service (Security Cloud) or to a site that you specify (Custom Location).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          237,
+          251
+        ],
+        [
+          284,
+          299
+        ]
+      ]
+    },
+    {
+      "item": "If you choose Custom Location, the following option appears:",
+      "depth": 3,
+      "strong": [
+        [
+          14,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "URL: Enter the URL of the site to which review requests are sent.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Notification Text: Customize the message that appears in the Web DLP violation notification. You can customize the appearance of this notification with CSS styles.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Any text you enter in the Notification Message field also appears in this notification. If CSS styles modify the same properties in both Notification Text and Notification Message, the CSS styles in Notification Text take precedence.",
+      "depth": 3,
+      "strong": [
+        [
+          26,
+          46
+        ],
+        [
+          137,
+          154
+        ],
+        [
+          159,
+          179
+        ],
+        [
+          199,
+          216
+        ]
+      ]
+    },
+    {
+      "item": "Caution Notification",
+      "depth": 2
+    },
+    {
+      "item": "Caution Interval: Choose how often the caution notification is displayed when a user browses a restricted site. For example, if you choose 5 minutes, a caution notification is displayed every 5 minutes while the user is browsing a restricted site. For complex websites, such as social networking sites, a minimum interval of 5 minutes is recommended.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "If a URL filtering rule is configured with the Caution action for multiple URL categories, the configured caution interval is applied across all those categories. For example, if a URL Filtering rule is configured with the Caution action for the Travel and Online Shopping categories and the caution interval is set to 15 minutes, the caution notification is displayed when a user first accesses a URL in either category. The notification is not shown again for other URLs in either category until 15 minutes have elapsed.",
+      "depth": 3
+    },
+    {
+      "item": "If Enforce Authentication is disabled for a location or sublocation, you must select Enable Caution for that location and set the caution interval to be greater than one minute to display caution notifications to unauthenticated users. To learn more, see Configuring Locations.",
+      "depth": 3,
+      "strong": [
+        [
+          3,
+          25
+        ],
+        [
+          85,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "Enable Caution Per Domain: For URLs in the Miscellaneous or Unknown category, select this option to display the caution notification at the configured interval per URL or subdomain when a user browses URLs (or their subdomains) in these categories.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "For example, when a user visits a URL in the Miscellaneous or Unknown category, a caution notification is displayed. If the user visits the same URL or a subdomain of that URL again within the configured caution interval (for example, 5 minutes), the caution notification is not displayed until the 5‑minute interval has elapsed. However, if the user visits another URL or a subdomain in the Miscellaneous or Unknown category for the first time, a caution notification is displayed.",
+      "depth": 3
+    },
+    {
+      "item": "This feature can be used with AI/ML-based content categorization enabled in advanced URL policy settings.",
+      "depth": 3
+    },
+    {
+      "item": "Caution Text: Customize the text that appears in the caution notification. You can use HTML, CSS styles, and JavaScript to customize the text.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In addition to the notification text configured here, the caution notification includes text that is auto-generated when users visit sites that might violate your organization’s usage policies. You cannot modify this auto-generated text, but you can customize its appearance or hide it using CSS styles.",
+      "depth": 3
+    },
+    {
+      "item": "Quarantine Notifications",
+      "depth": 2
+    },
+    {
+      "item": "Notification Text: Customize the notification message that appears in the quarantine notification. You can use HTML, CSS styles, and JavaScript to customize the text. The default message includes information about the wait time for Sandbox file analysis, and it is recommended to preserve this detail in the notification or add a similar note.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In addition to the notification text configured here, the quarantine notification includes texts that are auto-generated when users visit sites that might violate your organization's usage policies. You cannot modify this auto-generated text, but you can customize its appearance or hide it using CSS styles.",
+      "depth": 2
+    },
+    {
+      "item": "IdP Proxy Notification",
+      "depth": 2
+    },
+    {
+      "item": "This notification is displayed when users are blocked from posting to certain cloud applications due to IdP proxy settings violation.",
+      "depth": 2
+    },
+    {
+      "item": "Notification Text: Customize the message that appears in this notification.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Any text you enter under Default Notification Type > Notification Message also appears in this notification. If CSS styles modify the same properties in both Notification Text and Notification Message, the CSS styles in Notification Text take precedence.",
+      "depth": 2,
+      "strong": [
+        [
+          25,
+          32
+        ],
+        [
+          53,
+          73
+        ],
+        [
+          158,
+          175
+        ],
+        [
+          180,
+          200
+        ],
+        [
+          220,
+          237
+        ]
+      ]
+    },
+    {
+      "item": "Under IT Support:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Email: Enter an email address where users can contact you regarding company policy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Phone: Enter a phone number where users can contact you regarding company policy. Examples of valid format include: 123-456-7890, +91-1234567890, 1234567890, and +911234567890.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Policy Link: Enter the URL of your company policy page that describes the usage terms for corporate network and internet resources.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Under Preview Templates, you can view the complete layout of your configured notifications. You can navigate between notification previews for different policy actions by clicking the respective tabs.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "CSS style and JavaScript are not rendered in the notification previews.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

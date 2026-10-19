@@ -202,6 +202,16 @@ ID**, not arrays, so JSON Patch paths stay stable for CI-authored patches.
 - **Tool claims are about the client, not the product.** SDK and provider code proves what the
   client sends and how it reacts. A consequence that depends on the server's reply is a gap, or a
   conditional Tier B claim, never a Tier A fact.
+- **What Tier A evidence must cover** (decided 2026-10-19 from the claim-audit calibration, where a
+  strictly literal reading failed about two thirds of verified claims, mostly on locators). Every
+  *material* part of the statement is stated by a quote, or follows directly from quoted code or a
+  pointer's members: values, versions and ranges, defaults, value lists, platform, OS, product and
+  client scope, quantifiers (only, never, always, every), comparisons with another source, absences,
+  causes and consequences, and behavior. *Locators* may come from where the evidence sits instead:
+  the page section or platform heading above a help quote, the enclosing function (`after`), the
+  file path, the pointer path, and framing words that add no fact. A material part with no quote
+  makes the claim an overreach: quote it, narrow the statement, or move the part to Tier B
+  (`derived_from` and `conditions`) or a gap.
 
 ### Prose
 

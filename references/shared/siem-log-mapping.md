@@ -259,7 +259,7 @@ Source: `vendor/zscaler-help/configuring-user-access-logging-controls-zscaler-cl
 ### ZCC client diagnostic logs
 
 - **Carries**: Client tunnel state, posture, ZCC version, network change events
-- **Schema**: [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
+- **Schema**: [`zcc.logs.client-log`](kb:zcc.logs.client-log)
 - **Catalog placeholder**: n/a — ZCC logs are local endpoint files, not SIEM-streamable directly
 - **SIEM landing spots**: ZCC logs are not natively shipped to any SIEM. Cloud-side visibility into ZCC behavior comes via ZIA Web logs (`deviceowner` / `ztunnelversion` fields) and ZPA User Status logs (`Version` / `Platform` fields). See `splunk-queries.md` § `zcc-device-correlate` and § `zcc-tunnel-down-web-gap` for the pattern.
 
@@ -299,5 +299,5 @@ These are tracked as next deliverables after this catalog is validated.
 - [`agents/investigator/methodology.md`](../../agents/investigator/methodology.md) — discovery journal, claim status
 - ZIA log schemas — [`../zia/types/`](../zia/types/)
 - ZPA log schemas — [`zpa.log-receivers.log-types`](kb:zpa.log-receivers.log-types)
-- ZCC log schema — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
+- ZCC log schema — [`zcc.logs.client-log`](kb:zcc.logs.client-log)
 - ZDX API — [`../zdx/api.md`](../zdx/api.md)

@@ -40,7 +40,7 @@
     },
     {
       "label": "Settings hidden from drift.",
-      "text": "{{zpa-latency-overlay-masks-drift}} {{unified-tunnel-overlay-covers-every-attribute}} {{prior-state-overlays-elsewhere}} Whether the list and GET responses really omit the fields the provider restores from state is open {{gap:api-field-drop-claims}}."
+      "text": "{{zpa-latency-overlay-masks-drift}} {{unified-tunnel-overlay-covers-every-attribute}} {{prior-state-overlays-elsewhere}} A recorded forwarding-profile listing does return `evaluateTrustedNetwork` {{divergence:evaluate-trusted-network-echo}}. Whether the list and GET responses really omit the other fields the provider restores from state is open {{gap:api-field-drop-claims}}."
     },
     {
       "label": "Data sources.",
@@ -56,7 +56,7 @@
     },
     {
       "label": "Defects on the SDK side.",
-      "text": "{{intorstring-truncates-fractions}} {{trusted-network-create-sleeps-blindly}} {{emergency-access-create-clears-activate-now}} {{sdk-defects-reach}} {{v1-backend-serves-tenants-without-v2}} Legacy-client routing for the same package is in [[zcc.sdk-go.legacy-routing]]; ZIA's equivalent field-fidelity mechanisms are in [[zia.terraform.field-fidelity]]."
+      "text": "{{intorstring-truncates-fractions}} {{trusted-network-create-sleeps-blindly}} {{emergency-access-create-clears-activate-now}} {{sdk-defects-reach}} {{v1-backend-serves-tenants-without-v2}} Which probe failures select the v1 backend is [[zcc.terraform.trusted-network-backend:probe-unavailable-statuses]]. Legacy-client routing for the same package is in [[zcc.sdk-go.legacy-routing]]; ZIA's equivalent field-fidelity mechanisms are in [[zia.terraform.field-fidelity]]."
     },
     {
       "text": "Whether the ZCC v2 create and update responses carry every field is open {{gap:partial-create-update-response}}."
@@ -835,12 +835,22 @@
     "api-field-drop-claims": {
       "kind": "semantic",
       "title": "Whether the ZCC list and GET responses really omit the fields the provider restores from state",
-      "status": "open",
+      "status": "partial",
       "resolves_with": [
         "lab-test"
       ],
       "blocks": "saying which prior-state overlays hide real drift and which data-source values are wrong",
-      "detail": "The provider's comments say the forwarding-profile list does not echo `evaluateTrustedNetwork` and `isSameAsOnTrustedNetwork`, the web-privacy GET omits two fields, and the unified-tunnel GET resets `proxyAction` when both action types are 0. Capture the raw response for a profile and a web-privacy setting with those fields set, and for a unified tunnel with other proxy fields set."
+      "detail": "The provider's comments say the forwarding-profile list does not echo `evaluateTrustedNetwork` and `isSameAsOnTrustedNetwork`, the web-privacy GET omits two fields, and the unified-tunnel GET resets `proxyAction` when both action types are 0. Capture the raw response for a profile and a web-privacy setting with those fields set, and for a unified tunnel with other proxy fields set. Partly answered for one test tenant (Python SDK cassette, recorded with SDK 1.9.13): the forwarding-profile listing returns `evaluateTrustedNetwork` (divergence evaluate-trusted-network-echo), and `isSameAsOnTrustedNetwork` does not appear anywhere in the recording. The web-privacy and unified-tunnel claims remain unchecked.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+          "after": "webForwardingProfile/listByCompany response:",
+          "quotes": [
+            "\\\"evaluateTrustedNetwork\\\" : 1,"
+          ]
+        }
+      ]
     },
     "success-false-response": {
       "kind": "semantic",
@@ -861,6 +871,36 @@
       ],
       "blocks": "saying whether trusted network, ZIA posture and notification template state can be short of fields until the next refresh",
       "detail": "The trusted-network resource builds state from the POST or PUT response without a follow-up read (create and update call `flattenTrustedNetwork` on the returned object). Compare the response body with a GET of the same object after a write that sets every field. The ZIA posture and notification template resources were not read for this."
+    }
+  },
+  "divergences": {
+    "evaluate-trusted-network-echo": {
+      "summary": "Whether the forwarding-profile list returns `evaluateTrustedNetwork`: the provider says it does not and restores the value from prior state, while a recorded listing returns it.",
+      "positions": [
+        {
+          "says": "The provider's forwarding-profile resource says the `listByCompany` GET response does not echo `evaluateTrustedNetwork`, so it keeps the plan or state value instead.",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "internal/framework/resources/forwarding_profile.go",
+            "quotes": [
+              "// The webForwardingProfile/listByCompany GET response does not echo"
+            ]
+          }
+        },
+        {
+          "says": "A recorded `listByCompany` response returns `evaluateTrustedNetwork` on every profile: 1 on profile SGIO-Tunnel2.0 and 0 on Default (one test tenant, recorded with SDK 1.9.13, Python SDK cassette).",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+            "after": "webForwardingProfile/listByCompany response:",
+            "quotes": [
+              "\\\"evaluateTrustedNetwork\\\" : 1,",
+              "\\\"evaluateTrustedNetwork\\\" : 0,"
+            ]
+          }
+        }
+      ],
+      "impact": "If the field is returned, as on the recorded tenant, the provider's overlay (prior-state-overlays-elsewhere) hides real drift on `evaluate_trusted_network`: a console change never shows in a plan, and the state keeps the configured value. One recording does not show whether every tenant or API version returns it."
     }
   }
 }

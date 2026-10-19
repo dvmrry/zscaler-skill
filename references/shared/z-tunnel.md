@@ -22,7 +22,7 @@ author-status: draft
 
 This is the shared reference covering Z-Tunnel protocol architecture, the migration path from 1.0 to 2.0, Business Continuity cloud constraints, bypass configuration for Z-Tunnel 2.0, and the relationship to ZCC forwarding profiles.
 
-The ZCC-specific depth on forwarding profile configuration and SDK fields is in [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md). This document covers the protocol and operational reference that applies across contexts — including for engineers deciding whether to migrate, and for those diagnosing why 2.0 is silently falling back to 1.0.
+The ZCC-specific depth on forwarding profile configuration and SDK fields is in [`zcc.z-tunnel`](kb:zcc.z-tunnel). This document covers the protocol and operational reference that applies across contexts — including for engineers deciding whether to migrate, and for those diagnosing why 2.0 is silently falling back to 1.0.
 
 ## Z-Tunnel 1.0 vs 2.0 — technical differences
 
@@ -180,7 +180,7 @@ Required forwarding profile settings to enable Z-Tunnel 2.0 (Tier A — vendor/z
 - `On-Trusted Network`: Tunnel
 - `Tunnel version selection`: Z-Tunnel 2.0
 
-For SDK field mapping, forwarding profile model details, and the `primary_transport` / `tunnel2_fallback` API fields, see [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md).
+For SDK field mapping, forwarding profile model details, and the `primary_transport` / `tunnel2_fallback` API fields, see [`zcc.z-tunnel`](kb:zcc.z-tunnel).
 
 ## Common failure modes
 
@@ -200,12 +200,12 @@ PAC-based network bypasses from a Z-Tunnel 1.0 profile have **no effect** on Z-T
 
 ### Mobile push notification failures
 
-ZCC on iOS and Android must exclude APNs and FCM endpoints from Z-Tunnel 2.0 tunneling to allow push-notification delivery. See [`../zcc/z-tunnel.md § Mobile push notifications`](../zcc/z-tunnel.md) for the specific bypass entries.
+ZCC on iOS and Android must exclude APNs and FCM endpoints from Z-Tunnel 2.0 tunneling to allow push-notification delivery. See [`zcc.z-tunnel`](kb:zcc.z-tunnel) for the specific bypass entries.
 
 ## Cross-links
 
 - GRE tunnels and Z-Tunnel 2.0 coexistence — [`./gre-tunnels.md`](./gre-tunnels.md)
-- ZCC forwarding profile configuration and SDK fields — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
-- Forwarding profile structure (where tunnel version selection lives) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- ZCC forwarding profile configuration and SDK fields — [`zcc.z-tunnel`](kb:zcc.z-tunnel)
+- Forwarding profile structure (where tunnel version selection lives) — [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
 - Traffic forwarding method decision tree — [`zia.traffic-forwarding`](kb:zia.traffic-forwarding)
-- Trusted networks (triggers On-Trusted vs Off-Trusted action branches) — [`../zcc/trusted-networks.md`](../zcc/trusted-networks.md)
+- Trusted networks (triggers On-Trusted vs Off-Trusted action branches) — [`zcc.trusted-networks`](kb:zcc.trusted-networks)

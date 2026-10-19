@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.macos-extensions",
+  "title": "macOS system extensions, VPN payloads and privacy profiles for Client Connector",
+  "aliases": [
+    "zcc system extension",
+    "TRPTunnel",
+    "com.zscaler.zscaler.TRPTunnel",
+    "com.zscaler.zscaler.pktfilter",
+    "PCBCQZJ7S7",
+    "zscaler team id",
+    "transparent proxy-based interception",
+    "route-based interception",
+    "zcc pppc full disk access",
+    "managed login items zcc",
+    "process-based application bypass macos"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.install.macos-deployment"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-tunnels.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Beyond the package and its install parameters, depending on the interception mode and features, the guides add configuration profiles that approve Client Connector's network extensions and grant its privacy permissions."
+    },
+    {
+      "label": "Two interception modes.",
+      "text": "{{interception-modes}} {{trp-support}}"
+    },
+    {
+      "label": "Profiles for Transparent Proxy-based Interception.",
+      "text": "{{trp-profile}} {{trp-console-steps}} {{stun-bypass}} A machine tunnel in this mode has its own firewall and FileVault prerequisites: [[zpa.machine-tunnels.requirements:transparent-proxy-prereqs]]."
+    },
+    {
+      "label": "Private Access VPN for legacy apps.",
+      "text": "{{legacy-apps-vpn}}"
+    },
+    {
+      "label": "Full Disk Access.",
+      "text": "{{fda-dlp}} The two vendor guides disagree on one code requirement {{divergence:dlp-agent-code-requirement}}. Whether any other feature needs Full Disk Access is open {{gap:full-disk-access-scope}}."
+    },
+    {
+      "label": "Keeping it running.",
+      "text": "{{managed-login-items}}"
+    },
+    {
+      "label": "Process-based bypass.",
+      "text": "{{process-bypass}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "What happens when the extension is not pre-approved is open {{gap:unapproved-extension}}, and so is profile timing {{gap:profile-timing}}. Whether Client Connector registers a content filter is open {{gap:content-filter}}. The Team ID and bundle identifiers are no longer open {{gap:team-and-bundle-ids}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which interception mode the macOS app profile enables, and whether the device's macOS and Client Connector versions support it.",
+      "uses": [
+        "interception-modes",
+        "trp-support"
+      ]
+    },
+    {
+      "do": "Whether the system extension profile names Team ID PCBCQZJ7S7 and com.zscaler.zscaler.TRPTunnel, and whether the VPN payload uses App-proxy with the same provider bundle identifier.",
+      "uses": [
+        "trp-profile"
+      ]
+    },
+    {
+      "do": "For Endpoint DLP on macOS, whether a Full Disk Access profile covers all three com.zscaler.zdp identifiers.",
+      "uses": [
+        "fda-dlp",
+        "dlp-agent-code-requirement"
+      ]
+    }
+  ],
+  "claims": {
+    "interception-modes": {
+      "statement": "Client Connector on macOS intercepts traffic locally either by Route-based Interception or by Transparent Proxy-based Interception. The latter uses the macOS Transparent Network Proxy Extension, through the TRPTunnel network extension (`com.zscaler.zscaler.TRPTunnel`), and the vendor lists as benefits no reliance on routing tables, better performance, Z-Tunnel 2.0 compatibility with third-party VPN clients, and no inbound firewall rules unless machine tunnels are used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "Zscaler Client Connector can intercept traffic locally using either Route-based Interception or Transparent Proxy-based Interception.",
+            "The TRPTunnel Network Extension (com.zscaler.zscaler.TRPTunnel) is used for traffic interception and application bypass and has the following benefits:",
+            "Zscaler Tunnel (Z-Tunnel) 2.0 compatibility with third-party VPN clients",
+            "Removes the need for inbound firewall rules if not using machine tunnels"
+          ]
+        }
+      ]
+    },
+    "trp-support": {
+      "statement": "Transparent Proxy-based Interception is supported from Client Connector 4.5.2 on macOS Tahoe 26.2 and later, with exceptions: Private Access VPN for legacy apps needs 4.8, the Client Connector firewall 4.7, the Private Access machine tunnel 4.5.2.372, 4.7.0.380, 4.8.0.281 or 4.10.0.36 and later, and ICMP interception for domain-name-based Private Access apps 4.5.2.355, 4.7.0.351 or 4.8.0.252 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "Transparent Proxy-based Interception is supported on Zscaler Client Connector version 4.5.2 and later for macOS Tahoe 26.2 and later with the following exceptions:",
+            "| Private Access VPN (for Legacy Apps) | Supported on Zscaler Client Connector version 4.8 and later |",
+            "| Zscaler Client Connector Firewall | Supported on Zscaler Client Connector version 4.7 and later |",
+            "| Private Access Machine Tunnel | Supported on Zscaler Client Connector version 4.5.2.372 and later, 4.7.0.380 and later, 4.8.0.281 and later, and 4.10.0.36 and later |",
+            "| ICMP Interception | Supported with domain-name-based Private Access apps on Zscaler Client Connector version 4.5.2.355 and later, 4.7.0.351 and later, and 4.8.0.252 and later |"
+          ]
+        }
+      ]
+    },
+    "trp-profile": {
+      "statement": "The Transparent Proxy-based configuration profile has a System Extensions payload with Team Identifier `PCBCQZJ7S7` and the extension `com.zscaler.zscaler.TRPTunnel`, as a non-removable system extension (macOS Sequoia 15 and later; Allowed on earlier releases), and a VPN payload of connection type Custom SSL with identifier `com.zscaler.zscaler`, provider bundle identifier `com.zscaler.zscaler.TRPTunnel`, provider type App-proxy, and users prohibited from disabling on-demand VPN. The vendor also offers it as a preconfigured mobileconfig file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "Team Identifier: Enter PCBCQZJ7S7.",
+            "Non-removable system extensions from UI: Click Add (+) and enter com.zscaler.zscaler.TRPTunnel.",
+            "The non-removable system extension functionality is supported only on macOS Sequoia (15) and later, so if you are deploying to an earlier version of macOS, select Allowed instead.",
+            "Provider Bundle Identifier: Enter com.zscaler.zscaler.TRPTunnel",
+            "Provider Type: Select App-proxy.",
+            "Select the checkbox for Prohibit users from disabling on-demand VPN settings",
+            "Import a Preconfigured mobileconfig File Into Jamf Pro"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "after": "Connection Name: Enter Zscaler TRP Tunnel.",
+          "quotes": [
+            "Connection Type: Select Custom SSL.",
+            "Identifier: Enter com.zscaler.zscaler"
+          ]
+        }
+      ]
+    },
+    "trp-console-steps": {
+      "statement": "On the console side, the macOS app profile selects a forwarding profile with Z-Tunnel 2.0, enables Reconnect Tunnel on System Wakeup and, for this mode, Enable Transparent Proxy-based Traffic Interception; the forwarding profile's Drop IPv6 in Dual Stack Network option should stay off so IPv6 that macOS generates is not discarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "Under General, select the forwarding profile you configured in the previous step and enable the Reconnect Tunnel on System Wakeup option.",
+            "If you are configuring Transparent Proxy-based Traffic Interception, under Traffic Steering > Advanced, enable the Enable Transparent Proxy-based Traffic Interception option.",
+            "ensure that the Drop IPv6 in Dual Stack Network option is disabled so that IPv6 traffic isn't discarded after it has been generated by macOS"
+          ]
+        }
+      ]
+    },
+    "stun-bypass": {
+      "statement": "With Transparent Proxy-based Interception, video and audio UDP streams of collaboration apps that rely on STUN, and STUN itself, should be bypassed through predefined or custom IP-based application bypass or IP exclusions in app profiles; STUN is bypassed by TCP and UDP port 3478.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "bypass video and audio UDP streams from collaboration applications which rely on STUN (e.g., Slack, WebEx) along with STUN using Predefined IP-Based Application Bypass, Custom IP-Based Application Bypass, or IP Exclusions in app profiles.",
+            "You can bypass STUN protocol by specifying TCP and UDP port 3478."
+          ]
+        }
+      ]
+    },
+    "legacy-apps-vpn": {
+      "statement": "Private Access VPN for legacy apps uses a separate VPN payload with provider bundle identifier `com.zscaler.zscaler.pktfilter` and provider type Packet-tunnel; it is supported with Route-based Interception on all supported releases and with Transparent Proxy-based Interception from 4.8.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "This configuration setting is supported with Route-based Traffic Interception on all supported releases of Zscaler Client Connector for macOS and with Transparent Proxy-based Traffic Interception on Zscaler Client Connector version 4.8 and later for macOS.",
+            "Provider Bundle Identifier: Enter com.zscaler.zscaler.pktfilter",
+            "Provider Type: Select Packet-tunnel."
+          ]
+        }
+      ]
+    },
+    "fda-dlp": {
+      "statement": "Endpoint DLP needs Full Disk Access to work properly: a Privacy Preferences Policy Control profile allows SystemPolicyAllFiles for the bundle IDs `com.zscaler.zdp.pd`, `com.zscaler.zdp.esd` and `com.zscaler.zdp.agent`, with notifications enabled for the agent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "Zscaler Endpoint Data Loss Prevention (DLP) requires full disk access for proper operation.",
+            "| Identifier | com.zscaler.zdp.pd | com.zscaler.zdp.esd | com.zscaler.zdp.agent |",
+            "| App or Service | SystemPolicyAllFiles | SystemPolicyAllFiles | SystemPolicyAllFiles |",
+            "Bundle ID: Enter com.zscaler.zdp.agent."
+          ]
+        }
+      ]
+    },
+    "managed-login-items": {
+      "statement": "Managed login items stop users disabling Client Connector on their devices: rules for bundle identifier and label `com.zscaler.tray`, and bundle identifier and label prefix `com.zscaler`, with Team Identifier PCBCQZJ7S7.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "You can configure managed login items to prevent users from disabling Zscaler Client Connector on their own devices.",
+            "| Bundle Identifier | com.zscaler.tray |",
+            "| Bundle Identifier Prefix | com.zscaler |",
+            "| Label Prefix | com.zscaler |",
+            "| Label | com.zscaler.tray |",
+            "Applies to all of the configured rules. Enter PCBCQZJ7S7."
+          ]
+        }
+      ]
+    },
+    "process-bypass": {
+      "statement": "Process-based application bypass is set in the Admin Console app profile with Transparent Proxy-based Interception from 4.8; with Route-based Interception, or Transparent Proxy-based on 4.7 and earlier, it is a preconfigured mobileconfig whose VPN payload lists bundle identifiers (Team ID and bundle ID together) under BypassAppProcesses, enabled by Process-Based Application Bypass using MDM in the app profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "| Transparent Proxy-based | 4.8 and later | Set up in the Zscaler Admin Console |",
+            "| Route-based | All supported versions | Preconfigured mobileconfig file |",
+            "If your identifier has both a Team ID and a Bundle ID in it, enter them in the format <Team ID>.<Bundle ID>.",
+            "modify the downloaded mobileconfig file's BypassAppProcesses key with the following:",
+            "enable the Process-Based Application Bypass using MDM option."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "dlp-agent-code-requirement": {
+      "summary": "For the Endpoint DLP agent identifier `com.zscaler.zdp.agent`, the Jamf Pro guide's code requirement names the same identifier, while the Intune guide's code requirement names `com.zscaler.zep.at`.",
+      "positions": [
+        {
+          "says": "The code requirement for com.zscaler.zdp.agent begins identifier \"com.zscaler.zdp.agent\".",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+            "quotes": [
+              "identifier \"com.zscaler.zdp.agent\" and anchor apple generic"
+            ]
+          }
+        },
+        {
+          "says": "The code requirement in the same column begins identifier \"com.zscaler.zep.at\".",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
+            "quotes": [
+              "identifier \"com.zscaler.zep.at\" and anchor apple generic"
+            ]
+          }
+        }
+      ],
+      "impact": "A PPPC entry whose code requirement does not match the signed agent does not grant it Full Disk Access, so copying the Intune table may leave Endpoint DLP without the access it needs."
+    }
+  },
+  "gaps": {
+    "team-and-bundle-ids": {
+      "kind": "semantic",
+      "title": "Team ID and system extension bundle identifiers",
+      "status": "resolved",
+      "former_ids": [
+        "zcc-19"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The deployment guides give Team ID PCBCQZJ7S7, the TRPTunnel extension com.zscaler.zscaler.TRPTunnel and the packet-filter provider com.zscaler.zscaler.pktfilter (claims trp-profile, legacy-apps-vpn)."
+    },
+    "full-disk-access-scope": {
+      "kind": "semantic",
+      "title": "Which Client Connector features need Full Disk Access",
+      "status": "partial",
+      "former_ids": [
+        "zcc-20"
+      ],
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: ZCC may require Full Disk Access on some macOS versions for endpoint DLP and device posture evaluation, the PPPC identifier is com.zscaler.ZscalerTunnel or similar, and without the profile users on locked-down devices silently lose any feature needing it, or see repeated TCC prompts (microphone, camera, contacts). The guides document Full Disk Access only for Endpoint DLP, with com.zscaler.zdp identifiers (claim fda-dlp); posture and other features are not addressed.",
+      "blocks": "deciding whether a non-DLP deployment needs a PPPC profile"
+    },
+    "unapproved-extension": {
+      "kind": "semantic",
+      "title": "What a Mac does when the Client Connector extension is not pre-approved",
+      "status": "open",
+      "former_ids": [
+        "zcc-75"
+      ],
+      "detail": "Unverified legacy statement: without MDM pre-approval macOS asks the user to approve the extension in System Settings, Apple silicon devices may need to be outside a restricted management mode for that, and until approved ZCC cannot tunnel any traffic. The guides give the approval profiles but do not describe the unapproved state. Former zcc-75 asked whether a user's denial of the Network Extension in System Settings > Privacy & Security surfaces a specific Client Connector error code, or an admin-visible alert in the portal or audit log.",
+      "blocks": "diagnosing a Mac where Client Connector installed but tunnels nothing",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "profile-timing": {
+      "kind": "semantic",
+      "title": "Whether a system extension profile that arrives after the package needs a reboot",
+      "status": "open",
+      "former_ids": [
+        "zcc-15"
+      ],
+      "detail": "Unverified legacy statement: the System Extension Policy profile must be deployed before the package; if it arrives after the extension loads macOS may still prompt, and on some macOS versions a reboot is required for the extension to reload cleanly. No captured guide states an ordering requirement.",
+      "blocks": "ordering MDM profiles and package deployment",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "content-filter": {
+      "kind": "semantic",
+      "title": "Whether Client Connector registers a network content filter",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZCC's SSL inspection and traffic-interception component registers as a Content Filter Provider; the System Extension Policy profile (AllowedSystemExtensions and AllowedSystemExtensionTypes keyed by Team ID) covers it with NetworkExtension, or needs ContentFilter in a granular type list. The guides describe an App-proxy (TRPTunnel) and a Packet-tunnel (pktfilter) provider and no content filter.",
+      "blocks": "building a system extension profile by hand instead of from the vendor mobileconfig",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

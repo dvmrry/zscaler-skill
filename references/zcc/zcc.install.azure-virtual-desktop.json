@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.azure-virtual-desktop",
+  "title": "Client Connector in Azure desktops: Windows 365 Cloud PCs and Azure Virtual Desktop",
+  "aliases": [
+    "zcc azure vm",
+    "zcc avd",
+    "azure virtual desktop zcc",
+    "windows virtual desktop zcc",
+    "wvd zcc",
+    "windows 365 cloud pc zcc",
+    "cloud pc rdp freeze",
+    "multi-session avd zcc",
+    "pooled host pool zcc",
+    "windows 365 & azure virtual desktop bypass"
+  ],
+  "binds": [
+    "zcc/predefined-ip-apps"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.install.strict-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.zcc"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector runs inside an Azure desktop the user owns: a Windows 365 Cloud PC or a personal Azure Virtual Desktop VM. Forwarding traffic from server and container workloads is a different product, Cloud Connector: [[doc:references/cloud-connector/azure-deployment.md]]."
+    },
+    {
+      "heading": "Which desktops can run it"
+    },
+    {
+      "text": "{{single-session}} {{pooled-unsupported}} {{pooled-alternatives}} Whether Azure Marketplace offers a ready-made Client Connector image is open {{gap:marketplace-image}}."
+    },
+    {
+      "heading": "Windows 365 Cloud PCs"
+    },
+    {
+      "items": [
+        {
+          "label": "Getting it onto the Cloud PC.",
+          "text": "{{w365-deploy}}"
+        },
+        {
+          "label": "The RDP bypass.",
+          "text": "{{predefined-bypass}} {{bypass-both-ends}} The exact addresses the bypass covers, including the Azure platform addresses, are open {{gap:fabric-addresses}}, and so is its version history {{gap:predefined-bypass-history}}."
+        },
+        {
+          "label": "Without it.",
+          "text": "{{no-bypass-freeze}}"
+        },
+        {
+          "label": "With strict enforcement.",
+          "text": "{{strict-snapshot}} Strict enforcement itself: [[zcc.install.strict-enforcement]]."
+        }
+      ]
+    },
+    {
+      "heading": "Personal AVD host pools (deployment guide)"
+    },
+    {
+      "text": "{{guide-tunnel-modes}} {{guide-pac-bypass}} Whether Z-Tunnel 2.0 needs IP-based rather than PAC bypasses for RDP's UDP path is open {{gap:rdp-udp-z-tunnel-2}}."
+    },
+    {
+      "heading": "Machine tunnels"
+    },
+    {
+      "text": "Pre-login Private Access for a Windows desktop is a machine tunnel; what it needs, how it authenticates and how its status reads are in [[zpa.machine-tunnels]], with the requirements in [[zpa.machine-tunnels.requirements]], status values in [[zpa.machine-tunnels.monitoring]], provisioning keys in [[zpa.machine-tunnels.provisioning-keys]] and machine groups in [[zpa.machine-groups.definition]]. The tenant-wide switch that enables them is in [[zcc.entitlements.zpa:machine-tunnel-for-all]], and removing a machine tunnel through the API in [[zcc.devices.removal-api]]."
+    },
+    {
+      "heading": "Not covered by any source"
+    },
+    {
+      "items": [
+        {
+          "text": "Trusted network criteria inside an Azure VM {{gap:azure-trusted-network}}."
+        },
+        {
+          "text": "Start-up order against the Azure Guest Agent {{gap:boot-ordering}}."
+        },
+        {
+          "text": "Azure NAT Gateway with several public IPs and Z-Tunnel 2.0 {{gap:nat-gateway-multi-ip}}."
+        },
+        {
+          "text": "Accelerated Networking and the Z-Tunnel 2.0 MTU {{gap:accelerated-networking-mtu}}."
+        },
+        {
+          "text": "Device records left by short-lived personal hosts {{gap:ephemeral-host-records}}."
+        },
+        {
+          "text": "VPN-trusted network detection behind an Azure VPN Gateway {{gap:azure-vpn-gateway-trust}}."
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the host pool is personal (single-session) or pooled (multi-session); Client Connector is not supported on pooled hosts.",
+      "uses": [
+        "single-session",
+        "pooled-unsupported"
+      ]
+    },
+    {
+      "do": "On a Cloud PC, whether the Windows 365 & Azure Virtual Desktop predefined bypass is selected in the app profile of both the Cloud PC and the connecting client.",
+      "uses": [
+        "predefined-bypass",
+        "bypass-both-ends"
+      ]
+    },
+    {
+      "do": "With strict enforcement on a Cloud PC, whether the policy named by POLICYTOKEN carries the bypass, before installing.",
+      "uses": [
+        "strict-snapshot"
+      ]
+    }
+  ],
+  "claims": {
+    "single-session": {
+      "statement": "Client Connector supports only single-session Windows desktops in Azure Virtual Desktop: it runs on a personal Windows 10 Enterprise VM, and multi-session is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Zscaler_Azure_Traffic_Forwarding_Deployment_Guide.txt",
+          "quotes": [
+            "The Zscaler Client Connector runs on a Personal Windows 10 Enterprise",
+            "Currently only single session is supported for the Zscaler Client Connector. Multisession is not supported."
+          ]
+        }
+      ]
+    },
+    "pooled-unsupported": {
+      "statement": "Client Connector is not supported on pooled (shared) host pool machines, which run a Windows 10 multi-session OS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Zscaler_Azure_Traffic_Forwarding_Deployment_Guide.txt",
+          "quotes": [
+            "The Zscaler Client Connector is not supported on pooled machines.",
+            "VMs of this type run a Windows-10 Multi-Session OS, which is not currently supported by the Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "pooled-alternatives": {
+      "statement": "Pooled machines reach Zscaler by other means: a PAC file in the browsers (with a dedicated proxy port where needed), a virtual Cloud Connector, or a tunnel from a firewall or network device in Azure, such as an IPsec tunnel to ZIA from an Azure virtual network gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Zscaler_Azure_Traffic_Forwarding_Deployment_Guide.txt",
+          "quotes": [
+            "Connectivity to Zscaler is provided by other means, such as a PAC file for browsers on the pooled system, a Virtual Zscaler Cloud Connector, or a tunnel from a firewall or network device running in the Azure environment.",
+            "You also configure a tunnel to ZIA for internet-bound traffic using a virtual network gateway.",
+            "For the Pool or Shared VM, you should install a traditional browser PAC file in the browser settings."
+          ]
+        }
+      ]
+    },
+    "w365-deploy": {
+      "statement": "Client Connector reaches a Windows 365 Cloud PC either in a custom image, installed before the Cloud PC is provisioned, or through Intune after provisioning, with a custom or gallery image; Intune is Microsoft's recommended approach.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-microsoft-365-cloud-pcs.json",
+          "quotes": [
+            "Use a custom image. Install Zscaler Client Connector onto the image before provisioning a Cloud PC.",
+            "Use Intune to deploy the application to the Cloud PC after it’s been provisioned.",
+            "is Microsoft’s recommended approach to app deployment in Windows 365."
+          ]
+        }
+      ]
+    },
+    "predefined-bypass": {
+      "statement": "The RDP traffic used to reach a Cloud PC is bypassed from Client Connector onto a direct path by selecting Windows 365 & Azure Visual Desktop in the app profile's Predefined IP-Based Application Bypass. The predefined bypass includes the IP addresses used for Cloud PC health monitoring, the Azure Instance Metadata Service (IMDS) endpoint, and gateway addresses with the WindowsVirtualDesktop service tag from Public Azure.",
+      "tier": "A",
+      "binds": [
+        "zcc/predefined-ip-apps"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-microsoft-365-cloud-pcs.json",
+          "quotes": [
+            "Bypass the RDP traffic used to connect to a Cloud PC from Zscaler Client Connector and given a direct path.",
+            "select Windows 365 & Azure Visual Desktop in the Predefined IP-Based Application Bypass field in App Profiles.",
+            "includes IP addresses used for Cloud PC health monitoring, the Azure Instance Metadata Service (IMDS) endpoint, and gateway addresses with the WindowsVirtualDesktop service tag from Public Azure."
+          ]
+        }
+      ]
+    },
+    "bypass-both-ends": {
+      "statement": "If the connecting client also uses Client Connector to optimize RDP traffic, Zscaler and Microsoft recommend the same bypasses on both the Cloud PC and the connecting client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-microsoft-365-cloud-pcs.json",
+          "quotes": [
+            "Zscaler and Microsoft recommend configuring the bypasses mentioned earlier on both Cloud PCs running Zscaler Client Connector and the connecting client."
+          ]
+        }
+      ]
+    },
+    "no-bypass-freeze": {
+      "statement": "Without the bypass, the user's RDP session freezes while the connection drops and is re-established each time the user logs in to or out of Client Connector, turns Internet & SaaS off or on, or restarts the Internet & SaaS service. The session then works, because once the tunnel is up all inbound traffic, RDP included, flows through it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-microsoft-365-cloud-pcs.json",
+          "quotes": [
+            "the user experiences a freeze on the RDP session because the connection drops and is re-established.",
+            "This happens every time the user logs in or logs out, turns Internet & SaaS off or on, or restarts the Internet & SaaS service in Zscaler Client Connector.",
+            "as soon as the tunnel is established, all inbound traffic starts flowing through the tunnel, transferring the RDP traffic to it."
+          ]
+        }
+      ]
+    },
+    "strict-snapshot": {
+      "statement": "When Client Connector is installed in strict enforcement mode on a Cloud PC, the policy named in POLICYTOKEN must carry these bypasses, or users lose access to the Cloud PC; once access is lost, the only way back is restoring a previous snapshot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-microsoft-365-cloud-pcs.json",
+          "quotes": [
+            "When installing Zscaler Client Connector in strict enforcement mode, use the app policy that has the bypasses mentioned earlier in the POLICYTOKEN tag to prevent users from losing access to the Cloud PC.",
+            "After access is lost, the only way to regain access is to restore to a previous snapshot."
+          ]
+        }
+      ]
+    },
+    "guide-tunnel-modes": {
+      "statement": "The Azure deployment guide describes Tunnel-1 as forwarding only HTTP and HTTPS to ZIA, with other traffic sent direct, and Tunnel-2 as forwarding all TCP, UDP and ICMP traffic; Tunnel-2 is the mode for Cloud Firewall or the standard L4 firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Zscaler_Azure_Traffic_Forwarding_Deployment_Guide.txt",
+          "quotes": [
+            "Tunnel-1 mode forwards only HTTP and HTTPS traffic to ZIA and all other traffic is sent direct to the destination.",
+            "Tunnel-2 mode forwards all TCP, UDP, and ICMP traffic.",
+            "If you have Zscaler Cloud Firewall, or want to use the Standard L4 Firewall, configure Tunnel-2 mode."
+          ]
+        }
+      ]
+    },
+    "guide-pac-bypass": {
+      "statement": "On a personal AVD VM, bypasses keep traffic away from Zscaler and keep control traffic local to Azure. The guide puts them in PAC files: for Tunnel-1 an application PAC file as the app profile's Custom PAC URL; for Tunnel-2 that application PAC plus a forwarding profile PAC with the same bypasses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Zscaler_Azure_Traffic_Forwarding_Deployment_Guide.txt",
+          "quotes": [
+            "you must add bypasses to keep traffic away from Zscaler, and keep control traffic local to the Azure environment.",
+            "For Tunnel-1 mode on the Zscaler Client Connector, install an Application PAC file in the App Profile under the Custom PAC URL.",
+            "install the application PAC file in the App Profile under the Custom PAC URL and a Forwarding Profile PAC containing the same bypasses in the APP PAC."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "marketplace-image": {
+      "kind": "semantic",
+      "title": "Whether Azure Marketplace has a Client Connector VM image",
+      "status": "open",
+      "detail": "Unverified legacy statement: no Azure Marketplace VM image for ZCC exists; the Marketplace lists Cloud Connector, ZPA App Connector, ZIA Service Edge VMs and a Zscaler for Users billing entitlement, and ZCC is always installed into an existing VM via Intune, a custom image or MSI silent install. The captured articles describe only the custom image and Intune routes.",
+      "blocks": "answers to requests for a Client Connector Marketplace image",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "fabric-addresses": {
+      "kind": "semantic",
+      "title": "Which Azure platform addresses the predefined bypass covers",
+      "status": "open",
+      "detail": "Unverified legacy statement: 168.63.129.16 (Azure Fabric: DHCP, DNS, health probes, Guest Agent) and 169.254.169.254 (IMDS) must be excluded in the App Profile's VPN Gateway Bypass and are not included in the predefined bypass; after July 1, 2025 168.63.129.16 no longer serves IMDS, so rules listing only it break Managed Identity workloads; without the bypasses Cloud PC health monitoring breaks and Guest Agent communications stall. The Windows 365 article contradicts the exclusion claim, saying the predefined bypass includes the health-monitoring addresses and the IMDS endpoint, but names no addresses; no registered source covers the Microsoft-side change.",
+      "blocks": "whether a Cloud PC or AVD host needs bypasses beyond the predefined one",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "predefined-bypass-history": {
+      "kind": "semantic",
+      "title": "When the Windows 365 and AVD predefined bypass appeared, and what it replaced",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZCC 4.3.2 (February 2025) added the predefined Windows 365 & Azure Virtual Desktop bypass covering RDP TCP 443 ranges, UDP 3478 TURN and KMS TCP 1688, replacing about 385 manually managed gateway IPs; Azure rotates RDP gateway IPs roughly monthly, so manually maintained lists go stale. No captured release note or article states the version, the ports or the rotation.",
+      "blocks": "advice for tenants on Client Connector versions without the predefined bypass",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "rdp-udp-z-tunnel-2": {
+      "kind": "semantic",
+      "title": "How Z-Tunnel 2.0 treats RDP's UDP path without an IP bypass",
+      "status": "open",
+      "detail": "Unverified legacy statement: Z-Tunnel 1.0 does not tunnel UDP, so a PAC entry for *.wvd.microsoft.com suffices; Z-Tunnel 2.0 captures UDP 3478 (RDP TURN) and non-443 TCP, PAC bypasses do not apply to UDP, so an IP-based bypass in Destination Exclusions or VPN Gateway Bypass is needed, and without it UDP 3478 is tunneled and dropped and the session falls back to slower TCP. The deployment guide uses PAC files for both modes, and the Windows 365 article describes the failure as a freeze at login and logout.",
+      "blocks": "choosing bypass types for AVD on Z-Tunnel 2.0",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "azure-trusted-network": {
+      "kind": "semantic",
+      "title": "Trusted network criteria for Client Connector inside an Azure VM",
+      "status": "open",
+      "detail": "Unverified legacy statement: Azure VMs have no SSID, a fixed Azure DHCP address and no predictable corporate DNS server, so viable trusted network criteria reduce to trusted egress IPs (with a stable NAT IP) or trusted subnets (with a known VNet address space). No Zscaler document covers trusted networks in Azure VMs.",
+      "blocks": "forwarding profiles that should treat an Azure desktop as on-network",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "boot-ordering": {
+      "kind": "semantic",
+      "title": "Start-up order of Client Connector and the Azure agents",
+      "status": "open",
+      "detail": "Unverified legacy statement: there is no documented dependency configuration for Client Connector against the Azure Guest Agent or the Network Watcher extension at boot.",
+      "blocks": "diagnosing Azure VM extension failures after Client Connector is installed",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "nat-gateway-multi-ip": {
+      "kind": "semantic",
+      "title": "Azure NAT Gateway with several public IPs and Z-Tunnel 2.0",
+      "status": "open",
+      "detail": "Unverified legacy statement: an Azure NAT Gateway with multiple public IPs is a structural risk for Z-Tunnel 2.0 if it picks the egress IP per flow rather than per device. The vendor does say Z-Tunnel 2.0 needs a NAT device that uses one IP for all of a device's connections (zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat); how Azure NAT Gateway assigns IPs is not in any registered source.",
+      "blocks": "Z-Tunnel 2.0 designs that egress through Azure NAT Gateway",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "accelerated-networking-mtu": {
+      "kind": "semantic",
+      "title": "Accelerated Networking and the Z-Tunnel 2.0 DTLS MTU",
+      "status": "open",
+      "detail": "Unverified legacy statement: the interaction between Accelerated Networking and the DTLS MTU of Z-Tunnel 2.0 has no source; lab data is needed.",
+      "blocks": "diagnosing throughput or fragmentation problems on Azure desktops",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "ephemeral-host-records": {
+      "kind": "semantic",
+      "title": "Device records left by short-lived personal hosts",
+      "status": "open",
+      "detail": "Unverified legacy statement: ephemeral AVD personal hosts likely accumulate orphaned ZCC device records, similar to the Cloud Connector VMSS orphan pattern, but this is not documented for ZCC.",
+      "blocks": "license and device-inventory hygiene for rebuilt hosts",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "azure-vpn-gateway-trust": {
+      "kind": "semantic",
+      "title": "VPN-trusted network detection when the VPN is an Azure VPN Gateway",
+      "status": "open",
+      "detail": "Unverified legacy statement: Zscaler's VPN-trusted network detection looks for a VPN adapter on the host; an Azure VPN Gateway is a network-level construct with no host-side adapter, so VPN-trusted criteria do not fire that way.",
+      "blocks": "forwarding profile design for Azure desktops reached over a site-to-site VPN",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

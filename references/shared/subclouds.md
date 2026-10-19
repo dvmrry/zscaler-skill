@@ -167,6 +167,6 @@ There is no `GET /subclouds` endpoint. The subcloud list is visible only in the 
 
 - PAC file architecture (variable substitution, Kerberos PAC, DIRECT vs PROXY): [`./pac-files.md`](./pac-files.md)
 - Cloud architecture (PSE form factors, Central Authority): [`./cloud-architecture.md`](./cloud-architecture.md)
-- ZCC Application Profile refresh semantics: [`../zcc/web-policy.md`](../zcc/web-policy.md)
+- ZCC Application Profile refresh semantics: [`zcc.app-profiles`](kb:zcc.app-profiles)
 - ZIA Locations (sublocation configuration, forwarding methods): [`zia.locations`](kb:zia.locations)
 - ZIA Private Service Edge (PSE cluster deployment): [`zia.private-service-edge`](kb:zia.private-service-edge)

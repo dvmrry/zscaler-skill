@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "zcc.logging.user-access",
+  "title": "What users can do with Client Connector logs: logging controls and readable exports",
+  "aliases": [
+    "hide logging controls",
+    "hide logging controls on zscaler client connector",
+    "app supportability",
+    "zcc export logs encrypted",
+    "user cannot export zcc logs",
+    "exportLogsForNonAdmin",
+    "grantAccessToZscalerLogFolder",
+    "enable local packet capture"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.log-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{hide-toggle}} {{visible-capabilities}} {{hidden-blocks}} Whether iOS offers these controls in full is open {{gap:ios-log-access}}."
+    },
+    {
+      "label": "Scope.",
+      "text": "{{tenant-wide}} The other App Supportability fields are in [[zcc.support-options:field-ui-mapping]]."
+    },
+    {
+      "label": "Can the user read the logs?",
+      "text": "{{export-encryption}} Who can decrypt the encrypted logs is in [[zcc.logging.collection:only-zscaler-decrypts]]."
+    },
+    {
+      "label": "Packet capture.",
+      "text": "Users can capture packets only when User Privacy, or on Windows 4.8 and later the app profile, allows it: [[zcc.web-privacy.collection:packet-capture]]."
+    },
+    {
+      "label": "User Privacy log settings.",
+      "text": "Non-administrator access to the log folder is [[zcc.web-privacy.collection:non-admin-log-folder]], and limiting packet capture to administrators is [[zcc.web-privacy.collection:restrict-remote-capture]]; the matching API keys are [[zcc.web-privacy.collection:api-key-map]]. What the privacy API's `exportLogsForNonAdmin` does, and how it relates to these in-app controls, is open [[zcc.web-privacy.collection:privacy-field-meanings]]. Whether local administrators can read the log files directly, whatever the controls say, is open {{gap:local-admin-read}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Hide Logging Controls is on, and so whether the user could export, clear or change the log mode.",
+      "uses": [
+        "hide-toggle",
+        "hidden-blocks"
+      ]
+    },
+    {
+      "do": "The Client Connector version on Windows or macOS, since exports from 2.1.2 on are readable by the user.",
+      "uses": [
+        "export-encryption"
+      ]
+    },
+    {
+      "do": "For a privacy review, whether local administrators can read the log files whatever the logging controls say, and the User Privacy log-folder and packet-capture settings.",
+      "uses": [
+        "local-admin-read",
+        "zcc.web-privacy.collection:non-admin-log-folder",
+        "zcc.web-privacy.collection:restrict-remote-capture"
+      ]
+    }
+  ],
+  "claims": {
+    "hide-toggle": {
+      "statement": "Hide Logging Controls on Zscaler Client Connector, on the App Supportability tab, blocks users from the app's logging controls when enabled and allows them when disabled. Users reach the controls from the app's More window and the system tray icon's menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "enable Hide Logging Controls on Zscaler Client Connector to block users from using logging controls for Zscaler Client Connector",
+            "Your users can access these features from the More window of the app and the Zscaler Client Connector icon"
+          ]
+        }
+      ]
+    },
+    "visible-capabilities": {
+      "statement": "With the controls visible, users can see where the encrypted logs are stored, export logs as a ZIP file from the tray menu, send encrypted logs to support by email with copies to others, change the log mode, and clear logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "See where encrypted logs are stored on their devices by clicking Show/Hide Logs in the Report an Issue form.",
+            "Upon export, the logs are saved as a ZIP file on the user's device.",
+            "Send encrypted logs to support by email and send a copy of the email to themselves and others.",
+            "Clear logs from the More window of Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "hidden-blocks": {
+      "statement": "Hiding the controls prevents users from exporting or clearing logs and from changing the log mode the admin set in app profiles; leaving them visible is what lets users email themselves a copy of the Report an Issue form with encrypted logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "Prevents users from exporting or clearing logs and changing the Log Mode set by the Zscaler admin using App Profiles.",
+            "Disable Hide Logging Control on Zscaler Client Connector to allow users to send an email copy of the data entered on the Report an Issue form along with encrypted logs."
+          ]
+        }
+      ]
+    },
+    "tenant-wide": {
+      "statement": "The logging-controls setting is one App Supportability setting for the tenant, which the company-info record carries by name as `disableLoggingControls`, not a web policy field; the app profile has no per-profile equivalent.",
+      "tier": "B",
+      "derived_from": [
+        "zcc.support-options:field-ui-mapping"
+      ],
+      "conditions": "Rests on absence: the setting is documented only on the App Supportability page, and the app profile article lists no logging-controls option (it does list a per-profile packet-capture override). Extended (v5 item 11): names the company-info field from zcc.support-options:field-ui-mapping, matched by name only.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "From the App Supportability page, you can configure your users"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "disableLoggingControls"
+          ]
+        }
+      ]
+    },
+    "export-encryption": {
+      "statement": "From Client Connector 2.1.2 for Windows and macOS, exported logs are not encrypted, while logs attached to the Report an Issue form are; before 2.1.2, exported logs are always encrypted and users cannot read them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "For Zscaler Client Connector 2.1.2 or later for Windows and macOS, exported logs aren't encrypted, but logs included in the Report an Issue form are encrypted.",
+            "exported logs are always encrypted and users can't view them."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "local-admin-read": {
+      "kind": "semantic",
+      "title": "Direct access to log files by local administrators",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Even with all four in place, the ZCC diagnostic log files remain on the endpoint's disk and are accessible to any local OS administrator ... The files may contain hostnames, IP addresses, and connection metadata at Info or Debug verbosity.\"",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "ios-log-access": {
+      "kind": "semantic",
+      "title": "iOS log access limitations",
+      "status": "open",
+      "former_ids": [
+        "zcc-64"
+      ],
+      "detail": "Whether iOS sandboxing keeps Client Connector from offering users a log view, and which logging controls actually work on iOS under the App Supportability settings, is not described in any captured source.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "zcc.entitlements",
+  "title": "ZCC service entitlement: who gets Private Access and ZDX",
+  "aliases": [
+    "zcc entitlements",
+    "service entitlement",
+    "client connector entitlement",
+    "zpa entitlement",
+    "zdx entitlement",
+    "zpa not enabled for user",
+    "zdx no data for user",
+    "why isn't zpa working for this user"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.zpa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.entitlements-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.entitlements"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.policy.evaluation-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Entitlement decides whether the app enrolls a user or device into a service at all; the service's own policy decides what happens after. {{services-gated}} {{zia-device-groups}} {{needs-subscription}}"
+    },
+    {
+      "label": "When a change lands.",
+      "text": "{{update-timing}} Whether a de-entitled user's active Private Access session drops at that update or stays up until the next login is open {{gap:active-session-on-removal}}."
+    },
+    {
+      "label": "Per service.",
+      "text": "Private Access, including the machine tunnel switch: [[zcc.entitlements.zpa]]. Digital Experience: [[zcc.entitlements.zdx]]. Reading and writing entitlements through the API: [[zcc.api.entitlements-wire]]; through the Python SDK: [[zcc.sdk-python.entitlements]]. Terraform has no entitlement resource: [[zcc.terraform.coverage:no-entitlement-resource]]."
+    },
+    {
+      "label": "After entitlement.",
+      "text": "An entitled user still reaches a private application only through the app profile's forwarding profile, [[zcc.forwarding-profiles.assignment]], and a matching access rule, since [[zpa.policy.evaluation-order:default-access-block]]. What a user who is not entitled looks like in logs is open {{gap:not-entitled-signals}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user, or the user and the device, is entitled to the service, from the entitlement settings for that service.",
+      "uses": [
+        "zcc.entitlements.zpa:configurations",
+        "zcc.entitlements.zpa:device-and-user-group",
+        "zcc.entitlements.zdx:configurations"
+      ]
+    },
+    {
+      "do": "Whether the device has picked up the entitlement change: next connect, within 60 minutes if connected, or after Update Policy and reauthentication.",
+      "uses": [
+        "update-timing"
+      ]
+    },
+    {
+      "do": "For Private Access, then the forwarding profile on the user's app profile, then the access policy.",
+      "uses": [
+        "zcc.api.web-policy-wire:join-field",
+        "zpa.policy.evaluation-order:default-access-block"
+      ]
+    }
+  ],
+  "claims": {
+    "services-gated": {
+      "statement": "Service entitlement selects which user groups or device groups can enroll into Private Access (ZPA), Digital Experience (ZDX) and Zscaler Deception; Internet & SaaS (ZIA) enrollment is enabled for all users by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-service-entitlement.json",
+          "quotes": [
+            "Zscaler Service Entitlement allows you to select which group of users or device groups can enroll into the ZPA, ZDX, or Zscaler Deception services. By default, ZIA enrollment is always enabled for all users."
+          ]
+        }
+      ]
+    },
+    "zia-device-groups": {
+      "statement": "The entitlement page can also enable ZIA for device groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-service-entitlement.json",
+          "quotes": [
+            "Enable ZIA for device groups."
+          ]
+        }
+      ]
+    },
+    "needs-subscription": {
+      "statement": "If the Service Entitlement page is missing from the menu, the organization may not have the subscriptions for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-service-entitlement.json",
+          "quotes": [
+            "If you do not see the Zscaler Service Entitlement page in the menu, your organization may not have the proper subscriptions."
+          ]
+        }
+      ]
+    },
+    "update-timing": {
+      "statement": "An entitlement change reaches devices the next time they connect; connected devices update automatically within 60 minutes, or when the user clicks Update Policy, after which the user must reauthenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zpa-group-users.json",
+          "quotes": [
+            "This updates your users' devices the next time they connect. If they are already connected, the devices automatically update in 60 minutes.",
+            "To manually update their devices, users can go into Zscaler Client Connector and click Update Policy from the More window.",
+            "After manually refreshing the device, they must reauthenticate on the Private Access page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zdx-group-users.json",
+          "quotes": [
+            "This updates your users' devices the next time they connect. If they are already connected, the devices automatically update in 60 minutes."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "active-session-on-removal": {
+      "kind": "semantic",
+      "title": "Whether removing Private Access entitlement ends an active session",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"ZPA de-entitlement relies on natural reconnect — there is no force-logout equivalent for ZPA. The user's active microtunnel stays up until their next ZCC login/restart.\" Added from the coverage review (verifier w2 E10). The help says only that connected devices update within 60 minutes or on Update Policy (update-timing); it does not say what happens to a session that is up when the update lands.",
+      "blocks": "telling an admin how fast removing a user's Private Access takes effect",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "not-entitled-signals": {
+      "kind": "semantic",
+      "title": "What a user who is not entitled to Private Access looks like in logs",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"In the not-entitled case, nothing evaluates — there are no LSS records from this user's ZPA surface. A user reporting 'I have no ZPA access logs' may not be entitled at all\"; and for ZDX, \"the ZDX portal shows no data for this user.\"",
+      "blocks": "telling an unentitled user from a denied one by their logs",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

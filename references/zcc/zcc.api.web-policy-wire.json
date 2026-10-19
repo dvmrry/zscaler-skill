@@ -1,0 +1,1790 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.web-policy-wire",
+  "title": "What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate",
+  "aliases": [
+    "zcc web policy edit",
+    "web/policy/edit success false id 0",
+    "zcc app profile api",
+    "zcc web policy snake_case keys",
+    "disable_password install_ssl_certs",
+    "ziaDRMethod ziaDRRecoveryMethod",
+    "zcc device_type number",
+    "web policy duplicate name",
+    "zcc web policy 400 extra os block",
+    "pac_url snake case",
+    "install_ssl_certs vs installCerts",
+    "web policy success false",
+    "IntOrString",
+    "SNAKE_CASE_KEYS",
+    "ziaDRMethod",
+    "ziaDRRecoveryMethod",
+    "web policy payload",
+    "web_policy_edit",
+    "UpdateWebPolicy",
+    "activate_web_policy",
+    "ActivateWebPolicy",
+    "web policy activate",
+    "create app profile api",
+    "application-profiles patch",
+    "GetWebPolicyByID",
+    "zcc device_type values"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.v2-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.wire-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.failover"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZCC web policy is the API object behind an app profile, written per platform through one edit endpoint. Its body mixes camelCase and snake_case keys, numbers and quoted strings, and form-state objects copied from the admin UI, and the sources disagree about several of them."
+    },
+    {
+      "heading": "Create, update and activate"
+    },
+    {
+      "text": "{{edit-adds-or-updates}} {{edit-response}} {{edit-success-and-duplicates}} {{edit-rejects-silently}} {{read-back}} How the list encodes a policy's id is open {{gap:list-id-encoding}}."
+    },
+    {
+      "text": "{{activate}} Whether an edit to an enabled policy is served without an activate call is open {{gap:edit-needs-activate}}."
+    },
+    {
+      "text": "{{list-device-type-numeric}} The platform codes themselves are [[zcc.api.conventions:os-type-codes]]."
+    },
+    {
+      "heading": "Body shape"
+    },
+    {
+      "text": "{{snake-case-top-level}} {{extra-os-blocks-rejected}} {{numbers-on-write}} The contract types several of these integers as strings {{divergence:scalar-types}}."
+    },
+    {
+      "text": "{{fields-twice}} {{go-top-level-install}} Which copy wins when the two disagree is open {{gap:top-vs-nested-precedence}}."
+    },
+    {
+      "text": "{{label-value-echo}} Whether these form-state fields are required on write is open {{gap:selected-required}}. {{location-ruleset-fixed}}"
+    },
+    {
+      "text": "{{edit-group-user-asymmetry}} The contract, the UI capture, the two SDKs and a recorded edit name a write's target groups and users differently {{divergence:targeting-keys}}. Which scope keys a listing returns on read, and in what element shape, is open {{gap:scope-keys-on-read}}."
+    },
+    {
+      "text": "{{cli-password-toggles}}"
+    },
+    {
+      "text": "{{zia-posture-omitted-on-create}}"
+    },
+    {
+      "heading": "Platform blocks"
+    },
+    {
+      "text": "The password and certificate keys inside the per-platform blocks are cased differently by each source {{divergence:os-password-key-casing}}. {{ui-capture-password-keys}} {{mac-snake-or-ignored}} {{mac-create-required}} {{go-windows-keys-on-mac}} Which key a listing uses for the macOS block on read is open {{gap:mac-block-read-key}}."
+    },
+    {
+      "text": "{{ios-comment-vs-tags}} {{ios-only-blocks}} {{ios-top-level}}"
+    },
+    {
+      "text": "{{python-per-class-serializer}} {{python-legacy-camelcases-web-policy}} How that serializer resolves each key is in [[zcc.sdk-python.wire-keys]]."
+    },
+    {
+      "heading": "Device type"
+    },
+    {
+      "text": "{{device-type-number}} {{device-type-alt}} Which of the two integer fields a write honours is open {{gap:devicetype-precedence}}. {{python-device-type-names-unmapped}} Whether reads actually carry that `deviceType` string is open {{gap:devicetype-string-on-read}}."
+    },
+    {
+      "heading": "Disaster recovery"
+    },
+    {
+      "text": "{{dr-wire-names}} The contract still names the older keys {{divergence:dr-key-names}}. {{dr-flag-types}} {{dr-write-omits}} What the disaster recovery settings do is in [[zcc.app-profiles.failover]]."
+    },
+    {
+      "heading": "Field meanings"
+    },
+    {
+      "text": "{{reactivate-minutes-meaning}} {{go-captive-portal-keys}} On Windows 4.5 and later, captive portal detection is set on the app profile: [[zcc.app-profiles.failover:captive-portal]]. The fail-open policy has its own captive-portal window: [[zcc.forwarding-profiles.fail-open:captive-portal-minutes]]."
+    },
+    {
+      "text": "The contract and the Python docstring disagree on the unit of `reauth_period` {{divergence:reauth-period-unit}} and on what `groupAll` covers {{divergence:group-all-scope}}. The sources also disagree on what `logMode` -1 means {{divergence:log-mode-minus-one}}."
+    },
+    {
+      "heading": "The forwarding profile reference"
+    },
+    {
+      "text": "{{join-field}} {{onnetpolicy-embedded}} {{listing-lacks-forwarding-profile-id}} What a tenant's listing returns is recorded for one tenant only {{gap:join-on-read}}. What the reference selects is in [[zcc.forwarding-profiles.assignment]]."
+    },
+    {
+      "heading": "A second surface"
+    },
+    {
+      "text": "{{application-profiles-surface}} Whether it addresses the same records and IDs as `/web/policy` is open {{gap:surface-equivalence}}."
+    },
+    {
+      "text": "Go SDK calls in legacy-client mode route web policy reads and deletes to the wrong client: [[zcc.sdk-go.legacy-routing]]. The Terraform provider has no web policy resource: [[zcc.terraform.coverage:no-terraform-resource]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an `/edit` that returned HTTP 200 also returned `success` \"true\" and a non-zero `id`, and if not, whether a policy with the same name already exists.",
+      "uses": [
+        "edit-success-and-duplicates",
+        "mac-snake-or-ignored"
+      ]
+    },
+    {
+      "do": "After a successful edit, read the policy back by listing the platform's policies, as the Go SDK does.",
+      "uses": [
+        "edit-response",
+        "read-back"
+      ]
+    },
+    {
+      "do": "Send the platform as its integer code, both in the list query and in the activate body.",
+      "uses": [
+        "zcc.api.conventions:os-type-codes",
+        "list-device-type-numeric",
+        "activate"
+      ]
+    },
+    {
+      "do": "Whether the body carried only the block for its own platform, since extra platform blocks are rejected with a 400.",
+      "uses": [
+        "extra-os-blocks-rejected"
+      ]
+    },
+    {
+      "do": "Compare a hand-built body with one the console produced, key for key, before trusting a success response.",
+      "uses": [
+        "snake-case-top-level",
+        "os-password-key-casing",
+        "fields-twice"
+      ]
+    },
+    {
+      "do": "Which casing the request used for the platform block's password and certificate keys, against what the SDK in use emits for that platform.",
+      "uses": [
+        "os-password-key-casing",
+        "python-per-class-serializer"
+      ]
+    },
+    {
+      "do": "Whether integer settings were sent as JSON numbers, since the GET response may quote them as strings and the contract types some as strings.",
+      "uses": [
+        "numbers-on-write",
+        "device-type-number",
+        "scalar-types"
+      ]
+    },
+    {
+      "do": "In tenant data, join app profiles to forwarding profiles on `forwardingProfileId` where present, otherwise on the embedded `onNetPolicy`.",
+      "uses": [
+        "join-field",
+        "onnetpolicy-embedded",
+        "join-on-read"
+      ]
+    }
+  ],
+  "claims": {
+    "edit-adds-or-updates": {
+      "statement": "One endpoint, `PUT /web/policy/edit`, adds or updates a policy or app profile for a platform; the Go SDK's model says the API treats a body with no `id` key as a create.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put",
+          "expect": {
+            "description": "Adds or updates a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "the API uses the absence of `id` as the \"create\" signal on /edit."
+          ]
+        }
+      ]
+    },
+    "edit-success-and-duplicates": {
+      "statement": "The Python SDK's release notes record that a create through `/web/policy/edit` with a name that already exists is rejected silently, with `success=false, id=0`, and that a successful call answers `success` \"true\" with a non-zero `id`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "the `/web/policy/edit` create endpoint silently rejects duplicate names with `success=false, id=0`",
+            "`success == \"true\"` and a non-zero `id`"
+          ]
+        }
+      ]
+    },
+    "edit-group-user-asymmetry": {
+      "statement": "The Python SDK's 1.9.25 release notes describe the edit endpoint as asymmetric: requests carry flat `groupIds` and `userIds` lists, while responses return nested `groups` and `users` objects. The Python model at the pin nonetheless sends a caller's `group_ids` and `user_ids` under the keys `groups` and `users`, and reads the response's `groups` as group objects.",
+      "tier": "A",
+      "conditions": "Narrowed per verifier: the release note predates the model's current `request_format` mapping, which sends the flat ID lists as `groups`/`users` (sdk-python commit 197867f5, PR #502, after 1.9.25).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.9.25 (April 30, 2026)",
+          "quotes": [
+            "requests carry flat `groupIds: list[int]` / `userIds: list[str]` lists, while responses return nested `groups` / `users` objects"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "after": "class WebPolicy(ZscalerObject):",
+          "quotes": [
+            "self.groups = ZscalerCollection.form_list(config[\"groups\"] if \"groups\" in config else [], Groups)",
+            "\"groups\": self.group_ids,",
+            "\"users\": self.user_ids,"
+          ]
+        }
+      ]
+    },
+    "activate": {
+      "statement": "`PUT /web/policy/activate` enables or disables a policy or app profile for a platform; its body is a `deviceType` and a `policyId`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1activate/put",
+          "expect": {
+            "description": "Enables or disables a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1activate/put/requestBody/content/application~1json/schema",
+          "expect": {
+            "title": "WebPolicyActivateRequestContract",
+            "properties": {
+              "deviceType": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "policyId": {
+                "format": "int32",
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "extra-os-blocks-rejected": {
+      "statement": "The Go SDK's model says the API rejects a web policy body that carries empty blocks for platforms other than its own with a 400, so the Go struct sends only the one platform block that is set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "empty blocks for the other four — the API rejects extra OS blocks // with a 400."
+          ]
+        }
+      ]
+    },
+    "numbers-on-write": {
+      "statement": "The Go SDK's model says every web policy write requires integer settings such as `ruleOrder`, `logMode` and `logLevel` as JSON numbers, while the GET response quotes some of them as strings; the SDK writes numbers and reads either form.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "every POST/PUT endpoint requires a JSON number, but the GET response // quotes some of them as strings"
+          ]
+        }
+      ]
+    },
+    "fields-twice": {
+      "statement": "The Go SDK's model says many settings appear twice in the body, once at the top level and once inside `policyExtension` or a platform block, sometimes with different types, and that the UI generates both copies and the API expects both. The Go struct names the top-level copy with a `Top` suffix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "Many fields appear twice on the wire — once at the top level and once // inside policyExtension",
+            "The ZCC UI generates both, and // the API expects both."
+          ]
+        }
+      ]
+    },
+    "label-value-echo": {
+      "statement": "The Go SDK's model says `/web/policy/edit` expects the UI's `{label, value}` form-state objects (such as `ruleOrderSelectedOption`, `logModeSelected` and `ziaDRMethod`) echoed back in the PUT body, with `value` an integer for some pickers and a string for others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "the /web/policy/edit endpoint then expects to see echoed back in the // PUT body",
+            "some pickers use integer values"
+          ]
+        }
+      ]
+    },
+    "location-ruleset-fixed": {
+      "statement": "The Go SDK's model says the API expects a `locationRulesetPolicies` block inside `policyExtension` with both of its entries present even when no ruleset is bound, their `id` then 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "Both nested entries are present even when no ruleset is bound (their // `id` is then 0), so the wire shape is fixed."
+          ]
+        }
+      ]
+    },
+    "mac-snake-or-ignored": {
+      "statement": "The Go SDK sends the macOS block's password and certificate keys in snake_case (`disable_password`, `install_ssl_certs`, `logout_password`, `uninstall_password`), with `install_ssl_certs` a JSON number; its model says earlier camelCase tags were silently ignored by the API and produced `{\"success\":\"false\",\"id\":0}` on `/edit`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "camelCase tags which the API silently ignored, leading to // {\"success\":\"false\",\"id\":0} on /edit.",
+            "install_ssl_certs is a JSON number, not a string."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type MacPolicy struct {",
+          "quotes": [
+            "DisablePassword string `json:\"disable_password\"`",
+            "InstallSslCerts common.IntOrString `json:\"install_ssl_certs\"`"
+          ]
+        }
+      ]
+    },
+    "mac-create-required": {
+      "statement": "The Go SDK's model says browser auth type, use-default-browser and captive portal config are required by the API for macOS policy creates; the Go macOS block carries them as `browserAuthType`, `useDefaultBrowser` and `captivePortalConfig`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "browser_auth_type / use_default_browser / captive_portal_config // are required by the API for macOS policy creates."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type MacPolicy struct {",
+          "quotes": [
+            "BrowserAuthType int `json:\"browserAuthType\"`",
+            "UseDefaultBrowser int `json:\"useDefaultBrowser\"`"
+          ]
+        }
+      ]
+    },
+    "ui-capture-password-keys": {
+      "statement": "The Python SDK's five UI captures of web policy bodies write the platform block's disable password as snake_case `disable_password` in every block, and the certificate setting as snake_case `install_ssl_certs` in the Windows, Linux, Android and macOS blocks, with no camelCase copies.",
+      "tier": "A",
+      "conditions": "A UI capture shipped as an SDK test fixture; the SDK's tests call these payloads the source of truth.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/windows_policy.json",
+          "pointer": "/windowsPolicy",
+          "expect": {
+            "disable_password": "",
+            "install_ssl_certs": 1
+          },
+          "expect_absent": [
+            "disablePassword",
+            "installCerts"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/linux_policy.json",
+          "pointer": "/linuxPolicy",
+          "expect": {
+            "disable_password": "",
+            "install_ssl_certs": 0
+          },
+          "expect_absent": [
+            "disablePassword",
+            "installCerts"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/android_policy.json",
+          "pointer": "/androidPolicy",
+          "expect": {
+            "disable_password": "",
+            "install_ssl_certs": 0
+          },
+          "expect_absent": [
+            "disablePassword",
+            "installCerts"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/mac_policy.json",
+          "pointer": "/macPolicy",
+          "expect": {
+            "disable_password": "",
+            "install_ssl_certs": 1
+          },
+          "expect_absent": [
+            "disablePassword",
+            "installCerts"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/ios_policy.json",
+          "pointer": "/iosPolicy",
+          "expect": {
+            "disable_password": ""
+          },
+          "expect_absent": [
+            "disablePassword"
+          ]
+        }
+      ]
+    },
+    "edit-rejects-silently": {
+      "statement": "The Terraform provider's maintainer notes say `/web/policy/edit` returns HTTP 200 with `{ \"success\": \"false\", \"id\": 0 }` when the payload contains any combination it does not like, without indicating which field is wrong.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "`/web/policy/edit` is a per-OS singleton that returns `HTTP 200 { \"success\": \"false\", \"id\": 0 }` when the payload contains any combination it does not like",
+            "without indicating which field is wrong."
+          ]
+        }
+      ]
+    },
+    "go-windows-keys-on-mac": {
+      "statement": "The Go SDK's model says the registry and other Windows-style top-level keys, such as `registryPath`, `registryName`, `install_ssl_certs` and `overrideWPAD`, are still required in macOS bodies and that the API echoes them; the contract's edit body defines none of these four at the top level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "// Registry / Windows-ish defaults (still required for macOS bodies — the API echoes them)",
+            "RegistryPath                      string             `json:\"registryPath\"`",
+            "RegistryName                      string             `json:\"registryName\"`",
+            "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "// Registry / Windows-ish defaults (still required for macOS bodies — the API echoes them)",
+          "quotes": [
+            "OverrideWPAD                      int                `json:\"overrideWPAD\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "registryPath",
+            "registryName",
+            "install_ssl_certs",
+            "overrideWPAD"
+          ]
+        }
+      ]
+    },
+    "ios-comment-vs-tags": {
+      "statement": "The Go SDK's iOS block comment says the password fields are serialized in snake_case, but its struct tags send them in camelCase (`disablePassword`). The Python SDK's iOS UI capture uses the snake_case key `disable_password` in `iosPolicy`, as the comment says.",
+      "tier": "A",
+      "conditions": "Extended per verifier with the iOS UI capture shipped as an SDK test fixture.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/ios_policy.json",
+          "pointer": "/iosPolicy",
+          "expect": {
+            "disable_password": ""
+          },
+          "expect_absent": [
+            "disablePassword"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "disable_password / logout_password / uninstall_password / passcode // are serialized in snake_case (matching the API verbatim);"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type IosPolicy struct {",
+          "quotes": [
+            "DisablePassword string `json:\"disablePassword\"`"
+          ]
+        }
+      ]
+    },
+    "ios-only-blocks": {
+      "statement": "The Go SDK's model says its iOS UI capture carries a `notificationTemplateContract` block at the web policy root, with its 0/1 flags as quoted strings and its counters as numbers, and that the macOS capture omits it, so the SDK sends the block only when set. The Python SDK's iOS UI capture has no such block.",
+      "tier": "A",
+      "conditions": "Narrowed per verifier: the iOS shape is the Go model's account of its own capture; the Python iOS capture (a UI capture shipped as an SDK test fixture) lacks the block.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/ios_policy.json",
+          "pointer": "",
+          "expect_absent": [
+            "notificationTemplateContract"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "the 0/1 flags are quoted strings",
+            "The macOS UI capture does not include this block, so the field is // pointer-typed with `omitempty` on the WebPolicy parent — only iOS // payloads emit the key."
+          ]
+        }
+      ]
+    },
+    "python-per-class-serializer": {
+      "statement": "On the OneAPI client, the Python SDK's web policy write converts snake_case input to the wire key each nested model class declares, so the same attribute can leave in different casings depending on the block, and it keeps keys listed in `WebPolicy.SNAKE_CASE_KEYS` in snake_case when the model does not declare them.",
+      "tier": "A",
+      "conditions": "Narrowed per verifier to the OneAPI client: the executor sends the serialized body unchanged only when the endpoint still contains `/zcc/`, which the legacy client strips (python-legacy-camelcases-web-policy).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/zcc/\" in endpoint and body:",
+            "if isinstance(body, _ZccWireBody):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "quotes": [
+            "WindowsPolicy.disable_password`` -> ``disable_password`` (snake on the wire) vs ``LinuxPolicy.disable_password`` -> ``disablePassword``",
+            "if provided_key in _legacy_snake_preserve_keys():"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "body = zcc_to_wire(body, WebPolicy)"
+          ]
+        }
+      ]
+    },
+    "python-legacy-camelcases-web-policy": {
+      "statement": "On the Python legacy client every snake_case key of a web policy body goes out camelCase, in the platform blocks too (`device_type` as `deviceType`, `pac_url` as `pacUrl`, `reauth_period` as `reauthPeriod`, `billing_day` as `billingDay`, Windows `disable_password` as `disablePassword`); only `exit_password`, which the converter maps to itself, keeps its snake_case form.",
+      "tier": "B",
+      "derived_from": [
+        "python-per-class-serializer",
+        "zcc.api.conventions:python-body-casing"
+      ],
+      "conditions": "Added per verifier, traced and run through the serializer in a scratch environment, not sent: the legacy client strips the `/zcc` prefix before the body is prepared, so the ZCC branch is skipped and the generic full camel-casing runs over the serialized body.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "if \"/zcc/\" in endpoint and body:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "# Preserve existing logic for other services",
+          "quotes": [
+            "body = convert_keys_to_camel_case(body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "\"exit_password\": \"exit_password\","
+          ]
+        }
+      ]
+    },
+    "python-device-type-names-unmapped": {
+      "statement": "The Python `web_policy_edit` docstring says `device_type` accepts the friendly names `ios`, `android`, `windows`, `macos` and `linux` through `zcc_param_mapper`, but that decorator is commented out on the method, so a name such as `windows` is sent as the string rather than the platform code.",
+      "tier": "B",
+      "derived_from": [
+        "zcc.api.forwarding-profile-wire:python-keys-only"
+      ],
+      "conditions": "Added per verifier: the serializer copies values as given (python-keys-only), and with the decorator commented out nothing maps the name to a code; not sent.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "# @zcc_param_mapper",
+            "accepted by ``zcc_param_mapper``: ``ios``, ``android``,"
+          ]
+        }
+      ]
+    },
+    "device-type-number": {
+      "statement": "The Go SDK sends the web policy's `device_type` as a JSON number (1 iOS, 2 Android, 3 Windows, 4 macOS, 5 Linux); its model says reads also return a `deviceType` string such as `DEVICE_TYPE_MAC`, which it does not model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "device_type is serialized as a JSON number on the wire (1=iOS, // 2=Android, 3=Windows, 4=macOS, 5=Linux).",
+            "\"DEVICE_TYPE_MAC\") is intentionally not modelled"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type WebPolicy struct {",
+          "quotes": [
+            "DeviceType int `json:\"device_type\"`"
+          ]
+        }
+      ]
+    },
+    "device-type-alt": {
+      "statement": "The Go web policy struct also has a separate integer field on the `deviceType` key, sent only when non-zero, alongside the `device_type` integer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "DeviceTypeAlt int `json:\"deviceType,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "dr-wire-names": {
+      "statement": "Both SDKs name the disaster-recovery keys `ziaDRMethod`, `ziaRSAPubKey`, `ziaRSAPubKeyName`, `zpaRSAPubKey` and `zpaRSAPubKeyName`; the Go model says these match a real `/listByCompany` response and that `ziaDRRecoveryMethod` is not the wire name. The Go model also sends a `ziaCustomDbUrl`, which it says custom DR setups use and which the contract does not define.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "real /listByCompany response): ziaDRMethod (not ziaDRRecoveryMethod)",
+            "the supplemental ziaCustomDbUrl field that custom DR setups use.",
+            "ZiaCustomDbUrl   string `json:\"ziaCustomDbUrl\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/disasterRecovery/properties",
+          "expect_absent": [
+            "ziaCustomDbUrl"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "after": "class DisasterRecovery(ZscalerObject):",
+          "quotes": [
+            "\"ziaDRMethod\": self.zia_dr_method,",
+            "\"ziaRSAPubKey\": self.zia_rsa_pub_key,"
+          ]
+        }
+      ]
+    },
+    "dr-write-omits": {
+      "statement": "The Go SDK leaves `policyId`, `ziaGlobalDbUrl`, `ziaGlobalDbUrlv2` and `ziaPacUrl` out of a disaster-recovery block when empty, because its model says the UI never sends them in a fresh create body and they appear only on reads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "omitempty because the UI capture never emits them in a fresh create // body — they're populated on read responses but absent on writes."
+          ]
+        }
+      ]
+    },
+    "snake-case-top-level": {
+      "statement": "The contract's edit body defines three snake_case top-level keys, `pac_url`, `reauth_period` and `device_type`. The Go struct sends these and nine more at the top level that the contract lacks (`exit_password`, `billing_day`, `allowed_apps`, `custom_text`, `bypass_mms_apps`, `quota_in_roaming`, `wifi_ssid`, `bypass_android_apps` and `install_ssl_certs`), and the Python SDK keeps the same keys in snake_case: all but `exit_password` are in its `SNAKE_CASE_KEYS`, and its key converter maps `exit_password` to itself.",
+      "tier": "A",
+      "conditions": "Restated per verifier: the earlier statement said the contract and Go agree on three keys, but Go and Python send more. Python's preservation applies on the OneAPI client only (python-legacy-camelcases-web-policy).",
+      "binds": [
+        "zcc/application-profiles#pac_url",
+        "zcc/application-profiles#reauth_period"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "pac_url": {
+              "type": "string"
+            },
+            "reauth_period": {
+              "type": "string"
+            },
+            "device_type": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "PacURL      string `json:\"pac_url\"`",
+            "ReauthPeriod                 common.IntOrString `json:\"reauth_period\"`",
+            "ExitPassword      string `json:\"exit_password\"`",
+            "BillingDay        string `json:\"billing_day\"`",
+            "AllowedApps       string `json:\"allowed_apps\"`",
+            "CustomText        string `json:\"custom_text\"`",
+            "BypassMmsApps     int    `json:\"bypass_mms_apps\"`",
+            "QuotaInRoaming    int    `json:\"quota_in_roaming\"`",
+            "WifiSSID          string `json:\"wifi_ssid\"`",
+            "BypassAndroidApps []int  `json:\"bypass_android_apps\"`",
+            "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "exit_password",
+            "billing_day",
+            "allowed_apps",
+            "custom_text",
+            "bypass_mms_apps",
+            "quota_in_roaming",
+            "wifi_ssid",
+            "bypass_android_apps",
+            "install_ssl_certs"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "after": "SNAKE_CASE_KEYS = {",
+          "quotes": [
+            "\"pac_url\",",
+            "\"reauth_period\",",
+            "\"billing_day\",",
+            "\"bypass_mms_apps\",",
+            "\"bypass_android_apps\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "quotes": [
+            "\"exit_password\": \"exit_password\","
+          ]
+        }
+      ]
+    },
+    "go-top-level-install": {
+      "statement": "Among them the Go SDK sends a top-level `install_ssl_certs` besides the certificate key in the platform block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`"
+          ]
+        }
+      ]
+    },
+    "ios-top-level": {
+      "statement": "The Go SDK's model says its iOS UI capture carries `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` and related keys at the top level as well as inside `iosPolicy`, with `useTunnelSDK4_3` a JSON number at the top level and a quoted string inside `iosPolicy`. The Python SDK's iOS UI capture has none of `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` or `deviceType` at the top level.",
+      "tier": "A",
+      "conditions": "Narrowed per verifier: restated as the Go model's account of its capture, and the Python iOS capture (a UI capture shipped as an SDK test fixture) added; which of the two the API requires is not shown.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/ios_policy.json",
+          "pointer": "",
+          "expect_absent": [
+            "ipv6Mode",
+            "showVPNTunNotification",
+            "useTunnelSDK4_3",
+            "deviceType"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "capture (payload-ios.json) at the WebPolicy root, IN ADDITION to",
+            "emitted as a JSON number (`0`) while the same name inside",
+            "iosPolicy is a quoted string (\"0\"). The SDK mirrors both wire"
+          ]
+        }
+      ]
+    },
+    "zia-posture-omitted-on-create": {
+      "statement": "The Go SDK leaves `ziaPostureConfigId` out of a body when unset, because the console's create body does not include it.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#ziaPostureConfigId"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "because test.json does not surface it on a fresh create; we still"
+          ]
+        }
+      ]
+    },
+    "list-device-type-numeric": {
+      "statement": "The list endpoint's `deviceType` query parameter is an integer; the Python SDK accepts the names `ios`, `android`, `windows`, `macos` and `linux` (or the integer) and sends the integer code as `deviceType`.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#deviceType"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1listByCompany/get/parameters/[name=deviceType]",
+          "expect": {
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "raise ValueError(\"Invalid `device_type` provided. Valid options: ios, android, windows, macos, linux.\")",
+            "mapped_params[\"deviceType\"] = \",\".join(mapped)"
+          ]
+        }
+      ]
+    },
+    "edit-response": {
+      "statement": "The edit response carries only `success` and the policy `id` (for example `{\"success\":\"true\",\"id\":205241}`); the Go SDK treats any `success` other than \"true\" as a rejection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "unquoted integer ({\"success\":\"true\",\"id\":205241}), while the listByCompany",
+            "return nil, fmt.Errorf(\"API rejected web policy update (success=%q)\", resp.Success)"
+          ]
+        }
+      ]
+    },
+    "read-back": {
+      "statement": "The Go SDK has no get-by-ID call: `GetWebPolicyByID` lists the platform's policies and matches the id, and when a field's JSON type does not fit its struct it returns only id, name, description, device type and active, with a partial-decode error. Its comment says the listing sometimes drops the numeric id of an entry that came from a fresh `/edit` write, and the SDK then fills in the id it was asked for.",
+      "tier": "A",
+      "conditions": "Restated per verifier: the Go code, not a quoted source, is what lacks a get-by-ID call; the dropped-id remark is the Go comment's, not observed (gap list-id-encoding).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "GetWebPolicyByID fetches a single web policy filtered by its id within a",
+            "name, description, device_type, active) together with the",
+            "either blank (the listByCompany endpoint sometimes drops the // numeric id when the entry came from a fresh /edit write).",
+            "policy.ID = id"
+          ]
+        }
+      ]
+    },
+    "go-captive-portal-keys": {
+      "statement": "The Go web policy body carries its own captive-portal and fail-open keys at the top level, `enableCaptivePortalDetection`, `enableFailOpen`, `captivePortalWebSecDisableMinutes` and `captivePortalUrlId`, none of which the contract's edit body defines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "EnableCaptivePortalDetection      int                 `json:\"enableCaptivePortalDetection\"`",
+            "EnableFailOpen                    int                 `json:\"enableFailOpen\"`",
+            "CaptivePortalWebSecDisableMinutes int                 `json:\"captivePortalWebSecDisableMinutes\"`",
+            "CaptivePortalUrlId                []LabelValuePair    `json:\"captivePortalUrlId\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "enableCaptivePortalDetection",
+            "enableFailOpen",
+            "captivePortalWebSecDisableMinutes",
+            "captivePortalUrlId"
+          ]
+        }
+      ]
+    },
+    "cli-password-toggles": {
+      "statement": "The Go SDK's model says the API expects all four toggles of `policyExtension.generateCliPasswordContract` (`enableCli` and the ZPA, ZIA and ZDX disable-without-password switches) to be present even when CLI disable is off, and that the UI capture always emits them; the Go struct also sends top-level copies of the ZPA and ZIA switches. The contract's object defines only `enableCli`, `allowZpaDisableWithoutPassword` and `policyId`.",
+      "tier": "A",
+      "conditions": "Added per verifier: these switches govern disabling services without a password. The contract object's properties are exactly `allowZpaDisableWithoutPassword`, `enableCli` and `policyId` (read from the document).",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "The API expects all four toggles to be present even when CLI disable // is off; the UI capture always emits them.",
+            "AllowZiaDisableWithoutPassword bool `json:\"allowZiaDisableWithoutPassword\"`",
+            "AllowZdxDisableWithoutPassword bool `json:\"allowZdxDisableWithoutPassword\"`",
+            "AllowZpaDisableWithoutPasswordTop bool `json:\"allowZpaDisableWithoutPassword\"`",
+            "AllowZiaDisableWithoutPasswordTop bool `json:\"allowZiaDisableWithoutPassword\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/generateCliPasswordContract/properties",
+          "expect": {
+            "allowZpaDisableWithoutPassword": {
+              "description": "Indicates whether Allow ZPA Disable without Password is enabled.",
+              "type": "boolean"
+            },
+            "enableCli": {
+              "description": "Indicates whether CLI is enabled.",
+              "type": "boolean"
+            }
+          },
+          "expect_absent": [
+            "allowZiaDisableWithoutPassword",
+            "allowZdxDisableWithoutPassword"
+          ]
+        }
+      ]
+    },
+    "application-profiles-surface": {
+      "statement": "A second surface, `/application-profiles`, lists application profile policies, reads one by profile ID and patches one by profile ID. The PATCH accepts only an allowlist of properties (bypass, DNS and include or exclude lists, groups and user IDs, passwords, device type), and for arrays and comma-separated strings the existing values must be sent with the new ones.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get",
+          "expect": {
+            "description": "Retrieves the list of application profile policies."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/patch",
+          "expect": {
+            "description": "<p>Update the properties of the application profile using profile ID. </p> <p><strong>Note:</strong>You can update only the following allowlisted properties. For array or comma-separated strings, ensure to include existing values along with the new values.</p> <ul>\n <li>packetTunnelExcludeList</li>\n <li>packetTunnelExcludeListForIPv6</li>\n <li>packetTunnelIncludeList</li>\n <li>packetTunnelIncludeListForIPv6</li>\n <li>vpnGateways</li>\n <li>sourcePortBasedBypasses</li>\n <li>disableParallelIpv4AndIPv6</li>\n <li>dnsPriorityOrderingForTrustedDnsCriteria</li>\n <li>useDefaultAdapterForDNS</li>\n <li>updateDnsSearchOrder</li>\n <li>disableDNSRouteExclusion</li>\n <li>enforceSplitDNS</li>\n <li>bypassDNSTrafficUsingUDPProxy</li>\n <li>truncateLargeUDPDNSResponse</li>\n <li>prioritizeDnsExclusions</li>\n <li>packetTunnelDnsExcludeList</li>\n <li>packetTunnelDnsIncludeList</li>\n <li>dnsPriorityOrdering</li>\n <li>customDNS</li>\n <li>appServiceIds</li>\n <li>bypassAppIds</li>\n <li>bypassCustomAppIds</li>\n <li>groups</li>\n <li>groupAll</li>\n <li>userIds</li>\n <li>logoutpassword</li>\n <li>uninstallpassword</li>\n <li>disablepassword</li>\n <li>exitPassword</li>\n <li>zdxDisablePassword</li>\n <li>zdDisablePassword</li>\n <li>zpaDisablePassword</li>\n <li>zdpDisablePassword</li>\n <li>zccRevertPassword</li>\n <li>zccFailCloseSettingsExitUninstallPassword</li>\n <li>deviceType</li></ul>"
+          }
+        }
+      ]
+    },
+    "join-field": {
+      "statement": "The app profile write carries the forwarding profile as `forwardingProfileId`, an integer in the API contract's web policy edit request; both SDKs model `forwardingProfileId` on the application profile.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#forwardingProfileId"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/forwardingProfileId",
+          "expect": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/application_profiles/application_profiles.go",
+          "quotes": [
+            "ForwardingProfileId *int `json:\"forwardingProfileId,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/application_profiles.py",
+          "quotes": [
+            "self.forwarding_profile_id = config[\"forwardingProfileId\"] if \"forwardingProfileId\" in config else None"
+          ]
+        }
+      ]
+    },
+    "onnetpolicy-embedded": {
+      "statement": "In the API contract's application-profile listing, each policy embeds a forwarding profile object as `onNetPolicy`, with the trusted network criteria and both action lists.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#onNetPolicy"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/onNetPolicy/properties/forwardingProfileZpaActions",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/onNetPolicy/properties/forwardingProfileActions",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "dr-flag-types": {
+      "statement": "The contract and the Go SDK type the disaster-recovery switches (`enableZiaDR`, `enableZpaDR`, `allowZiaTest`, `allowZpaTest`, `useZiaGlobalDb`) as JSON booleans and Go types the DR method as an integer, while the Python `DisasterRecovery` model stores whatever value it is given.",
+      "tier": "A",
+      "conditions": "Merged per verifier with the former claim dr-booleans, which stated the same typing; `useZiaGlobalDb` and its binding came from it.",
+      "binds": [
+        "zcc/application-profiles#disasterRecovery"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/disasterRecovery/properties",
+          "expect": {
+            "allowZiaTest": {
+              "description": "Indicates whether ZIA test mode is activated.",
+              "type": "boolean"
+            },
+            "allowZpaTest": {
+              "description": "Indicates whether ZPA test mode is activated.",
+              "type": "boolean"
+            },
+            "enableZiaDR": {
+              "description": "Indicates whether the ZIA test is enabled.",
+              "type": "boolean"
+            },
+            "enableZpaDR": {
+              "description": "Indicates whether the ZPA test is enabled.",
+              "type": "boolean"
+            },
+            "useZiaGlobalDb": {
+              "description": "Indicates whether ZIA global database is used.",
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "AllowZiaTest     bool   `json:\"allowZiaTest\"`",
+            "AllowZpaTest     bool   `json:\"allowZpaTest\"`",
+            "EnableZiaDR      bool   `json:\"enableZiaDR\"`",
+            "EnableZpaDR      bool   `json:\"enableZpaDR\"`",
+            "UseZiaGlobalDb   bool   `json:\"useZiaGlobalDb\"`",
+            "ZiaDRMethod      int    `json:\"ziaDRMethod\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "quotes": [
+            "self.enable_zia_dr = config[\"enableZiaDR\"] if \"enableZiaDR\" in config else None"
+          ]
+        }
+      ]
+    },
+    "reactivate-minutes-meaning": {
+      "statement": "The Python `web_policy_edit` docstring describes `reactivate_web_security_minutes` (`reactivateWebSecurityMinutes`) as the minutes after which Web Security is reactivated when the user has disabled it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "reactivate_web_security_minutes (str): Minutes after which Web",
+            "Security is reactivated when disabled by the user."
+          ]
+        }
+      ]
+    },
+    "listing-lacks-forwarding-profile-id": {
+      "statement": "The API contract's application-profile listing defines no `forwardingProfileId` member on a policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties",
+          "expect_absent": [
+            "forwardingProfileId"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "os-password-key-casing": {
+      "summary": "The casing of the password and certificate keys inside the platform blocks of a web policy write: the contract uses camelCase in every block, the Go SDK uses snake_case for macOS only, the Python SDK uses snake_case for Windows, Android and macOS passwords, and the UI captures use snake_case in every block.",
+      "positions": [
+        {
+          "says": "The contract's edit request defines `disablePassword` and `installCerts` in camelCase in the Windows, macOS, Linux and Android blocks, and `disablePassword` in the iOS block.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/macPolicy/properties/disablePassword",
+            "expect": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "says": "The Go SDK sends `disable_password` and `install_ssl_certs` in the macOS block, `disablePassword` and `installCerts` in the Windows, Linux and Android blocks, and `disablePassword` in the iOS block.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/web_policy/web_policy.go",
+            "after": "type WindowsPolicy struct {",
+            "quotes": [
+              "DisablePassword string `json:\"disablePassword\"`",
+              "InstallCerts string `json:\"installCerts\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK's Windows model writes `disable_password` and `install_ssl_certs` in snake_case; its Linux and iOS models write camelCase `disablePassword`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/models/webpolicy.py",
+            "after": "class WindowsPolicy(ZscalerObject):",
+            "quotes": [
+              "\"disable_password\": self.disable_password,",
+              "\"install_ssl_certs\": self.install_ssl_certs,"
+            ]
+          }
+        },
+        {
+          "says": "The Python macOS model reads `disablePassword` but writes `disable_password`, next to camelCase `installCerts`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/models/webpolicy.py",
+            "after": "class MacOSPolicy(ZscalerObject):",
+            "quotes": [
+              "self.disable_password = config[\"disablePassword\"] if \"disablePassword\" in config else None",
+              "\"disable_password\": self.disable_password,",
+              "\"installCerts\": self.install_certs,"
+            ]
+          }
+        },
+        {
+          "says": "The Python Android model writes `disable_password` and `allowed_apps` in snake_case, next to camelCase `installCerts`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/models/webpolicy.py",
+            "after": "class AndroidPolicy(ZscalerObject):",
+            "quotes": [
+              "\"allowed_apps\": self.allowed_apps,",
+              "\"disable_password\": self.disable_password,"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK's Windows UI capture writes `disable_password` and `install_ssl_certs` in snake_case in `windowsPolicy`, with no camelCase copy; its Linux, Android, macOS and iOS captures use snake_case as well (claim ui-capture-password-keys).",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/unit/zcc/fixtures/web_policy/windows_policy.json",
+            "pointer": "/windowsPolicy",
+            "expect": {
+              "disable_password": "",
+              "install_ssl_certs": 1
+            },
+            "expect_absent": [
+              "disablePassword",
+              "installCerts"
+            ]
+          }
+        }
+      ],
+      "impact": "The UI captures, which come from the console, use snake_case in every platform block, so the contract's camelCase and the Go SDK's camelCase for Windows, Linux, Android and iOS are the outliers; the Go model says camelCase keys were silently ignored in the macOS block. A password or certificate setting sent under the losing casing may not be applied while the edit still answers HTTP 200 (edit-rejects-silently). On the Python legacy client every one of these keys goes out camelCase (python-legacy-camelcases-web-policy)."
+    },
+    "scalar-types": {
+      "summary": "Whether integer settings such as `ruleOrder`, `logMode` and `device_type` are sent as numbers or strings",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+            "expect": {
+              "ruleOrder": {
+                "type": "string"
+              },
+              "logMode": {
+                "type": "string"
+              },
+              "device_type": {
+                "type": "string"
+              }
+            }
+          },
+          "says": "The OpenAPI edit body types `ruleOrder`, `logMode` and `device_type` as strings."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/unit/zcc/fixtures/web_policy/windows_policy.json",
+            "pointer": "",
+            "expect": {
+              "ruleOrder": 2,
+              "logMode": -1,
+              "device_type": 3
+            }
+          },
+          "says": "The Python SDK's Windows UI capture sends `ruleOrder`, `logMode` and `device_type` as JSON numbers."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/common/common.go",
+            "quotes": [
+              "actually accepts; quoted-int strings are rejected with a silent"
+            ]
+          },
+          "says": "The Go SDK says every ZCC POST and PUT endpoint requires JSON numbers, and that quoted integers make `/web/policy/edit` answer `{\"success\":\"false\",\"id\":0}`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/web_policy/web_policy.go",
+            "quotes": [
+              "every POST/PUT endpoint requires a JSON number, but the GET response"
+            ]
+          },
+          "says": "The Go SDK also says the GET response quotes some of these values as strings, so reads must accept both."
+        }
+      ],
+      "impact": "A client generated from the API document sends quoted integers where the UI capture sends numbers, which by the Go SDK's account the edit endpoint rejects with a success flag of false rather than an HTTP error."
+    },
+    "dr-key-names": {
+      "summary": "The names of the disaster recovery method and key fields",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/disasterRecovery/properties",
+            "expect": {
+              "ziaDRRecoveryMethod": {
+                "description": "Specifies the ZIA disaster recovery method.",
+                "format": "int32",
+                "type": "integer"
+              },
+              "ziaSecretKeyData": {
+                "description": "Specifies the secret key data for ZIA authentication during disaster recovery.",
+                "type": "string"
+              },
+              "zpaSecretKeyName": {
+                "description": "Specifies the secret key name for ZPA authentication during disaster recovery.",
+                "type": "string"
+              }
+            },
+            "expect_absent": [
+              "ziaDRMethod",
+              "ziaRSAPubKey",
+              "zpaRSAPubKey"
+            ]
+          },
+          "says": "The OpenAPI edit body names the method `ziaDRRecoveryMethod` and the keys `ziaSecretKeyData`, `ziaSecretKeyName`, `zpaSecretKeyData` and `zpaSecretKeyName`, and has no `ziaDRMethod`, `ziaRSAPubKey` or `zpaRSAPubKey`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/unit/zcc/fixtures/web_policy/windows_policy.json",
+            "pointer": "/disasterRecovery",
+            "expect": {
+              "ziaDRMethod": 2,
+              "ziaRSAPubKey": ""
+            },
+            "expect_absent": [
+              "ziaDRRecoveryMethod"
+            ]
+          },
+          "says": "The Python SDK's Windows UI capture sends `ziaDRMethod` and `ziaRSAPubKey` in `disasterRecovery`, not `ziaDRRecoveryMethod`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/web_policy/web_policy.go",
+            "quotes": [
+              "real /listByCompany response): ziaDRMethod (not ziaDRRecoveryMethod),"
+            ]
+          },
+          "says": "The Go SDK uses `ziaDRMethod` and RSA public key fields (`ziaRSAPubKey`, `zpaRSAPubKey` and their names), and says these match a real list response."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/models/webpolicy.py",
+            "quotes": [
+              "\"ziaDRMethod\": self.zia_dr_method,"
+            ]
+          },
+          "says": "The Python SDK sends `ziaDRMethod` and the RSA public key fields, like the Go SDK."
+        }
+      ],
+      "impact": "A disaster recovery block written to the API document's names may not set the method or keys the API reads back; the UI capture and both SDKs use the other names."
+    },
+    "targeting-keys": {
+      "summary": "How a web policy write names its target groups and users: the contract uses flat `groupIds` and `userIds` lists, and a recorded edit that sent them succeeded; the UI capture and the Go SDK write `groups` and `users` collections instead, and the Python SDK at the pin sends its flat ID lists under `groups` and `users`.",
+      "positions": [
+        {
+          "says": "The contract's edit body has `groupIds`, `groupNames`, `userIds` and `userNames` lists and no `groups` or `users` member.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+            "expect": {
+              "groupIds": {
+                "items": {
+                  "format": "int32",
+                  "type": "integer"
+                },
+                "type": "array"
+              }
+            },
+            "expect_absent": [
+              "groups",
+              "users"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK at the pin sends a caller's `group_ids` and `user_ids` as flat ID lists under the keys `groups` and `users`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/models/webpolicy.py",
+            "after": "class WebPolicy(ZscalerObject):",
+            "quotes": [
+              "\"groups\": self.group_ids,",
+              "\"users\": self.user_ids,"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK's Windows UI capture sends empty `groups` and `users` lists and no `groupIds` or `userIds`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/unit/zcc/fixtures/web_policy/windows_policy.json",
+            "pointer": "",
+            "expect": {
+              "groups": [],
+              "users": []
+            },
+            "expect_absent": [
+              "groupIds",
+              "userIds"
+            ]
+          }
+        },
+        {
+          "says": "A recorded edit from one test tenant (recorded with Python SDK 1.9.25, Python SDK cassette) sent flat `groupIds` and `userIds`, the API answered `success` \"true\", and the next listing returned the policy with those groups as `groups` objects and the IDs again as `groupIds` and `userIds`.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestWebPolicy.yaml",
+            "after": "body: '{\"ruleOrder\": 1, \"name\": \"tests-web-policy-vcr0001\",",
+            "quotes": [
+              "\"groupIds\": [62718389,",
+              "\"userIds\": [\"5807211\"]",
+              "string: \"{\\n  \\\"success\\\" : \\\"true\\\",\\n  \\\"id\\\" : 205229\\n}\"",
+              "\\\"id\\\" : 205229.0,\\n  \\\"name\\\" : \\\"tests-web-policy-vcr0001\\\",",
+              ": [ {\\n    \\\"id\\\" : 6.2718389E7,\\n    \\\"name\\\" : \\\"A001\\\",",
+              ": [ \\\"62718389\\\", \\\"62718420\\\", \\\"62718428\\\" ],\\n  \\\"userIds\\\" : [ \\\"5807211\\\""
+            ]
+          }
+        },
+        {
+          "says": "The Go struct always sends `groups` and `users` and tags the ID and name lists `omitempty`, saying the UI replaced them with the new collections and that sending them empty trips some API validations.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/web_policy/web_policy.go",
+            "quotes": [
+              "legacy *Ids / *Names slices are omitempty because the UI replaced",
+              "them with the new `groups` / `users` / `deviceGroups` collections;",
+              "GroupIds                              []int              `json:\"groupIds,omitempty\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "For one recorded tenant the API applied flat `groupIds` and `userIds`. Whether it also reads a flat ID list sent under `groups` or `users`, as the Python SDK at the pin sends it, or only the collection form the UI and Go send, is not shown; a targeting write in an unproven form may be ignored while the edit reports success. Read the policy back after a targeting write."
+    },
+    "reauth-period-unit": {
+      "summary": "The unit of the web policy's `reauth_period`: the contract says seconds, the Python docstring says hours, and the Go SDK's UI-captured defaults are small numbers.",
+      "positions": [
+        {
+          "says": "The contract's application-profile PATCH describes `reauth_period` as the automatic ZPA reauthentication time in seconds.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/patch/requestBody/content/application~1json/schema/properties/reauth_period",
+            "expect": {
+              "description": "The automatic ZPA reauthentication time (in seconds)."
+            }
+          }
+        },
+        {
+          "says": "The Python `web_policy_edit` docstring gives the re-authentication period in hours.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/web_policy.py",
+            "quotes": [
+              "reauth_period (str): Re-authentication period (in hours)."
+            ]
+          }
+        },
+        {
+          "says": "The Go SDK's UI-captured defaults set `reauth_period` to 8 for macOS and 12 for iOS, values that read as hours rather than seconds.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/web_policy/defaults.go",
+            "quotes": [
+              "ReauthPeriod:                 8,",
+              "ReauthPeriod:              12,"
+            ]
+          }
+        }
+      ],
+      "impact": "A client following the contract sends seconds where the docstring and the UI defaults suggest hours, which would set the reauthentication period 3600 times shorter or longer than intended. No source shows which unit the API applies."
+    },
+    "group-all-scope": {
+      "summary": "What the web policy's `groupAll` flag covers: the contract says all device groups, the Python docstring says all groups.",
+      "positions": [
+        {
+          "says": "The contract's application-profile PATCH describes `groupAll` as whether the rule applies to all device groups.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/patch/requestBody/content/application~1json/schema/properties/groupAll",
+            "expect": {
+              "description": "Specifies if the rule applies to all device groups."
+            }
+          }
+        },
+        {
+          "says": "The Python `web_policy_edit` docstring describes `group_all` as whether the policy applies to all groups.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/web_policy.py",
+            "quotes": [
+              "group_all (int): ``0`` or ``1`` — whether the policy applies to all groups."
+            ]
+          }
+        }
+      ],
+      "impact": "Read one way the flag widens a policy to every user group, read the other to every device group, which reaches a different set of devices. Whether `groupAll` makes a populated list irrelevant is open (gap group-flags in zcc.app-profiles.selection)."
+    },
+    "log-mode-minus-one": {
+      "summary": "What `logMode` -1 means in a web policy body: the Python docstring and the Terraform provider say it disables logging, while the Go SDK says it means follow the log-mode picker, and the UI capture sends -1 with the picker set to Debug.",
+      "positions": [
+        {
+          "says": "The Python `web_policy_edit` docstring lists -1 as disabled.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/web_policy.py",
+            "quotes": [
+              "log_mode (int): Log mode (e.g. ``-1`` disabled, ``0`` info,"
+            ]
+          }
+        },
+        {
+          "says": "The Terraform provider describes its log mode argument as -1 to disable, otherwise the numeric mode, sent as a JSON number.",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "internal/framework/common/common.go",
+            "quotes": [
+              "Log mode flag (-1 to disable, otherwise the numeric mode id). Sent as a JSON number."
+            ]
+          }
+        },
+        {
+          "says": "The Go SDK's UI-captured defaults leave the raw `logMode` at -1, which its comment says means follow the picker, with the picker (`logModeSelected`) set to Debug, value 3.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/web_policy/defaults.go",
+            "quotes": [
+              "debug log_mode=3 via the // picker, raw logMode left at -1 which means \"follow picker\")"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK's Windows UI capture sends `logMode` -1 together with `logModeSelected` Debug, value 3.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/unit/zcc/fixtures/web_policy/windows_policy.json",
+            "pointer": "",
+            "expect": {
+              "logMode": -1,
+              "logModeSelected": {
+                "label": "Debug",
+                "value": 3
+              }
+            }
+          }
+        },
+        {
+          "says": "A recorded edit from one test tenant (recorded with Python SDK 1.9.25, Python SDK cassette) sent `logMode` -1 with `logModeSelected` Debug.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestWebPolicy.yaml",
+            "after": "body: '{\"ruleOrder\": 1, \"name\": \"tests-web-policy-vcr0001\",",
+            "quotes": [
+              "\"logMode\": -1, \"logLevel\":",
+              "\"logModeSelected\": {\"label\": \"Debug\","
+            ]
+          }
+        }
+      ],
+      "impact": "If -1 disables logging, a body copied from the console turns logging off; if it defers to the picker, the same body logs at Debug. A tool that reads `logMode` alone may report logging off on a profile the console shows at Debug."
+    }
+  },
+  "gaps": {
+    "top-vs-nested-precedence": {
+      "kind": "semantic",
+      "title": "Which copy of a duplicated web policy setting the API honours",
+      "status": "open",
+      "former_ids": [
+        "zcc-77"
+      ],
+      "detail": "Unverified legacy statement: whether the API treats a root-level copy and its nested counterpart as authoritative when both are present, or one silently wins on write, is not knowable from the SDK struct, which sends both. The Go model says the API expects both and seeds them from a UI capture without stating precedence.",
+      "blocks": "predicting the stored value when a script changes only one copy of a duplicated setting",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "devicetype-precedence": {
+      "kind": "semantic",
+      "title": "Which of device_type and deviceType a web policy write honours",
+      "status": "open",
+      "former_ids": [
+        "zcc-78"
+      ],
+      "detail": "Unverified legacy statement: the integer `deviceType` field coexists with `device_type` and it is not documented which a write honours when both are set. None of the Python SDK's five UI captures carries `deviceType`; each sends only `device_type` (checked for all five; the Windows capture is cited).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/fixtures/web_policy/windows_policy.json",
+          "pointer": "",
+          "expect": {
+            "device_type": 3
+          },
+          "expect_absent": [
+            "deviceType"
+          ]
+        }
+      ],
+      "blocks": "knowing which platform a write lands on when the two fields disagree",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "selected-required": {
+      "kind": "semantic",
+      "title": "Whether the web policy form-state fields are required on write",
+      "status": "open",
+      "former_ids": [
+        "zcc-79"
+      ],
+      "detail": "Unverified legacy statement: the full web policy field set is modeled from UI request-body captures, and whether every `*Selected` and `*SelectedOption` form-state field is required on write or merely echoed on read cannot be told from the struct tags.",
+      "blocks": "building a minimal web policy body by hand",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "edit-needs-activate": {
+      "kind": "semantic",
+      "title": "Whether an edit is served without calling activate",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"activate_web_policy is required — Web Policy changes are staged until explicitly activated, analogous to ZIA's activation. Uncommitted changes are not served to endpoints.\" The API document describes activate as enabling or disabling a policy, not as committing edits.",
+      "blocks": "scripts that edit an enabled policy and expect devices to receive it",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "surface-equivalence": {
+      "kind": "data",
+      "title": "Whether /application-profiles and /web/policy address the same records",
+      "status": "open",
+      "detail": "Both surfaces describe app profile policies per platform, with largely the same keys, but no source says that a profile ID from one is a policy ID in the other, or that a PATCH on one is visible on the other.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zcc application-profiles list"
+    },
+    "join-on-read": {
+      "kind": "data",
+      "title": "Whether the application-profile listing returns forwardingProfileId",
+      "status": "partial",
+      "former_ids": [
+        "zcc-98"
+      ],
+      "about": [
+        "zcc/application-profiles#forwardingProfileId",
+        "zcc/application-profiles#onNetPolicy"
+      ],
+      "detail": "The contract's listing shows `onNetPolicy` and no `forwardingProfileId`, while both SDKs read `forwardingProfileId`. Recorded data narrows this for one tenant each (Python SDK cassettes, recorded with SDK 1.9.25): the `/web/policy/listByCompany` response of the easm test tenant has no `forwardingProfileId` key, and its `onNetPolicy` carries `id` \"11925\", the ID of the forwarding profile SGIO-Tunnel2.0 in the same tenant's forwarding-profile list (recorded with SDK 1.9.13); the `/application-profiles` response of a beta tenant does return `forwardingProfileId`, as null. Whether every tenant's listing behaves so, and what a non-null `forwardingProfileId` looks like, is not shown.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestWebPolicy.yaml",
+          "after": "web/policy/edit response:",
+          "quotes": [
+            "\\\"onNetPolicy\\\" : {\\n    \\\"id\\\" : \\\"11925\\\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+          "after": "webForwardingProfile/listByCompany response:",
+          "quotes": [
+            "\\\"id\\\" : \\\"11925\\\",\\n  \\\"active\\\" : \\\"1\\\",\\n  \\\"name\\\" : \\\"SGIO-Tunnel2.0\\\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestApplicationProfiles.yaml",
+          "after": "zcc/papi/public/v1/application-profiles response:",
+          "quotes": [
+            "\\\"forwardingProfileId\\\" : null,"
+          ]
+        }
+      ],
+      "blocks": "joining app profiles to forwarding profiles in tenant data",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "live"
+      ],
+      "live_command": "zscalerctl zcc application-profiles list"
+    },
+    "list-id-encoding": {
+      "kind": "semantic",
+      "title": "How listByCompany encodes a web policy's id",
+      "status": "open",
+      "blocks": "matching a policy id from the edit response against a list entry in a hand-written client",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: `/edit` returns the id unquoted while `listByCompany` returns it as a string. The Go SDK contradicts itself: its unmarshaler comment says the list typically returns the id as a string, and its id normalizer's comment says the list encodes ids as JSON numbers such as `507745.0`. Read a raw list response and record the id's JSON type.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "// endpoint typically returns it as a string. The custom unmarshaler bridges",
+            "// listByCompany payload encodes ids as JSON numbers (e.g. `507745.0`),"
+          ]
+        }
+      ]
+    },
+    "mac-block-read-key": {
+      "kind": "semantic",
+      "title": "WebPolicy read-shape `macPolicy` vs `macosPolicy` key",
+      "status": "open",
+      "former_ids": [
+        "zcc-88"
+      ],
+      "detail": "The Python WebPolicy model reads and writes the macOS block under `macPolicy`, and the contract's edit body names it `macPolicy`, but earlier snapshot documentation used `macosPolicy`. Whether a `web/policy/listByCompany` read returns `macPolicy`, `macosPolicy` or both is not confirmed from a captured response.",
+      "blocks": "reading a tenant's macOS app profile settings from a raw listing",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "scope-keys-on-read": {
+      "kind": "semantic",
+      "title": "WebPolicy `groups` / `users` / `deviceGroups` wire shape",
+      "status": "open",
+      "former_ids": [
+        "zcc-89"
+      ],
+      "detail": "The Python model splits scope into `groupIds`/`groupNames`, `userIds`/`userNames` and `deviceGroupIds`/`deviceGroupNames`, and also parses `groups` and `users` into typed objects. Which of these keys a `listByCompany` response carries, and whether `groups` and `users` arrive as IDs only or as full objects with `id`, `loginName` and the like, is not confirmed from a captured response.",
+      "blocks": "reading which groups, users and device groups an app profile targets",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "devicetype-string-on-read": {
+      "kind": "semantic",
+      "title": "WebPolicy companion `deviceType` string presence on reads",
+      "status": "open",
+      "former_ids": [
+        "zcc-90"
+      ],
+      "detail": "The Go SDK's comment says reads return a `deviceType` string such as `DEVICE_TYPE_MAC` beside the integer `device_type`, but the SDK does not model it, so the string's presence on the wire rests on that comment and is not confirmed from a captured `web/policy/listByCompany` response.",
+      "blocks": "telling a policy's platform from a raw listing",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    }
+  }
+}

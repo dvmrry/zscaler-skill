@@ -170,7 +170,7 @@ Both are deployed in **redundant pairs per BC Cloud site**. **ZCC connects to th
 - **BC Cloud only supports Z-Tunnel 1.0, PAC files, and GRE tunnels.** **Z-Tunnel 2.0 is NOT supported in BC mode.** A tenant that has migrated to Z-Tunnel 2.0 falls back to 1.0 during BC operations. Worth calling out in any "what happens during an outage" answer.
 - **BC Cloud upgrades are deliberately delayed behind public cloud upgrades** — fault isolation. If a public cloud upgrade introduces a bug, BC Cloud still runs the previous (presumably working) version as a safety net.
 
-This is the product-grade BCP story. **Distinct from ZCC's fail-open behavior**, which is the client-side last-resort (see [`../zcc/forwarding-profile.md § Fail-open policy`](../zcc/forwarding-profile.md)). Layering:
+This is the product-grade BCP story. **Distinct from ZCC's fail-open behavior**, which is the client-side last-resort (see [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)). Layering:
 
 1. Public cloud unreachable → ZCC detects via fail-open policy.
 2. Fail-open can either allow direct (fail-open) or block (strict).
@@ -195,7 +195,7 @@ Status enum from the legacy API docs is `ACTIVE` / `PENDING` / `INPROGRESS` (`ve
 
 Two distinct tunnel concepts in Zscaler's data plane:
 
-- **Z-Tunnel** — point-to-point TLS-encrypted tunnel between ZCC and a Public Service Edge, OR between an App Connector and a Private Service Edge. Mutually authenticated via pinned certificates. Can carry multiple Microtunnels (M-Tunnels). See [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md) for the ZCC-side client tunnel (1.0 vs 2.0).
+- **Z-Tunnel** — point-to-point TLS-encrypted tunnel between ZCC and a Public Service Edge, OR between an App Connector and a Private Service Edge. Mutually authenticated via pinned certificates. Can carry multiple Microtunnels (M-Tunnels). See [`zcc.z-tunnel`](kb:zcc.z-tunnel) for the ZCC-side client tunnel (1.0 vs 2.0).
 - **M-Tunnel (Microtunnel)** — ZPA-specific: end-to-end channel between ZCC and an internal application, threaded through a Service Edge and an App Connector. Uses tags similar to MPLS label-switched paths; no actual IP identification data is passed along the way.
 
 M-Tunnel's MPLS-like architecture is the reason ZPA can claim "true zero-trust" — the client never learns the internal application's real IP. ZCC presents **synthetic IPs** to local applications, which ZCC intercepts via DNS hijack and routes through the Z-Tunnel/M-Tunnel stack.
@@ -252,8 +252,8 @@ The platform is built so that **data plane (Service Edges) can run on cached sta
 
 - Activation mechanics (already-existing doc; this doc recaps the architectural layer) — [`./activation.md`](./activation.md)
 - Terminology (ZEN↔Service Edge renames, Z-App↔ZCC, etc.) — [`./terminology.md`](./terminology.md)
-- Z-Tunnel 1.0 vs 2.0 (customer-facing tunnel mechanics) — [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md)
-- ZCC fail-open (the client-side last-resort when cloud is unreachable) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- Z-Tunnel 1.0 vs 2.0 (customer-facing tunnel mechanics) — [`zcc.z-tunnel`](kb:zcc.z-tunnel)
+- ZCC fail-open (the client-side last-resort when cloud is unreachable) — [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
 - IPSec tunnels — VSE forwarding-method constraint, cipher suites, NAT-T — [`./ipsec-tunnels.md`](./ipsec-tunnels.md)
 - Sandbox servers (one of the support systems mentioned here) — [`zia.sandbox`](kb:zia.sandbox)
 - Nanolog / NSS log streaming — `vendor/zscaler-help/understanding-nanolog-streaming-service.json`

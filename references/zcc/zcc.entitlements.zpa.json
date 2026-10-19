@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "zcc.entitlements.zpa",
+  "title": "Private Access entitlement and the machine tunnel switch",
+  "aliases": [
+    "zpa enabled by default for user tunnel",
+    "zpaEnableForAll",
+    "enable zpa for a group of users",
+    "enable zpa for device groups",
+    "enable machine tunnel for all",
+    "machineTunEnabledForAll",
+    "computeDeviceGroupsForZPA",
+    "zpa disconnects device group"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.entitlements"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-tunnels.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.entitlements-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-for-all}} {{configurations}} {{default-by-tenant-age}} {{min-version}}"
+    },
+    {
+      "label": "Device groups.",
+      "text": "{{device-and-user-group}}"
+    },
+    {
+      "label": "Machine tunnels.",
+      "text": "{{machine-tunnel-for-all}} {{machine-tunnel-disable}} {{machine-token-change}} The machine token is a machine provisioning key: [[zpa.machine-tunnels.provisioning-keys:key-form]]."
+    },
+    {
+      "label": "In the API.",
+      "text": "{{api-field-names}} Whether the group list survives while the all-users switch is on, and becomes effective again when it is turned off, is open {{gap:stale-group-list}}. What the machine tunnel switch does without a Private Access subscription is open {{gap:machine-tunnel-without-zpa}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ZPA Enabled by Default for User Tunnel is on; if so every user is entitled.",
+      "uses": [
+        "default-for-all",
+        "configurations"
+      ]
+    },
+    {
+      "do": "Otherwise whether one of the user's groups is selected, and, where device groups are used, whether the device is in a selected device group as well.",
+      "uses": [
+        "configurations",
+        "device-and-user-group"
+      ]
+    },
+    {
+      "do": "For a pre-login tunnel, whether Enable Machine Tunnel for All is on and the user's app profile carries a machine token.",
+      "uses": [
+        "machine-tunnel-for-all"
+      ]
+    }
+  ],
+  "claims": {
+    "default-for-all": {
+      "statement": "With ZPA Enabled by Default for User Tunnel on, Private Access is available to all users and cannot be assigned to a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zpa-group-users.json",
+          "quotes": [
+            "If this setting is enabled, ZPA is available for all users and you cannot assign ZPA to a group."
+          ]
+        }
+      ]
+    },
+    "configurations": {
+      "statement": "With the default off, no user has Private Access unless groups are selected, and then only the selected groups do; the group selection defaults to None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zpa-group-users.json",
+          "quotes": [
+            "| Disabled | No | ZPA service is not enabled for any users |",
+            "| Disabled | Yes | ZPA service is enabled only for the specified group of users |",
+            "The default setting is None. This option means no groups have access to ZPA."
+          ]
+        }
+      ]
+    },
+    "default-by-tenant-age": {
+      "statement": "Private Access instances created before July 2017 have it enabled for all users by default; instances created after July 2017 have it disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zpa-group-users.json",
+          "quotes": [
+            "For ZPA instances created before July 2017, ZPA is enabled for all users by default.",
+            "For ZPA instances created after July 2017, ZPA is disabled by default."
+          ]
+        }
+      ]
+    },
+    "min-version": {
+      "statement": "Group-level Private Access entitlement needs Client Connector 1.2.4 or later; earlier versions always have Private Access enabled regardless of the setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zpa-group-users.json",
+          "quotes": [
+            "To enable ZPA for only a select group of users, you must deploy Zscaler Client Connector 1.2.4 or later. However, earlier versions of Zscaler Client Connector always have ZPA enabled, regardless of the Zscaler Service Entitlement setting."
+          ]
+        }
+      ]
+    },
+    "device-and-user-group": {
+      "statement": "When device groups are used, the user must belong to both the device group and the user group, or Private Access disconnects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enabling-zpa-device-groups.json",
+          "quotes": [
+            "When using device groups, the user must belong to both the device group and user group to avoid disconnecting ZPA services."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zpa-group-users.json",
+          "quotes": [
+            "the user must belong to both the device group and user group to avoid disconnecting ZPA services."
+          ]
+        }
+      ]
+    },
+    "machine-tunnel-for-all": {
+      "statement": "With Enable Machine Tunnel For All on, all users whose app profile has a machine token can connect to Private Access without being logged in, on Windows or macOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zpa-machine-tunnel-all.json",
+          "quotes": [
+            "If Enable Machine Tunnel For All is enabled, all users with a Machine Token configured in the app profile can establish a connection to ZPA without being logged in.",
+            "You can also configure a machine tunnel to establish a connection to ZPA before users log in to Zscaler Client Connector on a Windows or macOS device."
+          ]
+        }
+      ]
+    },
+    "machine-tunnel-disable": {
+      "statement": "Turning it off does not drop existing machine tunnels: they stay connected until the user's app profile policy is updated and the user logs out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zpa-machine-tunnel-all.json",
+          "quotes": [
+            "any existing machine tunnels remain connected until a user",
+            "app profile policy is updated and the user logs out."
+          ]
+        }
+      ]
+    },
+    "machine-token-change": {
+      "statement": "Changing the machine token, or applying a different app profile, does not override existing machine tunnels; the token must be removed from the app profile and the tunnel removed in Enrolled Devices, or the app reinstalled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Changing the existing machine token, or applying a different app profile to users or groups, won't override the configuration of existing machine tunnels.",
+            "You must remove the machine token from the app profile and then remove the machine tunnel in Enrolled Devices in the Zscaler Admin Console or users must reinstall Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "api-field-names": {
+      "statement": "In the API these settings read as `zpaEnableForAll` (the user-tunnel default), `groupList` and `deviceGroupList` (the selections), `computeDeviceGroupsForZPA` (device groups enabled) and `machineTunEnabledForAll`.",
+      "tier": "B",
+      "conditions": "The mapping of API fields to console settings is by name and position; no source states it.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getZpaGroupEntitlements/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "zpaEnableForAll": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "computeDeviceGroupsForZPA": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "machineTunEnabledForAll": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "stale-group-list": {
+      "kind": "semantic",
+      "title": "Whether selected groups persist while ZPA is enabled for all users",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Setting zpa_enable_for_all = true disables the effect of group_list ... If the flag is later toggled back to false, the stale group_list becomes authoritative again and may entitle users who should not have access\"; likewise \"computeDeviceGroupsForZPA — if false, device_group_list is ignored even if populated\" (and the same for ZDX's computeDeviceGroupsForZDX, called a common misconfiguration). The help says groups cannot be assigned while the default is on; it does not say whether an earlier selection is kept, or what a populated list does while its switch is off.",
+      "blocks": "auditing who gains Private Access when the all-users default is turned off",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "machine-tunnel-without-zpa": {
+      "kind": "semantic",
+      "title": "What the machine tunnel switch does without a Private Access subscription",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"machine_tun_enabled_for_all is meaningless without a ZPA subscription. If ZPA is not licensed, toggling this flag has no effect.\"",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

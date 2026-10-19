@@ -117,7 +117,7 @@
       ]
     },
     "zcc-provider-oneapi-only": {
-      "statement": "The ZCC Terraform provider is built for the OneAPI flow only, so it does not normally inherit this defect. The SDK still reads `ZSCALER_USE_LEGACY_CLIENT` from the environment and the provider does not override it, so setting that variable would switch the provider into legacy mode, where these calls fail.",
+      "statement": "The ZCC Terraform provider is built for the OneAPI flow only, so it does not normally inherit this defect. The SDK still reads `ZSCALER_USE_LEGACY_CLIENT` from the environment and the provider does not override it, so setting that variable would switch the provider into legacy mode. The provider never builds a legacy client and the SDK then skips OneAPI authentication, so every ZCC call, on the ZCC request path as well as the generic one, returns `errLegacyClientNotSet`.",
       "tier": "B",
       "evidence": [
         {
@@ -142,9 +142,32 @@
           "quotes": [
             "UseLegacyClient  bool `yaml:\"useLegacyClient\" envconfig:\"ZSCALER_USE_LEGACY_CLIENT\"`"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "quotes": [
+            "if !config.UseLegacyClient {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zccrequests.go",
+          "quotes": [
+            "if client.oauth2Credentials.LegacyClient == nil || client.oauth2Credentials.LegacyClient.ZccClient == nil {",
+            "return nil, errLegacyClientNotSet"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) Read(ctx context.Context, endpoint string, o interface{}) error {",
+          "quotes": [
+            "return errLegacyClientNotSet"
+          ]
         }
       ],
-      "conditions": "The provider's intent is quoted; the environment override is in the SDK configuration."
+      "conditions": "The provider's intent is quoted; the environment override is in the SDK configuration. Widened from 'these calls fail': the provider passes no legacy client to `NewOneAPIClient`, which authenticates only when `UseLegacyClient` is false, so the ZCC request path fails too. Traced, not run."
     }
   }
 }

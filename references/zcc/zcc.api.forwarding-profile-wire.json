@@ -1,0 +1,843 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.forwarding-profile-wire",
+  "title": "ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ",
+  "aliases": [
+    "forwarding profile edit POST",
+    "lbsZpaProbeInterval",
+    "latencyBasedZpaServerEnablement",
+    "isSameAsOnTrustedNetwork pointer",
+    "webForwardingProfile edit",
+    "enableLWFDriver contract type",
+    "forwarding profile wire format",
+    "networkType values",
+    "actionType values",
+    "conditionType values",
+    "primaryTransport values",
+    "forwarding profile enum",
+    "unified tunnel",
+    "enableUnifiedTunnel",
+    "actionTypeZIA",
+    "forwarding profile get vs post",
+    "trustedNetworkIdsSelected"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.wire-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.fail-open"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The forwarding profile is one large object read from `listByCompany` and written whole with one `edit` call. Field names and the API paths are in the generated surface; this subject holds what the field list does not say."
+    },
+    {
+      "heading": "One call for create and update"
+    },
+    {
+      "text": "{{edit-is-post}} {{edit-methods-differ}} The response carries `success` and `id`, which the provider does not check: [[zcc.terraform.field-fidelity:create-ignores-success-flag]]."
+    },
+    {
+      "heading": "Codes, not names"
+    },
+    {
+      "text": "{{go-int-codes}} The contract types several of the same fields as strings {{divergence:code-field-type}}."
+    },
+    {
+      "text": "{{provider-doc-codes}} None of these values is confirmed by the vendor's API documentation: the network type {{gap:network-type-values}}, the action {{gap:action-type-values}}, the transport {{gap:primary-transport-values}} and the profile's condition match {{gap:condition-type-values}} remain open. Which console setting each other action field carries is open too {{gap:action-field-mapping}}."
+    },
+    {
+      "heading": "Read and write types differ"
+    },
+    {
+      "text": "{{get-post-asymmetry}} The contract types `enableLWFDriver` and `active` differently from the Go write type {{divergence:lwf-driver-write-type}}, and makes `mtuForZadapter` an integer {{divergence:mtu-write-type}}. How the provider reads `active` and `enableLWFDriver` is in [[zcc.terraform.field-fidelity:strict-versus-lenient-boolean-strings]]."
+    },
+    {
+      "text": "{{intorstring-read}} {{empty-string-breaks-list}}"
+    },
+    {
+      "text": "{{same-as-trusted-pointer}} Zero values on the other fields are in [[shared.sdk-go.zero-value-writes:zcc-forwarding-profile-zero-ints]]."
+    },
+    {
+      "heading": "Fields a client cannot carry"
+    },
+    {
+      "text": "{{go-request-omissions}} The Terraform consequences are in [[zcc.terraform.field-fidelity:action-fields-never-sent]] and [[zcc.terraform.field-fidelity:trusted-network-lists-read-only]]. What `trustedNetworkIdsSelected` means is open {{gap:ids-selected}}."
+    },
+    {
+      "text": "{{python-keys-only}} {{python-model-coverage}} How the Python serializer picks keys is in [[zcc.sdk-python.wire-keys]]."
+    },
+    {
+      "heading": "Key names"
+    },
+    {
+      "text": "The four ZPA latency settings have different names in the contract and in the Go SDK {{divergence:zpa-latency-key-names}}. How the provider hides them from drift is [[zcc.terraform.field-fidelity:zpa-latency-overlay-masks-drift]]."
+    },
+    {
+      "heading": "Unified tunnel"
+    },
+    {
+      "text": "{{unified-tunnel-shape}} {{contract-no-unified-tunnel}} What unified tunnel mode changes for the device is open in [[zcc.forwarding-profiles:unified-tunnel-semantics]]."
+    },
+    {
+      "heading": "Paging"
+    },
+    {
+      "text": "The list call makes one request: [[shared.sdk-go.list-pagination:zcc-forwarding-profile-single-request]]."
+    },
+    {
+      "heading": "Fail-open policy"
+    },
+    {
+      "text": "{{failopen-list}} Whether a tenant ever has more than one fail-open policy is open {{gap:failopen-cardinality}}. What the fail-open settings do is in [[zcc.forwarding-profiles.fail-open]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before reading meaning into a `networkType`, `actionType`, `primaryTransport` or `conditionType` value, whether the value has been checked against the console for that tenant.",
+      "uses": [
+        "provider-doc-codes",
+        "network-type-values",
+        "action-type-values"
+      ]
+    },
+    {
+      "do": "When hand-building an edit payload from a read: retype the fields whose read and write types differ, and send codes as JSON numbers unless the tenant is known to accept strings.",
+      "uses": [
+        "get-post-asymmetry",
+        "go-int-codes",
+        "code-field-type"
+      ]
+    },
+    {
+      "do": "Which key names a raw response uses for the ZPA latency settings, before trusting either the contract or the SDK.",
+      "uses": [
+        "zpa-latency-key-names"
+      ]
+    },
+    {
+      "do": "Whether a hand-built write followed the contract types for `enableLWFDriver` and `mtuForZadapter` or the SDK types.",
+      "uses": [
+        "lwf-driver-write-type",
+        "mtu-write-type"
+      ]
+    },
+    {
+      "do": "Whether a Go forwarding-profile list failed to decode because a numeric field came back as an empty string or a float.",
+      "uses": [
+        "empty-string-breaks-list"
+      ]
+    }
+  ],
+  "claims": {
+    "edit-is-post": {
+      "statement": "Forwarding profiles are created and updated through the same `POST /webForwardingProfile/edit`: the contract's only operation on that path is a POST described as updating a profile, the Go SDK's create function posts there and reports a 'create/update' failure, and the Python `update_forwarding_profile` posts there too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit/post",
+          "expect": {
+            "operationId": "Updates a forwarding profile"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "_, err := service.Client.NewZccRequestDo(ctx, \"POST\", url, nil, request, &response)",
+            "failed to create/update forwarding profile: %w"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/forwarding_profile.py",
+          "after": "def update_forwarding_profile(",
+          "quotes": [
+            "http_method = \"post\".upper()"
+          ]
+        }
+      ]
+    },
+    "edit-methods-differ": {
+      "statement": "The `edit` endpoints do not share a method: the contract has POST for forwarding profiles but PUT for the fail-open policy, trusted networks and web policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webFailOpenPolicy~1edit/put",
+          "expect": {
+            "operationId": "Updates a specific FailOpen policy for the company"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1edit/put",
+          "expect": {
+            "operationId": "Updates a trusted network"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put",
+          "expect": {
+            "operationId": "Adds or updates a policy or app profile for the company by platform"
+          }
+        }
+      ]
+    },
+    "empty-string-breaks-list": {
+      "statement": "The SDK's shared type says some ZCC numeric fields come back as empty strings on policies that were never touched. If a forwarding-profile response does that for one of these fields, the Go list call fails to decode and returns an error for the whole list.",
+      "tier": "B",
+      "derived_from": [
+        "intorstring-read",
+        "zcc.sdk-go.paging-and-requests:common-intorstring"
+      ],
+      "conditions": "The empty-string behavior is the shared type's code comment ('a few fields come back as empty strings when the policy has never been touched'), not observed on a forwarding profile.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "back as empty strings when the policy has never been touched. Modelling"
+          ]
+        }
+      ]
+    },
+    "same-as-trusted-pointer": {
+      "statement": "`isSameAsOnTrustedNetwork` is a plain boolean on the Go read types, with `omitempty` on the ZIA action and without it on the ZPA action, but a pointer to a boolean with `omitempty` on the ZIA and ZPA action write types, so a write can send an explicit false and leaves the key out only when the pointer is nil. The provider's comment says the API omits the key from the GET response entirely.",
+      "tier": "A",
+      "conditions": "Narrowed per verifier: the read-side `omitempty` is on the ZIA action read type only. The recorded forwarding-profile listing (one test tenant, recorded with SDK 1.9.13, Python SDK cassette TestForwardingProfile.yaml) has no `isSameAsOnTrustedNetwork` key, consistent with the provider comment; that absence was checked by search, not cited.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "IsSameAsOnTrustedNetwork           bool            `json:\"isSameAsOnTrustedNetwork,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "type ForwardingProfileZpaAction struct {",
+          "quotes": [
+            "IsSameAsOnTrustedNetwork       bool        `json:\"isSameAsOnTrustedNetwork\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "quotes": [
+            "which the API omits entirely from the GET response"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "after": "type ForwardingProfileActionRequest struct {",
+          "quotes": [
+            "IsSameAsOnTrustedNetwork           *bool                  `json:\"isSameAsOnTrustedNetwork,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "contract-no-unified-tunnel": {
+      "statement": "The contract's `edit` request body has no `unifiedTunnel` or `enableUnifiedTunnel` member, while the Go write type sends a `unifiedTunnel` list.",
+      "tier": "A",
+      "conditions": "Absence in the contract: the request body's properties run from `active` to `trustedSubnets` with no `unifiedTunnel` or `enableUnifiedTunnel`.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "quotes": [
+            "UnifiedTunnel               []UnifiedTunnelRequest              `json:\"unifiedTunnel\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit/post/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "unifiedTunnel",
+            "enableUnifiedTunnel"
+          ]
+        }
+      ]
+    },
+    "failopen-list": {
+      "statement": "`GET /webFailOpenPolicy/listByCompany` returns a list of fail-open policies for the company.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webFailOpenPolicy~1listByCompany/get",
+          "expect": {
+            "description": "Gets the list of FailOpen policies for the company."
+          }
+        }
+      ]
+    },
+    "go-int-codes": {
+      "statement": "The Go SDK reads and writes `conditionType`, and in each action block `networkType`, `actionType`, `primaryTransport` and `tunnel2FallbackType`, as integers, and many on/off settings (for example `evaluateTrustedNetwork`, `enableSplitVpnTN`, `allowTLSFallback`, `pathMtuDiscovery`) as integers rather than booleans.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#conditionType",
+        "zcc/forwarding-profiles#forwardingProfileActions"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "ConditionType int `json:\"conditionType\"`",
+            "EvaluateTrustedNetwork int `json:\"evaluateTrustedNetwork\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "type ForwardingProfileAction struct {",
+          "quotes": [
+            "NetworkType int `json:\"networkType\"`",
+            "ActionType int `json:\"actionType\"`",
+            "PrimaryTransport int `json:\"primaryTransport\"`",
+            "AllowTLSFallback int `json:\"allowTLSFallback\"`",
+            "Tunnel2FallbackType int `json:\"tunnel2FallbackType\"`",
+            "PathMtuDiscovery int `json:\"pathMtuDiscovery\"`"
+          ]
+        }
+      ]
+    },
+    "provider-doc-codes": {
+      "statement": "The Terraform provider's resource documentation gives these codes: `condition_type` 0 for OR (ANY) and 1 for AND (ALL); `network_type` 0 off-trusted and 1 on-trusted; `action_type` 0 direct, 1 tunnel, 2 none; `primary_transport` 0 TLS and 1 DTLS; the `network_type`, `action_type` and `primary_transport` lists each end with \"etc.\".",
+      "conditions": "Reworded per verifier: the `condition_type` description has no \"etc.\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_forwarding_profile.md",
+          "quotes": [
+            "Match policy applied across the trusted-network criteria — `0` for OR semantics (`ANY`) or `1` for AND semantics (`ALL`).",
+            "Network classification this action applies to (`0` = off-trusted, `1` = on-trusted, etc.).",
+            "Forwarding mode (`0` = direct, `1` = tunnel, `2` = none, etc.).",
+            "Primary transport (`0` = TLS/ZTunnel 2.0, `1` = DTLS, etc.)."
+          ]
+        }
+      ]
+    },
+    "get-post-asymmetry": {
+      "statement": "The Go SDK reads with one set of types and writes with another, noting that the API uses different names and types for POST than for GET: `active` and `enableLWFDriver` are strings on read and integers on write; in ZIA actions `mtuForZadapter` and `blockUnreachableDomainsTraffic` are read as number-or-string and written as strings; the ZPA action's `mtuForZadapter` is an integer on read and a string on write; `isSameAsOnTrustedNetwork` is a plain boolean on read and an optional boolean on write.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#active",
+        "zcc/forwarding-profiles#enableLWFDriver"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "quotes": [
+            "The API uses different field names and types for POST vs GET responses.",
+            "Active int `json:\"active\"`",
+            "EnableLWFDriver int `json:\"enableLWFDriver\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "after": "type ForwardingProfileActionRequest struct {",
+          "quotes": [
+            "BlockUnreachableDomainsTraffic string `json:\"blockUnreachableDomainsTraffic\"`",
+            "MtuForZadapter string `json:\"mtuForZadapter\"`",
+            "IsSameAsOnTrustedNetwork *bool `json:\"isSameAsOnTrustedNetwork,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+          "after": "type ForwardingProfileZpaActionRequest struct {",
+          "quotes": [
+            "MtuForZadapter string `json:\"mtuForZadapter\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "Active string `json:\"active\"`",
+            "EnableLWFDriver string `json:\"enableLWFDriver\"`",
+            "MtuForZadapter IntOrString `json:\"mtuForZadapter\"`",
+            "BlockUnreachableDomainsTraffic IntOrString `json:\"blockUnreachableDomainsTraffic\"`",
+            "IsSameAsOnTrustedNetwork bool `json:\"isSameAsOnTrustedNetwork,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "type ForwardingProfileZpaAction struct {",
+          "quotes": [
+            "MtuForZadapter int `json:\"mtuForZadapter\"`"
+          ]
+        }
+      ]
+    },
+    "intorstring-read": {
+      "statement": "On read, the Go SDK accepts either a JSON number or a quoted integer for the ZIA action fields typed `IntOrString` (including `dropIpv6Traffic`, `redirectWebTraffic` and `latencyBasedZenEnablement`), and fails on any other value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "DropIpv6Traffic IntOrString `json:\"dropIpv6Traffic\"`",
+            "RedirectWebTraffic IntOrString `json:\"redirectWebTraffic\"`",
+            "LatencyBasedZenEnablement IntOrString `json:\"latencyBasedZenEnablement\"`",
+            "parsedNum, err := strconv.Atoi(str)",
+            "return fmt.Errorf(\"invalid value for IntOrString: %s\", string(data))"
+          ]
+        }
+      ]
+    },
+    "go-request-omissions": {
+      "statement": "The Go write type has no field for `trustedNetworks` or `trustedNetworkIdsSelected` on the profile, or for `systemProxy`, `sendAllDNSToTrustedServer`, `optimiseForUnstableConnections` or `dropIpv6TrafficInIpv6Network` on a ZIA action, although the read type carries them all.",
+      "tier": "A",
+      "conditions": "Absence: the request types in forwarding_profile_request.go have none of those fields at the pin; the read-type fields are quoted. Changed per verifier from Tier B, which had no derived_from.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "TrustedNetworkIdsSelected []int `json:\"trustedNetworkIdsSelected\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "after": "type ForwardingProfileAction struct {",
+          "quotes": [
+            "SendAllDNSToTrustedServer int `json:\"sendAllDNSToTrustedServer\"`",
+            "OptimiseForUnstableConnections int `json:\"optimiseForUnstableConnections\"`",
+            "SystemProxy int `json:\"systemProxy\"`",
+            "DropIpv6TrafficInIpv6Network IntOrString `json:\"dropIpv6TrafficInIpv6Network\"`"
+          ]
+        }
+      ]
+    },
+    "python-keys-only": {
+      "statement": "The Python SDK's `update_forwarding_profile` renames keys the model declares to their wire keys, keeps wire-form keys and the legacy snake_case set (`WebPolicy.SNAKE_CASE_KEYS`) unchanged, camel-cases any other key, and copies values as given, so it does not convert a value's type.",
+      "tier": "A",
+      "conditions": "Corrected per verifier: unknown snake_case keys are not passed through but camel-cased by `to_lower_camel_case`; the module docstring's \"unknown keys pass through unchanged\" holds only for keys without an underscore.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/forwarding_profile.py",
+          "quotes": [
+            "body = zcc_to_wire(body, ForwardingProfile)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "quotes": [
+            "if provided_key in fmap:",
+            "if provided_key in wkeys:",
+            "if provided_key in _legacy_snake_preserve_keys():",
+            "4. Otherwise -> fall back to ``to_lower_camel_case`` (which honours",
+            "return to_lower_camel_case(provided_key)",
+            "out[wire_key] = value"
+          ]
+        }
+      ]
+    },
+    "python-model-coverage": {
+      "statement": "The Python model has no attribute for `optimiseForUnstableConnections` or `sendAllDNSToTrustedServer` on an action or for `trustedNetworkIdsSelected` on the profile; such keys are dropped when a response is read into the model. A caller who passes them by wire name sends them unchanged, but a snake_case name is camel-cased word by word, so `send_all_dns_to_trusted_server` goes out as `sendAllDnsToTrustedServer`, not the wire key `sendAllDNSToTrustedServer`.",
+      "tier": "B",
+      "conditions": "Rests on the absence of the three keys from the model file at the pin, and on the serializer keeping keys without an underscore and camel-casing other unknown keys (python-keys-only). Extended per verifier with the snake_case case; not sent.",
+      "derived_from": [
+        "python-keys-only"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/forwardingprofile.py",
+          "quotes": [
+            "self.system_proxy = config[\"systemProxy\"] if \"systemProxy\" in config else None"
+          ]
+        }
+      ]
+    },
+    "unified-tunnel-shape": {
+      "statement": "Both SDKs model a `unifiedTunnel` list, switched by `enableUnifiedTunnel`, whose entries each name a `networkType` and carry separate `actionTypeZIA` and `actionTypeZPA` codes alongside transport, MTU, fallback, IPv6, DNS and system proxy settings and a `sameAsOnTrusted` flag.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#unifiedTunnel",
+        "zcc/forwarding-profiles#enableUnifiedTunnel"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "EnableUnifiedTunnel int `json:\"enableUnifiedTunnel\"`",
+            "UnifiedTunnel []UnifiedTunnel `json:\"unifiedTunnel\"`",
+            "ActionTypeZIA int `json:\"actionTypeZIA\"`",
+            "ActionTypeZPA int `json:\"actionTypeZPA\"`",
+            "SameAsOnTrusted int `json:\"sameAsOnTrusted\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/forwardingprofile.py",
+          "quotes": [
+            "self.action_type_zia = config[\"actionTypeZIA\"] if \"actionTypeZIA\" in config else None",
+            "self.action_type_zpa = config[\"actionTypeZPA\"] if \"actionTypeZPA\" in config else None"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "lwf-driver-write-type": {
+      "summary": "The type of `enableLWFDriver` and `active` in the forwarding-profile write body: the contract says string, the Go write type says integer.",
+      "positions": [
+        {
+          "says": "The contract's `edit` request body types `enableLWFDriver` and `active` as strings.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit/post/requestBody/content/application~1json/schema/properties",
+            "expect": {
+              "active": {
+                "type": "string"
+              },
+              "enableLWFDriver": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "says": "The Go write type sends `enableLWFDriver` and `active` as integers.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+            "quotes": [
+              "EnableLWFDriver             int                                 `json:\"enableLWFDriver\"`",
+              "Active                      int                                 `json:\"active\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "A hand-built body that follows the contract sends a quoted value where the SDK sends a number. Which form the endpoint accepts is not settled by either source; the shared Go type's comment says ZCC write endpoints want numbers."
+    },
+    "mtu-write-type": {
+      "summary": "The type of `mtuForZadapter` on writes: the contract makes it an integer on the ZIA and ZPA actions, while the Go write types send it as a string.",
+      "positions": [
+        {
+          "says": "The contract's ZIA and ZPA action items type `mtuForZadapter` as an int32 integer.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit/post/requestBody/content/application~1json/schema/properties/forwardingProfileActions/items/properties/mtuForZadapter",
+            "expect": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        {
+          "says": "The Go ZPA action write type sends `mtuForZadapter` as a string, as do the ZIA action and unified-tunnel write types.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+            "after": "type ForwardingProfileZpaActionRequest struct {",
+            "quotes": [
+              "MtuForZadapter                 string             `json:\"mtuForZadapter\"`"
+            ]
+          }
+        }
+      ],
+      "impact": "Code written to the contract sends a number where the SDK sends a quoted number. Check a raw read and a successful UI-made write before choosing."
+    },
+    "zpa-latency-key-names": {
+      "summary": "The key names of the four ZPA latency settings: the contract uses ZPA-prefixed names (`latencyBasedZpaServerEnablement`, `lbsZpaProbeInterval`, `lbsZpaProbeSampleSize`, `lbsZpaThresholdLimit`), the Go SDK uses unprefixed ones, and the provider's comment says the API returns the unprefixed forms, while a recorded response uses the prefixed ones.",
+      "positions": [
+        {
+          "says": "The contract's ZPA action items carry `latencyBasedZpaServerEnablement` and `lbsZpaProbeInterval`, with `lbsZpaProbeSampleSize` and `lbsZpaThresholdLimit` alongside.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1edit/post/requestBody/content/application~1json/schema/properties/forwardingProfileZpaActions/items/properties/lbsZpaProbeInterval",
+            "expect": {
+              "type": "integer"
+            }
+          }
+        },
+        {
+          "says": "The Go ZPA action read and write types tag the fields `latencyBasedServerEnablement`, `lbsProbeInterval`, `lbsProbeSampleSize` and `lbsThresholdLimit`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile_request.go",
+            "after": "type ForwardingProfileZpaActionRequest struct {",
+            "quotes": [
+              "LatencyBasedServerEnablement   int                `json:\"latencyBasedServerEnablement\"`",
+              "LbsProbeInterval               int                `json:\"lbsProbeInterval\"`"
+            ]
+          }
+        },
+        {
+          "says": "The provider's comment says the API actually returns the unprefixed forms, and that an SDK with the prefixed tags leaves the fields at zero.",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "internal/framework/resources/forwarding_profile.go",
+            "quotes": [
+              "JSON tags latencyBasedZpaServerEnablement, lbsZpaProbeInterval,",
+              "actually returns the un-prefixed forms (latencyBasedServerEnablement,"
+            ]
+          }
+        },
+        {
+          "says": "A recorded `listByCompany` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) uses the contract's prefixed keys, for example `latencyBasedZpaServerEnablement` 0 and `lbsZpaProbeInterval` 30, and no unprefixed form.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+            "after": "webForwardingProfile/listByCompany response:",
+            "quotes": [
+              "\\\"latencyBasedZpaServerEnablement\\\" : 0,\\n    \\\"lbsZpaProbeInterval\\\"",
+              "\\\"lbsZpaProbeInterval\\\" : 30,"
+            ]
+          }
+        }
+      ],
+      "impact": "The recording supports the contract against the provider comment: against that tenant the Go read type at the pin, tagged `lbsProbeInterval` and the other unprefixed names, decodes the latency settings as zero, and the Go write sends keys the response does not use, so the settings are not managed through the SDK or the provider. Whether every tenant returns the prefixed names is not shown."
+    },
+    "code-field-type": {
+      "summary": "Whether the action codes are JSON numbers or strings: the API contract types `networkType`, `actionType` and `primaryTransport` in forwarding profile actions as strings of format byte, while the Go SDK reads and writes them as integers.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1listByCompany/get/responses/200/content/application~1json/schema/items/properties/forwardingProfileActions/items/properties/actionType",
+            "expect": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "says": "string (format byte); the same contract types the profile's `conditionType` as int32"
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+            "after": "type ForwardingProfileAction struct {",
+            "quotes": [
+              "ActionType int `json:\"actionType\"`"
+            ]
+          },
+          "says": "int, on both read and write"
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+            "after": "webForwardingProfile/listByCompany response:",
+            "quotes": [
+              "\\\"actionType\\\" : 3,"
+            ]
+          },
+          "says": "A recorded `listByCompany` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) returns the action codes as JSON numbers."
+        }
+      ],
+      "impact": "A client generated from the contract would expect and send strings, while the recorded response carries numbers, which Go's int fields decode; which form the edit endpoint accepts for each field is not documented."
+    }
+  },
+  "gaps": {
+    "failopen-cardinality": {
+      "kind": "semantic",
+      "title": "Whether a tenant has one fail-open policy or several",
+      "status": "partial",
+      "detail": "Unverified legacy statement: the fail-open list typically returns a single policy per tenant, the list form being a historical artifact of the endpoint design. The contract returns an array and does not say how many policies a tenant can hold. The Terraform provider treats the policy as a singleton that always exists and can only be updated, and takes the first entry of the list; a recorded listing from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) holds one policy. Neither is a vendor statement that a tenant cannot hold more.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/failopen_policy.go",
+          "quotes": [
+            "This is a singleton resource — the policy always exists and cannot be created or deleted, only updated.",
+            "existing := &policies[0]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestFailOpenPolicy.yaml",
+          "after": "webFailOpenPolicy/listByCompany response:",
+          "quotes": [
+            "string: \"[ {\\n  \\\"id\\\" : \\\"4441\\\",",
+            ": \\\"\\\"\\n} ]\""
+          ]
+        }
+      ],
+      "blocks": "choosing which fail-open policy an edit should target",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "network-type-values": {
+      "kind": "semantic",
+      "title": "Which networkType code is which network type",
+      "status": "partial",
+      "former_ids": [
+        "zcc-02"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileActions"
+      ],
+      "detail": "The Terraform provider documents 0 as off-trusted and 1 as on-trusted ([[zcc.api.forwarding-profile-wire:provider-doc-codes]]); its example uses 0 to 3, and no source maps 2 and 3 to VPN-Trusted and Split VPN-Trusted. A recorded `listByCompany` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) gives every profile actions for `networkType` 0 to 3. In that tenant the profile named Default has `networkType` 1 with `actionType` 3 and the other three with 1; if that profile is unedited, the help's account of VPN-Trusted (the app does not forward user traffic) would make 1 VPN-Trusted, against the provider's \"1 = on-trusted\". That is a lead only. Compare a tenant read with the console for one profile.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+          "after": "webForwardingProfile/listByCompany response:",
+          "quotes": [
+            "\\\"name\\\" : \\\"Default\\\",",
+            ": 1,\\n    \\\"actionType\\\" : 3,"
+          ]
+        }
+      ],
+      "blocks": "reading a network type from raw profile data",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "action-type-values": {
+      "kind": "semantic",
+      "title": "Which actionType code is which forwarding mode",
+      "status": "partial",
+      "former_ids": [
+        "zcc-03"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileActions",
+        "zcc/forwarding-profiles#unifiedTunnel"
+      ],
+      "detail": "The provider documents 0 direct, 1 tunnel, 2 none, while the console offers four Internet & SaaS modes (Tunnel, Tunnel with Local Proxy, Enforce Proxy, None) and two Private Access modes, so the provider's labels do not map one-to-one. A recorded `listByCompany` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) has `actionType` 3, which the provider's 0 to 2 list does not cover, on the Default profile's `networkType` 1 action (see network-type-values). Unverified legacy statement: the values are \"NONE, PAC, ENFORCE_POLICIES / TUNNEL\".",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+          "after": "webForwardingProfile/listByCompany response:",
+          "quotes": [
+            ": 1,\\n    \\\"actionType\\\" : 3,"
+          ]
+        }
+      ],
+      "blocks": "saying from raw data whether a network type tunnels, proxies or sends traffic direct",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "primary-transport-values": {
+      "kind": "semantic",
+      "title": "Which primaryTransport code is DTLS and which TLS",
+      "status": "partial",
+      "former_ids": [
+        "zcc-04"
+      ],
+      "detail": "The provider documents 0 as TLS and 1 as DTLS. The field appears on ZIA actions, ZPA actions, ZPA partner info and unified tunnel entries; whether the code means the same in each is not stated. A recorded `listByCompany` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) has `partnerInfo.primaryTransport` 2, which the provider's 0 and 1 do not cover.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+          "after": "webForwardingProfile/listByCompany response:",
+          "quotes": [
+            "\\\"partnerInfo\\\" : {\\n      \\\"primaryTransport\\\" : 2,"
+          ]
+        }
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "condition-type-values": {
+      "kind": "semantic",
+      "title": "Which profile conditionType code is Any and which All",
+      "status": "partial",
+      "former_ids": [
+        "zcc-01"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#conditionType"
+      ],
+      "detail": "The console's Condition Match is Any or All ([[zcc.trusted-networks.detection:any-all]]). The provider documents 0 as ANY and 1 as ALL for the profile, while its trusted network adapter maps the trusted network object's v1 code the other way, 0 as ALL and 1 as ANY ([[zcc.terraform.trusted-network-backend:v1-condition-type-mapping]]). They are different objects, so neither settles the other; compare the console and a tenant read for a profile with two conditions.",
+      "blocks": "saying whether a profile needs all of its conditions or any one",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "ids-selected": {
+      "kind": "semantic",
+      "title": "What trustedNetworkIdsSelected means beside trustedNetworkIds",
+      "status": "open",
+      "about": [
+        "zcc/forwarding-profiles#trustedNetworkIdsSelected"
+      ],
+      "detail": "Unverified legacy statements: `trustedNetworkIdsSelected` \"may be UI-selection state vs authoritative reference list\", and `trustedNetworks` holds the resolved names of the referenced networks. Only `trustedNetworkIds` is written by the Go SDK.",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "action-field-mapping": {
+      "kind": "semantic",
+      "title": "Which console setting each forwarding profile action field carries",
+      "status": "open",
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileActions",
+        "zcc/forwarding-profiles#forwardingProfileZpaActions",
+        "zcc/forwarding-profiles#enableLWFDriver"
+      ],
+      "detail": "The contract gives these fields no descriptions, and the legacy doc's meanings were inferred from names. Unverified legacy statements: `enablePacketTunnel` is \"packet-level tunnel vs L4/L7 proxy\"; `optimiseForUnstableConnections` is \"performance tuning for flaky networks\"; `useTunnel2ForUnencryptedWebTraffic` is a Z-Tunnel 2.0 toggle for unencrypted web traffic; `customPac` is custom PAC content or URL; `enableLWFDriver` is the Windows lightweight filter driver mode; `latencyBasedServerMTEnablement` is microtenant-aware server selection. By name the help suggests other readings for some: the console's Dynamic ZPA Service Edge Assignment has an Enable Machine Tunnel option ([[zcc.forwarding-profiles.private-access-actions:dynamic-zpa-se]]), and its packet-filter driver is called LWF mode for IPv6 dropping. Also by name: `latencyBasedZenEnablement` and `zen*` are Dynamic ZIA Service Edge Assignment, `allowTLSFallback` is Allow TLS Fallback, `redirectWebTraffic` and `useTunnel2ForProxiedWebTraffic` are the listening proxy options, and `sendAllDNSToTrustedServer` is Send All DNS During Fail-Close to Trusted-DNS Server.",
+      "blocks": "reading console behavior from raw forwarding profile data",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

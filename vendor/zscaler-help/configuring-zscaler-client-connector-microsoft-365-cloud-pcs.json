@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Zscaler Client Connector for Windows 365 Cloud PCs",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/configuring-zscaler-client-connector-microsoft-365-cloud-pcs",
+    "node": "1503916",
+    "revision": "3205683",
+    "updated": "2026-05-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-10-18",
+  "blocks": [
+    {
+      "text": "Microsoft Windows 365 is a cloud-delivered, Desktop-as-a-Service (DaaS) solution that provides a virtualized Windows desktop, also referred to as a Cloud PC, that is accessible from any device without needing to manage the underlying infrastructure to support it. These Cloud PCs sit within a Microsoft-managed subscription. You can choose between a self-managed, underlying network infrastructure or a Microsoft-hosted network."
+    },
+    {
+      "text": "This article describes how to use Zscaler Client Connector on Microsoft Windows 365."
+    },
+    {
+      "item": "Deploy a Windows 365 provisioning policy. Refer to the Microsoft documentation.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Install Zscaler Client Connector. There are two ways to deploy Zscaler Client Connector to a Windows 365 Cloud PC:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Use a custom image. Install Zscaler Client Connector onto the image before provisioning a Cloud PC.",
+      "depth": 1
+    },
+    {
+      "item": "Use Intune to deploy the application to the Cloud PC after it’s been provisioned. You can do this with either a custom image or a gallery image, and is Microsoft’s recommended approach to app deployment in Windows 365.",
+      "depth": 1
+    },
+    {
+      "item": "Configure Zscaler Client Connector for Windows 365. Bypass the RDP traffic used to connect to a Cloud PC from Zscaler Client Connector and given a direct path. To do this, select Windows 365 & Azure Visual Desktop in the Predefined IP-Based Application Bypass field in App Profiles.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          179,
+          213
+        ]
+      ]
+    },
+    {
+      "item": "The predefined application bypass provided by Zscaler simplifies deployment and includes IP addresses used for Cloud PC health monitoring, the Azure Instance Metadata Service (IMDS) endpoint, and gateway addresses with the WindowsVirtualDesktop service tag from Public Azure.",
+      "depth": 0
+    },
+    {
+      "text": "If the connecting client is using Zscaler Client Connector to optimize RDP traffic, Zscaler and Microsoft recommend configuring the bypasses mentioned earlier on both Cloud PCs running Zscaler Client Connector and the connecting client."
+    },
+    {
+      "text": "If IP address bypasses are not added, the following scenario can occur when a user is connected to the Cloud PC using RDP: After a user logs in to Zscaler Client Connector, the user experiences a freeze on the RDP session because the connection drops and is re-established. This happens every time the user logs in or logs out, turns Internet & SaaS off or on, or restarts the Internet & SaaS service in Zscaler Client Connector. However, after the session is re-established, users can use the Cloud PC without issues because as soon as the tunnel is established, all inbound traffic starts flowing through the tunnel, transferring the RDP traffic to it."
+    },
+    {
+      "text": "When installing Zscaler Client Connector in strict enforcement mode, use the app policy that has the bypasses mentioned earlier in the POLICYTOKEN tag to prevent users from losing access to the Cloud PC. After access is lost, the only way to regain access is to restore to a previous snapshot."
+    }
+  ]
+}

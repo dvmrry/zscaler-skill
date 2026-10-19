@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "id": "zcc.entitlements.zdx",
+  "title": "Digital Experience (ZDX) entitlement",
+  "aliases": [
+    "zdx enabled by default",
+    "upmEnableForAll",
+    "enable zdx for a group of users",
+    "enable zdx for device groups",
+    "logout zcc when zdx entitlement is enabled",
+    "logoutZCCForZDXService",
+    "computeDeviceGroupsForZDX",
+    "zdx location not collected"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.entitlements"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.web-privacy.collection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.entitlements-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-for-all}} {{configurations}} {{versions}}"
+    },
+    {
+      "label": "Device groups.",
+      "text": "{{posture-device-groups}}"
+    },
+    {
+      "label": "Logging users out.",
+      "text": "{{logout-on-enable}}"
+    },
+    {
+      "label": "Location.",
+      "text": "{{location-field}} The privacy-side switch works with this entitlement: [[zcc.web-privacy.collection:zdx-location]]. Whether both must be on for location to be collected is open {{gap:location-both-required}}."
+    },
+    {
+      "label": "In the API.",
+      "text": "{{api-field-names}} What the `upm` prefix stands for is open {{gap:upm-meaning}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ZDX Enabled by Default is on; otherwise whether the user's group or the device's group is selected.",
+      "uses": [
+        "default-for-all",
+        "configurations"
+      ]
+    },
+    {
+      "do": "Whether the client version supports group or device-group ZDX entitlement.",
+      "uses": [
+        "versions"
+      ]
+    },
+    {
+      "do": "For missing location data, the entitlement's location field and the User Privacy location switch.",
+      "uses": [
+        "location-field",
+        "zcc.web-privacy.collection:zdx-location",
+        "location-both-required"
+      ]
+    }
+  ],
+  "claims": {
+    "default-for-all": {
+      "statement": "With ZDX Enabled by Default on, ZDX is available to all users and cannot be assigned to a group or device group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zdx-group-users.json",
+          "quotes": [
+            "If this setting is enabled, then ZDX is available for all users and you cannot assign ZDX to a group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "enabling-zdx-all-users.json",
+          "quotes": [
+            "To enable ZDX for all users, ensure that ZDX Enabled by Default is enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "enabling-zdx-device-groups.json",
+          "quotes": [
+            "If this setting is enabled, ZDX is available for all users and you cannot assign ZDX to a device group."
+          ]
+        }
+      ]
+    },
+    "configurations": {
+      "statement": "With the default off, no user has ZDX unless groups are selected, and then only the selected groups do; the group selection defaults to None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zdx-group-users.json",
+          "quotes": [
+            "| Disabled | No | ZDX service is not enabled for any users |",
+            "| Disabled | Yes | ZDX service is enabled only for the specified group of users |",
+            "The default setting is None. This option means no groups have access to ZDX."
+          ]
+        }
+      ]
+    },
+    "versions": {
+      "statement": "Group-level ZDX entitlement needs Client Connector 2.2.1 or later, and device-group entitlement 3.9 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zdx-group-users.json",
+          "quotes": [
+            "To enable ZDX for only a select group of users, you must deploy Zscaler Client Connector 2.2.1 or later."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "enabling-zdx-device-groups.json",
+          "quotes": [
+            "To enable ZDX for device groups, you must deploy Zscaler Client Connector 3.9 or later."
+          ]
+        }
+      ]
+    },
+    "posture-device-groups": {
+      "statement": "With the default off and the posture-based service feature enabled, ZDX can be enabled for device groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enabling-zdx-all-users.json",
+          "quotes": [
+            "If this setting is disabled and posture based service feature is enabled, you can enable ZDX for Device Groups."
+          ]
+        }
+      ]
+    },
+    "logout-on-enable": {
+      "statement": "Logout Zscaler Client Connector when ZDX Entitlement is Enabled logs users out when ZDX is enabled for their device group, so that logging back in starts ZDX; it applies to customers using ZPA only or ZPA with Deception. With it off, the app runs without ZDX until the next login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zdx-group-users.json",
+          "quotes": [
+            "Select Logout Zscaler Client Connector when ZDX Entitlement is Enabled to automatically log users out of Zscaler Client Connector when ZDX is enabled for a device group.",
+            "This applies to customers using ZPA only or ZPA and Zscaler Deception. When disabled, Zscaler Client Connector runs without the ZDX service until the next Zscaler Client Connector login."
+          ]
+        }
+      ]
+    },
+    "location-field": {
+      "statement": "The ZDX entitlement object also carries a `collectZdxLocation` flag.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getZdxGroupEntitlements/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "collectZdxLocation": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "api-field-names": {
+      "statement": "In the API the settings read as `upmEnableForAll` (the default), `upmGroupList` and `upmDeviceGroupList` (the selections), `computeDeviceGroupsForZDX` (device groups enabled) and `logoutZCCForZDXService` (the logout option).",
+      "tier": "B",
+      "conditions": "The mapping of API fields to console settings is by name and position; no source states it.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getZdxGroupEntitlements/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "upmEnableForAll": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "computeDeviceGroupsForZDX": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "logoutZCCForZDXService": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "location-both-required": {
+      "kind": "semantic",
+      "title": "Whether ZDX location needs both the entitlement flag and the User Privacy switch",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"collect_zdx_location exists on BOTH ZdxGroupEntitlements AND WebPrivacy. Both must be true for ZDX to actually gather location data.\" The help says the User Privacy switch works in conjunction with the ZDX entitlement settings; it does not say how the two flags combine.",
+      "blocks": "explaining missing ZDX location data",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "upm-meaning": {
+      "kind": "semantic",
+      "title": "What the upm prefix of the ZDX entitlement fields stands for",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"UPM = User Posture Module (the component that runs ZDX sensors on the endpoint).\"",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

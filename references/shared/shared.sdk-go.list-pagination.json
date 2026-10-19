@@ -44,8 +44,12 @@
       "text": "{{zpa-silent-truncation}} {{zpa-helper-callers}} Whether ZPA endpoints send such paging metadata is open {{gap:zpa-paging-metadata-shape}}."
     },
     {
+      "label": "ZCC v1 paging.",
+      "text": "{{zcc-v1-stops-on-page-shorter-than-requested}} {{zcc-v1-extra-request}} {{zcc-v1-capped-page-truncates}} When the helper applies a JMESPath filter, and which Go services call it, is in [[zcc.sdk-go.paging-and-requests:v1-readallpages]] and [[zcc.sdk-go.paging-and-requests:v1-callers]]."
+    },
+    {
       "label": "ZCC v2 paging.",
-      "text": "{{zcc-skip-advances-by-requested-size}} {{zcc-guards-need-envelope-metadata}} {{zcc-skip-records-or-loop}} {{zcc-v2-callers}} Whether ZCC v2 endpoints cap the page or fill the envelope is open {{gap:zcc-v2-envelope-behavior}}."
+      "text": "{{zcc-v2-page-size}} {{zcc-skip-advances-by-requested-size}} {{zcc-guards-need-envelope-metadata}} {{zcc-skip-records-or-loop}} {{zcc-v2-callers}} Whether ZCC v2 endpoints cap the page or fill the envelope is open {{gap:zcc-v2-envelope-behavior}}."
     },
     {
       "label": "ZTC paging.",
@@ -83,6 +87,46 @@
     }
   ],
   "claims": {
+    "zcc-v1-stops-on-page-shorter-than-requested": {
+      "statement": "The ZCC v1 list helper (`ReadAllPages`) clamps the page size (0 or less becomes 50, more than 5000 becomes 5000), starts at page 1 and stops at the first page with fewer items than it asked for; the device list calls it with a page size of 1000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParams, pageSize int) ([]T, error) {",
+          "quotes": [
+            "pageSize = clampPageSize(pageSize)",
+            "params.Page = 1",
+            "if len(pageResults) < pageSize {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func clampPageSize(pageSize int) int {",
+          "quotes": [
+            "return DefaultPageSize",
+            "return MaxPageSize"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "DefaultPageSize = 50",
+            "MaxPageSize     = 5000"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/devices/devices.go",
+          "quotes": [
+            "return common.ReadAllPages[GetDevices](ctx, service.Client, getDevicesEndpoint, params, 1000)"
+          ]
+        }
+      ]
+    },
     "zpa-total-pages-parse-error-ignored": {
       "statement": "ZPA list pages are decoded with `totalPages` as an untyped value; it is turned into an int by formatting it as text and parsing, and the parse error is discarded. A missing, null or non-numeric `totalPages` becomes 0, and the helper returns that page's list with no error.",
       "tier": "A",
@@ -228,6 +272,85 @@
       "conditions": "Search run: `git -C vendor/zscaler-sdk-go grep -l \"GetAllPagesGeneric\\|GetAllPagesScimGenericWithSearch\" v3.8.42 -- zscaler/zpa` returned 63 files (62 callers plus common.go itself), including zscaler/zpa/services/microtenants/microtenants.go and the SCIM readers zscaler/zpa/services/scim_api/scim_group_api.go and scim_user_api.go (the only callers of the SCIM helper besides its own file). Not checked: which of those files wrap the result in extra paging of their own.",
       "derived_from": [
         "zpa-silent-truncation"
+      ]
+    },
+    "zcc-v1-extra-request": {
+      "statement": "Because the ZCC v1 helper stops only on a short page, a list whose size is an exact multiple of the page size costs one more request that returns an empty page.",
+      "tier": "B",
+      "derived_from": [
+        "zcc-v1-stops-on-page-shorter-than-requested"
+      ],
+      "conditions": "Moved from zcc.sdk-go.paging-and-requests:v1-extra-request, where it derived from the ZCC-side restatement of the same loop. Read from the loop; not observed against a tenant."
+    },
+    "zcc-v1-capped-page-truncates": {
+      "statement": "If a ZCC v1 list endpoint returns fewer items than the helper asked for on a full page (a server cap below the 1000 the device list requests, for example), the helper reads that page as the last one and returns a partial list with no error.",
+      "tier": "C",
+      "derived_from": [
+        "zcc-v1-stops-on-page-shorter-than-requested"
+      ],
+      "conditions": "Depends on a ZCC v1 endpoint capping its page below the requested size (gap zcc.sdk-python.pagination:page-param-honored); no such cap is recorded. Mirrors ztw-capped-page-truncates.",
+      "gaps": [
+        "zcc.sdk-python.pagination:page-param-honored"
+      ]
+    },
+    "zcc-v2-page-size": {
+      "statement": "The ZCC v2 drain helper clamps its page size like the v1 helper (0 or less becomes 50, more than 5000 becomes 5000), and all three v2 callers pass the default of 50. The single-page `ReadPageV2` turns 0 or less into 50 but does not cap a larger value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "perPage = clampPageSize(perPage)",
+            "if params.PerPage <= 0 {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func clampPageSize(pageSize int) int {",
+          "quotes": [
+            "return DefaultPageSize",
+            "return MaxPageSize"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func ReadPageV2[T any](",
+          "quotes": [
+            "params.PerPage = DefaultPageSize"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "DefaultPageSize = 50",
+            "MaxPageSize     = 5000"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "quotes": [
+            "return common.ReadAllPagesV2[TrustedNetworkV2](ctx, service.Client, trustedNetworkEndpointV2, params, common.DefaultPageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "quotes": [
+            "return common.ReadAllPagesV2[NotificationTemplate](ctx, service.Client, notificationTemplateEndpointV2, params, common.DefaultPageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "quotes": [
+            "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
+          ]
+        }
       ]
     },
     "zcc-skip-advances-by-requested-size": {

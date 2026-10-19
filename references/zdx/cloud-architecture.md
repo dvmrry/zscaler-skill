@@ -56,7 +56,7 @@ ZCC is the on-device agent responsible for all ZDX telemetry collection. It cont
 
 ZCC exchanges information bidirectionally with the Telemetry and Policy Gateway — reporting metrics upward and receiving ZDX configuration (policy) downward. The additional CPU cost of ZDX metric collection is described as negligible. ZCC also provides latitude and longitude coordinates for geolocation, but only if the operating system's location services are enabled. (`vendor/zscaler-help/understanding-zdx-cloud-architecture.json:50-52`)
 
-ZDX is one of three products that share the ZCC endpoint agent. Users not entitled to ZDX do not report ZDX metrics regardless of portal configuration — see [`../zcc/entitlements.md`](../zcc/entitlements.md).
+ZDX is one of three products that share the ZCC endpoint agent. Users not entitled to ZDX do not report ZDX metrics regardless of portal configuration — see [`zcc.entitlements`](kb:zcc.entitlements).
 
 ### Zero Trust Exchange (ZTE) integration
 
@@ -179,5 +179,5 @@ The TPG is explicitly described as a "multi-tenant RESTFUL application." (`vendo
 
 - ZDX overview and score mechanics — [`./overview.md`](./overview.md)
 - Probe measurement types and targeting — [`./probes.md`](./probes.md)
-- ZCC entitlement (ZDX gate for metrics reporting) — [`../zcc/entitlements.md`](../zcc/entitlements.md)
+- ZCC entitlement (ZDX gate for metrics reporting) — [`zcc.entitlements`](kb:zcc.entitlements)
 - Shared Zscaler cloud architecture (CA topology, ZIA CA active-passive, ZPA CA active-active) — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)

@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "zcc.firefox.proxy-and-trust",
+  "title": "Firefox traffic and certificate trust with and without the integration",
+  "aliases": [
+    "firefox certificate error zscaler",
+    "firefox ssl inspection",
+    "firefox sec_error_unknown_issuer zscaler",
+    "firefox z-tunnel 2.0",
+    "firefox z-tunnel 1.0",
+    "security.enterprise_roots.enabled"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "zcc.firefox.integration" },
+    { "rel": "interacts-with", "to": "zia.ssl-inspection.certificates" },
+    { "rel": "interacts-with", "to": "zia.traffic-forwarding.zcc" },
+    { "rel": "see-also", "to": "zcc.ssl-inspection.certificate-install" }
+  ],
+  "prose": [
+    {
+      "text": "Two things decide whether Firefox is covered: whether its traffic reaches Zscaler at all, and whether it trusts the certificate Zscaler presents when it inspects that traffic."
+    },
+    {
+      "label": "Reaching Zscaler on Z-Tunnel 1.0.",
+      "text": "{{z-tunnel-1}}"
+    },
+    {
+      "label": "Reaching Zscaler on Z-Tunnel 2.0.",
+      "text": "{{z-tunnel-2}} Domain bypasses in the app profile PAC apply only to web traffic from the system proxy: [[zcc.z-tunnel.bypasses:domain-needs-listener]]. On Windows, Redirect Web Traffic sends TCP 80 and 443 to the listening proxy so those bypasses apply anyway: [[zcc.z-tunnel.bypasses:redirect-web]]. Whether proxy-dependent authentication and AUP flows behave the same for a Firefox that ignores the system proxy is open {{gap:z-tunnel-2-proxy-behavior}}."
+    },
+    {
+      "label": "Trusting the inspection certificate.",
+      "text": "Firefox keeps its own trust store, so a root in the operating system store is not enough: [[zia.ssl-inspection.certificates:own-trust-stores]]. {{manual-certs}} Whether the integration also makes Firefox trust the operating system store is open {{gap:enterprise-roots}}."
+    },
+    {
+      "label": "Where the operating system root comes from.",
+      "text": "The app profile's Install Zscaler SSL Certificate puts it in the operating system store on Windows, Linux and macOS before Big Sur: [[zcc.ssl-inspection.certificate-install]]."
+    },
+    {
+      "text": "PAC file mechanics, including what a self-hosted copy loses, are in [[doc:references/shared/pac-files.md]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For certificate errors in Firefox only, whether the integration is disabled; if so, whether the signing certificate was installed in Firefox by hand.",
+      "uses": ["manual-certs", "enterprise-roots"]
+    },
+    {
+      "do": "For Firefox traffic missing from ZIA logs, which Z-Tunnel version and forwarding mode the device uses.",
+      "uses": ["z-tunnel-1", "z-tunnel-2"]
+    }
+  ],
+  "claims": {
+    "manual-certs": {
+      "statement": "Without Firefox integration, the signing certificates have to be installed in Firefox manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firefox-integration-zscaler-client-connector.json",
+          "quotes": [
+            "If you choose not to use Firefox integration for Zscaler Client Connector, then you must manually install the appropriate signing certificates from Firefox."
+          ]
+        }
+      ]
+    },
+    "z-tunnel-1": {
+      "statement": "Z-Tunnel 1.0 sends either all proxy-aware traffic or all port 80/443 traffic, depending on the forwarding profile. A Firefox that does not use the system proxy is not proxy-aware towards Client Connector, so it reaches Zscaler through Z-Tunnel 1.0 only when the profile sends port 80/443 traffic; the integration makes Firefox use the system proxy, and so proxy-aware.",
+      "tier": "B",
+      "conditions": "Combines the vendor's two Z-Tunnel 1.0 modes with the integration's stated effect; no source describes Firefox under Z-Tunnel 1.0 directly.",
+      "derived_from": ["zia.traffic-forwarding.zcc:z-tunnel-1", "zcc.firefox.integration:what-it-does"]
+    },
+    "z-tunnel-2": {
+      "statement": "Z-Tunnel 2.0 carries all ports and protocols, so Firefox traffic reaches Zscaler whether or not Firefox uses the system proxy; certificate trust still depends on Firefox's own store.",
+      "tier": "B",
+      "conditions": "Follows from Z-Tunnel 2.0 carrying all ports and protocols and Firefox keeping its own trust store; no source describes Firefox under Z-Tunnel 2.0 directly.",
+      "derived_from": ["zia.traffic-forwarding.zcc:z-tunnel-2", "zia.ssl-inspection.certificates:own-trust-stores"]
+    }
+  },
+  "gaps": {
+    "enterprise-roots": {
+      "kind": "semantic",
+      "title": "Whether the integration makes Firefox trust the operating system's certificate store",
+      "status": "open",
+      "former_ids": ["zcc-40"],
+      "detail": "Whether enabling the integration sets Firefox's security.enterprise_roots.enabled (so Firefox trusts roots in the OS store, including one Client Connector installed) or certificate trust needs a separate step. Unverified legacy statement: an inspected HTTPS site then shows SEC_ERROR_UNKNOWN_ISSUER or a similar error in Firefox only, and the remedy is a policies.json Certificates policy with ImportEnterpriseRoots: true or a manual import. The article states only that without the integration the certificates must be installed manually.",
+      "blocks": "whether an integrated Firefox needs its own certificate deployment",
+      "resolves_with": ["lab-test", "operator-experience"]
+    },
+    "z-tunnel-2-proxy-behavior": {
+      "kind": "semantic",
+      "title": "What Firefox loses under Z-Tunnel 2.0 when it ignores the system proxy",
+      "status": "partial",
+      "detail": "Unverified legacy statement: in Z-Tunnel 2.0 packet capture covers Firefox's traffic, but if a PAC URL is the forwarding action Firefox ignores it, so PAC bypass exceptions and direct-routing destinations may not be honored, and ZIA authentication or AUP flows that depend on the browser talking through the proxy may behave differently. The bypass part is answered: domain bypasses in the app profile PAC need the Z-Tunnel 1.0 listener and apply only to web traffic from the system proxy (claim zcc.z-tunnel.bypasses:domain-needs-listener), so a Firefox that does not use the system proxy misses them, unless Redirect Web Traffic to Zscaler Client Connector Listening Proxy (Windows 3.8 and later) sends its TCP 80 and 443 traffic to the listening proxy, where app profile PAC bypasses apply (claim zcc.z-tunnel.bypasses:redirect-web). Whether ZIA authentication and AUP flows behave differently for such a Firefox is still open.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-adding-bypasses-z-tunnel-2.0.json",
+          "quotes": [
+            "This bypass requires Z-Tunnel 1.0 listener, which can only bypass the web traffic (i.e., HTTP/HTTPS traffic) originating from the system proxy.",
+            "By using this option, bypasses in the app profile PAC can be applied to web traffic without a forwarding profile PAC."
+          ]
+        }
+      ],
+      "blocks": "explaining Firefox-only policy differences on Z-Tunnel 2.0",
+      "resolves_with": ["lab-test"]
+    }
+  }
+}

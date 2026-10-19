@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "zcc.device-posture.linux-client-certificate",
+  "title": "Setting up the Client Certificate posture check on Linux",
+  "aliases": [
+    "linux client certificate posture",
+    "/opt/zscaler/private_key",
+    "~/.Zscaler/certificates",
+    "non-exportable private key linux",
+    "linux posture certificate fails"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "zcc.device-posture.check-types" }
+  ],
+  "prose": [
+    {
+      "text": "On Linux the client certificate and its key are files Client Connector reads from fixed directories. Where they go depends on whether the profile's Non-Exportable Private Key option is on."
+    },
+    {
+      "label": "What is verified.",
+      "text": "{{verifies}} {{ca-in-trust-store}}"
+    },
+    {
+      "label": "Certificate file.",
+      "text": "{{cert-locations}}"
+    },
+    {
+      "label": "Private key.",
+      "text": "{{key-locations}} {{key-permission-enforced}}"
+    },
+    {
+      "label": "Confirming the chain.",
+      "text": "{{verify-commands}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the certificate and key sit in the directories for the profile's Non-Exportable Private Key setting, with the .pem and .key extensions.",
+      "uses": ["cert-locations", "key-locations"]
+    },
+    {
+      "do": "With Non-Exportable Private Key on, whether the key file under /opt/zscaler/private_key/ is readable by any non-root user, which fails the check.",
+      "uses": ["key-permission-enforced"]
+    },
+    {
+      "do": "Whether openssl verifies the certificate chain against the system store, with any intermediates installed.",
+      "uses": ["verify-commands", "ca-in-trust-store"]
+    }
+  ],
+  "claims": {
+    "verifies": {
+      "statement": "The Linux Client Certificate check verifies that the client system trusts the CA certificate uploaded to the admin console, that the client certificate is issued by that CA or chains to it as root, and that the certificate's private key is on the system.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-client-certificate-posture-check-linux.json",
+          "quotes": [
+            "The certificate authority (CA) certificate uploaded to the Zscaler Admin Console can be trusted by the Linux client system.",
+            "The Client Certificate on the Linux client system is either issued by the CA certificate or is on the certificate chain of trust, with the uploaded CA certificate being a root CA.",
+            "The private key associated with the Client Certificate is on the Linux client system."
+          ]
+        }
+      ]
+    },
+    "ca-in-trust-store": {
+      "statement": "An uploaded self-signed root CA and all intermediate CAs must be installed in the client's trusted certificate store; intermediates may instead go in /opt/zscaler/intermediate_ca/.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-client-certificate-posture-check-linux.json",
+          "quotes": [
+            "This root CA certificate and all intermediate CAs must be installed in the trusted certificate store on the Linux client system",
+            "they must be installed either in the system store or the directory /opt/zscaler/intermediate_ca/."
+          ]
+        }
+      ]
+    },
+    "cert-locations": {
+      "statement": "The client certificate must be a Base64 file ending in .pem, placed in ~/.Zscaler/certificates/ with user access when Non-Exportable Private Key is off, or in /opt/zscaler/client_cert/ with root-only access when it is on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-client-certificate-posture-check-linux.json",
+          "after": "3. Copy the Client Certificate file client_cert.pem to the following locations on the Linux client:",
+          "quotes": [
+            "The certificate file must be Base64-encoded and the file name must end with the extension .pem.",
+            "If Non-Exportable Private Key is disabled, copy to ~/.Zscaler/certificates/. The Client Certificate file has user access permission.",
+            "If Non-Exportable Private Key is enabled, copy to /opt/zscaler/client_cert/. The Client Certificate file has root access only."
+          ]
+        }
+      ]
+    },
+    "key-locations": {
+      "statement": "The private key must be a Base64 file ending in .key, placed in ~/.Zscaler/certificates/private/ when Non-Exportable Private Key is off, or in /opt/zscaler/private_key/ when it is on; that directory is created at install, owned by root with permission 755.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-client-certificate-posture-check-linux.json",
+          "quotes": [
+            "If Non-Exportable Private Key is disabled, copy the private key in the user's home directory: ~/.Zscaler/certificates/private/",
+            "If Non-Exportable Private Key is enabled, copy the private key to the directory: /opt/zscaler/private_key/. This directory is created when you install Zscaler Client Connector. This directory is owned by the root and has a permission setting of 755.",
+            "The private key file should be Base64-encoded and the file name must end with the extension .key."
+          ]
+        }
+      ]
+    },
+    "key-permission-enforced": {
+      "statement": "Client Connector checks the private key file's permissions, and posture validation fails if non-root users can access the file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-client-certificate-posture-check-linux.json",
+          "quotes": [
+            "Zscaler Client Connector checks the private key file's permission. Posture validation fails if the file can be accessed by non-root users."
+          ]
+        }
+      ]
+    },
+    "verify-commands": {
+      "statement": "The vendor's check for a correct install is `openssl verify -show_chain` against /etc/ssl/certs/ on Ubuntu or /etc/pki/ca-trust/extracted/pem/ on CentOS and Fedora.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-client-certificate-posture-check-linux.json",
+          "after": "9. Confirm that certificates are properly installed by running the following commands:",
+          "quotes": [
+            "On Ubuntu systems: openssl verify -show_chain -CApath /etc/ssl/certs/ <client_cert_file>",
+            "On CentOS/Fedora systems: openssl verify -show_chain -CApath /etc/pki/ca-trust/extracted/pem/ <client_cert_file>"
+          ]
+        }
+      ]
+    }
+  }
+}

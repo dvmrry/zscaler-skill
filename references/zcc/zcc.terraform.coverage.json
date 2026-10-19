@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "id": "zcc.terraform.coverage",
+  "title": "What the ZCC Terraform provider covers, and what it leaves to the console",
+  "aliases": [
+    "zcc terraform missing resource",
+    "zcc terraform aup",
+    "zcc terraform app profile",
+    "zcc terraform entitlements",
+    "zcc provider api parity",
+    "zcc_notification_template scope"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.acceptable-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.entitlements-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The list of resources and data sources is generated: run `node scripts/kb.mjs surface zcc` and read the `terraform` entries. This subject holds why some configuration has no resource and what the notification resource does and does not manage."
+    },
+    {
+      "label": "Public API only.",
+      "text": "{{api-parity}} {{no-terraform-resource}} {{no-entitlement-resource}} The web policy API itself is [[zcc.api.web-policy-wire]]."
+    },
+    {
+      "label": "Notification templates.",
+      "text": "{{notification-template-scope}} The acceptable use policy is a separate setting, described in [[zcc.acceptable-use]], and the generated resource list (`node scripts/kb.mjs surface zcc`) has no AUP resource."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the setting is exposed by the public API at all before looking for a provider resource for it.",
+      "uses": [
+        "api-parity"
+      ]
+    }
+  ],
+  "claims": {
+    "api-parity": {
+      "statement": "The provider documentation says it keeps parity with the publicly available API endpoints and implements only what that API exposes, so a setting available in the console but not through the API cannot be in the provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/index.md",
+          "quotes": [
+            "The ZCC Terraform provider maintains parity with publicly available API endpoints.",
+            "we implement only the features that are currently exposed by the public API."
+          ]
+        }
+      ]
+    },
+    "notification-template-scope": {
+      "statement": "`zcc_notification_template` manages a notification template through `/zcc/papi/public/v2/notification-templates`: which end-user notifications Client Connector raises (application updates, service-status changes, ZIA firewall, DNS and IPS blocks, ZPA reauthentication prompts and posture-failure messages). The per-service toggles are the single nested attributes `zia_notification_template` and `zpa_notification_template`, written `zia_notification_template = { ... }`; the documentation calls them nested blocks while its own example uses `=`.",
+      "tier": "A",
+      "conditions": "Corrected 'nested ZIA and ZPA blocks': the schema declares them as SingleNestedAttribute, so they take `=`. Added the SDK's endpoint constant as the path's source.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_notification_template.md",
+          "quotes": [
+            "A notification template controls which end-user notifications the Client Connector raises on the endpoint — application updates, service-status changes, ZIA firewall/DNS/IPS blocks, ZPA reauthentication prompts, and posture-failure messages.",
+            "Per-service toggles live under the two nested blocks `zia_notification_template` and `zpa_notification_template`.",
+            "zia_notification_template = {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/notification_template.go",
+          "quotes": [
+            "\"zia_notification_template\": schema.SingleNestedAttribute{",
+            "\"zpa_notification_template\": schema.SingleNestedAttribute{"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "quotes": [
+            "notificationTemplateEndpointV2 = \"/zcc/papi/public/v2/notification-templates\""
+          ]
+        }
+      ]
+    },
+    "no-terraform-resource": {
+      "statement": "The ZCC Terraform provider registers no resource or data source for app profiles or web policies: the per-OS app profile resources and the application profiles data source are intentionally deregistered.",
+      "tier": "A",
+      "conditions": "Upgraded from Tier B: the provider's CLAUDE.md states the deregistration. Absence: the provider's resource and data source registrations and the files under internal/framework were searched at the pin for web policy or app profile; none found.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "The per-OS `zcc_app_profile_*` resources (`macos`, `ios`, `windows`, `linux`, `android`) and the `zcc_application_profiles` data source are **intentionally deregistered**.",
+            "### 3. Web policy / app_profile family (parked — DO NOT re-register without sign-off)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider.go",
+          "quotes": [
+            "resources.NewWebPrivacyResource,"
+          ]
+        }
+      ]
+    },
+    "no-entitlement-resource": {
+      "statement": "The ZCC Terraform provider registers no resource or data source for entitlements.",
+      "tier": "B",
+      "conditions": "Moved from zcc.entitlements.api:no-terraform-resource (renamed: the ID collides with the app profile claim here). Absence: the provider's resource and data source registrations were searched at the pin for entitlement; none found.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider.go",
+          "quotes": [
+            "resources.NewWebPrivacyResource,"
+          ]
+        }
+      ]
+    }
+  }
+}

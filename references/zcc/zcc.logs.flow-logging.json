@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "zcc.logs.flow-logging",
+  "title": "Client Connector flow logging on Windows",
+  "aliases": [
+    "zcc flow logging",
+    "flow logger",
+    "flowLoggerConfig",
+    "unclassified flow",
+    "zcc direct traffic logging"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.logs.client-log"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{flow-logging}} {{flow-areas}}"
+    },
+    {
+      "label": "In the API.",
+      "text": "{{api-field}} {{go-flow-fields}}"
+    },
+    {
+      "label": "Records.",
+      "text": "Where the reported flows appear in ZIA and what their fields are is not captured {{gap:flow-record-fields}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Windows app profile enables Flow Logging and Install WFP Driver before expecting flow records for direct or ZPA traffic.",
+      "uses": [
+        "flow-logging",
+        "flow-areas"
+      ]
+    }
+  ],
+  "claims": {
+    "flow-logging": {
+      "statement": "Flow Logging, an app profile option on Windows, installs a WFP-based Zscaler driver that logs flows to capture traffic Client Connector excludes; it needs Install WFP Driver and is enabled by Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Flow Logging: When enabled, a WFP-based Zscaler driver is installed for flow logging to capture excluded traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "You must enable Install WFP Driver to use this feature. Contact Zscaler Support to enable this feature."
+          ],
+          "after": "Flow Logging: When enabled"
+        }
+      ]
+    },
+    "flow-areas": {
+      "statement": "Client Connector logs and reports flows to ZIA for the areas enabled: traffic through the Private Access tunnel, direct traffic that neither Zscaler nor a VPN handles, and traffic Client Connector itself blocks (Unclassified Flow).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Zscaler Client Connector logs and reports traffic flows to Internet & SaaS from the following areas you enable:",
+            "ZPA: Traffic that goes through the Private Access Tunnel.",
+            "Direct: Traffic that goes to the internet/intranet directly (i.e., the traffic not handled by Zscaler or VPN).",
+            "Whether the Flow Logger should report the traffic blocked by Zscaler Client Connector. This type of flow is also known as Unclassified Flow."
+          ]
+        }
+      ]
+    },
+    "api-field": {
+      "statement": "The web policy's Windows block carries `flowLoggerConfig`, which matches Flow Logging by name; the API reference gives it no description.",
+      "tier": "B",
+      "conditions": "Name correspondence only; no source maps flowLoggerConfig to the console option or documents its value.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/windowsPolicy/properties/flowLoggerConfig",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "go-flow-fields": {
+      "statement": "The Go SDK's company-info model also has flow-logger fields (`enableFlowLogger`, `flowLoggingBufferLimit`, `flowLoggingTimeInterval` and per-area `flowLogger…Visibility` flags), and its web policy model has `flowLoggingSelected`; they match Flow Logging by name only.",
+      "tier": "B",
+      "derived_from": [
+        "flow-logging"
+      ],
+      "conditions": "Name correspondence only; no source documents these fields or maps them to console options.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/company/company.go",
+          "quotes": [
+            "EnableFlowLogger string `json:\"enableFlowLogger\"`",
+            "FlowLoggingBufferLimit int `json:\"flowLoggingBufferLimit\"`",
+            "FlowLoggingTimeInterval int `json:\"flowLoggingTimeInterval\"`",
+            "FlowLoggerZPATypeVisibility string `json:\"flowLoggerZPATypeVisibility\"`",
+            "FlowLoggerDirectTypeVisibility string `json:\"flowLoggerDirectTypeVisibility\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "FlowLoggingSelected []any `json:\"flowLoggingSelected\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "flow-record-fields": {
+      "kind": "semantic",
+      "title": "Where flow-logging records appear and their fields",
+      "status": "open",
+      "detail": "The app profile article says flows are reported to Internet & SaaS but no captured article gives the record type or a field table, and no ZCC log type exists in the graph. flowLoggerConfig is matched to the console's Flow Logging option by name only (api-field); how flow logs relate to the local client log is still unsourced, as the legacy doc said.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

@@ -22,7 +22,7 @@ class AnchorCase:
 
 # references/zia/dlp.md and content-inspection-extras.md were converted to the knowledge graph; their
 # API facts are now cited by keyed pointer (zia.dlp.rule-wire-shape, zia.file-type-control.api-shape) and
-# checked by `node scripts/kb.mjs validate`. references/zpa/api-divergences.md went the same way (zpa.api.*).
+# checked by `node scripts/kb.mjs validate`. references/zpa/api-divergences.md and references/zcc/api-divergences.md went the same way (zpa.api.*, zcc.api.*).
 CASES = [
     AnchorCase(
         "references/zscaler-cellular/api.md",
@@ -138,28 +138,6 @@ CASES = [
         20,
         20,
         ("| `zid` | 31 | 18 | 0 |",),
-    ),
-    AnchorCase(
-        "references/zcc/api-divergences.md",
-        "The generated report also records the ZCC boundary conditions",
-        "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:32-35",
-        "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md",
-        32,
-        35,
-        (
-            "## Scope Notes",
-            "v2 trusted-network API",
-            "no matching captured Automate contract operations",
-        ),
-    ),
-    AnchorCase(
-        "references/_meta/clarifications.md",
-        "**2026-06-18 live-fetch data point**",
-        "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md:35",
-        "vendor/zscaler-api-specs/automate-zscaler/zcc-divergences.md",
-        35,
-        35,
-        ("no matching captured Automate contract operations",),
     ),
     AnchorCase(
         "references/_meta/clarifications.md",

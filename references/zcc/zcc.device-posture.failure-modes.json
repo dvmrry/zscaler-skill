@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "zcc.device-posture.failure-modes",
+  "title": "Why a device fails posture, and what the user sees",
+  "aliases": [
+    "posture failing",
+    "posture verification failed",
+    "device posture failure notification",
+    "posture check fails closed",
+    "crowdstrike zta score missing",
+    "posture stale after change"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.device-posture.check-types"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.posture-profiles.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.policy-operand"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.templates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A posture failure is either the check genuinely failing, the check being unable to run, or a result that has not been refreshed. Only the first is fully documented."
+    },
+    {
+      "label": "The check failed.",
+      "text": "Each type's pass condition is in [[zcc.device-posture.check-types]], including the cases where an unreadable registry key or a readable Linux key fails it: [[zcc.device-posture.check-types:registry-key]], [[zcc.device-posture.linux-client-certificate:key-permission-enforced]]."
+    },
+    {
+      "label": "The check could not run.",
+      "text": "Whether a check Client Connector cannot run counts as a failure is open {{gap:unevaluable-check}}. What a client below a type's version floor reports is open {{gap:below-version-floor}}. Whether a missing CrowdStrike ZTA score is distinguishable from a low one is open {{gap:zta-score-absent}}."
+    },
+    {
+      "label": "The result is stale.",
+      "text": "Evaluation runs on a schedule and on triggers, and existing connections keep the earlier result: [[zpa.posture-profiles.evaluation:cadence]], [[zpa.posture-profiles.evaluation:immediate-checks]]."
+    },
+    {
+      "label": "What the user sees.",
+      "text": "{{failure-message}} When the pop-up appears, and how it can be delayed: [[zcc.notifications.templates:posture-remediation]], [[zcc.notifications.templates:posture-delay]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the failing type is one that re-evaluates immediately on change or waits for the schedule, before concluding the device is still failing.",
+      "uses": [
+        "zpa.posture-profiles.evaluation:immediate-checks",
+        "zpa.posture-profiles.evaluation:cadence"
+      ]
+    },
+    {
+      "do": "For a CrowdStrike ZTA failure, the Falcon agent's state and score on the device before the posture rule.",
+      "uses": [
+        "zcc.device-posture.check-types:crowdstrike-zta-score",
+        "zta-score-absent"
+      ]
+    },
+    {
+      "do": "Whether the user should have seen a remediation message: the access policy's Device Posture Failure Notification and the app profile's notification template setting, on a supported client version.",
+      "uses": [
+        "zcc.notifications.templates:posture-remediation",
+        "failure-message"
+      ]
+    }
+  ],
+  "claims": {
+    "failure-message": {
+      "statement": "A posture profile can carry an optional message, and a website URL, shown when a user is blocked from a Private Access app because posture failed: the user gets a pop-up with a Learn More link that opens the message in Client Connector's Notifications window. The message shows only when the access policy has Device Posture Failure Notification enabled and the user's app profile has a notification template with Show Device Posture Failure Remediation Notification enabled, only on Client Connector 4.8 and later for Windows and 5.0 and later for macOS, and Zscaler Support must enable the feature.",
+      "tier": "A",
+      "conditions": "Extended per verifier with the source's conditions on when the message shows.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "The message displays only if the associated access policy has the Device Posture Failure Notification enabled and the user's app profile includes a notification template with Show Device Posture Failure Remediation Notification enabled.",
+            "Applies only to Zscaler Client Connector version 4.8 and later for Windows and Zscaler Client Connector version 5.0 and later for macOS. Contact Zscaler Support to enable this feature.",
+            "Message: (Optional) A message that displays if an end user is blocked from a Private Access app due to the device posture failing.",
+            "If the device posture fails, the end user receives a standard pop-up notification with a Learn More link. If the user clicks Learn More, the Zscaler Client Connector app opens and displays this message in the Notifications window.",
+            "Website URL: (Optional) Enter a website URL to include in the message"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "unevaluable-check": {
+      "kind": "semantic",
+      "title": "Whether a posture check that cannot run is reported as failed",
+      "status": "open",
+      "detail": "Unverified legacy statement: if Client Connector cannot evaluate a check, for example it cannot access the registry or the certificate path is unreadable, the result is treated as a failed posture. The vendor documents two specific cases (the user-context registry check and the Linux key permission check) but not a general rule.",
+      "blocks": "telling a misconfigured check from a non-compliant device",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "below-version-floor": {
+      "kind": "semantic",
+      "title": "What a client older than a posture type's minimum version reports",
+      "status": "open",
+      "detail": "Unverified legacy statement: posture types introduced in newer Client Connector versions are silently unavailable on clients below the required version, so a profile using such a type evaluates inconsistently across a mixed fleet until it is upgraded. The vendor gives a minimum version per type but not what an older client reports for it.",
+      "blocks": "predicting posture results on a fleet with mixed Client Connector versions",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "zta-score-absent": {
+      "kind": "semantic",
+      "title": "What a CrowdStrike ZTA check reports when no score is available",
+      "status": "open",
+      "detail": "Unverified legacy statement: the ZTA score types read the score from the Falcon agent; if the agent is not running or has no score yet, the check fails closed, and Private Access cannot tell this from a score that is too low. The vendor states only that CrowdStrike must be running to pass.",
+      "blocks": "separating a CrowdStrike agent problem from a low-score device in posture investigations",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

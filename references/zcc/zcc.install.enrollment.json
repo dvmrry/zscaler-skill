@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.enrollment",
+  "title": "Install parameters that identify the tenant and user at enrollment",
+  "aliases": [
+    "userDomain",
+    "USERDOMAIN",
+    "cloudName",
+    "cloudname",
+    "deviceToken",
+    "userName",
+    "UNAME",
+    "externalDeviceId",
+    "enableFips",
+    "authByTunnel",
+    "autoEnrollWithMDM",
+    "ownership variable install key",
+    "skip zcc enrollment page"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.strict-enforcement"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These parameters tell Client Connector which tenant and which user it is enrolling before it has a policy. Most keys have the same name on every platform, with a few exceptions noted below."
+    },
+    {
+      "label": "Domain.",
+      "text": "{{user-domain}}"
+    },
+    {
+      "label": "Cloud.",
+      "text": "{{cloud-name}}"
+    },
+    {
+      "label": "Client Connector as the IdP.",
+      "text": "{{device-token}} {{ios-auth-by-tunnel}} {{android-auto-enroll}} Whether a missing companion key fails visibly is open {{gap:auto-enroll-missing-keys}}."
+    },
+    {
+      "label": "User and device.",
+      "text": "{{user-name}} {{external-device-id}} {{ownership}}"
+    },
+    {
+      "label": "Cryptography.",
+      "text": "{{enable-fips}}"
+    },
+    {
+      "label": "Key spelling.",
+      "text": "{{mobile-key-casing}}"
+    },
+    {
+      "text": "Strict enforcement, which requires the cloud name, is in [[zcc.install.strict-enforcement]]; how these keys are delivered per platform is in [[zcc.install]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the userDomain value is exactly the domain in the SAML NameID of the users being enrolled, and whether the tenant uses several IdPs.",
+      "uses": [
+        "user-domain"
+      ]
+    },
+    {
+      "do": "Whether the tenant is provisioned on more than one cloud before setting cloudName, unless strict enforcement needs it.",
+      "uses": [
+        "cloud-name"
+      ]
+    },
+    {
+      "do": "On iOS and Android, whether the key is spelled with that platform's casing (cloudname, username, Ownership).",
+      "uses": [
+        "mobile-key-casing"
+      ]
+    }
+  ],
+  "claims": {
+    "user-domain": {
+      "statement": "userDomain (MSI `USERDOMAIN`) is the organization's domain; with several domains it is the primary domain, which works only with a single IdP across those domains. It must be the exact domain in the SAML NameID. It lets users skip the enrollment page and go straight to the SSO login page; where SSO is integrated with the app (IWA on Windows, the Microsoft Enterprise SSO plug-in on macOS) users also skip the SSO page and are enrolled and logged in automatically. With non-persistent Citrix VDIs on Windows, this option requires IWA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: USERDOMAINEXE: userDomain",
+            "The primary domain won’t work if you have multiple domains across multiple IdPs.",
+            "Specify the exact domain that is present in the SAML NameID field.",
+            "This install option allows users to skip the app enrollment page.",
+            "users can also skip the SSO login page and are automatically enrolled with Zscaler service and logged in.",
+            "To use this install option when deploying Zscaler Client Connector with non-persistent Citrix VDIs, you must use IWA.",
+            "using a mechanism like Integrated Windows Authentication [IWA]"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "using a mechanism like Microsoft Enterprise SSO plug-In"
+          ]
+        }
+      ]
+    },
+    "cloud-name": {
+      "statement": "cloudName (MSI `CLOUDNAME`) names the cloud the organization is provisioned on, so users of an organization on more than one cloud do not have to pick a cloud during enrollment. It is not to be used when the organization is on one cloud, since the app then sends traffic to the right cloud by itself. It is required with strict enforcement on Windows, macOS and iOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: CLOUDNAMEEXE: cloudName",
+            "With this install option, you can specify the cloud where the app sends user traffic, so your users don't have to make the selection during enrollment.",
+            "Do not use this option if your organization is provisioned on one cloud.",
+            "This option is required if you use the STRICTENFORCEMENT or strictEnforcement option."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "This option is required if you use the strictEnforcement option."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "This option is required if you use the strictEnforcement option."
+          ]
+        }
+      ]
+    },
+    "device-token": {
+      "statement": "deviceToken carries a device token generated in the Admin Console, for using the Admin Console as the IdP: the service then provisions and authenticates users silently. It applies only to Internet & SaaS; on Windows, macOS and iOS Private Access supports it only together with Authentication Service, and on Android Private Access does not support it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "The Zscaler service silently provisions and authenticates users even if you don't have an authentication mechanism in place.",
+            "This option applies only to Internet & SaaS. It is not supported by Private Access unless you also use Authentication Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "This option applies only to Internet & SaaS. It is not supported by Private Access unless you also use Authentication Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "This option applies only to Internet & SaaS. It is not supported by Private Access unless you also use Authentication Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "This option applies only to Internet & SaaS. It is not supported by Private Access.Before adding this option"
+          ]
+        }
+      ]
+    },
+    "ios-auth-by-tunnel": {
+      "statement": "On iOS, authByTunnel sets auto-enrollment when the Admin Console is the IdP: 1 always auto-enrolls, even after a manual logout or removal from the Admin Console; 2 auto-enrolls once; 0 disables it. It applies only to Internet & SaaS; with Private Access enabled, users log in manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "The auto-enrollment settings for users if you want to use the Zscaler Admin Console as an IdP for authentication.",
+            "1= Users will always auto-enroll even if they are logged out manually or forcefully removed from the Zscaler Admin Console2= One-time auto-enrollment0= Disable auto-enrollment",
+            "If Private Access is enabled, users would log in manually with their user credentials."
+          ]
+        }
+      ]
+    },
+    "android-auto-enroll": {
+      "statement": "On Android, autoEnrollWithMDM configures auto-enrollment without user interaction when Client Connector is the IdP: 0 disables it, 1 always auto-enrolls, even after logout, and 2 auto-enrolls once. With 1 or 2, deviceToken, cloudName and userDomain must be set; without userName, or without the contacts permission granted from the MDM, users are prompted to give Zscaler access to their contacts so it can read the Google account username.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "Use this parameter to configure auto-enrollment without user interaction when using Client Connector IdP.",
+            "Enter 1 to always auto-enroll, even after log out.Enter 2 for one-time auto-enrollment.",
+            "When this parameter is set to either 1 or 2, you must specify the parameters deviceToken, cloudName, and userDomain before enabling the autoEnrollWithMDM option.",
+            "users are prompted to allow Zscaler to access their contacts when enrolling in Zscaler Client Connector so that the auto-enrollment process can retrieve the Google account username for enrollment."
+          ]
+        }
+      ]
+    },
+    "user-name": {
+      "statement": "userName (MSI `UNAME`) is the user's name without the domain, up to 255 alphanumeric and special characters, and can be filled by an MDM macro; userDomain must be set when it is used. With Intune on Android, Intune's `partialupn` token reuses the Intune enrollment username.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: UNAMEEXE: userName",
+            "A maximum of 255 alphanumeric and special characters.For example, if the username is j.doe@zscaler.com, enter j.doe",
+            "If you use this option, the USERDOMAIN or userDomain option must not be empty."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "To use the same username used for enrolling in Intune, you can use the {{partialupn}} token."
+          ]
+        }
+      ]
+    },
+    "external-device-id": {
+      "statement": "externalDeviceId associates a device in an MDM with the same device in the Admin Console, can be filled by an MDM macro, and defaults to 0 (disabled). It is not supported on Client Connector 4.0 and earlier for Windows or 4.1 and earlier for macOS, and applies from 3.7 on Android and Android on ChromeOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "The identifier that associates devices in an MDM solution with devices in the Zscaler Admin Console.",
+            "Not supported on Zscaler Client Connector version 4.0 and earlier for Windows."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: EXTERNALDEVICEIDEXE: externalDeviceId",
+          "quotes": [
+            "0 = Disable (default)Enter a custom value to identify the device"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "Not supported on Zscaler Client Connector version 4.1 and earlier for macOS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "after": "| externalDeviceId | The identifier that associates devices",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 3.7 and later for Android"
+          ]
+        }
+      ]
+    },
+    "ownership": {
+      "statement": "The ownership key feeds the Ownership Variable device posture type, with up to 32 alphanumeric characters. On iOS it must be pushed only through the MDM's managed app configuration, not in the VPN profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "If you use the Ownership Variable device posture type, add the key ownership.",
+            "You can enter up to 32 alphanumeric characters in the Configuration value field.",
+            "The ownership variable must be configured and pushed exclusively through the managed app configuration using your MDM solution and should not be included in the VPN profile."
+          ]
+        }
+      ]
+    },
+    "enable-fips": {
+      "statement": "enableFips makes Client Connector use FIPS-compliant libraries for its communication with Zscaler infrastructure; it defaults to disabled, and the vendor advises enabling it only where FIPS-level security is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Indicates whether Zscaler Client Connector uses FIPS-compliant libraries for communication with the Zscaler infrastructure.",
+            "Enable this option only if you require FIPS-level security within your organization."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: ENABLEFIPSEXE: enableFips",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        }
+      ]
+    },
+    "mobile-key-casing": {
+      "statement": "Key spelling differs on mobile: iOS spells the cloud and user keys `cloudname` and `username`, where Windows (EXE), macOS and Android use `cloudName` and `userName`; the posture key is `ownership` on iOS and `Ownership` on Android.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "| cloudname | The name of the cloud",
+            "| username | The username of the user.",
+            "add the key ownership."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "| cloudName | The name of the cloud",
+            "| userName | The username of the user.",
+            "add the key Ownership."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "auto-enroll-missing-keys": {
+      "kind": "semantic",
+      "title": "What Android auto-enrollment does when a required companion key is missing",
+      "status": "open",
+      "detail": "Unverified legacy statement: Setting autoEnrollWithMDM=1 or =2 without also setting deviceToken, cloudName, and userDomain causes enrollment to fail silently. The parameters guide says only that the three keys must be specified; it does not describe the failure.",
+      "blocks": "telling a silent enrollment failure apart from other Android enrollment problems",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

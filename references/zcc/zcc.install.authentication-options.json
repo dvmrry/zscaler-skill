@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.authentication-options",
+  "title": "Install parameters for how users sign in to Client Connector",
+  "aliases": [
+    "externalRedirect",
+    "EXTERNALREDIRECT",
+    "enableSSO",
+    "ENABLESSO",
+    "installWebView2",
+    "INSTALLWEBVIEW2",
+    "enableImprivataIntegration",
+    "ENABLEIMPRIVATAINTEGRATION",
+    "browser-based authentication zcc",
+    "imprivata onesign zcc"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.install.enrollment" },
+    { "rel": "see-also", "to": "zpa.machine-tunnels.requirements" }
+  ],
+  "prose": [
+    {
+      "text": "These parameters change where and how a user authenticates when Client Connector enrolls them."
+    },
+    {
+      "label": "Browser instead of the app.",
+      "text": "{{external-redirect}}"
+    },
+    {
+      "label": "Windows primary account and WebView2.",
+      "text": "{{enable-sso}} {{install-webview2}}"
+    },
+    {
+      "label": "Imprivata.",
+      "text": "{{imprivata}}"
+    },
+    {
+      "label": "Machine tunnel.",
+      "text": "Requiring IdP authentication before a machine tunnel starts is also an install parameter on Windows: [[zpa.machine-tunnels.requirements:machine-auth-install-parameter]]."
+    }
+  ],
+  "claims": {
+    "external-redirect": {
+      "statement": "externalRedirect (MSI `EXTERNALREDIRECT`) enables browser-based authentication on Windows. On macOS it redirects authentication to the organization's SAML IdP through the default browser and Safari; the first time, users must select Remember Me on the IdP login screen, after which the browser logs them in automatically. It defaults to disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: EXTERNALREDIRECTEXE: externalRedirect",
+            "Enables browser-based authentication for Zscaler Client Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "Redirects authentication to your organization’s SAML IdP through the default browser and Safari.",
+            "When redirected to the browser for the first time, your users must select Remember Me on their IdP log-in screen."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: EXTERNALREDIRECTEXE: externalRedirect",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        }
+      ]
+    },
+    "enable-sso": {
+      "statement": "On Windows, enableSSO (MSI `ENABLESSO`) enables SSO with the Windows primary account in an Azure Active Directory environment: 2, the default, follows policy; 1 enables; 0 disables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Enables SSO using the Windows Primary account in an Azure Active Directory environment.",
+            "2 = Based on policy (default)1 = Enable0= Disable"
+          ]
+        }
+      ]
+    },
+    "install-webview2": {
+      "statement": "installWebView2 (MSI `INSTALLWEBVIEW2`) installs the WebView2 framework, and is meant only for testing WebView2-based functionality on a single device; testing SSO with WebView2 also needs enableSSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Enables installation of the WebView2 framework",
+            "This option is used for testing WebView2-based functionality on a single device and should be used for testing only.",
+            "You must pass the ENABLESSO or enableSSO option if you want to test SSO with WebView2."
+          ]
+        }
+      ]
+    },
+    "imprivata": {
+      "statement": "On Windows from Client Connector 4.4, enableImprivataIntegration (MSI `ENABLEIMPRIVATAINTEGRATION`) integrates with Imprivata OneSign: Client Connector silently logs the Imprivata OneSign user in, applies security policies and logs the user's activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "If enabled, Zscaler Client Connector silently logs in an Imprivata OneSign user to Zscaler Client Connector, applies security policies, and logs the end user activity in Zscaler Client Connector.",
+            "This option is available only in Zscaler Client Connector version 4.4 and later for Windows."
+          ]
+        }
+      ]
+    }
+  }
+}

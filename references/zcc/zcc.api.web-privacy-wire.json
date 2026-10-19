@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.web-privacy-wire",
+  "title": "ZCC web privacy (User Privacy) calls: string flags, fields the contract lacks, and key casing",
+  "aliases": [
+    "getWebPrivacyInfo",
+    "setWebPrivacyInfo",
+    "web privacy 1 0 strings",
+    "enableFQDNMatchForVpnBypasses",
+    "enableFqdnMatchForVpnBypasses",
+    "enforceSecurePacUrls",
+    "enableAutoLogSnippet",
+    "get_web_privacy",
+    "set_web_privacy_info",
+    "GetWebPrivacyInfo",
+    "UpdateWebPrivacyInfo",
+    "web privacy booleans are strings",
+    "zcc_web_privacy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.return-shapes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Web privacy is one tenant-wide settings object, read with `getWebPrivacyInfo` and written with `setWebPrivacyInfo`. {{single-object}} What the individual settings do is in [[zcc.web-privacy.collection]]."
+    },
+    {
+      "label": "Values.",
+      "text": "{{string-flags}} {{provider-sends-01}}"
+    },
+    {
+      "label": "Fields beyond the contract.",
+      "text": "{{contract-lacks-three}} {{python-model-lacks-three}} The Python read returns a dictionary rather than the model: [[zcc.sdk-python.return-shapes:web-privacy-get-dict]]. {{fqdn-key-casing}}"
+    },
+    {
+      "label": "Writes.",
+      "text": "{{go-update-rereads}} The Python write sends any keyword it is given: [[zcc.sdk-python.return-shapes:python-set-kwargs]]. How the provider fills two of these fields from state, and why its data source reports them false, is in [[zcc.terraform.field-fidelity:prior-state-overlays-elsewhere]] and [[zcc.terraform.field-fidelity:data-sources-report-false-for-dropped-fields]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a hand-built body sent the toggles as the strings \"1\" and \"0\" rather than JSON booleans.",
+      "uses": [
+        "string-flags",
+        "provider-sends-01"
+      ]
+    },
+    {
+      "do": "Whether a Python write of the FQDN match setting used the snake_case keyword, which goes out under a different casing from the Go SDK's key.",
+      "uses": [
+        "fqdn-key-casing"
+      ]
+    },
+    {
+      "do": "When a setting reads back off, check whether the key is one the contract omits and the client fills from elsewhere.",
+      "uses": [
+        "contract-lacks-three",
+        "zcc.terraform.field-fidelity:data-sources-report-false-for-dropped-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "string-flags": {
+      "statement": "The contract and the Go SDK type every web privacy field as a string, the on/off settings included.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setWebPrivacyInfo/put/requestBody/content/application~1json/schema/properties/enablePacketCapture",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
+          "quotes": [
+            "EnablePacketCapture           string `json:\"enablePacketCapture\"`",
+            "CollectUserInfo               string `json:\"collectUserInfo\"`"
+          ]
+        }
+      ]
+    },
+    "provider-sends-01": {
+      "statement": "The Terraform provider writes each web privacy toggle as \"1\" or \"0\" and reads it back as true only when the value is \"1\", except `enforceSecurePacUrls` and `enableFQDNMatchForVpnBypasses`, whose read-back keeps the prior plan or state value when one is set; the Python docstring example passes the same strings.",
+      "tier": "A",
+      "conditions": "Extended per verifier with the two fields the provider fills from prior state (zcc.terraform.field-fidelity:prior-state-overlays-elsewhere).",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/web_privacy.go",
+          "quotes": [
+            "func boolToStr01(b types.Bool) string {",
+            "m.Active = types.BoolValue(p.Active == \"1\")",
+            "// API GET omits these fields; preserve existing plan/state value to avoid drift.",
+            "if m.EnforceSecurePacUrls.IsNull() || m.EnforceSecurePacUrls.IsUnknown() {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_privacy.py",
+          "quotes": [
+            "...     enable_auto_log_snippet='0'"
+          ]
+        }
+      ]
+    },
+    "contract-lacks-three": {
+      "statement": "The Go web privacy type also carries `enableAutoLogSnippet`, `enforceSecurePacUrls` and `enableFQDNMatchForVpnBypasses`, none of which the contract's get or set schema lists.",
+      "tier": "A",
+      "conditions": "Absence in the contract: both schemas list `active`, `collectMachineHostname`, `collectUserInfo`, `collectZdxLocation`, `disableCrashlytics`, `enablePacketCapture`, `exportLogsForNonAdmin`, `grantAccessToZscalerLogFolder`, `id`, `overrideT2ProtocolSetting` and `restrictRemotePacketCapture` only.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
+          "quotes": [
+            "EnableAutoLogSnippet          string `json:\"enableAutoLogSnippet\"`",
+            "EnforceSecurePacUrls          string `json:\"enforceSecurePacUrls\"`",
+            "EnableFQDNMatchForVpnBypasses string `json:\"enableFQDNMatchForVpnBypasses\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get/responses/200/content/application~1json/schema/properties",
+          "expect_absent": [
+            "enableAutoLogSnippet",
+            "enforceSecurePacUrls",
+            "enableFQDNMatchForVpnBypasses"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setWebPrivacyInfo/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "enableAutoLogSnippet",
+            "enforceSecurePacUrls",
+            "enableFQDNMatchForVpnBypasses"
+          ]
+        }
+      ]
+    },
+    "python-model-lacks-three": {
+      "statement": "The Python `WebPrivacy` model reads none of the three, so `set_web_privacy_info`, which returns that model, drops them from its result even when the caller sent them.",
+      "tier": "A",
+      "conditions": "Absence: models/webprivacy.py has no key for the three fields.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_privacy.py",
+          "quotes": [
+            "result = WebPrivacy(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webprivacy.py",
+          "quotes": [
+            "self.restrict_remote_packet_capture = ("
+          ]
+        }
+      ]
+    },
+    "go-update-rereads": {
+      "statement": "The Go `UpdateWebPrivacyInfo` sends the PUT without reading its response and then returns a fresh GET of the settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
+          "quotes": [
+            "_, err := service.Client.NewZccRequestDo(ctx, \"PUT\", setWebPrivacyInfoEndpoint, nil, info, nil)",
+            "return GetWebPrivacyInfo(ctx, service)"
+          ]
+        }
+      ]
+    },
+    "single-object": {
+      "statement": "Web privacy is one object per tenant: the API document's GET returns an object, and the Go SDK returns a single struct.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get/responses/200/content/application~1json/schema",
+          "expect": {
+            "type": "object"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
+          "quotes": [
+            "func GetWebPrivacyInfo(ctx context.Context, service *zscaler.Service) (*WebPrivacyInfo, error) {"
+          ]
+        }
+      ]
+    },
+    "fqdn-key-casing": {
+      "statement": "The Go SDK sends the FQDN-match-for-VPN-bypasses setting as `enableFQDNMatchForVpnBypasses`, but a Python caller who passes the snake_case keyword `enable_fqdn_match_for_vpn_bypasses` sends `enableFqdnMatchForVpnBypasses`, because the Python converter camel-cases word by word and has no exception for this key. A Python caller can pass the Go spelling as the keyword instead, since a key without an underscore is sent as given; the contract omits the field, so which spelling the API reads is not shown.",
+      "tier": "B",
+      "derived_from": [
+        "contract-lacks-three",
+        "zcc.api.conventions:python-body-casing"
+      ],
+      "conditions": "Changed per verifier from a divergence to a claim: no Python source names the field, so the Python spelling is computed, not a stated position. Traced through `to_lower_camel_case` (zscaler/helpers.py, no FIELD_EXCEPTIONS entry for the key); not run.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "if not string or \"_\" not in string:",
+            "converted.append(comp.capitalize())"
+          ]
+        }
+      ]
+    }
+  }
+}

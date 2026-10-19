@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "id": "zcc.terraform.trusted-network-backend",
+  "title": "How the ZCC provider picks the v1 or v2 trusted-network API and converts between them",
+  "aliases": [
+    "zcc_trusted_network v1 fallback",
+    "tnbackend",
+    "trusted network v2 probe",
+    "condition_type ALL ANY 0 1",
+    "trusted network import partial name",
+    "multiple trusted networks match name",
+    "name must be set v1 trusted network",
+    "trusted network hostname ssid UseStateForUnknown",
+    "zcc_trusted_network v1 v2",
+    "trusted network v2 endpoint",
+    "condition_type ALL ANY",
+    "trusted network api version detection"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.api.trusted-networks-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks.detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks.object"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.zero-value-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The `zcc_trusted_network` resource and data source keep one v2-shaped schema on every tenant and talk to whichever trusted-network API the tenant serves. The two APIs' wire shapes are in [[zcc.api.trusted-networks-wire]]."
+    },
+    {
+      "label": "Choosing the API.",
+      "text": "The probe and its cache are [[zcc.terraform.field-fidelity:v1-backend-serves-tenants-without-v2]]. {{probe-unavailable-statuses}} {{probe-other-errors-fail}} {{forbidden-picks-v1}} Whether a 400 or 403 from the probe really means the tenant has no v2 API is open {{gap:probe-4xx-meaning}}."
+    },
+    {
+      "label": "Converting for v1.",
+      "text": "{{v1-condition-type-mapping}} {{v1-id-conversion}} {{csv-trim}} The v1 criteria strings themselves are [[zcc.api.trusted-networks-wire:v1-criteria-strings]]."
+    },
+    {
+      "label": "Finding by name.",
+      "text": "{{name-selection}} {{name-search-per-backend}}"
+    },
+    {
+      "label": "The v1 lifecycle.",
+      "text": "{{v1-no-get-by-id}} {{v1-create-needs-name}} {{v1-update-injects-id}} The SDK's v1 create resolves the new record by name with fixed sleeps: [[zcc.terraform.field-fidelity:trusted-network-create-sleeps-blindly]]. Whether v1 and v2 records are the same objects is open: [[zcc.api.trusted-networks-wire:v1-v2-coexistence]]."
+    },
+    {
+      "label": "Planning.",
+      "text": "{{hostname-ssid-use-state}}"
+    },
+    {
+      "text": "The v2 request's empty-value handling is in [[shared.sdk-go.zero-value-writes:zcc-trusted-network-active-and-lists]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which API the provider chose for the run, from its INFO log line 'Auto-detected ZCC trusted-network API version', especially after a 403 from the v2 list.",
+      "uses": [
+        "probe-unavailable-statuses",
+        "forbidden-picks-v1"
+      ]
+    },
+    {
+      "do": "Whether an import or data-source lookup by name matched several networks partially, which fails, or exactly one, which is taken.",
+      "uses": [
+        "name-selection"
+      ]
+    },
+    {
+      "do": "Whether `condition_type` was written as ALL/ANY or as a raw number, since a raw number goes to the v1 API unchanged.",
+      "uses": [
+        "v1-condition-type-mapping"
+      ]
+    },
+    {
+      "do": "On v1, whether trusted network names are unique, since reads and imports resolve by name.",
+      "uses": [
+        "v1-create-needs-name",
+        "name-selection"
+      ]
+    }
+  ],
+  "claims": {
+    "probe-unavailable-statuses": {
+      "statement": "The provider treats a failed probe of the v2 list as 'v2 not served' when the error is a not-found (including a parsed `resource.not.found`) or carries status 400, 403, 404, 405 or 501, and then uses the v1 backend; its unit test asserts this for 400 and 403 among others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/tnbackend.go",
+          "quotes": [
+            "if respErr.Parsed != nil && respErr.Parsed.ID == \"resource.not.found\" {",
+            "case http.StatusBadRequest, http.StatusForbidden, http.StatusNotFound,",
+            "http.StatusMethodNotAllowed, http.StatusNotImplemented:"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/tnbackend_test.go",
+          "quotes": [
+            "byParsedStatus(http.StatusBadRequest),",
+            "byParsedStatus(http.StatusForbidden),"
+          ]
+        }
+      ]
+    },
+    "probe-other-errors-fail": {
+      "statement": "Any other probe failure, such as a transport error, a 5xx or a token failure, fails the trusted-network operation with 'unable to detect the trusted-network API version for this tenant' rather than picking a version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/tnbackend.go",
+          "quotes": [
+            "unable to detect the trusted-network API version for this tenant: %w",
+            "// Transport failures, 5xx, auth errors on the token flow, … — do not"
+          ]
+        }
+      ]
+    },
+    "forbidden-picks-v1": {
+      "statement": "So a 403 or 400 on the v2 list for any reason, such as an API role without access to it, puts the provider on the v1 API for every trusted network it manages until the provider is configured again.",
+      "tier": "B",
+      "derived_from": [
+        "probe-unavailable-statuses",
+        "zcc.terraform.field-fidelity:v1-backend-serves-tenants-without-v2"
+      ],
+      "conditions": "Read from the code; no tenant was observed answering the probe with 403 while serving v2."
+    },
+    "v1-condition-type-mapping": {
+      "statement": "For v1 the provider sends `ALL` as 0 and `ANY` as 1, passes any other numeric string through unchanged, and reads unknown numbers back as their decimal string. Its comment says the 0=ALL, 1=ANY mapping was field-verified on a tenant serving both API generations.",
+      "tier": "A",
+      "conditions": "The field verification is the provider author's statement; the record it describes is not in the repository.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/convert.go",
+          "quotes": [
+            "v1ConditionTypeAll = 0",
+            "v1ConditionTypeAny = 1",
+            "The mapping (0=ALL, 1=ANY) is field-verified against a tenant serving",
+            "return strconv.Itoa(n)"
+          ]
+        }
+      ]
+    },
+    "v1-id-conversion": {
+      "statement": "The v1 API's string IDs are parsed into integers for the provider's model, and a non-numeric v1 ID is an error; the company ID is parsed leniently, and IDs go back to v1 as strings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/convert.go",
+          "quotes": [
+            "v1 trusted network id %q is not numeric: %w",
+            "companyID, _ := strconv.Atoi(in.CompanyID)",
+            "out.ID = strconv.Itoa(in.ID)"
+          ]
+        }
+      ]
+    },
+    "name-selection": {
+      "statement": "A lookup by name takes a case-insensitive exact match first, otherwise accepts a single network whose name contains the given text, fails listing the candidates when several partially match, and reports not found when none does.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/tnbackend.go",
+          "after": "func pickByName(",
+          "quotes": [
+            "if strings.EqualFold(c.Name, name) {",
+            "return partial[0], nil",
+            "multiple trusted networks match name %q (%s): use the exact name or the numeric id"
+          ]
+        }
+      ]
+    },
+    "name-search-per-backend": {
+      "statement": "On v1 the provider scans every page of the list, 1000 at a time, and filters names locally; on v2 it asks the server for a NAME keyword match and applies the same selection to the result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "quotes": [
+            "const v1PageSize = 1000",
+            "if !strings.EqualFold(n.NetworkName, name) && !containsFold(n.NetworkName, name) {"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v2.go",
+          "quotes": [
+            "Type:    trusted_network_v2.FilterTypeName,"
+          ]
+        }
+      ]
+    },
+    "v1-no-get-by-id": {
+      "statement": "The v1 backend has no read by ID: a read scans the list and reports not found when the ID is absent, and delete skips the pre-delete read it does on v2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "quotes": [
+            "func (b *v1Backend) SupportsGetByID() bool { return false }",
+            "return nil, ErrNotFound"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/trusted_network.go",
+          "quotes": [
+            "if backend.SupportsGetByID() {"
+          ]
+        }
+      ]
+    },
+    "v1-create-needs-name": {
+      "statement": "On v1 a create without a name fails before any API call, because the create response has no ID and the new record is found again by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "quotes": [
+            "`name` must be set: this tenant is served by the v1 trusted-network API, whose create call is resolved by network name"
+          ]
+        }
+      ]
+    },
+    "v1-update-injects-id": {
+      "statement": "On v1 an update puts the resource ID into the request body, since the v1 `edit` call identifies the record by the body's ID, and the SDK then re-reads it by ID from the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "quotes": [
+            "payload.ID = id"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "refreshed, _, refreshErr := GetTrustedNetworkByID(ctx, service, network.ID)"
+          ]
+        }
+      ]
+    },
+    "hostname-ssid-use-state": {
+      "statement": "`hostname` and `ssid` carry a use-state-for-unknown plan modifier, so when left unset they keep their prior state value in the plan instead of showing as known after apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/trusted_network.go",
+          "after": "\"hostname\": schema.StringAttribute{",
+          "quotes": [
+            "stringplanmodifier.UseStateForUnknown(),"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/trusted_network.go",
+          "after": "\"ssid\": schema.StringAttribute{",
+          "quotes": [
+            "stringplanmodifier.UseStateForUnknown(),"
+          ]
+        }
+      ]
+    },
+    "csv-trim": {
+      "statement": "Converting v1 criteria, the provider splits each comma-separated string into a list, trimming spaces and dropping empty items, and joins lists back with bare commas.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/convert.go",
+          "quotes": [
+            "Whitespace around items is trimmed",
+            "returns values like \"10.0.0.5, 10.0.0.6\") and empty segments are",
+            "return strings.Join(splitCSV(strings.Join(items, \",\")), \",\")"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "probe-4xx-meaning": {
+      "kind": "semantic",
+      "title": "Whether a 400 or 403 from the v2 trusted-network list means the tenant has no v2 API",
+      "status": "open",
+      "blocks": "telling whether a provider run on the v1 API was chosen correctly",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "Unverified legacy statement: the provider's 400/403 fallback is a broad client-side classification, and it is unresolved whether such a probe response means endpoint absence or an ordinary API error. On a tenant that serves v2, call the v2 list with an API client whose role lacks trusted-network access and record the status; on a tenant without v2, record what the list returns."
+    }
+  }
+}

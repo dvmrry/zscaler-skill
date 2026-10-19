@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.macos-deployment",
+  "title": "Deploying Client Connector on macOS: the package, the preference domain, updates and removal",
+  "aliases": [
+    "zcc macos pkg",
+    "com.zscaler.installparams",
+    "installation-parameters plist",
+    "com.zscaler.tunnelparams",
+    "clearDnsCacheOnT2Start",
+    "zccToForegroundDuringAuth",
+    "jamf zcc deployment",
+    "intune zcc macos",
+    "zcc macos uninstall",
+    "Uninstaller.sh",
+    "zcc app store update macos"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-extensions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection.certificate-install"
+    }
+  ],
+  "prose": [
+    {
+      "text": "On macOS, Client Connector is a pkg delivered by an MDM, with its install parameters pushed as a managed preference. {{guides}}"
+    },
+    {
+      "label": "The package.",
+      "text": "{{pkg-source}} {{min-macos}} {{intune-detection}} {{jamf-reinstall}}"
+    },
+    {
+      "label": "Install parameters.",
+      "text": "{{preference-domain}} {{plist-shape}} The keys themselves are described in [[zcc.install.enrollment]], [[zcc.install.strict-enforcement]] and [[zcc.install.windows-unattended]]."
+    },
+    {
+      "label": "Tunnel parameters.",
+      "text": "{{tunnel-params}}"
+    },
+    {
+      "label": "Extensions, VPN payloads and privacy profiles.",
+      "text": "[[zcc.install.macos-extensions]]. The SSL inspection certificate is a separate MDM profile: [[zcc.ssl-inspection.certificate-install:macos-mdm-profile]]."
+    },
+    {
+      "label": "Updates.",
+      "text": "{{app-store-updates}} Such an update keeps the install parameters already on the device: [[zcc.install.precedence:update-retains]]. How an MDM-pushed package interacts with an App Store version policy is open {{gap:mdm-push-vs-app-store}}."
+    },
+    {
+      "label": "Uninstall.",
+      "text": "{{uninstall}} What an uninstall leaves behind is open {{gap:uninstall-residue}}."
+    },
+    {
+      "label": "Open points.",
+      "text": "Whether launchTray set to 0 also holds back the system extension and tunnel is open {{gap:launchtray-zero-extension}}. Whether a given set of profiles and keys makes the install fully silent is open {{gap:silent-install-recipe}}. Which package architectures are shipped for Apple silicon is open {{gap:apple-silicon-package}}. Where installation and runtime logs are written is open {{gap:install-logging}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the MDM profile uses the preference domain com.zscaler.installparams with the keys nested under installation-parameters.",
+      "uses": [
+        "preference-domain",
+        "plist-shape"
+      ]
+    },
+    {
+      "do": "Whether the device runs a macOS release the Client Connector version supports.",
+      "uses": [
+        "min-macos"
+      ]
+    },
+    {
+      "do": "Which version the device's user group is assigned in the Client Connector App Store, before pushing a package from the MDM.",
+      "uses": [
+        "app-store-updates",
+        "mdm-push-vs-app-store"
+      ]
+    }
+  ],
+  "claims": {
+    "guides": {
+      "statement": "The vendor's macOS customization article is an index: deploying Client Connector with a pkg and PLIST settings from an MDM varies by MDM, and the steps are in the Microsoft Intune and Jamf Pro deployment guides.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "customizing-zscaler-client-connector-install-options-macos.json",
+          "quotes": [
+            "You can customize and deploy Zscaler Client Connector to your users' devices using a .pkg file installation process with property list (PLIST) configuration settings deployed from a mobile device management (MDM) solution.",
+            "The steps for downloading and deploying the app vary by your MDM.",
+            "Deploying Zscaler Client Connector with Microsoft Intune for macOS",
+            "Deploying Zscaler Client Connector with Jamf Pro for macOS"
+          ]
+        }
+      ]
+    },
+    "pkg-source": {
+      "statement": "The pkg is downloaded from the Admin Console under Infrastructure > Common Resources > Deployment > Platform Releases (New Releases, macOS), then uploaded to the MDM: as a package assigned through a policy in Jamf Pro, or as a macOS app (PKG) in Intune.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "To deploy Zscaler Client Connector using Jamf Pro, you must obtain a .pkg file from the Zscaler Admin Console.",
+            "In the Zscaler Admin Console, go to Infrastructure > Common Resources > Deployment > Platform Releases."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
+          "quotes": [
+            "In Select app type, click macOS app (PKG)."
+          ]
+        }
+      ]
+    },
+    "min-macos": {
+      "statement": "Client Connector 4.5.2 and later support macOS Sonoma 14.0 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
+          "quotes": [
+            "Zscaler Client Connector versions 4.5.2 and later support macOS Sonoma 14.0 and later."
+          ]
+        }
+      ]
+    },
+    "intune-detection": {
+      "statement": "In Intune's detection rules the guide sets Ignore app version to Yes, and says to correct the version by hand if Intune fills `com.zscaler.installer.uninstall` with the wrong one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
+          "quotes": [
+            "Ignore app version: Select Yes.",
+            "If Intune populates com.zscaler.installer.uninstall with the incorrect app version, manually correct the version."
+          ]
+        }
+      ]
+    },
+    "jamf-reinstall": {
+      "statement": "To reinstall the same version through Jamf Pro for a device or user, flush all policy logs in the computer's history, or delete the device or user from Jamf Pro and reinstall through the client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "To reinstall the same version of Zscaler Client Connector for a specific device or user, go to the computer's history and select Flush All for all the Policy Logs.",
+            "Alternatively, you can delete the device or user from Jamf Pro and reinstall via the client."
+          ]
+        }
+      ]
+    },
+    "preference-domain": {
+      "statement": "Install parameters are pushed as a custom settings profile (Application & Custom Settings in Jamf Pro, the Preference file template in Intune) with the preference domain `com.zscaler.installparams`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "Preference Domain: Enter com.zscaler.installparams"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
+          "quotes": [
+            "Template name: Choose Preference file.",
+            "Preference domain name: Enter com.zscaler.installparams."
+          ]
+        }
+      ]
+    },
+    "plist-shape": {
+      "statement": "In the vendor's sample property list the keys sit inside a dictionary under the key `installation-parameters`, and every value, numeric flags included, is a string (for example `strictEnforcement` as the string 0).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "<key>installation-parameters</key> <dict> <key>cloudName</key> <string>zscalertwo</string>",
+            "<key>strictEnforcement</key> <string>0</string>"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
+          "quotes": [
+            "<key>installation-parameters</key> <dict> <key>cloudName</key> <string>zscalertwo</string>"
+          ]
+        }
+      ]
+    },
+    "tunnel-params": {
+      "statement": "A second preference domain, `com.zscaler.tunnelparams`, takes a `tunnel-parameters` dictionary: clearDnsCacheOnT2Start clears the device's DNS caches when the tunnel restarts (Route-based Interception only, not Transparent Proxy-based), and zccToForegroundDuringAuth brings the Client Connector window to the foreground during WebView-based authentication. A logged-in user must restart the app or its service for them to apply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "after": "Prevent DNS Caching",
+          "quotes": [
+            "This configuration setting is only supported with Route-based Traffic Interception and is not compatible with Transparent Proxy-based Traffic Interception.",
+            "Preference Domain: Enter com.zscaler.tunnelparams",
+            "If the clearDnsCacheOnT2Start parameter is enabled, on Tunnel restart, DNS caches are cleared from the device.",
+            "If you are already logged in to Zscaler Client Connector, exit and relaunch the app or click Restart Service in the More window of the app."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "If zccToForegroundDuringAuth parameter is enabled, it brings the Zscaler Client Connector window to the foreground during WebView-based authentication."
+          ]
+        }
+      ]
+    },
+    "app-store-updates": {
+      "statement": "The App Store the vendor's macOS guides refer to is the Client Connector App Store in the Admin Console (Infrastructure > Client Connector > App Store). App updates are configured there for Windows, macOS and Linux only, per user group, with a version to install per OS, rolled out to the selected groups at the same time or as a phased rollout that upgrades devices gradually; iOS and Android updates come from the App Store, Google Play or the MDM. After enrolling, the app checks for an update every two hours and installs one if available.",
+      "tier": "A",
+      "conditions": "Phased rollout added after verification, so the update-channel-key resolution that cites it is backed.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "download the .pkg file from the Zscaler Client Connector App Store first."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-update-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "You can configure an app update only for Windows, macOS, and Linux. Updates for iOS and Android are controlled by the App Store and Google Play or your MDM solution.",
+            "You can configure an app update for selected groups that's rolled out at the same time, or configure a phased rollout that gradually upgrades devices for selected groups.",
+            "After your users enroll with Zscaler Client Connector, the app automatically checks every two hours to see if an updated version is available and automatically updates the app if one is available.",
+            "In the Windows - Version to Install, macOS - Version to Install, and Linux - Version to Install drop-down menus, select the Zscaler Client Connector version you want automatically updated on your users' devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-update-zscaler-client-connector-app-store.json",
+          "after": "To enable builds on the New Releases tab:",
+          "quotes": [
+            "From the navigation menu, go to Infrastructure > Client Connector > App Store."
+          ]
+        }
+      ]
+    },
+    "uninstall": {
+      "statement": "On macOS, Client Connector is uninstalled manually by running UninstallApplication from the Zscaler folder, or from a shell with `sudo sh /Applications/Zscaler/.Uninstaller.sh` followed by the uninstall password configured in the app profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uninstalling-zscaler-client-connector.json",
+          "quotes": [
+            "Double-click UninstallApplication.",
+            "sudo sh /Applications/Zscaler/.Uninstaller.sh <uninstall password>"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uninstalling-zscaler-client-connector.json",
+          "after": "sudo sh /Applications/Zscaler/.Uninstaller.sh",
+          "quotes": [
+            "Replace <uninstall password> with the password that was configured in the app profile."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "launchtray-zero-extension": {
+      "kind": "semantic",
+      "title": "Whether launchTray set to 0 holds back only the UI or also the system extension and tunnel",
+      "status": "open",
+      "former_ids": [
+        "zcc-17",
+        "zcc-23"
+      ],
+      "detail": "Unverified legacy statement: Zscaler's use of a System Extension (rather than a traditional Launch Agent or Login Item) means network-level enforcement continues as long as the extension is approved, independent of the Login Items toggle for the UI; the interaction between launchTray = 0 and the extension on macOS 13+, where background items appear in Login Items & Extensions and can be toggled unless MDM restricts it, is not confirmed. The parameters page says only that with launchTray disabled users must open Client Connector or it runs after the next reboot; the deployment guides offer managed login items to stop users disabling it.",
+      "blocks": "whether a launchTray=0 staged rollout leaves devices unenforced until reboot",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "mdm-push-vs-app-store": {
+      "kind": "semantic",
+      "title": "How a package pushed by the MDM interacts with the App Store version policy",
+      "status": "open",
+      "detail": "Unverified legacy statement: For MDM-managed deployments, an MDM-pushed .pkg must be equal to or newer than the portal's minimum enforced version to avoid a version-mismatch loop. The App Store article says that an update for an earlier version cannot be rolled out to devices already on a later one, and that disabling the update stops automatic updates and leaves updating to the organization's own mechanism, the documented way to hand updates to an MDM. How an MDM-pushed package behaves while an App Store update is enabled is not described.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-update-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "When you disable a Zscaler Client Connector update, Zscaler Client Connector never automatically updates on your users' devices. Your organization takes full responsibility for updating the app using its own mechanism"
+          ]
+        }
+      ],
+      "blocks": "planning MDM and App Store updates side by side",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "update-channel-key": {
+      "kind": "semantic",
+      "title": "Whether a client-side key selects the macOS update channel",
+      "status": "resolved",
+      "former_ids": [
+        "zcc-22"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "No install or tunnel parameter selects an update channel; versions are assigned per user group in the Client Connector App Store, with an optional phased rollout (claim app-store-updates)."
+    },
+    "app-store-build": {
+      "kind": "semantic",
+      "title": "Whether an App Store-distributed build takes managed preferences",
+      "status": "partial",
+      "former_ids": [
+        "zcc-18"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "Unverified legacy statement: ZCC is also available from the Mac App Store, and that version does not support MDM-managed plist configuration the way the .pkg does. The macOS guides' App Store is the Admin Console's Client Connector App Store, from which the pkg is downloaded (claim app-store-updates). No captured article mentions a Mac App Store build, so whether one exists and takes managed preferences is unconfirmed.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "download the .pkg file from the Zscaler Client Connector App Store first."
+          ]
+        }
+      ],
+      "blocks": "deployments that would use a Mac App Store build"
+    },
+    "minimum-macos": {
+      "kind": "semantic",
+      "title": "Minimum supported macOS version",
+      "status": "partial",
+      "former_ids": [
+        "zcc-21"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "The Intune guide states that 4.5.2 and later support macOS Sonoma 14.0 and later (claim min-macos). The minimum for older Client Connector releases, and any upper bound, is not in the captures.",
+      "blocks": "support statements for fleets on macOS releases before Sonoma"
+    },
+    "uninstall-script-path": {
+      "kind": "semantic",
+      "title": "Path of the macOS uninstall script",
+      "status": "resolved",
+      "former_ids": [
+        "zcc-16"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The uninstall article gives `sudo sh /Applications/Zscaler/.Uninstaller.sh <uninstall password>` and the UninstallApplication item in the Zscaler folder (claim uninstall)."
+    },
+    "uninstall-residue": {
+      "kind": "semantic",
+      "title": "What remains on a Mac after uninstall",
+      "status": "open",
+      "detail": "Unverified legacy statement: residual files may remain in ~/Library/Application Support/Zscaler/, /Library/Application Support/Zscaler/, /var/log/, /Library/LaunchDaemons/ and /Library/LaunchAgents/; on macOS 12 and later a system extension that is not deactivated stays listed by `systemextensionsctl list` and is removed with `sudo systemextensionsctl uninstall <team-id> <bundle-id>`, usually without a reboot. No captured article lists residue or extension cleanup.",
+      "blocks": "clean-removal procedures before a reinstall",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "silent-install-recipe": {
+      "kind": "semantic",
+      "title": "Which conditions make a macOS install fully silent",
+      "status": "open",
+      "detail": "Unverified legacy statement: full silence requires MDM-pushed package delivery, the System Extension policy profile deployed before the package, the PPPC profile deployed before or with the package, hideAppUIOnLaunch = 1 and launchTray = 1; with all five, ZCC installs, the extension loads silently and interception begins without user interaction. The deployment guides give the individual profiles but do not state that their combination makes the install silent.",
+      "blocks": "zero-touch rollout plans",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "apple-silicon-package": {
+      "kind": "semantic",
+      "title": "Which architectures the macOS package contains",
+      "status": "open",
+      "detail": "Unverified legacy statement: a non-universal or x86_64-only .pkg fails to run or runs under Rosetta 2 on Apple silicon; confirm the package contains both slices, and a device zapp_arch of arm64 in the device inventory indicates M-series hardware. No captured article describes package architectures. The device record's zappArch (Terraform zapp_arch) is the reported app architecture, not the hardware, so arm64 there says which build runs, not which chip the Mac has; no zcc.devices subject records the field yet.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/data-sources/zcc_devices.md",
+          "quotes": [
+            "`zapp_arch` (String) — Reported app architecture (e.g. `x64`, `arm64`)."
+          ]
+        }
+      ],
+      "blocks": "diagnosing Client Connector failures on Apple silicon",
+      "resolves_with": [
+        "operator-experience"
+      ]
+    },
+    "install-logging": {
+      "kind": "semantic",
+      "title": "Where macOS installation and runtime logs are written",
+      "status": "open",
+      "detail": "Unverified legacy statement: `installer -pkg ... -verbose` captures package receipt verification, payload expansion and scripts; after install ZCC logs to the unified log, readable with `log stream --predicate 'subsystem CONTAINS \"zscaler\" OR process CONTAINS \"Zscaler\"'` or Console.app; system extension lifecycle events log under the subsystem com.apple.SystemExtensions; ZCC may also write its own files under /var/log/ or the application support directory. No captured article names these locations.",
+      "blocks": "collecting evidence for a failed macOS install",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    }
+  }
+}

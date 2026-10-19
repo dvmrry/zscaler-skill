@@ -1,0 +1,432 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.trusted-networks-wire",
+  "title": "What goes on the wire for ZCC trusted networks: the v1 webTrustedNetwork and v2 trusted-networks APIs",
+  "aliases": [
+    "trustedNetworkContracts",
+    "webTrustedNetwork listByCompany",
+    "zcc trusted networks v2",
+    "trusted-networks type filter",
+    "zcc trusted network comma separated",
+    "zcc v1 vs v2 trusted networks"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.v2-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks.object"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.trusted-network-backend"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.return-shapes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Trusted networks have two API families: the v1 verb-suffixed `webTrustedNetwork` endpoints, which the captured contract describes, and the RESTful v2 `trusted-networks` endpoints, which only the Go SDK and the Terraform provider use. Their record shapes differ."
+    },
+    {
+      "heading": "v1"
+    },
+    {
+      "text": "{{list-envelope}} The contract describes the list response differently {{divergence:v1-list-shape}}."
+    },
+    {
+      "text": "{{v1-criteria-strings}} How the provider splits and trims them is [[zcc.terraform.trusted-network-backend:csv-trim]]."
+    },
+    {
+      "text": "The v1 `conditionType` is a string in the contract and an integer in the Go SDK {{divergence:condition-type-wire-type}}. Which code means All is open in [[zcc.trusted-networks.object:condition-type-values]]."
+    },
+    {
+      "text": "{{mutation-response}} {{error-code}} {{delete-missing-silent}} The Python create returns that acknowledgement as its result: [[zcc.sdk-python.return-shapes:add-result-has-no-id]]."
+    },
+    {
+      "heading": "v2"
+    },
+    {
+      "text": "{{v2-restful}} {{v2-record-shape}} {{v2-type-filter}}"
+    },
+    {
+      "text": "The paged envelope and its walk are in [[zcc.api.v2-wire]]."
+    },
+    {
+      "heading": "Which family a tenant has"
+    },
+    {
+      "text": "{{contract-v1-only}} The Terraform provider chooses between the two by probing the v2 list: [[zcc.terraform.field-fidelity:v1-backend-serves-tenants-without-v2]]. Whether v2 replaces v1, and whether the two share state, is open {{gap:v1-v2-coexistence}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which family the tenant answers on: a GET of `/zcc/papi/public/v2/trusted-networks` with `perPage=1`, before comparing a v1 record with a v2 one.",
+      "uses": [
+        "v2-restful",
+        "v1-v2-coexistence"
+      ]
+    },
+    {
+      "do": "Whether a v1 list was read from `trustedNetworkContracts` in an object or as a bare array.",
+      "uses": [
+        "list-envelope",
+        "v1-list-shape"
+      ]
+    },
+    {
+      "do": "After a v1 create, update or delete, re-read the record: the mutation response does not carry it, and a delete can answer HTTP 200 with `success` \"false\".",
+      "uses": [
+        "mutation-response",
+        "error-code",
+        "delete-missing-silent"
+      ]
+    },
+    {
+      "do": "Before reading All or Any from a v1 `conditionType`, whether the code has been checked against the console for that tenant.",
+      "uses": [
+        "condition-type-wire-type",
+        "zcc.trusted-networks.object:condition-type-values"
+      ]
+    }
+  ],
+  "claims": {
+    "v1-criteria-strings": {
+      "statement": "In v1 each criterion of a trusted network (`dnsServers`, `dnsSearchDomains`, `hostnames`, `resolvedIpsForHostname`, `ssids`, `trustedDhcpServers`, `trustedGateways`, `trustedSubnets`, `trustedEgressIps`) is one comma-separated string, not a list: the contract and the Go SDK type them as strings, the Python SDK's examples pass values such as '10.11.12.13, 10.11.12.14' and '' for unused criteria, and the Terraform provider's v1 adapter splits and joins them on commas, noting that the v1 API returns values like \"10.0.0.5, 10.0.0.6\".",
+      "tier": "A",
+      "conditions": "Merged per verifier with the former claim csv-strings, which stated the same point; its binding and its Python and provider quotes came with it.",
+      "binds": [
+        "zcc/trusted-networks#dnsServers"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1create/post/requestBody/content/application~1json/schema/properties/dnsServers",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "DnsServers string `json:\"dnsServers\"`",
+            "TrustedSubnets         string `json:\"trustedSubnets\"`"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/trusted_networks.py",
+          "after": "def add_trusted_network(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "dns_servers='10.11.12.13, 10.11.12.14',",
+            "trusted_subnets='',"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/convert.go",
+          "quotes": [
+            "for _, part := range strings.Split(s, \",\") {",
+            "returns values like \"10.0.0.5, 10.0.0.6\") and empty segments are"
+          ]
+        }
+      ]
+    },
+    "v2-restful": {
+      "statement": "The Go SDK's v2 trusted networks live at `/zcc/papi/public/v2/trusted-networks` and use RESTful verbs: POST to the collection to create, and GET, PUT, PATCH and DELETE on `/{id}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "quotes": [
+            "trustedNetworkEndpointV2 = \"/zcc/papi/public/v2/trusted-networks\"",
+            "NewZccRequestDo(ctx, \"POST\", trustedNetworkEndpointV2, nil, network, &created)",
+            "NewZccRequestDo(ctx, \"PATCH\", endpoint, nil, network, &updated)",
+            "err := service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", trustedNetworkEndpointV2, networkID))"
+          ]
+        }
+      ]
+    },
+    "v2-record-shape": {
+      "statement": "A v2 trusted network as the Go SDK models it has an integer `id`, a string `conditionType`, a `name`, and its criteria as string arrays under different keys from v1 (`dnsServerIps`, `trustedSubnetIps`, `trustedGatewayIps`, `trustedDhcpServersIps`, `trustedEgressIps`, `resolvedIpsForHostname`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "after": "type TrustedNetworkV2 struct {",
+          "quotes": [
+            "ID                     int      `json:\"id,omitempty\"`",
+            "ConditionType          string   `json:\"conditionType,omitempty\"`",
+            "DNSServerIPs           []string `json:\"dnsServerIps,omitempty\"`",
+            "TrustedSubnetIPs       []string `json:\"trustedSubnetIps,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "v2-type-filter": {
+      "statement": "The Go SDK says the v2 list endpoint's `type` parameter scopes the keyword search to one field, one of `NAME`, `DNS_SERVERS`, `DNS_SEARCH_DOMAINS`, `HOST_NAME_IP`, `TRUSTED_SUBNETS`, `TRUSTED_GATEWAYS`, `TRUSTED_DHCP_SERVERS`, `TRUSTED_EGRESS_IPS` or `SSID`, and that the keyword is a substring match, so its name lookup still compares names exactly on the client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "quotes": [
+            "list endpoint scopes the keyword search to the named field.",
+            "FilterTypeName               = \"NAME\"",
+            "FilterTypeSSID               = \"SSID\"",
+            "match is still done client-side because keyword is a substring // filter, not an equality match."
+          ]
+        }
+      ]
+    },
+    "contract-v1-only": {
+      "statement": "The captured Automate contract describes only the v1 `webTrustedNetwork` operations; the reconciliation report shipped with it notes that Terraform uses the Go SDK's v2 trusted-network API instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/zcc-divergences.md",
+          "quotes": [
+            "`zcc_trusted_network` is not reconciled here because Terraform uses the Go SDK v2 trusted-network API (`/zcc/papi/public/v2/trusted-networks`) while the captured Automate contract currently exposes only the older v1 `webTrustedNetwork` operations."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/papi/public/v2/trusted-networks"
+          ]
+        }
+      ]
+    },
+    "list-envelope": {
+      "statement": "Both SDKs read the v1 list as an object and take the networks from its `trustedNetworkContracts` member (Go also reads `totalCount` and errors when it is positive but no networks came back).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "TrustedNetworkContracts []TrustedNetwork `json:\"trustedNetworkContracts\"`",
+            "if response.TotalCount > 0 && len(response.TrustedNetworkContracts) == 0 {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/trusted_networks.py",
+          "quotes": [
+            "trusted_networks = response_body.get(\"trustedNetworkContracts\", [])"
+          ]
+        }
+      ]
+    },
+    "mutation-response": {
+      "statement": "The Go SDK documents that v1 create and edit return only a status such as {\"success\":\"true\",\"errorCode\":\"0\"}, not the trusted network, so it resolves the record by name after create and by ID after update. Recorded responses from one test tenant agree that neither returns the record, but differ on the create: there the API answered `{\"conditionType\" : 0, \"active\" : false}`, while the edit answered `{\"success\" : \"true\", \"errorCode\" : \"0\"}`.",
+      "tier": "A",
+      "conditions": "Qualified per verifier with recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+          "quotes": [
+            "string: \"{\\n  \\\"conditionType\\\" : 0,\\n  \\\"active\\\" : false\\n}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworksExtended.yaml",
+          "after": "webTrustedNetwork/edit response:",
+          "quotes": [
+            "string: \"{\\n  \\\"success\\\" : \\\"true\\\",\\n  \\\"errorCode\\\" : \\\"0\\\"\\n}\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "PUT /webTrustedNetwork/edit on 200 OK (e.g. {\"success\":\"true\",\"errorCode\":\"0\"}).",
+            "The contract (id, networkName, etc.) is not returned; resolve the resource via GetTrustedNetworkByName"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/tnbackend/backend_v1.go",
+          "quotes": [
+            "create/edit responses carry only {\"success\",\"errorCode\"}, so the SDK"
+          ]
+        }
+      ]
+    },
+    "error-code": {
+      "statement": "The Go SDK treats a mutation as failed only when `errorCode` is non-empty and not \"0\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "if r.ErrorCode != \"\" && r.ErrorCode != \"0\" {"
+          ]
+        }
+      ]
+    },
+    "delete-missing-silent": {
+      "statement": "Deleting a v1 trusted network ID that does not exist returned HTTP 200 with `{\"success\" : \"false\", \"errorCode\" : \"3005\"}` in a recorded response, and the Go `DeleteTrustedNetwork` passes no response target and returns success whenever the request itself did not fail, so such a failure is silent in Go.",
+      "tier": "A",
+      "conditions": "Added per verifier from recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette); the HTTP 200 is the recording's status line. The Go half is read from the code, not run.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworksExtended.yaml",
+          "after": "webTrustedNetwork/999999999/delete",
+          "quotes": [
+            "string: \"{\\n  \\\"success\\\" : \\\"false\\\",\\n  \\\"errorCode\\\" : \\\"3005\\\"\\n}\"",
+            "code: 200"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "func DeleteTrustedNetwork(",
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"DELETE\", endpoint, nil, nil, nil)",
+            "return resp, nil"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "v1-list-shape": {
+      "summary": "The shape of the v1 trusted-network list response: the contract defines a bare array of records, while both SDKs read an object with `trustedNetworkContracts`.",
+      "positions": [
+        {
+          "says": "The contract's 200 response for `webTrustedNetwork/listByCompany` is an array of `TrustedNetworkContract` items.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1listByCompany/get/responses/200/content/application~1json/schema",
+            "expect": {
+              "type": "array"
+            }
+          }
+        },
+        {
+          "says": "The Go SDK decodes the list into an object with `totalCount` and `trustedNetworkContracts`.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+            "quotes": [
+              "TrustedNetworkContracts []TrustedNetwork `json:\"trustedNetworkContracts\"`"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK takes the records from the response's `trustedNetworkContracts` key, defaulting to an empty list.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/trusted_networks.py",
+            "quotes": [
+              "trusted_networks = response_body.get(\"trustedNetworkContracts\", [])"
+            ]
+          }
+        },
+        {
+          "says": "A recorded `listByCompany` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) is an object with `totalCount` and `trustedNetworkContracts`, as the SDKs expect.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+            "after": "webTrustedNetwork/listByCompany response:",
+            "quotes": [
+              "string: \"{\\n  \\\"totalCount\\\" : 24,\\n  \\\"trustedNetworkContracts\\\" : [ {"
+            ]
+          }
+        }
+      ],
+      "impact": "The recording supports the SDKs: a client built from the contract that expects an array fails on the object the API returned. If a tenant did send the bare array the contract describes, both SDKs would return an error, not an empty list: Go fails to decode an array into its response object, and Python's lookup on a list raises inside a block that returns the exception as the error."
+    },
+    "condition-type-wire-type": {
+      "summary": "The wire type of the trusted network's `conditionType`: the Go SDK sends an integer, the API contract types it as a string of format byte, and the Python SDK's docstring documents a string.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+            "quotes": [
+              "ConditionType int `json:\"conditionType\"`"
+            ]
+          },
+          "says": "int"
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1webTrustedNetwork~1create/post/requestBody/content/application~1json/schema/properties/conditionType",
+            "expect": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "says": "string, format byte"
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/trusted_networks.py",
+            "after": "def add_trusted_network(self, **kwargs) -> APIResult[dict]:",
+            "quotes": [
+              "condition_type (str):"
+            ]
+          },
+          "says": "str (docstring only; the code passes the value through)"
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+            "after": "webTrustedNetwork/listByCompany response:",
+            "quotes": [
+              "\\\"conditionType\\\" : 1,"
+            ]
+          },
+          "says": "A recorded `listByCompany` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) returns `conditionType` as a JSON number."
+        }
+      ],
+      "impact": "A caller following the Python docstring or the contract may send \"0\" where the Go SDK sends 0; the recorded read returns a number, but whether the API accepts a string on write is not documented. The Terraform provider documents both string forms as accepted for its own input, which says nothing about the API."
+    }
+  },
+  "gaps": {
+    "v1-v2-coexistence": {
+      "kind": "semantic",
+      "title": "Whether the v2 trusted-network API replaces v1 and shares its records",
+      "status": "open",
+      "former_ids": [
+        "zcc-80"
+      ],
+      "detail": "Unverified legacy statement: the v2 families (notification templates, ZIA posture profiles, trusted networks) coexist with the v1 endpoints, which are still present, and no source says whether v2 supersedes v1 or when a tenant should move. A v2 fetch of notification templates and ZIA posture profiles returned HTTP 404 on one tested gateway, which shows only that those routes were unavailable there.",
+      "blocks": "deciding whether a v1 and a v2 trusted network with the same name are the same object, and which family to automate against",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

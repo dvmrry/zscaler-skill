@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "id": "zcc.terraform.provider-config",
+  "title": "Configuring the ZCC Terraform provider: OneAPI credentials, environment variables and defaults",
+  "aliases": [
+    "zcc provider credentials",
+    "zcc_client_id not supported",
+    "zcc terraform legacy auth",
+    "ZSCALER_VANITY_DOMAIN zcc",
+    "zcc provider max_retries default",
+    "zcc provider zscalergov",
+    "zcc client_secret private_key conflict"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The provider's own arguments, their types and descriptions are generated: run `node scripts/kb.mjs surface provider:zcc`. This subject holds how they are resolved and what the code does that the schema does not show."
+    },
+    {
+      "label": "OneAPI only.",
+      "text": "{{oneapi-only-docs}} {{gov-clouds-unsupported}} The SDK's environment switch can still put it in legacy mode: [[zcc.sdk-go.legacy-routing:zcc-provider-oneapi-only]]."
+    },
+    {
+      "label": "Credentials.",
+      "text": "{{env-fallback}} {{auth-combination}} {{cloud-optional}} {{sdk-env-key-preferred}} The documentation says the secret and the private key conflict, but the code does not enforce it {{divergence:secret-key-conflict}}."
+    },
+    {
+      "label": "Retries and timeouts.",
+      "text": "{{code-defaults}} The documented defaults are different {{divergence:retry-timeout-defaults}}. How the SDK applies these options and the proxy is in [[shared.sdk-go.request-handling:providers-append-proxy-after-rebuilds]], and which SDK release each provider build carries is [[shared.sdk-go.retries:provider-sdk-pins]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant is on Zidentity and a OneAPI cloud, since the provider has no legacy ZCC login and the government clouds are not supported.",
+      "uses": [
+        "oneapi-only-docs",
+        "gov-clouds-unsupported"
+      ]
+    },
+    {
+      "do": "Whether both a client secret and a private key are set, in configuration or the environment, and which one is in `ZSCALER_PRIVATE_KEY`, since nothing warns about the combination and a key in the environment wins.",
+      "uses": [
+        "env-fallback",
+        "sdk-env-key-preferred",
+        "secret-key-conflict"
+      ]
+    },
+    {
+      "do": "Whether a slow failure came from the code's retry budget of 100 and 240-second timeout rather than the documented 5 and no limit.",
+      "uses": [
+        "code-defaults",
+        "retry-timeout-defaults"
+      ]
+    }
+  ],
+  "claims": {
+    "oneapi-only-docs": {
+      "statement": "The provider documentation says it authenticates only through OneAPI OAuth2 via Zidentity, offers no legacy path (`zcc_client_id`, `zcc_client_secret` and `zcc_cloud` are not supported), and that tenants must be migrated to Zidentity before the provider can manage them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/index.md",
+          "quotes": [
+            "The ZCC Terraform Provider authenticates exclusively via",
+            "This provider does **not** offer a legacy authentication path — the legacy ZCC V2 API client (`zcc_client_id` / `zcc_client_secret` / `zcc_cloud`) is not supported.",
+            "Tenants must be migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity) before they can be managed through this provider."
+          ]
+        }
+      ]
+    },
+    "gov-clouds-unsupported": {
+      "statement": "The documentation says OneAPI and Zidentity are not currently supported for the `zscalergov` and `zscalerten` clouds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/index.md",
+          "quotes": [
+            "Notice that OneAPI and Zidentity are not currently supported for the following clouds: `zscalergov` and `zscalerten`."
+          ]
+        }
+      ]
+    },
+    "env-fallback": {
+      "statement": "Each credential and connection argument left unset in the provider block is read from an environment variable: `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_PRIVATE_KEY`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD` and `ZSCALER_HTTP_PROXY`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider_configure.go",
+          "quotes": [
+            "ClientID:         getStringValue(data.ClientID, \"ZSCALER_CLIENT_ID\"),",
+            "ClientSecret:     getStringValue(data.ClientSecret, \"ZSCALER_CLIENT_SECRET\"),",
+            "PrivateKey:       getStringValue(data.PrivateKey, \"ZSCALER_PRIVATE_KEY\"),",
+            "VanityDomain:     getStringValue(data.VanityDomain, \"ZSCALER_VANITY_DOMAIN\"),",
+            "Cloud:            getStringValue(data.ZscalerCloud, \"ZSCALER_CLOUD\"),",
+            "HTTPProxy:        getStringValue(data.HTTPProxy, \"ZSCALER_HTTP_PROXY\"),"
+          ]
+        }
+      ]
+    },
+    "auth-combination": {
+      "statement": "The client is built only from a client ID and a vanity domain together with either a client secret or a private key; otherwise configuration fails with 'invalid authentication configuration: missing required parameters'. The cloud is passed only when set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "quotes": [
+            "case c.ClientID != \"\" && c.ClientSecret != \"\" && c.VanityDomain != \"\":",
+            "case c.ClientID != \"\" && c.PrivateKey != \"\" && c.VanityDomain != \"\":",
+            "invalid authentication configuration: missing required parameters (client_id, client_secret or private_key, vanity_domain)"
+          ]
+        }
+      ]
+    },
+    "cloud-optional": {
+      "statement": "The documentation says `zscaler_cloud` is optional and needed only for other environments such as `beta`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/index.md",
+          "quotes": [
+            "The `zscaler_cloud` is optional and only required when authenticating to other environments i.e `beta`"
+          ]
+        }
+      ]
+    },
+    "code-defaults": {
+      "statement": "When unset, the code uses 100 retries, a 240-second request timeout, and a minimum and maximum retry wait of 2 and 10 seconds. An explicit 0 is replaced the same way, so `request_timeout = 0` becomes 240 seconds and `max_retries = 0` becomes 100.",
+      "tier": "A",
+      "conditions": "Added the explicit-0 case: `getIntValue` passes a set 0 through, then `applyDefaults` overwrites any 0.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider_configure.go",
+          "quotes": [
+            "RetryCount:       getIntValue(data.MaxRetries, 100),",
+            "RequestTimeout:   getIntValue(data.RequestTimeout, 240),",
+            "MinWait:          getIntValue(data.MinWaitSeconds, 2),",
+            "MaxWait:          getIntValue(data.MaxWaitSeconds, 10),"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "after": "func applyDefaults(config *Config) {",
+          "quotes": [
+            "if config.RequestTimeout == 0 {",
+            "config.RequestTimeout = 240",
+            "if config.RetryCount == 0 {",
+            "config.RetryCount = 100"
+          ]
+        }
+      ]
+    },
+    "sdk-env-key-preferred": {
+      "statement": "The SDK loads `ZSCALER_PRIVATE_KEY` (and `~/.zscaler/zscaler.yaml`) into its own configuration and authenticates with a JWT whenever a private key is present, so a key in the environment wins even when the provider took the secret branch. In that case a file path in the variable is used as the key text, because the provider's `WithPrivateKey`, which reads a path, is not called.",
+      "tier": "B",
+      "conditions": "envconfig v1.4.0 falls back to the unprefixed tag name; traced, not run.",
+      "derived_from": [
+        "auth-combination",
+        "env-fallback"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "cfg = readConfigFromEnvironment(*cfg)",
+            "PrivateKey    []byte     `yaml:\"privateKey\" envconfig:\"ZSCALER_PRIVATE_KEY\"`",
+            "conf, err := readConfigFromFile(currUser.HomeDir+\"/.zscaler/zscaler.yaml\", c)",
+            "// If private key is provided, use JWT-based authentication.",
+            "if len(creds.PrivateKey) > 0 {",
+            "// WithPrivateKey sets private key, privateKey can be the raw key value or a path to the pem file."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "secret-key-conflict": {
+      "summary": "Whether `client_secret` and `private_key` may both be set: the documentation says they conflict, while the code has no conflict check; the provider passes the secret when both are present, but the SDK still prefers a key it reads from the environment.",
+      "positions": [
+        {
+          "says": "The argument reference says `client_secret` conflicts with `private_key`.",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "docs/index.md",
+            "quotes": [
+              "`client_secret` conflicts with `private_key`."
+            ]
+          }
+        },
+        {
+          "says": "The client builder tests the secret combination first and passes only the secret to the SDK when both are set, without an error; the SDK still authenticates with a key it reads from the environment itself (sdk-env-key-preferred).",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "internal/client/client.go",
+            "quotes": [
+              "case c.ClientID != \"\" && c.ClientSecret != \"\" && c.VanityDomain != \"\":",
+              "zscaler.WithClientSecret(c.ClientSecret),"
+            ]
+          }
+        }
+      ],
+      "impact": "A private key set only in the provider block is silently unused when `ZSCALER_CLIENT_SECRET` is also in the environment. In reverse, a secret set in the provider block is ignored when `ZSCALER_PRIVATE_KEY` is in the environment, because the SDK authenticates with that key, and a key path there is used raw rather than read from the file. Both matter when rotating between secret and key authentication.",
+      "resolution": {
+        "by": "auth-combination",
+        "rule": "source-rank",
+        "note": "The code decides what the provider does; the documentation states an intent the schema does not enforce."
+      }
+    },
+    "retry-timeout-defaults": {
+      "summary": "The defaults for `max_retries` and `request_timeout`: the documentation says 5 retries and a timeout of 0 (no limit, at most 300), while the code uses 100 retries and 240 seconds.",
+      "positions": [
+        {
+          "says": "The argument reference gives a `max_retries` default of 5 and a `request_timeout` default of 0, meaning no limit, with a maximum of 300.",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "docs/index.md",
+            "quotes": [
+              "Maximum number of retries to attempt before returning an error, the default is `5`.",
+              "the default is `0` (means no limit is set). The maximum value can be `300`."
+            ]
+          }
+        },
+        {
+          "says": "The configure code defaults the retry count to 100 and the request timeout to 240 seconds.",
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "internal/framework/provider_configure.go",
+            "quotes": [
+              "RetryCount:       getIntValue(data.MaxRetries, 100),",
+              "RequestTimeout:   getIntValue(data.RequestTimeout, 240),"
+            ]
+          }
+        }
+      ],
+      "impact": "An apply against a rate-limited or unreachable API can keep retrying far longer than the documentation suggests. Set both arguments explicitly, and non-zero, when the bound matters: an explicit `request_timeout = 0`, documented as no limit, becomes 240 seconds, and `max_retries = 0` becomes 100 (code-defaults).",
+      "resolution": {
+        "by": "code-defaults",
+        "rule": "source-rank",
+        "note": "The code is what runs."
+      }
+    }
+  }
+}

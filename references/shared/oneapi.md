@@ -87,7 +87,7 @@ We've vendored the relevant captures under `vendor/zscaler-help/automate-zscaler
 
 Source: `vendor/zscaler-help/automate-zscaler/getting-started.json`; `vendor/zscaler-help/legacy-api-authentication.json`.
 
-Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
+Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api), [`zcc.api`](kb:zcc.api), and [`../zdx/api.md`](../zdx/api.md).
 
 OneAPI is the modern path. **Four legacy paths still exist** because (a) government-cloud support is SDK/provider/version-specific, not uniform across every client surface, (b) some products retain a dedicated legacy auth flow in parallel with OneAPI (ZDX SHA256-signed flow, ZCC legacy path), and (c) plenty of tenants haven't migrated to ZIdentity yet. Operational reality: any code touching multiple Zscaler products today must be prepared to deal with 2–3 different auth flows.
 
@@ -272,7 +272,7 @@ The returned JWT is used as a bearer token on subsequent ZCC API calls.
 
 Source: `vendor/zscaler-help/automate-zscaler/understanding-oneapi.json`; `vendor/zscaler-api-specs/oneapi-postman-collection.json`.
 
-Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
+Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api), [`zcc.api`](kb:zcc.api), and [`../zdx/api.md`](../zdx/api.md).
 
 Single host, per-product paths:
 
@@ -609,7 +609,7 @@ Note: This section summarizes the cited OneAPI mechanics above.
 
 Source: `vendor/zscaler-help/legacy-api-authentication.json`.
 
-Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api), [`../zcc/api.md`](../zcc/api.md), and [`../zdx/api.md`](../zdx/api.md).
+Related references: [`legacy-api.md`](./legacy-api.md), [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api), [`zcc.api`](kb:zcc.api), and [`../zdx/api.md`](../zdx/api.md).
 
 Legacy authentication covers the pre-OneAPI, pre-ZIdentity API auth patterns for ZIA and ZPA. These paths remain in active use for pre-ZIdentity tenants, older client/provider versions, government environments unsupported by the selected client, and code written before OneAPI shipped. ZPA Terraform v4.4.6+ no longer belongs to that legacy-only set: it documents FedRAMP OneAPI with lowercase `gov` / `govus` (`vendor/terraform-provider-zpa/docs/index.md:118-133`).
 
@@ -740,7 +740,7 @@ During transition, both auth paths can coexist on a ZIdentity-enabled tenant. Th
 - ZIdentity API Client object model: [`../zidentity/api-clients.md`](../zidentity/api-clients.md).
 - ZIA-specific API: [`zia.api`](kb:zia.api).
 - ZPA-specific API: [`zpa.api`](kb:zpa.api).
-- ZCC-specific API: [`../zcc/api.md`](../zcc/api.md).
+- ZCC-specific API: [`zcc.api`](kb:zcc.api).
 - ZDX-specific API: [`../zdx/api.md`](../zdx/api.md).
 - ZIdentity API: [`../zidentity/api.md`](../zidentity/api.md).
 - Cloud Connector / CBC API: [`../cloud-connector/api.md`](../cloud-connector/api.md).

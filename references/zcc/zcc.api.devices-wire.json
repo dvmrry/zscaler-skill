@@ -1,0 +1,445 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.devices-wire",
+  "title": "ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords",
+  "aliases": [
+    "zcc removeDevices",
+    "zcc forceRemoveDevices",
+    "zcc soft remove device",
+    "removal pending",
+    "zcc getOtp",
+    "zcc getPasswords",
+    "zcc uninstall password api",
+    "zcc downloadDevices csv"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.listing"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The device endpoints list and remove enrolled devices, export CSV reports, and hand out the one-time and profile passwords that unlock Client Connector on a device. Their parameters are generated from the contract; this subject holds what the operations do."
+    },
+    {
+      "heading": "Listing devices"
+    },
+    {
+      "text": "{{api-page-size}} How each SDK pages it is in [[zcc.devices.listing]]."
+    },
+    {
+      "text": "The contract, the Go SDK and recorded responses type a device's `state` and `type` differently {{divergence:state-type-encoding}}. The Go SDK reads the details response as a list, where the contract and a recorded response have one object {{divergence:details-response-shape}}."
+    },
+    {
+      "heading": "Removing devices"
+    },
+    {
+      "text": "{{soft-remove}} {{force-remove}} {{remove-by-criteria}}"
+    },
+    {
+      "text": "How many UDIDs one call accepts is open {{gap:udid-batch-cap}}."
+    },
+    {
+      "text": "The Go SDK sends machine-tunnel hostnames under a different key and shape from the contract {{divergence:machine-tunnel-hostnames}}."
+    },
+    {
+      "heading": "Downloads"
+    },
+    {
+      "text": "{{csv-downloads}} They have their own daily limit: [[zcc.api.rate-limits:hourly-and-daily-limits]]."
+    },
+    {
+      "heading": "Secrets"
+    },
+    {
+      "text": "{{otp}} {{passwords}} {{secrets-on-get}}"
+    },
+    {
+      "text": "Repeated OTP reads should carry a cache-busting argument: [[zcc.api.conventions:dummy-argument]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a device that still shows after removal is in the removal-pending state a soft remove leaves, and needs a force remove.",
+      "uses": [
+        "soft-remove",
+        "force-remove"
+      ]
+    },
+    {
+      "do": "Which API clients and roles can call `/getOtp` and `/getPasswords`, since either is enough to disable or uninstall Client Connector on a device.",
+      "uses": [
+        "secrets-on-get"
+      ]
+    }
+  ],
+  "claims": {
+    "soft-remove": {
+      "statement": "`POST /removeDevices` soft-removes enrolled devices from the portal, marking their state as device removal pending.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post",
+          "expect": {
+            "description": "<p>Soft removes the enrolled device from the portal. The soft removal marks the device state as device removal pending. At least one criterion (username, Zscaler Client Connector version, OS type, or UDID) must be specified to remove devices.</p><p>The following are the valid values for  the <code>osType</code> attribute. The default value is null, which represents ALL OS types.</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul>"
+          }
+        }
+      ]
+    },
+    "force-remove": {
+      "statement": "`POST /forceRemoveDevices` force-removes enrolled devices from the portal, but only devices in the registered or device-removal-pending state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1forceRemoveDevices/post",
+          "expect": {
+            "description": "<p>Force removes the enrolled device from the portal. You can only remove devices that are in registered or device removal pending state. At least one criterion (username, Zscaler Client Connector version, OS type, or UDID) must be specified to remove devices.</p><p>The following are the valid values for the <code>osType</code> attribute. The default value is null, which represents ALL OS types.</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul>"
+          }
+        }
+      ]
+    },
+    "remove-by-criteria": {
+      "statement": "Both removal calls select devices by criteria in one request, at least one of which must be given: a user name, a list of Client Connector versions, an OS type, or a list of UDIDs. The response reports the number of devices removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post/requestBody/content/application~1json/schema/properties/udids",
+          "expect": {
+            "type": "array"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post/responses/200/content/application~1json/schema/properties/devicesRemoved",
+          "expect": {
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "csv-downloads": {
+      "statement": "`/downloadDevices`, `/downloadServiceStatus` and `/downloadDisableReasons` return CSV files (device information, service status of all devices, and the reasons devices were disabled) as `application/octet-stream`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDevices/get",
+          "expect": {
+            "description": "Downloads or exports device information as a CSV file."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDisableReasons/get",
+          "expect": {
+            "description": "Downloads or exports a report as a CSV file showing the disable reasons of a device."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadServiceStatus/get/responses/200/content/application~1octet-stream/schema",
+          "expect": {
+            "title": "StreamingResponseBody"
+          }
+        }
+      ]
+    },
+    "otp": {
+      "statement": "`GET /getOtp` returns the one-time passwords for a device identified by UDID; each is 10 random alphanumeric characters and can be used once. The response carries separate OTPs for actions including uninstall, logout, exit, revert, anti-tampering disable, and disabling ZIA, ZPA, ZDX and ZDP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getOtp/get",
+          "expect": {
+            "description": "Gets the one-time password (OTP) for a specific device. These single-use passwords are unique and tied to the device Unique Device Identifier (UDID). It is made of 10 random alphanumeric characters and can only be used once."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getOtp/get/responses/200/content/*~1*/schema/properties/uninstallOtp",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getOtp/get/responses/200/content/*~1*/schema/properties/ziaDisableOtp",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "passwords": {
+      "statement": "`GET /getPasswords` returns the app profile passwords assigned to a device, found by its user name and OS type: uninstall, logout, exit, and disabling ZIA, ZPA and ZDX, among others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getPasswords/get",
+          "expect": {
+            "description": "Gets the app profile password for a specific device. You can determine the assigned global passwords by using the username and OS type of a device."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getPasswords/get/responses/200/content/*~1*/schema/properties/uninstallPass",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "secrets-on-get": {
+      "statement": "A caller allowed to read `/getOtp` or `/getPasswords` can obtain, in plain text, the values that uninstall, log out of or disable services in Client Connector on a device.",
+      "tier": "B",
+      "derived_from": [
+        "otp",
+        "passwords"
+      ],
+      "conditions": "Follows from the response fields of the two GET operations; which roles or scopes may call them is not stated in these sources."
+    },
+    "api-page-size": {
+      "statement": "The device list takes `page` (default 1) and `pageSize`, which defaults to 50 with a maximum of 5000, and filters by `username` and `osType`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 50. The max page size is 5000."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/parameters/[name=username]",
+          "expect": {
+            "description": "Filter by enrolled user name for the device."
+          }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "state-type-encoding": {
+      "summary": "How the device `state` (and `type`) values are typed on the list and details calls.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/responses/200/content/*~1*/schema/items/properties/state",
+            "expect": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "says": "The list contract types `state`, `type` and `vpnState` as strings of format byte, and the details contract does the same for `state` and `type`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/devices/devices.go",
+            "after": "type GetDevices struct {",
+            "quotes": [
+              "State int `json:\"state\"`"
+            ]
+          },
+          "says": "The Go list struct decodes `state`, `type` and `vpnState` as int."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/devices/devices.go",
+            "after": "type DeviceDetails struct {",
+            "quotes": [
+              "State string `json:\"state\"`"
+            ]
+          },
+          "says": "The Go details struct decodes `state` and `type` as string."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+            "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/getDevices?page=1&pageSize=10&osType=3",
+            "quotes": [
+              "\\\"vpnState\\\" : 0,",
+              "\\\"type\\\" : 3,\\n  \\\"state\\\" : 6,",
+              "{\"id\":\"190286315\",\"type\":4,\"state\":2,\"user_name\":\"REDACTED\""
+            ]
+          },
+          "says": "Recorded responses from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) carry `state` and `type` as JSON numbers on both the list and the details call, and `vpnState` as a number on the list call."
+        }
+      ],
+      "impact": "Within one SDK the same field is a number on one call and a string on the other. On the recorded tenant the wire sends numbers, which the Go list struct matches and the contract's string type does not; the Go details struct's string fields cannot decode those numbers, so the Go details call fails on that response. Code comparing state across the two calls compares unlike types."
+    },
+    "details-response-shape": {
+      "summary": "Whether the device details call returns one object or a list.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema",
+            "expect": {
+              "title": "DeviceDetailResponseContract",
+              "type": "object"
+            }
+          },
+          "says": "The contract's response is a single object."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/devices.py",
+            "quotes": [
+              "# Handle single object response directly since getDeviceDetails returns a single object"
+            ]
+          },
+          "says": "The Python SDK reads a single object."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/devices/devices.go",
+            "quotes": [
+              "var deviceDetails []DeviceDetails",
+              "func GetDeviceDetails(ctx context.Context, service *zscaler.Service, username, udid string) ([]DeviceDetails, error) {"
+            ]
+          },
+          "says": "The Go SDK decodes the response into a slice of `DeviceDetails`."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+            "quotes": [
+              "string: '{\"id\":\"190286315\",\"type\":4,\"state\":2,\"user_name\":\"REDACTED\""
+            ]
+          },
+          "says": "A recorded `getDeviceDetails` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) is a single JSON object."
+        }
+      ],
+      "impact": "The recorded API answers with one object, as the contract and the Python SDK say, so the Go `GetDeviceDetails` call fails to decode it into a slice and returns an error for a successful request; a Go caller would conclude the device has no details. A non-slice Go type would still fail on that response, because it sends `state` and `type` as numbers where the Go details struct declares strings (divergence state-type-encoding)."
+    },
+    "machine-tunnel-hostnames": {
+      "summary": "Where and under which key a machine-tunnel removal sends hostnames.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post",
+            "expect": {
+              "description": "<p>Remove machine tunnel devices.</p><p><strong>Note:</strong> For the parameters described below, you can specify either hostName or machineToken but not both.</p>\n",
+              "parameters": [
+                {
+                  "description": "Comma-separated list of hostnames for the device.",
+                  "in": "query",
+                  "name": "hostName",
+                  "required": false,
+                  "schema": {
+                    "type": "string"
+                  },
+                  "style": "form"
+                },
+                {
+                  "description": "Machine token.",
+                  "in": "query",
+                  "name": "machineToken",
+                  "required": false,
+                  "schema": {
+                    "type": "string"
+                  },
+                  "style": "form"
+                }
+              ],
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "properties": {
+                        "hostNames": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "machineToken": {
+                          "type": "string"
+                        }
+                      },
+                      "title": "MachineTunnelDeviceRemoveContract",
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "says": "Hostnames go in the `hostName` query parameter, comma-separated, or in the body as a `hostNames` array; only one of hostname and machine token may be given."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/remove_devices/zcc_remove_devices.go",
+            "quotes": [
+              "payload[\"hostName\"] = strings.Join(hostNames, \",\")",
+              "payload[\"machineToken\"] = machineToken"
+            ]
+          },
+          "says": "The Go `RemoveMachineTunnel` puts the hostnames in the body as a single comma-joined string under `hostName`, a key the contract's body does not define, and sends `machineToken` alongside it when both are given."
+        }
+      ],
+      "impact": "A Go removal by hostname depends on the server reading a body key outside the contract; if it does not, the call can report success with nothing removed, and passing both hostnames and a token sends a combination the contract forbids."
+    }
+  },
+  "gaps": {
+    "udid-batch-cap": {
+      "kind": "semantic",
+      "title": "How many UDIDs one device-removal call accepts",
+      "status": "open",
+      "former_ids": [
+        "zcc-11"
+      ],
+      "detail": "Unverified legacy statement: `/removeDevices` and `/forceRemoveDevices` take a UDID list and count as a single API call, so batching UDIDs is the efficient way to remove many devices. Neither the contract nor the SDKs state a maximum list length.",
+      "blocks": "sizing bulk removals under the 100-calls-an-hour limit",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

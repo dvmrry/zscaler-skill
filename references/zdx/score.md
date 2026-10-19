@@ -251,4 +251,4 @@ Source: `vendor/zscaler-help/about-zdx-score.json`; `vendor/zscaler-sdk-python/z
 - ZDX architecture and scoring narrative — [`./overview.md`](./overview.md)
 - Probes (Web + Cloud Path) — [`./probes.md`](./probes.md)
 - Diagnostics Sessions and Alerts — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md)
-- ZCC entitlement (ZDX gate) — [`../zcc/entitlements.md`](../zcc/entitlements.md)
+- ZCC entitlement (ZDX gate) — [`zcc.entitlements`](kb:zcc.entitlements)

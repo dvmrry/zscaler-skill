@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "id": "zcc.sdk-python.pagination",
+  "title": "Paging through ZCC lists with the Python SDK",
+  "aliases": [
+    "zcc python pagination",
+    "list_devices has_next",
+    "zcc page_size 5000",
+    "zcc page_size 0",
+    "zcc next StopIteration",
+    "zcc flat array pagination",
+    "list_devices only first page"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.paging-and-requests"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Most ZCC v1 lists return a bare JSON array, and the Python response object walks it with `has_next()` and `next()` on page-fullness guesses alone. {{app-profiles-envelope}} The Go helpers are in [[zcc.sdk-go.paging-and-requests]]."
+    },
+    {
+      "label": "Page size.",
+      "text": "{{list-devices-docstring-size}} The contract's own default and maximum are [[zcc.api.devices-wire:api-page-size]]. The key goes on the wire camel-cased: [[zcc.api.conventions:query-params-camel]] {{wrapper-zcc-limits}} {{limit-clamp-local-only}} {{no-default-size-sent}} {{zero-page-size}}"
+    },
+    {
+      "label": "Walking pages.",
+      "text": "{{flat-array-fix}} {{page-seeds-counter}} {{zcc-next-branch}} {{has-next-first-page}} {{has-next-later-pages}} {{next-stop-vs-empty}}"
+    },
+    {
+      "label": "Limits of the heuristic.",
+      "text": "{{no-loop-guard}} Whether every ZCC v1 list endpoint honours `page` and `pageSize` is open {{gap:page-param-honored}}. Client-side filtering of a page is [[zia.sdk-python.response-shape:search-current-page]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the caller looped on `has_next()` and `next()`, and capped the loop and checked for repeated pages, since nothing in the SDK stops a server that ignores `page`.",
+      "uses": [
+        "has-next-later-pages",
+        "no-loop-guard"
+      ]
+    },
+    {
+      "do": "Whether a `page_size` above 5000 or of 0 was passed, since it is sent as given.",
+      "uses": [
+        "limit-clamp-local-only",
+        "zero-page-size"
+      ]
+    },
+    {
+      "do": "Whether a `next()` that returned None meant an empty page rather than an error, by checking the error slot.",
+      "uses": [
+        "next-stop-vs-empty"
+      ]
+    }
+  ],
+  "claims": {
+    "app-profiles-envelope": {
+      "statement": "The application-profiles list is an exception: it returns a `policies` envelope, which `list_application_profiles` unwraps itself.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/application_profiles.py",
+          "quotes": [
+            "items = response_body.get(\"policies\", []) or []"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies",
+          "expect": {
+            "description": "The list of policies."
+          }
+        }
+      ]
+    },
+    "list-devices-docstring-size": {
+      "statement": "The `list_devices` docstring gives a default page size of 50 and a maximum of 5000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def list_devices(self, query_params: Optional[dict] = None) -> APIResult[List[Device]]:",
+          "quotes": [
+            "The default page size is 50.",
+            "The max page size is 5000."
+          ]
+        }
+      ]
+    },
+    "wrapper-zcc-limits": {
+      "statement": "The Python response object's page-size table gives ZCC a default of 50, a minimum of 1 and a maximum of 5000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "\"zcc\": {\"default\": 50, \"max\": 5000, \"min\": 1},"
+          ]
+        }
+      ]
+    },
+    "limit-clamp-local-only": {
+      "statement": "A caller-supplied page size is clamped into that range only for the response object's own continuation limit. The request has already gone out with the caller's value, because ZCC query parameters are only camel-cased, not checked, so a `page_size` of 6000 is sent as `pageSize=6000`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._limit = self.validate_page_size(raw_page_size, service_type)",
+            "validated_size = min(max(int(page_size), min_page_size), max_page_size)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "# Normal param conversion if not ZPA",
+          "quotes": [
+            "params = convert_keys_to_camel_case(params)"
+          ]
+        }
+      ]
+    },
+    "no-default-size-sent": {
+      "statement": "When the caller gives no page size the SDK sends none, on the first request or on later pages, and the API's own default applies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "# Don't set any default - let the API use its own default behavior"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")",
+          "quotes": [
+            "self._params[\"page\"] = self._page"
+          ]
+        }
+      ]
+    },
+    "zero-page-size": {
+      "statement": "An explicit `page_size` of 0 is sent as `pageSize=0`, but the response object reads its limit with an `or` chain, so it treats 0 as no size given and pages as if the size were omitted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._params.get(\"pageSize\")",
+            "or self._params.get(\"pagesize\")"
+          ]
+        }
+      ]
+    },
+    "flat-array-fix": {
+      "statement": "Since release 1.9.42 (PR 564) a ZCC flat JSON array is not marked as a complete, unpaged response, so `has_next()` and `next()` can walk a list such as `list_devices`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZCC pagination so `has_next()`/`next()` properly traverse all pages on flat-array list endpoints (e.g. `list_devices`)."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if self._service_type in (\"zia\", \"zcc\"):"
+          ]
+        }
+      ]
+    },
+    "page-seeds-counter": {
+      "statement": "A `page` the caller passes on a ZCC list seeds the response object's page counter, so `next()` asks for the page after it. Any integer is accepted, including 0 or a negative number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if self._service_type == \"zcc\" and \"page\" in self._params:",
+            "self._page = int(self._params[\"page\"])"
+          ]
+        }
+      ]
+    },
+    "zcc-next-branch": {
+      "statement": "For ZCC, `next()` takes the generic branch: it adds one to the page counter, sets `page`, and resends the original query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")",
+          "quotes": [
+            "self._page += 1",
+            "self._params[\"page\"] = self._page"
+          ]
+        }
+      ]
+    },
+    "has-next-first-page": {
+      "statement": "After the first page, `has_next()` is true whenever that page held any item, even a page shorter than the requested size. A ZCC response that is a single object is held as a one-item list, so it counts as a non-empty page too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "if self._pages_fetched == 1:",
+          "quotes": [
+            "has_next = bool(self._list)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "# ZCC can return either a single object or a list of objects",
+          "quotes": [
+            "self._list = [self._body]"
+          ]
+        }
+      ]
+    },
+    "has-next-later-pages": {
+      "statement": "On later pages, with a page size given, `has_next()` is true only when the last page was at least that size; without one, any non-empty page continues, so the walk always ends with one extra request that returns an empty page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "# If user provided limit, only continue if last page was \"full\"",
+          "quotes": [
+            "has_next = len(self._list) >= self._limit",
+            "has_next = bool(self._list)"
+          ]
+        }
+      ]
+    },
+    "next-stop-vs-empty": {
+      "statement": "`next()` raises StopIteration only when `has_next()` is already false; when the page it fetches is empty it returns None with no error instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def next(self) -> Tuple[Optional[List[Any]], \"ZscalerAPIResponse\", Optional[Exception]]:",
+          "quotes": [
+            "raise StopIteration(\"No more pages available.\")",
+            "if not results:",
+            "return None, self, None"
+          ]
+        }
+      ]
+    },
+    "no-loop-guard": {
+      "statement": "Nothing in the response object detects a repeated page or caps the number of pages, so if an endpoint ignores `page` and returns the same full page each time, `has_next()` stays true and a loop on it does not end.",
+      "tier": "B",
+      "derived_from": [
+        "zcc-next-branch",
+        "has-next-later-pages"
+      ],
+      "conditions": "Read from oneapi_response.py, which keeps only the page counter, item counts and the last page; no endpoint was observed ignoring `page`."
+    }
+  },
+  "gaps": {
+    "page-param-honored": {
+      "kind": "semantic",
+      "title": "Whether every ZCC v1 list endpoint honours page and pageSize",
+      "status": "open",
+      "blocks": "trusting a drained Python or Go list as the complete inventory",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: the Python traversal is a client heuristic, not a backend guarantee, and endpoint-specific tenant behavior should be validated. Among lists, the contract documents `page` and `pageSize` with a default and a maximum together only on `getDevices`; `application-profiles` documents a default of 50 alone. Most v1 lists carry no total or page-count metadata, but the contract gives `application-profiles`, `getZdxGroupEntitlements` and `getZpaGroupEntitlements` a `totalCount`, and the Go SDK decodes a `totalCount` from the v1 trusted-network list. On a tenant with more records than one page, list each v1 endpoint with a small `pageSize` and pages 1, 2 and 3, and compare the IDs.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/totalCount",
+          "expect": {
+            "description": "Specifies the total number of policies in the database related to search criteria."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getZdxGroupEntitlements/get/responses/200/content/application~1json/schema/properties/totalCount",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getZpaGroupEntitlements/get/responses/200/content/application~1json/schema/properties/totalCount",
+          "expect": {
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/parameters/[name=pageSize]",
+          "expect": {
+            "name": "pageSize",
+            "description": "Specifies the page size. The default size is 50."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "if response.TotalCount > 0 && len(response.TrustedNetworkContracts) == 0 {"
+          ]
+        }
+      ]
+    }
+  }
+}

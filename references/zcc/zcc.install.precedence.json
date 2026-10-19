@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.precedence",
+  "title": "Install parameters versus console settings: which wins, and what survives an update",
+  "aliases": [
+    "install parameter overrides app profile",
+    "app profile overrides install parameter",
+    "enableCustomProxyDetection",
+    "ENABLECUSTOMPROXYDETECTION",
+    "enableAntiTampering",
+    "ENABLEANTITAMPERING",
+    "override anti tampering install parameter",
+    "do install parameters survive upgrade"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.install" },
+    { "rel": "see-also", "to": "zcc.install.windows-driver" },
+    { "rel": "see-also", "to": "zcc.install.strict-enforcement" }
+  ],
+  "prose": [
+    {
+      "text": "A few install parameters overlap settings an admin can also change in the console, and the direction of precedence differs by parameter."
+    },
+    {
+      "label": "The console replaces the parameter.",
+      "text": "{{policytoken-replaced}} {{custom-proxy-detection}} {{anti-tampering}}"
+    },
+    {
+      "label": "The parameter replaces the console.",
+      "text": "The LWF driver switch overrides the forwarding profile's driver choice: [[zcc.install.windows-driver:uselwf-overrides]]."
+    },
+    {
+      "label": "Across updates.",
+      "text": "{{update-retains}} Whether a parameter can be changed after installation without reinstalling is open {{gap:change-after-install}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before concluding a console change had no effect on Windows, whether the device was installed with useLWFDriver.",
+      "uses": ["zcc.install.windows-driver:uselwf-overrides"]
+    },
+    {
+      "do": "For a pre-enrollment behavior that changed after login, whether the parameter is one the app profile supersedes after enrollment.",
+      "uses": ["policytoken-replaced", "custom-proxy-detection"]
+    }
+  ],
+  "claims": {
+    "policytoken-replaced": {
+      "statement": "The policy that policyToken names applies only until the user enrolls; it is then replaced by the app profile policy that matches the user by group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "After the user enrolls, this policy is replaced with an app profile policy that matches the user based on group affiliation."
+          ]
+        }
+      ]
+    },
+    "custom-proxy-detection": {
+      "statement": "On Windows, enableCustomProxyDetection (MSI `ENABLECUSTOMPROXYDETECTION`) sets how Client Connector finds the system proxy before the first policy download: enabled, it downloads the PAC file and parses the proxy instead of using the Microsoft APIs. After the first policy download it follows the app profile's Detect External Proxy Using Custom Method, and it returns to the install setting after the user logs out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Indicates how Zscaler Client Connector identifies the system proxy before the initial policy download.",
+            "If enabled, Zscaler Client Connector downloads the PAC and parses the proxy instead of using the default Microsoft APIs.",
+            "After the initial policy download, Zscaler Client Connector uses the Detect External Proxy Using Custom Method from the app profile and returns to this setting after a user logs out."
+          ]
+        }
+      ]
+    },
+    "anti-tampering": {
+      "statement": "On Windows, enableAntiTampering (MSI `ENABLEANTITAMPERING`) prevents end users from stopping, modifying or deleting Zscaler products and services; the app profile's Override Anti Tampering Install Parameter option can override it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Prevents end users from stopping, modifying, and deleting Zscaler products and services.",
+            "This option can be overridden by the Override Anti Tampering Install Parameter option in app profiles."
+          ]
+        }
+      ]
+    },
+    "update-retains": {
+      "statement": "An app update configured in the Client Connector App Store keeps the installation parameters already set on the device, such as strictEnforcement or policyToken.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-app-update-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "The app update retains any existing installation parameters set on the user devices (e.g., strictEnforcement or policyToken)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "change-after-install": {
+      "kind": "semantic",
+      "title": "Whether an install parameter can be changed without reinstalling",
+      "status": "open",
+      "detail": "Unverified legacy statement: Parameters are read at install time, most are stored locally and persist across upgrades, and changing them typically requires reinstalling ZCC (or at minimum a silent reinstall passing the new values); profile.json, the downloaded app policy bundle, is populated from the admin console, not the installer. The captures confirm only that an App Store update keeps existing parameters; they do not say how a parameter is changed on an installed device or where it is stored.",
+      "blocks": "advice on changing a parameter such as cloudName or useLWFDriver across a fleet",
+      "resolves_with": ["lab-test", "support-ticket"]
+    }
+  }
+}

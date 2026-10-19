@@ -1,0 +1,682 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles.advanced-settings",
+  "title": "What the less common app profile settings do",
+  "aliases": [
+    "drop quic traffic",
+    "dropQuicTraffic",
+    "truncate large udp dns response",
+    "clear kerberos dc",
+    "purgeKerberosPreferredDCCache",
+    "anti-tampering zcc",
+    "tunnel internal client connector traffic",
+    "tunnelZappTraffic",
+    "reactivate zia after",
+    "reauth_period",
+    "on-net policy",
+    "onNetPolicy",
+    "policyExtension",
+    "send disable service reason",
+    "v8 pac parser"
+  ],
+  "binds": [
+    "zcc/application-profiles#policyExtension",
+    "zcc/application-profiles#onNetPolicy",
+    "zcc/application-profiles#sendDisableServiceReason",
+    "zcc/application-profiles#reauth_period",
+    "zcc/application-profiles#tunnelZappTraffic"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Most settings in `policyExtension` have their own description in the API document. These are the ones whose effect is worth knowing before changing them."
+    },
+    {
+      "label": "QUIC and DNS.",
+      "text": "{{drop-quic}} {{truncate-dns}}"
+    },
+    {
+      "label": "Kerberos.",
+      "text": "{{clear-kerberos-dc}}"
+    },
+    {
+      "label": "Keeping the app on.",
+      "text": "{{anti-tampering}} {{reactivate-zia}} {{send-disable-reason}} {{fail-close-lockdown}} {{lockdown-on-errors}} {{lockdown-error-keys}}"
+    },
+    {
+      "label": "Traffic handling.",
+      "text": "{{tunnel-internal-traffic}} Its default on Windows is open {{gap:tunnel-internal-default}}. {{intercept-all-adapters}} {{v8-pac}}"
+    },
+    {
+      "label": "DNS handling.",
+      "text": "{{dns-settings}}"
+    },
+    {
+      "label": "Reauthentication.",
+      "text": "{{reauth-period-hours}} The API document says seconds instead: [[zcc.api.web-policy-wire:reauth-period-unit]]. {{zpa-auth-expiry}}"
+    },
+    {
+      "label": "Display.",
+      "text": "{{highlight-active-control}}"
+    },
+    {
+      "label": "Location-based policies.",
+      "text": "{{location-rulesets}} {{end-to-end-diagnostics}}"
+    },
+    {
+      "label": "On-Net policy.",
+      "text": "{{on-net-policy-sdk}} It is the profile's forwarding profile, embedded: [[zcc.api.web-policy-wire:onnetpolicy-embedded]]."
+    },
+    {
+      "label": "Data Protection.",
+      "text": "{{zdp-service}}"
+    },
+    {
+      "label": "Android cellular settings.",
+      "text": "{{android-quota}} {{android-mms}} {{android-key-candidates}} What `enforced` does, and whether those name matches hold, is open {{gap:android-field-roles}}."
+    },
+    {
+      "text": "What `enableFlowBasedTunnel` does is open {{gap:unverified-field-roles}}."
+    }
+  ],
+  "claims": {
+    "drop-quic": {
+      "statement": "On the iOS and Android profiles, Drop QUIC Traffic exists because Z-Tunnel 1.0 does not support QUIC (UDP 443): when enabled, Z-Tunnel 1.0 drops QUIC packets so the application can fall back to TCP 443. The API document describes `policyExtension.dropQuicTraffic` the same way.",
+      "tier": "A",
+      "conditions": "Scoped to iOS and Android (coordinator follow-up to the w2 verify): the help article lists the option only in the iOS and Android sections, not in the Windows, macOS or Linux sections.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add iOS Policy window appears.",
+          "quotes": [
+            "Drop QUIC Traffic: This option is for websites that use QUIC (UDP 443), which is not supported by Z-Tunnel 1.0. When enabled, Z-Tunnel 1.0 drops QUIC packets so the application can fall back to TCP 443."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Android Policy window appears.",
+          "quotes": [
+            "Drop QUIC Traffic: This option is for websites that use QUIC (UDP 443), which is not supported by Z-Tunnel 1.0. When enabled, Z-Tunnel 1.0 drops QUIC packets so the application can fall back to TCP 443."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/dropQuicTraffic",
+          "expect": {
+            "description": "Indicates if drop QUIC traffic is enabled. When enabled, Z-Tunnel 1.0 drops QUIC packets so the application can fall back to TCP 443."
+          }
+        }
+      ]
+    },
+    "truncate-dns": {
+      "statement": "Truncate ZPA Large UDP DNS Response truncates DNS responses over 512 bytes so the query is retried over TCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Truncate ZPA Large UDP DNS Response: Enable to truncate DNS responses that exceed 512 bytes to retry the DNS query over TCP."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/truncateLargeUDPDNSResponse",
+          "expect": {
+            "description": "Indicates whether Truncate Large UDP DNS response is enabled to truncate DNS responses that exceed 512 bytes to retry the DNS query over TCP."
+          }
+        }
+      ]
+    },
+    "clear-kerberos-dc": {
+      "statement": "Clear Kerberos DC (`purgeKerberosPreferredDCCache`) clears the cached list of Kerberos preferred domain controllers when the app connects to and disconnects from Private Access; Windows 4.5 and later only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Clear Kerberos DC: Enable to clear the list of Kerberos preferred domain controllers in the cache when Zscaler Client Connector connects to and disconnects from Private Access."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/purgeKerberosPreferredDCCache",
+          "expect": {
+            "description": "Indicates whether purge Kerberos Preferred DC Cache is enabled. When enabled, Zscaler Client Connector clears the list of Kerberos-preferred domain controllers in the cache when connected to and disconnected from ZPA. Applies only to Zscaler Client Connector version 4.5 and later for Windows."
+          }
+        }
+      ]
+    },
+    "anti-tampering": {
+      "statement": "Anti-tampering prevents users from stopping or modifying Zscaler endpoint products; a timer of 0 to 1440 minutes re-enables the app after a user disables it with a one-time password, and on Windows 4.5 and later the profile setting can override the install-time anti-tampering option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Anti-tampering protection prevents end users from stopping and modifying Zscaler endpoint products.",
+            "You can set a timer to re-enable Zscaler Client Connector if a user disables it using the one-time password (OTP). In the Reactivate Anti-Tampering After (In Mins) field, enter a value between 0 and 1440 minutes.",
+            "Override Anti Tampering Install Parameter: Enable to use the Enable Anti-tampering setting from the app profile regardless of how the --enableAntiTampering or ENABLEANTITAMPERING install option was set during installation. Applies to Zscaler Client Connector version 4.5 and later for Windows only."
+          ]
+        }
+      ],
+      "conditions": "Quote extended to cover \"Windows 4.5 and later\" (verifier w2 A11)."
+    },
+    "reactivate-zia": {
+      "statement": "Reactivate ZIA After turns Internet & SaaS back on 1 to 1440 minutes after a user turns it off; 0 disables reactivation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "Win V4.7 and Older Client Configuration:",
+          "quotes": [
+            "To enable the reactivation period, enter any value from 1 to 1440 minutes. To disable, enter 0 (zero) so that Zscaler Client Connector doesn't reactivate Internet & SaaS after the user turns it off."
+          ]
+        }
+      ]
+    },
+    "send-disable-reason": {
+      "statement": "Send Disable Service Reason, off by default, lets users describe why they disabled a service; the reason shows in device details, and the API exports disable reasons as a CSV report.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#sendDisableServiceReason"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Send Disable Service Reason: This option allows users to send a description about why a Zscaler service (e.g., Internet & SaaS, Private Access, ZDX) was disabled on a device. By default, this option is disabled. This information is accessible when viewing device details."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDisableReasons/get",
+          "expect": {
+            "description": "Downloads or exports a report as a CSV file showing the disable reasons of a device."
+          }
+        }
+      ]
+    },
+    "fail-close-lockdown": {
+      "statement": "A fail-close option makes the app fail close while a tunnel is starting or restarting, for example after login, Repair App or Restart Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/zccFailCloseSettingsLockdownOnTunnelProcessExit",
+          "expect": {
+            "description": "Option to have Zscaler Client Connector fail close while a tunnel is starting or restarting (e.g., after a user logs in to the device or out of the app, clicks Repair App or clicks Restart Service)."
+          }
+        }
+      ]
+    },
+    "lockdown-on-errors": {
+      "statement": "Two more fail-close options apply to Windows 4.7 and later: Lockdown on Firewall Error fails close while a firewall or antivirus program blocks the app's traffic (an End FW/AV Error), and Lockdown on Driver Error fails close while a Windows Lightweight Filter (LWF) driver error keeps the app from starting a tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Lockdown on Firewall Error: Enable this option to have Zscaler Client Connector fail close while a firewall or antivirus program is blocking Zscaler Client Connector traffic (i.e., an End FW/AV Error). Applies only to Zscaler Client Connector version 4.7 and later for Windows.",
+            "Lockdown on Driver Error: Enable this option to have Zscaler Client Connector fail close while a Windows Lightweight Filter (LWF) driver error is preventing Zscaler Client Connector from starting a tunnel. Applies only to Zscaler Client Connector version 4.7 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "lockdown-error-keys": {
+      "statement": "By name, these two options are `policyExtension.zccFailCloseSettingsLockdownOnFirewallError` and `zccFailCloseSettingsLockdownOnDriverError`, which the Go SDK carries and the API document's edit body does not.",
+      "tier": "B",
+      "conditions": "The key-to-option mapping is by name; no source states it. The absence from the API document's edit-body policyExtension is pinned.",
+      "derived_from": [
+        "lockdown-on-errors"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/application_profiles/application_profiles.go",
+          "quotes": [
+            "`json:\"zccFailCloseSettingsLockdownOnFirewallError,omitempty\"`",
+            "`json:\"zccFailCloseSettingsLockdownOnDriverError,omitempty\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties",
+          "expect_absent": [
+            "zccFailCloseSettingsLockdownOnFirewallError",
+            "zccFailCloseSettingsLockdownOnDriverError"
+          ]
+        }
+      ]
+    },
+    "highlight-active-control": {
+      "statement": "Highlight Active Control (`highlightActiveControl`) displays an outline around an actively selected control in the app; Windows 2.1.2 and later.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#highlightActiveControl"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Highlight Active Control: Enable this option to display an outline around an actively selected control. Applies to Zscaler Client Connector version 2.1.2 and later for Windows."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/patch/requestBody/content/application~1json/schema/properties/highlightActiveControl",
+          "expect": {
+            "description": "Indicates whether an outline around an actively selected control is displayed."
+          }
+        }
+      ]
+    },
+    "dns-settings": {
+      "statement": "The API document describes four DNS keys in `policyExtension`: `useDefaultAdapterForDNS` binds the trusted-hostname DNS lookup to the adapter whose trust is being evaluated, `disableDNSRouteExclusion` concerns excluding DNS servers from the routing table, `prioritizeDnsExclusions` puts Domain Exclusions ahead of Domain Inclusions, and `enforceSplitDNS` makes the app handle DNS traffic for the desired (ZPA) domains only.",
+      "tier": "A",
+      "conditions": "Added from the API document's descriptions (verifier w2 A15); the legacy rows for these keys had been dropped as generated, but the generated layer carries no descriptions for policyExtension.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/useDefaultAdapterForDNS",
+          "expect": {
+            "description": "Indicates whether Default Adapter for DNS is enabled. When enabled, Zscaler Client Connector force binds the Trusted Hostname IP resolution DNS request to the Adapter whose trust is being evaluated."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/disableDNSRouteExclusion",
+          "expect": {
+            "description": "Indicates if DNS server route exclusion is disabled. When enabled, Zscaler Client Connector excludes DNS servers from the routing table."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/prioritizeDnsExclusions",
+          "expect": {
+            "description": "Indicates whether Prioritize DNS Exclusions is enabled. When enabled, Zscaler Client Connector prioritizes DNS domains in Domain Exclusions over Domain Inclusions."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/enforceSplitDNS",
+          "expect": {
+            "description": "Indicates whether Enforce Split DNS is enabled. When enabled, Zscaler Client Connector is enforced to handle DNS traffic of desired (ZPA) domains only."
+          }
+        }
+      ]
+    },
+    "zpa-auth-expiry": {
+      "statement": "Force ZPA authentication to expire can trigger Private Access expiry on system sleep or hibernation, system restart, a network IP change, a Windows logon session start (Windows 4.5 and later) and a Windows session lock held for 1 to 60 minutes (Windows 4.6 and later). The API document carries these as `policyExtension.zpaAuthExp*` keys; it describes `zpaAuthExpSessionLockStateMinTimeInSecond` in minutes although the key name says seconds.",
+      "tier": "A",
+      "conditions": "Added from the help and the API document's descriptions (verifier w2 A15). The key-to-option mapping follows the matching descriptions.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "On System Sleep/Hibernate: Trigger expiration when the system is put into sleep or hibernation mode.",
+            "On System Restart: Trigger expiration when the system is restarted.",
+            "On Network IP Change: Trigger expiration if the network IP changes.",
+            "Windows Logon Session Start: Trigger expiration when a user logs in, even if fast startup is enabled. Applies to Zscaler Client Connector version 4.5 and later for Windows.",
+            "Windows Session Lock: Trigger expiration after a Windows user has been locked for the number of minutes in the Minimum Time in Locked State (In Minutes). You can enter a number of minutes from 1 to 60. Applies to Zscaler Client Connector version 4.6 and later for Windows."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/zpaAuthExpOnSleep",
+          "expect": {
+            "description": "ZPA authentication to expire on System Sleep/Hibernate."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/zpaAuthExpOnSysRestart",
+          "expect": {
+            "description": "ZPA authentication to expire on system restart."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/zpaAuthExpOnNetIpChange",
+          "expect": {
+            "description": "ZPA authentication to expire on Network IP Change."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/zpaAuthExpOnWinSessionLock",
+          "expect": {
+            "description": "ZPA authentication expires when the Windows session has locked."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/zpaAuthExpSessionLockStateMinTimeInSecond",
+          "expect": {
+            "description": "Trigger expiration after a Windows user has been locked for the duration specified in the Minimum Time in Locked State (in minutes)."
+          }
+        }
+      ]
+    },
+    "tunnel-internal-traffic": {
+      "statement": "Tunnel Internal Client Connector Traffic (`tunnelZappTraffic`) sends the app's own traffic, such as app and policy updates, through Zscaler; it applies only in no-default-route deployments (Windows 2.12 and later), PAC requests still go direct, and when disabled internal traffic goes direct. The Go SDK's UI-captured macOS and iOS defaults set it to 0.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#tunnelZappTraffic"
+      ],
+      "conditions": "Key name and capture defaults added (verifier w2 A4): the API document's description of tunnelZappTraffic matches the help text; the Go defaults are UI captures for macOS and iOS only.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/patch/requestBody/content/application~1json/schema/properties/tunnelZappTraffic",
+          "expect": {
+            "description": "Indicates whether Tunnel Zapp Traffic is enabled. When enabled, Zscaler Client Connector tunnels internal traffic through Zscaler, and continues to send PAC requests directly."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/defaults.go",
+          "after": "func DefaultMacosWebPolicy() WebPolicy {",
+          "quotes": [
+            "TunnelZappTraffic:            0,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/defaults.go",
+          "after": "func DefaultIosWebPolicy() WebPolicy {",
+          "quotes": [
+            "TunnelZappTraffic:         0,"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "Win V4.7 and Older Client Configuration:",
+          "quotes": [
+            "Tunnel Internal Client Connector Traffic: Enable this option for Zscaler Client Connector to tunnel internal traffic (e.g., app updates and policy updates) through Zscaler.",
+            "This option is only applicable if you deploy in a no-default route environment and applies to Zscaler Client Connector version 2.12 and later for Windows. If disabled, Zscaler Client Connector sends internal traffic directly.",
+            "When this option is enabled, Zscaler Client Connector does not tunnel PAC requests and continues to send PAC requests directly."
+          ]
+        }
+      ]
+    },
+    "intercept-all-adapters": {
+      "statement": "Intercept ZIA traffic makes the app intercept Internet & SaaS traffic from all network adapters; it applies only to Tunnel mode with the Packet Filter Based driver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Intercept ZIA traffic: Enable this option to have Zscaler Client Connector intercept Internet & SaaS traffic from all network adapters. This setting only applies to Tunnel Mode with a Packet Filter Based driver."
+          ]
+        }
+      ]
+    },
+    "v8-pac": {
+      "statement": "The V8 JavaScript based PAC parser option compiles PAC JavaScript with Google's V8 engine; Windows 4.9 and later use it regardless of the setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "V8 JavaScript based PAC Parser: Enable Google's open-source V8 engine to compile JavaScript for the PAC parser.",
+            "Zscaler Client Connector version 4.9 and later for Windows uses the V8 JavaScript based PAC parser regardless of this setting."
+          ]
+        }
+      ]
+    },
+    "reauth-period-hours": {
+      "statement": "The Python SDK documents `reauth_period` as the re-authentication period in hours.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#reauth_period"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "reauth_period (str): Re-authentication period (in hours)."
+          ]
+        }
+      ]
+    },
+    "location-rulesets": {
+      "statement": "With Location Policy Override (Windows 4.8 and later, with the WFP driver installed), a profile assigns a location ruleset per network type: On-Trusted and Off-Trusted are required, VPN-Trusted and Split VPN-Trusted default to the On-Trusted ruleset. The Go SDK always sends both VPN entries, with id 0 when none is bound.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "This feature is available only for Zscaler Client Connector version 4.8 and later for Windows, and you must first enable Install WFP Driver.",
+            "You must select a ruleset for On-Trusted Network and for Off-Trusted Network. For VPN-Trusted Network and Split VPN-Trusted Network, the default value is Same as \"On-Trusted Network,\" but you can change or clear it."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "Both nested entries are present even when no ruleset is bound (their"
+          ]
+        }
+      ]
+    },
+    "end-to-end-diagnostics": {
+      "statement": "The Go SDK models `endToEndDiagnostics` as a toggle per network context (trusted, VPN-trusted, off-trusted, split-VPN-trusted) that the macOS web policy carries at the top level and also embeds as JSON in `policyExtension.zdxLiteConfigObj`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "EndToEndDiagnostics is the per-network-context end-to-end diagnostics",
+            "toggle the macOS web policy ships at the top level (and embedded as",
+            "JSON inside policyExtension.zdxLiteConfigObj)."
+          ]
+        }
+      ]
+    },
+    "on-net-policy-sdk": {
+      "statement": "`onNetPolicy` is not a separate On-Net policy: the API document describes it as the policies that define how the app treats traffic in the ZIA and ZPA services, with the forwarding profile's properties. The application-profile PATCH body carries it and the web policy edit body does not; Python's web policy model reads its trusted-network fields (`conditionType`, `predefinedTrustedNetworks`, `predefinedTnAll`) and Go's application-profile model carries it untyped, while Go's web policy struct has no such key.",
+      "tier": "B",
+      "binds": [
+        "zcc/application-profiles#onNetPolicy"
+      ],
+      "conditions": "Restated (verifier w2 A2): the earlier wording left it as a separate On-Net setting. That it is the forwarding profile rests on the description and property set in the API document; the edit-body absence is pinned, and the Go WebPolicy struct was searched for onNetPolicy.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/onNetPolicy",
+          "expect": {
+            "description": "Specifies the policies to define how Zscaler Client Connector treats traffic from user systems in the ZIA and ZPA services."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles~1{profileId}/patch/requestBody/content/application~1json/schema/properties/onNetPolicy",
+          "expect": {
+            "description": "Specifies the policies to define how Zscaler Client Connector treats traffic from user systems in the ZIA and ZPA services."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "onNetPolicy"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/webpolicy.py",
+          "quotes": [
+            "self.predefined_tn_all = config[\"predefinedTnAll\"] if \"predefinedTnAll\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/application_profiles/application_profiles.go",
+          "quotes": [
+            "OnNetPolicy interface{} `json:\"onNetPolicy,omitempty\"`"
+          ]
+        }
+      ]
+    },
+    "zdp-service": {
+      "statement": "`enableZdpService` turns on the Zscaler Data Protection (ZDP) service, which installs the ZDP endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/enableZdpService",
+          "expect": {
+            "description": "Indicates whether Zscaler Data Protection (ZDP) service is enabled to install ZDP endpoint."
+          }
+        }
+      ]
+    },
+    "android-quota": {
+      "statement": "Android profiles carry cellular data quota settings: a quota, optionally enforced only while roaming, reset on a chosen monthly billing day, and a Wi-Fi SSID for testing and simulating data usage. Zscaler has ended support of bandwidth quota control for Client Connector 1.5.3 and later for Android.",
+      "tier": "A",
+      "conditions": "Qualified with the end of support for quota control (verifier w2 A5).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Zscaler ended support of bandwidth quota control for Zscaler Client Connector version 1.5.3 and later for Android.",
+            "Enforce Quota Only for Roaming Users: Enable to enforce the quota only when users are roaming.",
+            "The day you select is when the cellular quota is reset every month",
+            "Wi-Fi SSID: (Optional) Enter the service set identifier (SSID) of your wireless local area network (WLAN) if you want to test and simulate data usage for that specific SSID."
+          ]
+        }
+      ]
+    },
+    "android-mms": {
+      "statement": "Bypass Traffic for MMS Applications makes the app bypass standard Android messaging apps, including Android Messages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Bypass Traffic for MMS Applications: Enable this option for Zscaler Client Connector to automatically bypass standard messaging applications on Android."
+          ]
+        }
+      ]
+    },
+    "android-key-candidates": {
+      "statement": "By name, three keys in the API document's `androidPolicy` block match help settings: `allowedApps` the Android Applications on Allowlist (app identifiers excluded from the quota calculation), `bypassAndroidApps` Bypass Traffic for Specific Application (an app identifier to bypass), and `customText` the Block Notification Message shown when the quota is exceeded.",
+      "tier": "B",
+      "conditions": "Name-match candidates only (verifier w2 A6); no source maps these keys to the settings.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Android Applications on Allowlist: (Optional) To allowlist Android applications:",
+            "Add the apps' identifiers, separated by commas, to exclude apps from the quota calculation.",
+            "Bypass Traffic for Specific Application: Enter the identifier of any Android application to configure a bypass for it.",
+            "Block Notification Message: (Optional) Enter or paste text of the notification that appears when the quota is exceeded."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/androidPolicy/properties",
+          "expect": {
+            "allowedApps": {
+              "type": "string"
+            },
+            "bypassAndroidApps": {
+              "type": "string"
+            },
+            "customText": {
+              "type": "string"
+            },
+            "enforced": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "tunnel-internal-default": {
+      "kind": "semantic",
+      "title": "Default of Tunnel Internal Client Connector Traffic on Windows",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"tunnel_zapp_traffic default / typical value — the field exists in both SDKs but neither encodes a default.\" The key is now sourced (the API document describes `tunnelZappTraffic` with the help's wording), and the Go SDK's UI-captured macOS and iOS defaults are 0: see tunnel-internal-traffic. The setting applies to Windows, and no Windows capture or source gives its default there.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "android-field-roles": {
+      "kind": "semantic",
+      "title": "What enforced does, and whether allowedApps, bypassAndroidApps and customText are the settings their names suggest",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"allowed_apps — allowlist of apps that ZCC manages on Android; bypass_android_apps — apps that bypass ZCC on Android; enforced — whether ZCC is enforced (cannot be disabled) on Android; custom_text — custom notification text shown to Android users.\" The help's allowlist excludes apps from the quota calculation, which contradicts \"apps that ZCC manages\" if allowedApps is that allowlist; the name-match candidates are in android-key-candidates. No source describes `enforced`.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "unverified-field-roles": {
+      "kind": "semantic",
+      "title": "What enableFlowBasedTunnel does",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"enableFlowBasedTunnel — flow-based tunnel mode (alternative to packet-based)\". Both SDKs carry the key; the API document and the help do not describe it. Two other legacy roles are settled: \"highlightActiveControl — UI polish, highlight the active rule in ZCC's local admin UI\" is contradicted by highlight-active-control (an outline around the selected control), and \"zccFailCloseSettingsLockdownOnFirewallError / OnDriverError — fail-close lockdown options when ZCC core fails\" is narrowed by lockdown-on-errors and lockdown-error-keys.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.company-wire",
+  "title": "ZCC company info and password management calls: who may read, and which clients can write",
+  "aliases": [
+    "getCompanyInfo",
+    "setCompanyInfo",
+    "managePass",
+    "zcc company info 403",
+    "manage pass python",
+    "supportEnabled fetchLogsForAdminsEnabled"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.return-shapes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.devices-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Company info holds tenant-wide flags such as support access and logging controls, and `managePass` sets app profile passwords in bulk. {{terraform-data-source-only}} The Python SDK writes neither, as the sections below show."
+    },
+    {
+      "label": "Reading company info.",
+      "text": "{{company-read-access}} The Python call returns a list: [[zcc.sdk-python.return-shapes:company-info-list]]."
+    },
+    {
+      "label": "Writing company info.",
+      "text": "{{set-company-info-go}} {{set-company-info-undocumented}} {{company-info-mixed-types}}"
+    },
+    {
+      "label": "Password management.",
+      "text": "{{manage-pass-contract}} {{manage-pass-python-model-only}} The Go SDK's call sends an empty object instead of the payload: [[shared.sdk-go.request-handling:zcc-request-do-double-marshals]]. Legacy mode does the same: [[zcc.sdk-go.paging-and-requests:legacy-body-encoded-again]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a manage-pass write went through the Go SDK, whose body is an empty object, or was built by hand against the contract.",
+      "uses": [
+        "manage-pass-contract",
+        "shared.sdk-go.request-handling:zcc-request-do-double-marshals"
+      ]
+    },
+    {
+      "do": "Whether a company-info update relied on `setCompanyInfo`, which only the Go SDK documents.",
+      "uses": [
+        "set-company-info-go",
+        "set-company-info-undocumented"
+      ]
+    }
+  ],
+  "claims": {
+    "company-read-access": {
+      "statement": "The contract and the Python docstring say `getCompanyInfo` is allowed when the caller is a OneAPI customer or the token has admin or read-only admin privileges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/company.py",
+          "quotes": [
+            "Note: This API endpoint is allowed if called via OneAPI or if the token has admin or read-only admin privileges."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getCompanyInfo/get",
+          "expect": {
+            "description": "<p>Gets information about your organization such as the name of the business, domains, etc.  </p><p><strong>Note:</strong> This API is allowed if the caller is a OneAPI customer or if the token has admin or read-only admin privileges.</p>"
+          }
+        }
+      ]
+    },
+    "terraform-data-source-only": {
+      "statement": "The Terraform provider exposes company info only as the `zcc_company_info` data source; it has no company-info resource.",
+      "tier": "A",
+      "conditions": "Added per verifier, who found the earlier sentence unmarked. Absence: no file under internal/framework/resources of the provider handles company info (searched at the pin).",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/datasources/company_info.go",
+          "quotes": [
+            "resp.TypeName = req.ProviderTypeName + \"_company_info\""
+          ]
+        }
+      ]
+    },
+    "set-company-info-go": {
+      "statement": "The Go SDK writes company info with `PUT /setCompanyInfo`, treats any `success` other than \"true\" as a rejection, and on success re-reads the configuration with `getCompanyInfo` and returns that.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/company/company.go",
+          "quotes": [
+            "setCompanyInfoEndpoint = \"/zcc/papi/public/v1/setCompanyInfo\"",
+            "if resp.Success != \"true\" {",
+            "updated, err := GetCompanyInfo(ctx, service)"
+          ]
+        }
+      ]
+    },
+    "set-company-info-undocumented": {
+      "statement": "The captured contract has `getCompanyInfo` but no `setCompanyInfo` operation, and the Python SDK has only the read.",
+      "tier": "A",
+      "conditions": "Absence: no contract path contains setCompanyInfo, and zscaler/zcc/company.py defines only `get_company_info`.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/papi/public/v1/setCompanyInfo"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/company.py",
+          "quotes": [
+            "def get_company_info(self) -> APIResult[dict]:"
+          ]
+        }
+      ]
+    },
+    "company-info-mixed-types": {
+      "statement": "The Go `CompanyInfo` type mixes encodings on purpose, because the payload does: some flags are numeric strings such as \"0\" and \"1\" (for example `proxyEnabled`), others integers (for example `supportEnabled`, `fetchLogsForAdminsEnabled`, `supportTicketEnabled`, `disableLoggingControls`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/company/company.go",
+          "quotes": [
+            "are returned as numeric strings like \"0\"/\"1\" while others are integers).",
+            "ProxyEnabled                             string                   `json:\"proxyEnabled\"`",
+            "SupportEnabled                           int                      `json:\"supportEnabled\"`",
+            "DisableLoggingControls                   int                      `json:\"disableLoggingControls\"`"
+          ]
+        }
+      ]
+    },
+    "manage-pass-contract": {
+      "statement": "The contract defines `POST /managePass` with a body naming a company, a device type, a policy name and the exit, logout, uninstall and per-service disable passwords, and a response carrying only `errorMessage`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/requestBody/content/application~1json/schema/properties/policyName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1managePass/post/responses/200/content/application~1json/schema/properties/errorMessage",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "manage-pass-python-model-only": {
+      "statement": "The Python SDK ships a `ManagePass` model but no service method that sends it, so `managePass` cannot be called through the Python SDK.",
+      "tier": "A",
+      "conditions": "Absence: no module under zscaler/zcc other than the model references ManagePass, and ZCCService has no manage-pass property.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/manage_pass.py",
+          "quotes": [
+            "class ManagePass(ZscalerObject):"
+          ]
+        }
+      ]
+    }
+  }
+}

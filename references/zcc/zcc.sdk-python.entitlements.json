@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "zcc.sdk-python.entitlements",
+  "title": "The Python SDK's ZCC entitlement methods: what they read and why they cannot write",
+  "aliases": [
+    "update_zpa_group_entitlement",
+    "update_zdx_group_entitlement",
+    "get_zpa_group_entitlements",
+    "get_zdx_group_entitlements",
+    "python entitlements empty body"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api.entitlements-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.return-shapes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "How the API and the Go SDK shape these calls is in [[zcc.api.entitlements-wire]]."
+    },
+    {
+      "label": "Reading.",
+      "text": "{{single-object-wrapped}} {{python-group-entries-stringified}}"
+    },
+    {
+      "label": "Writing.",
+      "text": "{{python-update-empty-body}} {{python-cannot-write}} What the API does with the empty body is open in [[zcc.api.entitlements-wire:empty-update-effect]]."
+    }
+  ],
+  "claims": {
+    "single-object-wrapped": {
+      "statement": "For ZCC responses, the Python SDK wraps a single-object body in a one-item list, so its entitlement getters work whether the API returns one object or a list.",
+      "tier": "A",
+      "conditions": "Restated from the former Python position of the get-response-shape divergence (verifier w2 E1): the SDK accepts either shape and takes no side.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "# ZCC can return either a single object or a list of objects",
+          "quotes": [
+            "self._list = [self._body]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "# ZCC can return either a single object or a list of objects"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/entitlements.py",
+          "quotes": [
+            "result.append(ZpaGroupEntitlements(self.form_response_body(item)))"
+          ]
+        }
+      ]
+    },
+    "python-group-entries-stringified": {
+      "statement": "The Python SDK's entitlement models cast each `groupList` and `deviceGroupList` entry (ZDX: `upmGroupList`, `upmDeviceGroupList`) with `str()`, so a group object arrives as its Python string form rather than as fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/zpagroupentitlements.py",
+          "quotes": [
+            "self.group_list = ZscalerCollection.form_list(config[\"groupList\"] if \"groupList\" in config else [], str)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_collection.py",
+          "quotes": [
+            "collection[index] = data_type(collection[index])"
+          ]
+        }
+      ]
+    },
+    "python-update-empty-body": {
+      "statement": "The Python SDK's `update_zpa_group_entitlement` and `update_zdx_group_entitlement` take no arguments and send an empty JSON body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/entitlements.py",
+          "quotes": [
+            "def update_zpa_group_entitlement(self) -> APIResult[dict]:",
+            "def update_zdx_group_entitlement(self) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/entitlements.py",
+          "after": "def update_zpa_group_entitlement(self) -> APIResult[dict]:",
+          "quotes": [
+            "body = {}"
+          ]
+        }
+      ]
+    },
+    "python-cannot-write": {
+      "statement": "So entitlements cannot be changed through the Python SDK's update methods.",
+      "tier": "B",
+      "conditions": "Follows from the empty body; the server's response to it is open.",
+      "derived_from": [
+        "python-update-empty-body"
+      ]
+    }
+  }
+}

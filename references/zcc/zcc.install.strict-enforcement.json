@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.strict-enforcement",
+  "title": "Strict enforcement, the policy token, and the fail-close configuration",
+  "aliases": [
+    "strictEnforcement",
+    "STRICTENFORCEMENT",
+    "policyToken",
+    "POLICYTOKEN",
+    "block internet until enrolled",
+    "se fail close",
+    "importSEFailCloseConfig",
+    "failCloseConfigThumbprint",
+    "excludeList",
+    "zcc fail close at enrollment"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.install.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.precedence"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-tunnels.requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.azure-virtual-desktop"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Strict enforcement keeps a device off the internet until its user has enrolled with Client Connector. It depends on a second parameter, the policy token, which decides what the device can reach while it waits."
+    },
+    {
+      "label": "What it blocks.",
+      "text": "{{what-it-blocks}} {{not-logged-in-disable}} {{tunnel-only}} What a blocked user is told comes from the fail-open policy: [[zcc.forwarding-profiles.fail-open:strict-enforcement-notify]]."
+    },
+    {
+      "label": "What it needs.",
+      "text": "{{requires}} {{android-absent}}"
+    },
+    {
+      "label": "The policy token.",
+      "text": "{{policy-token}} After enrollment the token's policy gives way to the user's own app profile: [[zcc.install.precedence:policytoken-replaced]]. The same token is what makes a machine tunnel reach Private Access before login: [[zpa.machine-tunnels.requirements:policytoken-required]]."
+    },
+    {
+      "label": "Locking the device out of its own login.",
+      "text": "{{missing-idp-bypass}} {{allow-only-pac-exclusions}} How a device in that state is recovered is open {{gap:misconfig-recovery}}. On a Windows 365 Cloud PC the vendor's answer is a snapshot restore: [[zcc.install.azure-virtual-desktop:strict-snapshot]]."
+    },
+    {
+      "label": "iOS.",
+      "text": "{{ios-exclude-list}} {{ios-unlisted-blocked}}"
+    },
+    {
+      "label": "Citrix.",
+      "text": "{{citrix-hide-ui}}"
+    },
+    {
+      "label": "Fail-close file (Windows).",
+      "text": "{{se-fail-close}} {{fail-close-file-contents}} The app profile can also make the device fail close while a tunnel starts or restarts: [[zcc.app-profiles.advanced-settings:fail-close-lockdown]]. Whether the settings hold during a cloud outage after enrollment is open {{gap:fail-close-scope}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the forwarding profile action is Tunnel or Tunnel with Local Proxy; strict enforcement does nothing otherwise.",
+      "uses": [
+        "tunnel-only"
+      ]
+    },
+    {
+      "do": "Whether cloudName and policyToken are both set, and whether the custom PAC file of the policy the token names bypasses the IdP login page.",
+      "uses": [
+        "requires",
+        "policy-token",
+        "missing-idp-bypass"
+      ]
+    },
+    {
+      "do": "On iOS, whether the MDM server, the IdP and, for Private Access, authsp.prod.zpath.net are excluded through excludeList or a device configuration policy.",
+      "uses": [
+        "ios-exclude-list",
+        "ios-unlisted-blocked"
+      ]
+    },
+    {
+      "do": "Test the token and its policy on a few devices before a fleet rollout; recovery from a lock-out is not documented.",
+      "uses": [
+        "missing-idp-bypass",
+        "misconfig-recovery"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-blocks": {
+      "statement": "strictEnforcement (MSI `STRICTENFORCEMENT`) requires users to enroll with the app before they can reach the internet, and blocks traffic when the user has not yet logged in after a new install, after a user logs out, and after an administrator removes the device. It defaults to disabled.",
+      "tier": "A",      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: STRICTENFORCEMENTEXE: strictEnforcement",
+            "Allows you to require users to enroll with the app before accessing the internet and blocks traffic in the following situations:The user has not yet logged in after a new install.A user logs in and logs out.An administrator removes a device."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: STRICTENFORCEMENTEXE: strictEnforcement",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        }
+      ]
+    },
+    "not-logged-in-disable": {
+      "statement": "It does not affect users who stay logged in and turn the Internet & SaaS service off.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "This option does not affect users who remain logged in and disable the Internet & SaaS service."
+          ]
+        }
+      ]
+    },
+    "tunnel-only": {
+      "statement": "It works only when the forwarding profile action for Client Connector is Tunnel or Tunnel with Local Proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "This option only works when the forwarding profile action for Zscaler Client Connector is Tunnel or Tunnel with Local Proxy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "This option only works when the forwarding profile action for Zscaler Client Connector is Tunnel or Tunnel with Local Proxy."
+          ]
+        }
+      ]
+    },
+    "requires": {
+      "statement": "Enabling it requires cloudName and policyToken on Windows and macOS; on iOS it requires policyToken, cloudname is required with it, and excluded URLs must also be defined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "If you enable this option, the following options are required:CLOUDNAME or cloudNamePOLICYTOKEN or policyToken"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "If you enable this option, the following options are required:cloudNamepolicyToken"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "If you enable Strict Enforcement, you must use the policyToken configuration key.",
+            "This option is required if you use the strictEnforcement option."
+          ]
+        }
+      ]
+    },
+    "android-absent": {
+      "statement": "Strict enforcement is an install parameter on Windows, macOS and iOS only; the Android and Android on ChromeOS parameter table has no strictEnforcement or policyToken key.",
+      "tier": "B",
+      "conditions": "Rests on the absence of the keys from the captured Android parameters guide.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "The following table lists the available parameters for devices running Zscaler Client Connector for Android, Zscaler Client Connector for Android on ChromeOS, and Zscaler Client Connector with Google Workspace."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "| strictEnforcement | Allows you to require users to enroll with the app before accessing the internet"
+          ]
+        }
+      ]
+    },
+    "policy-token": {
+      "statement": "policyToken (MSI `POLICYTOKEN`) names the app profile policy enforced before the user enrolls, with all of that policy's settings, including the bypass of the IdP login page. The custom PAC file of that policy must bypass the IdP login page so the user can reach the IdP to log in before enrolling. On iOS it applies, and is required, only with strict enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: POLICYTOKENEXE: policyToken",
+            "Allows you to specify which app profile policy you want to enforce for the app before the user enrolls. All relevant settings associated with the policy apply, including the bypass of the IdP login page.",
+            "ensure that the custom PAC file associated with that policy includes a bypass for your IdP login page. This allows the user to access the IdP page to log in as necessary before enrolling with the app."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "Applies only, and is required if you use the strictEnforcement option."
+          ]
+        }
+      ]
+    },
+    "missing-idp-bypass": {
+      "statement": "So under strict enforcement, if the policy the token names does not bypass the IdP login page, a device that has not enrolled cannot reach the IdP to enroll, and its traffic stays blocked.",
+      "tier": "B",
+      "conditions": "Follows from the blocking conditions and the stated purpose of the IdP bypass; the vendor does not describe the failure itself.",
+      "derived_from": [
+        "what-it-blocks",
+        "policy-token"
+      ]
+    },
+    "ios-exclude-list": {
+      "statement": "On iOS, excludeList lists domains and IP addresses that Client Connector never tunnels, with or without strict enforcement. With strict enforcement it should hold the MDM server and anything else the user needs before enrolling; with Private Access it must include authsp.prod.zpath.net. Excluded URLs for strict enforcement can be defined there or in a device configuration policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "Allows you to exclude domains and IP addresses that should never be tunneled by Zscaler Client Connector with or without strictEnforcement.",
+            "If you are using strictEnforcement, enter your MDM server or anything else the user should have access to before enrollment.",
+            "If you use the Private Access service, you must enter authsp.prod.zpath.net.",
+            "Excluded URLs must also be defined in a device configuration policy or excludeList in an app configuration policy."
+          ]
+        }
+      ]
+    },
+    "ios-unlisted-blocked": {
+      "statement": "So on an iOS device under strict enforcement, a destination needed before enrollment that is in neither excludeList nor a device configuration policy, such as the MDM server, is blocked until the user enrolls.",
+      "tier": "B",
+      "conditions": "Follows from the blocking conditions and the purpose of excludeList; no source describes the blocked MDM case directly.",
+      "derived_from": [
+        "what-it-blocks",
+        "ios-exclude-list"
+      ]
+    },
+    "citrix-hide-ui": {
+      "statement": "With non-persistent Citrix VDIs on Windows, strict enforcement needs hideAppUIOnLaunch set to 0 so Client Connector can remind users to enroll before they reach the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "you must set the HIDEAPPUIONLAUNCH or hideAppUIOnLaunch option to 0 (disabled) to allow Zscaler Client Connector to remind users to enroll before accessing the internet."
+          ]
+        }
+      ]
+    },
+    "se-fail-close": {
+      "statement": "On Windows from Client Connector 4.6, importSEFailCloseConfig (MSI `IMPORTSEFAILCLOSECONFIG`) passes a predownloaded file of fail-close settings to use in strict enforcement mode, and failCloseConfigThumbprint (MSI `SEFAILCLOSECONFIGTHUMBPRINT`) passes that file's public key. Each requires the other and strict enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: IMPORTSEFAILCLOSECONFIGEXE: importSEFailCloseConfig",
+            "Allows you to pass a predownloaded configuration file with fail-close settings to use when Zscaler Client Connector is in strict enforcement mode.",
+            "If you pass this install option, you must also pass these options:STRICTENFORCEMENT or strictEnforcementSEFAILCLOSECONFIGTHUMBPRINT or failCloseConfigThumbprint",
+            "MSI: SEFAILCLOSECONFIGTHUMBPRINTEXE: failCloseConfigThumbprint",
+            "Allows you to pass the public key for a predownloaded configuration file with fail-close settings"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: IMPORTSEFAILCLOSECONFIGEXE: importSEFailCloseConfig",
+          "quotes": [
+            "This option is available only in Zscaler Client Connector version 4.6 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "fail-close-file-contents": {
+      "statement": "The fail-close settings are entered in the app profile for use when Client Connector is in strict enforcement mode and in a fail-close state: if it cannot retrieve the config profile after an initial enrollment attempt, it uses them until the config profile is retrieved from the Zscaler cloud. They cover process-based application bypass, IP address bypasses, an exit or uninstall password, and lockdown on tunnel process exit, and the profile shows the thumbprint, the public key used with the downloaded file. The feature needs Client Connector 4.6 or later on Windows with the Install WFP Driver option enabled.",
+      "tier": "A",
+      "conditions": "Added from the verifier's finding that the app profile help, not only the parameters page, documents the fail-close file.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Enter the settings to use when Zscaler Client Connector is in strict enforcement mode and is in a fail-close state.",
+            "If Zscaler Client Connector cannot retrieve the config profile after an initial enrollment attempt, Zscaler Client Connector uses these settings until the config profile is retrieved from the Zscaler back-end servers.",
+            "This feature is available only with Zscaler Client Connector version 4.6 and later for Windows and requires the Install WFP Driver option to be enabled.",
+            "Process-Based Application Bypass: Allows bypassing of process-based applications created in Application Bypass. Select",
+            "IP Address Bypasses: Allows bypassing of IP addresses.",
+            "Exit or Uninstall Password: Provide the password users must enter to exit or uninstall Zscaler Client Connector when in a fail-close state.",
+            "Thumbprint: The public key to use with the fail-close settings configuration file.",
+            "Lockdown on Tunnel Process Exit: Enable this option to have Zscaler Client Connector fail close while a tunnel is starting or restarting"
+          ]
+        }
+      ]
+    },
+    "allow-only-pac-exclusions": {
+      "statement": "An app profile option, Strict Enforcement mode - allow only PAC exclusions, makes Client Connector block all traffic except PAC file exclusions while that policy is used in strict enforcement mode; the PAC file must then also allow the IdP URLs. It applies to Client Connector 4.7.0.223 and later, 4.8.0.140 and later, and 4.9 and later.",
+      "tier": "A",
+      "conditions": "Added from the verifier's finding; the option was covered nowhere in the KB.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Strict Enforcement mode - allow only PAC exclusions: If enabled, Zscaler Client Connector blocks all traffic except PAC file exclusions while this policy is used in strict enforcement mode. To use this option, you must also allow your IdP URLs (e.g., okta.com) in the PAC file.",
+            "Applies only to Zscaler Client Connector versions 4.7.0.223 and later, 4.8.0.140 and later, and 4.9 and later."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "misconfig-recovery": {
+      "kind": "semantic",
+      "title": "How a device locked out by a wrong policy token is recovered",
+      "status": "open",
+      "detail": "Unverified legacy statement: If the policy token is wrong, expired, or the referenced App Profile has no valid PAC bypass for the IdP, the device blocks its own auth path and the user cannot authenticate to fix it; resolution requires a reinstall with a corrected token or disabling strict enforcement at the MSI level. No captured article describes recovery outside Windows 365, where restoring a snapshot is the stated way back.",
+      "blocks": "recovery steps for devices that strict enforcement has locked out",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "fail-close-scope": {
+      "kind": "semantic",
+      "title": "What the strict-enforcement fail-close file covers",
+      "status": "partial",
+      "detail": "Unverified legacy statement: SE Fail Close extends strict enforcement with a pre-downloaded fail-close config so ZCC can enforce policy even during a cloud outage. The app profile help now answers what the file holds and when it is used (claim fail-close-file-contents): settings for strict enforcement in a fail-close state, used when the config profile cannot be retrieved after an initial enrollment attempt, until it is retrieved. Still open: how the device behaves during a cloud outage after enrollment.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "If Zscaler Client Connector cannot retrieve the config profile after an initial enrollment attempt, Zscaler Client Connector uses these settings until the config profile is retrieved from the Zscaler back-end servers."
+          ]
+        }
+      ],
+      "blocks": "what a strict-enforcement device does when the Zscaler cloud is unreachable",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

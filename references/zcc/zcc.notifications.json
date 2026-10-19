@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "id": "zcc.notifications",
+  "title": "Client Connector notifications: which surface the user saw",
+  "aliases": [
+    "zcc notifications",
+    "client connector notifications",
+    "zcc end user notifications",
+    "zcc eun",
+    "block page vs zcc notification",
+    "zcc pop-up",
+    "zcc toast",
+    "zpa reauth notification",
+    "notify users before zpa authentication expires",
+    "per-app vpn tunnel notification"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.global-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.framework"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.acceptable-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.localization"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.dlp.incident-forwarding"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Three different things reach a Client Connector user as a notification, and each is configured in a different place. {{notification-page}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "Client Connector's own notifications.",
+          "text": "The tenant-wide switches are in [[zcc.notifications.global-settings]], per-profile templates in [[zcc.notifications.templates]], and the pop-up system itself in [[zcc.notifications.framework]]."
+        },
+        {
+          "label": "ZIA policy notifications delivered through the client.",
+          "text": "{{zia-eun-via-zcc}} {{zia-eun-messages}} {{url-filtering-not-listed}}"
+        },
+        {
+          "label": "Browser notifications.",
+          "text": "{{browser-eun}} How inspection decides what the browser receives is in [[zia.ssl-inspection.pipeline]]."
+        }
+      ]
+    },
+    {
+      "label": "App profile switches.",
+      "text": "{{zpa-expiry-warning}} {{ios-per-app-vpn-notification}} {{notification-wire-keys}} How the Go SDK models the iOS keys is in [[zcc.api.web-policy-wire:ios-top-level]]."
+    },
+    {
+      "label": "Acceptable Use Policy.",
+      "text": "The client's AUP is in [[zcc.acceptable-use]]."
+    },
+    {
+      "label": "Language and branding.",
+      "text": "Display language is in [[zcc.notifications.localization]]. {{custom-theme}}"
+    },
+    {
+      "label": "Open questions.",
+      "text": "What the in-app status text says, and whether admins can change it, is not sourced {{gap:in-app-status}}. Whether a certificate trust failure produces a Client Connector notification is open {{gap:cert-trust-ux}}. Whether showing or dismissing a notification is logged anywhere is open {{gap:delivery-logging}}; whether AUP acceptances are logged is [[zcc.acceptable-use:acceptance-logging]]. Whether a blocked DLP transaction shows both a browser page and a client notification is open {{gap:dlp-browser-and-client}}; in default mode the DLP notification needs a Block action, and with Evaluate All Rules its type follows the rule's action [[zia.dlp.incident-forwarding:end-user-notification]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which surface the user saw: a Client Connector pop-up, a ZIA policy notification delivered through the client, or a page in the browser.",
+      "uses": [
+        "notification-page",
+        "zia-eun-via-zcc",
+        "browser-eun"
+      ]
+    },
+    {
+      "do": "For a blocked HTTPS site that shows a 403 or Connection Refused error instead of a block page, whether SSL inspection applied to it.",
+      "uses": [
+        "browser-eun"
+      ]
+    },
+    {
+      "do": "For a URL Filtering block, look for the browser notification rather than a client pop-up.",
+      "uses": [
+        "url-filtering-not-listed"
+      ]
+    }
+  ],
+  "claims": {
+    "notification-page": {
+      "statement": "The Client Connector notification settings cover the notifications users receive by default (in the system tray and in the Zscaler Notification Framework), the Acceptable Use Policy, a custom IT-support banner, a reminder for SecureAgent users, and notification templates, which are for Windows only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-notifications.json",
+          "quotes": [
+            "Control the notifications that end users receive by default in the system tray and the Zscaler Notification Framework.",
+            "Configure a custom banner that displays IT support options for your organization to help users resolve issues.",
+            "Create configuration reminder messages for SecureAgent users and set how often the reminder displays.",
+            "Configure a notification template (Zscaler Client Connector for Windows only)."
+          ]
+        }
+      ]
+    },
+    "zia-eun-via-zcc": {
+      "statement": "ZIA can notify users of a policy action through Client Connector on the endpoint. This is supported for Inline Web DLP, Endpoint DLP, Cloud App Control, Firewall Filtering, DNS Control and IPS Control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-based-end-user-notifications.json",
+          "quotes": [
+            "the Zscaler service can automatically notify users of the policy action through Zscaler Client Connector",
+            "Zscaler Client Connector-based notifications are supported for the following Internet & SaaS (ZIA) policies:",
+            "Inline Web Data Loss Prevention (DLP) - Endpoint DLP - Cloud App Control - Firewall Filtering - DNS Control - IPS Control"
+          ]
+        }
+      ]
+    },
+    "zia-eun-messages": {
+      "statement": "Each of those policies has a default message, custom messages can be tied to individual rules, and the notification shows only when it is enabled in the rule. An organization can have at most 64 custom messages across policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-based-end-user-notifications.json",
+          "quotes": [
+            "Zscaler provides a default notification message for each policy.",
+            "you must enable the EUN in the policy rule configuration page",
+            "A maximum of 64 custom messages is supported across policies for an organization."
+          ]
+        }
+      ]
+    },
+    "url-filtering-not-listed": {
+      "statement": "URL Filtering is not among the policies that notify through Client Connector; a blocked URL category is reported by the browser-based block notification.",
+      "tier": "B",
+      "derived_from": [
+        "zia-eun-via-zcc"
+      ],
+      "conditions": "Rests on absence: URL Filtering is missing from the list of policies that support Client Connector-based notifications, and the browser notification article names blocked URL categories among its triggers.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-browser-based-end-user-notifications.json",
+          "quotes": [
+            "The Zscaler service displays a notification to users when a policy violation occurs based on their activity.",
+            "This includes accessing blocked URL categories"
+          ]
+        }
+      ]
+    },
+    "zpa-expiry-warning": {
+      "statement": "An app profile can warn users that their Private Access authentication is about to expire, as Notify Users before ZPA Authentication Expires on Windows and ZPA ReAuth Notification on Linux, iOS and Android; the Advanced Notification time sets how far ahead, from 5 to 1440 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "To add a new Windows policy rule:",
+          "quotes": [
+            "Notify Users before ZPA Authentication Expires: Enable this option to alert users that applications they recently accessed through Private Access are going to expire.",
+            "You can set the time to display the expiration notification before an application expires in the Advanced Notification time (In Mins) field.",
+            "Enter a value between 5 and 1440."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "To add a new Linux policy rule:",
+          "quotes": [
+            "ZPA ReAuth Notification: Enable this option to alert users that applications they recently accessed through Private Access are going to expire.",
+            "Enter a value between 5 and 1440."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "To add a new iOS policy rule:",
+          "quotes": [
+            "ZPA ReAuth Notification: Enable this option to alert users that their Private Access authentication is about to expire.",
+            "Enter a value between 5 and 1440."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "To add a new Android policy rule:",
+          "quotes": [
+            "ZPA ReAuth Notification: Enable this option to alert users that applications they recently accessed through Private Access are going to expire.",
+            "Enter a value between 5 and 1440."
+          ]
+        }
+      ]
+    },
+    "ios-per-app-vpn-notification": {
+      "statement": "On iOS, Show per-app VPN Tunnel Notification tells the user that a per-app VPN tunnel is being established.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Show per-app VPN Tunnel Notification: When enabled, Zscaler Client Connector notifies the end user that per-app VPN tunnel establishment is in progress."
+          ]
+        }
+      ]
+    },
+    "notification-wire-keys": {
+      "statement": "By name, the web policy contract carries the expiry warning as `policyExtension.advanceZpaReauth` (whether advance ZPA reauthentication is enabled) and `policyExtension.advanceZpaReauthTime` (the time before expiration at which Client Connector notifies the user), and the iOS tunnel notification as `iosPolicy.showVPNTunNotification`.",
+      "tier": "B",
+      "derived_from": [
+        "zpa-expiry-warning",
+        "ios-per-app-vpn-notification"
+      ],
+      "conditions": "Name and description correspondence only; no source maps these keys to the console options, and the contract gives showVPNTunNotification no description.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/advanceZpaReauth",
+          "expect": {
+            "description": "Indicates whether advance ZPA reauthentication is enabled.",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/advanceZpaReauthTime",
+          "expect": {
+            "description": "Specifies the time remaining until expiration at which the Zscaler Client Connector notifies the user.",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/iosPolicy/properties/showVPNTunNotification",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "browser-eun": {
+      "statement": "Browser-based notifications (block, caution, AUP and quarantine) are provided by the Zscaler service, and their messages can be customized in multiple languages. Over HTTPS a block notification is shown only with SSL/TLS inspection; otherwise the user gets a 403 error in transparent mode or a Connection Refused error in explicit mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-browser-based-end-user-notifications.json",
+          "quotes": [
+            "The Zscaler service provides browser-based notifications to end users when specific policy actions are triggered by their activity.",
+            "You can customize these end user notification (EUN) messages in multiple languages.",
+            "| HTTPS | Transparent | Block notification is shown if SSL/TLS Inspection is enabled, otherwise a 403 error is displayed. |",
+            "| HTTPS | Explicit | Block notification is shown if SSL/TLS Inspection is enabled, otherwise a Connection Refused error is displayed. |"
+          ]
+        }
+      ]
+    },
+    "custom-theme": {
+      "statement": "An app profile's Enable Custom Theme puts the company name and logos from the Client Connector Theme page in the app header and in pop-up notifications instead of the Zscaler logo.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "When enabled, Zscaler Client Connector uses the company name and logos entered on the Zscaler Client Connector Theme page in the header of the app and in pop-up notifications instead of the Zscaler default logo."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "in-app-status": {
+      "kind": "semantic",
+      "title": "In-app status text and whether it is configurable",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Text and status codes displayed inside the ZCC tray/menu UI, for example 'Connected' / 'Disabled' / 'No Service' labels, error code numbers, and per-service status rows (ZIA row, ZPA row, ZDX row). These are not OS-level pop-ups; they appear only when the user opens the ZCC interface. In-app message text is largely determined by ZCC client version and is not directly configurable by admins.\" The legacy doc also listed tunnel up/down, ZIA sign-in failure and trusted-network changes as in-app status changes. No captured article describes the status labels.",
+      "blocks": "answers that quote what a user sees in the app window",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
+      ]
+    },
+    "cert-trust-ux": {
+      "kind": "semantic",
+      "title": "Notification for a certificate trust failure",
+      "status": "open",
+      "former_ids": [
+        "zcc-28"
+      ],
+      "detail": "Whether Client Connector emits its own notification when a certificate cannot be trusted, or the user sees only the operating system's or browser's certificate error. The notification and template articles do not list it.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "delivery-logging": {
+      "kind": "semantic",
+      "title": "Whether notification delivery is logged",
+      "status": "open",
+      "former_ids": [
+        "zcc-29"
+      ],
+      "detail": "Whether \"notification shown\" or \"user dismissed\" events for Client Connector notifications reach any log (ZCC portal audit log, ZIA or ZPA analytics, NSS or LSS); no captured article says they do. Whether Client Connector AUP acceptances are logged is the separate gap zcc.acceptable-use:acceptance-logging. Unverified legacy statement: \"ZCC notification events are not represented as distinct entries in the ZIA admin audit log or the ZPA audit log ... The ZCC client writes local diagnostic logs that include notification delivery events ... Configuration changes to notification settings (e.g., toggling Enable Notifications by Default) generate entries in the ZIA/ZCC Portal admin audit log.\"",
+      "blocks": "proving that a user was shown a notification",
+      "resolves_with": [
+        "tenant-data",
+        "operator-experience"
+      ]
+    },
+    "dlp-browser-and-client": {
+      "kind": "semantic",
+      "title": "Browser page and client notification for the same DLP block",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If the DLP rule action is Block, the user sees a ZIA block page in their browser; the ZCC DLP notification is an additional alert layered on top, not a replacement.\" The legacy doc also said a DLP notification through ZCC can mean the traffic was not blocked. That fits Evaluate All Rules mode, where the type of notification follows the rule's action, but not default mode, where EUN is supported only with Block actions (zia.dlp.incident-forwarding:end-user-notification).",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "after": "To configure a DLP policy rule to evaluate all rules:",
+          "quotes": [
+            "Configure the End User Notification (EUN) for the rule. The type of EUN messages that appear on the endpoint depends on the Action configured for the rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "EUN is supported only with Block actions and requires Advanced DLP rule."
+          ]
+        }
+      ]
+    }
+  }
+}

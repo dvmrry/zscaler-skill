@@ -191,7 +191,7 @@ harness should expect a decline-with-helpful-pointers when no overlay IaC or liv
 - **Several clarifications remain open** because they require tenant-specific
   lab tests. See `PLAN.md`.
 - **Z-Tunnel wire-format internals are not customer-documented.**
-  `references/zcc/z-tunnel.md` covers the operational layer. Protocol-level
+  `kb:zcc.z-tunnel` covers the operational layer. Protocol-level
   questions remain Zscaler Support territory.
 - **Tier 2 has programmable but shallow coverage.** ZBI, ZWA, AI Guard, ZMS,
   EASM, Zscaler Cellular / ZCell, and Business Insights have documented product

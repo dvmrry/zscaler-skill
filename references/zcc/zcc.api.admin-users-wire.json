@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.admin-users-wire",
+  "title": "ZCC admin users on the wire: the admin sync operations and the serviceType field",
+  "aliases": [
+    "zcc admin sync",
+    "syncZiaZdxAdminUsers",
+    "syncZpaAdminUsers",
+    "getAdminUsersSyncInfo",
+    "zcc admin not visible",
+    "zcc admin serviceType"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.rate-limits"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector Portal admins can come from ZIA, ZDX and ZPA, and the API has operations that synchronize ZCC's local copy of them. This subject records what those operations are described as doing and how admin records are typed."
+    },
+    {
+      "label": "Sync.",
+      "text": "{{sync-operations}} Whether admins added in another product are missing from ZCC until a sync runs is open {{gap:sync-visibility}}."
+    },
+    {
+      "label": "Records.",
+      "text": "{{service-type-number}} The contract types the field as a string {{divergence:service-type-wire-type}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a sync ran after the admin was added in ZIA, ZDX or ZPA, when that admin is missing from the Client Connector Portal.",
+      "uses": [
+        "sync-operations",
+        "sync-visibility"
+      ]
+    }
+  ],
+  "claims": {
+    "sync-operations": {
+      "statement": "`POST /syncZiaZdxAdminUsers` synchronizes ZCC's local copy of all ZIA and ZDX admin users and `POST /syncZpaAdminUsers` that of the ZPA admin users; `GET /getAdminUsersSyncInfo` is described as synchronizing the local copy of admin users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1syncZiaZdxAdminUsers/post",
+          "expect": {
+            "description": "Synchronizes the local copy of all the ZIA and ZDX admin users."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1syncZpaAdminUsers/post",
+          "expect": {
+            "description": "Synchronizes the local copy of the ZPA admin users."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getAdminUsersSyncInfo/get",
+          "expect": {
+            "description": "Synchronizes the local copy of admin users."
+          }
+        }
+      ],
+      "conditions": "The contract does not say whether the GET operation triggers a sync or reports on one; its 200 response is an untyped object."
+    },
+    "service-type-number": {
+      "statement": "The Go SDK reads an admin user's `serviceType` as an integer (1 ZIA, 2 ZPA, 3 ZID, 4 ZDX) and says the API sends it as a JSON number; an earlier string type failed to decode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/admin_users/admin_users.go",
+          "quotes": [
+            "/getAdminUsers: 1=ZIA, 2=ZPA, 3=ZID, 4=ZDX.",
+            "emits this field as a JSON number",
+            "ServiceType int    `json:\"serviceType\"`"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "service-type-wire-type": {
+      "summary": "The JSON type of an admin user's `serviceType`: the contract defines a string, the Go SDK says the API sends a number.",
+      "positions": [
+        {
+          "says": "The contract's `getAdminUsers` response types `serviceType` as a string with byte format.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1getAdminUsers/get/responses/200/content/*~1*/schema/items/properties/serviceType",
+            "expect": {
+              "type": "string",
+              "format": "byte"
+            }
+          }
+        },
+        {
+          "says": "The Go SDK types it as an int because the API emits a JSON number, and a string type caused decode failures.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/admin_users/admin_users.go",
+            "quotes": [
+              "not as a quoted string. An earlier `string` type here caused"
+            ]
+          }
+        }
+      ],
+      "impact": "A strictly typed client generated from the contract fails to decode admin users when the field arrives as a number."
+    }
+  },
+  "gaps": {
+    "sync-visibility": {
+      "kind": "semantic",
+      "title": "Whether admins added elsewhere appear in ZCC only after a sync",
+      "status": "open",
+      "detail": "Unverified legacy statement: ZCC keeps its own copy of the ZIA, ZDX and ZPA admin lists, an admin added in ZIA does not appear in the ZCC portal until a sync runs, running the sync is the operator's job, and each sync call starts a background synchronization rather than iterating per admin. The contract describes the operations only as synchronizing the local copy; it does not say whether ZCC also syncs on its own or how long a sync takes.",
+      "blocks": "explaining an admin who exists in ZIA but not in the Client Connector Portal",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

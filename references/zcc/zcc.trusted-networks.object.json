@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "zcc.trusted-networks.object",
+  "title": "The Client Connector trusted network object and its v1 API",
+  "aliases": [
+    "zcc trusted network object",
+    "webTrustedNetwork",
+    "trustedNetworkContracts",
+    "trusted network create returns no id",
+    "trusted network condition type",
+    "zcc trusted network csv",
+    "zcc_trusted_network"
+  ],
+  "binds": [
+    "zcc/trusted-networks",
+    "zcc/trusted-networks#conditionType",
+    "zcc/trusted-networks#ssids",
+    "zcc/trusted-networks#trustedEgressIps",
+    "zcc/trusted-networks#dnsServers",
+    "zcc/trusted-networks#id"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks.detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.trusted-network-backend"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.trusted-networks.zcc-relationship"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.trusted-networks-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A trusted network is a named, reusable set of detection criteria that forwarding profiles select as predefined trusted networks. The v1 API under `webTrustedNetwork` is in the generated surface; this subject holds its behavior."
+    },
+    {
+      "label": "What it is for.",
+      "text": "Defining criteria once and selecting several networks in a profile: [[zpa.trusted-networks.zcc-relationship:zcc-defines-criteria]]. How the app evaluates them is [[zcc.trusted-networks.detection]]."
+    },
+    {
+      "label": "Criteria are strings.",
+      "text": "Each criterion is one comma-separated string: [[zcc.api.trusted-networks-wire:v1-criteria-strings]]. {{go-omitempty}}"
+    },
+    {
+      "label": "Condition type.",
+      "text": "{{condition-type-int}} The sources disagree on its wire type [[zcc.api.trusted-networks-wire:condition-type-wire-type]], and which code means All is only partly settled {{gap:condition-type-values}}, by the provider mapping in [[zcc.terraform.trusted-network-backend:v1-condition-type-mapping]]."
+    },
+    {
+      "label": "Listing.",
+      "text": "Both SDKs unwrap an envelope the contract does not show: [[zcc.api.trusted-networks-wire:list-envelope]], [[zcc.api.trusted-networks-wire:v1-list-shape]]. {{name-lookup-pages}}"
+    },
+    {
+      "label": "Create and update.",
+      "text": "Create and edit answer with a status only: [[zcc.api.trusted-networks-wire:mutation-response]], read as [[zcc.api.trusted-networks-wire:error-code]]. {{update-needs-id}} {{python-sends-kwargs}} The Python create's result therefore has no ID: [[zcc.sdk-python.return-shapes:add-result-has-no-id]]. The Go SDK's name lookup after create, and its blind sleeps, are in [[zcc.terraform.field-fidelity:trusted-network-create-sleeps-blindly]]."
+    },
+    {
+      "label": "ZPA link.",
+      "text": "{{zpa-id}} The provider calls it a ZPA tenant identifier, so do not read it as a per-network ID that matches ZPA's trusted network records, which are described in [[zpa.trusted-networks.zcc-relationship]]."
+    },
+    {
+      "text": "What `active`, `guid` and the audit fields guarantee is open {{gap:metadata-semantics}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When listing trusted networks directly, unwrap `trustedNetworkContracts` and page until a short page.",
+      "uses": [
+        "zcc.api.trusted-networks-wire:list-envelope",
+        "name-lookup-pages"
+      ]
+    },
+    {
+      "do": "After a create or update, re-read the record: the mutation response carries only a status.",
+      "uses": [
+        "zcc.api.trusted-networks-wire:mutation-response",
+        "zcc.sdk-python.return-shapes:add-result-has-no-id"
+      ]
+    },
+    {
+      "do": "Treat `errorCode` \"0\" as success, not as a failure flag.",
+      "uses": [
+        "zcc.api.trusted-networks-wire:error-code"
+      ]
+    },
+    {
+      "do": "Before reading All or Any from a v1 `conditionType`, whether the code has been checked against the console for that tenant.",
+      "uses": [
+        "condition-type-values",
+        "zcc.api.trusted-networks-wire:condition-type-wire-type"
+      ]
+    }
+  ],
+  "claims": {
+    "go-omitempty": {
+      "statement": "The Go SDK omits `ssids` and `trustedEgressIps` from a written body when they are empty, while it always sends the other criteria, empty or not.",
+      "tier": "A",
+      "binds": [
+        "zcc/trusted-networks#ssids",
+        "zcc/trusted-networks#trustedEgressIps"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "Ssids string `json:\"ssids,omitempty\"`",
+            "TrustedEgressIps string `json:\"trustedEgressIps,omitempty\"`",
+            "TrustedGateways string `json:\"trustedGateways\"`"
+          ]
+        }
+      ]
+    },
+    "condition-type-int": {
+      "statement": "The trusted network's `conditionType` sets how its own criteria combine; the Go SDK sends it as an integer with no omitempty, so 0 is always sent.",
+      "tier": "A",
+      "binds": [
+        "zcc/trusted-networks#conditionType"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "ConditionType int `json:\"conditionType\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_trusted_network.md",
+          "quotes": [
+            "`condition_type` (String) — Match policy across the criteria below."
+          ]
+        }
+      ]
+    },
+    "name-lookup-pages": {
+      "statement": "The Go SDK's lookups by name and by ID page through the list 1000 at a time until a page comes back short, comparing names exactly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "func GetTrustedNetworkByName(ctx context.Context, service *zscaler.Service, name string) (*TrustedNetwork, *http.Response, error) {",
+          "quotes": [
+            "pageSize := 1000",
+            "if tn.NetworkName == name {",
+            "if len(res.TrustedNetworkContracts) < pageSize {"
+          ]
+        }
+      ]
+    },
+    "update-needs-id": {
+      "statement": "Update is a PUT to `edit` with the ID in the body: the Go SDK refuses to send an update without an ID, and the Python SDK sends whatever keyword arguments it is given without checking for one.",
+      "tier": "A",
+      "binds": [
+        "zcc/trusted-networks#id"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "quotes": [
+            "return nil, nil, errors.New(\"network ID is required for update\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/trusted_networks.py",
+          "quotes": [
+            "body.update(kwargs)"
+          ]
+        }
+      ]
+    },
+    "python-sends-kwargs": {
+      "statement": "The Python SDK's add and update send the caller's keyword arguments, with keys camel-cased by the request executor (apart from a set of snake_case keys kept for web policies), rather than the model's full field set, so unset criteria are absent from the body rather than sent empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/trusted_networks.py",
+          "after": "/webTrustedNetwork/create",
+          "quotes": [
+            "body = kwargs"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/zcc/\" in endpoint and body:",
+            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)"
+          ]
+        }
+      ]
+    },
+    "zpa-id": {
+      "statement": "The Terraform provider documents that the API also returns a linked ZPA tenant identifier, `zpaId`, populated lazily (absent from the create response, present on later reads), and that it does not exist on v1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_trusted_network.md",
+          "quotes": [
+            "The API also returns a linked ZPA tenant identifier (`zpaId`)",
+            "the API populates `zpaId` lazily (the create response omits it but later GETs include it)",
+            "`zpa_id` does not exist on v1 and stays empty on the data source."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "metadata-semantics": {
+      "kind": "semantic",
+      "title": "What active, guid and the audit fields guarantee",
+      "status": "open",
+      "about": [
+        "zcc/trusted-networks#active",
+        "zcc/trusted-networks#guid"
+      ],
+      "detail": "Unverified legacy statements: inactive trusted networks still appear in list responses and must be filtered client-side; `guid` is a stable UUID that survives a rename and is the preferred durable reference; null and empty-string criteria are both ignored, a null or empty criterion is not \"match nothing\". No source states any of these.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "condition-type-values": {
+      "kind": "semantic",
+      "title": "Which trusted network conditionType code is All and which Any",
+      "status": "partial",
+      "former_ids": [
+        "zcc-06"
+      ],
+      "about": [
+        "zcc/trusted-networks#conditionType"
+      ],
+      "detail": "The Terraform provider maps v1 0 to ALL and 1 to ANY and says it field-verified this against v2's ALL/ANY strings on one tenant ([[zcc.terraform.trusted-network-backend:v1-condition-type-mapping]]). No vendor document gives the codes. The provider documents the forwarding profile's own `conditionType` the other way round (0 ANY, 1 ALL), so the two must not be assumed to share an encoding. A recorded v1 listing carries both codes as JSON numbers, and the network an SDK test created without a `conditionType` (tests-trusted-network-vcr0001) is listed with 0 (one test tenant, recorded with SDK 1.9.13 (Python SDK cassette)); neither says which code is All.",
+      "blocks": "saying from raw v1 data whether a trusted network needs all of its criteria",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+          "after": "interactions:",
+          "quotes": [
+            "\\\"conditionType\\\" : 1,",
+            "\\\"tests-trusted-network-vcr0001\\\",\\n    \\\"conditionType\\\" : 0,",
+            "body: '{\"active\": true, \"networkName\": \"tests-trusted-network-vcr0001\", \"dnsServers\": \"10.10.10.10, 10.10.10.11\", \"dnsSearchDomains\": \"test.example.com\"}'"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "id": "zcc.notifications.templates",
+  "title": "Client Connector notification templates: per-profile notification settings",
+  "aliases": [
+    "notification templates",
+    "notification template",
+    "legacy notification settings template",
+    "notificationTemplateId",
+    "notificationTemplateContract",
+    "delay posture failure notifications",
+    "posture failure notification",
+    "zia firewall dns ips notifications",
+    "do not disturb button"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.notifications.framework"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.global-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Templates let different groups of users get different notification settings. {{purpose}} {{availability}} {{replaces-tab}}"
+    },
+    {
+      "label": "Assignment.",
+      "text": "{{default-for-new-profiles}} {{older-clients-legacy}} {{app-profile-binding}}"
+    },
+    {
+      "label": "Settings shared with the global tab.",
+      "text": "{{same-settings}} {{zia-persistent-endpoint-dlp}}"
+    },
+    {
+      "label": "Template-only settings.",
+      "text": "{{posture-delay}} Whether that delay counts from tunnel establishment, as the setting's name says, or from a reboot, as its description says, is open {{gap:delay-trigger}}. {{do-not-disturb}} {{zia-channels}} {{posture-remediation}}"
+    },
+    {
+      "label": "API and SDKs.",
+      "text": "{{go-model-fields}} {{field-to-setting}} {{python-no-service}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the device runs Client Connector 4.8 or later for Windows; older clients get the Legacy Notification Settings template whatever the profile names.",
+      "uses": [
+        "availability",
+        "older-clients-legacy"
+      ]
+    },
+    {
+      "do": "Which template the user's app profile assigns, by `notificationTemplateId`, before reading notification settings.",
+      "uses": [
+        "app-profile-binding"
+      ]
+    },
+    {
+      "do": "For a posture-failure pop-up that never appeared, the template's delay and the two-minute duplicate suppression.",
+      "uses": [
+        "posture-delay",
+        "zcc.notifications.framework:duplicates"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "A notification template holds Client Connector notification settings and is assigned to groups of users through the app profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "and assign a template to specific groups of users in the app profile",
+            "After you create a template, you can assign it to an app profile to apply the notification settings to a group of users."
+          ]
+        }
+      ]
+    },
+    "availability": {
+      "statement": "Templates work only with Client Connector 4.8 and later for Windows, need the Zscaler Notification Framework, and are enabled by Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "This feature is available only for Zscaler Client Connector version 4.8 and later for Windows and you must have the Zscaler Notification Framework enabled.",
+            "Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "replaces-tab": {
+      "statement": "Enabling templates removes the End User Notifications tab and copies its settings into a Legacy Notification Settings template, whose name cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "When you enable this feature, the End User Notifications tab no longer displays and the existing settings from that tab are copied to a Legacy Notification Settings template.",
+            "You cannot change the default Legacy Notification Settings template name."
+          ]
+        }
+      ]
+    },
+    "default-for-new-profiles": {
+      "statement": "A template other than the legacy one can be marked as the default for new app profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "select whether this notification template is the default template for new app profiles."
+          ]
+        }
+      ]
+    },
+    "older-clients-legacy": {
+      "statement": "An app profile's template applies only to Client Connector 4.8 and later for Windows; users on 4.7 or earlier get the Legacy Notification Settings template whatever the profile selects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "If you assign an app profile with a notification template to users with Zscaler Client Connector version 4.7 or earlier, the Legacy Notification Settings template is used regardless of what is selected."
+          ]
+        }
+      ]
+    },
+    "app-profile-binding": {
+      "statement": "In the API an application profile carries its template as `notificationTemplateId` and embeds the template's settings as `notificationTemplateContract`, whose integer `zpaReauthNotificationTime` the contract describes as whether the ZPA reauthentication notification at a specific time interval is enabled.",
+      "tier": "A",
+      "conditions": "Corrected (v5 item 2): previously named zpaReauthNotificationTime without its description, which read as the interval itself; the contract describes it as an enabled flag.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/notificationTemplateId",
+          "expect": {
+            "description": "The ID of the notification template.",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/notificationTemplateContract/properties/zpaReauthNotificationTime",
+          "expect": {
+            "description": "Indicates whether ZPA reauthentication notification at a specific time interval is enabled.",
+            "format": "int32",
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "same-settings": {
+      "statement": "A template carries the same switches as the global tab: pop-ups by default (users can turn them off in the More window), app updates, service status, ZIA notifications, ZPA reauthentication and its 2 to 1440 minute interval, the 5 to 60 second timer and persistent notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "Show Zscaler Client Connector Notification Popups by Default: Select this option to have users receive pop-up notifications from Zscaler Client Connector.",
+            "This setting is enabled after a user is enrolled. Users can turn this option off from Zscaler Client Connector in the More window in the app.",
+            "Enable App Updates Notifications: Select this option to have users receive app upgrade notifications.",
+            "Enable Service Status Notifications: Select this option to have users receive status notifications for Zscaler services",
+            "Enable ZIA Notifications: Select this option to have users receive notifications from Internet & SaaS (ZIA)",
+            "Enable Notifications for ZPA reauthentication: Select this option to have users prompted for authentication.",
+            "Enter a value from 2 to 1440 to set the interval in minutes.",
+            "Enter a time between 5 and 60 seconds.",
+            "This setting displays critical notifications until the user dismisses them."
+          ]
+        }
+      ]
+    },
+    "zia-persistent-endpoint-dlp": {
+      "statement": "In a template, ZIA Notification Persistent makes Endpoint DLP notifications persistent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "ZIA Notification Persistent: When enabled, overrides the Custom Timer and makes Endpoint Data Loss Prevention (DLP) notifications persistent."
+          ]
+        }
+      ]
+    },
+    "posture-delay": {
+      "statement": "Delay Posture Failure Notifications holds back device posture failure pop-ups for up to 300 seconds (default 0), so that a check that fails only while, for example, CrowdStrike is still starting does not alarm the user. It delays only the pop-up, not the message in the app's Notifications window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "When enabled, Zscaler Client Connector delays pop-up notifications for device posture failure for the number of entered seconds after a system reboot. The default value is 0. You can enter a value up to 300.",
+            "because CrowdStrike is still starting, the device posture check fails temporarily",
+            "This option delays only the pop-up notification (not the message that displays in the Notifications window in the app)."
+          ]
+        }
+      ]
+    },
+    "do-not-disturb": {
+      "statement": "Do not disturb, enabled by default, adds a Do not Disturb button to Client Connector pop-ups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "Do not disturb: When enabled, Zscaler Client Connector pop-up notifications include a Do not Disturb button. The default value is enabled"
+          ]
+        }
+      ]
+    },
+    "zia-channels": {
+      "statement": "ZIA Firewall, DNS and IPS notifications can each be shown in the app's Notifications window and, separately, as pop-ups; all three also need Enable ZIA Notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "ZIA Firewall: Select this option to show firewall notifications from Internet & SaaS in the Notifications window in the app. If enabled, you can select Firewall Popup Notifications to also display them as pop-up notifications.",
+            "DNS: Select this option to show DNS notifications from Internet & SaaS in the Notifications window in the app. If enabled, you can select DNS Popup Notifications to also display them as pop-up notifications.",
+            "IPS: Select this option to show IPS notifications from Internet & SaaS in the Notifications window in the app. If enabled, you can select IPS Popup Notifications to also display them as pop-up notifications.",
+            "You must also select Enable ZIA Notifications to display the ZIA Firewall, DNS, and IPS notifications for users."
+          ]
+        }
+      ]
+    },
+    "posture-remediation": {
+      "statement": "Show Device Posture Failure Remediation Notification shows a pop-up when a Private Access app is blocked because a posture in the access policy failed and the access policy enables Device Posture Failure Notification; its Learn More link opens the posture profile's message in the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "Select this option to show a pop-up notification if a Private Access app is blocked because a device posture that is included in an access policy fails and Device Posture Failure Notification is enabled on the access policy.",
+            "displays the Message from the Device Posture Profile in the Notifications window."
+          ]
+        }
+      ]
+    },
+    "go-model-fields": {
+      "statement": "The Go SDK's template model nests ZIA settings (firewall, DNS and IPS, each with a pop-up flag, plus persistence) under `ziaNotificationTemplate` and ZPA settings (posture failure, reauthentication, its interval and the posture-failure delay) under `zpaNotificationTemplate`, beside top-level fields such as `isDefaultTemplate`, `durationInSeconds` and `enableDoNotDisturb`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "quotes": [
+            "IsDefaultTemplate bool `json:\"isDefaultTemplate\"`",
+            "DurationInSeconds int `json:\"durationInSeconds,omitempty\"`",
+            "EnableDoNotDisturb bool `json:\"enableDoNotDisturb\"`",
+            "ZIANotificationTemplate ZIANotificationTemplate `json:\"ziaNotificationTemplate\"`",
+            "EnableZiaFirewallPopup bool `json:\"enableZiaFirewallPopup\"`",
+            "EnableDevicePostureFailure bool `json:\"enableDevicePostureFailure\"`",
+            "DelayPostureFailureSeconds int `json:\"delayPostureFailureSeconds\"`"
+          ]
+        }
+      ]
+    },
+    "field-to-setting": {
+      "statement": "The model fields correspond by name to the console settings: `durationInSeconds` to Custom Timer, `enableDoNotDisturb` to Do not disturb, `delayPostureFailureSeconds` to the posture-failure delay, and `enableDevicePostureFailure` to a posture-failure notification switch.",
+      "tier": "B",
+      "derived_from": [
+        "go-model-fields",
+        "posture-delay",
+        "do-not-disturb"
+      ],
+      "conditions": "Name correspondence only; no captured source maps the API fields to the console settings. The template contract embedded in application profiles has a posture-failure switch of its own, showDevicePostureFailureNotification, which supports that the template holds such a switch but uses a different name.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/notificationTemplateContract/properties/showDevicePostureFailureNotification",
+          "expect": {
+            "description": "Indicates whether device posture failure notification is shown.",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "python-no-service": {
+      "statement": "The Python SDK has no notification-template service; its application-profile model only carries the assigned template's ID and contract.",
+      "tier": "B",
+      "conditions": "Rests on a search of the Python SDK at the pin: no module under zscaler/zcc calls the notification-templates endpoint.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/application_profiles.py",
+          "quotes": [
+            "self.notification_template_id = config[\"notificationTemplateId\"] if \"notificationTemplateId\" in config else None"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "delay-trigger": {
+      "kind": "semantic",
+      "title": "What the posture-failure delay counts from",
+      "status": "open",
+      "detail": "The setting is named Delay Posture Failure Notifications after Tunnel Establishment, but its description says the delay applies after a system reboot, and the worked example counts from the reboot.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "template-schema": {
+      "kind": "semantic",
+      "title": "Notification template schema and options",
+      "status": "resolved",
+      "former_ids": [
+        "zcc-24"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The Configuring Notification Templates article is now captured: claims purpose, availability, replaces-tab, same-settings, posture-delay, do-not-disturb, zia-channels and posture-remediation, with app-profile-binding for per-profile assignment. Branding comes from the app profile's custom theme (zcc.notifications:custom-theme); language is in zcc.notifications.localization."
+    },
+    "per-profile-reauth-interval": {
+      "kind": "semantic",
+      "title": "A per-App-Profile ZPA reauthentication interval",
+      "status": "resolved",
+      "former_ids": [
+        "zcc-25"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "The interval is a template setting (same-settings) and templates are assigned per app profile (purpose), but only on Client Connector 4.8 and later for Windows (availability); on other clients the interval is the tenant-wide setting (zcc.notifications.global-settings:reauth-interval). The application profile embeds the template as notificationTemplateContract (app-profile-binding)."
+    },
+    "posture-failure-notification": {
+      "kind": "semantic",
+      "title": "A notification for device posture failure",
+      "status": "resolved",
+      "former_ids": [
+        "zcc-27"
+      ],
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolution": "Templates delay posture-failure pop-ups (posture-delay) and can show a remediation pop-up when a posture failure blocks a Private Access app (posture-remediation)."
+    }
+  }
+}

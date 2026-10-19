@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "zcc.forwarding-profiles.private-access-actions",
+  "title": "Forwarding profile actions for Private Access (ZPA): Tunnel or None per network type",
+  "aliases": [
+    "forwarding profile action for zpa",
+    "private access forwarding action",
+    "zpa not working on vpn",
+    "zpa disabled on trusted network",
+    "dynamic zpa service edge assignment",
+    "send trusted network result to zpa",
+    "zpa trusted_network rule never matches"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles#forwardingProfileZpaActions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.trusted-networks.zcc-relationship"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.app-segments.bypass"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Private Access half of the forwarding profile decides, per network type, whether the app carries ZPA traffic at all."
+    },
+    {
+      "label": "The choice.",
+      "text": "{{tunnel-or-none}} {{same-as-on-trusted}} {{independent-of-internet}}"
+    },
+    {
+      "label": "Per network type.",
+      "items": [
+        {
+          "label": "On-Trusted.",
+          "text": "{{on-trusted-tunnel}} {{none-direct}}"
+        },
+        {
+          "label": "VPN-Trusted.",
+          "text": "{{vpn-trusted-no-tunnel}}"
+        },
+        {
+          "label": "Off-Trusted.",
+          "text": "{{off-trusted-none}}"
+        },
+        {
+          "label": "Split VPN-Trusted.",
+          "text": "{{split-vpn-tunnel}}"
+        }
+      ]
+    },
+    {
+      "label": "The default profile.",
+      "text": "{{default-private-access}}"
+    },
+    {
+      "label": "Service Edge selection.",
+      "text": "{{dynamic-zpa-se}}"
+    },
+    {
+      "label": "After Tunnel is chosen.",
+      "text": "An application segment's own Bypass setting is checked only once the profile has sent the user to Private Access, and its On Corporate Network option relies on this profile's trusted network: [[zpa.app-segments.bypass:bypass-domain-level]], [[zpa.app-segments.bypass:bypass-options]]."
+    },
+    {
+      "label": "Telling ZPA the network type.",
+      "text": "The ZPA action carries a Send Trusted Network Result to ZPA setting: [[zpa.trusted-networks.zcc-relationship:send-result-setting]]. What ZPA rules see when it is off is open {{gap:send-result-effect}}, and how the result travels is open in [[zpa.trusted-networks.zcc-relationship]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The device's network type and the Private Access action for it; None means the app gives no access to internal applications on that network.",
+      "uses": [
+        "tunnel-or-none",
+        "none-direct",
+        "off-trusted-none"
+      ]
+    },
+    {
+      "do": "For a user on a full-tunnel VPN: the VPN-Trusted action, which the vendor says should not be Tunnel and under which the app forwards nothing while a VPN runs.",
+      "uses": [
+        "vpn-trusted-no-tunnel"
+      ]
+    },
+    {
+      "do": "For a ZPA rule with a trusted network condition that never matches: the ZPA action's Send Trusted Network Result to ZPA setting for the device's network type, keeping in mind its effect is unconfirmed.",
+      "uses": [
+        "zpa.trusted-networks.zcc-relationship:send-result-setting",
+        "send-result-effect"
+      ]
+    }
+  ],
+  "claims": {
+    "tunnel-or-none": {
+      "statement": "For each network type (On-Trusted, VPN-Trusted, Off-Trusted, Split VPN-Trusted) the profile sets the Private Access action to Tunnel or None.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#forwardingProfileZpaActions"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Define how Zscaler Client Connector treats traffic from your users' systems for the Private Access service for On-Trusted Network, VPN-Trusted Network, Off-Trusted Network, or Split VPN-Trusted Network types.",
+            "To specify how the app treats traffic from your users' systems, you can select Tunnel or None as the forwarding profile actions for each network type:"
+          ]
+        }
+      ]
+    },
+    "same-as-on-trusted": {
+      "statement": "Here too VPN-Trusted and Off-Trusted can be set to Same as \"On-Trusted Network\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "None: Private Access is disabled, and Zscaler Client Connector does not provide access to internal applications.",
+          "quotes": [
+            "If you want On-Trusted Network behavior to apply to VPN-Trusted Network or Off-Trusted Network, select Same as \"On-Trusted Network\" for either environment."
+          ]
+        }
+      ]
+    },
+    "independent-of-internet": {
+      "statement": "The Private Access action is set separately from the Internet & SaaS action for the same network type, so one profile can, for example, send no internet traffic through the app on a trusted network while still tunneling Private Access there.",
+      "tier": "B",
+      "conditions": "Follows from the two settings being separate per network type; the help does not discuss combinations.",
+      "derived_from": [
+        "tunnel-or-none",
+        "zcc.forwarding-profiles.internet-actions:four-actions"
+      ]
+    },
+    "on-trusted-tunnel": {
+      "statement": "On a trusted network, Tunnel means the app uses Private Access to give users access to internal applications even though they are on a trusted network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Tunnel: Zscaler Client Connector tunnels traffic for the Private Access service (i.e., Zscaler Client Connector uses the Private Access (ZPA) service to provide users with access to internal applications even when users are on trusted networks)."
+          ]
+        }
+      ]
+    },
+    "none-direct": {
+      "statement": "On a trusted network, None disables Private Access: the app gives no access to internal applications and users reach them directly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "None: Private Access is disabled and Zscaler Client Connector does not provide access to internal applications. Users access the applications directly."
+          ]
+        }
+      ]
+    },
+    "vpn-trusted-no-tunnel": {
+      "statement": "The vendor says not to select Tunnel for VPN-Trusted Network: with Tunnel, the app does not forward user traffic for Private Access while a VPN is also running on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Do not select Tunnel for the VPN-Trusted Network type.",
+            "Tunnel: For Private Access, the app does not forward user traffic if a VPN is also running on the device."
+          ]
+        }
+      ]
+    },
+    "off-trusted-none": {
+      "statement": "Off a trusted network, None disables Private Access, and users reach internal applications only if they have another mechanism for reaching internal networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "None: Private Access is disabled and Zscaler Client Connector does not provide users with access to internal applications. Users can only access internal applications if they have another mechanism for reaching internal networks."
+          ]
+        }
+      ]
+    },
+    "split-vpn-tunnel": {
+      "statement": "On a Split VPN-Trusted network, Tunnel lets the app forward to Private Access any traffic that is not going through the split-tunnel VPN, which can require the VPN to be configured to exclude Private Access infrastructure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Tunnel: For Private Access, the app can forward any traffic not going through Split-Tunnel VPN to Private Access. This condition can require VPN configuration to exclude Private Access infrastructure."
+          ]
+        }
+      ]
+    },
+    "default-private-access": {
+      "statement": "Zscaler's default forwarding profile uses Private Access on On-Trusted and Off-Trusted networks and disables it on VPN-Trusted networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "after": "Default Forwarding Profile Action for Private Access",
+          "quotes": [
+            "On-Trusted Network: Zscaler Client Connector uses the Private Access service to provide users with access to internal applications even when users are on trusted networks.",
+            "VPN-Trusted Network: Private Access is disabled, and the app does not provide users with access to internal applications.",
+            "Off-Trusted Network: The app uses the Private Access service to provide users with access to internal applications"
+          ]
+        }
+      ]
+    },
+    "dynamic-zpa-se": {
+      "statement": "With Tunnel, Dynamic ZPA Service Edge Assignment sets a probe interval (30 to 600 seconds in 30-second steps, default 30), a probe sample size (default 5) and a threshold rank (1 to 5) for switching between primary and secondary Public Service Edges, and can be enabled for machine tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "provide users with access to internal applications even when users are on trusted networks).",
+          "quotes": [
+            "You can enable Dynamic ZPA Service Edge Assignment to configure settings for probe interval, probe sample size, and threshold rank:",
+            "Options are in 30-second intervals and range from 30 to 600 seconds. The default is 30 seconds.",
+            "Probe Sample Size: The number of retries required to establish a connection before a failover. Select an option from the drop-down menu. The default is 5 times.",
+            "Threshold Rank: Ranks the change in latency of the primary and secondary Public Service Edges.",
+            "Enable Machine Tunnel: Select to enable Dynamic ZPA Service Edge Assignment for machine tunnels."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "send-result-effect": {
+      "kind": "semantic",
+      "title": "Whether ZPA trusted network conditions stop matching when Send Trusted Network Result to ZPA is off",
+      "status": "open",
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileZpaActions"
+      ],
+      "detail": "Unverified legacy statement: \"ZPA access policies can include a TRUSTED_NETWORK condition; that condition will never match if this toggle is off, regardless of the device's actual network.\" The legacy doc itself rated this inferred from the field name; no captured help page describes the setting's effect.",
+      "blocks": "naming this setting as the cause of a ZPA trusted network rule that never matches",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

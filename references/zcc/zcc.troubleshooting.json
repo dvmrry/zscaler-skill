@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "id": "zcc.troubleshooting",
+  "title": "Troubleshooting Client Connector: from symptom to the subject that holds the answer",
+  "aliases": [
+    "zcc troubleshooting",
+    "client connector not working",
+    "zcc connected but no traffic",
+    "zcc stuck signing in",
+    "zcc error codes",
+    "zcc api errors"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.propagation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.strict-enforcement"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Client Connector report is worked from the symptom to the layer that holds the evidence."
+    },
+    {
+      "steps": [
+        {
+          "label": "Connected, but traffic does not flow or skips ZIA.",
+          "text": "Fail-open is in [[zcc.forwarding-profiles.fail-open]] and the forwarding action for the current network in [[zcc.forwarding-profiles.internet-actions]]; trusted-network matching is in [[zcc.trusted-networks.detection]]. IPv6 traffic dropped on a dual-stack network is in [[zcc.forwarding-profiles.internet-actions:drop-ipv6-dual-stack]]."
+        },
+        {
+          "label": "The PAC file is not applying.",
+          "text": "Where the profile gets its PAC URL is in [[zcc.forwarding-profiles.internet-actions:pac-url-location]], and what happens when the PAC file is unreachable in [[zcc.app-profiles.failover:allow-unreachable-pac]]. With Z-Tunnel 2.0, network bypasses do not belong in the app profile PAC file: [[zcc.z-tunnel.bypasses:pac-not-for-2]]."
+        },
+        {
+          "label": "Stuck on Signing In.",
+          "text": "Strict enforcement and the policy token are in [[zcc.install.strict-enforcement]], the user domain in [[zcc.install.enrollment]], and identity alignment in [[zia.scim]], [[zpa.scim]] and [[doc:references/shared/scim-provisioning.md]]."
+        },
+        {
+          "label": "Every site shows a block page or a certificate error.",
+          "text": "Block pages come from ZIA, not the client [[zcc.notifications:browser-eun]]. On a captive-portal network, how long the app disables web security is in [[zcc.forwarding-profiles.fail-open:captive-portal-minutes]]. Root certificate installation is in [[zcc.app-profiles.ssl-certificate]]. If the profile was written through the API, check the certificate key's casing for the platform [[zcc.api.web-policy-wire:os-password-key-casing]]: the Go SDK's model says a camelCase macOS certificate key was once silently ignored [[zcc.api.web-policy-wire:mac-snake-or-ignored]]."
+        },
+        {
+          "label": "Bypasses do not take effect, or Z-Tunnel 2.0 falls back.",
+          "text": "Bypass precedence is in [[zcc.z-tunnel.bypasses]] and DTLS-to-TLS fallback in [[zcc.z-tunnel.transport]]; which push-MFA exclusions are needed is open [[zcc.z-tunnel.bypasses:mobile-push]], and GRE double encapsulation in [[zcc.z-tunnel.deployment]]."
+        },
+        {
+          "label": "Posture fails or stays stale.",
+          "text": "Why a device fails posture, and what the user sees, is in [[zcc.device-posture.failure-modes]]. Evaluation cadence for stale posture is in [[zpa.posture-profiles.evaluation]], and posture-failure notifications in [[zcc.notifications.templates]]."
+        },
+        {
+          "label": "Step-up authentication does not prompt.",
+          "text": "See [[zia.authentication.step-up]]."
+        },
+        {
+          "label": "A changed setting has not reached the device.",
+          "text": "See [[zcc.app-profiles.propagation]]."
+        },
+        {
+          "label": "Driver, install-parameter or device-record problems.",
+          "text": "Windows filter-driver parameters are in [[zcc.install.windows-driver]], macOS system extensions and profiles in [[zcc.install.macos-extensions]], and device records in [[zcc.devices.lifecycle]]."
+        },
+        {
+          "label": "An API call fails.",
+          "text": "Status codes are in [[zcc.api.conventions:status-codes]], rate limits and SDK back-off in [[zcc.api.rate-limits]], and sign-in in [[zcc.api.authentication]]. Whether the generic legacy API codes and 403 causes apply to the ZCC API is open {{gap:generic-legacy-codes}}."
+        }
+      ]
+    },
+    {
+      "label": "Evidence.",
+      "text": "Collecting logs is in [[zcc.logging.collection]], raising verbosity in [[zcc.logging.log-modes]], and what the client log can show in [[zcc.logs.client-log]]."
+    },
+    {
+      "label": "Out of scope.",
+      "text": "ZIA URL policy decisions are in [[zia.url-filtering]] and ZPA access decisions in [[zpa.troubleshooting]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before treating a 403, 405, 409 or 503 from the ZCC API with the generic legacy-API explanation, note that the ZCC table lists 403 only as Forbidden.",
+      "uses": [
+        "generic-legacy-codes",
+        "zcc.api.conventions:status-codes"
+      ]
+    }
+  ],
+  "gaps": {
+    "generic-legacy-codes": {
+      "kind": "semantic",
+      "title": "Generic legacy API status codes on the ZCC API",
+      "status": "open",
+      "former_ids": [
+        "zcc-74"
+      ],
+      "detail": "Unverified legacy statement: the codes in the generic legacy API reference (204 No content, 405 Method not allowed, 409 edit conflict with retry, 503 Service unavailable) \"apply when the ZCC API behaves as part of the broader platform\", and a ZCC 403 means the API key was disabled, the role lacks functional scope, a SKU is missing, or a write was attempted during portal maintenance. That reference names the ZIA Admin Portal and is not ZCC-specific; the ZCC table lists 200, 400, 401, 403, 404, 415, 429 and 500 only. Former zcc-74 asked specifically whether the ZCC portal API returns 503 during maintenance windows.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

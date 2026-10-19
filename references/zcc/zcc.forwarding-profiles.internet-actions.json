@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "id": "zcc.forwarding-profiles.internet-actions",
+  "title": "Forwarding profile actions for Internet & SaaS (ZIA): Tunnel, Tunnel with Local Proxy, Enforce Proxy, None",
+  "aliases": [
+    "forwarding profile action for zia",
+    "internet and saas forwarding action",
+    "tunnel with local proxy",
+    "enforce proxy mode",
+    "zcc none mode",
+    "why did zia not see this traffic",
+    "traffic bypassed zia on trusted network",
+    "tunnel driver type",
+    "packet filter based driver",
+    "route based driver",
+    "system proxy settings zcc",
+    "drop ipv6 zcc",
+    "dynamic zia service edge assignment"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles#forwardingProfileActions",
+    "zcc/forwarding-profiles#enableLWFDriver"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.private-access-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.versions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.transport"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.trusted-networks.detection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This is the half of the forwarding profile that decides what happens to a device's internet traffic. It is set once per network type."
+    },
+    {
+      "label": "The choice.",
+      "text": "{{four-actions}} {{same-as-on-trusted}} {{recommended-modes}}"
+    },
+    {
+      "label": "What each mode does.",
+      "items": [
+        {
+          "label": "Tunnel.",
+          "text": "{{tunnel-mode}} Which Z-Tunnel version and transport it uses: [[zcc.z-tunnel.versions]], [[zcc.z-tunnel.transport]]."
+        },
+        {
+          "label": "Tunnel with Local Proxy.",
+          "text": "{{local-proxy-mode}}"
+        },
+        {
+          "label": "Enforce Proxy.",
+          "text": "{{enforce-proxy-mode}}"
+        },
+        {
+          "label": "None.",
+          "text": "{{none-mode}}"
+        }
+      ]
+    },
+    {
+      "label": "None on a trusted network.",
+      "text": "{{trusted-none-skips-zia}} So for a profile whose On-Trusted action is None, the accuracy of the trusted network criteria is what keeps devices in the tunnel off site: [[zcc.trusted-networks.detection]]."
+    },
+    {
+      "label": "The default profile.",
+      "text": "{{default-internet}}"
+    },
+    {
+      "label": "Windows driver.",
+      "text": "{{driver-types}} {{driver-48}}"
+    },
+    {
+      "label": "System proxy settings.",
+      "text": "{{proxy-action-types}} {{proxy-enforce-fixed}} {{pac-url-location}} How these settings interact with the mode chosen for the same network type is open {{gap:system-proxy-vs-action}}."
+    },
+    {
+      "label": "Unreachable domains.",
+      "text": "{{block-unreachable}}"
+    },
+    {
+      "label": "IPv6.",
+      "text": "{{drop-ipv6-dual-stack}} {{drop-ipv6-only}} {{drop-ipv6-include}} {{ipv6-tunneling}} What each drop setting does on the wire, and which field carries it, is partly open {{gap:ipv6-flags}}."
+    },
+    {
+      "label": "Service Edge selection.",
+      "text": "{{dynamic-zia-se}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "The device's network type, then the Internet & SaaS action the active profile sets for that type (including a Same as On-Trusted Network choice).",
+      "uses": [
+        "zcc.forwarding-profiles.network-types:network-type-displayed",
+        "four-actions",
+        "same-as-on-trusted"
+      ]
+    },
+    {
+      "do": "When ZIA saw no traffic from a user: whether the action for the device's network type was None, and whether that network type was On-Trusted because of over-broad criteria.",
+      "uses": [
+        "none-mode",
+        "trusted-none-skips-zia",
+        "zcc.trusted-networks.detection:criteria-overlap"
+      ]
+    },
+    {
+      "do": "For IPv6 traffic that bypassed or broke: the Drop IPv6 settings of the active action, which override other IPv6 settings when enabled.",
+      "uses": [
+        "drop-ipv6-dual-stack",
+        "drop-ipv6-only",
+        "ipv6-flags"
+      ]
+    }
+  ],
+  "claims": {
+    "four-actions": {
+      "statement": "For each network type (On-Trusted, VPN-Trusted, Off-Trusted, Split VPN-Trusted) the profile sets one Internet & SaaS action: Tunnel, Tunnel with Local Proxy, Enforce Proxy or None.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#forwardingProfileActions"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Define how Zscaler Client Connector treats traffic from your users' systems for the Internet & SaaS (ZIA) service for On-Trusted Network, VPN-Trusted Network, Off-Trusted Network, or Split VPN-Trusted Network types.",
+            "To specify how the app treats traffic from your users' systems, select one of the following forwarding profile actions for each network type:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "select one of the following forwarding profile actions for each network type:",
+          "quotes": [
+            "Tunnel with Local Proxy",
+            "Enforce Proxy"
+          ]
+        }
+      ]
+    },
+    "same-as-on-trusted": {
+      "statement": "VPN-Trusted and Off-Trusted can be set to Same as \"On-Trusted Network\" to apply the On-Trusted behavior to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "Forwarding Profile Action for ZIA",
+          "quotes": [
+            "If you want On-Trusted Network behavior to apply to VPN-Trusted Network or Off-Trusted Network, select Same as \"On-Trusted Network\" for either environment."
+          ]
+        }
+      ]
+    },
+    "recommended-modes": {
+      "statement": "Zscaler recommends Tunnel (Packet Filter-Based) on Windows and Tunnel with Local Proxy on macOS, which avoid interoperability issues with VPN clients, and Tunnel with Local Proxy if Tunnel (Packet Filter-Based) causes issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler recommends using Tunnel (Packet Filter-Based) as your forwarding profile action for Windows and using Tunnel with Local Proxy for macOS. With these modes, users don’t encounter interoperability issues if they have VPN clients running alongside Zscaler Client Connector.",
+            "If you experience issues with Tunnel (Packet Filter-Based), Zscaler recommends that you use Tunnel with Local Proxy instead."
+          ]
+        }
+      ]
+    },
+    "tunnel-mode": {
+      "statement": "In Tunnel mode the app tunnels traffic at the network layer, capturing it by setting IP routes on the device, and forwards all port 80/443 traffic to Zscaler through the Zscaler Tunnel (Z-Tunnel).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "In Tunnel mode, the app tunnels traffic at the network layer. It captures user traffic by setting IP routes on user devices. The app forwards all port 80/443 traffic to the Zscaler service through a routing mode tunnel called the Zscaler Tunnel (Z-Tunnel)."
+          ]
+        }
+      ]
+    },
+    "local-proxy-mode": {
+      "statement": "In Tunnel with Local Proxy mode the app sets proxy settings on the device so that all proxy-aware traffic is tunneled to Zscaler, by installing a PAC file that sends all traffic to the local host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "In Tunnel with Local Proxy mode, Zscaler Client Connector sets proxy settings on user devices so that all proxy-aware traffic is tunneled to Zscaler. The app does this by automatically installing a PAC file on the system to force all traffic to go to the local host."
+          ]
+        }
+      ]
+    },
+    "enforce-proxy-mode": {
+      "statement": "In Enforce Proxy mode the app enforces the system proxy settings as specified, without tunneling any traffic, and all applications on the device must comply with them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "In Enforce Proxy mode, Zscaler Client Connector enforces system proxy settings as specified, without tunneling any traffic.",
+            "Zscaler Client Connector enforces system proxy settings, and all applications on the device must comply with these settings."
+          ]
+        }
+      ]
+    },
+    "none-mode": {
+      "statement": "In None mode the app does not tunnel any traffic at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "In None mode, Zscaler Client Connector does not tunnel any traffic at all."
+          ]
+        }
+      ]
+    },
+    "trusted-none-skips-zia": {
+      "statement": "A profile whose On-Trusted action is None sends nothing through the app on any network classified On-Trusted, so a device that matches the trusted network criteria away from the office reaches the internet without the app's tunnel, with no policy change involved.",
+      "tier": "B",
+      "conditions": "Inference from the mode and network-type definitions. Whether that traffic still reaches ZIA depends on the network it is on (for example a site GRE or IPSec tunnel, or an app-set system proxy).",
+      "derived_from": [
+        "none-mode",
+        "zcc.forwarding-profiles.network-types:on-trusted"
+      ]
+    },
+    "default-internet": {
+      "statement": "When no other forwarding profile is configured, Zscaler's default profile uses Tunnel on On-Trusted and Off-Trusted networks and disables System Proxy settings so users cannot bypass the app; on a VPN-Trusted network (full-tunnel VPN running) it does not forward traffic to Zscaler and disables all proxy settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "after": "Default Forwarding Profile Action for Internet & SaaS",
+          "quotes": [
+            "On-Trusted Network: When the user is connected to a trusted network, Zscaler Client Connector uses the Tunnel mode to forward user traffic to Zscaler. It also disables System Proxy settings",
+            "VPN-Trusted Network: When a VPN client on the user's device is running in full-tunnel mode, the app does not forward user traffic to Zscaler. All proxy settings are disabled to ensure users do not send their traffic to a different proxy.",
+            "Off-Trusted Network: When the user is off a trusted network, the app uses the Tunnel mode to forward user traffic to Zscaler."
+          ]
+        }
+      ]
+    },
+    "driver-types": {
+      "statement": "The profile's Tunnel Driver Type applies to Windows devices in Tunnel mode: Route-Based creates a virtual network adapter and uses OS routing; Packet Filter-Based, the default, uses Windows filtering, gives more granular control, reduces interoperability issues with VPN clients and network-managing applications, and is required for packet capture.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Select the Tunnel Driver Type to use when handling traffic for Windows devices when in Tunnel mode:",
+            "Route-Based: Zscaler Client Connector creates a virtual network adapter. The app uses OS routing to forward traffic via this interface to the Zscaler service.",
+            "Packet Filter-Based: Zscaler Client Connector uses Windows filtering to capture and forward traffic to the Zscaler service.",
+            "You must use this driver if you enable packet capture. This is the default value."
+          ]
+        }
+      ]
+    },
+    "driver-48": {
+      "statement": "Client Connector 4.8 and later for Windows does not use the route-based driver: it always uses the packet filter-based driver, whatever the profile says.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.8 and later for Windows does not use the route-based driver. If a Windows device has Zscaler Client Connector version 4.8 or later installed, the app always uses the packet filter-based driver, regardless of this setting."
+          ]
+        }
+      ]
+    },
+    "proxy-action-types": {
+      "statement": "In Tunnel mode the system proxy Proxy Action Type is one of: Enforce (monitor system proxy changes and reapply, so users cannot tamper), Apply on Trusted Network Type Change (apply only when the network type changes), Apply on Any Network Change (apply on any network change, without monitoring afterwards), or Never.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Enforce: If you select this option, Zscaler Client Connector enforces your proxy settings by monitoring system proxy changes and reapplying settings, which ensures that users cannot tamper with their proxy settings.",
+            "Apply on Trusted Network Type Change: If you select this option, Zscaler Client Connector only applies your proxy settings when the network type changes.",
+            "Apply on Any Network Change: If you select this option, Zscaler Client Connector only applies your proxy settings if there is any network change, but does not monitor for proxy changes afterward."
+          ]
+        }
+      ]
+    },
+    "proxy-enforce-fixed": {
+      "statement": "In Tunnel with Local Proxy and Enforce Proxy modes the Proxy Action Type is fixed at Enforce, so the app reapplies its proxy settings on network changes and users cannot tamper with them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "In the Proxy Action Type drop-down menu, the Enforce option is selected by default and cannot be changed.",
+            "Proxy Action Type: The Enforce option is selected by default and cannot be changed."
+          ]
+        }
+      ]
+    },
+    "pac-url-location": {
+      "statement": "A PAC file reaches the profile through the system proxy settings, as PAC URL Location: a PAC URL (at most 512 characters, https:// when Enforce Secure PAC URLs is on) that the app downloads directly, or a registry key on the device that holds the URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "Enforce: If you select this option, Zscaler Client Connector enforces your proxy settings by monitoring system proxy changes",
+          "quotes": [
+            "PAC URL Location: Select this option if you want to use a PAC file to specify automatic proxy settings on users’ devices.",
+            "The maximum number of characters is 512. If Enforce Secure PAC URLs is enabled, you must enter a URL with the https:// prefix (not http://).",
+            "Zscaler Client Connector downloads the PAC file from this URL directly.",
+            "Registry Path: The registry path for Zscaler Client Connector to locate the PAC URL from the device."
+          ]
+        }
+      ]
+    },
+    "block-unreachable": {
+      "statement": "Block Unreachable Domains Traffic drops or bypasses domains that are not reachable from the Internet & SaaS Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "For Block Unreachable Domains Traffic: This option drops or bypasses domains that are not reachable from the Internet & SaaS Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "drop-ipv6-dual-stack": {
+      "statement": "Drop IPv6 in Dual Stack Network makes the app intercept and drop IPv6 packets from a dual-stack network (on Windows only in LWF mode); the vendor says to disable it when using IPv6, because when enabled it takes precedence over all IPv6 settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Enable this option to have Zscaler Client Connector intercept and drop IPv6 packets coming from a dual stack network (IPv4 and IPv6 run simultaneously alongside each other). For Windows platforms, this setting is supported only in LWF mode."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "For Windows platforms, this setting is supported only in LWF mode.",
+          "quotes": [
+            "Disable this option when using IPv6. When this option is enabled, it takes precedence over all IPv6 settings."
+          ]
+        }
+      ]
+    },
+    "drop-ipv6-only": {
+      "statement": "Drop IPv6 in IPv6 Only Network makes the app intercept and drop IPv6 packets from an IPv6-only network, which keeps IPv6-only traffic from bypassing the app when IPv6 is not enabled or IPv6 inclusions are not configured; it too takes precedence over all IPv6 settings when enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Enable this option to have Zscaler Client Connector intercept and drop IPv6 packets coming from an IPv6-only network. This setting prevents IPv6-only traffic from bypassing Zscaler Client Connector if IPv6 is not enabled or if IPv6 inclusions are not configured."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "if IPv6 is not enabled or if IPv6 inclusions are not configured.",
+          "quotes": [
+            "Disable this option when using IPv6. When this option is enabled, it takes precedence over all IPv6 settings."
+          ]
+        }
+      ]
+    },
+    "drop-ipv6-include": {
+      "statement": "Drop IPv6 Include Traffic When not supported, a Z-Tunnel 2.0 setting, drops IPv6 traffic that matches the destination inclusions when IPv6 is not provisioned for the company or the Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Drop IPv6 Include Traffic When not supported: Enable this option to drop IPv6 traffic that matches the destination inclusion if IPv6 is not provisioned for the company or the Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "ipv6-tunneling": {
+      "statement": "Client Connector 4.1 and later for Windows tunnels IPv6 in dual-stack and IPv6-only networks over both Z-Tunnel 1.0 and 2.0; because the infrastructure supports only IPv4, IPv6-only network addresses are converted to IPv4.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.1 and later for Windows supports IPv6 tunneling in dual stack and IPv6-only networks in both Z-Tunnel 1.0 and Z-Tunnel 2.0.",
+            "because the infrastructure supports only IPv4 traffic, IPv6-only network addresses are converted to IPv4."
+          ]
+        }
+      ]
+    },
+    "dynamic-zia-se": {
+      "statement": "Dynamic ZIA Service Edge Assignment, off by default, sets a probe interval (30 to 600 seconds, default 60), a probe sample size (retries before failover, default 5) and a threshold rank (1 to 5) on the change in latency between the primary and secondary Service Edges; past the threshold the app switches between them, and rank 1 switches most aggressively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Dynamic ZIA Service Edge Assignment: Enable this option to configure settings for probe interval, probe sample size, and threshold rank. The default setting is disabled.",
+            "Choose a time between 30 to 600 seconds. The default is 60 seconds."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "Choose a time between 30 to 600 seconds. The default is 60 seconds.",
+          "quotes": [
+            "Probe Sample Size: The number of retries required to establish a connection before a failover. The default is 5 times.",
+            "If the value exceeds the threshold limit, the switch is made from the primary to the secondary Service Edge, or vice versa. Rank 1 is a minimum change, which is the most aggressive for switching from the primary to the secondary Service Edge."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "system-proxy-vs-action": {
+      "kind": "semantic",
+      "title": "How system proxy settings interact with the mode chosen for the same network type",
+      "status": "partial",
+      "former_ids": [
+        "zcc-05"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileActions"
+      ],
+      "detail": "Settled for one combination: the listening-proxy options decide which tunnel web traffic takes ([[zcc.z-tunnel.bypasses:listening-proxy-table]]). Still open: in Tunnel mode, whether a system proxy PAC URL or proxy server configured in the same action routes traffic ahead of the tunnel, and how `systemProxy` relates to the Proxy Action Type. The legacy doc called the order \"not clearly documented; operator-configured-to-taste\".",
+      "blocks": "saying whether a Tunnel-mode device with a system PAC sends web traffic through Z-Tunnel or to the PAC's proxy",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "ipv6-flags": {
+      "kind": "semantic",
+      "title": "Which wire field carries each Drop IPv6 setting, and what each does on an IPv6-only network",
+      "status": "partial",
+      "former_ids": [
+        "zcc-100"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileActions"
+      ],
+      "detail": "The console settings are now described (dual stack, IPv6-only, and include traffic when IPv6 is not provisioned). The action fields `dropIpv6Traffic`, `dropIpv6TrafficInIpv6Network` and `dropIpv6IncludeTrafficInT2` match them by name only, and the runtime effect of each on an IPv6-only network has not been observed. Unverified legacy statement: \"real-tenant defaults may silently drop IPv6\".",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

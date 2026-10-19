@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "zcc.support-options.restart-and-repair",
+  "title": "Restart Service and Repair App for end users",
+  "aliases": [
+    "restart service zcc",
+    "repair app zcc",
+    "enable end user to restart services and repair app",
+    "zcc fail open on restart"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Users can restart or repair Client Connector from its More window if the admin allows it. Both actions briefly change how traffic is handled."
+    },
+    {
+      "label": "The options.",
+      "text": "{{options}} {{enable-setting}} {{repair-reinstalls}}"
+    },
+    {
+      "label": "Effect on enforcement.",
+      "text": "The vendor's article contradicts itself on this, saying both that a restart does not affect enforcement and that a restart or repair fails open briefly: {{restart-enforcement}} {{brief-fail-open}} An app profile can make the restart fail closed instead: [[zcc.app-profiles.advanced-settings:fail-close-lockdown]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a short unfiltered window lines up with a user's restart or repair, and whether the app profile's Lockdown on Tunnel Process Exit was on.",
+      "uses": [
+        "brief-fail-open",
+        "zcc.app-profiles.advanced-settings:fail-close-lockdown"
+      ]
+    }
+  ],
+  "claims": {
+    "options": {
+      "statement": "Users troubleshoot Client Connector with Restart Service or Repair App in its More window; Repair App exists only on Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-restart-and-repair-options-zscaler-client-connector.json",
+          "quotes": [
+            "Users can troubleshoot the app by clicking Restart Service or Repair App from the More window of Zscaler Client Connector.",
+            "The Repair App feature is only available for Windows."
+          ]
+        }
+      ]
+    },
+    "enable-setting": {
+      "statement": "The options are turned on with Enable End User to Restart Services and Repair App on the App Supportability page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-restart-and-repair-options-zscaler-client-connector.json",
+          "quotes": [
+            "Click Enable End User to Restart Services and Repair App."
+          ]
+        }
+      ]
+    },
+    "repair-reinstalls": {
+      "statement": "Repair App tries to repair Client Connector by reinstalling its drivers and services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-restart-and-repair-options-zscaler-client-connector.json",
+          "quotes": [
+            "When users select Repair App, the app attempts to repair itself by reinstalling app drives and services."
+          ]
+        }
+      ]
+    },
+    "restart-enforcement": {
+      "statement": "The vendor says restarting Client Connector does not affect security enforcement; on Android and Android on ChromeOS 3.8 and later, Restart Service can be clicked only once in 30 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-restart-and-repair-options-zscaler-client-connector.json",
+          "quotes": [
+            "Restarting Zscaler Client Connector doesn't impact security enforcement.",
+            "you can click Restart Service only once within a 30-second period for Zscaler Client Connector version 3.8 and later for Android"
+          ]
+        }
+      ]
+    },
+    "brief-fail-open": {
+      "statement": "Restart Service and Repair App make Client Connector fail open briefly; the vendor's advice is to disable access to them where that is not acceptable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-restart-and-repair-options-zscaler-client-connector.json",
+          "quotes": [
+            "Using Restart Service or Repair App causes Zscaler Client Connector to fail-open briefly. Disable access if this is not ideal."
+          ]
+        }
+      ]
+    }
+  }
+}

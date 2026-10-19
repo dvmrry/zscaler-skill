@@ -1,0 +1,234 @@
+{
+  "schema_version": 1,
+  "id": "zcc.devices.exports",
+  "title": "Device CSV exports: inventory, service status and disable reasons",
+  "aliases": [
+    "downloadDevices",
+    "downloadServiceStatus",
+    "downloadDisableReasons",
+    "download_devices",
+    "download_disable_reasons",
+    "registrationTypes",
+    "disable reasons report",
+    "why did users disable zcc",
+    "device csv export"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.devices"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.devices-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The portal and the API both export device data as CSV. The three API exports are limited to 3 calls a day, so a filter that silently fails costs a call: [[zcc.api.rate-limits:hourly-and-daily-limits]]. Whether that allowance is per endpoint or shared is open: [[zcc.api.rate-limits:download-cap-scope]]."
+    },
+    {
+      "label": "What the portal exports.",
+      "text": "{{console-exports}}"
+    },
+    {
+      "label": "API filters.",
+      "text": "{{download-filters}} {{registration-type-codes}} The OS codes are in [[zcc.api.conventions:os-type-codes]]."
+    },
+    {
+      "label": "Allowance.",
+      "text": "The three download endpoints are limited to 3 calls a day: [[zcc.api.rate-limits:hourly-and-daily-limits]]."
+    },
+    {
+      "label": "Disable reasons.",
+      "text": "Users give reasons only when the app profile asks for them: [[zcc.app-profiles.advanced-settings:send-disable-reason]]. {{disable-reasons-call}} {{python-disable-reasons-header}}"
+    },
+    {
+      "label": "Python filter defects.",
+      "text": "{{python-keyword-filters-dropped}} {{python-all-rejected}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Python export call passed `query_params=` as a keyword, which sends no filter, before trusting that the CSV is filtered.",
+      "uses": [
+        "python-keyword-filters-dropped"
+      ]
+    },
+    {
+      "do": "Whether the registration filter meant to include Removed devices, since code 0 excludes them and the Python SDK cannot send it.",
+      "uses": [
+        "registration-type-codes",
+        "python-all-rejected"
+      ]
+    },
+    {
+      "do": "Whether Send Disable Service Reason is on in the relevant app profile before expecting reasons in the export.",
+      "uses": [
+        "zcc.app-profiles.advanced-settings:send-disable-reason"
+      ]
+    },
+    {
+      "do": "How many of the day's 3 download calls are left before retrying an export, counting calls to all three download endpoints until it is known whether the allowance is per endpoint.",
+      "uses": [
+        "zcc.api.rate-limits:hourly-and-daily-limits",
+        "zcc.api.rate-limits:download-cap-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "console-exports": {
+      "statement": "The Device Management page exports device details (all fields or chosen fields), disable reasons (up to the five most recent times each service was disabled), service status (Internet & SaaS, Private Access and ZDX as On, Off or Error) and partner login details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "Device Details (All Fields): Includes fields such as manufacturer, model, username, machine hostname, UDID, etc.",
+            "Disable Reasons: Displays the reasons a service was disabled up to the 5 most recent times the service was disabled.",
+            "Service Status: The status of Internet & SaaS, Private Access, and Digital Experience (ZDX). Can be in an On, Off, or Error state.",
+            "Partner Login Details: Includes partner device fields such as UDID, Platform, Device ID, login name, and cloud."
+          ]
+        }
+      ]
+    },
+    "download-filters": {
+      "statement": "The device and service-status downloads filter by `osTypes` and `registrationTypes`, each a comma-separated list of codes; a null `osTypes` means all OS types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDevices/get/parameters/[name=osTypes]",
+          "expect": {
+            "description": "<p>Filter the list of devices by operating systems. The default value is null, which represents ALL OS types. The following values represent different OS types:</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul><p>A sample API call: https://api-mobile.zscalerbeta.net/papi/public/v1/downloadDevices?osTypes=1,2</p> "
+          }
+        }
+      ]
+    },
+    "registration-type-codes": {
+      "statement": "Registration-type codes are 0 for all states except Removed, 1 Registered, 3 Removal pending, 4 Unregistered, 5 Removed and 6 Quarantined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDevices/get/parameters/[name=registrationTypes]",
+          "expect": {
+            "description": "<p>Filter the list of devices by registration types or states. The following values represent different device states:</p><ul><li>0 - All states except Removed</li><li>1 - Registered</li><li>3 - Removal pending</li><li>4 - Unregistered</li><li>5 - Removed</li><li>6 - Quarantined</li></ul><p>A sample API call:   https://api-mobile.zscalerbeta.net/papi/public/v1/downloadDevices?registrationTypes=1,3</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadServiceStatus/get/parameters/[name=registrationTypes]",
+          "expect": {
+            "description": "<p>Filter the list by registration types or states. The following values represent different device states:</p><ul><li>0 - All states except Removed</li><li>1 - Registered</li><li>3 - Removal pending</li><li>4 - Unregistered</li><li>5 - Removed</li><li>6 - Quarantined</li></ul><p>A sample API call:   https://api-mobile.zscalerbeta.net/papi/public/v1/downloadServiceStatus?registrationTypes=1,3</p>"
+          }
+        }
+      ]
+    },
+    "disable-reasons-call": {
+      "statement": "The disable-reasons download requires `startDate`, takes an optional `endDate` and `osTypes`, and takes the time zone as a `Time-Zone` request header rather than a query parameter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDisableReasons/get/parameters/[name=startDate]",
+          "expect": {
+            "in": "query",
+            "required": true
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDisableReasons/get/parameters/[name=endDate]",
+          "expect": {
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1downloadDisableReasons/get/parameters/[name=Time-Zone]",
+          "expect": {
+            "in": "header",
+            "required": false
+          }
+        }
+      ]
+    },
+    "python-disable-reasons-header": {
+      "statement": "The Python `download_disable_reasons` moves a `time_zone` argument into the `Time-Zone` header and sends the reformatted `startDate` and `endDate` as query parameters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "params = query_params.copy()",
+            "headers[\"Time-Zone\"] = params.pop(\"Time-Zone\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zcc_param_mapper(func):",
+          "quotes": [
+            "mapped_params[\"startDate\"] = validate_and_format_date(start_date)",
+            "mapped_params[\"Time-Zone\"] = validate_time_zone(time_zone)"
+          ]
+        }
+      ]
+    },
+    "python-keyword-filters-dropped": {
+      "statement": "Called with `query_params=` as a keyword, the Python `download_devices` and `download_service_status` send no OS or registration filter: the decorator replaces `os_types` and `registration_types` in that dict with `osTypes` and `registrationTypes`, and the method then builds its request parameters only from `os_types` and `registration_types`. Passed positionally, the dict skips the decorator's mapping and the method translates it itself.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zcc_param_mapper(func):",
+          "quotes": [
+            "query_params = kwargs.get(\"query_params\", {}) or {}",
+            "query_params.pop(key, None)",
+            "query_params.update(mapped_params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def download_devices(self, query_params=None, filename: str = None):",
+          "quotes": [
+            "os_types = query_params.get(\"os_types\")",
+            "params[\"osTypes\"] = \",\".join(os_types_resolved)",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=params, headers={\"Accept\": \"*/*\"})"
+          ]
+        }
+      ]
+    },
+    "python-all-rejected": {
+      "statement": "The Python SDK maps registration type `all` to 0 and then keeps only truthy codes, so `all` is dropped: alone it raises an invalid registration type error, and alongside other types it is silently left out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "\"all\": 0,",
+            "str(zcc_param_map[\"reg_type\"].get(rt.lower())) for rt in raw_reg if zcc_param_map[\"reg_type\"].get(rt.lower())",
+            "raise ValueError(\"Invalid `registration_type(s)` provided.\")"
+          ]
+        }
+      ]
+    }
+  }
+}

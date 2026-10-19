@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "zcc.firefox.integration",
+  "title": "Client Connector's Firefox integration setting",
+  "aliases": [
+    "firefox integration",
+    "enable firefox integration",
+    "firefox use system proxy settings zcc",
+    "firefox bypasses zscaler",
+    "firefox not using zcc proxy",
+    "endpoint integration tab"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.firefox.proxy-and-trust" }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector can set Firefox's proxy configuration for it, through one switch in the Admin Console. {{what-it-does}}"
+    },
+    {
+      "label": "Enabled.",
+      "text": "{{locks-settings}} Which Firefox preferences it writes, and how, is open {{gap:preference-keys}}, and so is whether they survive a Firefox upgrade {{gap:upgrade-persistence}}."
+    },
+    {
+      "label": "Disabled.",
+      "text": "{{disabled-ignores}} {{disabled-manual-proxy}} The certificate consequence is in [[zcc.firefox.proxy-and-trust]]. The enterprise mechanisms for setting Firefox's proxy without Client Connector are open {{gap:external-enforcement}}."
+    },
+    {
+      "label": "Where it is set.",
+      "text": "{{where-configured}} {{tenant-wide}}"
+    },
+    {
+      "label": "Which Firefox.",
+      "text": "{{unsupported-variants}} Linux is not covered {{gap:linux}}. Differences between ESR and the release channel {{gap:release-channel}}, and between Client Connector versions {{gap:version-scope}}, are open too."
+    },
+    {
+      "label": "Why Firefox needs it.",
+      "text": "That Firefox ignores the operating system's proxy unless told otherwise is the premise of the setting, but no source states it {{gap:firefox-default-proxy}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When Firefox traffic bypasses Zscaler while other browsers do not, whether Enable Firefox Integration is selected on the Endpoint Integration tab.",
+      "uses": ["what-it-does", "where-configured"]
+    },
+    {
+      "do": "Whether the Firefox build is a Microsoft Store download or Mozilla Developer Preview, which the integration does not support.",
+      "uses": ["unsupported-variants"]
+    },
+    {
+      "do": "Whether the device is Windows or macOS; the integration is documented for those two only.",
+      "uses": ["what-it-does", "linux"]
+    }
+  ],
+  "claims": {
+    "what-it-does": {
+      "statement": "When Firefox integration is enabled, Client Connector attempts to configure Firefox on macOS and Windows devices to follow Zscaler settings, by enabling Firefox's \"Use system proxy settings\" feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firefox-integration-zscaler-client-connector.json",
+          "quotes": [
+            "If enabled, Zscaler Client Connector attempts to configure Firefox automatically to follow Zscaler settings for macOS and Windows devices by enabling the \"Use system proxy settings\" feature in Firefox."
+          ]
+        }
+      ]
+    },
+    "locks-settings": {
+      "statement": "Enabled, it overrides Firefox's proxy settings and prevents the user from changing them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firefox-integration-zscaler-client-connector.json",
+          "quotes": [
+            "When enabled, Zscaler Client Connector overrides the Firefox proxy settings and prevents the user from changing them."
+          ]
+        }
+      ]
+    },
+    "disabled-ignores": {
+      "statement": "Disabled, Client Connector ignores Firefox and neither overwrites nor creates any Firefox configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firefox-integration-zscaler-client-connector.json",
+          "quotes": [
+            "If disabled, Zscaler Client Connector ignores Firefox and does not overwrite or create any configurations."
+          ]
+        }
+      ]
+    },
+    "disabled-manual-proxy": {
+      "statement": "With the integration disabled, the Zscaler proxy settings have to be added to Firefox's own configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firefox-integration-zscaler-client-connector.json",
+          "quotes": [
+            "If you disable Enable Firefox Integration, ensure to add Zscaler proxy settings to your Firefox configuration."
+          ]
+        }
+      ]
+    },
+    "where-configured": {
+      "statement": "The setting is Enable Firefox Integration on the Endpoint Integration tab under Infrastructure > Advanced Settings > Endpoint Configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firefox-integration-zscaler-client-connector.json",
+          "quotes": [
+            "From the navigation menu, go to Infrastructure > Advanced Settings > Endpoint Configuration.",
+            "On the Endpoint Integration tab, select Enable Firefox Integration."
+          ]
+        }
+      ]
+    },
+    "tenant-wide": {
+      "statement": "It is therefore one tenant-wide setting: it is not part of an app profile, a forwarding profile or the install parameters, and no per-group scope is documented.",
+      "tier": "B",
+      "conditions": "Rests on where the setting is configured and on the absence of any scoping option or install parameter for it in the captured articles.",
+      "derived_from": ["where-configured"]
+    },
+    "unsupported-variants": {
+      "statement": "Firefox integration does not support Mozilla Developer Preview or Firefox downloaded from the Microsoft Store.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firefox-integration-zscaler-client-connector.json",
+          "quotes": [
+            "Firefox integration does not support Mozilla Developer Preview or Firefox downloaded from the Microsoft Store."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "linux": {
+      "kind": "semantic",
+      "title": "Whether Firefox integration applies on Linux",
+      "status": "open",
+      "former_ids": ["zcc-39"],
+      "detail": "The article names only macOS and Windows devices. Unverified legacy statement: the Firefox snap on Ubuntu 22.04 and later runs in a confined sandbox that may not reach the system PAC file or the OS certificate store, so system-proxy inheritance should be validated independently on Linux.",
+      "blocks": "Firefox coverage answers for Linux endpoints",
+      "resolves_with": ["source-read", "lab-test"]
+    },
+    "preference-keys": {
+      "kind": "semantic",
+      "title": "Which Firefox preferences Client Connector writes, and how",
+      "status": "open",
+      "former_ids": ["zcc-41"],
+      "detail": "Whether Client Connector sets network.proxy.type, network.proxy.autoconfig_url or other preferences, and whether it writes a preference file, policies.json or uses another mechanism. The article says only that it enables Use system proxy settings and locks the proxy settings.",
+      "blocks": "verifying the integration on a device, and diagnosing a Firefox that drifted back",
+      "resolves_with": ["lab-test"]
+    },
+    "upgrade-persistence": {
+      "kind": "semantic",
+      "title": "Whether the integration's Firefox settings survive Firefox upgrades",
+      "status": "open",
+      "former_ids": ["zcc-42"],
+      "detail": "Unverified legacy statement: Firefox updates can reset prefs.js to defaults, removing proxy configuration that was not set by an enforced policy, while policies.json-enforced settings survive updates; standard Firefox updates about every four weeks. Whether Client Connector re-applies its settings after a Firefox major-version update is not addressed.",
+      "blocks": "diagnosing Firefox bypassing Zscaler after a browser update",
+      "resolves_with": ["lab-test", "operator-experience"]
+    },
+    "version-scope": {
+      "kind": "semantic",
+      "title": "Whether the integration behaves the same across Client Connector versions",
+      "status": "open",
+      "former_ids": ["zcc-43"],
+      "detail": "The article carries no version notes, so whether specific Client Connector releases changed the integration mechanism is unknown.",
+      "blocks": "version-specific Firefox troubleshooting",
+      "resolves_with": ["source-read", "operator-experience"]
+    },
+    "release-channel": {
+      "kind": "semantic",
+      "title": "Whether Firefox ESR and the release channel behave differently",
+      "status": "open",
+      "detail": "Unverified legacy statement: ESR and standard Firefox are both implicitly covered, share the same policies.json schema and Group Policy template, and version skew between them is unlikely to change integration behavior; if a difference is seen, check for a Microsoft Store build. The article does not distinguish channels.",
+      "blocks": "Firefox coverage answers for mixed ESR and release fleets",
+      "resolves_with": ["lab-test"]
+    },
+    "firefox-default-proxy": {
+      "kind": "semantic",
+      "title": "Whether Firefox follows the operating system proxy by default",
+      "status": "open",
+      "detail": "Unverified legacy statement: Firefox does not follow OS proxy settings by default; it keeps its own proxy store (network.proxy.* in prefs.js) on Windows and macOS, so Client Connector's system proxy does not reach it unless Firefox is set to use system settings or Client Connector overrides its store. No registered source describes Firefox's defaults.",
+      "blocks": "whether an unmanaged Firefox uses the proxy Client Connector sets",
+      "resolves_with": ["source-read", "lab-test"]
+    },
+    "external-enforcement": {
+      "kind": "semantic",
+      "title": "Setting Firefox's proxy without Client Connector",
+      "status": "open",
+      "detail": "Unverified legacy statement: with the integration off, Firefox's proxy can be enforced through policies.json (cross-platform, including a PAC URL), the Firefox ADMX Group Policy template on Windows, or network.proxy.autoconfig_url with network.proxy.type = 2 in Firefox preferences, the least manageable route; with the integration on and Use system proxy settings, Firefox inherits a PAC URL Client Connector set at the OS level. No registered source covers these Firefox mechanisms.",
+      "blocks": "configuring Firefox for tenants that cannot enable the integration",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.business-continuity",
+  "title": "Install parameters for enrolling users during a Private Access or ISP outage",
+  "aliases": [
+    "bcpConfigFilePath",
+    "BCPCONFIGFILEPATH",
+    "bcpMAPublicKeyHash",
+    "BCPMAPUBKEYHASH",
+    "business continuity install parameter",
+    "enroll during zpa outage"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.install" }
+  ],
+  "prose": [
+    {
+      "text": "Two parameters let a fresh installation enroll new users while the Private Access cloud or the ISP is down, from a Business Continuity configuration downloaded in advance."
+    },
+    {
+      "text": "{{windows}} {{macos}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether both the file path and the public key hash are passed, and whether the Client Connector version is new enough for the platform.",
+      "uses": ["windows", "macos"]
+    }
+  ],
+  "claims": {
+    "windows": {
+      "statement": "On Windows from Client Connector 4.6, bcpConfigFilePath (MSI `BCPCONFIGFILEPATH`) passes a predownloaded configuration file with Business Continuity settings, and bcpMAPublicKeyHash (MSI `BCPMAPUBKEYHASH`) passes the public key provided by Private Access for it, so Client Connector can enroll new users during a Private Access-related cloud outage or an ISP outage. Each requires the other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: BCPCONFIGFILEPATHEXE: bcpConfigFilePath",
+          "quotes": [
+            "Allows you to install Zscaler Client Connector to enroll new users during a Private Access-related cloud outage or Internet Service Provider (ISP) outage.",
+            "You can pass a predownloaded configuration file with Business Continuity settings from the Zscaler Admin Console.",
+            "you must also pass the BCPMAPUBKEYHASH or bcpMAPublicKeyHash option.",
+            "This option is available only in Zscaler Client Connector version 4.6 and later for Windows."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: BCPMAPUBKEYHASHEXE: bcpMAPublicKeyHash",
+          "quotes": [
+            "You can pass a public key provided by Private Access and copied from the Zscaler Admin Console.",
+            "you must also pass the BCPCONFIGFILEPATH or bcpConfigFilePath option."
+          ]
+        }
+      ]
+    },
+    "macos": {
+      "statement": "macOS takes the same pair of keys, bcpConfigFilePath and bcpMAPublicKeyHash, each requiring the other, from Client Connector 4.7.0.64.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "after": "| bcpConfigFilePath |",
+          "quotes": [
+            "If you pass this install option, you must also pass the bcpMAPublicKeyHash option.",
+            "This option is available only in Zscaler Client Connector version 4.7.0.64 and later for macOS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "If you pass this install option, you must also pass the bcpConfigFilePath option."
+          ]
+        }
+      ]
+    }
+  }
+}

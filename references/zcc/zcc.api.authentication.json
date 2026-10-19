@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.authentication",
+  "title": "Reaching and signing in to the ZCC API: OneAPI gateway and legacy login",
+  "aliases": [
+    "zcc api authentication",
+    "zcc legacy login",
+    "zcc api key secret key",
+    "zcc jwtToken",
+    "zcc auth-token header",
+    "api-mobile zcc",
+    "zcc api base url",
+    "zcc api not enabled"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZCC API is reached two ways: through the OneAPI gateway with a bearer token, or through the legacy Mobile Admin Portal login with an API key and secret. This subject records where each path lives and how its token is presented."
+    },
+    {
+      "label": "Enabling the API.",
+      "text": "{{api-must-be-enabled}}"
+    },
+    {
+      "label": "OneAPI path.",
+      "text": "{{oneapi-base-url}} {{oneapi-bearer-header}} The OneAPI credential variables and token endpoint are common to the Python SDK: [[zia.sdk-python.authentication:oneapi-env-vars]], [[zia.sdk-python.authentication:vanity-domain-token-url]]. Which roles or scopes an API client needs for ZCC is open {{gap:oneapi-zcc-scopes}}."
+    },
+    {
+      "label": "Legacy login.",
+      "text": "{{legacy-login-request}} {{legacy-token-expiry}} {{legacy-secret-shown-once}}"
+    },
+    {
+      "text": "{{legacy-auth-token-header}} The legacy host differs between the help article and the SDKs {{divergence:legacy-host}}."
+    },
+    {
+      "text": "In the Go SDK's legacy mode, some ZCC calls are sent through the ZIA client: [[zcc.sdk-go.legacy-routing]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the ZCC API has been enabled for the organization before treating a failed first call as a credential problem.",
+      "uses": [
+        "api-must-be-enabled"
+      ]
+    },
+    {
+      "do": "Whether a hand-built legacy call sent the JWT in an `auth-token` header rather than as an Authorization bearer token.",
+      "uses": [
+        "legacy-auth-token-header"
+      ]
+    },
+    {
+      "do": "Which host a legacy script logs in to, against the api-mobile or mobile hostnames the sources give.",
+      "uses": [
+        "legacy-host"
+      ]
+    }
+  ],
+  "claims": {
+    "api-must-be-enabled": {
+      "statement": "Availability of the Zscaler Client Connector API is limited: the organization must have it enabled by contacting Zscaler Support or the account team, and must add an API key, before using it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-zscaler-client-connector-api.json",
+          "quotes": [
+            "Availability of the Zscaler Client Connector API is limited. To enable the API for your organization, contact the Zscaler Account team."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "You must enable the API for your organization. To enable the API, contact Zscaler Support or submit a Zscaler Support ticket.",
+            "Add an API key."
+          ]
+        }
+      ]
+    },
+    "oneapi-base-url": {
+      "statement": "On the OneAPI path the ZCC API is served from the gateway host `https://api.zsapi.net` under `/zcc/papi/public/v1`: the captured contract's server is `https://api.zsapi.net/zcc` with paths under `/papi/public/v1`, and the Python SDK's default base URL is `https://api.zsapi.net` with ZCC endpoints prefixed `/zcc/papi/public/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/servers/[url=https:~1~1api.zsapi.net~1zcc]",
+          "expect": {
+            "description": "Inferred Url"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "BASE_URL = \"https://api.zsapi.net\"  # Default base URL for API calls"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/company.py",
+          "quotes": [
+            "self._zcc_base_endpoint = \"/zcc/papi/public/v1\""
+          ]
+        }
+      ],
+      "conditions": "The Python SDK resolves other gateway hosts for non-production and government clouds; this claim is about the default commercial gateway."
+    },
+    "oneapi-bearer-header": {
+      "statement": "On the OneAPI path the Python SDK sends the OAuth access token as `Authorization: Bearer <token>` on every request that does not go through a legacy client.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/zscsb\" not in endpoint and not self.use_legacy_client:",
+            "headers[\"Authorization\"] = f\"Bearer {self._oauth._get_access_token()}\""
+          ]
+        }
+      ]
+    },
+    "legacy-login-request": {
+      "statement": "The legacy API is signed in to with a POST to `/papi/auth/v1/login` carrying `apiKey` and `secretKey`; the response's `jwtToken` is the token passed on subsequent calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "Send a POST request to the /login endpoint with the following parameters:",
+            "The authorization token is passed onto subsequent calls for authentication."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1auth~1v1~1login/post/responses/200/content/application~1json/schema",
+          "expect": {
+            "title": "PApiLoginResponse"
+          }
+        }
+      ]
+    },
+    "legacy-token-expiry": {
+      "statement": "The legacy authentication token expires after 3600 seconds (one hour) by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "The authentication token expiry time is set to 3600 seconds (one hour) by default."
+          ]
+        }
+      ]
+    },
+    "legacy-secret-shown-once": {
+      "statement": "The client secret of a legacy API key can be copied only in the Client Connector Portal when the key is first created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "The client secret (i.e., secret key) is only accessible within the Zscaler Client Connector Portal when the API key is created for the first time."
+          ]
+        }
+      ]
+    },
+    "legacy-auth-token-header": {
+      "statement": "On the legacy path the JWT is sent in an `auth-token` request header, not as an Authorization bearer token: the help article's example uses `auth-token`, and both SDKs' legacy ZCC clients set that header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-getting-started-client-connector-api.json",
+          "quotes": [
+            "headers = { \"auth-token\":\"{jwtToken}\" }"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "\"auth-token\": f\"{self.auth_token}\","
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/v2_client.go",
+          "quotes": [
+            "req.Header.Set(\"auth-token\", config.ZCC.Client.AuthToken.AccessToken)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "legacy-host": {
+      "summary": "Which host serves the legacy login and API: the help article uses `mobile.<cloudName>.net`, while both SDKs use `api-mobile.<cloud>.net` (Python maps the zscalerten cloud to `mobile6`).",
+      "positions": [
+        {
+          "says": "The help article's sign-in example posts to `https://mobile.<cloudName>.net/papi/auth/v1/login`.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-getting-started-client-connector-api.json",
+            "quotes": [
+              "url = \"https://mobile.<cloudName>.net/papi/auth/v1/login\" payload={\"apiKey\":\"{apiKey}\""
+            ]
+          }
+        },
+        {
+          "says": "The Python legacy client builds `https://api-mobile.<cloud>.net` and logs in at `/papi/auth/v1/login`, except that the zscalerten cloud uses the `mobile6` subdomain.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/zcc/legacy.py",
+            "quotes": [
+              "_DEFAULT_ZCC_SUBDOMAIN = \"api-mobile\"",
+              "\"zscalerten\": \"mobile6\",",
+              "self.login_url = f\"{self.url}/papi/auth/v1/login\""
+            ]
+          }
+        },
+        {
+          "says": "The Go legacy client builds `https://api-mobile.<cloud>.net/papi` and logs in at `/auth/v1/login` under it.",
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/v2_config.go",
+            "quotes": [
+              "rawBaseURL := fmt.Sprintf(\"https://api-mobile.%s.net/papi\", cfg.ZCC.Client.ZCCCloud)"
+            ]
+          }
+        }
+      ],
+      "impact": "A legacy script built from the help article targets a different hostname from the SDKs. Which of `mobile` and `api-mobile` a given cloud answers on, and whether the OneAPI gateway, under which the captured contract lists every operation, accepts the legacy login, is not settled by these sources."
+    }
+  },
+  "gaps": {
+    "oneapi-zcc-scopes": {
+      "kind": "semantic",
+      "title": "What an OneAPI client needs to call the ZCC API",
+      "status": "open",
+      "detail": "Unverified legacy statement: the ZCC portal API requires a tenant admin session, and API client credentials need ZCC scopes (`zcc.*`). No captured source names the ZIdentity role or scopes an API client needs for ZCC endpoints. The contract names a requirement for one endpoint only: `getCompanyInfo` is allowed for a OneAPI caller or a token with admin or read-only admin privileges ([[zcc.api.company-wire:company-read-access]]).",
+      "blocks": "telling a 401 or 403 on a OneAPI ZCC call apart from a missing grant",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

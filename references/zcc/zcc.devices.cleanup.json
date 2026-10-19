@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "zcc.devices.cleanup",
+  "title": "Automated device cleanup: device threshold, inactive removal, permanent deletion",
+  "aliases": [
+    "device cleanup",
+    "autoRemovalDays",
+    "autoPurgeDays",
+    "deviceExceedLimit",
+    "force remove oldest device",
+    "inactive devices removed automatically",
+    "permanently delete removed devices",
+    "zcc_device_cleanup",
+    "getDeviceCleanupInfo",
+    "setDeviceCleanupInfo"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "zcc.devices.lifecycle" },
+    { "rel": "see-also", "to": "zcc.devices" }
+  ],
+  "prose": [
+    {
+      "text": "Three tenant-wide settings remove and delete device records without an admin acting on each one. They change records in the portal only."
+    },
+    {
+      "label": "Device threshold.",
+      "text": "{{threshold}} {{threshold-minimum}}"
+    },
+    {
+      "label": "Inactive removal.",
+      "text": "{{inactive-removal}} Which timestamp marks a device inactive is stated two ways {{divergence:inactivity-timestamp}}."
+    },
+    {
+      "label": "Permanent deletion.",
+      "text": "{{permanent-delete}} {{delete-from-unregistered-and-removed}} The Terraform provider accepts deletion periods the console does not offer {{divergence:purge-period-values}}."
+    },
+    {
+      "label": "Timing.",
+      "text": "{{week-lag}} Cleanup removes records, not the app: [[zcc.devices.lifecycle:removal-not-uninstall]]."
+    },
+    {
+      "label": "API.",
+      "text": "{{api-fields-untyped}} The Terraform provider labels some values, but which API field holds which console setting, and what most force-remove type codes mean, is only partly known {{gap:field-to-setting-mapping}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a device the user did not remove was taken by the threshold (the user enrolled a newer device past it) or by inactivity, from its state history and the cleanup settings.",
+      "uses": ["threshold", "inactive-removal", "zcc.devices.lifecycle:removed-conditions"]
+    },
+    {
+      "do": "Whether a cleanup setting was changed within the last week, since the Enrolled Devices view can lag that long.",
+      "uses": ["week-lag"]
+    },
+    {
+      "do": "Before reading or writing cleanup through the API, which field carries which setting, since the contract does not say.",
+      "uses": ["field-to-setting-mapping"]
+    }
+  ],
+  "claims": {
+    "threshold": {
+      "statement": "Force Remove Oldest Device After User Enrolls sets a threshold number of devices; when a user enrolls a device past it, Client Connector force removes the user's oldest device. The default, Restrict, removes nothing, and an error is shown when a user tries to enroll more than 16 devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-automated-device-cleanup.json",
+          "quotes": [
+            "If a user attempts to enroll a device after reaching the threshold number, Zscaler Client Connector force removes the oldest device.",
+            "The default setting is Restrict, which means no devices are removed. An error is displayed when a user tries to enroll more than 16 devices."
+          ]
+        }
+      ]
+    },
+    "threshold-minimum": {
+      "statement": "Lowering the minimum threshold to one device requires contacting the vendor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-automated-device-cleanup.json",
+          "quotes": [
+            "Contact Zscaler Client Connector to change the minimum threshold to 1 device."
+          ]
+        }
+      ]
+    },
+    "inactive-removal": {
+      "statement": "Automatically Force Remove Inactive Devices After removes a device that has not connected to Internet & SaaS within the chosen period: 30, 60, 90, 120, 150 or 180 days, or Never, which is the default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-automated-device-cleanup.json",
+          "quotes": [
+            "Zscaler Client Connector automatically removes a device if it doesn't connect to Internet & SaaS in the defined period and becomes inactive.",
+            "Select from the following intervals: 30, 60, 90, 120, 150, 180 days, or Never. The default setting is Never."
+          ]
+        }
+      ]
+    },
+    "permanent-delete": {
+      "statement": "Permanently Delete Removed Devices After deletes a device from the admin console after it has been Removed or Unregistered for 60, 90, 120, 150 or 180 days, measured from the device's Last Deregistration Timestamp.",
+      "tier": "A",
+      "binds": ["zcc/devices#deregistrationTimestamp"],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-automated-device-cleanup.json",
+          "quotes": [
+            "Select the period after which a device is permanently removed from the Zscaler Admin Console after being in the Removed or Unregistered state.",
+            "Select from the following intervals: 60, 90, 120, 150, or 180 days.",
+            "Zscaler Client Connector uses the device’s Last Deregistration Timestamp to determine how long the device was in the Removed or Unregistered state"
+          ]
+        }
+      ]
+    },
+    "delete-from-unregistered-and-removed": {
+      "statement": "The device-states table applies the same permanent deletion to devices in the Unregistered state and in the Removed state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "device-states-enrolled-devices.json",
+          "quotes": [
+            "The device is permanently removed from the Zscaler Admin Console when it's been in the Unregistered state for the time configured",
+            "The device is permanently removed from the Zscaler Admin Console when it's been in Removed state for the time configured"
+          ]
+        }
+      ]
+    },
+    "week-lag": {
+      "statement": "After cleanup settings change, Enrolled Devices can take up to a week to reflect it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-automated-device-cleanup.json",
+          "quotes": [
+            "After modifying settings, it can take up to a week for Enrolled Devices to reflect changes."
+          ]
+        }
+      ]
+    },
+    "api-fields-untyped": {
+      "statement": "The API contract for reading and writing cleanup (`getDeviceCleanupInfo`, `setDeviceCleanupInfo`) types every field as a string, including `active`, `autoRemovalDays`, `autoPurgeDays`, `deviceExceedLimit` and `forceRemoveType`, with no descriptions, defaults or allowed values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/autoRemovalDays",
+          "expect": { "type": "string" }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/autoPurgeDays",
+          "expect": { "type": "string" }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/deviceExceedLimit",
+          "expect": { "type": "string" }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/forceRemoveType",
+          "expect": { "type": "string" }
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "inactivity-timestamp": {
+      "summary": "Which timestamp decides that a device is inactive for automatic removal.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-automated-device-cleanup.json",
+            "quotes": ["A device becomes inactive when the most recent KeepAlive Timestamp is older than the defined period."]
+          },
+          "says": "The device's most recent KeepAlive Timestamp."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "device-states-enrolled-devices.json",
+            "quotes": ["An inactive device is based on the Last Seen Connected to ZIA timestamp associated with the Zscaler Client Connector registration."]
+          },
+          "says": "The device's Last Seen Connected to ZIA timestamp."
+        }
+      ],
+      "impact": "A device that keeps sending keepalives but never connects to Internet & SaaS (for example a ZPA-only user) is kept by one reading and removed by the other, so predicting which devices cleanup will take needs the right timestamp."
+    },
+    "purge-period-values": {
+      "summary": "Which permanent-deletion periods can be set.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-automated-device-cleanup.json",
+            "quotes": ["Select from the following intervals: 60, 90, 120, 150, or 180 days."]
+          },
+          "says": "The console offers 60, 90, 120, 150 or 180 days, with no 0, 30 or Never."
+        },
+        {
+          "evidence": {
+            "source": "tf-zcc",
+            "path": "internal/framework/resources/device_cleanup.go",
+            "after": "\"auto_purge_days\": schema.Int64Attribute{",
+            "quotes": ["int64validator.OneOf(0, 30, 60, 90, 120, 150, 180),"]
+          },
+          "says": "The ZCC Terraform provider's `auto_purge_days` also accepts 0 and 30."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+            "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/getDeviceCleanupInfo",
+            "quotes": ["\\ \\\"autoPurgeDays\\\" : \\\"0\\\"\\n}\""]
+          },
+          "says": "A recorded cleanup read from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) carries `autoPurgeDays` \"0\", a value the console does not list."
+        }
+      ],
+      "impact": "A Terraform plan with `auto_purge_days` of 30 passes the provider's validation for a period the console does not offer, so the API may reject it or store a value the console cannot show; and a tenant reading 0 cannot tell from the console what deletion period, if any, is in force."
+    }
+  },
+  "gaps": {
+    "field-to-setting-mapping": {
+      "kind": "semantic",
+      "title": "Which cleanup API field holds which console setting, and their value encodings",
+      "status": "partial",
+      "detail": "Unverified legacy statement: `autoRemovalDays` is the inactive-removal period (0 or null for Never), `autoPurgeDays` the permanent-deletion period, `deviceExceedLimit` the per-user threshold (1 to 16), and `forceRemoveType` an integer enum of the force-remove type with `forceRemoveTypeString` its display form. The contract gives only names and string types and the SDKs carry the fields without describing them, but the ZCC Terraform provider's `zcc_device_cleanup` resource describes and validates them (generated surface): `auto_removal_days` takes 0 (Never), 30, 60, 90, 120, 150 or 180; `auto_purge_days` takes 0, 30, 60, 90, 120, 150 or 180 with no label for 0 (divergence purge-period-values); `force_remove_type` takes 0 (Restrict) or 8 through 16, and the codes 8 to 16 have no labels. A recorded `getDeviceCleanupInfo` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) sends the values as strings: `forceRemoveType` \"0\", `deviceExceedLimit` \"16\", `autoRemovalDays` \"0\", `autoPurgeDays` \"0\". What the force-remove codes 8 to 16 mean, and how `deviceExceedLimit` relates to them, is still open.",
+      "blocks": "reading or writing cleanup settings through the API or Terraform with confidence about what a value means",
+      "resolves_with": ["tenant-data", "support-ticket"],
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/device_cleanup.go",
+          "quotes": [
+            "Force remove type code. Supported values: `0` (Restrict), `8`, `9`, `10`, `11`, `12`, `13`, `14`, `15`, `16`.",
+            "Auto removal period in days. Supported values: `0` (Never), `30`, `60`, `90`, `120`, `150`, `180`.",
+            "Auto purge period in days. Supported values: `0`, `30`, `60`, `90`, `120`, `150`, `180`."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+          "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/getDeviceCleanupInfo",
+          "quotes": [
+            ": \\\"0\\\",\\n  \\\"deviceExceedLimit\\\" : \\\"16\\\",\\n  \\\"autoRemovalDays\\\" : \\\"0\\\",\\n",
+            "\\ \\\"autoPurgeDays\\\" : \\\"0\\\"\\n}\""
+          ]
+        }
+      ]
+    }
+  }
+}

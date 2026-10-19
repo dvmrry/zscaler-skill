@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.windows-driver",
+  "title": "Windows filter driver install parameters (LWF)",
+  "aliases": [
+    "useLWFDriver",
+    "USELWFDRIVER",
+    "LWFBootStart",
+    "LWFBOOTSTART",
+    "installLWFDriver",
+    "INSTALLLWFDRIVER",
+    "reinstallDriver",
+    "REINSTALLDRIVER",
+    "lightweight filter driver",
+    "tunnel driver type ignored"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install.precedence"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.machine-tunnels.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Four Windows parameters install, enable, start and repair Client Connector's filter driver."
+    },
+    {
+      "text": "{{driver-switches}}"
+    },
+    {
+      "label": "Install-time choice beats the console.",
+      "text": "{{uselwf-overrides}} From 4.8, Client Connector for Windows always uses the packet filter-based driver whatever the profile says: [[zcc.forwarding-profiles.internet-actions:driver-48]]. Whether the forwarding profile's own driver setting then has any effect, and how the choice is undone, is open {{gap:override-reversal}}. The forwarding profile side is described in [[zcc.forwarding-profiles.internet-actions]]."
+    },
+    {
+      "label": "Open points.",
+      "text": "Whether boot start is what a machine tunnel needs at the Windows login screen is open {{gap:boot-start-purpose}}. Whether installLWFDriver installs the driver without turning it on is open {{gap:install-versus-enable}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "When the Tunnel Driver Type set in a forwarding profile seems ignored on Windows, whether the device was installed with useLWFDriver.",
+      "uses": [
+        "uselwf-overrides",
+        "override-reversal"
+      ]
+    }
+  ],
+  "claims": {
+    "driver-switches": {
+      "statement": "LWFBootStart (MSI `LWFBOOTSTART`) sets the Zscaler Lightweight Filter (LWF) driver's start type to Boot; useLWFDriver (MSI `USELWFDRIVER`) enables the packet filter-based driver; installLWFDriver (MSI `INSTALLLWFDRIVER`) installs a high-performance NDIS 6-based LWF driver; reinstallDriver (MSI `REINSTALLDRIVER`) forces the driver to be reinstalled even when one is installed, for problems with the current driver. All four default to disabled.",
+      "tier": "A",      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Sets the Zscaler Lightweight Filter (LWF) Driver start type to Boot.",
+            "Enables the packet filter-based filter driver.",
+            "Installs a high-performance Network Driver Interface Specification (NDIS) 6-based LWF driver.",
+            "Forces a reinstallation of the driver, even if you already have a driver installed. Use this option if you're having issues with your current driver."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: REINSTALLDRIVEREXE: reinstallDriver",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: LWFBOOTSTARTEXE: LWFBootStart",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: USELWFDRIVEREXE: useLWFDriver",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: INSTALLLWFDRIVEREXE: installLWFDriver",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        }
+      ]
+    },
+    "uselwf-overrides": {
+      "statement": "useLWFDriver overrides the Tunnel Driver Type selected in forwarding profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "This install option overrides the Tunnel Driver Type selection in forwarding profiles."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "override-reversal": {
+      "kind": "semantic",
+      "title": "How the useLWFDriver override behaves and is undone",
+      "status": "open",
+      "detail": "Unverified legacy statement: With USELWFDRIVER=1 the admin console Tunnel Driver Type setting is silently ignored, reversing it requires reinstall, and the forwarding profile's enableLWFDriver field controls the same behavior at runtime only for profiles not locked by the install parameter. The parameters page states the override and nothing else. On Client Connector 4.8 and later for Windows the question is largely moot: the app always uses the packet filter-based driver whatever the profile says (claim zcc.forwarding-profiles.internet-actions:driver-48), so the override matters only on earlier releases.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.8 and later for Windows does not use the route-based driver. If a Windows device has Zscaler Client Connector version 4.8 or later installed, the app always uses the packet filter-based driver, regardless of this setting."
+          ]
+        }
+      ],
+      "blocks": "advice on moving a fleet installed with useLWFDriver to a different driver",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "boot-start-purpose": {
+      "kind": "semantic",
+      "title": "Whether LWF boot start is required for machine tunnels",
+      "status": "open",
+      "detail": "Unverified legacy statement: LWFBOOTSTART=1 is required for machine tunnel scenarios where ZPA connectivity must exist before the user session starts (for example reaching an AD domain controller over ZPA during Windows login); without it the LWF driver loads after the user session starts. Neither the parameters page nor the machine tunnel article ties the two together.",
+      "blocks": "machine tunnel troubleshooting on devices using the LWF driver",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "install-versus-enable": {
+      "kind": "semantic",
+      "title": "Whether installLWFDriver installs the driver without activating it",
+      "status": "open",
+      "detail": "Unverified legacy statement: INSTALLLWFDRIVER installs the NDIS 6 LWF driver binary without activating it, separately from USELWFDRIVER, which enables it. The parameters page describes each switch on its own and says nothing about how they combine.",
+      "blocks": "which LWF switches a deployment needs",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

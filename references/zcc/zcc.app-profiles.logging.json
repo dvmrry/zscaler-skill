@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles.logging",
+  "title": "App profile log mode and log file size",
+  "aliases": [
+    "zcc log mode",
+    "zcc log level",
+    "logMode",
+    "logLevel",
+    "log file size zcc",
+    "make zcc logs verbose",
+    "zcc debug logging"
+  ],
+  "binds": [
+    "zcc/application-profiles#logMode",
+    "zcc/application-profiles#logLevel",
+    "zcc/application-profiles#logFileSize"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.log-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.user-access"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-follows-global}} {{log-mode-ladder}}"
+    },
+    {
+      "label": "Size.",
+      "text": "{{log-file-size}}"
+    },
+    {
+      "label": "In the API.",
+      "text": "The API fields `logMode` and `logLevel`, their codes and what is still open about them are in [[zcc.logging.log-modes]]."
+    },
+    {
+      "text": "Whether users can change the log mode, export or clear logs is set on the App Supportability page: [[zcc.logging.user-access]]. What the app may collect and who may read the log folder is [[zcc.web-privacy.collection]]."
+    }
+  ],
+  "claims": {
+    "default-follows-global": {
+      "statement": "A profile's log mode defaults to the global log mode configured in Platform Settings, and can be overridden for that profile only.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#logMode"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Default (Current: <log mode>): Displays the default global log mode configured in Platform Settings. You can override this setting, for the current profile only, by selecting a different option from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "log-mode-ladder": {
+      "statement": "The modes are cumulative: Error logs only errors that affect functionality, Warn adds potential issues, Info adds general activity, and Debug logs all activity that could help Zscaler Support.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#logMode"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Error: Zscaler Client Connector logs only when the app encounters an error and functionality is affected.",
+            "Warn: Zscaler Client Connector logs when the app is functioning but is encountering potential issues, or when conditions for the Error log mode are met.",
+            "Info: Zscaler Client Connector logs general app activity, or when conditions for the Warn log mode are met.",
+            "Debug: Zscaler Client Connector logs all app activity that could assist Zscaler Support in debugging issues, or when conditions for the Info log mode are met."
+          ]
+        }
+      ]
+    },
+    "log-file-size": {
+      "statement": "Log file size is 50 to 1000 MB (50 to 500 on Android), 100 MB per log type by default; at the limit the oldest logs are truncated.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#logFileSize"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Enter a value between 50 and 1000 to specify the maximum size of the log file. The default log file size is 100 MB per log type.",
+            "When logs reach the maximum file size, the oldest logs are truncated from the file to keep the file size below the maximum."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Enter a value between 50 and 500 to specify the maximum size of the log file."
+          ]
+        }
+      ]
+    }
+  }
+}

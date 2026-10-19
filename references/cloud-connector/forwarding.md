@@ -235,4 +235,4 @@ Source: `vendor/zscaler-help/cbc-configuring-traffic-forwarding-rule.json`; `ven
 - API / Terraform surface — [`./api.md`](./api.md)
 - ZIA URL Filter (adjacent first-match-wins rule pattern) — [`zia.url-filtering`](kb:zia.url-filtering)
 - ZPA Application Segments (destination model for ZPA-forwarded traffic) — [`zpa.app-segments`](kb:zpa.app-segments)
-- ZCC forwarding profile (endpoint-side parallel) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- ZCC forwarding profile (endpoint-side parallel) — [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)

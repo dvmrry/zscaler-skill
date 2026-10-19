@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "id": "zcc.forwarding-profiles.assignment",
+  "title": "Which forwarding profile a device uses, and when a change reaches it",
+  "aliases": [
+    "which forwarding profile does this user have",
+    "forwarding profile assignment",
+    "forwardingProfileId",
+    "default forwarding profile",
+    "forwarding profile change not applied",
+    "app profile forwarding profile",
+    "assign forwarding profile to users",
+    "which forwarding profile does a user get",
+    "zia posture profile app profile"
+  ],
+  "binds": [
+    "zcc/application-profiles#forwardingProfileId",
+    "zcc/application-profiles#onNetPolicy",
+    "zcc/forwarding-profiles#id"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.forwarding-profile-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.propagation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A forwarding profile does nothing until an app profile selects it."
+    },
+    {
+      "label": "Selected by the app profile.",
+      "text": "{{app-profile-selects}} {{per-location-profiles}} {{one-profile-per-device}} {{one-forwarding-profile}} How app profiles are ordered and matched to users is in [[zcc.app-profiles.selection]]."
+    },
+    {
+      "label": "Z-Tunnel 2.0.",
+      "text": "{{z-tunnel-2-profile}}"
+    },
+    {
+      "label": "The default.",
+      "text": "{{default-profile}} Its actions are in [[zcc.forwarding-profiles.internet-actions:default-internet]] and [[zcc.forwarding-profiles.private-access-actions:default-private-access]]."
+    },
+    {
+      "label": "When a change arrives.",
+      "text": "The device downloads its app profile, and with it the forwarding profile choice, at log-in or restart: [[zcc.app-profiles.propagation:download-on-relogin]]."
+    },
+    {
+      "label": "Deleted profiles.",
+      "text": "Whether a profile still selected by an app profile can be deleted is open {{gap:delete-in-use}}, and so is what a device does when its app profile references a deleted forwarding profile {{gap:orphan-reference}}."
+    },
+    {
+      "label": "In API data.",
+      "text": "The app profile carries the choice as `forwardingProfileId`: [[zcc.api.web-policy-wire:join-field]]. The listing embeds the profile as `onNetPolicy` instead [[zcc.api.web-policy-wire:onnetpolicy-embedded]], and whether it also returns the ID is open [[zcc.api.web-policy-wire:join-on-read]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which app profile the user's device downloaded, and the forwarding profile it selects.",
+      "uses": [
+        "app-profile-selects",
+        "one-profile-per-device",
+        "one-forwarding-profile"
+      ]
+    },
+    {
+      "do": "Whether a forwarding profile with the selected ID still exists.",
+      "uses": [
+        "orphan-reference"
+      ]
+    },
+    {
+      "do": "For Z-Tunnel 2.0, that the chosen forwarding profile has Z-Tunnel 2.0 selected.",
+      "uses": [
+        "z-tunnel-2-profile"
+      ]
+    },
+    {
+      "do": "After a forwarding profile change, whether the user has logged out and back in or restarted since; until then the device keeps the old settings.",
+      "uses": [
+        "zcc.app-profiles.propagation:download-on-relogin"
+      ]
+    },
+    {
+      "do": "In tenant data, join app profiles to forwarding profiles on `forwardingProfileId` where present, otherwise on the embedded `onNetPolicy`.",
+      "uses": [
+        "zcc.api.web-policy-wire:join-field",
+        "zcc.api.web-policy-wire:onnetpolicy-embedded",
+        "zcc.api.web-policy-wire:join-on-read"
+      ]
+    }
+  ],
+  "claims": {
+    "app-profile-selects": {
+      "statement": "An app profile selects the forwarding profile for Internet & SaaS and Private Access; forwarding profiles are configured first and then chosen when configuring app profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Select the forwarding profile for Internet & SaaS and Private Access services."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "You can configure as many forwarding profiles as you need, and then select the appropriate one when configuring your app profiles."
+          ]
+        }
+      ]
+    },
+    "per-location-profiles": {
+      "statement": "Several forwarding profiles let different users recognize different networks, for example for locations with different network information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "For example, if you have multiple locations with different network information, you can configure different forwarding profiles so that the app can recognize the correct network for different users and know how to respond upon detecting those networks."
+          ]
+        }
+      ]
+    },
+    "one-profile-per-device": {
+      "statement": "A device therefore runs the forwarding profile of the one app profile it downloaded, which the app picks by rule precedence and the user's identity at enrollment.",
+      "tier": "B",
+      "conditions": "Follows from one app profile being downloaded per user and each app profile selecting one forwarding profile; no source states \"one forwarding profile per device\" directly.",
+      "derived_from": [
+        "app-profile-selects"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "the app uses the order of precedence and identity of the user to download an app profile with the appropriate policy rule."
+          ]
+        }
+      ]
+    },
+    "default-profile": {
+      "statement": "If no other forwarding profile is configured, Zscaler applies a default forwarding profile automatically; it is always the last profile in the Forwarding Profile table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "If you don't configure additional forwarding profiles, Zscaler provides a default forwarding profile that is applied automatically. It is always the last forwarding profile in the table on the Forwarding Profile page."
+          ]
+        }
+      ]
+    },
+    "one-forwarding-profile": {
+      "statement": "So each rule points at exactly one forwarding profile, and changing it changes the forwarding of every device that downloads that rule, from its next download.",
+      "tier": "B",
+      "conditions": "Derived from the single-valued field and the download timing; no source states it in one place.",
+      "derived_from": [
+        "app-profile-selects",
+        "zcc.api.web-policy-wire:join-field",
+        "zcc.app-profiles.propagation:download-on-relogin"
+      ]
+    },
+    "z-tunnel-2-profile": {
+      "statement": "To use Z-Tunnel 2.0, the rule must select a forwarding profile with Z-Tunnel 2.0 selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "If you're using Zscaler Tunnel (Z-Tunnel) 2.0, you must choose a forwarding profile with Z-Tunnel 2.0 selected."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "delete-in-use": {
+      "kind": "semantic",
+      "title": "Whether a forwarding profile selected by an app profile can be deleted",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"A profile that is referenced by an active App Profile cannot be deleted without first updating the App Profile to reference a different profile.\" No captured source states the rule or the API's response.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "orphan-reference": {
+      "kind": "semantic",
+      "title": "What a device does when the app profile references a deleted forwarding profile",
+      "status": "open",
+      "former_ids": [
+        "zcc-97"
+      ],
+      "detail": "Unverified legacy statement: \"A Web Policy can reference a Forwarding Profile ID that does not exist — the relationship is FK-shaped but not enforced at write time\", and such a policy \"will fail silently or fall back to a default, depending on ZCC's resolution logic.\" Neither the write-time check nor the enforcement behavior is documented.",
+      "blocks": "diagnosing a device whose forwarding does not match any forwarding profile",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

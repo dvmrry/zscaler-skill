@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "id": "zcc.web-privacy.collection",
+  "title": "What each User Privacy setting collects or allows",
+  "aliases": [
+    "collect machine hostname",
+    "collectMachineHostname",
+    "collect device owner information",
+    "collectUserInfo",
+    "disable automatic crash reporting",
+    "disableCrashlytics",
+    "restrict remote packet capture",
+    "enable local packet capture",
+    "collect location info for zdx",
+    "collectZdxLocation",
+    "enforce secure pac urls",
+    "allow access to client connector logs folder",
+    "auto system info and log fetch",
+    "override z-tunnel 2.0 protocol settings",
+    "overrideT2ProtocolSetting"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.web-privacy"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.entitlements.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.user-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-privacy-wire"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Identity on the device record.",
+      "text": "{{hostname}} {{device-owner}} Whether these switches also change what appears in Internet & SaaS or Private Access logs is open {{gap:cloud-log-effect}}."
+    },
+    {
+      "label": "Packet capture.",
+      "text": "{{packet-capture}} {{restrict-remote-capture}}"
+    },
+    {
+      "label": "Crash reports.",
+      "text": "{{crash-reports}} Which platforms upload, and where reports go, is open {{gap:crash-report-scope}}."
+    },
+    {
+      "label": "ZDX location.",
+      "text": "{{zdx-location}} How it combines with the entitlement's own location flag is open in [[zcc.entitlements.zdx]]."
+    },
+    {
+      "label": "Logs and support data.",
+      "text": "{{non-admin-log-folder}} {{auto-log-fetch}}"
+    },
+    {
+      "label": "Protocol override.",
+      "text": "{{protocol-override}}"
+    },
+    {
+      "label": "PAC and VPN bypass.",
+      "text": "{{secure-pac}} {{fqdn-subdomains}}"
+    },
+    {
+      "label": "API names.",
+      "text": "{{api-key-map}} The keys without a clear console counterpart are open {{gap:unmapped-keys}}, and so are the legacy roles given to `exportLogsForNonAdmin` and the other log and capture keys {{gap:privacy-field-meanings}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a missing hostname or owner on a device record, whether the matching User Privacy switch is on, and for iOS 16 or later that the full hostname is no longer collected.",
+      "uses": [
+        "hostname",
+        "device-owner"
+      ]
+    },
+    {
+      "do": "For a packet capture option that does not appear, whether it was enabled less than two hours ago and whether the user clicked Update Policy, and whether an app profile setting overrides it.",
+      "uses": [
+        "packet-capture"
+      ]
+    },
+    {
+      "do": "For a privacy review, the User Privacy settings for non-admin log-folder access and packet capture, and the unsourced exportLogsForNonAdmin.",
+      "uses": [
+        "non-admin-log-folder",
+        "restrict-remote-capture",
+        "privacy-field-meanings"
+      ]
+    }
+  ],
+  "claims": {
+    "hostname": {
+      "statement": "With Collect Machine Hostname Information on, the app collects the hostname of supported devices into the Admin Console database, where it shows as the device's Machine Hostname and is included in the device fingerprint CSV export; on iOS 16 and later the full hostname is no longer collected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-collect-hostnames.json",
+          "quotes": [
+            "You can enable Zscaler Client Connector to collect the hostname information from supported devices and store it in the Zscaler Admin Console database.",
+            "This information is included in the CSV file when you export device fingerprint for the enrolled devices.",
+            "Zscaler Client Connector no longer collects the full machine hostname on devices running iOS 16 and later.",
+            "For any enrolled device, view the Machine Hostname field."
+          ]
+        }
+      ]
+    },
+    "device-owner": {
+      "statement": "With Collect Device Owner Information on, the default, the app collects the device owner name into the Admin Console database, shown as the Owner in the device fingerprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-collect-device-owner-information.json",
+          "quotes": [
+            "Zscaler Client Connector collects the device owner name from supported devices and stores it in the Zscaler Admin Console database.",
+            "This setting is enabled by default.",
+            "view the device fingerprint and locate the Owner field."
+          ]
+        }
+      ]
+    },
+    "packet-capture": {
+      "statement": "Enable Local Packet Capture adds a Start Packet Capture option to the app, installing Npcap if needed; capture files are stored with the app's logs and included in Export Logs, not in Report an Issue. The option can take up to two hours to appear, or appears after Update Policy, and on Windows 4.8 and later an app profile setting overrides it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enabling-packet-capture-zscaler-client-connector.json",
+          "quotes": [
+            "When enabled, users can run a packet capture to generate packet capture files that are stored with Zscaler Client Connector logs.",
+            "Enabling packet capture automatically installs Npcap if it is not already installed.",
+            "it can take up to two hours for this feature to appear in Zscaler Client Connector. Click Update Policy from the More window to manually refresh your policies.",
+            "If you use Zscaler Client Connector version 4.8 and later for Windows, you can configure access to local packet capture on the app profile. Packet capture access that is enabled on the app profile overrides this setting.",
+            "However, these files are not exported to the archive that is generated when using the Report an Issue option from Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "crash-reports": {
+      "statement": "The Android app uploads crash reports automatically, and they might contain user-identifiable information; Disable Automatic Crash Reporting stops the uploads, though Zscaler recommends leaving reporting on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-automatic-crash-reporting-zscaler-client-connector.json",
+          "quotes": [
+            "For the Android version of Zscaler Client Connector, the app automatically uploads crash reports, which might contain user-identifiable information.",
+            "Select the Disable Automatic Crash Reporting option to stop Zscaler Client Connector from uploading crash reports.",
+            "Zscaler recommends that you enable this feature, because the crash reports provide crucial information for resolving unexpected issues."
+          ]
+        }
+      ]
+    },
+    "zdx-location": {
+      "statement": "Collect Location Info for ZDX lets the app collect geolocation from ZDX-enabled devices; it works in conjunction with the ZDX service entitlement, is on by default, and is available only when ZDX is enabled for the company or selected groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-collect-zdx-location-information.json",
+          "quotes": [
+            "This setting works in conjunction with the ZDX settings in Zscaler Service Entitlement and is enabled by default.",
+            "You can access this feature only if ZDX has been enabled for the company or for select groups in Zscaler Service Entitlement."
+          ]
+        }
+      ]
+    },
+    "auto-log-fetch": {
+      "statement": "Enable Auto System Info and Log Fetch, off by default, lets Zscaler retrieve the app's log bundles into cloud storage that only Zscaler Support can access; the data includes personally identifiable information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enabling-auto-system-info-and-log-fetch.json",
+          "quotes": [
+            "When enabled, Zscaler Client Connector collects the information and holds it in secure cloud storage where only Zscaler Support can access it. This feature is disabled by default.",
+            "The information collected includes personally identifiable information (PII)."
+          ]
+        }
+      ]
+    },
+    "protocol-override": {
+      "statement": "Allow end user to override Z-Tunnel 2.0 or ZPA protocol settings, off by default, lets users change PAC, protocol (DTLS or TLS), MTU, debug logging and related settings at a local page, `http://localhost:9000/zconfig`; overrides last until the next keepalive or until the user logs out and back in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "allowing-users-override-z-tunnel-2-0-or-private-access-protocol-settings.json",
+          "quotes": [
+            "is disabled by default, to prevent end users from changing the default parameters for Zscaler Tunnel (Z-Tunnel) 2.0 or Private Access (ZPA) protocol settings.",
+            "Override settings are applied per session and continue until the next keepalive is sent, or the user logs out and then logs back in again.",
+            "In your browser, enter http://localhost:9000/zconfig and browse to the website.",
+            "PROTOCOL: Select Default, DTLS, or TLS."
+          ]
+        }
+      ]
+    },
+    "secure-pac": {
+      "statement": "Enforce Secure PAC URLs, enabled through Zscaler Support, allows only https:// custom PAC URLs on app profiles and forwarding profiles; on Windows 4.8 and later it also stops the app falling back to HTTP when downloading the default PAC file over HTTPS fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "enforcing-secure-pac-urls.json",
+          "quotes": [
+            "When enabled, administrators can only enter URLs with the https:// prefix (not http://) in the Custom PAC URL field on an app profile and a forwarding profile.",
+            "this feature also prevents Zscaler Client Connector from falling back to the HTTP protocol if downloading the default PAC file via HTTPS fails.",
+            "Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "fqdn-subdomains": {
+      "statement": "By default the app bypasses subdomains of FQDNs listed in VPN Gateway Bypass, for Z-Tunnel 1.0 and Tunnel with Local Proxy; a User Privacy option, enabled through Zscaler Support on specific versions, turns that off.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "bypassing-fqdn-subdomains-vpn-gateway-bypass.json",
+          "quotes": [
+            "Zscaler Client Connector bypasses the subdomains for Zscaler Tunnel (Z-Tunnel) 1.0 and Tunnel with Local Proxy by default unless you enable this option.",
+            "This feature applies only to the following Zscaler Client Connector versions:",
+            "Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "api-key-map": {
+      "statement": "The API keys that match these settings by name are `collectMachineHostname`, `collectZdxLocation`, `disableCrashlytics` (Disable Automatic Crash Reporting), `enablePacketCapture`, `restrictRemotePacketCapture`, `grantAccessToZscalerLogFolder`, `overrideT2ProtocolSetting` and `enforceSecurePacUrls`, which is absent from the API document and the Python model and present in the Go SDK and the Terraform provider.",
+      "tier": "B",
+      "conditions": "The mapping of API keys to console settings is by name; no source states it. Restated (verifier w2 E7): enforceSecurePacUrls is not Go-only, the Terraform provider exposes it too; its absence from the API document is pinned, and the Python zcc package was searched for it.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get/responses/200/content/application~1json/schema/properties",
+          "expect": {
+            "collectMachineHostname": {
+              "type": "string"
+            },
+            "disableCrashlytics": {
+              "type": "string"
+            },
+            "overrideT2ProtocolSetting": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_privacy/web_privacy.go",
+          "quotes": [
+            "EnforceSecurePacUrls          string `json:\"enforceSecurePacUrls\"`"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/web_privacy.go",
+          "quotes": [
+            "\"enforce_secure_pac_urls\":            webPrivacyBoolAttr(\"Whether secure PAC URLs are enforced.\"),"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get/responses/200/content/application~1json/schema/properties",
+          "expect_absent": [
+            "enforceSecurePacUrls"
+          ]
+        }
+      ]
+    },
+    "non-admin-log-folder": {
+      "statement": "Allow access to Client Connector logs folder for non administrators, on the User Privacy page, lets users without administrator privileges open the Zscaler program data folder and send individual log files instead of the whole folder as a ZIP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "allowing-non-administrators-access-client-connector-log-files.json",
+          "quotes": [
+            "This allows non-administrator users to send specific log files to admins instead of having to send the entire log folder in a ZIP file",
+            "To allow non-admin users access to the Zscaler program data folder to access log files:"
+          ]
+        }
+      ]
+    },
+    "restrict-remote-capture": {
+      "statement": "Restrict Remote Packet Capture limits packet capture to administrators: with Npcap installed (by packet capture or by ZDX), non-administrators could otherwise use capture tools from user space, which can elevate their access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "restricting-remote-packet-capture.json",
+          "quotes": [
+            "they can make packet capture tools available in the user space, allowing non-administrators to perform packet capture.",
+            "You can limit packet capture to administrators only by enabling Restrict Remote Packet Capture.",
+            "Enabling Digital Experience (ZDX) installs Npcap."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cloud-log-effect": {
+      "kind": "semantic",
+      "title": "Whether the hostname and owner switches change cloud log content",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"collect_machine_hostname — when false, hostnames are redacted from NSS/LSS fields and the ZCC portal device inventory\"; \"collect_user_info — when true, ZCC reports the OS-level logged-in username to the cloud. When false, logs show device-level identity (UDID) without the OS username\"; this is \"the first flag to check when a tenant reports 'our Zscaler logs don't show usernames'\"; and \"changes affect future logs only; historical NSS/LSS data is not backfilled.\" The help describes collection into the Admin Console database and the device record only.",
+      "blocks": "answers to why user names or hostnames are missing from logs",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "crash-report-scope": {
+      "kind": "semantic",
+      "title": "Which platforms upload crash reports, and to where",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"disable_crashlytics — when true, disables Google Crashlytics crash reporting on mobile ZCC builds (iOS, Android). When false, crash telemetry leaves ZCC toward Google infrastructure\", and that false is the default. The help names Android only and does not name the destination or the default.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "unmapped-keys": {
+      "kind": "semantic",
+      "title": "Console counterparts of collectUserInfo, enableAutoLogSnippet and enableFQDNMatchForVpnBypasses",
+      "status": "open",
+      "former_ids": [
+        "zcc-59"
+      ],
+      "detail": "Unverified legacy statement: \"enableAutoLogSnippet — auto-collect log snippets\"; \"enableFQDNMatchForVpnBypasses — FQDN-based matching for VPN gateway bypasses (vs IP-based)\". The User Privacy page lists Collect Device Owner Information, Enable Auto System Info and Log Fetch, and the subdomain bypass option, which may be some of these; no source says which. The Terraform provider's resource documentation glosses the keys, as the provider author's reading rather than a console mapping: collect_user_info \"Whether ZCC may collect end-user information (login name, group memberships)\", enable_auto_log_snippet \"Enable automatic capture of relevant log snippets when an issue is detected\", enable_fqdn_match_for_vpn_bypasses \"Enable FQDN matching for VPN bypass rules (as opposed to IP-only matching)\". exportLogsForNonAdmin is in privacy-field-meanings. Former zcc-59 noted that the Python SDK's `set_web_privacy_info` accepts `enable_auto_log_snippet` although the `WebPrivacy` model has no such field, and asked what the setting does.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_web_privacy.md",
+          "quotes": [
+            "`collect_user_info` (Boolean) — Whether ZCC may collect end-user information (login name, group memberships).",
+            "`enable_auto_log_snippet` (Boolean) — Enable automatic capture of relevant log snippets when an issue is detected.",
+            "`enable_fqdn_match_for_vpn_bypasses` (Boolean) — Enable FQDN matching for VPN bypass rules (as opposed to IP-only matching)."
+          ]
+        }
+      ],
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "privacy-field-meanings": {
+      "kind": "semantic",
+      "title": "What exportLogsForNonAdmin does",
+      "status": "open",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_web_privacy.md",
+          "quotes": [
+            "`export_logs_for_non_admin` (Boolean) — Allow non-admin users to export Client Connector logs."
+          ]
+        }
+      ],
+      "detail": "The privacy API carries exportLogsForNonAdmin without a description, and no captured User Privacy option matches it. The Terraform provider's resource documentation glosses export_logs_for_non_admin as \"Allow non-admin users to export Client Connector logs\", the provider author's reading rather than a console mapping. Unverified legacy statements: exportLogsForNonAdmin decides \"whether non-admin local OS users can export ZCC's local log bundle\" (and, when false, \"only local admins/root can export\"); grantAccessToZscalerLogFolder \"whether the Zscaler log folder on the endpoint is readable by standard local OS users. Off means only admin or root can access the directory directly\"; enablePacketCapture \"whether endpoint users can initiate local packet captures\"; restrictRemotePacketCapture \"whether admin-initiated remote packet capture from the ZCC Portal is permitted\" (contradicted: the console option limits packet capture to administrators, see restrict-remote-capture); and the in-app controls and exportLogsForNonAdmin \"address different actors\".",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

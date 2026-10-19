@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "id": "zcc.sdk-python.return-shapes",
+  "title": "What the Python SDK's ZCC methods return, and the ones that break the tuple convention",
+  "aliases": [
+    "get_web_privacy returns None",
+    "zcc download_devices returns filename",
+    "zcc python result shape",
+    "activate_web_policy empty WebPolicy",
+    "add_trusted_network no id",
+    "get_company_info list",
+    "get_company_info org_id None",
+    "remove_devices devices_removed None",
+    "sync_zia_zdx_admin_users dict"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.response-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.wire-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.record-fields"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Most ZCC methods return the SDK's usual result, response and error tuple: [[zia.sdk-python.response-shape:tuple-return]]. The exceptions below change how a caller has to test for failure."
+    },
+    {
+      "label": "Not a tuple.",
+      "text": "{{web-privacy-get-none}} {{web-privacy-get-dict}} {{downloads-raise}} {{downloads-content-check}}"
+    },
+    {
+      "label": "Single objects and wrappers.",
+      "text": "{{device-details-single}} The Go SDK decodes the same call differently: [[zcc.api.devices-wire:details-response-shape]]. {{company-info-list}} {{results-wrapped-twice}} The removal calls it affects are in [[zcc.devices.removal-api]]. {{sync-raw-dicts}} The trusted-network list envelope is [[zcc.api.trusted-networks-wire:list-envelope]]."
+    },
+    {
+      "label": "Writes that return little.",
+      "text": "{{activate-empty-body}} {{python-set-kwargs}} {{add-builds-from-response}} {{add-result-has-no-id}} What the create and edit responses carry is [[zcc.api.trusted-networks-wire:mutation-response]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the caller tested `get_web_privacy` for None rather than unpacking a tuple.",
+      "uses": [
+        "web-privacy-get-none"
+      ]
+    },
+    {
+      "do": "Whether a download call was wrapped in try/except, since it raises rather than returning an error.",
+      "uses": [
+        "downloads-raise"
+      ]
+    },
+    {
+      "do": "Whether code read the new trusted network's ID from `add_trusted_network`'s result, which comes from a response with no record; list by name instead.",
+      "uses": [
+        "add-result-has-no-id"
+      ]
+    }
+  ],
+  "claims": {
+    "web-privacy-get-none": {
+      "statement": "`get_web_privacy` returns a bare None when the request cannot be built, when it fails, or when the body cannot be read, instead of a tuple with an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_privacy.py",
+          "after": "def get_web_privacy(self) -> APIResult[dict]:",
+          "quotes": [
+            "if error:",
+            "return None"
+          ]
+        }
+      ]
+    },
+    "web-privacy-get-dict": {
+      "statement": "On success `get_web_privacy` returns the camel-cased response dictionary itself, not a `WebPrivacy` model or a tuple, so it carries any key the API sends, including ones the model lacks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_privacy.py",
+          "after": "def get_web_privacy(self) -> APIResult[dict]:",
+          "quotes": [
+            "result = self.form_response_body(response.get_body())",
+            "return result"
+          ]
+        }
+      ]
+    },
+    "downloads-raise": {
+      "statement": "`download_devices`, `download_service_status` and `download_disable_reasons` return the file name they wrote, defaulting to a timestamped name, and raise an exception on any failure instead of returning an error value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "filename = f\"zcc-devices-{datetime.now().strftime('%Y%m%d-%H_%M_%S')}.csv\"",
+            "raise Exception(\"Error creating request for downloading devices.\")",
+            "raise Exception(\"No response received when downloading disable reasons report.\")"
+          ]
+        }
+      ]
+    },
+    "downloads-content-check": {
+      "statement": "Before writing, each download checks that the response is `application/octet-stream` or text starting with `\"User\",\"Device type\"`, raising 'Invalid response content type or unexpected response format.' otherwise, then writes the raw bytes to the file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def download_devices(self, query_params=None, filename: str = None):",
+          "quotes": [
+            "if not content_type.startswith(\"application/octet-stream\") and not response.text.startswith('\"User\",\"Device type\"'):",
+            "raise Exception(\"Invalid response content type or unexpected response format.\")",
+            "f.write(response.content)"
+          ]
+        }
+      ]
+    },
+    "device-details-single": {
+      "statement": "`get_device_details` builds one `DeviceDetails` object from the whole response body, treating the endpoint as returning a single object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "# Handle single object response directly since getDeviceDetails returns a single object",
+            "result = DeviceDetails(self.form_response_body(response.get_body()))"
+          ]
+        }
+      ]
+    },
+    "company-info-list": {
+      "statement": "`get_company_info` returns a list of `CompanyInfo` objects, each built again from a result the executor already wrapped as a `CompanyInfo`; a single-object response becomes a one-item list.",
+      "tier": "A",
+      "conditions": "Added that each item is wrapped twice (the executor is given the model class); the effect is results-wrapped-twice.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/company.py",
+          "quotes": [
+            "response, error = self._request_executor.execute(request, CompanyInfo)",
+            "for item in response.get_results():",
+            "result.append(CompanyInfo(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "# ZCC can return either a single object or a list of objects",
+          "quotes": [
+            "self._list = [self._body]"
+          ]
+        }
+      ]
+    },
+    "results-wrapped-twice": {
+      "statement": "`get_company_info`, `remove_devices` and `force_remove_devices` wrap each result in their model twice, so only fields whose wire key equals the attribute name survive (`name`, `udids`, `username`); `org_id`, `business_name` and `devices_removed` come back None.",
+      "tier": "B",
+      "conditions": "Traced: for ZCC, `get_results()` returns model objects when `execute` is given a model class; `form_response_body` returns a non-dict unchanged; the model's `\"key\" in config` test is `hasattr`, so a camelCase wire key is not found on the object. Reproduced locally against the SDK models; not run against a tenant.",
+      "derived_from": [
+        "company-info-list"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def remove_devices(",
+          "quotes": [
+            "response, error = self._request_executor.execute(request, ForceRemoveDevices)",
+            "result.append(ForceRemoveDevices(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def force_remove_devices(",
+          "quotes": [
+            "response, error = self._request_executor.execute(request, ForceRemoveDevices)",
+            "result.append(ForceRemoveDevices(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "return [self._type(item) for item in self._list if isinstance(item, dict)]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "return hasattr(self, key)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "quotes": [
+            "# If it's neither dict nor list (e.g., a string, int), just return it"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/company_info.py",
+          "quotes": [
+            "self.org_id: Optional[Any] = config[\"orgId\"] if \"orgId\" in config else None",
+            "self.name: Optional[Any] = config[\"name\"] if \"name\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/devices.py",
+          "after": "class ForceRemoveDevices(ZscalerObject):",
+          "quotes": [
+            "self.devices_removed = config[\"devicesRemoved\"] if \"devicesRemoved\" in config else None"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled"
+        }
+      ]
+    },
+    "sync-raw-dicts": {
+      "statement": "`sync_zia_zdx_admin_users` and `sync_zpa_admin_users` return a list of camel-cased dictionaries, not model objects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/admin_user.py",
+          "after": "def sync_zia_zdx_admin_users(self) -> APIResult[dict]:",
+          "quotes": [
+            "result.append((self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/admin_user.py",
+          "after": "def sync_zpa_admin_users(self) -> APIResult[dict]:",
+          "quotes": [
+            "result.append((self.form_response_body(item)))"
+          ]
+        }
+      ]
+    },
+    "activate-empty-body": {
+      "statement": "`activate_web_policy` returns an empty `WebPolicy()` when the response body is empty, rather than an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "after": "def activate_web_policy(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "if response and hasattr(response, \"get_body\") and response.get_body():",
+            "result = WebPolicy()"
+          ]
+        }
+      ]
+    },
+    "add-builds-from-response": {
+      "statement": "`add_trusted_network` returns a `TrustedNetworks` object built from the create response itself, with no follow-up lookup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/trusted_networks.py",
+          "after": "def add_trusted_network(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "result = TrustedNetworks(self.form_response_body(response.get_body()))"
+          ]
+        }
+      ]
+    },
+    "add-result-has-no-id": {
+      "statement": "The recorded v1 create response carries only `conditionType` and `active`, so the object `add_trusted_network` returns has no ID or name of the new network.",
+      "tier": "B",
+      "derived_from": [
+        "add-builds-from-response"
+      ],
+      "conditions": "Now cites the recorded create response instead of the Go SDK's comment: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette). The Python result object itself was not observed.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+          "quotes": [
+            "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/webTrustedNetwork/create",
+            "string: \"{\\n  \\\"conditionType\\\" : 0,\\n  \\\"active\\\" : false\\n}\""
+          ]
+        }
+      ]
+    },
+    "python-set-kwargs": {
+      "statement": "Python's `set_web_privacy_info` sends whatever keyword arguments it is given, camel-cased by the executor's selective ZCC conversion, so keys outside its model can be written, but it returns a model object that holds only the modeled settings.",
+      "tier": "A",
+      "conditions": "Added that the keyword arguments are camel-cased (OneAPI path; the legacy client camel-cases in full, zcc.sdk-python.wire-keys:legacy-client-full-camel-case).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_privacy.py",
+          "quotes": [
+            "body.update(kwargs)",
+            "result = WebPrivacy(self.form_response_body(response.get_body()))"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "id": "zcc.devices.listing",
+  "title": "Listing enrolled devices: page size and how each SDK pages",
+  "aliases": [
+    "getDevices",
+    "list_devices",
+    "zcc devices GetAll",
+    "only 50 devices returned",
+    "device list incomplete",
+    "zcc device pagination"
+  ],
+  "binds": [
+    "zcc/devices"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The device list is paged, and the two SDKs page it differently. A device missing from a list read is not evidence that it is not enrolled until the read is known to be complete."
+    },
+    {
+      "label": "The API.",
+      "text": "The page parameters and their defaults are [[zcc.api.devices-wire:api-page-size]]."
+    },
+    {
+      "label": "Go.",
+      "text": "{{go-getall}} Whether a page can come back shorter than requested before the end is open {{gap:short-page-before-end}}. The general consequence of a truncated list read is in [[shared.sdk-go.list-pagination:truncated-list-reads-as-absent-object]]."
+    },
+    {
+      "label": "Python.",
+      "text": "{{python-one-page}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a Python read, whether the caller walked every page, since one call returns one page of 50 by default.",
+      "uses": [
+        "python-one-page",
+        "zcc.api.devices-wire:api-page-size"
+      ]
+    },
+    {
+      "do": "For a Go read, whether the count is a multiple of 1000 or ended on a short page that could be a server cap.",
+      "uses": [
+        "go-getall",
+        "short-page-before-end"
+      ]
+    }
+  ],
+  "claims": {
+    "go-getall": {
+      "statement": "The Go `devices.GetAll` always requests pages of 1000 starting at page 1 and stops at the first page with fewer than 1000 devices; the caller cannot change the page size.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/devices/devices.go",
+          "quotes": [
+            "return common.ReadAllPages[GetDevices](ctx, service.Client, getDevicesEndpoint, params, 1000)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, params QueryParams, pageSize int) ([]T, error) {",
+          "quotes": [
+            "params.Page = 1",
+            "if len(pageResults) < pageSize {"
+          ]
+        }
+      ]
+    },
+    "python-one-page": {
+      "statement": "The Python `list_devices` makes one request with the caller's parameters and returns that response's page; with no page size given it lets the API use its default of 50. A given size is sent as given; the SDK clamps it to 1 through 5000 only for the limit its response object uses to decide whether there is a next page.",
+      "tier": "A",
+      "conditions": "Corrected per verifier: the clamp runs on the response object after the request is sent and sets only the limit that has_next compares against, so it does not change the requested page size.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._limit = self.validate_page_size(raw_page_size, service_type)",
+            "validated_size = min(max(int(page_size), min_page_size), max_page_size)",
+            "has_next = len(self._list) >= self._limit"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "after": "def list_devices(self, query_params: Optional[dict] = None) -> APIResult[List[Device]]:",
+          "quotes": [
+            "result = response.get_results()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "Returns the current page of results.",
+            "\"zcc\": {\"default\": 50, \"max\": 5000, \"min\": 1},",
+            "# Don't set any default - let the API use its own default behavior"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "short-page-before-end": {
+      "kind": "semantic",
+      "title": "Whether the device list can return a short page before the last one",
+      "status": "open",
+      "detail": "The contract allows pages of up to 5000, so a Go page of 1000 should be full until the end; whether the server ever caps a page lower, which would make the Go read stop early and report success, is not stated.",
+      "blocks": "trusting a Go device count as complete",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    }
+  }
+}

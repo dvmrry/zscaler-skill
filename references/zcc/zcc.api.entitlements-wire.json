@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.entitlements-wire",
+  "title": "ZCC entitlement calls: response and update body shapes",
+  "aliases": [
+    "getZpaGroupEntitlements",
+    "updateZpaGroupEntitlement",
+    "getZdxGroupEntitlements",
+    "updateZdxGroupEntitlement",
+    "UpdateZpaGroupEntitlements",
+    "entitlements api shape"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Paths and methods are in the generated API surface. The shapes are where the sources part ways. What the settings mean is in [[zcc.entitlements]]."
+    },
+    {
+      "label": "Reading.",
+      "text": "The API document and a recorded response return one object per call, while the Go SDK reads a list {{divergence:get-response-shape}}. The Python SDK accepts either: [[zcc.sdk-python.entitlements:single-object-wrapped]]."
+    },
+    {
+      "label": "Writing.",
+      "text": "The update body in the API document is not the shape the Go SDK sends {{divergence:update-body-shape}}. The Python SDK sends an empty body: [[zcc.sdk-python.entitlements:python-update-empty-body]]. What the API does with an empty update is open {{gap:empty-update-effect}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before scripting a change, compare the body your client sends with the API document's update body.",
+      "uses": [
+        "update-body-shape",
+        "zcc.sdk-python.entitlements:python-update-empty-body"
+      ]
+    },
+    {
+      "do": "Before relying on a Go SDK read, check whether the tenant returns one object or a list.",
+      "uses": [
+        "get-response-shape"
+      ]
+    }
+  ],
+  "divergences": {
+    "get-response-shape": {
+      "summary": "Whether a GET of ZPA or ZDX entitlements returns one object or a list",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1getZpaGroupEntitlements/get/responses/200/content/application~1json/schema",
+            "expect": {
+              "type": "object"
+            }
+          },
+          "says": "The API document's response is a single object holding `groupList`, `deviceGroupList`, the switches and `totalCount` (the ZDX response likewise), with `page`, `pageSize` and `search` parameters."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/entitlements/entitlements.go",
+            "quotes": [
+              "return common.ReadAllPages[ZpaGroupEntitlements](ctx, service.Client, getZpaGroupEndpoint, params, pageSize)"
+            ]
+          },
+          "says": "The Go SDK decodes each page into a list of entitlement objects and pages until a page is shorter than the page size."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "tests/integration/zcc/cassettes/TestEntitlements.yaml",
+            "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/getZpaGroupEntitlements?search=test",
+            "quotes": [
+              "string: \"{\\n  \\\"totalCount\\\" : 0,\\n  \\\"zpaEnableForAll\\\" : 1,\\n  \\\"computeDeviceGroupsForZPA\\\""
+            ]
+          },
+          "says": "Recorded responses from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) are a single JSON object for both the ZPA and the ZDX call, with and without paging parameters."
+        }
+      ],
+      "impact": "The API document and the one recorded tenant agree on a single object. The Go SDK decodes the body into a list, which does not fit that shape, so a Go read of entitlements is likely to fail on such a tenant; whether any tenant returns a list is not shown. The Python SDK's single-object wrapping was removed as a position (verifier w2 E1): it accepts either shape and takes no side."
+    },
+    "update-body-shape": {
+      "summary": "What the update body for ZPA or ZDX entitlements contains",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zcc.openapi.json",
+            "pointer": "/paths/~1papi~1public~1v1~1updateZpaGroupEntitlement/put/requestBody/content/application~1json/schema/properties",
+            "expect": {
+              "enableForAll": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "computeDeviceGroups": {
+                "format": "int32",
+                "type": "integer"
+              },
+              "groupIds": {
+                "items": {
+                  "format": "int32",
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              "machineTunEnabledForAll": {
+                "format": "int32",
+                "type": "integer"
+              }
+            }
+          },
+          "says": "The API document's update body uses `enableForAll`, `computeDeviceGroups`, `groupIds`, `groupNames`, `deviceGroupIds`, `deviceGroupNames` and `machineTunEnabledForAll` (ZDX: `logoutZCC` instead of the machine tunnel field), and returns a success envelope."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zcc/services/entitlements/entitlements.go",
+            "quotes": [
+              "resp, err := service.Client.NewZccRequestDo(ctx, \"PUT\", updateZpaGroupEndpoint, nil, bytes.NewBuffer(body), nil)",
+              "body, err := json.Marshal(updateZpaGroup)"
+            ]
+          },
+          "says": "The Go SDK sends the read shape back: `zpaEnableForAll`, `groupList` and `deviceGroupList` objects, `computeDeviceGroupsForZPA`, and decodes the response as an entitlement object."
+        }
+      ],
+      "impact": "A Go SDK update may send keys the endpoint does not read, so an entitlement change can appear to succeed without taking effect."
+    }
+  },
+  "gaps": {
+    "empty-update-effect": {
+      "kind": "semantic",
+      "title": "What the update endpoints do with an empty body",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"Whether the API silently no-ops or errors on empty PUTs is unverified.\" In one recorded test tenant (recorded with SDK 1.9.13, Python SDK cassette), the Python SDK's empty-body PUTs to both update paths returned HTTP 404 Not Found, while GETs on the same tenant succeeded; whether the 404 comes from the empty body or from the path at that gateway is not shown.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestEntitlementsExtended.yaml",
+          "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/updateZpaGroupEntitlement",
+          "quotes": [
+            "string: 404 Not Found"
+          ]
+        }
+      ]
+    }
+  }
+}

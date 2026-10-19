@@ -1,0 +1,497 @@
+{
+  "schema_version": 1,
+  "id": "zcc.devices.record-fields",
+  "title": "What a device record's fields mean, and how the list and detail calls return them",
+  "aliases": [
+    "device details fields",
+    "getDeviceDetails",
+    "zcc device owner blank",
+    "machine hostname blank",
+    "last seen time zcc",
+    "device state integer or string",
+    "registrationState vs state",
+    "zdp vs zd fields",
+    "ziaHealth zpaHealth",
+    "device service status"
+  ],
+  "binds": [
+    "zcc/devices",
+    "zcc/devices#owner",
+    "zcc/devices#machineHostname",
+    "zcc/devices#state",
+    "zcc/devices#type",
+    "zcc/devices#vpnState",
+    "zcc/devices#registrationState",
+    "zcc/devices#policyName",
+    "zcc/devices#download_count",
+    "zcc/devices#config_download_time"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.lifecycle"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.sdk-go.legacy-routing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The portal's Device Overview and Device Details pages, the device list call and the device details call show overlapping data under different names. Field names and types are in the API contract; this subject holds what the fields mean and where the sources disagree."
+    },
+    {
+      "heading": "Meanings"
+    },
+    {
+      "label": "Owner.",
+      "text": "{{owner-collection}} Collection is on by default: [[zcc.web-privacy.collection:device-owner]]."
+    },
+    {
+      "label": "Hostname.",
+      "text": "The Machine Hostname field and the iOS 16 limit: [[zcc.web-privacy.collection:hostname]]. Whether turning collection off also changes Internet & SaaS and Private Access logs is open {{gap:collection-log-effect}}."
+    },
+    {
+      "label": "Policy and configuration.",
+      "text": "{{policy-name}} {{config-download}} Whether the policy name can go stale after a rename is open {{gap:policy-name-staleness}}."
+    },
+    {
+      "label": "Times.",
+      "text": "{{registration-times}} {{last-seen}} The keepalive time and its interval: [[zcc.devices.lifecycle]]."
+    },
+    {
+      "label": "Service status.",
+      "text": "{{service-status}} The device's posture trust level is in [[zcc.device-posture:trust-level-shown]]."
+    },
+    {
+      "heading": "API shapes"
+    },
+    {
+      "label": "List and details use different keys.",
+      "text": "{{list-and-detail-keys-differ}}"
+    },
+    {
+      "label": "State and type encoding.",
+      "text": "The sources disagree on how `state`, `type` and `vpnState` are typed [[zcc.api.devices-wire:state-type-encoding]]. One recorded tenant sends them as numbers; whether every tenant does, and the full value set, is open {{gap:state-wire-type}}. On that tenant `registrationState` carries a state name and `state` a number, and how the numbers map to states is only partly known {{gap:registration-state-vs-state}}."
+    },
+    {
+      "label": "Details is one object, or a list.",
+      "text": "[[zcc.api.devices-wire:details-response-shape]] In legacy-client mode the Go details call fails or goes to the ZIA legacy client: [[zcc.sdk-go.legacy-routing:legacy-zcc-reads-fail-or-misroute]]."
+    },
+    {
+      "label": "Fields only the Python model reads.",
+      "text": "{{python-details-extra-keys}} {{details-extra-keys-recorded}} Whether every tenant returns those keys is open {{gap:details-extra-keys-on-wire}}. {{python-internal-model-never-read}} {{python-log-fetch-info}} The portal's log fetch is in [[zcc.logging.collection:fetch-status]]."
+    },
+    {
+      "label": "Prefixes and mobile fields.",
+      "text": "What the `zd` and `zdp` prefixes name is open {{gap:zd-vs-zdp}}, and so is what `rooted` reports {{gap:rooted-meaning}}. The `zad` prefix is named by the password contract: [[zcc.passwords-and-otp.password-api:zad-zdp-names]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a blank owner or hostname is the User Privacy collection setting being off, or iOS 16 and later, before treating it as a missing record.",
+      "uses": [
+        "owner-collection",
+        "zcc.web-privacy.collection:hostname"
+      ]
+    },
+    {
+      "do": "Which key the call you are reading uses, since the list and details calls name the same data differently.",
+      "uses": [
+        "list-and-detail-keys-differ"
+      ]
+    },
+    {
+      "do": "Whether `state` arrived as a number or a string before comparing it, and whether a Go details call failed on decoding rather than on the API.",
+      "uses": [
+        "zcc.api.devices-wire:state-type-encoding",
+        "state-wire-type",
+        "zcc.api.devices-wire:details-response-shape"
+      ]
+    },
+    {
+      "do": "Whether the device is connected to a service (Health) or only entitled to it (Enabled).",
+      "uses": [
+        "service-status"
+      ]
+    }
+  ],
+  "claims": {
+    "owner-collection": {
+      "statement": "With Collect Device Owner Information enabled, the Owner field shows the locally logged-in user on Windows and macOS and the Client Connector username on Android and iOS; with it disabled, the field shows no owner information.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#owner"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "If Collect Device Owner Information is enabled, this field displays the device owner information. For Windows and macOS, this is the locally logged in user. For Android and iOS, this is the Zscaler Client Connector username."
+          ]
+        }
+      ]
+    },
+    "policy-name": {
+      "statement": "A device's Policy Name is the Client Connector app profile assigned to it.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#policyName"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "Policy Name: The Zscaler Client Connector profile assigned to the device."
+          ]
+        }
+      ]
+    },
+    "config-download": {
+      "statement": "Configuration Download Count is the number of times the app profile was updated on the device since enrollment, and Last Configuration Download Time is the last such update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "Configuration Download Count: The total number of times the app profile was updated on the device since enrollment.",
+            "Last Configuration Download Time: The last time the Zscaler Client Connector profile was updated."
+          ]
+        }
+      ]
+    },
+    "registration-times": {
+      "statement": "In the portal, Last Registration Time is the last time the user logged in to Client Connector on the device, and Last Deregistration Time the last time the user logged out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "Last Registration Time: The last time the user logged in to Zscaler Client Connector on the device.",
+            "Last Deregistration Time: The last time the user logged out of Zscaler Client Connector on the device."
+          ]
+        }
+      ]
+    },
+    "last-seen": {
+      "statement": "Last Seen with Client Connector Active is the last time Client Connector was active on the device; Last Seen Connected to ZIA is the last known connection to Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "Last Seen with Client Connector Active: The last time that Zscaler Client Connector was active on the device.",
+            "Last Seen Connected to ZIA: The last known date and time of connection to Internet & SaaS (ZIA)."
+          ]
+        }
+      ]
+    },
+    "service-status": {
+      "statement": "On the device details page, each service's Enabled flag says whether the user is entitled to it in Client Connector, its Health says whether Client Connector is connected to it (Active or Inactive), and Last Seen gives the last connection; the services listed are Internet & SaaS, Private Access, ZDX and Deception.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-device-fingerprint-enrolled-device.json",
+          "quotes": [
+            "ZIA Enabled: Displays True if the user is entitled for the Internet & SaaS (ZIA) service in Zscaler Client Connector.",
+            "ZIA Health: Displays Active if Zscaler Client Connector is connected to Internet & SaaS. Displays Inactive if Zscaler Client Connector is not connected to Internet & SaaS.",
+            "Last Seen Connected to ZPA: The last known date and time of connection to Private Access.",
+            "Zscaler Deception Health: Displays Active if Zscaler Client Connector is connected to Deception."
+          ]
+        }
+      ]
+    },
+    "list-and-detail-keys-differ": {
+      "statement": "The list call (`getDevices`) and the details call (`getDeviceDetails`) name the same data with different keys: `keepAliveTime` against `keep_alive_time`, `macAddress` against `mac_address`, `agentVersion` against `agent_version`, `policyName` against `devicePolicyName`, `deregistrationTimestamp` against `deregistration_time` and `user` against `user_name`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/responses/200/content/*~1*/schema/items/properties/keepAliveTime",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema/properties/keep_alive_time",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/responses/200/content/*~1*/schema/items/properties/policyName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema/properties/devicePolicyName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get/responses/200/content/*~1*/schema/items/properties/deregistrationTimestamp",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema/properties/deregistration_time",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema/properties/user_name",
+          "expect": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "python-details-extra-keys": {
+      "statement": "The Python `DeviceDetails` model reads keys that neither the details contract nor the Go struct has, among them `serialNumber`, the per-service `ziaEnabled`/`ziaHealth`/`zpaHealth`/`zdxHealth` and `zd*`/`zdp*` fields, `deviceTrust`, `antiTamperingStatus`, `expectedZCCVersion`, `zccUpgradeStatus`, `deviceOtpArray` and `logFetchInfo`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/devices.py",
+          "quotes": [
+            "self.serial_number = config[\"serialNumber\"] if \"serialNumber\" in config else None",
+            "self.zia_health = config[\"ziaHealth\"] if \"ziaHealth\" in config else None",
+            "self.zdp_health = config[\"zdpHealth\"] if \"zdpHealth\" in config else None",
+            "self.device_trust = config[\"deviceTrust\"] if \"deviceTrust\" in config else None",
+            "self.anti_tampering_status = config[\"antiTamperingStatus\"] if \"antiTamperingStatus\" in config else None",
+            "self.zcc_upgrade_status = config[\"zccUpgradeStatus\"] if \"zccUpgradeStatus\" in config else None"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDeviceDetails/get/responses/200/content/*~1*/schema",
+          "expect": {
+            "title": "DeviceDetailResponseContract",
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "details-extra-keys-recorded": {
+      "statement": "A recorded `getDeviceDetails` response carries keys that only the Python model reads, among them `serialNumber`, `ziaEnabled`, `deviceTrust` and `logFetchInfo`, and also `lastLocationSourceUsed`, which neither SDK models.",
+      "tier": "A",
+      "conditions": "Added per verifier from recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette). That neither SDK models lastLocationSourceUsed was checked by searching both SDKs' ZCC code at the pins.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+          "quotes": [
+            "\"logFetchInfo\":{\"logTs\":0,\"logAckTs\":0,\"error\":0",
+            "\"serialNumber\":\"F99LXTG6YY\",\"ziaEnabled\":\"true\"",
+            "\"deviceTrust\":0",
+            "\"lastLocationSourceUsed\":\"Source IP\"}'"
+          ]
+        }
+      ]
+    },
+    "python-internal-model-never-read": {
+      "statement": "The Python details call camel-cases every response key before building `DeviceDetails`, but the model looks `internal_model` up in snake_case, so that attribute is always None; a recorded details response carries the key as `internal_model`, so it reaches the model as `internalModel`.",
+      "tier": "A",
+      "conditions": "Extended per verifier with recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+          "quotes": [
+            "\"internal_model\":\"Mac16,7\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "result = DeviceDetails(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "after": "def form_response_body(body: Union[Dict[str, Any], List[Any], Any]) -> Union[Dict[str, Any], List[Any], Any]:",
+          "quotes": [
+            "result[_to_camel(key)] = val"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/devices.py",
+          "quotes": [
+            "self.internal_model = config[\"internal_model\"] if \"internal_model\" in config else None"
+          ]
+        }
+      ]
+    },
+    "python-log-fetch-info": {
+      "statement": "The Python details model reads `logFetchInfo` as an object with `logTs`, `logAckTs`, `error`, `logFetchPCAPEnabled`, `logFetchDBEnabled` and `logFetchFromNoOfDays`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/models/devices.py",
+          "quotes": [
+            "self.log_ts = config[\"logTs\"] if \"logTs\" in config else None",
+            "self.log_ack_ts = config[\"logAckTs\"] if \"logAckTs\" in config else None",
+            "self.log_fetch_pcap_enabled = config[\"logFetchPCAPEnabled\"] if \"logFetchPCAPEnabled\" in config else None",
+            "self.log_fetch_from_no_of_days = config[\"logFetchFromNoOfDays\"] if \"logFetchFromNoOfDays\" in config else None"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "state-wire-type": {
+      "kind": "semantic",
+      "title": "Whether the list and details calls send `state` and `type` as numbers or strings",
+      "status": "partial",
+      "former_ids": [
+        "zcc-83"
+      ],
+      "detail": "The contract says string (format byte) on both calls; the Go SDK declares int on the list and string on the details call; the Python models are untyped. Recorded responses from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) send `state` and `type` as JSON numbers on both calls and `vpnState` as a number on the list call (divergence state-type-encoding). Whether every tenant sends numbers, and the full value set (the legacy doc reported REGISTERED, DEREGISTERED and DISABLED from operators; the recording shows only 2, 3 and 6), is not established.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+          "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/getDevices?page=1&pageSize=10&osType=3",
+          "quotes": [
+            "\\\"type\\\" : 3,\\n  \\\"state\\\" : 6,",
+            "{\"id\":\"190286315\",\"type\":4,\"state\":2,\"user_name\":\"REDACTED\""
+          ]
+        }
+      ],
+      "blocks": "decoding and comparing device state across calls, and trusting the Go SDK on either call",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "registration-state-vs-state": {
+      "kind": "semantic",
+      "title": "How `registrationState` differs from `state` on the device list",
+      "status": "partial",
+      "former_ids": [
+        "zcc-82"
+      ],
+      "detail": "Both fields are on the list response with no description. In recorded list responses from one test tenant (recorded with SDK 1.9.13, Python SDK cassette), `registrationState` carries a state name and `state` a number: Remove pending with 3, Quarantined with 6, and Unregistered with 2. The first two match the download filter's registration-type codes (3 Removal pending, 6 Quarantined), but Unregistered is 4 there (zcc.devices.exports:registration-type-codes), so `state` does not simply reuse those codes. The numbers for Registered and Removed, and the full set of `registrationState` names, are not established.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+          "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/getDevices?page=1&pageSize=10&osType=3",
+          "quotes": [
+            "\\\"state\\\" : 3,\\n",
+            ": \\\"Remove pending\\\",",
+            "\\\"state\\\" : 6,",
+            ": \\\"Quarantined\\\",",
+            "\\\"state\\\" : 2,\\n",
+            "\\\"registrationState\\\" : \\\"Unregistered\\\""
+          ]
+        }
+      ],
+      "blocks": "filtering the device list by portal state through the API",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "details-extra-keys-on-wire": {
+      "kind": "semantic",
+      "title": "Whether the details call returns the keys only the Python model reads",
+      "status": "partial",
+      "detail": "Unverified legacy statement: the Python-only fields (service health, ZIA, ZPA and ZDX state, trust, VDI flag, anti-tampering, expected version, log fetch state) are returned by the API, so the Python SDK or direct calls are the only path for posture, health and upgrade audits and a Go consumer cannot see them. The portal's details page shows matching data, but the contract lists only 26 keys. A recorded response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) carries those keys plus `lastLocationSourceUsed` (claim details-extra-keys-recorded); whether every tenant and client version returns them is not established.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
+          "quotes": [
+            "\"serialNumber\":\"F99LXTG6YY\",\"ziaEnabled\":\"true\"",
+            "\"lastLocationSourceUsed\":\"Source IP\"}'"
+          ]
+        }
+      ],
+      "blocks": "API-based audits of service health, trust level or upgrade status per device",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "zd-vs-zdp": {
+      "kind": "semantic",
+      "title": "Which services the `zd` and `zdp` device-detail prefixes name",
+      "status": "partial",
+      "former_ids": [
+        "zcc-81"
+      ],
+      "detail": "The Python details model has both `zdEnabled`/`zdHealth`/`zdLastSeenTime` and `zdpVersion`/`zdpEnabled`/`zdpHealth`/`zdpLastSeenTime` and expands neither. The portal's service status lists Internet & SaaS, Private Access, ZDX and Deception only. The password contract describes `zdpDisablePass` as the Deception password, while the portal's OTP list pairs a Deception Settings OTP and an Endpoint DLP OTP with the API's `deceptionSettingsOtp` and `zdpDisableOtp`, which would make `zdp` data protection; so one of the two prefixes is Deception and the other is not settled. The app profile's `enableZdpService` is described as the Zscaler Data Protection service (zcc.app-profiles.advanced-settings:zdp-service), which supports the data-protection reading.",
+      "blocks": "reading the per-service health fields for Deception and Endpoint DLP",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "rooted-meaning": {
+      "kind": "semantic",
+      "title": "What the details field `rooted` reports",
+      "status": "open",
+      "detail": "Unverified legacy statement: `rooted` is the jailbreak or root detection state of a mobile device. The contract types it as an integer with no description, and the Unauthorized Modification posture type is the documented jailbreak check.",
+      "blocks": "API audits of jailbroken or rooted devices",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "policy-name-staleness": {
+      "kind": "semantic",
+      "title": "Whether a device's policy name updates when the app profile is renamed",
+      "status": "open",
+      "detail": "Unverified legacy statement: `policyName` is the name at the device's last configuration download, so it may be stale after a rename or while the device is offline, and joins should use the profile ID instead.",
+      "blocks": "joining devices to app profiles by name",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "collection-log-effect": {
+      "kind": "semantic",
+      "title": "Whether disabling owner or hostname collection changes service logs",
+      "status": "open",
+      "detail": "Unverified legacy statement: with hostname collection off, Internet & SaaS and Private Access logs lack endpoint hostname context; with user info collection off, logs show device identity (UDID) without the OS username. The vendor describes only the portal fields and the CSV export.",
+      "blocks": "privacy reviews and log correlation that depend on hostname or owner in service logs",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

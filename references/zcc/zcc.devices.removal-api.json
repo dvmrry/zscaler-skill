@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "zcc.devices.removal-api",
+  "title": "Removing devices and machine tunnels through the API and SDKs",
+  "aliases": [
+    "removeDevices",
+    "forceRemoveDevices",
+    "removeMachineTunnel",
+    "SoftRemoveDevices",
+    "ForceRemoveDevices",
+    "RemoveMachineTunnel",
+    "remove_devices",
+    "force_remove_devices",
+    "remove_machine_tunnel",
+    "stale machine tunnel"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.devices.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.devices-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Three POST calls remove devices: a soft remove, a force remove, and a machine-tunnel remove. Paths and SDK function names are generated; the states they act on are in [[zcc.devices.lifecycle]]."
+    },
+    {
+      "label": "Soft and force remove.",
+      "text": "What each call does and the criteria it needs: [[zcc.api.devices-wire:soft-remove]], [[zcc.api.devices-wire:force-remove]], [[zcc.api.devices-wire:remove-by-criteria]]. The platform codes for `osType` are in [[zcc.api.conventions:os-type-codes]]."
+    },
+    {
+      "label": "Page size.",
+      "text": "{{remove-page-size}} {{go-remove-page-size}}"
+    },
+    {
+      "label": "Python request body.",
+      "text": "{{python-remove-os-type}} {{python-remove-example-os-code-raises}} {{python-remove-username-example}} Whether the API accepts `username` for `userName` is open {{gap:username-key-accepted}}."
+    },
+    {
+      "label": "Machine tunnels.",
+      "text": "A changed machine token does not replace existing machine tunnels: [[zcc.entitlements.zpa:machine-token-change]]. {{machine-tunnel-call}} The Go SDK sends the hostnames differently from the contract [[zcc.api.devices-wire:machine-tunnel-hostnames]]. {{python-machine-tunnel-keys}} What a machine-tunnel removal leaves in place is open {{gap:machine-tunnel-removal-scope}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the request names at least one criterion (user, version, OS type or UDID), and for a force remove whether the devices are Registered or Removal Pending.",
+      "uses": [
+        "zcc.api.devices-wire:remove-by-criteria",
+        "zcc.api.devices-wire:force-remove"
+      ]
+    },
+    {
+      "do": "For a Python removal by user, whether the body carried `userName` rather than `username`.",
+      "uses": [
+        "python-remove-username-example",
+        "username-key-accepted"
+      ]
+    },
+    {
+      "do": "For a Go machine-tunnel removal by hostname that did nothing, whether the server read the body key the SDK sends.",
+      "uses": [
+        "zcc.api.devices-wire:machine-tunnel-hostnames"
+      ]
+    }
+  ],
+  "claims": {
+    "remove-page-size": {
+      "statement": "Both remove calls take a `pageSize` query parameter that defaults to 30; the soft-remove contract gives a maximum of 5000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 30. The max page size is 5000."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1forceRemoveDevices/post/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size. If not provided, the default page size is 30."
+          }
+        }
+      ]
+    },
+    "go-remove-page-size": {
+      "statement": "The Go `SoftRemoveDevices` and `ForceRemoveDevices` always send `pageSize`: a caller's value of 0 or less becomes 50 and a value over 5000 becomes 5000, so the Go default is 50, not the API's 30.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/remove_devices/zcc_remove_devices.go",
+          "quotes": [
+            "fullURL := fmt.Sprintf(\"%s?pageSize=%d\", softRemoveDevicesEndpoint, pagination.PageSize)",
+            "fullURL := fmt.Sprintf(\"%s?pageSize=%d\", forceRemoveDevicesEndpoint, pagination.PageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func NewPagination(pageSize int) Pagination {",
+          "quotes": [
+            "pageSize = DefaultPageSize",
+            "pageSize = MaxPageSize"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "DefaultPageSize = 50",
+            "MaxPageSize = 5000"
+          ]
+        }
+      ]
+    },
+    "python-remove-os-type": {
+      "statement": "The Python `remove_devices` and `force_remove_devices` translate an `os_type` name to its numeric code as a string and send it as `osType` in the body, or in the query string when the call also passes `query_params`; the contract types `osType` as an integer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zcc_param_mapper(func):",
+          "quotes": [
+            "mapped_params[\"osType\"] = \",\".join(mapped)",
+            "if \"query_params\" in kwargs:",
+            "kwargs.update(mapped_params)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post/requestBody/content/application~1json/schema/properties/osType",
+          "expect": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDeviceRemoval.yaml",
+          "quotes": [
+            "\"username\": \"nonexistent@test.com\", \"osType\": \"3\"}'"
+          ]
+        }
+      ],
+      "conditions": "Corroborated per verifier by a recorded remove request carrying osType as the string \"3\": one test tenant, recorded with SDK 1.9.13 (Python SDK cassette)."
+    },
+    "python-remove-username-example": {
+      "statement": "The Python `remove_devices` docstring example passes `username=`, which goes on the wire unchanged as `username` because only underscored keys are camel-cased, while the contract's body key is `userName`; the `force_remove_devices` example uses `user_name=`, which becomes `userName`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "...     username='jdoe@acme.com'",
+            "...     user_name='jdoe@acme.com'"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "if not string or \"_\" not in string:"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post/requestBody/content/application~1json/schema/properties/userName",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestDeviceRemoval.yaml",
+          "quotes": [
+            "\"username\": \"nonexistent@test.com\", \"osType\": \"3\"}'",
+            "\"userName\": \"nonexistent@test.com\", \"osType\": \"3\"}'"
+          ]
+        }
+      ],
+      "conditions": "Corroborated per verifier by recorded requests: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette); the remove request body carries username and the force-remove body userName."
+    },
+    "python-remove-example-os-code-raises": {
+      "statement": "The `remove_devices` docstring example passes `os_type='3'`, but the Python decorator maps only platform names (ios, android, windows, macos, linux), so a numeric code maps to nothing and the call raises `ValueError` before any request is sent.",
+      "tier": "A",
+      "conditions": "Added per verifier from a code read of zcc_param_mapper at the pin; not executed.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "...     os_type='3',"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def zcc_param_mapper(func):",
+          "quotes": [
+            "mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())]",
+            "raise ValueError(\"Invalid `os_type` or `os_types` provided.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "zcc_param_map = {",
+          "quotes": [
+            "\"ios\": 1,",
+            "\"linux\": 5,"
+          ]
+        }
+      ]
+    },
+    "machine-tunnel-call": {
+      "statement": "The machine-tunnel remove call takes either `hostName` (a comma-separated list) or `machineToken` as query parameters, not both; its contract also defines a body with a `hostNames` array and `machineToken`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post",
+          "expect": {
+            "description": "<p>Remove machine tunnel devices.</p><p><strong>Note:</strong> For the parameters described below, you can specify either hostName or machineToken but not both.</p>\n"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/parameters/[name=hostName]",
+          "expect": {
+            "description": "Comma-separated list of hostnames for the device.",
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/requestBody/content/application~1json/schema/properties/hostNames",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    },
+    "python-machine-tunnel-keys": {
+      "statement": "The Python `remove_machine_tunnel` camel-cases both its query parameters and its keyword arguments, so its example's `host_names=[...]` goes in the body as `hostNames`, the contract's body key. Its docstring's Args instead document a `hostnames` keyword and a `query_params.hostname` key; neither has an underscore, so both go out unchanged as `hostnames` and `hostname`, matching neither the contract's `hostNames` body key nor its `hostName` query key.",
+      "tier": "A",
+      "conditions": "Extended per verifier with the docstring's Args keys, traced through the SDK's camel-casing of keyword arguments and (non-ZPA) query parameters.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/devices.py",
+          "quotes": [
+            "query_params = convert_keys_to_camel_case(query_params or {})",
+            "body = convert_keys_to_camel_case(kwargs or {})",
+            "...     host_names=['FXJ14JLFQW'],",
+            "hostnames (str): The hostname of the machine tunnel to be removed.",
+            "``[query_params.hostname]`` {int}: Comma-separated list of hostnames for the device."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "if not string or \"_\" not in string:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "params = convert_keys_to_camel_case(params)"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/parameters/[name=hostName]",
+          "expect": {
+            "in": "query"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeMachineTunnel/post/requestBody/content/application~1json/schema/properties/hostNames",
+          "expect": {
+            "type": "array"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "username-key-accepted": {
+      "kind": "semantic",
+      "title": "Whether the remove calls accept `username` in place of `userName`",
+      "status": "open",
+      "detail": "The contract's body key is `userName`; a Python caller following the `remove_devices` example sends `username`. Whether the server matches it, ignores it, or rejects the call for lacking a criterion is not shown.",
+      "blocks": "removing a user's devices through the Python SDK as documented",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "machine-tunnel-removal-scope": {
+      "kind": "semantic",
+      "title": "What removing a machine tunnel leaves on the device record",
+      "status": "open",
+      "detail": "Unverified legacy statement: removing the machine tunnel removes only the machine-tunnel component of a device record, leaving the user tunnel and the Client Connector install intact, and is used to clean up stale or conflicting machine-tunnel registrations without deregistering the device.",
+      "blocks": "deciding between a machine-tunnel removal and a device removal",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "id": "zcc.sdk-python.client-configuration",
+  "title": "The Python SDK's two ZCC clients: OneAPI service and legacy helper",
+  "aliases": [
+    "zcc python legacy client",
+    "LegacyZCCClient",
+    "LegacyZCCClientHelper",
+    "ZCC_CLIENT_ID",
+    "client.zcc secrets missing legacy",
+    "zcc python 3 calls per day error",
+    "zcc python login failed"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.api.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.rate-limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK reaches ZCC through either the OneAPI client or a legacy helper that signs in with ZCC portal keys. How each path authenticates is in [[zcc.api.authentication]]; this subject holds what the Python clients themselves do."
+    },
+    {
+      "label": "Which client answers.",
+      "text": "{{two-client-paths}} {{legacy-client-env}} {{legacy-missing-secrets}}"
+    },
+    {
+      "label": "Legacy sign-in.",
+      "text": "{{legacy-token-refresh}} {{legacy-exit-no-logout}} The login call and token header are [[zcc.api.authentication:legacy-login-request]] and [[zcc.api.authentication:legacy-auth-token-header]]; the host the helper builds is in [[zcc.api.authentication:legacy-host]]. The partner header is [[zia.sdk-python.authentication:partner-id-header]]."
+    },
+    {
+      "label": "Legacy limits and retries.",
+      "text": "The helper's counters and 429 handling are [[zcc.api.rate-limits:legacy-local-counters]], [[zcc.api.rate-limits:legacy-429-retry]] and [[zcc.api.rate-limits:legacy-download-raise]]. {{legacy-preflight-message}} {{legacy-network-retries}}"
+    },
+    {
+      "label": "OneAPI retries.",
+      "text": "The OneAPI executor's wait comes from [[zcc.api.rate-limits:oneapi-retry-headers]]. Whether an OneAPI-fronted ZCC 429 carries those headers at all is open {{gap:oneapi-429-headers}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the script built a legacy client, since `client.zcc` is then the legacy helper and has no `secrets` service.",
+      "uses": [
+        "two-client-paths",
+        "legacy-missing-secrets"
+      ]
+    },
+    {
+      "do": "Whether a legacy-client error is a ValueError naming 3 calls per day on `/downloadServiceStatus` (a server 429) or an AttributeError about `isoformat` (an exhausted local counter).",
+      "uses": [
+        "legacy-preflight-message",
+        "zcc.api.rate-limits:legacy-download-raise"
+      ]
+    },
+    {
+      "do": "Whether a write that failed on a network error was sent again by the legacy helper before the error surfaced.",
+      "uses": [
+        "legacy-network-retries"
+      ]
+    }
+  ],
+  "claims": {
+    "two-client-paths": {
+      "statement": "On a OneAPI client, `client.zcc` is a `ZCCService` built on first use and kept. On a client constructed for legacy use, `client.zcc` returns the legacy ZCC helper object itself, and raises RuntimeError when no legacy helper was supplied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "return self._require_legacy_client(\"ZCC\", self.zcc_legacy_client)",
+            "self._zcc = ZCCService(self)",
+            "Legacy {service_name} client requested but no legacy client instance was provided."
+          ]
+        }
+      ]
+    },
+    "legacy-client-env": {
+      "statement": "`LegacyZCCClient` takes `api_key`, `secret_key` and `cloud` from its config dictionary, falling back to the environment variables `ZCC_CLIENT_ID`, `ZCC_CLIENT_SECRET` and `ZCC_CLOUD`; the helper defaults the cloud to `zscaler` when none is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "api_key = config.get(\"api_key\", os.getenv(\"ZCC_CLIENT_ID\"))",
+            "secret_key = config.get(\"secret_key\", os.getenv(\"ZCC_CLIENT_SECRET\"))",
+            "cloud = config.get(\"cloud\", os.getenv(\"ZCC_CLOUD\"))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "self._env_cloud = cloud or os.getenv(f\"{self._env_base}_CLOUD\", \"zscaler\")"
+          ]
+        }
+      ]
+    },
+    "legacy-missing-secrets": {
+      "statement": "The legacy helper exposes the same ZCC service properties as `ZCCService` except `secrets`, so `get_otp` and `get_passwords` are not reachable through `client.zcc` on a legacy client.",
+      "tier": "A",
+      "conditions": "Absence: legacy.py defines properties for devices, admin_user, company, entitlements, forwarding_profile, fail_open_policy, web_policy, web_app_service, web_privacy, trusted_networks, application_profiles and the three app catalogs, and no `secrets` property.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/zcc_service.py",
+          "quotes": [
+            "def secrets(self) -> SecretsAPI:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "def process_based_apps(self) -> \"ProcessBasedAppsAPI\":"
+          ]
+        }
+      ]
+    },
+    "legacy-token-refresh": {
+      "statement": "The legacy helper calls its token refresh before every request; it logs in again when it holds no token or the token has expired, and raises a plain Exception, 'Failed to login using provided credentials.', when the login fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "if not self.auth_token or is_token_expired(self.auth_token):",
+            "raise Exception(\"Failed to login using provided credentials.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "after": "def send(self, method, path, json=None, params=None, stream=False):",
+          "quotes": [
+            "self.refreshToken()"
+          ]
+        }
+      ]
+    },
+    "legacy-exit-no-logout": {
+      "statement": "Leaving a `with` block on the legacy ZCC helper only writes a debug log line; unlike the ZIA legacy client it sends no logout request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "after": "def __exit__(self, exc_type, exc_val, exc_tb):",
+          "quotes": [
+            "logger.debug(\"Deauthenticating...\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/legacy.py",
+          "after": "def __exit__(",
+          "quotes": [
+            "self.deauthenticate()"
+          ]
+        }
+      ]
+    },
+    "legacy-preflight-message": {
+      "statement": "When a local counter is exhausted, the helper raises AttributeError ('str' object has no attribute 'isoformat') instead of its ValueError messages, because the exception class it raises requires a datetime.",
+      "tier": "B",
+      "conditions": "Rewritten from Tier A: the ValueError branch the claim described is never reached, because building RateLimitExceededError from a string raises AttributeError, which `except RateLimitExceededError` does not catch. Reproduced by constructing the class with a string; not run against a tenant.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "from zscaler.utils import RateLimitExceededError, is_token_expired",
+            "raise RateLimitExceededError(\"IP address exceeded 100 calls per hour\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "def __init__(self, retry_at: datetime):",
+            "super().__init__(f\"/downloadDevices daily limit reached. Try again at {retry_at.isoformat()}.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/test_legacy_client.py",
+          "after": "client.request_count = 100",
+          "quotes": [
+            "with pytest.raises(Exception):  # RateLimitExceededError or AttributeError"
+          ]
+        }
+      ]
+    },
+    "legacy-network-retries": {
+      "statement": "On a transport error (`requests.RequestException`) the legacy helper sleeps five seconds and sends the same request again, up to three attempts in all, without regard to the HTTP method, so a POST or PUT whose response was lost is sent again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "after": "except requests.RequestException as e:",
+          "quotes": [
+            "if attempts == max_attempts:",
+            "time.sleep(5)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "max_attempts = 3"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "oneapi-429-headers": {
+      "kind": "semantic",
+      "title": "Which rate-limit headers a ZCC 429 carries on the OneAPI path",
+      "status": "open",
+      "former_ids": [
+        "zcc-87"
+      ],
+      "blocks": "telling how long the Python OneAPI executor waits after a ZCC 429, or whether it gives up without retrying",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "detail": "Unverified legacy statement: an OneAPI-fronted ZCC 429 may emit `X-Rate-Limit-Remaining` or `X-Rate-Limit-Retry-After-Seconds`, exposed unchanged to the shared executor. The executor reads `Retry-After`, then the reset headers, then `X-Rate-Limit-Retry-After-Seconds`, then `X-Rate-Limit-Remaining` as seconds, and returns an error when none is present. Drive a OneAPI ZCC call to 429 and record the response headers. Ledger: clarifications.md#zcc-87.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "headers.get(\"X-Rate-Limit-Retry-After-Seconds\")",
+            "or headers.get(\"X-Rate-Limit-Remaining\")"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "id": "zcc.acceptable-use",
+  "title": "The Client Connector acceptable use policy prompt",
+  "aliases": [
+    "zcc aup",
+    "acceptable use policy zcc",
+    "aup frequency",
+    "aup message",
+    "client connector aup",
+    "show users an acceptable use screen",
+    "aup custom days",
+    "client connector acceptable use policy",
+    "aup message html",
+    "aup not showing"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.acceptable-use.other-surfaces"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.localization"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{gate}} How the client renders it is not sourced {{gap:aup-rendering}}."
+    },
+    {
+      "label": "How often.",
+      "text": "{{frequency}} {{custom-days}} When each option fires is open {{gap:frequency-semantics}}. Whether editing the message re-prompts users who already accepted is open {{gap:redisplay-on-change}}, and so is how soon a changed setting reaches connected devices {{gap:config-propagation}}."
+    },
+    {
+      "label": "The message.",
+      "text": "{{message}} How long it may be is open {{gap:message-size}}, as is whether it may link out to a policy page {{gap:external-links}}, and whether it can be localized {{gap:localization}}."
+    },
+    {
+      "label": "What the user can do.",
+      "text": "Whether there is a decline choice, a checkbox or signature variant, and what declining does, is open {{gap:decline-and-variants}}. Whether the prompt shows before any tunnel is up, and what that means for content behind Private Access, is open with how it is rendered {{gap:aup-rendering}}."
+    },
+    {
+      "label": "Where it is configured.",
+      "text": "{{not-on-app-profile}} {{no-platform-split}} {{admin-permission}} Whether the AUP tab stays visible when notification templates are in use is open {{gap:notification-templates-mode}}."
+    },
+    {
+      "label": "Automation.",
+      "text": "{{no-api}} {{no-install-parameter}}"
+    },
+    {
+      "label": "Edges.",
+      "text": "Machine-tunnel and kiosk behavior is open {{gap:non-interactive-sessions}}; minimum agent version is open {{gap:min-agent-version}}; whether acceptances are logged anywhere is open {{gap:acceptance-logging}}."
+    },
+    {
+      "text": "The ZIA and Private Access consent screens are different objects: [[zcc.acceptable-use.other-surfaces]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Read the AUP frequency and, for Custom, the number of days, in the console; nothing in the API returns them.",
+      "uses": [
+        "frequency",
+        "custom-days",
+        "no-api"
+      ]
+    },
+    {
+      "do": "If images in the message do not render, whether they are reachable from the internet.",
+      "uses": [
+        "message"
+      ]
+    },
+    {
+      "do": "Whether a complaint concerns the Client Connector AUP or the ZIA browser AUP, which logs each acceptance.",
+      "uses": [
+        "gate",
+        "zcc.acceptable-use.other-surfaces:browser-aup-separate"
+      ]
+    }
+  ],
+  "claims": {
+    "gate": {
+      "statement": "The Client Connector AUP is a policy users must accept before they can connect to the internet or reach internal resources from devices protected by the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-acceptable-use-policy-zscaler-app.json",
+          "quotes": [
+            "You can create an Acceptable Use Policy (AUP) that your users must accept before they can connect to the internet or access your organization"
+          ]
+        }
+      ]
+    },
+    "frequency": {
+      "statement": "Its frequency is Never, After User Enrollment, Daily, Weekly or Custom.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-acceptable-use-policy-zscaler-app.json",
+          "quotes": [
+            "Choose how often Zscaler Client Connector displays the AUP. - Never - After User Enrollment - Daily - Weekly - Custom"
+          ]
+        }
+      ]
+    },
+    "custom-days": {
+      "statement": "Custom repeats it every 1 to 180 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-acceptable-use-policy-zscaler-app.json",
+          "quotes": [
+            "Custom Days: This field only appears if you select Custom as the AUP frequency. Enter any value from 1 to 180 days."
+          ]
+        }
+      ]
+    },
+    "message": {
+      "statement": "The message is the organization's policy text; it may contain static HTML tags and images, as long as the images are reachable from the internet, and can be previewed as users will see it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-acceptable-use-policy-zscaler-app.json",
+          "quotes": [
+            "You can enter static HTML tags as well as images, as long as the image files are accessible from the internet.",
+            "Preview AUP Message: Click to view the AUP as your users will see it."
+          ]
+        }
+      ]
+    },
+    "not-on-app-profile": {
+      "statement": "It is configured once, under End User Notification for Client Connector, not on an app profile, so it applies to users whatever app profile they have.",
+      "tier": "B",
+      "conditions": "Absence: the app profile articles and the web policy edit body were searched for an AUP setting; none found.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-acceptable-use-policy-zscaler-app.json",
+          "quotes": [
+            "From the navigation menu, go to Administration > End User Notification > Client Connector."
+          ]
+        }
+      ]
+    },
+    "no-platform-split": {
+      "statement": "The AUP settings do not distinguish platforms.",
+      "tier": "B",
+      "conditions": "Rests on the AUP article naming no platform; per-platform rendering is not documented.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-acceptable-use-policy-zscaler-app.json",
+          "quotes": [
+            "On the Acceptable Use Policy (AUP) Settings tab:"
+          ]
+        }
+      ]
+    },
+    "admin-permission": {
+      "statement": "ZCC admin roles carry a `clientConnectorNotifications` permission, which by its name governs the notification settings where the AUP lives.",
+      "tier": "B",
+      "conditions": "The scope of the permission is inferred from its name.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/admin_roles/admin_roles.go",
+          "quotes": [
+            "ClientConnectorNotifications string `json:\"clientConnectorNotifications\"`"
+          ]
+        }
+      ]
+    },
+    "no-api": {
+      "statement": "The AUP frequency and message have no API operation, SDK field or Terraform resource: the ZCC API document, both SDKs' ZCC code and the ZCC provider mention no AUP.",
+      "tier": "B",
+      "conditions": "Absence: case-insensitive searches for 'aup' and 'acceptable use' over automate-zscaler/openapi/zcc.openapi.json, zscaler-sdk-go zscaler/zcc, zscaler-sdk-python zscaler/zcc and terraform-provider-zcc internal found nothing.",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider.go",
+          "quotes": [
+            "resources.NewNotificationTemplateResource,"
+          ]
+        }
+      ]
+    },
+    "no-install-parameter": {
+      "statement": "No install parameter disables or pre-accepts the AUP: the Windows, macOS, iOS and Android install parameter articles mention none, so an MDM-deployed app still shows it at the configured frequency.",
+      "tier": "B",
+      "conditions": "Absence: the four install parameter captures (supported-parameters-zscaler-client-connector-windows, -macos and -ios, and parameters-guide-zscaler-client-connector-android-and-android-chromeos) were searched for 'aup' and 'acceptable use'; none found. The fourth capture is now named (verifier w2 E9).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "This table lists the available parameters for devices running Zscaler Client Connector for Windows."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "redisplay-on-change": {
+      "kind": "semantic",
+      "title": "Whether editing the AUP message re-prompts users",
+      "status": "open",
+      "former_ids": [
+        "zcc-44"
+      ],
+      "detail": "Whether updating the AUP message causes the app to show the AUP again to users who already accepted, independently of the frequency. The help describes frequency as the only display setting.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "decline-and-variants": {
+      "kind": "semantic",
+      "title": "Decline button, confirmation variants and the effect of declining",
+      "status": "open",
+      "former_ids": [
+        "zcc-45",
+        "zcc-47",
+        "zcc-48"
+      ],
+      "detail": "Whether the AUP screen has a Decline button, whether it can be Accept-only or Accept-and-Decline, whether a checkbox or signature variant exists, and what declining does (tunnel blocked, logout, nothing). The help only says users must accept it.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "external-links": {
+      "kind": "semantic",
+      "title": "Whether the AUP message can link to an external policy page",
+      "status": "open",
+      "former_ids": [
+        "zcc-46"
+      ],
+      "detail": "Unverified legacy statement: admins needing multi-language content could \"use a URL redirect to a multi-language page (if redirect is supported)\". Whether the message supports a link or redirect to an external page is not documented.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "min-agent-version": {
+      "kind": "semantic",
+      "title": "Minimum agent version for the AUP and HTML rendering",
+      "status": "open",
+      "former_ids": [
+        "zcc-49"
+      ],
+      "detail": "Unverified legacy statement: \"Older ZCC agent versions may render the HTML AUP message differently or may not support all HTML tags.\" Neither the minimum version nor per-platform differences are documented.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "notification-templates-mode": {
+      "kind": "semantic",
+      "title": "Whether the AUP tab is suppressed when notification templates are used",
+      "status": "open",
+      "former_ids": [
+        "zcc-50"
+      ],
+      "detail": "The End User Notifications tab is replaced by the Notification Templates tab when templates are in use; whether the AUP tab is affected is not documented.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "acceptance-logging": {
+      "kind": "semantic",
+      "title": "Whether AUP acceptances are logged",
+      "status": "open",
+      "former_ids": [
+        "zcc-51"
+      ],
+      "detail": "Unverified legacy statement: \"The AUP screen fires before the ZCC tunnel is up, so there is no Z-Tunnel session context at the moment of display in which a ZIA event could be generated.\" Whether accept or decline events appear in the admin audit log, NSS or elsewhere is not documented.",
+      "resolves_with": [
+        "tenant-data",
+        "operator-experience"
+      ]
+    },
+    "localization": {
+      "kind": "semantic",
+      "title": "Whether the AUP message can be localized",
+      "status": "open",
+      "former_ids": [
+        "zcc-52",
+        "zcc-26"
+      ],
+      "detail": "Unverified legacy statement: \"Admins who need multi-language AUP text must embed all language variants in the HTML content field manually; there is no built-in language selector for AUP.\" The message is a single field with no documented locale variants or fallback. (zcc-26 moved here from the former duplicate gap zcc.notifications.localization:aup-locale.)",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "message-size": {
+      "kind": "semantic",
+      "title": "Maximum size of the Client Connector AUP message",
+      "status": "open",
+      "former_ids": [
+        "zcc-53"
+      ],
+      "detail": "Unverified legacy statement: a limit of \"15K–30K bytes for notification/AUP ... messages\", applied to the ZCC AUP by analogy. The ZIA ranges table lists the AUP Message at 30K bytes under End User Notifications; whether that limit is the Client Connector AUP's is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| AUP Message | 30K bytes |"
+          ]
+        }
+      ]
+    },
+    "non-interactive-sessions": {
+      "kind": "semantic",
+      "title": "AUP behavior with machine tunnels and kiosks",
+      "status": "open",
+      "former_ids": [
+        "zcc-54"
+      ],
+      "detail": "Unverified legacy statement: \"a machine tunnel scenario with no interactive user would logically bypass it\" and kiosk deployments \"may encounter the AUP gate if the AUP frequency is set to anything other than Never\". Neither is documented.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "config-propagation": {
+      "kind": "semantic",
+      "title": "When an AUP setting change reaches connected devices",
+      "status": "open",
+      "former_ids": [
+        "zcc-55"
+      ],
+      "detail": "Whether a change to the AUP frequency or message takes effect at the next connect or only after the agent's next policy refresh. App profile changes download on logout or restart, but the AUP is not on the app profile.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "frequency-semantics": {
+      "kind": "semantic",
+      "title": "What Daily, Weekly and After User Enrollment mean exactly",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"After User Enrollment — appears once, immediately after the user completes enrollment; Daily — on the first connect of each calendar day; Weekly — on the first connect of each calendar week; Custom — every N days.\" The help lists the options without defining when each fires.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "aup-rendering": {
+      "kind": "semantic",
+      "title": "How the client presents its AUP, and whether it shows before any tunnel is up",
+      "status": "open",
+      "detail": "Unverified legacy statements: \"AUP is a full-screen in-app overlay that ZCC displays before allowing users to connect. It is not a web page block; it is rendered by ZCC itself ... in the ZCC application window\"; \"the screen appears inside the ZCC client application itself, not in a browser\"; and \"it is shown in the ZCC application window before any tunnel is established, and applies regardless of forwarding mode (Z-Tunnel, PAC, or direct)\", so \"images hosted behind ZPA or on internal servers that require the ZCC tunnel to be up will not render\". The source says only that users must accept it before connecting, and requires images to be reachable from the internet; it describes neither the presentation nor the tunnel state. (Merged from the former gap tunnel-state-at-display, which quoted the same legacy text.)",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    }
+  }
+}

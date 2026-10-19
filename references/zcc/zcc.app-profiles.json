@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles",
+  "title": "ZCC app profiles (web policies)",
+  "aliases": [
+    "app profile",
+    "zcc app profile",
+    "web policy",
+    "zcc web policy",
+    "WebPolicy",
+    "client connector profile",
+    "app profile rule",
+    "application profile"
+  ],
+  "binds": [
+    "zcc/application-profiles"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.propagation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.ssl-certificate"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.passwords-and-otp.app-profile-passwords"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.entitlements"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.web-privacy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An app profile is the policy object Client Connector downloads to govern the app itself, as distinct from the cloud policy that inspects traffic. This page walks the area and links the subject for each question. {{controls}}"
+    },
+    {
+      "label": "Per platform, and its API name.",
+      "text": "{{per-platform}} {{api-name}}"
+    },
+    {
+      "label": "Questions, in the order they usually come up.",
+      "steps": [
+        {
+          "label": "Which profile does this device get?",
+          "text": "Rule order, user and device groups, and the longest-match exception: [[zcc.app-profiles.selection]]."
+        },
+        {
+          "label": "Has the change reached the device?",
+          "text": "[[zcc.app-profiles.propagation]]."
+        },
+        {
+          "label": "Where does its traffic go?",
+          "text": "The rule names one forwarding profile: [[zcc.forwarding-profiles.assignment]]."
+        },
+        {
+          "label": "Why do users see certificate errors?",
+          "text": "[[zcc.app-profiles.ssl-certificate]]."
+        },
+        {
+          "label": "Can users disable, exit or remove the app?",
+          "text": "[[zcc.passwords-and-otp.app-profile-passwords]]."
+        },
+        {
+          "label": "How much does it log?",
+          "text": "[[zcc.app-profiles.logging]]."
+        },
+        {
+          "label": "What happens when the cloud or the tunnel is unreachable?",
+          "text": "[[zcc.app-profiles.failover]]."
+        },
+        {
+          "label": "What do the remaining settings do?",
+          "text": "[[zcc.app-profiles.advanced-settings]]."
+        },
+        {
+          "label": "How do I change one through the API?",
+          "text": "[[zcc.api.web-policy-wire]], with Python's key handling in [[zcc.sdk-python.wire-keys]]."
+        }
+      ]
+    },
+    {
+      "label": "Configured elsewhere.",
+      "text": "Privacy collection is the User Privacy object, [[zcc.web-privacy]]; which users get Private Access and ZDX is service entitlement, [[zcc.entitlements]]; the acceptable use prompt is [[zcc.acceptable-use]]. What a forwarding profile does per network type is in [[zcc.forwarding-profiles]]."
+    }
+  ],
+  "claims": {
+    "controls": {
+      "statement": "App profiles control whether users must enter an admin-provided password to log out of, disable, exit or uninstall the app; select the forwarding profile for Internet & SaaS and Private Access; and control how the app generates logs and the maximum size of its log files.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Control whether users must enter an admin-provided password to log out of, disable, exit, or uninstall the app.",
+            "Select the forwarding profile for Internet & SaaS and Private Access services.",
+            "Control how the app generates logs and the maximum size of its log files for the Internet & SaaS service."
+          ]
+        }
+      ]
+    },
+    "per-platform": {
+      "statement": "A profile policy rule is added per device platform: Windows, macOS, Linux, iOS and Android each have their own rules.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#deviceType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "You can add a Zscaler Client Connector profile policy rule for each of the following device platforms:"
+          ]
+        }
+      ]
+    },
+    "api-name": {
+      "statement": "In the API the object is a web policy: the `/web/policy` operations add or update, enable or disable, and delete \"a policy or app profile for the company by platform\".",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put",
+          "expect": {
+            "description": "Adds or updates a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1activate/put",
+          "expect": {
+            "description": "Enables or disables a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1{policyId}~1delete/delete",
+          "expect": {
+            "description": "Deletes a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
+          }
+        }
+      ]
+    }
+  }
+}

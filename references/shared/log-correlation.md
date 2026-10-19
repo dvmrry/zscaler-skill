@@ -89,7 +89,7 @@ LSS retention: Zscaler retains User Activity, User Status, and App Connector log
 
 Source: `vendor/zscaler-help/about-log-streaming-service.json`.
 
-ZCC does not produce a SIEM-streamable log feed equivalent to NSS or LSS. ZCC writes operational logs to the endpoint device. These cover tunnel events, auth events, posture checks, and forwarding decisions — not individual web transactions (that is ZIA-side). Administrators access ZCC logs via the ZCC Portal diagnostic bundle or user-exported ZIP. See [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md) and [`../zcc/user-logging-controls.md`](../zcc/user-logging-controls.md).
+ZCC does not produce a SIEM-streamable log feed equivalent to NSS or LSS. ZCC writes operational logs to the endpoint device. These cover tunnel events, auth events, posture checks, and forwarding decisions — not individual web transactions (that is ZIA-side). Administrators access ZCC logs via the ZCC Portal diagnostic bundle or user-exported ZIP. See [`zcc.logs.client-log`](kb:zcc.logs.client-log) and [`zcc.logging.user-access`](kb:zcc.logging.user-access).
 
 ---
 
@@ -371,7 +371,7 @@ Per-field ambiguities relevant to correlation queries — see the linked schema 
 - ZIA firewall log schema (all fields) — [`zia.logs.firewall-records`](kb:zia.logs.firewall-records)
 - ZIA DNS log schema (all fields) — [`zia.logs.dns-record-fields`](kb:zia.logs.dns-record-fields)
 - ZPA LSS User Activity schema (all fields) — [`zpa.logs.user-activity`](kb:zpa.logs.user-activity)
-- ZCC operational log schema — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
+- ZCC operational log schema — [`zcc.logs.client-log`](kb:zcc.logs.client-log)
 - Cloud Connector log schema — [`../cloud-connector/logs/log-schema.md`](../cloud-connector/logs/log-schema.md)
 - NSS architecture — [`./nss-architecture.md`](./nss-architecture.md)
 - Source IP Anchoring (ZIA→ZPA forwarding context) — [`./source-ip-anchoring.md`](./source-ip-anchoring.md)

@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "id": "zcc.notifications.framework",
+  "title": "The Zscaler Notification Framework: Client Connector's own pop-ups",
+  "aliases": [
+    "zscaler notification framework",
+    "use zscaler notification framework",
+    "persistent notifications",
+    "custom timer",
+    "zia notification persistent",
+    "bring notification to focus",
+    "zcc notification timeout",
+    "useZscalerNotificationFramework"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.global-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.templates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The framework is the pop-up system Client Connector can use on desktops instead of the operating system's. {{overrides-os}} {{windows-macos-only}} {{per-profile}}"
+    },
+    {
+      "label": "Which versions.",
+      "text": "The minimum Client Connector version differs between two vendor articles {{divergence:minimum-version}}."
+    },
+    {
+      "label": "How pop-ups behave.",
+      "text": "{{display}} {{duplicates}} {{custom-timer}} {{persistent}} {{zia-persistent}} {{bring-to-focus}}"
+    },
+    {
+      "label": "What depends on it.",
+      "text": "{{dlp-requires}} {{captive-portal-popup}}"
+    },
+    {
+      "label": "Open questions.",
+      "text": "Whether the operating system can still hide or delay Client Connector notifications is not sourced {{gap:os-suppression}}. Which notifications platforms other than Windows and macOS show is only partly known {{gap:platform-support}}: Linux, iOS and Android have the expiry warning [[zcc.notifications:zpa-expiry-warning]], and iOS a tunnel notification [[zcc.notifications:ios-per-app-vpn-notification]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user's app profile enables the framework, since DLP notifications need it.",
+      "uses": [
+        "per-profile",
+        "dlp-requires"
+      ]
+    },
+    {
+      "do": "The device's Client Connector version against both stated minimums before relying on timer or persistence settings.",
+      "uses": [
+        "minimum-version"
+      ]
+    },
+    {
+      "do": "Whether a notification the user says never appeared was a duplicate suppressed within two minutes.",
+      "uses": [
+        "duplicates"
+      ]
+    }
+  ],
+  "claims": {
+    "overrides-os": {
+      "statement": "When enabled, the framework replaces the Windows and macOS notification systems, carrying the same informational messages. Only administrators can enable or disable it, and users cannot disable its notifications in Windows settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-zscaler-notification-framework.json",
+          "quotes": [
+            "when enabled, overrides the Windows-based and macOS-based notification systems. Only administrators can enable and disable the Zscaler Notification Framework in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-notifications.json",
+          "quotes": [
+            "While both notification systems provide the same informational messages, users cannot disable notifications from the Zscaler Notification Framework in Windows settings."
+          ]
+        }
+      ]
+    },
+    "windows-macos-only": {
+      "statement": "Its settings exist for Windows and macOS only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "For Windows and macOS only, you can configure the following settings for the Zscaler Notification Framework."
+          ]
+        }
+      ]
+    },
+    "per-profile": {
+      "statement": "It is switched on per app profile, by Use Zscaler Notification Framework in the Windows and macOS policies; the API carries it as `policyExtension.useZscalerNotificationFramework`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Use Zscaler Notification Framework: This option enables notifications from the Zscaler Notification Framework instead of from the Windows-based notification system."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Use Zscaler Notification Framework: This option enables notifications from the Zscaler Notification Framework instead of from the macOS-based notification system."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/policyExtension/properties/useZscalerNotificationFramework",
+          "expect": {
+            "description": "Indicates whether Use Zscaler Notification Framework is enabled."
+          }
+        }
+      ]
+    },
+    "display": {
+      "statement": "Framework notifications appear in the bottom right corner of the screen, up to five at a time, and time out after 5 seconds; they can also be read in the Client Connector Notifications window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-zscaler-notification-framework.json",
+          "quotes": [
+            "Zscaler notifications display in the bottom right corner of the screen. Up to 5 notifications can appear and time out after 5 seconds.",
+            "You can also view these notifications in the Zscaler Client Connector Notifications window."
+          ]
+        }
+      ]
+    },
+    "duplicates": {
+      "statement": "Duplicate messages within a two-minute interval are suppressed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-zscaler-notification-framework.json",
+          "quotes": [
+            "Duplicate messages that display within a 2-minute interval are suppressed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-notification-templates-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector automatically suppresses duplicate messages that display within a two-minute interval"
+          ]
+        }
+      ]
+    },
+    "custom-timer": {
+      "statement": "Custom Timer sets how long a notification stays on screen, from 5 to 60 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "Custom Timer (In Seconds): Set the amount of time that the notification displays for the user. Enter a time between 5 and 60 seconds."
+          ]
+        }
+      ]
+    },
+    "persistent": {
+      "statement": "Enable Persistent Notifications overrides the timer and keeps critical notifications on screen until the user dismisses them: Private Access reauthentication, captive portal detection and requests for a system reboot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "Enable Persistent Notifications: When enabled, overrides the Custom Timer. This setting displays critical notifications until the user dismisses them. Critical notifications include Private Access reauthentication, captive portal detection, and request for a system reboot."
+          ]
+        }
+      ]
+    },
+    "zia-persistent": {
+      "statement": "ZIA Notification Persistent overrides the timer for certain ZIA notifications, currently only DLP notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "Currently, the ZIA Notification Persistent option only applies to DLP notifications."
+          ]
+        }
+      ]
+    },
+    "bring-to-focus": {
+      "statement": "On Windows 4.7 and later, Bring Notification to Focus (enabled by default) moves focus, including a screen reader's, to framework notifications; it also resets the Windows idle timer, which can delay the device locking.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Bring Notification to Focus: Enable this option to automatically bring the focus to notifications displayed by the Zscaler Notification Framework.",
+            "Available with Zscaler Client Connector version 4.7 and later for Windows.",
+            "If enabled, the Windows idle screen timer resets when a notification is displayed, which can delay the device locking."
+          ]
+        }
+      ]
+    },
+    "dlp-requires": {
+      "statement": "The framework is required for DLP notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "using-zscaler-notification-framework.json",
+          "quotes": [
+            "This feature is required for Data Loss Prevention (DLP) notifications."
+          ]
+        }
+      ]
+    },
+    "captive-portal-popup": {
+      "statement": "With the embedded captive portal on Windows, the vendor recommends enabling the framework so that users get a pop-up that opens the captive portal with one click.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Zscaler recommends that you enable the Zscaler Notification Framework so that end users receive a pop-up notification that allows them to open the captive portal with one click."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "minimum-version": {
+      "summary": "The minimum Client Connector version for the framework.",
+      "positions": [
+        {
+          "says": "The framework is available from 3.8 on Windows and 4.1 on macOS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "using-zscaler-notification-framework.json",
+            "quotes": [
+              "This feature is only available for Zscaler Client Connector version 3.8 and later for Windows and for Zscaler Client Connector version 4.1 and later for macOS."
+            ]
+          }
+        },
+        {
+          "says": "Enabling the framework in app profiles needs 4.2 on both Windows and macOS.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+            "quotes": [
+              "You must have Zscaler Client Connector version 4.2 and later for Windows and Zscaler Client Connector version 4.2 and later for macOS to enable the Zscaler Notification Framework in App Profiles."
+            ]
+          }
+        }
+      ],
+      "impact": "For Windows 3.8 to 4.1 and macOS 4.1 clients, one article says the framework runs and the other says it cannot be enabled, so whether the timer and persistence settings apply to those clients is unsettled."
+    }
+  },
+  "gaps": {
+    "os-suppression": {
+      "kind": "semantic",
+      "title": "Operating-system suppression of Client Connector notifications",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"On Windows 10/11 with Focus Assist (now called Do Not Disturb) or Notification Center muted, ZCC-emitted toast notifications may be suppressed by the OS regardless of ZCC configuration ... On Android 13+, the OS requires explicit notification permission grant ... On macOS, the user must grant notification permission to ZCC in System Settings > Notifications ... If set to Alerts, the notification persists regardless of Custom Timer.\" The framework is documented as overriding the Windows and macOS systems, so these may hold only when it is off.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "platform-support": {
+      "kind": "semantic",
+      "title": "Client Connector notifications on Linux, ChromeOS, iOS and Android",
+      "status": "partial",
+      "former_ids": [
+        "zcc-31",
+        "zcc-32"
+      ],
+      "detail": "The framework settings are documented for Windows and macOS only. Partly answered: Linux, iOS and Android app profiles document a ZPA ReAuth Notification that warns users before Private Access authentication expires (zcc.notifications:zpa-expiry-warning), and iOS a per-app VPN tunnel notification (zcc.notifications:ios-per-app-vpn-notification). Still open: how Linux presents notifications, how ChromeOS behaves, and which other notifications iOS and Android show as system notifications. Unverified legacy statement: a platform matrix marking Android system notifications and iOS/Android in-app ZPA reauthentication prompts as supported.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "To add a new Linux policy rule:",
+          "quotes": [
+            "ZPA ReAuth Notification: Enable this option to alert users that applications they recently accessed through Private Access are going to expire."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "ZPA ReAuth Notification: Enable this option to alert users that their Private Access authentication is about to expire.",
+            "Show per-app VPN Tunnel Notification: When enabled, Zscaler Client Connector notifies the end user that per-app VPN tunnel establishment is in progress."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "To add a new Android policy rule:",
+          "quotes": [
+            "ZPA ReAuth Notification: Enable this option to alert users that applications they recently accessed through Private Access are going to expire."
+          ]
+        }
+      ]
+    }
+  }
+}

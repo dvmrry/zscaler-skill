@@ -27,7 +27,7 @@
     },
     {
       "label": "Credentials.",
-      "text": "{{oneapi-env-vars}} {{vanity-domain-token-url}} {{cloud-optional}} {{partner-id-header}}"
+      "text": "{{oneapi-env-vars}} {{vanity-domain-token-url}} {{oauth-audience}} {{cloud-optional}} {{partner-id-header}}"
     },
     {
       "label": "Government clouds.",
@@ -88,6 +88,28 @@
             "Refers to the domain name used by your organization `https://<vanity_domain>.zslogin.net/oauth2/v1/token`"
           ],
           "after": "You can provide credentials via the `ZSCALER_CLIENT_ID`"
+        }
+      ]
+    },
+    "oauth-audience": {
+      "statement": "The Python OAuth client always sends `audience=https://api.zscaler.com` in the client-credentials and JWT-assertion token requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "after": "\"client_secret\": client_secret,",
+          "quotes": [
+            "\"audience\": \"https://api.zscaler.com\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "after": "\"client_assertion_type\": \"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\",",
+          "quotes": [
+            "\"audience\": \"https://api.zscaler.com\","
+          ]
         }
       ]
     },

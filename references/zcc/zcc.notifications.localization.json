@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "zcc.notifications.localization",
+  "title": "Language of the Client Connector app, its notifications and the AUP",
+  "aliases": [
+    "zcc language",
+    "zcc localization",
+    "notification language",
+    "aup multiple languages",
+    "use system language"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.acceptable-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.templates"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{system-language}} {{languages}}"
+    },
+    {
+      "label": "Choosing the language.",
+      "text": "{{display-language-setting}}"
+    },
+    {
+      "label": "Messages from ZIA.",
+      "text": "{{zia-eun-languages}}"
+    },
+    {
+      "label": "Templates and the AUP.",
+      "text": "{{template-no-locale}} Whether the AUP can be localized is open: [[zcc.acceptable-use:localization]]. Which language is used when the system language is not supported is open {{gap:fallback-language}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user's system language is one Client Connector supports at the installed version.",
+      "uses": [
+        "languages"
+      ]
+    },
+    {
+      "do": "Whether the app profile forces English or the user changed the language in the More window.",
+      "uses": [
+        "display-language-setting"
+      ]
+    }
+  ],
+  "claims": {
+    "system-language": {
+      "statement": "Client Connector can switch its user interface language to match the system language.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "localization-support.json",
+          "quotes": [
+            "Zscaler Client Connector supports changing the language of the app user interface based on the system language."
+          ]
+        }
+      ]
+    },
+    "languages": {
+      "statement": "French is supported from 4.5 on Windows and 4.3 on macOS, and German from 5.0 on Windows; the vendor lists Chinese (Taiwan), Japanese and Spanish, and German on macOS, as not currently supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "localization-support.json",
+          "quotes": [
+            "French (fr-FR) | Version 4.5",
+            "German (de-DE) | Version 5.0",
+            "French (fr-FR) | Version 4.3"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "localization-support.json",
+          "quotes": [
+            "Chinese Taiwan Traditional (zh-TW) | Not currently supported",
+            "Japanese (ja-JP) | Not currently supported",
+            "Spanish (es-ES) | Not currently supported"
+          ],
+          "after": "Zscaler Client Connector for Windows"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "localization-support.json",
+          "quotes": [
+            "German (de-DE) | Not currently supported"
+          ],
+          "after": "Zscaler Client Connector for macOS"
+        }
+      ]
+    },
+    "display-language-setting": {
+      "statement": "On Windows 4.8 and later, an app profile sets the default display language for the app and the Notifications window text: Use System Language (the default) or English. Users can change it in the More window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Select the default display language for the Zscaler Client Connector app and the text in the Notifications window:",
+            "Use System Language: The app displays based on the system language. This value is the default setting.",
+            "Users can change the display language from the default on the More window in the app"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "This feature is available only with Zscaler Client Connector version 4.8 and later for Windows."
+          ],
+          "after": "Users can change the display language from the default on the More window in the app"
+        }
+      ]
+    },
+    "zia-eun-languages": {
+      "statement": "ZIA notifications delivered through Client Connector can be customized in multiple supported languages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-based-end-user-notifications.json",
+          "quotes": [
+            "You can customize notification messages in multiple, supported languages"
+          ]
+        }
+      ]
+    },
+    "template-no-locale": {
+      "statement": "The notification template model has no language or locale field.",
+      "tier": "B",
+      "conditions": "Rests on absence: the Go SDK's NotificationTemplate struct at the pin has no language field, and the template article lists none.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "quotes": [
+            "type NotificationTemplate struct {"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fallback-language": {
+      "kind": "semantic",
+      "title": "Language used when the system language is unsupported",
+      "status": "open",
+      "former_ids": [
+        "zcc-30"
+      ],
+      "detail": "Which language the app and its notifications use when Use System Language is set and the system language is not in the supported list, and how templates relate to language.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

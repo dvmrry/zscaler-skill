@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.windows-unattended",
+  "title": "Silent install, upgrade, revert and uninstall parameters, and launch behavior",
+  "aliases": [
+    "silent install zcc",
+    "unattended install zcc",
+    "unattendedmodeui",
+    "upgradePasswordCmdLine",
+    "UPGRADEPASSWORDCMDLINE",
+    "uninstallPasswordCmdLine",
+    "UNINSTALLPASSWORDCMDLINE",
+    "revertPasswordCmdLine",
+    "revertzcc",
+    "installer-language",
+    "launchTray",
+    "LAUNCHTRAY",
+    "hideAppUIOnLaunch",
+    "HIDEAPPUIONLAUNCH",
+    "kioskMode",
+    "KIOSKMODE",
+    "configTimeout",
+    "VDI install parameter"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.install" },
+    { "rel": "see-also", "to": "zcc.install.strict-enforcement" }
+  ],
+  "prose": [
+    {
+      "text": "These parameters cover installing, upgrading, reverting and removing Client Connector without user interaction, and what the user sees right after installation."
+    },
+    {
+      "heading": "Silent operations (Windows)"
+    },
+    {
+      "items": [
+        { "label": "Install.", "text": "{{silent-mode}}" },
+        { "label": "Upgrade.", "text": "{{upgrade-password}}" },
+        { "label": "Uninstall.", "text": "{{uninstall-password}}" },
+        { "label": "Revert.", "text": "{{revert}}" },
+        { "label": "Installer language.", "text": "{{installer-language}}" }
+      ]
+    },
+    {
+      "heading": "Launch and window behavior"
+    },
+    {
+      "items": [
+        { "label": "Start after install.", "text": "{{launch-tray}} The macOS table contradicts itself on the default {{divergence:macos-launchtray-default}}." },
+        { "label": "Hidden window.", "text": "{{hide-ui}} Under strict enforcement on non-persistent Citrix VDIs it must stay 0: [[zcc.install.strict-enforcement:citrix-hide-ui]]." },
+        { "label": "Kiosk mode.", "text": "{{kiosk-mode}} The Windows table contradicts itself on the default {{divergence:windows-kioskmode-default}}." },
+        { "label": "Configuration wait.", "text": "{{config-timeout}}" },
+        { "label": "VDI.", "text": "{{vdi}} What the flag changes is open {{gap:vdi-effect}}." }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a silent uninstall by command-line password, whether the user has enrolled, an Uninstall Password is enabled with an unexpired password, and the device runs 4.2.1 or later.",
+      "uses": ["uninstall-password"]
+    },
+    {
+      "do": "Whether launchTray was set to 0, when Client Connector did not start after installation.",
+      "uses": ["launch-tray", "macos-launchtray-default"]
+    }
+  ],
+  "claims": {
+    "silent-mode": {
+      "statement": "The EXE installer installs silently with mode=unattended (the default is win32), and unattendedmodeui sets what an unattended installation shows: none (the default, nothing shown), minimal (a progress bar) or minimalWithDialogs (dialogs that need interaction). unattendedmodeui requires mode=unattended, and neither exists for the MSI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: Not supportedEXE: mode",
+            "Allows you to install the app in silent mode.",
+            "unattended = Enablewin32= Disable (default)",
+            "MSI: Not supportedEXE: unattendedmodeui",
+            "none = Nothing is displayed to the user and no interaction is required. (default)minimal = A small progress bar showing installation progress is displayed to the user and no interaction is required.",
+            "If you enable this option, mode=unattended is required."
+          ]
+        }
+      ]
+    },
+    "upgrade-password": {
+      "statement": "upgradePasswordCmdLine (MSI `UPGRADEPASSWORDCMDLINE`) upgrades Client Connector silently; its value must match the Upgrade Password configured for access in unattended mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Allows you to silently upgrade Zscaler Client Connector.",
+            "The password you add for this option must match the Upgrade Password configured for access in unattended mode."
+          ]
+        }
+      ]
+    },
+    "uninstall-password": {
+      "statement": "uninstallPasswordCmdLine (MSI `UNINSTALLPASSWORDCMDLINE`) uninstalls the app silently through device management such as GPO, by removing the MST file from the GPO; it works only with the MSI or EXE, not the MST. Its value must match the Uninstall Password configured for access in unattended mode. Users must have enrolled, an Uninstall Password must be enabled with an unexpired password generated, and it needs Client Connector 4.2.1 or later; earlier versions, or the app profile's password, use UNINSTALLPASSWORD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Allows you to silently uninstall the app from users' devices using device management methods like GPO.",
+            "The password you add for this option must match the Uninstall Password configured for access in unattended mode.",
+            "This option is only available when using MSI or EXE (not the MST file).",
+            "If users have the app installed on their devices but have not enrolled, you cannot uninstall the app using this method.",
+            "You must have an Uninstall Password enabled and an unexpired uninstall password generated.",
+            "This option is available only in Zscaler Client Connector version 4.2.1 and later for Windows. If you use an earlier version or you prefer to use the password configured in the app profile, you can use UNINSTALLPASSWORD or uninstallPassword."
+          ]
+        }
+      ]
+    },
+    "revert": {
+      "statement": "revertzcc (EXE only) silently reverts Client Connector to the previous version and must be run from the installer path of the version before the upgrade; revertPasswordCmdLine (MSI `REVERTPASSWORDCMDLINE`, from 4.2.1) must match the Revert Password configured for access in unattended mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: Not supportedEXE: revertzcc",
+            "If you pass this install option, you must use the installer path of the version before the upgrade.",
+            "The password you add for this option must match the Revert Password configured for access in unattended mode."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: REVERTPASSWORDCMDLINEEXE: revertPasswordCmdLine",
+          "quotes": [
+            "This option is available only in Zscaler Client Connector version 4.2.1 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "installer-language": {
+      "statement": "installer-language (EXE only, from 4.5) sets the installer's language, English (the default) or French; it does not change the language of the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: Not supportedEXE: installer-language",
+            "en = English (default)fr = French",
+            "This option does not change the language used in the Zscaler Client Connector app.",
+            "This option is available only in Zscaler Client Connector version 4.5 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "launch-tray": {
+      "statement": "launchTray (MSI `LAUNCHTRAY`, Windows and macOS) controls whether Client Connector starts its services and user interface after installation, which it does by default. Disabled, users must open Client Connector manually, or it runs after the next reboot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "By default, Zscaler Client Connector starts its services and user interface after installation.",
+            "If you disable the option, users must open Zscaler Client Connector manually to start the app, or Zscaler Client Connector automatically runs after the next reboot."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: LAUNCHTRAYEXE: launchTray",
+          "quotes": [
+            "1 = Enable (default)0= Disable"
+          ]
+        }
+      ]
+    },
+    "hide-ui": {
+      "statement": "hideAppUIOnLaunch (MSI `HIDEAPPUIONLAUNCH`, Windows and macOS) keeps the app window hidden before users enroll; users can still open it from the system tray icon. On Windows, if Client Connector is installed with cloudName and userDomain, it attempts SSO automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Forces the app window to stay hidden before users enroll. Users can always open the window by clicking the app icon in the system tray.",
+            "If Zscaler Client Connector is installed with the cloudName and userDomain options, Zscaler Client Connector attempts to automatically perform SSO."
+          ]
+        }
+      ]
+    },
+    "kiosk-mode": {
+      "statement": "On Windows from 4.10.0.463, kioskMode (MSI `KIOSKMODE`) lets Client Connector launch without waiting for the Windows desktop; by default it waits for a full-screen app such as Windows Autopilot to finish and the desktop to be visible before enrolling a new user.",
+      "tier": "A",
+      "conditions": "The value column's contrary default moved to divergence windows-kioskmode-default after verification, matching how launchTray's is held.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "By default, Zscaler Client Connector waits for a full-screen app (e.g., Windows Autopilot) to complete and for the Windows desktop to be visible before enrolling a new user.",
+            "you can enable this option to allow Zscaler Client Connector to launch without waiting for the Windows desktop to display.",
+            "This option is available only in Zscaler Client Connector version 4.10.0.463 and later.",
+            "MSI: KIOSKMODEEXE: kioskMode"
+          ]
+        }
+      ]
+    },
+    "config-timeout": {
+      "statement": "configTimeout (MSI `CONFIGTIMEOUT`) sets how many seconds Client Connector waits for the configuration file if it is not already present; the default is 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Sets the number of seconds Zscaler Client Connector waits for the configuration file (if not already present).",
+            "0= 0 seconds (default)"
+          ]
+        }
+      ]
+    },
+    "vdi": {
+      "statement": "vdi (MSI `VDI`) indicates that Client Connector is being installed on virtual desktop infrastructure; it defaults to disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "Indicates that Zscaler Client Connector is being installed on a virtual desktop infrastructure (VDI)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: VDIEXE: vdi",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "macos-launchtray-default": {
+      "summary": "The macOS parameter table marks 0 (Disable) as launchTray's default, while the same row's description, and the Windows table, say Client Connector starts after installation by default.",
+      "positions": [
+        {
+          "says": "The value column lists Disable as the default.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "supported-parameters-zscaler-client-connector-macos.json",
+            "after": "| launchTray |",
+            "quotes": [
+              "1 = Enable0= Disable (default)"
+            ]
+          }
+        },
+        {
+          "says": "Client Connector starts its services and user interface after installation by default.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "supported-parameters-zscaler-client-connector-macos.json",
+            "quotes": [
+              "By default, Zscaler Client Connector starts its services and user interface after installation."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin reading the value column may set launchTray to 1 needlessly, or assume macOS installs stay idle until reboot when the key is omitted. The vendor's own Jamf and Intune sample plists set launchTray to 1 explicitly."
+    },
+    "windows-kioskmode-default": {
+      "summary": "The Windows parameter table marks 1 (Enable) as kioskMode's default, while the same row's description says Client Connector by default waits for a full-screen app and the desktop before enrolling, which is the behavior with the option off.",
+      "positions": [
+        {
+          "says": "The value column lists Enable as the default.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "supported-parameters-zscaler-client-connector-windows.json",
+            "after": "MSI: KIOSKMODEEXE: kioskMode",
+            "quotes": [
+              "1 = Enable (default)0= Disable"
+            ]
+          }
+        },
+        {
+          "says": "By default Client Connector waits for a full-screen app such as Windows Autopilot and for the desktop before enrolling a new user, and the option is enabled to change that.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "supported-parameters-zscaler-client-connector-windows.json",
+            "quotes": [
+              "By default, Zscaler Client Connector waits for a full-screen app (e.g., Windows Autopilot) to complete and for the Windows desktop to be visible before enrolling a new user."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin cannot tell from the table whether an install without kioskMode waits for the desktop; set the key explicitly on 4.10.0.463 and later."
+    }
+  },
+  "gaps": {
+    "vdi-effect": {
+      "kind": "semantic",
+      "title": "What the VDI install flag changes",
+      "status": "open",
+      "detail": "Unverified legacy statement: VDI marks the installation as VDI and adjusts ZCC behavior for virtual desktop scenarios. The parameters page says only that the flag indicates a VDI installation.",
+      "blocks": "deciding whether a virtual desktop install needs the flag",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

@@ -98,7 +98,7 @@ The ZCC `secrets` service exists specifically to vend device secrets so an admin
 - `GET /zcc/papi/public/v1/getOtp` returns per-device OTPs including `otp`, `uninstallOtp`, `logoutOtp`, `exitOtp`, `revertOtp`, and the per-product disable OTPs (`ziaDisableOtp`, `zpaDisableOtp`, `zdxDisableOtp`, …). Python: `get_otp` (`vendor/zscaler-sdk-python/zscaler/zcc/secrets.py:33`, endpoint at `:53-56`); Go: `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getotp/get_otp.go:12`; contract op `zcc/public-api-controller/gets-the-one-time-password-otp-for-a-specific-device`.
 - `GET /zcc/papi/public/v1/getPasswords` returns `uninstallPass`, `logoutPass`, `exitPass`, `zdSettingsAccessPass`, and the per-product disable passwords, filtered by `username` and `os_type`. Python: `get_passwords` (`vendor/zscaler-sdk-python/zscaler/zcc/secrets.py:83`, endpoint at `:107-110`); Go: `vendor/zscaler-sdk-go/zscaler/zcc/services/secrets/getpasswords/getpasswords.go:12`; contract op `zcc/public-api-controller/gets-the-app-profile-password-for-a-specific-device`.
 
-The model field lists confirm plaintext string fields with no masking (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:36-45`, `vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_passwords.py:33-39`). Note the `/getOtp` proxy-cache footgun documented in [`../zcc/api.md`](../zcc/api.md) — append a random query param to avoid stale OTPs.
+The model field lists confirm plaintext string fields with no masking (`vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_otp.py:36-45`, `vendor/zscaler-sdk-python/zscaler/zcc/models/secrets_passwords.py:33-39`). Note the `/getOtp` proxy-cache footgun documented in [`zcc.api`](kb:zcc.api) — append a random query param to avoid stale OTPs.
 
 ### Reveals (contract-documented, live population unverified) — ZPA PRA credentials and enrollment certs
 
@@ -189,6 +189,6 @@ Operationally: prefer separate credentials for "read config for audit" versus "m
 - Admin/role model, API-clients-≠-admin-users: [`admin-rbac.md`](admin-rbac.md)
 - ZPA connector provisioning keys in depth: [`zpa.app-connectors`](kb:zpa.app-connectors)
 - ZTW provisioning surface + credential rotation: [`../cloud-connector/api.md`](../cloud-connector/api.md), [`../cloud-connector/upgrade-and-credential-rotation.md`](../cloud-connector/upgrade-and-credential-rotation.md)
-- ZCC device-secrets service (`getOtp` cache footgun): [`../zcc/api.md`](../zcc/api.md)
+- ZCC device-secrets service (`getOtp` cache footgun): [`zcc.api`](kb:zcc.api)
 - ZIA IPSec PSK / traffic forwarding: [`zia.traffic-forwarding`](kb:zia.traffic-forwarding), [`ipsec-tunnels.md`](ipsec-tunnels.md)
 - ZIA sandbox submission token: [`zia.sandbox`](kb:zia.sandbox)

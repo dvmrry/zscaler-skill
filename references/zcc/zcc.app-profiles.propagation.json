@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles.propagation",
+  "title": "When an app profile change reaches a device",
+  "aliases": [
+    "app profile change not applied",
+    "app profile propagation",
+    "zcc policy update",
+    "when does zcc download the app profile",
+    "update policy zcc"
+  ],
+  "binds": [
+    "zcc/application-profiles"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.record-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{download-on-relogin}} {{settings-ride-the-profile}}"
+    },
+    {
+      "text": "{{connected-without-relogin}} How often a connected device checks in is open {{gap:connected-refresh}}. Whether an edit through the API also needs an activate call is open in [[zcc.api.web-policy-wire:edit-needs-activate]]."
+    },
+    {
+      "text": "Whether a device has downloaded its profile since a change shows on its device details: [[zcc.devices.record-fields:config-download]]."
+    },
+    {
+      "text": "Service entitlement changes follow their own update timing: [[zcc.entitlements:update-timing]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user has logged out and back in, or restarted, since the change.",
+      "uses": [
+        "download-on-relogin"
+      ]
+    },
+    {
+      "do": "If not, have the user click Update Policy, or wait for the next check-in; the check-in interval is open.",
+      "uses": [
+        "connected-without-relogin",
+        "connected-refresh"
+      ]
+    },
+    {
+      "do": "Compare the device's Last Configuration Download Time with the time of the change.",
+      "uses": [
+        "zcc.devices.record-fields:config-download"
+      ]
+    }
+  ],
+  "claims": {
+    "download-on-relogin": {
+      "statement": "The app checks for app profile updates and downloads changes whenever the user logs out and back into the app or restarts the computer.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "The app checks for profile updates and downloads any changes whenever users log out and back into the app or restart their computers."
+          ]
+        }
+      ]
+    },
+    "settings-ride-the-profile": {
+      "statement": "Settings held on the app profile, among them the forwarding profile choice, passwords, SSL certificate installation and log mode, therefore reach a device when it next downloads the profile, not when they are saved.",
+      "tier": "B",
+      "conditions": "Derived: the help gives the download timing for the profile as a whole; no source gives a per-setting timing.",
+      "derived_from": [
+        "download-on-relogin",
+        "zcc.app-profiles:controls",
+        "zcc.app-profiles.ssl-certificate:install-option"
+      ]
+    },
+    "connected-without-relogin": {
+      "statement": "App profile edits also reach a device without a logout or restart: the help describes the device checking in to download a modified app profile, an automatic policy update, and Update Policy in the app as a manual refresh.",
+      "tier": "B",
+      "derived_from": [
+        "download-on-relogin",
+        "zcc.ssl-inspection.certificate-install:install-events"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "force-removing-device-zscaler-admin-console.json",
+          "quotes": [
+            "during the next automatic policy update or when the user clicks Update Policy on the More window of the app."
+          ]
+        }
+      ],
+      "conditions": "Restated (verifier w2 A7): the earlier conditions said the refresh was not captured, but the certificate-install events name a check-in that downloads a modified app profile, and the force-removal article names an automatic policy update. Neither source gives the check-in interval."
+    }
+  },
+  "gaps": {
+    "connected-refresh": {
+      "kind": "semantic",
+      "title": "How often a connected device checks in for app profile changes",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"There is no continuous polling for App Profile changes.\" Contradicted: the help describes a check-in that downloads a modified app profile and an automatic policy update (connected-without-relogin). What stays open is the check-in interval for app profiles. Other policy-carried settings give a bound: service entitlement changes reach connected devices automatically within 60 minutes or when the user clicks Update Policy, and the User Privacy packet capture option can take up to two hours.",
+      "blocks": "telling a user whether to wait, click Update Policy, or log out",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "selective-entitlement-enabling-zpa-group-users.json",
+          "quotes": [
+            "If they are already connected, the devices automatically update in 60 minutes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "enabling-packet-capture-zscaler-client-connector.json",
+          "quotes": [
+            "it can take up to two hours for this feature to appear in Zscaler Client Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "If the admin modifies the app profile and the device checks in to download the new profile"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "force-removing-device-zscaler-admin-console.json",
+          "quotes": [
+            "during the next automatic policy update or when the user clicks Update Policy on the More window of the app."
+          ]
+        }
+      ]
+    }
+  }
+}

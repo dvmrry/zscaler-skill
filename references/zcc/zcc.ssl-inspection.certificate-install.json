@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "zcc.ssl-inspection.certificate-install",
+  "title": "Who installs the SSL inspection certificate on Client Connector devices, per platform",
+  "aliases": [
+    "install zscaler ssl certificate",
+    "install_ssl_certs",
+    "installCerts",
+    "zcc root ca install",
+    "zscaler certificate ios",
+    "zscaler certificate android",
+    "zscaler certificate macos big sur",
+    "when does zcc install the certificate"
+  ],
+  "binds": [
+    "zcc/application-profiles"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.firefox.proxy-and-trust"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.ssl-certificate"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Inspected traffic is re-signed with a Zscaler certificate, so the device must trust the Zscaler root: [[zia.ssl-inspection.certificates:root-must-be-trusted]]. {{who-installs}}"
+    },
+    {
+      "heading": "By platform"
+    },
+    {
+      "table": {
+        "columns": [
+          "Platform",
+          "Who installs the certificate"
+        ],
+        "rows": [
+          [
+            "Windows and Linux",
+            "{{desktop-toggle}}"
+          ],
+          [
+            "macOS",
+            "{{big-sur}} {{macos-mdm-profile}}"
+          ],
+          [
+            "Android",
+            "{{android}} {{android-7}}"
+          ],
+          [
+            "iOS",
+            "{{ios}} Which MDM payload the vendor recommends is open {{gap:ios-payload}}."
+          ],
+          [
+            "ChromeOS",
+            "Only user traffic can be inspected: [[zia.ssl-inspection.certificates:chromeos]]."
+          ]
+        ]
+      }
+    },
+    {
+      "text": "On mobile devices the certificate goes through MDM in any case: [[zia.ssl-inspection.certificates:mobile-mdm]]. Named deployment channels beyond the macOS profiles above remain open in [[zia.ssl-inspection.certificates]]."
+    },
+    {
+      "heading": "When Client Connector installs it"
+    },
+    {
+      "text": "{{install-events}} {{replacement}}"
+    },
+    {
+      "label": "In the app profile and the API.",
+      "text": "The setting, and the custom certificate that can replace Zscaler's, belong to the app profile: [[zcc.app-profiles.ssl-certificate:install-option]]; the iOS profile has no such setting: [[zcc.app-profiles.ssl-certificate:no-ios-option]]. The Go SDK sends the macOS key in snake_case, and its model says the camelCase form was silently ignored: [[zcc.api.web-policy-wire:mac-snake-or-ignored]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Install Zscaler SSL Certificate is enabled in the app profile for the device's platform (Windows, Linux, macOS before Big Sur).",
+      "uses": [
+        "desktop-toggle",
+        "big-sur"
+      ]
+    },
+    {
+      "do": "On macOS 11 or later, iOS and Android, whether the MDM pushes the root certificate.",
+      "uses": [
+        "big-sur",
+        "macos-mdm-profile",
+        "ios",
+        "android"
+      ]
+    },
+    {
+      "do": "After uploading a new certificate, whether the device has since enrolled, checked in for a modified profile, updated, or had Update Policy clicked.",
+      "uses": [
+        "install-events"
+      ]
+    }
+  ],
+  "claims": {
+    "who-installs": {
+      "statement": "Depending on the platform, either Client Connector or the MDM installs the Zscaler SSL certificate that SSL inspection needs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "Depending on the platform, Zscaler Client Connector or your Mobile Device Management (MDM) solution installs the Zscaler SSL certificate required for SSL inspection."
+          ]
+        }
+      ]
+    },
+    "desktop-toggle": {
+      "statement": "For Windows, Linux and macOS, Client Connector installs the certificate automatically when Install Zscaler SSL Certificate is enabled in the platform's app profile (on macOS only before Big Sur 11; see big-sur).",
+      "tier": "A",
+      "conditions": "The macOS limit was appended after verification so the claim does not mislead when read alone.",
+      "binds": [
+        "zcc/application-profiles"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "In the Zscaler Admin Console, enable Zscaler Client Connector to automatically install the Zscaler SSL certificate on your users’ devices for Windows, Linux, and macOS.",
+            "Enable Install Zscaler SSL Certificate.",
+            "Install Zscaler SSL Certificate is not supported on devices running macOS Big Sur (11) and later."
+          ]
+        }
+      ]
+    },
+    "big-sur": {
+      "statement": "Install Zscaler SSL Certificate is not supported on devices running macOS Big Sur (11) and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "Install Zscaler SSL Certificate is not supported on devices running macOS Big Sur (11) and later."
+          ]
+        }
+      ]
+    },
+    "macos-mdm-profile": {
+      "statement": "The macOS deployment guides push the CA certificate needed for SSL inspection with a certificate configuration profile from the MDM (a Certificate payload in Jamf Pro with Allow all apps access, a Trusted certificate template in Intune), using the Zscaler root downloaded from the Admin Console or a custom root or intermediate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "quotes": [
+            "If you use Internet & SaaS and you want to perform SSL inspection, you must configure a certificate profile to push the Certificate Authority (CA) certificate required for SSL inspection.",
+            "You can use the default Zscaler CA certificate or a custom Root or Intermediate CA certificate.",
+            "Enable the Allow all apps access option and Save the profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
+          "quotes": [
+            "Template name: Choose Trusted certificate."
+          ]
+        }
+      ]
+    },
+    "android": {
+      "statement": "On Android, Client Connector does not install the certificate automatically and Zscaler recommends installing the root through the MDM; it installs certificates only on Samsung devices with administrator privileges, from Install Certificates in the app's More window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "For Android, Zscaler Client Connector does not automatically install the certificate. Zscaler recommends installing the root certificate using your MDM.",
+            "Zscaler Client Connector only installs certificates for Samsung devices that have administrator privileges.",
+            "To install the certificate, go to the More window in Zscaler Client Connector and click Install Certificates."
+          ]
+        }
+      ]
+    },
+    "android-7": {
+      "statement": "From Android 7.0, non-default certificate authorities are not trusted by apps unless the app's developer explicitly allows it, so the Zscaler certificate is not trusted by such apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "For Android version 7.0 and later, Google prevents non-default certificate authorities from being trusted.",
+            "Unless the third-party application developer explicitly allows it, the Zscaler certificate or any third-party certificate is not trusted."
+          ]
+        }
+      ]
+    },
+    "ios": {
+      "statement": "On iOS, Client Connector does not install the certificate, because Apple requires certificates installed by an application to be untrusted by default; Zscaler recommends installing the root through the MDM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "For iOS, Zscaler Client Connector does not automatically install the certificate because Apple requires application-installed certificates to be untrusted by default. Zscaler recommends installing the root certificate using your MDM."
+          ]
+        }
+      ]
+    },
+    "install-events": {
+      "statement": "The certificate is imported on enrollment, when the admin modifies the app profile and the device checks in for it, when Client Connector updates, and when the user clicks Update Policy; each time, Client Connector gets the certificate link from the Admin Console and attempts the installation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "The Internet & SaaS service imports the certificate in the following situations:",
+            "Upon enrollment",
+            "If the admin modifies the app profile and the device checks in to download the new profile",
+            "When Zscaler Client Connector updates",
+            "When the user clicks Update Policy for Zscaler Client Connector",
+            "When these events occur, Zscaler Client Connector receives the certificate link from the Zscaler Admin Console and attempts to install the certificate."
+          ]
+        }
+      ]
+    },
+    "replacement": {
+      "statement": "When a certificate is already deployed and a new one is uploaded, Client Connector installs it with a native Windows method, replacing the existing certificate if it is new or different and leaving it alone if it is the same.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "If a certificate is already deployed and you upload a new certificate, Zscaler Client Connector uses a native Windows method to install the certificate.",
+            "The app automatically replaces the certificate if it’s new or different, but won’t change it if the same certificate already exists."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ios-payload": {
+      "kind": "semantic",
+      "title": "Which MDM payload installs the root on iOS",
+      "status": "open",
+      "detail": "The SSL inspection article recommends the MDM for iOS but names no payload type or certificate identifier; only the macOS guides describe the certificate profile.",
+      "blocks": "step-by-step certificate deployment for iOS fleets",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

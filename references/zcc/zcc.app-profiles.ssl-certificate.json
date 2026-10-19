@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles.ssl-certificate",
+  "title": "Whether Client Connector installs the Zscaler root certificate",
+  "aliases": [
+    "install zscaler ssl certificate",
+    "install_ssl_certs",
+    "installCerts",
+    "zcc certificate errors",
+    "macos users see certificate errors",
+    "ios certificate zcc"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection.certificate-install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{install-option}}"
+    },
+    {
+      "text": "Why a device without the root sees errors on inspected traffic is in [[zia.ssl-inspection.certificates:root-must-be-trusted]]; applications with their own trust stores need more, as [[zia.ssl-inspection.certificates:own-trust-stores]] explains."
+    },
+    {
+      "label": "iOS.",
+      "text": "{{no-ios-option}} Client Connector does not install it there, and Zscaler recommends installing it through the MDM: [[zcc.ssl-inspection.certificate-install:ios]]."
+    },
+    {
+      "label": "Other platforms.",
+      "text": "Who installs the certificate on each platform, and when: [[zcc.ssl-inspection.certificate-install]]."
+    },
+    {
+      "label": "Built by hand.",
+      "text": "The key that carries the setting differs by platform and by source: [[zcc.api.web-policy-wire:os-password-key-casing]]."
+    },
+    {
+      "text": "Certificate trust on the endpoint beyond the app profile is in [[zcc.ssl-inspection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule the device downloaded, for its platform, has Install Zscaler SSL Certificate on.",
+      "uses": [
+        "install-option",
+        "zcc.app-profiles.selection:ascending-precedence"
+      ]
+    },
+    {
+      "do": "On iOS, whether MDM delivered the certificate, since the app profile has no option for it.",
+      "uses": [
+        "no-ios-option",
+        "zcc.ssl-inspection.certificate-install:ios"
+      ]
+    },
+    {
+      "do": "For a body built by hand, which key the platform block used.",
+      "uses": [
+        "zcc.api.web-policy-wire:os-password-key-casing"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "An app profile determines whether the app can install the Zscaler SSL certificate on users' devices, to allow SSL inspection of traffic the app forwards to Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Determine whether the app can install the Zscaler SSL certificate on users' devices to allow SSL inspection of traffic forwarded by the app for the Internet & SaaS service."
+          ]
+        }
+      ]
+    },
+    "install-option": {
+      "statement": "With Install Zscaler SSL Certificate enabled, the app installs the Zscaler certificate automatically, or the organization's custom certificate if one was uploaded; deployments using the app for Private Access only skip the option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "If you're using Zscaler Client Connector for Private Access (ZPA) only, skip this option. Enable this option to allow Zscaler Client Connector to automatically install the Zscaler SSL certificate on",
+            "If you uploaded your organization's custom certificate in the Zscaler Admin Console, the app installs your organization's custom certificate instead."
+          ]
+        }
+      ]
+    },
+    "no-ios-option": {
+      "statement": "The iOS app profile has no certificate setting: the iOS section of the help, the API's `iosPolicy` block and the Go SDK's iOS block carry none.",
+      "tier": "B",
+      "conditions": "Absence: the iOS section of the app profile article, the OpenAPI iosPolicy properties and the Go IosPolicy struct were searched for a certificate setting; Windows, macOS, Linux and Android blocks all have one.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/iosPolicy/properties",
+          "expect": {
+            "passcode": {
+              "type": "string"
+            },
+            "logoutPassword": {
+              "type": "string"
+            }
+          },
+          "note": "The iosPolicy property list holds passwords, passcode, ipv6Mode and showVPNTunNotification only.",
+          "expect_absent": [
+            "installCerts",
+            "install_ssl_certs"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "type IosPolicy struct {"
+          ]
+        }
+      ]
+    }
+  }
+}

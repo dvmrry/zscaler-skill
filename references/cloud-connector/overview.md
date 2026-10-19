@@ -217,5 +217,5 @@ Source: `vendor/zscaler-help/cbc-understanding-high-availability-and-failover.js
 - Zero Trust Gateway managed-service boundary and availability guardrails — this overview; detailed GCP creation and operation — [`./gcp-zero-trust-gateway.md`](./gcp-zero-trust-gateway.md)
 - API / SDK / TF surface — [`./api.md`](./api.md)
 - ZPA App Connector (the other outbound-only Zscaler VM) — [`zpa.app-segments`](kb:zpa.app-segments) (app connectors referenced in segment config)
-- ZCC forwarding profile (the endpoint-side equivalent) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- ZCC forwarding profile (the endpoint-side equivalent) — [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
 - Shared cloud architecture — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)

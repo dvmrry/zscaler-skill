@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "id": "zcc.ssl-inspection",
+  "title": "SSL inspection for Client Connector users: what Client Connector does and what ZIA does",
+  "aliases": [
+    "zcc ssl inspection",
+    "client connector ssl inspection",
+    "browser shows original certificate not zscaler",
+    "ssl inspection not happening zcc",
+    "zcc certificate trust",
+    "does zcc decrypt traffic"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection.certificate-install"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.actions"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.ssl-inspection.exemptions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.firefox.proxy-and-trust"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "For Client Connector users, SSL inspection is split between the device and the cloud. {{service-decrypts}}"
+    },
+    {
+      "label": "Client Connector's part.",
+      "text": "{{no-local-inspection}} Which traffic reaches ZIA is the forwarding profile's job: [[zcc.forwarding-profiles:purpose]]. The certificate side: [[zcc.ssl-inspection.certificate-install]]. Whether Client Connector has an SSL-specific bypass separate from its app and IP bypasses is open {{gap:agent-ssl-bypass}}."
+    },
+    {
+      "label": "ZIA's part.",
+      "text": "{{enable-per-platform}} {{location-separate}} {{private-access-none}} On the Private Access side, AppProtection inspects HTTPS traffic inline: [[zpa.appprotection:inline-inspection]]. The policy itself is in [[zia.ssl-inspection]]."
+    },
+    {
+      "label": "Exemptions.",
+      "text": "{{exemptions-apply}} {{exempt-how}} {{vendor-bypass-lists}} What to exempt and what a bypass costs: [[zia.ssl-inspection.exemptions]], [[zia.ssl-inspection.bypass-impact]]. Pinned applications cannot be inspected at all: [[zia.ssl-inspection.uninspectable:cert-pinning]]."
+    },
+    {
+      "label": "All three must line up.",
+      "text": "{{three-conditions}}"
+    },
+    {
+      "heading": "The browser shows the site's own certificate, or a certificate error"
+    },
+    {
+      "table": {
+        "columns": [
+          "ZIA log for the transaction",
+          "What the browser shows",
+          "Reading"
+        ],
+        "rows": [
+          [
+            "None",
+            "The site's own certificate",
+            "{{diag-not-forwarded}}"
+          ],
+          [
+            "Present, not decrypted",
+            "The site's own certificate",
+            "{{diag-do-not-inspect}}"
+          ],
+          [
+            "Present, decrypted",
+            "A Zscaler-issued certificate",
+            "Inspection working: [[zia.ssl-inspection.certificates:per-request-certificates]]."
+          ],
+          [
+            "Present, decrypted",
+            "A certificate error",
+            "{{diag-untrusted-root}}"
+          ]
+        ]
+      }
+    },
+    {
+      "text": "QUIC skips TCP and so skips inspection; Zscaler recommends blocking it: [[zia.ssl-inspection.uninspectable:quic]]. Z-Tunnel 1.0 does not support QUIC, and an app profile option drops it so the application falls back to TCP: [[zcc.app-profiles.advanced-settings:drop-quic]]. One field report of a browser bypassing inspection on one tenant only is open {{gap:webkit-no-logs}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ZIA logged the transaction at all; if not, the forwarding profile action and the app profile bypasses for the device's network, before any SSL setting.",
+      "uses": [
+        "diag-not-forwarded",
+        "zcc.forwarding-profiles:purpose"
+      ]
+    },
+    {
+      "do": "Whether an SSL/TLS inspection rule for the device's platform inspects the destination, or a Do Not Inspect rule or custom exemption category matches it.",
+      "uses": [
+        "enable-per-platform",
+        "diag-do-not-inspect",
+        "exempt-how"
+      ]
+    },
+    {
+      "do": "For certificate errors on decrypted traffic, whether the root is in the store the application uses.",
+      "uses": [
+        "diag-untrusted-root",
+        "zcc.ssl-inspection.certificate-install:who-installs"
+      ]
+    }
+  ],
+  "claims": {
+    "service-decrypts": {
+      "statement": "Enabling SSL inspection for Client Connector devices lets the Zscaler service decrypt and inspect HTTPS traffic between the browser and the device and between the device and the destination server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "When you enable SSL inspection for your Zscaler Client Connector devices, this allows the Zscaler service to decrypt and inspect HTTPS traffic to and from the browser to a device, and to and from the destination server."
+          ]
+        }
+      ]
+    },
+    "no-local-inspection": {
+      "statement": "The vendor describes the decryption as done by the Zscaler service; Client Connector's documented roles in SSL inspection are forwarding the traffic and installing the certificate, and no source describes inspection on the device itself.",
+      "tier": "B",
+      "conditions": "Rests on the captured SSL inspection articles naming the service as the inspector and on the absence of any on-device inspection feature in them.",
+      "derived_from": [
+        "service-decrypts",
+        "zcc.ssl-inspection.certificate-install:who-installs"
+      ]
+    },
+    "enable-per-platform": {
+      "statement": "The service must be enabled to perform SSL inspection for Client Connector users on each relevant platform, in the SSL/TLS inspection policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "You must enable the service to perform SSL inspection for Zscaler Client Connector users on each relevant platform. To learn more, see Configuring SSL/TLS Inspection Policy."
+          ]
+        }
+      ]
+    },
+    "location-separate": {
+      "statement": "Location-specific SSL inspection settings are separate from the Client Connector SSL inspection settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "Location-specific SSL inspection settings are separate from Zscaler Client Connector SSL inspection settings."
+          ]
+        }
+      ]
+    },
+    "private-access-none": {
+      "statement": "Client Connector's SSL inspection feature (installing the certificate so the service can inspect forwarded web traffic) applies to Internet Security only; the overview says Private Access does not support it. SSL inspection for mobile traffic must be enabled on the ZIA side.",
+      "tier": "A",
+      "conditions": "Scoped after verification to Client Connector's feature: ZPA AppProtection inspects HTTPS on the Private Access side (see zpa.appprotection).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "what-is-zscaler-client-connector.json",
+          "quotes": [
+            "it can automatically install the Zscaler SSL certificate during enrollment so that the Zscaler service can perform SSL inspection on web traffic forwarded by the app.",
+            "However, you must enable SSL inspection for mobile traffic in the ZIA Admin Portal.",
+            "This feature applies to the Internet Security service only. Private Access does not support SSL inspection."
+          ]
+        }
+      ]
+    },
+    "exemptions-apply": {
+      "statement": "SSL exemptions configured in the Admin Console also apply to traffic Client Connector forwards.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "The SSL certificate allows the Zscaler service to perform SSL inspection on user traffic forwarded by the app. Any SSL exemptions you configure in the Zscaler Admin Console also apply."
+          ]
+        }
+      ]
+    },
+    "exempt-how": {
+      "statement": "URLs are exempted by putting them in a custom URL category and selecting that category in an SSL/TLS inspection rule whose action is Do Not Inspect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "To exempt URLs from SSL inspection, you must first create a custom category for the URLs and then add the custom category to URL Categories.",
+            "Under Action, click Do Not Inspect."
+          ]
+        }
+      ]
+    },
+    "vendor-bypass-lists": {
+      "statement": "Apple recommends bypassing specific iOS URLs from SSL inspection, and Google recommends bypassing specific URLs; both publish the lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-ssl-inspection-zscaler-client-connector.json",
+          "quotes": [
+            "Apple recommends bypassing specific iOS URLs from SSL inspection. Refer to the Apple Support page.",
+            "Google recommends bypassing specific URLs from SSL inspection. Refer to Chrome Enterprise and Education Help."
+          ]
+        }
+      ]
+    },
+    "three-conditions": {
+      "statement": "SSL inspection works without disrupting a Client Connector user only when three things line up: the forwarding profile sends the traffic to ZIA, an SSL/TLS inspection rule for the device's platform inspects it, and the device, and the application, trusts the root the service signs with.",
+      "tier": "B",
+      "conditions": "Combines the forwarding, policy and certificate requirements stated separately in the sources.",
+      "derived_from": [
+        "zcc.forwarding-profiles:purpose",
+        "enable-per-platform",
+        "zia.ssl-inspection.certificates:root-must-be-trusted"
+      ]
+    },
+    "diag-not-forwarded": {
+      "statement": "No ZIA log and the site's own certificate in the browser mean the traffic never reached ZIA, for example because the forwarding profile's action on that network was None or an app profile bypass such as a VPN gateway bypass sent it direct; no inspection can happen, and the certificate shown is correct.",
+      "tier": "B",
+      "conditions": "Follows from the forwarding profile's per-network action, bypasses that send traffic direct, and the service doing the inspection. Causes rephrased as examples after verification, with the action and bypass claims added to derived_from.",
+      "derived_from": [
+        "zcc.forwarding-profiles:purpose",
+        "zcc.forwarding-profiles.internet-actions:four-actions",
+        "zcc.z-tunnel.bypasses:vpn-gateway-bypass",
+        "service-decrypts"
+      ]
+    },
+    "diag-do-not-inspect": {
+      "statement": "A ZIA log without decrypted detail and the site's own certificate mean the transaction was not decrypted: a Do Not Inspect rule or exemption matched, or inspection is not enabled for that platform.",
+      "tier": "B",
+      "conditions": "Follows from the Do Not Inspect action, exemptions and the per-platform enablement; the vendor does not frame it as a diagnostic. The platform cause was added after verification.",
+      "derived_from": [
+        "zia.ssl-inspection.actions:variants",
+        "exemptions-apply",
+        "enable-per-platform"
+      ]
+    },
+    "diag-untrusted-root": {
+      "statement": "A decrypted ZIA log with a certificate error in the browser means the root is missing from the trust store the browser or application uses.",
+      "tier": "B",
+      "conditions": "Follows from the root-trust requirement; the vendor does not frame it as a diagnostic.",
+      "derived_from": [
+        "zia.ssl-inspection.certificates:root-must-be-trusted",
+        "zia.ssl-inspection.certificates:own-trust-stores"
+      ]
+    }
+  },
+  "gaps": {
+    "agent-ssl-bypass": {
+      "kind": "semantic",
+      "title": "Whether Client Connector has an SSL bypass of its own",
+      "status": "open",
+      "detail": "Unverified legacy statement: agent-side bypasses configured on Client Connector prevent traffic from entering the Z-Tunnel at all, depending on forwarding profile action settings, while ZIA exclusions are evaluated at the cloud proxy. The app profile's application bypass fields keep apps out of Client Connector interception; whether there is a separate Client Connector SSL bypass is not documented.",
+      "blocks": "advice on exempting a pinned desktop application at the device rather than in ZIA",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "webkit-no-logs": {
+      "kind": "semantic",
+      "title": "A browser that showed no ZIA logs and the original certificate on one tenant only",
+      "status": "open",
+      "detail": "Unverified legacy statement (operator report, 2026-05-01): a copilot.microsoft.com to m365.cloud.microsoft redirect rule fired in Chrome and Edge but not Safari on the same machine; Safari's traffic left no ZIA logs and showed the original Microsoft certificate, and the same machine behaved on a different ZPA tenant. The hypothesis, QUIC over UDP 443 bypassing the TCP-only forward proxy, was not verified on that tenant. It is consistent with documented behavior: Z-Tunnel 1.0 does not support QUIC, and the app profile's Drop QUIC Traffic option (dropQuicTraffic) drops QUIC packets so the application falls back to TCP 443 (claim zcc.app-profiles.advanced-settings:drop-quic). Whether QUIC explains this tenant's Safari behavior, and whether dropping it or a Cloud Firewall rule blocking UDP 443 fixes it, is still open.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add iOS Policy window appears.",
+          "quotes": [
+            "Drop QUIC Traffic: This option is for websites that use QUIC (UDP 443), which is not supported by Z-Tunnel 1.0. When enabled, Z-Tunnel 1.0 drops QUIC packets so the application can fall back to TCP 443."
+          ]
+        }
+      ],
+      "blocks": "diagnosing per-browser inspection gaps on one tenant",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

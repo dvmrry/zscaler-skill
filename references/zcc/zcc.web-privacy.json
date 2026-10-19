@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": "zcc.web-privacy",
+  "title": "ZCC user privacy (web privacy): what the app collects and exposes",
+  "aliases": [
+    "web privacy",
+    "WebPrivacy",
+    "zcc user privacy",
+    "user privacy page",
+    "getWebPrivacyInfo",
+    "setWebPrivacyInfo",
+    "zcc gdpr",
+    "zcc pii collection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy.collection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-privacy-wire"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.entitlements.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.logging"
+    }
+  ],
+  "prose": [
+    {
+      "text": "User Privacy is one tenant-wide settings object that decides what end-user and device data Client Connector collects and who on the device can reach logs and packet capture. {{purpose}} {{api-object}}"
+    },
+    {
+      "text": "What each setting does: [[zcc.web-privacy.collection]]. Reading and writing it through the API and SDKs: [[zcc.api.web-privacy-wire]]."
+    },
+    {
+      "label": "Not here.",
+      "text": "{{separate-app-supportability}} {{app-supportability-no-api}} The mapping is [[zcc.support-options:field-ui-mapping]]; the settings themselves are in [[zcc.logging.user-access]] and [[zcc.support-options]]. How verbose the app's own logs are is set per app profile: [[zcc.app-profiles.logging]]."
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "User Privacy settings let an organization comply with GDPR by turning collection of device owner and machine hostname on or off, enable packet capture and non-administrator access to log files, restrict packet capture to administrators, stop automatic crash report uploads, collect location for ZDX-enabled devices, let users override Z-Tunnel 2.0 or Private Access protocol settings, and enforce secure PAC URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-user-privacy.json",
+          "quotes": [
+            "Comply with General Data Protection Regulation (GDPR) by disabling or enabling the collection of device owner and machine hostname information.",
+            "Enable packet capture and allow non-administrator users access to log files for troubleshooting.",
+            "Restrict packet capture to only administrators.",
+            "Protect user information by disabling automatic uploading of crash reports.",
+            "Collect geolocation information if Digital Experience (ZDX) is enabled on a device.",
+            "Provide users flexibility by allowing them to change default parameters for Zscaler Tunnel (Z-Tunnel) 2.0 or Private Access protocol settings.",
+            "Protect traffic from malicious PAC files by enforcing secure PAC URLs."
+          ]
+        }
+      ],
+      "conditions": "Quote added for the protocol override clause (verifier w2 E4)."
+    },
+    "api-object": {
+      "statement": "In the API the object is web privacy information, \"the configuration information for end user and device-related PII\", read and written as one object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get",
+          "expect": {
+            "description": "Gets the configuration information for end user and device-related PII."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setWebPrivacyInfo/put",
+          "expect": {
+            "description": "Adds or updates the configuration information for end user and device-related PII."
+          }
+        }
+      ]
+    },
+    "separate-app-supportability": {
+      "statement": "Whether users can see, export or clear logs, change the log mode, or use Report an Issue is set on a different page, App Supportability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "From the App Supportability page, you can configure your users"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "Hide Logging Control on Zscaler Client Connector: Prevents users from exporting or clearing logs and changing the Log Mode set by the Zscaler admin using App Profiles.",
+            "Enable Support Access in Zscaler Client Connector: Allows users to access the Report an Issue form."
+          ]
+        }
+      ],
+      "conditions": "Quote added for the Report an Issue clause (verifier w2 E5)."
+    },
+    "app-supportability-no-api": {
+      "statement": "App Supportability settings are not in the web privacy object; by name they are company-info fields.",
+      "tier": "B",
+      "conditions": "Restated (verifier w2 E3): the earlier claim that the API has no operation for these settings is contradicted by the company-info mapping. The absence from the web privacy body is pinned; the company-info side is a name match.",
+      "derived_from": [
+        "zcc.support-options:field-ui-mapping"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1setWebPrivacyInfo/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "supportEnabled",
+            "disableLoggingControls",
+            "supportAdminEmail"
+          ]
+        }
+      ]
+    }
+  }
+}

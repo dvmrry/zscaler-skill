@@ -188,6 +188,6 @@ Source: `vendor/zscaler-help/about-device-posture-profiles.json`; `vendor/zscale
 
 - ZCC evaluation architecture: [`../zcc/index.md`](../zcc/index.md).
 - ZPA Access Policy posture criteria: [`zpa.policy`](kb:zpa.policy).
-- Posture vs Trusted Networks: [`../zcc/trusted-networks.md`](../zcc/trusted-networks.md).
+- Posture vs Trusted Networks: [`zcc.trusted-networks`](kb:zcc.trusted-networks).
 - Step-up auth can complement posture — fails-posture → require additional auth: [`../zidentity/step-up-authentication.md`](../zidentity/step-up-authentication.md).
 - Reauth timeout for bounding posture staleness: [`zpa.policy`](kb:zpa.policy).

@@ -71,7 +71,7 @@ When instructions are ambiguous, bias toward:
 ## Load when scope names a cloud provider
 
 - AWS: [`references/cloud-connector/aws-deployment.md`](../../../references/cloud-connector/aws-deployment.md), [`references/cloud-connector/aws-workload-discovery.md`](../../../references/cloud-connector/aws-workload-discovery.md)
-- Azure: [`references/cloud-connector/azure-deployment.md`](../../../references/cloud-connector/azure-deployment.md), [`references/zcc/azure-vm-deployment.md`](../../../references/zcc/azure-vm-deployment.md)
+- Azure: [`references/cloud-connector/azure-deployment.md`](../../../references/cloud-connector/azure-deployment.md), [`zcc.install.azure-virtual-desktop`](kb:zcc.install.azure-virtual-desktop)
 
 No GCP-specific grounding exists yet. If the scope names GCP, say that provider-specific grounding is missing and proceed from generic cloud/networking references plus user-provided evidence.
 

@@ -292,7 +292,7 @@ if (host.indexOf(":") !== -1) return "DIRECT";
 
 ## How ZCC uses PAC files vs GRE/IPsec locations
 
-ZCC has three forwarding action modes on a per-platform or per-policy basis: Z-Tunnel, PAC, and NONE. (Tier A — `references/zcc/forwarding-profile.md`.)
+ZCC has three forwarding action modes on a per-platform or per-policy basis: Z-Tunnel, PAC, and NONE. (Tier A — `kb:zcc.forwarding-profiles`.)
 
 - **Z-Tunnel mode:** ZCC establishes a tunnel directly to Zscaler. PAC is not used for tunnel-forwarded traffic.
 - **PAC mode:** ZCC reads the PAC and forwards per its instructions. This is the right mode for environments where a tunnel is not desired or where specific apps need proxy-chaining.
@@ -384,7 +384,7 @@ The ZIA Admin Portal has a **Verify PAC File** option that runs syntax validatio
 ## Cross-links
 
 - Subcloud-variable substitution and PAC routing mechanics: [`./subclouds.md`](./subclouds.md)
-- ZCC forwarding profile PAC action: [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
-- ZCC web-policy PAC URL: [`../zcc/web-policy.md`](../zcc/web-policy.md)
+- ZCC forwarding profile PAC action: [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
+- ZCC web-policy PAC URL: [`zcc.app-profiles`](kb:zcc.app-profiles)
 - Cloud architecture — what a PSE is and how geolocation chooses one: [`./cloud-architecture.md`](./cloud-architecture.md)
 - Kerberos authentication deployment: see ZIA authentication docs in `references/zia/`

@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "id": "zcc.notifications.global-settings",
+  "title": "Tenant-wide Client Connector notification switches",
+  "aliases": [
+    "global eun configuration",
+    "enable notifications by default",
+    "enable zia notifications",
+    "zpa reauthentication notification interval",
+    "service status notifications",
+    "app update notifications",
+    "silence zcc notifications"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.framework"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{templates-replace-tab}}"
+    },
+    {
+      "label": "What the tab switches.",
+      "text": "{{category-toggles}} {{user-changeable}} {{reauth-interval}} {{global-scope}} App profiles carry other notification switches of their own: [[zcc.notifications.framework:per-profile]], [[zcc.notifications:zpa-expiry-warning]]."
+    },
+    {
+      "label": "Pop-up timing and persistence.",
+      "text": "Those settings belong to the notification framework [[zcc.notifications.framework]]."
+    },
+    {
+      "label": "Switches outside this tab.",
+      "text": "The iOS install parameter that suppresses captive-portal notifications is in [[zcc.install.mobile-options]]."
+    },
+    {
+      "label": "Open questions.",
+      "text": "Whether turning off Enable Notifications by Default changes devices that are already enrolled is open {{gap:disable-effect-on-enrolled}}. Whether admins can see that a user turned off reauthentication prompts is open {{gap:user-disable-record}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which notification categories are off, before assuming the user was told about an update, a service in DR mode, a DLP event or a ZPA reauthentication.",
+      "uses": [
+        "category-toggles",
+        "user-changeable"
+      ]
+    },
+    {
+      "do": "Whether the tenant uses notification templates, in which case the settings live in the template assigned to the user's app profile.",
+      "uses": [
+        "templates-replace-tab",
+        "zcc.notifications.templates:purpose"
+      ]
+    },
+    {
+      "do": "Whether the user turned off notifications or reauthentication prompts in the app.",
+      "uses": [
+        "user-changeable",
+        "user-disable-record"
+      ]
+    }
+  ],
+  "claims": {
+    "templates-replace-tab": {
+      "statement": "When notification templates are in use, the End User Notifications tab is not displayed and its settings are configured on the Notification Templates tab instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "If you use notification templates, this tab does not display, and you must configure the end user notification settings on the Notification Templates tab."
+          ]
+        }
+      ]
+    },
+    "category-toggles": {
+      "statement": "Separate switches send app upgrade notifications, service status notifications (for example a service in Disaster Recovery mode) and ZIA notifications (for example DLP).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "Enable App Updates Notifications: Select this option to have users receive app upgrade notifications.",
+            "such as when a service is in Disaster Recovery (DR) mode",
+            "Enable ZIA Notifications: Select this option to have users receive notifications from Internet & SaaS (ZIA), such as data loss prevention (DLP) notifications."
+          ]
+        }
+      ]
+    },
+    "user-changeable": {
+      "statement": "Enable Notifications by Default and Enable Notifications for ZPA reauthentication are switched on when a user enrolls, and the user can turn either off in Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "Enable Notifications by Default: This setting is enabled when a user is enrolled. Users can turn this option off from Zscaler Client Connector.",
+            "This option is enabled after a user is enrolled. Users can turn off this option from Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "reauth-interval": {
+      "statement": "Show ZPA Reauthentication Notifications Every (In Minutes) repeats the reauthentication notification at a set interval of 2 to 1440 minutes, and is enabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "Show ZPA Reauthentication Notifications Every (In Minutes): Select this option to show Private Access reauthentication notifications at a specific time interval. This setting is enabled by default. Enter a value from 2 to 1440 to set the interval in minutes."
+          ]
+        }
+      ]
+    },
+    "global-scope": {
+      "statement": "These switches are one tenant-wide configuration; for these switches, per-group values come only from templates, which apply only to Client Connector 4.8 and later for Windows.",
+      "tier": "B",
+      "derived_from": [
+        "zcc.notifications.templates:purpose",
+        "zcc.notifications.templates:availability"
+      ],
+      "conditions": "Rests on the tab being the Global EUN Configuration tab and on templates being the documented per-group mechanism; no source states the scope in so many words. Narrowed (v5 item 4): previously said different settings for different groups come only from templates, but app profiles carry notification switches of their own (Use Zscaler Notification Framework, Bring Notification to Focus, the ZPA expiry warning).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-end-user-notifications-zscaler-client-connector.json",
+          "quotes": [
+            "On the Global EUN Configuration tab, select from the following options:"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "disable-effect-on-enrolled": {
+      "kind": "semantic",
+      "title": "Effect of turning off Enable Notifications by Default on enrolled devices",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Set Enable Notifications by Default to off in the End User Notifications tab. Users enrolled after this change will not receive notifications by default.\" The source says only that the setting is enabled at enrollment and users can turn it off.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "user-disable-record": {
+      "kind": "semantic",
+      "title": "Visibility of a user's own notification opt-out",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"Users can disable ZPA reauthentication notifications from within the ZCC client. This toggle is per-device and persists until the user re-enables it or ZCC is reinstalled. Admins have no API-visible record of which users have self-disabled this notification.\"",
+      "blocks": "explaining a user who never sees reauthentication prompts",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}

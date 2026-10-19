@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "id": "zcc.forwarding-profiles.fail-open",
+  "title": "Client Connector fail-open: captive portals, unreachable Service Edges and tunnel failures",
+  "aliases": [
+    "fail open",
+    "fail-open policy",
+    "app fail open",
+    "captive portal detection",
+    "zia cloud not reachable",
+    "z-tunnel failover",
+    "user blocked at hotel wifi",
+    "strict enforcement notification",
+    "webFailOpenPolicy"
+  ],
+  "binds": [
+    "zcc/fail-open-policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.transport"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.terraform.field-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.failover"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Fail-open settings decide what the app does when it cannot protect traffic. They live in the tenant-wide App Fail Open settings and, on newer clients, in the app profile."
+    },
+    {
+      "label": "When it applies.",
+      "text": "{{situations}} {{unreachable-vs-setup}}"
+    },
+    {
+      "label": "Service Edge or tunnel failure.",
+      "text": "{{failover-options}} {{retry-in-background}} What Z-Tunnel 2.0 does when it cannot be set up is a separate forwarding profile setting: [[zcc.z-tunnel.transport:setup-failure-behavior]]."
+    },
+    {
+      "label": "Captive portals.",
+      "text": "{{captive-portal-minutes}} {{captive-portal-advice}} Whether users who take longer than the window are then blocked is open {{gap:captive-portal-expiry}}."
+    },
+    {
+      "label": "App profile settings.",
+      "text": "On newer clients the app profile's failover settings take precedence: [[zcc.app-profiles.failover:profile-failover-overrides-global]]; on Windows 4.5 and later captive portal detection is set there too: [[zcc.app-profiles.failover:captive-portal]]. Precedence outside those versions is open {{gap:precedence-detail}}. The app profile's own fail-close settings are in [[zcc.app-profiles.failover]] and [[zcc.app-profiles.advanced-settings:fail-close-lockdown]]."
+    },
+    {
+      "label": "Strict enforcement.",
+      "text": "{{strict-enforcement-notify}}"
+    },
+    {
+      "label": "In API data.",
+      "text": "The fail-open object's fields are listed in the generated type, but the API contract describes none of them, and which field is which console setting is open {{gap:field-mapping}}, and version floors from the legacy doc are open {{gap:version-floors}}. How the Terraform resource handles a failed read is in [[zcc.terraform.field-fidelity:failopen-read-error-removes-state]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "The client version and platform, to know whether the app profile's failover and captive portal settings or the tenant-wide ones apply.",
+      "uses": [
+        "zcc.app-profiles.failover:profile-failover-overrides-global",
+        "zcc.app-profiles.failover:captive-portal",
+        "precedence-detail"
+      ]
+    },
+    {
+      "do": "For a user without internet behind a failed tunnel: whether Disable Internet Access is set, which blocks HTTP and HTTPS but allows other traffic.",
+      "uses": [
+        "failover-options"
+      ]
+    },
+    {
+      "do": "For a captive portal complaint: the configured minutes (0 turns detection off) and whether the user finished the portal within them.",
+      "uses": [
+        "captive-portal-minutes",
+        "captive-portal-expiry"
+      ]
+    }
+  ],
+  "claims": {
+    "situations": {
+      "statement": "The app may need to disable its Internet Security service and let users reach the internet directly in three situations: a captive portal requires payment or acceptance before connecting, the app cannot reach ZIA Public Service Edges, or it cannot set up its Z-Tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "There can be situations in which Zscaler Client Connector must automatically disable its Internet Security service and allow users to bypass the app and access the internet directly:",
+            "Zscaler Client Connector might run into issues reaching Internet & SaaS (ZIA) Public Service Edges.",
+            "Zscaler Client Connector might run into issues properly setting up its Zscaler Tunnel (Z-Tunnel)"
+          ]
+        }
+      ]
+    },
+    "unreachable-vs-setup": {
+      "statement": "Service Edge unreachable means the client cannot establish a connection because of network configuration, such as an isolated lab network; a Z-Tunnel setup issue means it can locate a Service Edge but cannot establish the tunnel, for example when DNS resolves but a firewall blocks tunnel setup.",
+      "tier": "A",
+      "conditions": "Dropped \"at all\", which the source does not say, and quoted the isolated-lab example (verifier).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "The ZIA Service Edge unreachable use case occurs when the client is unable to establish a connection due to network configuration.",
+            "This could be a completely isolated network, such as in a lab setting.",
+            "The Z-Tunnel setup issue occurs when Zscaler Client Connector can locate a ZIA Service Edge but cannot establish a tunnel.",
+            "This could be a case where the ZIA Service Edge resolves with DNS, but the tunnel setup is blocked by a network firewall."
+          ]
+        }
+      ]
+    },
+    "failover-options": {
+      "statement": "For ZIA Cloud Not Reachable and for Z-Tunnel Failover the choice is Direct Internet Access (users bypass the app) or Disable Internet Access, which blocks HTTP and HTTPS and allows all other traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "ZIA Cloud Not Reachable: Select one of the following options:",
+            "Z-Tunnel Failover: Select one of the following options:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "after": "ZIA Cloud Not Reachable: Select one of the following options:",
+          "quotes": [
+            "Direct Internet Access: Users are allowed to bypass the app and access the internet directly.",
+            "Disable Internet Access: Blocks HTTP/HTTPS traffic. All other traffic is allowed."
+          ]
+        }
+      ]
+    },
+    "retry-in-background": {
+      "statement": "After failing over, the app keeps trying to establish the tunnel, or reach the Public Service Edge, in the background and re-enables itself when it succeeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "The app continues to attempt to establish the tunnel in the background and automatically re-enables itself after it's successful.",
+            "The app continues to attempt to reach the Internet & SaaS Public Service Edge in the background and automatically re-enables itself after it successfully reaches the Public Service Edge."
+          ]
+        }
+      ]
+    },
+    "captive-portal-minutes": {
+      "statement": "If Captive Portal Detected, Disable Web Security for (In Minutes) takes 1 to 60 minutes, after which the app re-enables its services and forwards traffic to Zscaler; 0 turns captive portal detection off, and the app then does not fail over directly.",
+      "tier": "A",
+      "binds": [
+        "zcc/fail-open-policy#captivePortalWebSecDisableMinutes"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "To enable captive portal detection, enter the number of minutes the app must keep its services disabled after detecting a captive portal. You can enter any value between 1 and 60. After the specified period, the app enables its services automatically and traffic is forwarded to the Zscaler service.",
+            "To disable the captive portal detection, enter 0 (zero). The app does not perform captive portal detection and does not fail over directly."
+          ]
+        }
+      ]
+    },
+    "captive-portal-advice": {
+      "statement": "Zscaler recommends enabling captive portal detection with a period long enough for users to complete the portal, measured from network change detection, but as low as is reasonable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler recommends setting the captive portal detection to a value that gives users a reasonable amount of time measured from the network change detection to the time they complete entering information requested by the portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler recommends enabling captive portal detection.",
+            "The disable time setting should be set as low as you feel is reasonable for users to interact and pass a captive portal registration system."
+          ]
+        }
+      ],
+      "conditions": "Quoted the reference architecture for \"as low as is reasonable\", which was unquoted (verifier)."
+    },
+    "strict-enforcement-notify": {
+      "statement": "For clients installed in Strict Enforcement mode (Windows 4.6 and later), Notify End User shows a message to users who try to reach the internet before logging in, repeated after a rate limit (default 2 minutes), with text of at most 200 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "Notify End User: Enable this option to display a notification message to users who attempt to access the internet before logging in if Zscaler Client Connector was installed in Strict Enforcement mode. Applies only to Zscaler Client Connector version 4.6 and later for Windows.",
+            "The default value is 2 minutes.",
+            "The maximum number of characters is 200."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "captive-portal-expiry": {
+      "kind": "semantic",
+      "title": "What a user sees who has not finished a captive portal when the window ends",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If a user logs into the portal slowly, they hit the re-enforcement window and are blocked until they disconnect/reconnect.\" The vendor says only that services re-enable after the period.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "precedence-detail": {
+      "kind": "semantic",
+      "title": "Fail-open precedence between app profile and tenant settings outside the documented versions",
+      "status": "partial",
+      "former_ids": [
+        "zcc-85"
+      ],
+      "about": [
+        "zcc/fail-open-policy",
+        "zcc/application-profiles#policyExtension"
+      ],
+      "detail": "Settled for failover settings on Windows 4.6+ and macOS 4.8+ (the app profile wins) and for captive portal detection on Windows 4.5+ (set on the app profile). Open: whether the app profile fail-close settings (`zccAppFailOpenPolicy`, `zccTunnelFailPolicy`, `zccFailCloseSettings*`) follow the same rule, and what older clients and other platforms do when both are set.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "field-mapping": {
+      "kind": "semantic",
+      "title": "Which fail-open field is which console setting",
+      "status": "open",
+      "about": [
+        "zcc/fail-open-policy"
+      ],
+      "detail": "Unverified legacy statements: `enableFailOpen` allows traffic direct when the tunnel or proxy is unreachable and blocks it when false; `tunnelFailureRetryCount` is how many tunnel retries come before declaring unreachable; `enableWebSecOnProxyUnreachable` and `enableWebSecOnTunnelFailure` decide whether web security still runs when the PAC proxy or Z-Tunnel fails; `enableStrictEnforcementPrompt` prompts before failing open; when every edge is unreachable, failover to a secondary edge is automatic. The console offers Direct or Disable Internet Access per case, which does not map one-to-one onto these booleans, and the contract has no descriptions for them. A recorded listing holds a single policy with `enableFailOpen` 1, `tunnelFailureRetryCount` 25, `enableStrictEnforcementPrompt` 0, `strictEnforcementPromptDelayMinutes` 2 and an empty `strictEnforcementPromptMessage` (one test tenant, recorded with SDK 1.9.13 (Python SDK cassette)). By name, and with the console's 2-minute default for Rate Limit Strict Enforcement Notification, the three strict-enforcement fields look like the Notify End User switch, its rate limit and its message; that reading is by name only, but it does not fit the legacy \"prompts before failing open\".",
+      "blocks": "reading a tenant's fail-open behavior from API data",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestFailOpenPolicy.yaml",
+          "after": "interactions:",
+          "quotes": [
+            "\\\"tunnelFailureRetryCount\\\" : 25,",
+            "\\\"enableFailOpen\\\" : 1,",
+            "\\\"enableStrictEnforcementPrompt\\\" : 0,",
+            "\\\"strictEnforcementPromptDelayMinutes\\\" : 2,",
+            "\\\"strictEnforcementPromptMessage\\\" : \\\"\\\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "Rate Limit Strict Enforcement Notification: Enter the number of minutes before Zscaler Client Connector displays the notification message again.",
+            "Strict Enforcement Notification: Enter the message that displays to users."
+          ]
+        }
+      ]
+    },
+    "version-floors": {
+      "kind": "semantic",
+      "title": "Version-specific fail-open and tunnel behavior from the legacy doc",
+      "status": "open",
+      "detail": "Unverified legacy statements (marked operator-reported): Windows 4.5+ adds fail-close options for strict enforcement; macOS 4.6+ improves captive portal detection and adds per-app-profile overrides; macOS 4.8+ adds unified tunnel handling and changes Z-Tunnel 2.0 fallback; Windows 4.4+ makes the 15-minute device posture cadence configurable. The help documents only the app profile failover floors (Windows 4.6, macOS 4.8) and captive portal on the app profile (Windows 4.5).",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

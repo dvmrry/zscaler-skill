@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "id": "zcc.device-posture.check-types",
+  "title": "Device posture check types: what each checks, where it applies, and how it passes",
+  "aliases": [
+    "posture types",
+    "posture check types",
+    "crowdstrike zta score posture",
+    "detect crowdstrike posture",
+    "firewall posture check",
+    "registry key posture check",
+    "client certificate posture",
+    "server validated client certificate",
+    "ownership variable posture",
+    "unauthorized modification posture",
+    "jamf detection posture",
+    "zcc version posture",
+    "partner tenant posture"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.platform-support"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.linux-client-certificate"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.posture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each posture type in a device posture profile checks one property on the device and passes or fails. The per-platform view of the same facts is in [[zcc.device-posture.platform-support]]."
+    },
+    {
+      "label": "Platforms.",
+      "text": "{{platform-selection}} {{partner-tenant}} Which types run on the pre-login machine tunnel is in [[zpa.machine-tunnels.posture]]."
+    },
+    {
+      "heading": "Certificates"
+    },
+    {
+      "text": "{{certificate-trust}} {{client-certificate}} {{non-exportable-key}} {{crl-check}} {{server-validated-cert}} Linux client certificate placement: [[zcc.device-posture.linux-client-certificate]]."
+    },
+    {
+      "heading": "Device state"
+    },
+    {
+      "text": "{{file-path}} {{registry-key}} {{firewall}} {{full-disk-encryption}} {{domain-joined}} {{azuread-joined}} {{os-version}} {{zcc-version-type}}"
+    },
+    {
+      "heading": "Mobile"
+    },
+    {
+      "text": "{{ownership-variable}} {{unauthorized-modification}}"
+    },
+    {
+      "heading": "Processes, EDR and antivirus"
+    },
+    {
+      "text": "{{process-check}} {{edr-detect}} {{edr-no-thumbprint-fallback}} {{defender}} {{detect-antivirus}} {{version-field}}"
+    },
+    {
+      "text": "{{crowdstrike-zta-score}} {{crowdstrike-zta-subscores}} {{jamf}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the failing type is supported on the device's platform and Client Connector version at all, before reading the check's own logic.",
+      "uses": [
+        "platform-selection",
+        "zcc.device-posture.platform-support:windows-types"
+      ]
+    },
+    {
+      "do": "For a Firewall failure, whether only a third-party firewall is running, which does not count.",
+      "uses": [
+        "firewall"
+      ]
+    },
+    {
+      "do": "For a Registry Key failure, whether the key sits where the logged-in user can read it, since the check runs in the user context.",
+      "uses": [
+        "registry-key"
+      ]
+    },
+    {
+      "do": "For a client certificate failure, whether Non-Exportable Private Key is on with an exportable key, or the certificate was revoked with CRL checking on.",
+      "uses": [
+        "non-exportable-key",
+        "crl-check"
+      ]
+    },
+    {
+      "do": "For a CrowdStrike ZTA failure, whether the CrowdStrike agent is running and ZTA is enabled in CrowdStrike, and which score (overall, OS or sensor) the profile compares.",
+      "uses": [
+        "crowdstrike-zta-score",
+        "crowdstrike-zta-subscores"
+      ]
+    }
+  ],
+  "claims": {
+    "platform-selection": {
+      "statement": "A device posture profile names one or more platforms (Windows, macOS, Linux, Android, iOS); a posture type that a selected platform does not support is unavailable in the profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Platform: Select one or more of the following platform options:",
+            "Not all device posture types work for all platforms. If you select a device that doesn't support a specific posture type, the posture type is unavailable."
+          ]
+        }
+      ]
+    },
+    "partner-tenant": {
+      "statement": "Apply when added as Partner Tenant (Client Connector 4.6 and later on Windows, 5.0 and later on macOS) evaluates the posture type for the Private Access tunnel used to connect to a partner tenant; otherwise the type is evaluated only for the Private Access and Internet & SaaS tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Apply when added as Partner Tenant: Applies to Zscaler Client Connector version 4.6 and later for Windows and Zscaler Client Connector version 5.0 and later for macOS.",
+            "When selected, the posture type is evaluated and applied to the Private Access tunnel used to connect to a partner tenant."
+          ]
+        }
+      ]
+    },
+    "certificate-trust": {
+      "statement": "Certificate Trust applies to all five platforms and passes when the device trusts the uploaded certificate (a root CA, intermediate or client certificate); on iOS the device must trust it directly, and an intermediate does not work.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows, macOS, Linux, Android, or iOS. Select Certificate Trust from the drop-down menu",
+            "The user's device must trust the certificate to pass the posture validation check.",
+            "For iOS, the certificate must be trusted directly by the device. An intermediate certificate doesn't work."
+          ]
+        }
+      ]
+    },
+    "client-certificate": {
+      "statement": "Client Certificate applies to Windows, macOS and Linux, and its Android support ends with Client Connector 5.0; it passes when the user store holds a certificate issued by the CA uploaded to the profile and the user has the matching key pair.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows, macOS, and Linux. For details on how to configure Linux for the Client Certificate",
+            "As of Zscaler Client Connector version 5.0 for Android, Zscaler is ending support for the Client Certificate posture type for all Android devices.",
+            "The certificate must be in the user store at the endpoint, issued by the CA that matches the uploaded certificate in the posture profile. The user must have a private and public key pair issued by the specified CA to pass this posture validation check."
+          ]
+        }
+      ]
+    },
+    "non-exportable-key": {
+      "statement": "With Non-Exportable Private Key enabled on a certificate posture type, Client Connector checks whether the private key can be exported, and validation fails if it can.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "Select Client Certificate from the drop-down menu",
+          "quotes": [
+            "If enabled, Zscaler Client Connector must check if the certificate's private key can or cannot be exported. Posture validation fails if Non-Exportable Private Key is enabled and the key is exportable."
+          ]
+        }
+      ]
+    },
+    "crl-check": {
+      "statement": "With Perform CRL Check enabled, a revoked client certificate fails the check. On Windows, Client Connector uses the CRL cached by a Microsoft API; from 4.8 on Windows it can instead download, validate and cache the CRL itself on a 0 to 30 minute interval, a feature Support enables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "If a certificate was revoked, the posture check fails.",
+            "Zscaler Client Connector for Windows checks the CRL that was downloaded from the CA server and cached by a Microsoft API.",
+            "you can have Zscaler Client Connector download, validate, and cache the CRL locally based on a configurable cache interval (0 to 30 minutes)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "You require frequent CRL downloads or granular control over caching intervals for near real-time validation.",
+          "quotes": [
+            "Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "server-validated-cert": {
+      "statement": "Server Validated Client Certificate (Client Connector 4.4 and later on Windows, 5.0 and later on macOS) applies to Private Access only: the server sends a challenge that the client signs with the certificate's private key. On macOS the certificate must be in the System keychain, not the Login keychain, and certificates that need user interaction such as PIN smart cards are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies only to Zscaler Client Connector version 4.4 and later for Windows and Zscaler Client Connector version 5.0 and later for macOS. This posture is applicable to Private Access (ZPA) only.",
+            "For this posture validation check, the server sends a challenge to the client.",
+            "The client certificate must also be in the System keychain for posture evaluation. Certificates in the Login keychain are not supported at this time.",
+            "Client certificates that require user interaction (e.g., smart cards with a PIN) are not supported."
+          ]
+        }
+      ]
+    },
+    "file-path": {
+      "statement": "File Path applies to Windows or macOS and passes when the file exists on the device; it is not available in a profile with more than one platform, where Certificate Trust must be used instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows or macOS. Select File Path from the drop-down menu",
+            "The user's device must have the specified file path to pass the posture validation check.",
+            "If you choose more than one platform, the File Path option is not available. Instead, you must use the Certificate Trust posture type."
+          ]
+        }
+      ]
+    },
+    "registry-key": {
+      "statement": "Registry Key applies to Windows only and matches a key path or a value (name and data). The check runs in the user context, so a key users cannot read, such as under HKLM, must be created where they can.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows only. Select Registry Key from the Posture Type drop-down menu.",
+            "From the Match Type drop-down menu, select either Path or Value:",
+            "The registry key check runs in the user context. If your permissions prevent users from accessing the system keys (e.g., HKLM), you must create the registry key where users can access it."
+          ]
+        }
+      ]
+    },
+    "firewall": {
+      "statement": "Firewall applies to Windows or macOS and passes when at least one of the public, private and domain firewall profiles is active; third-party firewalls are not checked and do not satisfy it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows or macOS. Select Firewall from the drop-down menu.",
+            "Zscaler Client Connector checks the firewall status for all three firewall profiles: public, private, and domain. At least one of these profiles must be active to pass the posture validation check.",
+            "Zscaler Client Connector doesn't check for the presence of third-party firewalls. Third-party firewalls don't fulfill the posture check requirement."
+          ]
+        }
+      ]
+    },
+    "full-disk-encryption": {
+      "statement": "Full Disk Encryption applies to Windows, macOS and Android, and to Linux from Client Connector 1.4, and passes when full disk encryption is enabled; on Linux it checks the disk or partition holding a given file path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows, macOS, and Android. Also applies to Zscaler Client Connector version 1.4 and later for Linux.",
+            "The user must have full disk encryption enabled to pass the posture validation check.",
+            "For Linux only, provide a value in the File Path field to check whether or not the disk or the disk partition that contains the File Path is encrypted."
+          ]
+        }
+      ]
+    },
+    "domain-joined": {
+      "statement": "Domain Joined applies to Windows or macOS and passes when the device is joined to the named domain or workgroup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows or macOS. Select Domain Joined from the drop-down menu and enter the domain or workgroup to match.",
+            "The user's device must have a matching domain to pass the posture validation check."
+          ]
+        }
+      ]
+    },
+    "azuread-joined": {
+      "statement": "AzureAD Domain Joined applies to Windows only and checks that the device is joined to the Azure AD tenant ID given; a device can be domain joined, Azure AD joined, or both (hybrid).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Windows only. Select AzureAD Domain Joined from the drop-down menu and then enter a globally unique identifier in the Tenant Id field.",
+            "A device can be only Domain Joined, only AzureAD Domain Joined, or both AzureAD Domain Joined and Domain Joined (i.e., hybrid join)."
+          ]
+        }
+      ]
+    },
+    "os-version": {
+      "statement": "OS Version applies to Client Connector 3.6 and later on Windows and macOS, 1.4 and later on Linux, and 3.7 and later on Android; on Windows it passes when the machine runs the selected edition's build or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 3.6 and later for Windows or macOS, or Zscaler Client Connector 1.4 and later for Linux, or Zscaler Client Connector 3.7 and later for Android.",
+            "If the machine is running this version or later, then the posture check passes."
+          ]
+        }
+      ]
+    },
+    "zcc-version-type": {
+      "statement": "Zscaler Client Connector Version applies to Client Connector 4.8 and later on Windows and macOS, takes up to five versions of 4.8 or higher, and with Exact Match requires one of the exact versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 4.8 and later for Windows or Zscaler Client Connector version 4.8 and later for macOS. Select Zscaler Client Connector Version from the drop-down menu. Enter up to five versions in the Version field",
+            "You can enter only values 4.8 and higher (e.g., 4.8, 4.8.0.456, 4.9, 4.9.0.789)."
+          ]
+        }
+      ]
+    },
+    "ownership-variable": {
+      "statement": "Ownership Variable applies to Android or iOS and passes when the device holds the configured alphanumeric variable (at most 32 characters), which the device management system pushes at installation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Android or iOS. Select Ownership Variable from the drop-down menu. Enter a variable using an alphanumeric value no greater than 32 characters.",
+            "Your device management solution pushes the variable to the device during installation."
+          ]
+        }
+      ]
+    },
+    "unauthorized-modification": {
+      "statement": "Unauthorized Modification applies to Android or iOS and passes when the device has no unauthorized modification such as jailbreaking or rooting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Android or iOS. Select Unauthorized Modification from the drop-down menu. Zscaler Client Connector checks for unauthorized modifications on the device, such as jailbreaking or rooting.",
+            "The user's device must not have unauthorized modifications to pass the posture validation check."
+          ]
+        }
+      ]
+    },
+    "process-check": {
+      "statement": "Process Check applies to Client Connector 2.1.2 and later on Windows or macOS and 1.3 and later on Linux, and matches a process by absolute path and one or more signer certificate thumbprints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 2.1.2 and later for Windows or macOS or Zscaler Client Connector version 1.3 and later for Linux.",
+            "For Process Path, enter the name and absolute path for the process",
+            "You can add multiple thumbprints for a single Process Check by separating each thumbprint with a comma."
+          ]
+        }
+      ]
+    },
+    "edr-detect": {
+      "statement": "Detect Carbon Black, Detect CrowdStrike and Detect SentinelOne apply to Client Connector 2.1.2 and later on Windows or macOS and pass when that agent is running on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Select Detect Carbon Black. The user must have Carbon Black running on the device to pass the posture validation check.",
+            "Select Detect CrowdStrike. The user must have CrowdStrike running on the device to pass the posture validation check.",
+            "Select Detect SentinelOne. The user must have SentinelOne running on the device to pass the posture validation check."
+          ]
+        }
+      ]
+    },
+    "edr-no-thumbprint-fallback": {
+      "statement": "When no signer thumbprint matches, the Carbon Black, CrowdStrike and SentinelOne checks still pass if the agent is installed and turned on in Windows Security (Client Connector 4.5 and later on Windows) or installed with its process running (4.3 and later on macOS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "if there are no matching thumbprints, the posture check still passes if Carbon Black is installed and turned on in Windows Security.",
+            "if there are no matching thumbprints, the posture check still passes if CrowdStrike is installed and turned on in Windows Security.",
+            "if there are no matching thumbprints, the posture check still passes if SentinelOne is installed and turned on in Windows Security.",
+            "if there are no matching thumbprints, the posture check still passes if CrowdStrike is installed and the process is running."
+          ]
+        }
+      ]
+    },
+    "defender": {
+      "statement": "Detect Microsoft Defender applies to Client Connector 2.1.1 and later on Windows or macOS and 1.4 and later on Linux, and passes when Microsoft Defender Advanced Threat Protection is running; on Linux the Defender executable path is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 2.1.1 and later for Windows or macOS, or Zscaler Client Connector version 1.4 and later for Linux. Select Detect Microsoft Defender.",
+            "The user must have Microsoft Defender Advanced Threat Protection running on the device to pass the posture validation check.",
+            "For Linux only, enter the executable path for the Microsoft Defender endpoint on Linux."
+          ]
+        }
+      ]
+    },
+    "detect-antivirus": {
+      "statement": "Detect Antivirus applies to Client Connector 3.6 and later on Windows or macOS. On Windows a blank AV name passes on any running antivirus and a named one must be running; on macOS the antivirus name, including its system extension name, is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "This is only applicable if you're using Zscaler Client Connector version 3.6 and later for Windows or macOS. Select Detect Antivirus from the drop-down menu.",
+            "If you specify an antivirus name, the antivirus must be running on the system for the posture check to pass. If you leave the AV Name field blank, Zscaler Client Connector detects any antivirus running on the system.",
+            "For macOS, you must specify the antivirus name in the AV Name field. Include the system extension name as part of the antivirus name."
+          ]
+        }
+      ]
+    },
+    "version-field": {
+      "statement": "From Client Connector 4.9 on Windows, Process Check and the Carbon Black, CrowdStrike, SentinelOne and Microsoft Defender checks can require up to three software versions, with Exact Match requiring an exact version; Support enables this.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "You can add multiple thumbprints for a single Process Check by separating each thumbprint with a comma.",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.9 and later for Windows, you can specify one or more software versions that the device must have to pass the check.",
+            "Enter up to three versions in the Version field in a minimum two-version level to maximum 4-version level format. If you select Exact Match, the exact version number is required to pass the check. Contact Zscaler Support to enable this feature."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "The user must have Microsoft Defender Advanced Threat Protection running on the device to pass the posture validation check.",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.9 and later for Windows, you can specify one or more software versions that the device must have to pass the check."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-zta-score": {
+      "statement": "CrowdStrike ZTA Score applies to Client Connector 3.4 and later on Windows or macOS, needs CrowdStrike running with its ZTA feature enabled in CrowdStrike, and passes when CrowdStrike's overall score is greater than or equal to the configured score (1 to 100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "after": "This is only applicable if you're using Zscaler Client Connector version 3.4 and later for Windows or macOS. Select CrowdStrike ZTA Score.",
+          "quotes": [
+            "The user must have CrowdStrike running on the device to pass the posture validation check.",
+            "Users must enable the CrowdStrike ZTA feature in CrowdStrike.",
+            "Enter a score between 1 and 100.",
+            "If that overall score is greater than or equal to the score you've entered, the posture check passes. If the overall score is less than the score you entered, the posture check fails."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-zta-subscores": {
+      "statement": "CrowdStrike ZTA Device OS Score and CrowdStrike ZTA Sensor Setting Score apply to Client Connector 4.6 and later on Windows and 4.8 and later on macOS, and compare the configured score against CrowdStrike's OS score or sensor setting score instead of the overall score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "This is only applicable if you're using Zscaler Client Connector version 4.6 and later for Windows or Zscaler Client Connector version 4.8 and later for macOS. Select CrowdStrike ZTA Device OS Score.",
+            "If that OS score is greater than or equal to the score you've entered, the posture check passes.",
+            "Select CrowdStrike ZTA Sensor Setting Score.",
+            "If that sensor setting score is greater than or equal to the score you've entered, the posture check passes."
+          ]
+        }
+      ]
+    },
+    "jamf": {
+      "statement": "Jamf Detection applies to Client Connector 4.3 and later on macOS and checks that Jamf is running, or a Jamf risk level (Secure, Low, Medium, High); the Jamf daemon can keep running after the MDM profile is removed unless the framework is removed on unenrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-device-posture-profiles.json",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 4.3 and later for macOS.",
+            "Jamf Detection: Zscaler Client Connector checks if Jamf is running on the device.",
+            "Jamf Risk Level: Zscaler Client Connector checks for Jamf-provided risk levels. Choose from Secure, Low, Medium, or High.",
+            "when removing an MDM profile from a device, the Jamf daemon might still be running."
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -46,7 +46,7 @@ From *Understanding the ZDX Cloud Architecture*:
 
 **Architectural quirk worth knowing**: ZDX's analytics backend is **Microsoft Azure Data Explorer**. Customer metrics land in Zscaler-owned ADX clusters. For customers with strict data-residency / cloud-provider constraints, this is a non-obvious dependency to flag.
 
-**Cross-product**: ZDX is one of the three products that share the ZCC endpoint agent. ZCC entitlement via `ZdxGroupEntitlements` (see [`../zcc/entitlements.md`](../zcc/entitlements.md)) is the gate — users not entitled never report ZDX data regardless of portal config.
+**Cross-product**: ZDX is one of the three products that share the ZCC endpoint agent. ZCC entitlement via `ZdxGroupEntitlements` (see [`zcc.entitlements`](kb:zcc.entitlements)) is the gate — users not entitled never report ZDX data regardless of portal config.
 
 ### ZDX Score — the headline metric
 
@@ -136,6 +136,6 @@ For custom apps, at least one Web probe is required to enable monitoring; Networ
 - Probes (Web + Cloud Path) — [`./probes.md`](./probes.md)
 - Diagnostics Sessions and Alerts — [`./diagnostics-and-alerts.md`](./diagnostics-and-alerts.md)
 - API surface — [`./api.md`](./api.md)
-- ZCC entitlement (ZDX gate) — [`../zcc/entitlements.md`](../zcc/entitlements.md)
+- ZCC entitlement (ZDX gate) — [`zcc.entitlements`](kb:zcc.entitlements)
 - Location-collection dual-source — [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md)
 - Shared cloud architecture (how ZDX CA fits into the broader platform) — [`../shared/cloud-architecture.md`](../shared/cloud-architecture.md)

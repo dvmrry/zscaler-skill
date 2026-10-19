@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "zcc.device-posture.platform-support",
+  "title": "Which device posture types each platform supports",
+  "aliases": [
+    "posture types on linux",
+    "posture types on ios",
+    "posture types on android",
+    "mobile posture support",
+    "posture platform matrix"
+  ],
+  "related": [
+    { "rel": "depends-on", "to": "zcc.device-posture.check-types" },
+    { "rel": "see-also", "to": "zcc.device-posture" }
+  ],
+  "prose": [
+    {
+      "text": "The vendor states platform support per posture type; these claims collect it per platform. Version floors per type are in [[zcc.device-posture.check-types]]."
+    },
+    {
+      "label": "Windows.",
+      "text": "{{windows-types}}"
+    },
+    {
+      "label": "macOS.",
+      "text": "{{macos-types}}"
+    },
+    {
+      "label": "Linux.",
+      "text": "{{linux-types}}"
+    },
+    {
+      "label": "Android.",
+      "text": "{{android-types}}"
+    },
+    {
+      "label": "iOS.",
+      "text": "{{ios-types}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a profile that targets mobile or Linux users relies on a type that platform does not offer, since such a type is simply unavailable for it.",
+      "uses": ["linux-types", "android-types", "ios-types", "zcc.device-posture.check-types:platform-selection"]
+    }
+  ],
+  "claims": {
+    "windows-types": {
+      "statement": "Windows supports every posture type except Ownership Variable, Unauthorized Modification and Jamf Detection.",
+      "tier": "B",
+      "conditions": "Collected from each type's stated platforms; a type whose statement does not name Windows is counted as unsupported there. The set of posture types is the twenty type claims in zcc.device-posture.check-types, all now listed in derived_from (completed per verifier).",
+      "derived_from": [
+        "zcc.device-posture.check-types:certificate-trust",
+        "zcc.device-posture.check-types:client-certificate",
+        "zcc.device-posture.check-types:server-validated-cert",
+        "zcc.device-posture.check-types:file-path",
+        "zcc.device-posture.check-types:registry-key",
+        "zcc.device-posture.check-types:firewall",
+        "zcc.device-posture.check-types:full-disk-encryption",
+        "zcc.device-posture.check-types:domain-joined",
+        "zcc.device-posture.check-types:azuread-joined",
+        "zcc.device-posture.check-types:os-version",
+        "zcc.device-posture.check-types:zcc-version-type",
+        "zcc.device-posture.check-types:ownership-variable",
+        "zcc.device-posture.check-types:unauthorized-modification",
+        "zcc.device-posture.check-types:process-check",
+        "zcc.device-posture.check-types:edr-detect",
+        "zcc.device-posture.check-types:defender",
+        "zcc.device-posture.check-types:detect-antivirus",
+        "zcc.device-posture.check-types:crowdstrike-zta-score",
+        "zcc.device-posture.check-types:crowdstrike-zta-subscores",
+        "zcc.device-posture.check-types:jamf"
+      ]
+    },
+    "macos-types": {
+      "statement": "macOS supports Certificate Trust, Client Certificate, Server Validated Client Certificate (from 5.0), File Path, Firewall, Full Disk Encryption, Domain Joined, OS Version, Zscaler Client Connector Version, Process Check, the Carbon Black, CrowdStrike, SentinelOne and Microsoft Defender checks, the CrowdStrike ZTA scores, Detect Antivirus and Jamf Detection; it does not support Registry Key, AzureAD Domain Joined, Ownership Variable or Unauthorized Modification.",
+      "tier": "B",
+      "conditions": "Collected from each type's stated platforms; a type whose statement does not name macOS is counted as unsupported there. The set of posture types is the twenty type claims in zcc.device-posture.check-types, all now listed in derived_from (completed per verifier).",
+      "derived_from": [
+        "zcc.device-posture.check-types:certificate-trust",
+        "zcc.device-posture.check-types:client-certificate",
+        "zcc.device-posture.check-types:server-validated-cert",
+        "zcc.device-posture.check-types:file-path",
+        "zcc.device-posture.check-types:registry-key",
+        "zcc.device-posture.check-types:firewall",
+        "zcc.device-posture.check-types:full-disk-encryption",
+        "zcc.device-posture.check-types:domain-joined",
+        "zcc.device-posture.check-types:azuread-joined",
+        "zcc.device-posture.check-types:os-version",
+        "zcc.device-posture.check-types:zcc-version-type",
+        "zcc.device-posture.check-types:ownership-variable",
+        "zcc.device-posture.check-types:unauthorized-modification",
+        "zcc.device-posture.check-types:process-check",
+        "zcc.device-posture.check-types:edr-detect",
+        "zcc.device-posture.check-types:defender",
+        "zcc.device-posture.check-types:detect-antivirus",
+        "zcc.device-posture.check-types:crowdstrike-zta-score",
+        "zcc.device-posture.check-types:crowdstrike-zta-subscores",
+        "zcc.device-posture.check-types:jamf"
+      ]
+    },
+    "linux-types": {
+      "statement": "Linux supports Certificate Trust, Client Certificate, Full Disk Encryption (from 1.4), Process Check (from 1.3), Detect Microsoft Defender (from 1.4) and OS Version (from 1.4); File Path, Firewall, Domain Joined, Zscaler Client Connector Version and the other EDR and antivirus checks are not offered for Linux.",
+      "tier": "B",
+      "conditions": "Collected from each type's stated platforms; a type whose statement does not name Linux is counted as unsupported there.",
+      "derived_from": [
+        "zcc.device-posture.check-types:certificate-trust",
+        "zcc.device-posture.check-types:client-certificate",
+        "zcc.device-posture.check-types:full-disk-encryption",
+        "zcc.device-posture.check-types:process-check",
+        "zcc.device-posture.check-types:defender",
+        "zcc.device-posture.check-types:os-version",
+        "zcc.device-posture.check-types:file-path",
+        "zcc.device-posture.check-types:zcc-version-type"
+      ]
+    },
+    "android-types": {
+      "statement": "Android supports Certificate Trust, Full Disk Encryption, OS Version (from 3.7), Ownership Variable and Unauthorized Modification; Client Certificate support for Android ends with Client Connector 5.0.",
+      "tier": "B",
+      "conditions": "Collected from each type's stated platforms; a type whose statement does not name Android is counted as unsupported there.",
+      "derived_from": [
+        "zcc.device-posture.check-types:certificate-trust",
+        "zcc.device-posture.check-types:full-disk-encryption",
+        "zcc.device-posture.check-types:os-version",
+        "zcc.device-posture.check-types:ownership-variable",
+        "zcc.device-posture.check-types:unauthorized-modification",
+        "zcc.device-posture.check-types:client-certificate"
+      ]
+    },
+    "ios-types": {
+      "statement": "iOS supports Certificate Trust, Ownership Variable and Unauthorized Modification; neither OS Version nor Zscaler Client Connector Version is offered for iOS.",
+      "tier": "B",
+      "conditions": "Collected from each type's stated platforms; a type whose statement does not name iOS is counted as unsupported there.",
+      "derived_from": [
+        "zcc.device-posture.check-types:certificate-trust",
+        "zcc.device-posture.check-types:ownership-variable",
+        "zcc.device-posture.check-types:unauthorized-modification",
+        "zcc.device-posture.check-types:os-version",
+        "zcc.device-posture.check-types:zcc-version-type"
+      ]
+    }
+  }
+}

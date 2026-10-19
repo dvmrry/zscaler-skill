@@ -709,6 +709,6 @@ Notes:
 - ZPA LSS User Activity schema — [`zpa.logs.user-activity`](kb:zpa.logs.user-activity)
 - ZPA User Status schema — [`zpa.logs.user-status`](kb:zpa.logs.user-status)
 - ZPA App Connector Metrics schema — [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)
-- ZCC log schema (client-side only — not Splunk-queryable directly) — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
+- ZCC log schema (client-side only — not Splunk-queryable directly) — [`zcc.logs.client-log`](kb:zcc.logs.client-log)
 - ZDX overview (score mechanics) — [`../zdx/overview.md`](../zdx/overview.md)
 - ZDX API (data retrieval) — [`../zdx/api.md`](../zdx/api.md)

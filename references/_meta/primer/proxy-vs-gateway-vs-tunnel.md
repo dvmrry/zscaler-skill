@@ -102,7 +102,7 @@ The user's traffic appears to originate from the tunnel server's location.
 - **GRE / IPSec tunnels** — site-to-site forwarding from customer routers / firewalls into Zscaler. No client software on user devices; whole branch network's traffic goes via the tunnel.
 - **ZPA Microtunnel / M-Tunnel** — ZPA-specific tunnel for Private Access traffic.
 
-See `references/zcc/z-tunnel.md` for Z-Tunnel-specific depth.
+See `kb:zcc.z-tunnel` for Z-Tunnel-specific depth.
 
 ## Gateway / Direct route — IP-layer forwarding
 
@@ -154,7 +154,7 @@ A typical large enterprise deployment uses **all three paradigms simultaneously*
 | Browser-only access for contractors | PAC file → Zscaler PSE (or Browser Access for ZPA-protected apps) |
 | Specific apps requiring direct internet | Direct-route / bypass list in ZCC config |
 
-ZCC's **forwarding profile** is what decides which paradigm applies in which situation — Trusted Networks (skip tunnel, use PAC), Untrusted Networks (Z-Tunnel), captive portal (grace period), etc. See [`../../zcc/forwarding-profile.md`](../../zcc/forwarding-profile.md).
+ZCC's **forwarding profile** is what decides which paradigm applies in which situation — Trusted Networks (skip tunnel, use PAC), Untrusted Networks (Z-Tunnel), captive portal (grace period), etc. See [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles).
 
 ## Mental model — the layer-of-abstraction view
 
@@ -189,8 +189,8 @@ A proxy understands the most about your traffic (knows the URL, the headers, the
 ## Cross-links
 
 - Networking basics (TCP/IP/ports/DNS): [`./networking-basics.md`](./networking-basics.md)
-- ZCC forwarding profile decisions: [`../../zcc/forwarding-profile.md`](../../zcc/forwarding-profile.md)
-- Z-Tunnel 1.0 vs 2.0 details: [`../../zcc/z-tunnel.md`](../../zcc/z-tunnel.md)
+- ZCC forwarding profile decisions: [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
+- Z-Tunnel 1.0 vs 2.0 details: [`zcc.z-tunnel`](kb:zcc.z-tunnel)
 - PAC files: [`../../shared/pac-files.md`](../../shared/pac-files.md)
 - Cloud Connector as inline gateway for workloads: [`../../cloud-connector/overview.md`](../../cloud-connector/overview.md)
 - Zero-trust mental model (different lens, same architecture): [`./zero-trust.md`](./zero-trust.md)

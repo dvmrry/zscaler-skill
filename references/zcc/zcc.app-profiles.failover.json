@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles.failover",
+  "title": "App profile failover: disaster recovery, cloud unreachable, captive portals",
+  "aliases": [
+    "zcc disaster recovery",
+    "enableZiaDR",
+    "zia dr app profile",
+    "zcc fail open app profile",
+    "captive portal detection",
+    "zia cloud not reachable",
+    "z-tunnel failover",
+    "allowUnreachablePac"
+  ],
+  "binds": [
+    "zcc/application-profiles#disasterRecovery"
+  ],
+  "related": [
+    {
+      "rel": "interacts-with",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.fail-open"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The app profile handles four different situations, and they should not be confused."
+    },
+    {
+      "label": "The Zscaler cloud is down (disaster recovery).",
+      "text": "{{zia-dr-scope}} {{zia-dr-actions}} {{dr-activation}} {{zpa-dr-scope}} What disaster recovery is for, and how Private Access activates it, is in [[zpa.private-service-edges.disaster-recovery]]."
+    },
+    {
+      "label": "The cloud or the tunnel cannot be reached (failover).",
+      "text": "{{profile-failover-overrides-global}} {{profile-failover-options}} The tenant-wide App Fail Open settings these override are in [[zcc.forwarding-profiles.fail-open]]."
+    },
+    {
+      "label": "A captive portal is in the way.",
+      "text": "{{captive-portal}} {{captive-portal-fail-open}} {{captive-portal-keys}}"
+    },
+    {
+      "label": "The PAC file cannot be reached.",
+      "text": "{{allow-unreachable-pac}}"
+    },
+    {
+      "text": "How the disaster recovery block is spelled on the wire, where the sources disagree, is in [[zcc.api.web-policy-wire:dr-key-names]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the outage is the Zscaler cloud (disaster recovery, activated by DNS TXT record) or reachability from this device (failover).",
+      "uses": [
+        "dr-activation",
+        "profile-failover-options"
+      ]
+    },
+    {
+      "do": "For failover, whether the app profile sets its own behavior or follows the global App Fail Open setting, and whether the client version honors the profile setting.",
+      "uses": [
+        "profile-failover-overrides-global",
+        "profile-failover-options"
+      ]
+    }
+  ],
+  "claims": {
+    "zia-dr-scope": {
+      "statement": "Disaster Recovery for Internet & SaaS gives users access while the Internet & SaaS service is down, and only to enrolled users.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#disasterRecovery"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Disaster Recovery for Internet & SaaS provides users access even when the Internet & SaaS service is down and is available only to enrolled users."
+          ]
+        }
+      ]
+    },
+    "zia-dr-actions": {
+      "statement": "When enabled, the profile chooses what happens during it: direct internet access bypassing the app, no internet access (all traffic dropped at the endpoint), policy-based access for web traffic allowing or blocking URLs through a custom PAC file, or, on Windows 4.8 and later, policy-based access on all ports, which also uses a custom PAC file and forwards the selected traffic over Z-Tunnel 2.0.",
+      "tier": "A",
+      "conditions": "Fourth option added (verifier w2 A9).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Direct Internet Access: Traffic bypasses Zscaler Client Connector, giving the user access to all applications through direct internet access.",
+            "Disable Internet Access: All traffic is dropped at the endpoint and users do not have access to the internet.",
+            "Policy Based Access (Web only): You can either block or allow access to specific URLs using a custom PAC file.",
+            "Policy Based Access (All Ports): You can either block or allow access to specific URLs using a custom PAC file.",
+            "This option allows you to forward the selected internet traffic using Z-Tunnel 2.0.",
+            "Available only for Zscaler Client Connector version 4.8 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "dr-activation": {
+      "statement": "Disaster recovery is activated or tested by updating a DNS TXT record value, and a test mode applies it to the profile's selected users or groups only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Activation: Activate or test disaster recovery by updating the DNS TXT record value.",
+            "Test Mode: Enable Activate Test Mode if the selected users or groups for the app profile are part of a group to test disaster recovery."
+          ]
+        }
+      ]
+    },
+    "zpa-dr-scope": {
+      "statement": "Disaster Recovery for Private Access does the same for private applications while Private Access is down, also only for enrolled users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Disaster Recovery for Private Access provides users access to applications when the Private Access service is down and is available only to enrolled users."
+          ]
+        }
+      ]
+    },
+    "profile-failover-overrides-global": {
+      "statement": "Failover settings on the app profile take precedence over the global App Fail Open settings, from Client Connector 4.6 for Windows and 4.8 for macOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-fail-open-settings-zscaler-client-connector.json",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.6 and later for Windows or Zscaler Client Connector version 4.8 and later for macOS, you can set up failover settings on the app profile that take precedence over these settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "If failover settings are also configured in Client Connector Support, these failover settings take precedence. This feature is available only in Zscaler Client Connector version 4.6 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "profile-failover-options": {
+      "statement": "For ZIA Cloud Not Reachable and for Z-Tunnel 1.0 failover, the profile can follow the global setting (the default), allow direct internet access, disable internet access (HTTP/HTTPS blocked, other traffic allowed), or fall back to the Internet & SaaS disaster recovery settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "Win V4.7 and Older Client Configuration:",
+          "quotes": [
+            "Follow Global Config: Allow access based on the setting in ZIA Cloud Not Reachable in Client Connector Support. This option is selected by default.",
+            "Direct Internet Access: Users are allowed to bypass the app and access the internet directly.",
+            "Disable Internet Access: Blocks HTTP/HTTPS traffic. All other traffic is allowed.",
+            "Fallback to ZIA DR: If Enable ZIA DR is enabled, follow the traffic forwarding settings in Disaster Recovery for Internet & SaaS.",
+            "Z-Tunnel Failover: Select one of the following options to set what happens if Zscaler Client Connector cannot establish a tunnel (Z-Tunnel 1.0 only):"
+          ]
+        }
+      ]
+    },
+    "captive-portal": {
+      "statement": "On Windows 4.5 and later the profile enables captive portal detection; with Fail Open on, the app keeps its services disabled for 1 to 60 minutes after detecting a captive portal and then re-enables them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "These settings apply only to Zscaler Client Connector version 4.5 and later for Windows.",
+            "Enter the number of minutes the app must keep its services disabled after detecting a captive portal when Fail Open is enabled. You can enter any value between 1 and 60.",
+            "After the specified period, the app enables its services automatically and traffic is forwarded to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "captive-portal-fail-open": {
+      "statement": "Here Fail Open blocks rather than opens: with it enabled, the app blocks all traffic until the user registers in the captive portal using the embedded browser, which must also be enabled on the profile.",
+      "tier": "A",
+      "conditions": "Added (verifier w2 A17); it contradicts the legacy reading of fail open as allowing direct traffic when the tunnel cannot be established.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Fail Open: Select to enable a fail-open state if a captive portal is detected. If enabled, Zscaler Client Connector blocks all traffic until users register in the captive portal using the embedded browser.",
+            "To use this feature, you must first enable Embedded Captive Portal in the app profile."
+          ]
+        }
+      ]
+    },
+    "captive-portal-keys": {
+      "statement": "By name, these settings are the web policy keys `enableCaptivePortalDetection`, `enableFailOpen` and `captivePortalWebSecDisableMinutes`, which the Go SDK sends on the web policy body.",
+      "tier": "B",
+      "conditions": "The key-to-setting mapping is by name; no source states it. The API document has these keys only on the fail-open policy, not on the web policy edit body.",
+      "derived_from": [
+        "captive-portal"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "`json:\"enableCaptivePortalDetection\"`",
+            "`json:\"enableFailOpen\"`",
+            "`json:\"captivePortalWebSecDisableMinutes\"`"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect_absent": [
+            "enableCaptivePortalDetection",
+            "enableFailOpen",
+            "captivePortalWebSecDisableMinutes"
+          ]
+        }
+      ]
+    },
+    "allow-unreachable-pac": {
+      "statement": "The Python SDK documents `allowUnreachablePac` as whether traffic is allowed when the PAC file is unreachable; the Go SDK calls it a legacy flag that the API still echoes on reads though the admin UI no longer renders it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "allow_unreachable_pac (bool): Whether traffic is allowed when the PAC file is unreachable."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "AllowUnreachablePac is the legacy flag the provider has surfaced",
+            "the API echoes it on reads even when",
+            "the UI no longer renders it. omitempty keeps it off the wire when"
+          ]
+        }
+      ]
+    }
+  }
+}

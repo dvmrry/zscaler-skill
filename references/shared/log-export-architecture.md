@@ -12,7 +12,7 @@ sources:
   - "vendor/zscaler-help/general-guidelines-nss-feeds-and-feed-formats.json"
   - "vendor/zscaler-help/understanding-log-stream-content-format.json"
   - "references/shared/nss-architecture.md"
-  - "references/zcc/logs/zcc-log-schema.md"
+  - "`kb:zcc.logs.client-log`"
   - "references/cloud-connector/logs/log-schema.md"
   - "`kb:zpa.logs.user-activity`"
   - "kb:zia/web-log"
@@ -350,6 +350,6 @@ Source: `vendor/zscaler-help/understanding-nanolog-streaming-service.json`; `ven
 - ZPA LSS User Activity schema — [`zpa.logs.user-activity`](kb:zpa.logs.user-activity)
 - ZPA User Status schema — [`zpa.logs.user-status`](kb:zpa.logs.user-status)
 - ZPA App Connector Metrics schema — [`zpa.logs.app-connector-metrics`](kb:zpa.logs.app-connector-metrics)
-- ZCC log schema (client-side, not SIEM-accessible) — [`../zcc/logs/zcc-log-schema.md`](../zcc/logs/zcc-log-schema.md)
+- ZCC log schema (client-side, not SIEM-accessible) — [`zcc.logs.client-log`](kb:zcc.logs.client-log)
 - ZDX API (data retrieval) — [`../zdx/api.md`](../zdx/api.md)
 - Cloud Connector log fields and access methods — [`../cloud-connector/logs/log-schema.md`](../cloud-connector/logs/log-schema.md)

@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install",
+  "title": "Client Connector install parameters and deployment",
+  "aliases": [
+    "zcc install parameters",
+    "install options",
+    "msi properties",
+    "exe install options",
+    "zcc deployment parameters",
+    "managed app config zcc",
+    "plist install parameters"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.strict-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.business-continuity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-driver"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.authentication-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.windows-unattended"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.mobile-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-extensions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.azure-virtual-desktop"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Install parameters are values handed to Client Connector when it is deployed, before it has downloaded any policy. {{delivery}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "Who is the user, and which tenant?",
+          "text": "Domain, cloud, device token, username and the MDM correlation ID: [[zcc.install.enrollment]]."
+        },
+        {
+          "label": "Must the device be blocked until it enrolls?",
+          "text": "Strict enforcement, the policy token it depends on, and the fail-close file: [[zcc.install.strict-enforcement]]. Enrolling new users during an outage: [[zcc.install.business-continuity]]."
+        },
+        {
+          "label": "Does an install parameter or a console setting win?",
+          "text": "[[zcc.install.precedence]]."
+        },
+        {
+          "label": "Windows-only switches.",
+          "text": "The filter driver: [[zcc.install.windows-driver]]. Browser, SSO and Imprivata sign-in: [[zcc.install.authentication-options]]. Silent install, upgrade, revert and uninstall, and launch behavior: [[zcc.install.windows-unattended]]."
+        },
+        {
+          "label": "iOS and Android-only keys.",
+          "text": "[[zcc.install.mobile-options]]."
+        },
+        {
+          "label": "macOS through an MDM.",
+          "text": "The package, the preference domain and the plist: [[zcc.install.macos-deployment]]. System extensions, VPN payloads and privacy profiles: [[zcc.install.macos-extensions]]."
+        },
+        {
+          "label": "Client Connector inside Azure desktops.",
+          "text": "Windows 365 Cloud PCs and Azure Virtual Desktop host pools: [[zcc.install.azure-virtual-desktop]]."
+        }
+      ]
+    },
+    {
+      "text": "Runtime behavior that is configured in the console rather than at install time lives in the forwarding profile ([[zcc.forwarding-profiles]]) and the app profile ([[zcc.app-profiles]])."
+    }
+  ],
+  "claims": {
+    "delivery": {
+      "statement": "Each platform takes install parameters through its own channel: on Windows they are passed when installing manually or through GPO, SCCM or another device-management method, with different names for the MSI and the EXE installer; on macOS they are PLIST settings deployed from an MDM alongside a pkg installation; on iOS they come from an MDM; on Android and Android on ChromeOS from an MDM with Android Enterprise enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "You can preconfigure these parameters when manually installing Zscaler Client Connector on a Windows device or deploying Zscaler Client Connector using GPO, SCCM, or other device management methods.",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-macos.json",
+          "quotes": [
+            "You can preconfigure these parameters when deploying Zscaler Client Connector using a pkg installation process with property list (PLIST) configuration settings deployed from a mobile device management (MDM) solution."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "You can preconfigure these parameters when deploying Zscaler Client Connector from a mobile device management (MDM) system."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "You can preconfigure these parameters when deploying Zscaler Client Connector from a mobile device management (MDM) system with Android Enterprise enabled."
+          ]
+        }
+      ]
+    }
+  }
+}

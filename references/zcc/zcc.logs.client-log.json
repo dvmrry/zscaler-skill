@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "id": "zcc.logs.client-log",
+  "title": "What the Client Connector log on the device records",
+  "aliases": [
+    "zcc log contents",
+    "zsatunnel log",
+    "zsafw",
+    "zcc log format",
+    "does the zcc log show blocks",
+    "zcc log rotation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.logging"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zcc.logging.log-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logs.flow-logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-rule-attribution"
+    }
+  ],
+  "prose": [
+    {
+      "text": "No captured vendor article describes the client log's records or fields; what is known comes from the log modes and from a few features that name a log."
+    },
+    {
+      "label": "How much it holds.",
+      "text": "What each mode adds is in [[zcc.app-profiles.logging:log-mode-ladder]], and the file-size limit with oldest-first truncation in [[zcc.app-profiles.logging:log-file-size]]. What a bundle includes besides the log, such as crash and PCAP files, is in [[zcc.logging.collection:fetch-scope]]."
+    },
+    {
+      "label": "Named logs.",
+      "text": "{{zsafw}}"
+    },
+    {
+      "label": "What it does not show.",
+      "text": "That the client log has no per-transaction URL, response code or rule action is not sourced {{gap:transaction-records}}; the deciding ZIA rule is read from [[zia.logs.web-rule-attribution]]. Which event categories appear at which mode is not sourced {{gap:event-categories}}. The file format is not sourced {{gap:file-format}}. Whether Debug entries outlive a return to a quieter mode is open {{gap:debug-residue}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a site the user says the client blocked, read the ZIA web log for the action and rule rather than the client log.",
+      "uses": [
+        "transaction-records",
+        "zia.logs.web-rule-attribution"
+      ]
+    },
+    {
+      "do": "For Endpoint Firewall Management on Windows, the `[ZSAFW]` entries in the ZSATunnel log.",
+      "uses": [
+        "zsafw"
+      ]
+    }
+  ],
+  "claims": {
+    "zsafw": {
+      "statement": "On Windows, the host firewall rules that Endpoint Firewall Management creates are not visible in Windows Defender but are listed in the ZSATunnel log under the `[ZSAFW]` string; the feature needs Client Connector 4.8 or later for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "The firewall rules are not added to or visible in Windows Defender. You can view a list of firewall rules created when Endpoint Firewall Management is enabled:",
+            "Search for the [ZSAFW] string in the ZSATunnel log."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "This feature is available only for Zscaler Client Connector version 4.8 and later for Windows."
+          ],
+          "after": "Search for the [ZSAFW] string in the ZSATunnel log."
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "transaction-records": {
+      "kind": "semantic",
+      "title": "Absence of transaction records in the client log",
+      "status": "open",
+      "former_ids": [
+        "zcc-67"
+      ],
+      "detail": "Unverified legacy statements: ZCC logs \"do not carry individual web transaction records (URL, response code, policy action) ... ZCC logs are transport-layer\"; \"ZCC's log shows tunnel activity (connection established, traffic forwarded) but does not show ZIA's policy action\"; \"A user's ZCC log at Info mode may show a single 'tunnel connection established' event for an HTTPS session that, at the ZIA side, produced 50 web transaction log entries\"; DLP events and per-session ZPA access are absent too, while Z-Tunnel version, ZPA connector selection, forwarding branch switches and posture results are present. Former zcc-67 asked whether any log mode records URL paths rather than only hostnames and IPs, and whether that depends on the forwarding mode (PAC versus tunnel).",
+      "blocks": "telling a user whether the client log can explain a block",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "event-categories": {
+      "kind": "semantic",
+      "title": "Event categories by log mode",
+      "status": "open",
+      "detail": "Unverified legacy statement (marked Tier C, inferred from functional decomposition): errors at Error; authentication and posture events at Warn; tunnel lifecycle, Service Edge selection, Z-Tunnel version negotiation, forwarding-profile branch switches, PAC fetch and per-request PAC evaluation at Info; request-by-request detail, DNS resolution, socket events and ZPA connector selection at Debug.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "file-format": {
+      "kind": "semantic",
+      "title": "Client log file format",
+      "status": "open",
+      "former_ids": [
+        "zcc-66"
+      ],
+      "detail": "Unverified legacy statement: \"ZCC does not emit structured JSON or syslog format to an external receiver. Logs are written as flat operational event files on the endpoint ... exported plaintext ZIPs are human-readable but are not in a standard ingestion format (JSON, CEF, syslog) for SIEM parsing.\" Also unverified: an in-app log viewer in the More window \"shows entries at the current log mode verbosity\" and \"may apply a filter that only shows the current session or the current mode\" (the logging-controls article mentions only Show/Hide Logs, which shows where the logs are stored). Former zcc-66 asked whether the in-app log view and the Export Logs ZIP always show the same content, or the view filters out older data the ZIP still holds.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "debug-residue": {
+      "kind": "semantic",
+      "title": "Debug entries after returning to a quieter mode",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"If Debug logging was enabled for a triage session and then reverted to Info, rotated log files from the Debug session may still be on disk and included in the next diagnostic bundle export.\" The console describes size-based truncation of the oldest entries per log type, not rotated files, so how long Debug entries remain depends on volume.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

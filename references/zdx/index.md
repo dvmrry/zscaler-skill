@@ -60,5 +60,5 @@ The Python SDK mounts eight services under `client.zdx.*`: `admin`, `alerts`, `a
 ## When the question spans ZDX + another product
 
 - **"User's ZIA traffic is slow" → actually a ZPA issue, or vice versa.** Cloud Path can distinguish "client to Service Edge slow" from "Service Edge to destination slow" — the hop-by-hop visualization is the discriminator. Start at [`./probes.md § Cloud Path`](./probes.md).
-- **"ZDX has no data for this user" → entitlement check.** ZDX requires the user to be entitled via `ZdxGroupEntitlements` on ZCC (see [`../zcc/entitlements.md`](../zcc/entitlements.md)). Entitled-but-not-reporting is different from not-entitled.
+- **"ZDX has no data for this user" → entitlement check.** ZDX requires the user to be entitled via `ZdxGroupEntitlements` on ZCC (see [`zcc.entitlements`](kb:zcc.entitlements)). Entitled-but-not-reporting is different from not-entitled.
 - **"ZDX collects location but it's wrong/missing" → two-flag dependency.** Requires `WebPrivacy.collect_zdx_location = true` AND `ZdxGroupEntitlements.collect_zdx_location = true`. See [`../shared/cross-product-integrations.md`](../shared/cross-product-integrations.md).

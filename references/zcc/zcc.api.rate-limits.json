@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "id": "zcc.api.rate-limits",
+  "title": "ZCC API rate limits: 100 calls an hour, 3 a day for downloads, and how the SDKs back off",
+  "aliases": [
+    "zcc rate limit",
+    "zcc 429",
+    "zcc 100 calls per hour",
+    "downloadDevices 3 per day",
+    "X-Rate-Limit-Retry-After-Seconds",
+    "X-Rate-Limit-Remaining",
+    "zcc too many requests",
+    "zcc download rate limit"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.devices-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZCC API limits calls per organization and source IP, with a much smaller daily allowance for the three CSV download endpoints. How each Python client reacts to a 429 differs, and both differ from the vendor's advice."
+    },
+    {
+      "heading": "The limits"
+    },
+    {
+      "text": "{{hourly-and-daily-limits}} {{window-and-burst}}"
+    },
+    {
+      "text": "Whether the three download allowances are separate or one pool, and whether they count against the hourly budget, is open {{gap:download-cap-scope}}. Whether two credentials from one IP share a bucket, and whether the OneAPI and legacy paths share it, is open {{gap:bucket-scope}}. Whether Zscaler raises the limit on request is open {{gap:limit-increase}}."
+    },
+    {
+      "heading": "Headers and the 429"
+    },
+    {
+      "text": "{{headers}} {{back-off-exponentially}}"
+    },
+    {
+      "text": "Whether `X-Rate-Limit-Remaining` is sent on successful responses is open {{gap:remaining-on-success}}, and so is the body of a 429 {{gap:body-shape-429}}."
+    },
+    {
+      "heading": "Python legacy client"
+    },
+    {
+      "text": "{{legacy-local-counters}} When a counter runs out, the caller gets an AttributeError instead of the client's rate-limit message: [[zcc.sdk-python.client-configuration:legacy-preflight-message]]. {{legacy-429-retry}} {{legacy-download-raise}} {{legacy-disable-reasons-general}}"
+    },
+    {
+      "text": "{{legacy-remaining-zero-resend}}"
+    },
+    {
+      "heading": "Python OneAPI client"
+    },
+    {
+      "text": "{{oneapi-retry-headers}} {{oneapi-retry-budget}} {{oneapi-no-header-no-retry}}"
+    },
+    {
+      "text": "Go SDK retry behavior, shared across products, is in [[shared.sdk-go.retries]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "How many calls the tenant made from the same egress IP in the hour before the 429, counting every script and credential on that IP.",
+      "uses": [
+        "hourly-and-daily-limits",
+        "bucket-scope"
+      ]
+    },
+    {
+      "do": "Whether the failing call was one of the three download endpoints, which allow 3 calls a day rather than 100 an hour.",
+      "uses": [
+        "hourly-and-daily-limits",
+        "download-cap-scope"
+      ]
+    },
+    {
+      "do": "Whether the client waited for `X-Rate-Limit-Retry-After-Seconds` before retrying, and for a Python legacy client, whether it resent a write after a response that reported 0 remaining.",
+      "uses": [
+        "headers",
+        "legacy-remaining-zero-resend",
+        "oneapi-retry-headers"
+      ]
+    }
+  ],
+  "claims": {
+    "hourly-and-daily-limits": {
+      "statement": "For an organization, all endpoints called from a given IP address are limited to 100 calls per hour, except `/downloadDevices`, `/downloadServiceStatus` and `/downloadDisableReasons`, which are limited to 3 calls per day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-rate-limiting-zcc.json",
+          "quotes": [
+            "For an organization, the system rate limits all endpoints called from a given IP address to 100 API calls per hour except for the /downloadDevices, /downloadServiceStatus, and /downloadDisableReasons endpoints, for which the rate limit is 3 API calls per day."
+          ]
+        }
+      ]
+    },
+    "window-and-burst": {
+      "statement": "Each rate-limit window starts at the first call, not on a clock boundary, and calls may come more than once per second as long as the limits are not exceeded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-rate-limiting-zcc.json",
+          "quotes": [
+            "All rate limits start as soon as the first call is executed. Calls can occur more than once per second, but no more than the limits for each operation type."
+          ]
+        }
+      ]
+    },
+    "headers": {
+      "statement": "When limits are enforced the response carries `X-Rate-Limit-Remaining`, the requests left in the current window, and `X-Rate-Limit-Retry-After-Seconds`, the seconds to wait before the next call once the limit is exceeded. Exceeding the limit returns HTTP 429.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-rate-limiting-zcc.json",
+          "quotes": [
+            "X-Rate-Limit-Remaining: Indicates the number of API requests remaining within the current rate limit window.",
+            "X-Rate-Limit-Retry-After-Seconds: Specifies the number of seconds the client must wait before making another API call if the rate limit has exceeded.",
+            "receiving the 429 (Too Many Requests) error code"
+          ]
+        }
+      ],
+      "conditions": "The article names no limit-ceiling or reset-timestamp header; the retry-after value is a relative number of seconds."
+    },
+    "back-off-exponentially": {
+      "statement": "Clients that hit the rate limit must back off exponentially; no base delay, multiplier or retry count is given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-understanding-rate-limiting-zcc.json",
+          "quotes": [
+            "Clients subject to rate limits must back off exponentially to proceed further."
+          ]
+        }
+      ]
+    },
+    "legacy-local-counters": {
+      "statement": "The Python legacy ZCC client counts calls locally and checks the counters before sending: 100 per hour for every path, and 3 per day for `/downloadDevices` only. It keeps no local daily counter for `/downloadServiceStatus` or `/downloadDisableReasons`.",
+      "tier": "A",
+      "conditions": "Narrowed per verifier: what the caller sees when a counter is exhausted is an AttributeError, not the client's rate-limit messages, because the exception it tries to raise cannot be built from a string (zcc.sdk-python.client-configuration:legacy-preflight-message).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "RATE_LIMIT = 100  # 100 API calls per hour",
+            "DOWNLOAD_DEVICES_LIMIT = 3  # 3 calls per day",
+            "if \"/downloadDevices\" in path:",
+            "raise RateLimitExceededError(\"/downloadDevices exceeded 3 calls per day\")"
+          ]
+        }
+      ]
+    },
+    "legacy-429-retry": {
+      "statement": "On a 429 from any path other than the two named download endpoints, the Python legacy client waits the `X-Rate-Limit-Retry-After-Seconds` value plus one second, or 60 seconds when the header is absent, and gives up when the third 429 arrives.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "return int(retry_after_sec) + 1  # 1-second pad",
+            "max_attempts = 3",
+            "backoff = self._get_backoff_seconds(response, default=60)"
+          ]
+        }
+      ]
+    },
+    "legacy-download-raise": {
+      "statement": "For `/downloadDevices` and `/downloadServiceStatus` the Python legacy client does not retry a 429: it raises a ValueError at once, reporting the header's wait or a default of 86400 seconds.",
+      "tier": "A",
+      "conditions": "Corrected per two verifiers: the earlier statement also covered an exhausted local counter, but that branch never produces its message; the pre-flight raise fails with an AttributeError on any path (zcc.sdk-python.client-configuration:legacy-preflight-message).",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "if \"/downloadDevices\" in path or \"/downloadServiceStatus\" in path:",
+            "retry_after = self._get_backoff_seconds(response, default=86400)",
+            "f\"This endpoint has a rate limit of 3 calls per day. Try again in {retry_after} seconds.\""
+          ]
+        }
+      ]
+    },
+    "legacy-disable-reasons-general": {
+      "statement": "The Python legacy client treats `/downloadDisableReasons` as an ordinary endpoint: it neither counts it against a daily allowance nor stops on its 429, but retries it like any other path, although the server allows it 3 calls a day.",
+      "tier": "B",
+      "derived_from": [
+        "legacy-local-counters",
+        "legacy-download-raise",
+        "legacy-429-retry",
+        "hourly-and-daily-limits"
+      ],
+      "conditions": "The special cases in the legacy client test the path for `/downloadDevices` and `/downloadServiceStatus` only."
+    },
+    "legacy-remaining-zero-resend": {
+      "statement": "When any response that is not a 429 carries `X-Rate-Limit-Remaining: 0`, the Python legacy client treats it as a soft 429: it sleeps 60 seconds and sends the same request again, up to its attempt limit, without checking the status of the response it already received.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "quotes": [
+            "if remaining is not None and remaining.isdigit() and int(remaining) == 0:",
+            "# treat as a soft-429"
+          ]
+        }
+      ],
+      "conditions": "The check runs before the response is examined for errors, so it applies to successful responses, including writes."
+    },
+    "oneapi-retry-headers": {
+      "statement": "The Python OneAPI request executor treats 429 as retryable and, absent a `Retry-After` header, takes its wait from the first rate-limit header present, which for ZCC is `X-Rate-Limit-Retry-After-Seconds` or, failing that, `X-Rate-Limit-Remaining` read as seconds, plus one second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "headers.get(\"X-Rate-Limit-Retry-After-Seconds\")",
+            "or headers.get(\"X-Rate-Limit-Remaining\")",
+            "backoff = float(retry_limit_reset_header) + 1",
+            "HTTPStatus.TOO_MANY_REQUESTS,"
+          ]
+        }
+      ]
+    },
+    "oneapi-retry-budget": {
+      "statement": "The OneAPI executor retries at most `rateLimit.maxRetries` times, 2 by default, and raises `RetryTooLong` instead of waiting when a computed wait exceeds a configured `rateLimit.maxRetrySeconds`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self._max_retries = config[\"client\"][\"rateLimit\"].get(\"maxRetries\", 2)",
+            "Retry wait time {backoff} seconds exceeds configured maxRetrySeconds"
+          ]
+        }
+      ]
+    },
+    "oneapi-no-header-no-retry": {
+      "statement": "When a retryable response carries none of the recognized wait headers, the OneAPI executor returns an error without retrying.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "return None, response, response.text, Exception(ERROR_MESSAGE_429_MISSING_DATE_X_RESET)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "download-cap-scope": {
+      "kind": "semantic",
+      "title": "Whether the 3-a-day download allowance is per endpoint and separate from the hourly budget",
+      "status": "open",
+      "former_ids": [
+        "zcc-09"
+      ],
+      "detail": "Unverified legacy statement: each of the three download endpoints has its own 3 calls a day, and download calls do not reduce the 100-an-hour budget. The help article gives one sentence covering the three endpoints and does not say whether the allowance is pooled or whether those calls also count toward the hourly limit.",
+      "blocks": "planning how many CSV exports a day a tenant can run and whether they starve other automation",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "bucket-scope": {
+      "kind": "semantic",
+      "title": "What shares a rate-limit bucket: credentials, auth paths, other products",
+      "status": "open",
+      "former_ids": [
+        "zcc-13"
+      ],
+      "detail": "Unverified legacy statement: all credentials calling from one IP share the 100-an-hour bucket with no per-key sub-bucket; the OneAPI and legacy paths share the same server-enforced limits, applied by the ZCC product rather than the OneAPI gateway; and ZCC calls do not share a pool with ZIA or ZPA. The help article keys the limit to the organization and the source IP only.",
+      "blocks": "deciding whether separate keys or the OneAPI path buy more ZCC throughput",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "limit-increase": {
+      "kind": "semantic",
+      "title": "Whether ZCC rate limits can be raised",
+      "status": "open",
+      "detail": "Unverified legacy statement: the limits are set per tenant and an operator can ask Zscaler support for an increase; no self-service mechanism exists. No captured source says the limits can be changed.",
+      "blocks": "advising a large tenant that cannot finish its automation within 100 calls an hour",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "remaining-on-success": {
+      "kind": "semantic",
+      "title": "Whether X-Rate-Limit-Remaining is sent on successful responses",
+      "status": "open",
+      "former_ids": [
+        "zcc-10"
+      ],
+      "detail": "Unverified legacy statement: `X-Rate-Limit-Retry-After-Seconds` is present only on 429 responses. The article says the headers are set when rate limits are enforced, without saying whether `X-Rate-Limit-Remaining` appears on every response.",
+      "blocks": "pacing a client from the remaining count instead of waiting for a 429",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "body-shape-429": {
+      "kind": "semantic",
+      "title": "The body of a ZCC 429 response",
+      "status": "open",
+      "former_ids": [
+        "zcc-08"
+      ],
+      "detail": "Unverified legacy statement: no canonical 429 body is published and callers should read the header. Whether the body carries a message, code or retry field is not documented.",
+      "blocks": "telling a rate-limit 429 from a device-threshold 429 in client logs",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

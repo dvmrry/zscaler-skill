@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "id": "zcc.support-options",
+  "title": "ZCC end-user support options (App Supportability)",
+  "aliases": [
+    "zcc support options",
+    "client connector support",
+    "app supportability",
+    "report an issue",
+    "enable support access",
+    "end user ticket submission to zscaler",
+    "client connector app logs",
+    "zcc self-service",
+    "prevent users disabling zcc",
+    "supportEnabled",
+    "supportTicketEnabled",
+    "disableLoggingControls"
+  ],
+  "binds": [
+    "zcc/company-info#supportEnabled",
+    "zcc/company-info#supportAdminEmail",
+    "zcc/company-info#supportTicketEnabled",
+    "zcc/company-info#disableLoggingControls",
+    "zcc/company-info#fetchLogsForAdminsEnabled"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options.restart-and-repair"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.user-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.passwords-and-otp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.company-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.web-privacy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The App Supportability settings decide what users can do for themselves when Client Connector misbehaves, and what an admin can collect without them. Most of the mechanics live in the logging, password and app profile subjects linked below."
+    },
+    {
+      "heading": "Report an Issue"
+    },
+    {
+      "text": "{{entry-points}} {{routing}} {{requires-support-access}} What the form sends and who can read the logs: [[zcc.logging.collection:report-an-issue]], [[zcc.logging.collection:support-settings]], [[zcc.logging.collection:only-zscaler-decrypts]]."
+    },
+    {
+      "text": "What the log bundle contains is open {{gap:bundle-contents}}. Whether user submissions leave an audit trail is open {{gap:submission-audit}}."
+    },
+    {
+      "heading": "Logs and log controls"
+    },
+    {
+      "text": "{{app-logs-option}} The fetch itself: [[zcc.logging.collection:fetch-prereq]], [[zcc.logging.collection:fetch-scope]]. Hide Logging Control and what users can do with logs: [[zcc.logging.user-access:hidden-blocks]], [[zcc.logging.user-access:export-encryption]]."
+    },
+    {
+      "heading": "Restart, repair, disable"
+    },
+    {
+      "text": "Restart Service and Repair App: [[zcc.support-options.restart-and-repair]]. Passwords on logout, disable, exit and uninstall: [[zcc.passwords-and-otp]]. Anti-tampering and its OTP reactivation timer: [[zcc.app-profiles.advanced-settings:anti-tampering]]; the install parameter: [[zcc.install.precedence:anti-tampering]]. Users' reasons for disabling a service: [[zcc.app-profiles.advanced-settings:send-disable-reason]], exported as in [[zcc.devices.exports]]."
+    },
+    {
+      "text": "Whether a per-service disable password gates only its own service is open {{gap:per-service-independence}}. Whether anti-tampering constrains Citrix VDI deployments is open {{gap:anti-tampering-vdi}}."
+    },
+    {
+      "heading": "API"
+    },
+    {
+      "text": "{{field-ui-mapping}} The read, the Go-only write and the field encodings: [[zcc.api.company-wire]]. What a new tenant starts with is open {{gap:toggle-defaults}}, and so is when a change reaches enrolled devices {{gap:tenant-setting-propagation}}."
+    },
+    {
+      "text": "Telemetry collection and non-admin access to local log files are User Privacy settings: [[zcc.web-privacy.collection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether support access is enabled, since the admin email and the Zscaler ticket option apply only with it.",
+      "uses": [
+        "requires-support-access",
+        "routing"
+      ]
+    },
+    {
+      "do": "Whether Client Connector App Logs is enabled before expecting Fetch Logs to work on a device.",
+      "uses": [
+        "app-logs-option",
+        "zcc.logging.collection:fetch-prereq"
+      ]
+    },
+    {
+      "do": "When reading these settings through the API, which company-info field holds which toggle, and that the Go type holds them as integers.",
+      "uses": [
+        "field-ui-mapping",
+        "zcc.api.company-wire:company-info-mixed-types"
+      ]
+    }
+  ],
+  "claims": {
+    "entry-points": {
+      "statement": "Users reach the support options by clicking Report an Issue in Client Connector's More window or from its system tray icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "Your users can access these support options by clicking Report an Issue from the More window of Zscaler Client Connector or the Zscaler Client Connector system tray icon."
+          ]
+        }
+      ]
+    },
+    "routing": {
+      "statement": "Support requests go either to the organization's support admin only, or to both the support admin and Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "You can configure support requests to go only to your organization’s support admin or go to both the support admin and Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "requires-support-access": {
+      "statement": "Admin Email Address to Send Logs and Enable End User Ticket Submission to Zscaler both apply only when support access is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "If you enabled support access, enter the email address of your organization's designated support admin or team.",
+            "If you enabled support access, select this option if you also want a ticket to be automatically sent to Zscaler Support when the user chooses Report an Issue."
+          ]
+        }
+      ]
+    },
+    "app-logs-option": {
+      "statement": "The App Supportability option Client Connector App Logs is what allows collecting Client Connector logs per enrolled device, through Fetch Logs on the device's details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-support-options-zscaler-client-connector.json",
+          "quotes": [
+            "Client Connector App Logs: Allows users to collect Client Connector logs per enrolled device. To fetch logs, go to Enrolled Devices. On the Device Details tab, click Fetch Logs."
+          ]
+        }
+      ]
+    },
+    "field-ui-mapping": {
+      "statement": "By name, the company-info fields `supportEnabled`, `supportAdminEmail`, `supportTicketEnabled`, `disableLoggingControls` and `fetchLogsForAdminsEnabled` hold Enable Support Access, Admin Email Address to Send Logs, Enable End User Ticket Submission to Zscaler, Hide Logging Control and Client Connector App Logs.",
+      "tier": "B",
+      "conditions": "Matched by name between the company-info fields and the App Supportability options; no source states the mapping.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/company/company.go",
+          "quotes": [
+            "SupportAdminEmail string `json:\"supportAdminEmail\"`",
+            "SupportEnabled int `json:\"supportEnabled\"`",
+            "FetchLogsForAdminsEnabled int `json:\"fetchLogsForAdminsEnabled\"`",
+            "SupportTicketEnabled int `json:\"supportTicketEnabled\"`",
+            "DisableLoggingControls int `json:\"disableLoggingControls\"`"
+          ]
+        }
+      ],
+      "derived_from": [
+        "app-logs-option",
+        "requires-support-access",
+        "zcc.logging.collection:support-settings",
+        "zcc.logging.user-access:hide-toggle"
+      ]
+    }
+  },
+  "gaps": {
+    "bundle-contents": {
+      "kind": "semantic",
+      "title": "What the Report an Issue log bundle contains",
+      "status": "open",
+      "former_ids": [
+        "zcc-36",
+        "zcc-65",
+        "zcc-37"
+      ],
+      "detail": "Unverified legacy statement: the bundle holds client operational logs, service logs and system metadata, and may include connection metadata (destination IPs, ports, hostnames), user identity (username, tenant domain), device identifiers (UDID, hostname) and activity timestamps; it is stored nowhere but the email and the ticket. File names, rotation, size limits and PII content are not documented. Former zcc-65 asked also which files the Export Logs ZIP holds, and whether either archive carries OS network configuration, driver information or other artifacts beyond Client Connector's own logs. Former zcc-37 asked whether Client Connector stages the bundle in a predictable local directory before uploading it, which matters to DLP controls that scan outbound email attachments.",
+      "blocks": "privacy and data-residency reviews of sending bundles to Zscaler Support",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "submission-audit": {
+      "kind": "semantic",
+      "title": "Whether Report an Issue submissions and user log exports are auditable",
+      "status": "open",
+      "former_ids": [
+        "zcc-38"
+      ],
+      "detail": "Unverified legacy statement: no audit trail exists for user-invoked support actions, and the disable-reasons export is the closest admin-side signal. No source describes an audit record either way. Former zcc-38 asked specifically whether the ZCC portal's audit log records the time, device and user of a Report an Issue submission, separately from the email delivery receipt.",
+      "blocks": "investigations that need to know when a user submitted or exported logs",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "toggle-defaults": {
+      "kind": "semantic",
+      "title": "The App Supportability settings' values on a new tenant",
+      "status": "open",
+      "former_ids": [
+        "zcc-91",
+        "zcc-34"
+      ],
+      "detail": "Unverified legacy statement: support access, ticket submission, Hide Logging Control and admin log fetch are off on a new tenant, the admin email is empty, and app profiles set no password gate. The help article describes the options without defaults, and the SDK models declare the fields without default values.",
+      "blocks": "telling a tenant's deliberate choice from an untouched default in posture or hygiene reviews",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "tenant-setting-propagation": {
+      "kind": "semantic",
+      "title": "When App Supportability changes reach enrolled devices",
+      "status": "open",
+      "detail": "Unverified legacy statement: App Supportability settings, app profile password gates and web privacy flags reach enrolled devices at the next Client Connector restart or user logout and login, with no real-time push. The vendor states this only for app profiles; these settings are tenant-wide, not part of the app profile.",
+      "blocks": "telling an admin when a support setting change takes effect on devices",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "per-service-independence": {
+      "kind": "semantic",
+      "title": "Whether per-service disable passwords gate only their own service",
+      "status": "open",
+      "detail": "Unverified legacy statement: per-product disable passwords (ZIA, ZPA, ZDX, ZDP, ZAD) are independent of the whole-agent disable password, so a user with only a ZIA disable password set must enter it only to disable ZIA, not ZPA or the agent. The vendor describes each password's own action but not their interaction.",
+      "blocks": "predicting which user actions a partial password set still allows",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "anti-tampering-vdi": {
+      "kind": "semantic",
+      "title": "Whether anti-tampering interacts with Citrix VDI settings",
+      "status": "open",
+      "detail": "Unverified legacy statement: on Windows with Citrix VDI, ENABLEANTITAMPERING interacts with HIDEAPPUIONLAUNCH, and anti-tampering in VDI should be tested before rollout. The vendor ties hideAppUIOnLaunch for non-persistent Citrix VDIs to strict enforcement (zcc.install.strict-enforcement:citrix-hide-ui), not to anti-tampering.",
+      "blocks": "VDI rollouts that enable anti-tampering",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

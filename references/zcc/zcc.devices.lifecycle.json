@@ -1,0 +1,475 @@
+{
+  "schema_version": 1,
+  "id": "zcc.devices.lifecycle",
+  "title": "Enrolled device states and what moves a device between them",
+  "aliases": [
+    "zcc device state",
+    "removal pending",
+    "device removal pending stuck",
+    "soft remove vs force remove",
+    "quarantine device zcc",
+    "device re-registers after removal",
+    "zcc device limit 16",
+    "udid changes",
+    "zcc keepalive"
+  ],
+  "binds": [
+    "zcc/devices#state",
+    "zcc/devices#registrationState",
+    "zcc/devices#udid",
+    "zcc/devices#hardwareFingerprint",
+    "zcc/devices#keepAliveTime"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.devices"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.devices.cleanup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.removal-api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "An enrolled device record in the Client Connector portal moves through a small set of states. Most removal questions come down to which state the device is in and whether it has sent a keepalive since."
+    },
+    {
+      "label": "The states.",
+      "text": "{{registered-unregistered}} {{removal-pending}} {{removed-conditions}} {{quarantined}}"
+    },
+    {
+      "label": "The device limit.",
+      "text": "{{device-limit}} {{re-enroll-removed}}"
+    },
+    {
+      "label": "Soft removal.",
+      "text": "{{soft-remove}} {{pending-over-a-day}}"
+    },
+    {
+      "label": "Force removal.",
+      "text": "{{force-remove}} Which states the console accepts for a force remove is stated two ways {{divergence:force-remove-states}}. The API call is in [[zcc.devices.removal-api]]."
+    },
+    {
+      "label": "Removal does not uninstall.",
+      "text": "{{removal-not-uninstall}} {{quarantine-blocks-reenrollment}} Whether a device that re-enrolls after removal gets a new record is open {{gap:re-enrollment-record}}."
+    },
+    {
+      "label": "Identifiers.",
+      "text": "{{udid}} {{device-id}} {{hardware-fingerprint}} Whether a UDID is scoped to one tenant is open {{gap:udid-tenant-scope}}, and so is what a shared hardware fingerprint does {{gap:hardware-fingerprint-cloning}}."
+    },
+    {
+      "label": "Keepalive.",
+      "text": "Soft removal and log fetch wait for the device's keepalive, and its interval is stated two ways {{divergence:keepalive-interval}}. {{update-policy-sends-keepalive}}"
+    },
+    {
+      "text": "Automatic removal and permanent deletion are in [[zcc.devices.cleanup]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which state the device is in now, since Unregistered (user logged out) and Removed (admin or cleanup) look alike in a list but have different causes.",
+      "uses": [
+        "registered-unregistered",
+        "removed-conditions"
+      ]
+    },
+    {
+      "do": "Whether a device stuck in Removal Pending has sent a keepalive since the soft remove; after a day without one the user is inactive and a force remove is the way out.",
+      "uses": [
+        "removal-pending",
+        "pending-over-a-day",
+        "force-remove"
+      ]
+    },
+    {
+      "do": "Whether the goal is to stop the device enrolling again, which removal does not do and quarantine does.",
+      "uses": [
+        "re-enroll-removed",
+        "quarantine-blocks-reenrollment"
+      ]
+    },
+    {
+      "do": "Whether a user who cannot enroll has 16 devices in Registered or Removal Pending, which count against the limit.",
+      "uses": [
+        "device-limit"
+      ]
+    }
+  ],
+  "claims": {
+    "registered-unregistered": {
+      "statement": "A Registered device has Client Connector enrolled and logged in with a user. An Unregistered device is one whose user manually logged out of the app.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "device-states-enrolled-devices.json",
+          "quotes": [
+            "Zscaler Client Connector is enrolled on the device and logged in with a user.",
+            "The user manually logged out of the app."
+          ]
+        }
+      ]
+    },
+    "removal-pending": {
+      "statement": "Removal Pending means an administrator soft removed the device and Client Connector has not yet sent a keepalive. A device also enters it when the user is removed from User Management in Internet & SaaS.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "device-states-enrolled-devices.json",
+          "quotes": [
+            "The administrator soft removed the device from the Zscaler Admin Console, and Zscaler Client Connector hasn't sent a keepalive message."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "soft-removing-device-zscaler-admin-console.json",
+          "quotes": [
+            "A device can be in Device Removal Pending if the admin soft removed the device from the Zscaler Admin Console or removed the user from User Management in Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "removed-conditions": {
+      "statement": "A device becomes Removed when a soft-removed device sends its next keepalive or has its policy updated manually, when its user exceeds the configured device threshold, when it has been inactive for the configured automatic-removal period, or when an administrator force removes it.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "device-states-enrolled-devices.json",
+          "quotes": [
+            "Zscaler Client Connector sent the next keepalive message or a policy was manually updated from Zscaler Client Connector on a device that was soft removed.",
+            "A user exceeded the maximum number of devices enrolled",
+            "The device has been inactive for the time configured in the Automatically Force Remove Inactive Devices After field",
+            "The administrator force removed the device from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "quarantined": {
+      "statement": "An administrator quarantines a device from its Registered Device Details page to limit or block its access to Zscaler applications; a quarantined device cannot be used to log in, cannot be soft removed, is eligible for hard deletion, and does not count against the device limit.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "quarantining-device-zscaler-admin-console.json",
+          "quotes": [
+            "Quarantining a device limits or blocks its access to Zscaler applications.",
+            "The device can't be used to log in again, is not available for soft removal, and is eligible for hard deletion.",
+            "Quarantining a device doesn't count against the number of devices in the device limit."
+          ]
+        }
+      ]
+    },
+    "quarantine-blocks-reenrollment": {
+      "statement": "A quarantined device cannot be re-enrolled, matched by its device fingerprint, until an administrator unquarantines it, which moves it to Removed and lets it log in again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "device-states-enrolled-devices.json",
+          "quotes": [
+            "The device cannot be re-enrolled based on its unique device fingerprint."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "quarantining-device-zscaler-admin-console.json",
+          "quotes": [
+            "After you quarantine a device, it can't be re-enrolled unless an admin moves it to the Removed state.",
+            "The device’s state changes to Removed, and the device can be used to log in to Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "device-limit": {
+      "statement": "A username can enroll at most 16 devices. Registered and Removal Pending devices count against the limit; Unregistered, Removed and Quarantined devices do not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "quarantining-device-zscaler-admin-console.json",
+          "quotes": [
+            "Quarantining a device doesn't count against the number of devices in the device limit."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "removing-device-if-number-devices-limit-reached.json",
+          "quotes": [
+            "You can only enroll up to 16 devices under one username.",
+            "Devices with a device state of Unregistered or Removed do not count against the number of devices limit.",
+            "Devices with a device state of Removal Pending count against the number of devices limit."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "device-states-enrolled-devices.json",
+          "quotes": [
+            "The maximum number of devices you can enroll under one username is 16."
+          ]
+        }
+      ]
+    },
+    "re-enroll-removed": {
+      "statement": "A removed device can be enrolled again while the user has fewer than 16 enrolled devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "removing-device-if-number-devices-limit-reached.json",
+          "quotes": [
+            "You can enroll a removed device again if you have fewer than 16 enrolled devices."
+          ]
+        }
+      ]
+    },
+    "soft-remove": {
+      "statement": "A soft remove sets the device to Removal Pending and takes effect at the device's next keepalive, typically within an hour, when it becomes Removed; Client Connector then logs the user out without uninstalling, and the user sees no service interruption or authentication errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "soft-removing-device-zscaler-admin-console.json",
+          "quotes": [
+            "Soft removing a device does not immediately remove it from the Zscaler Admin Console.",
+            "When you remove a device, Zscaler Client Connector logs out the user but does not uninstall the app from the device.",
+            "After the update is complete, typically in one hour, the Removal Pending device state changes to Removed"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "removing-device-if-number-devices-limit-reached.json",
+          "quotes": [
+            "The soft removal takes effect when Zscaler Client Connector sends its next keepalive.",
+            "The user does not experience service interruption or authentication errors."
+          ]
+        }
+      ]
+    },
+    "pending-over-a-day": {
+      "statement": "A device that stays in Removal Pending for more than a day has an inactive user, or its Client Connector failed to send the keepalive or was uninstalled first; the vendor names these as cases that may need a force remove.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "soft-removing-device-zscaler-admin-console.json",
+          "quotes": [
+            "After soft removal, the following circumstances might require you to force remove a device:",
+            "stays on the Device Overview page for more than a day. This means that the user is inactive.",
+            "Zscaler Client Connector fails to send the keepalive or Zscaler Client Connector is uninstalled before the keepalive is sent."
+          ]
+        }
+      ]
+    },
+    "force-remove": {
+      "statement": "A force remove in the console works on one device at a time and sets it to Removed immediately; Client Connector on the device is logged out at its next automatic policy update or when the user clicks Update Policy, and the user may see service interruption or authentication errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "force-removing-device-zscaler-admin-console.json",
+          "quotes": [
+            "You can only force remove devices one at a time.",
+            "The device state changes to Removed immediately in the Zscaler Admin Console.",
+            "On the device, Zscaler Client Connector is logged out during the next automatic policy update or when the user clicks Update Policy on the More window of the app."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "removing-device-if-number-devices-limit-reached.json",
+          "quotes": [
+            "The force removal takes effect immediately.",
+            "The user might experience service interruption or authentication errors."
+          ]
+        }
+      ]
+    },
+    "removal-not-uninstall": {
+      "statement": "Removing a device's registration from the admin console does not remove Client Connector from the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-automated-device-cleanup.json",
+          "quotes": [
+            "Removing the registration from the Zscaler Admin Console doesn’t remove Zscaler Client Connector from the device."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "force-removing-device-zscaler-admin-console.json",
+          "quotes": [
+            "When you remove a device, Zscaler Client Connector does not uninstall the app from the device."
+          ]
+        }
+      ]
+    },
+    "udid": {
+      "statement": "Client Connector generates a UDID for every new installation; the same UDID continues through uninstall, reinstall and reboot, is unique to each user and device, and differs from user to user on the same device.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#udid"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "The Unique Device Identifier that Zscaler Client Connector generates for every new installation.",
+            "The same UDID continues during uninstalling, reinstalling, and rebooting of the devices. The UDID is unique to each user and device and changes from user to user for the same device."
+          ]
+        }
+      ]
+    },
+    "device-id": {
+      "statement": "The Device ID is the device's unique ID in the admin console database, generated for each new enrollment and continued for subsequent enrollments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "quotes": [
+            "The unique ID for each device in the Zscaler Admin Console database. The unique ID is generated for each new enrollment in the Zscaler Client Connector and continues for subsequent enrollments."
+          ]
+        }
+      ]
+    },
+    "hardware-fingerprint": {
+      "statement": "The hardware fingerprint is an ID created from the device's hardware, such as its serial number, BIOS ID and battery ID.",
+      "tier": "A",
+      "binds": [
+        "zcc/devices#hardwareFingerprint"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-enrolled-devices.json",
+          "after": "Perform an exact match search of enrolled devices by:",
+          "quotes": [
+            "The unique ID created from the device’s hardware, such as a serial number, BIOS ID, battery ID, etc."
+          ]
+        }
+      ]
+    },
+    "update-policy-sends-keepalive": {
+      "statement": "Clicking Update Policy in Client Connector sends a keepalive immediately instead of waiting for the next one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-device-fingerprint-enrolled-device.json",
+          "quotes": [
+            "Alternatively, you can click Update Policy in Zscaler Client Connector to immediately send a keepalive signal."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "force-remove-states": {
+      "summary": "Which device states the console's Force Remove accepts.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "force-removing-device-zscaler-admin-console.json",
+            "quotes": [
+              "You can only force remove devices with the device states of Registered and Removal Pending."
+            ]
+          },
+          "says": "Registered and Removal Pending devices can be force removed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "viewing-device-fingerprint-enrolled-device.json",
+            "quotes": [
+              "You can only force remove devices with the device state of Removal Pending."
+            ]
+          },
+          "says": "Only Removal Pending devices can be force removed from the device details page."
+        }
+      ],
+      "impact": "An admin reading the device-details page would soft remove a Registered device first and wait for a keepalive that may never come, when the force-remove article allows removing it directly; the API's force-remove call also accepts Registered devices (zcc.api.devices-wire:force-remove)."
+    },
+    "keepalive-interval": {
+      "summary": "How often Client Connector sends its keepalive.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-enrolled-devices.json",
+            "quotes": [
+              "Keep Alive Time: The keepalive occurs every 80 minutes."
+            ]
+          },
+          "says": "Every 80 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "viewing-device-fingerprint-enrolled-device.json",
+            "quotes": [
+              "during the next keepalive, which is usually once every hour while the device is active."
+            ]
+          },
+          "says": "Usually once every hour while the device is active."
+        }
+      ],
+      "impact": "Anything that waits on the keepalive (a soft remove, a log fetch) can take up to 80 minutes rather than an hour, so a device still pending at 60 minutes is not yet evidence of a stuck client."
+    }
+  },
+  "gaps": {
+    "re-enrollment-record": {
+      "kind": "semantic",
+      "title": "Whether a device that enrolls again after removal gets a new record and UDID",
+      "status": "open",
+      "detail": "Unverified legacy statement: if Client Connector is still installed and comes online after removal, it re-registers, creating a fresh record (new udid) and losing the history; revoking the user's entitlement or changing group membership prevents it. The vendor says the UDID continues through uninstall and reinstall and that a removed device can enroll again, and names quarantine, not entitlement, as what blocks re-enrollment; whether the re-enrolled device reuses its record or UDID is not stated.",
+      "blocks": "answers about whether device history survives a removal and re-enrollment",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "udid-tenant-scope": {
+      "kind": "semantic",
+      "title": "Whether a UDID is scoped to one tenant",
+      "status": "open",
+      "detail": "Unverified legacy statement: udid is tenant-scoped and fingerprint-based, so the same physical device in two tenants gets two UDIDs, and a device that moves tenants gets a new one. The vendor ties the UDID to the installation, user and device, and says nothing about tenants.",
+      "blocks": "cross-tenant device correlation after a migration or merger",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "hardware-fingerprint-cloning": {
+      "kind": "semantic",
+      "title": "What happens when two devices report the same hardware fingerprint",
+      "status": "open",
+      "detail": "Unverified legacy statement: sibling VMs cloned from one image report the same hardware fingerprint and interfere with each other's policy and tunnel state until the older duplicate is force removed. The vendor defines the fingerprint from hardware IDs and uses it to block re-enrollment of quarantined devices, but does not describe collisions.",
+      "blocks": "diagnosing VDI or cloned-image devices that flap between users or policies",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

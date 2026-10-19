@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "zcc.acceptable-use.other-surfaces",
+  "title": "Which acceptable use screen: ZCC, ZIA location, ZIA notifications or ZPA user portal",
+  "aliases": [
+    "zia aup",
+    "location aup",
+    "aupEnabled",
+    "aup_frequency",
+    "zpa user portal aup",
+    "zpa_user_portal_aup",
+    "notification template is not aup",
+    "guest wifi aup"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.acceptable-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Several Zscaler products show an acceptable use screen, and each is its own object. The Client Connector prompt is [[zcc.acceptable-use]]."
+    },
+    {
+      "label": "ZIA, per location.",
+      "text": "{{zia-location-aup}}"
+    },
+    {
+      "label": "ZIA end user notifications.",
+      "text": "{{zia-eun-aup}} {{browser-aup-separate}}"
+    },
+    {
+      "label": "Private Access user portal.",
+      "text": "{{zpa-portal-aup}}"
+    },
+    {
+      "text": "{{separate-objects}}"
+    },
+    {
+      "label": "Notification templates are not the AUP.",
+      "text": "Which template a profile applies, and on which clients, is [[zcc.notifications.templates:older-clients-legacy]]. {{template-has-no-aup}} The notification surface itself is in [[zcc.notifications]]."
+    }
+  ],
+  "claims": {
+    "zia-location-aup": {
+      "statement": "ZIA locations have their own AUP: a per-location switch, an option to block all internet access (non-HTTP included) until the user accepts, and a re-validation period in days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/location/locationmanagement/locationmanagement.go",
+          "quotes": [
+            "// Enable AUP. When set to true, AUP is enabled for the location",
+            "When set, all internet access (including non-HTTP traffic) is disabled until the user accepts the AUP.",
+            "// Custom AUP Frequency. Refresh time (in days) to re-validate the AUP."
+          ]
+        }
+      ]
+    },
+    "zia-eun-aup": {
+      "statement": "ZIA's end user notification settings carry AUP fields of their own; the Terraform resource requires `aup_day_offset` and `aup_custom_frequency` when `aup_frequency` is CUSTOM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_end_user_notification.go",
+          "quotes": [
+            "attribute 'aup_day_offset' must be set when 'aup_frequency' is 'CUSTOM'",
+            "attribute 'aup_custom_frequency' must be set when 'aup_frequency' is 'CUSTOM'"
+          ]
+        }
+      ]
+    },
+    "zpa-portal-aup": {
+      "statement": "The Private Access user portal has its own AUP, served at `/userportal/aup` and managed by the `zpa_user_portal_aup` Terraform resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/userportal/aup/aup.go",
+          "quotes": [
+            "userPortalAUPEndpoint = \"/userportal/aup\""
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_user_portal_aup\":                          resourceUserPortalAUP(),"
+          ]
+        }
+      ]
+    },
+    "separate-objects": {
+      "statement": "None of these shares configuration with the Client Connector AUP, which is set only in the Client Connector notification settings.",
+      "tier": "B",
+      "conditions": "Each is a different API object in a different product; no source links them.",
+      "derived_from": [
+        "zia-location-aup",
+        "zia-eun-aup",
+        "zpa-portal-aup",
+        "zcc.acceptable-use:not-on-app-profile",
+        "zcc.acceptable-use:no-api"
+      ]
+    },
+    "template-has-no-aup": {
+      "statement": "A notification template holds client, ZIA, app update and service status notification switches and ZIA and ZPA sub-templates; it has no AUP field.",
+      "tier": "B",
+      "conditions": "Absence: the NotificationTemplate struct and its sub-template structs were read at the pin.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "quotes": [
+            "EnableServiceStatus     bool                    `json:\"enableServiceStatus\"`",
+            "ZPANotificationTemplate ZPANotificationTemplate `json:\"zpaNotificationTemplate\"`"
+          ]
+        }
+      ]
+    },
+    "browser-aup-separate": {
+      "statement": "ZIA has a separate browser-based AUP: it needs authenticated users, or for a location or sublocation without enforced authentication the AUP setting on the Location or Sublocation page; it is tracked with a cookie, and every acceptance is logged with the user's login name and location, which cannot be turned off.",
+      "tier": "A",
+      "conditions": "Quote added for the location clause (verifier w2 E8, w5 17).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-browser-based-end-user-notifications.json",
+          "quotes": [
+            "To display the AUP notification, users must be authenticated.",
+            "However, for locations or sublocations that do not have authentication enforced, you can still enable AUP and configure the notification frequency (in days) using the corresponding settings on the Location or the Sublocation page.",
+            "The Zscaler service sets an AUP cookie when a user accepts the AUP.",
+            "When a user accepts the AUP, the service automatically logs the acceptance with the user's login name and location. AUP acceptance logging cannot be turned off."
+          ]
+        }
+      ]
+    }
+  }
+}

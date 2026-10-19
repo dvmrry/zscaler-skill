@@ -286,4 +286,4 @@ Source: `vendor/zscaler-help/understanding-diagnostics-session-status.json`; `ve
 - ZDX Score and baseline metrics (the input to most alert rules) — [`./overview.md`](./overview.md)
 - Probes (what Diagnostics Sessions ultimately invoke) — [`./probes.md`](./probes.md)
 - SDK surface (all the `client.zdx.troubleshooting.*` and `client.zdx.alerts.*` methods) — [`./api.md`](./api.md)
-- ZCC entitlement (a prerequisite for ZDX data to flow at all) — [`../zcc/entitlements.md`](../zcc/entitlements.md)
+- ZCC entitlement (a prerequisite for ZDX data to flow at all) — [`zcc.entitlements`](kb:zcc.entitlements)

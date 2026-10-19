@@ -13,9 +13,9 @@ sources:
   - "kb:zia.atp"
   - "`kb:zpa.app-segments`"
   - "`kb:zpa.policy`"
-  - "references/zcc/forwarding-profile.md"
-  - "references/zcc/web-policy.md"
-  - "references/zcc/entitlements.md"
+  - "`kb:zcc.forwarding-profiles`"
+  - "`kb:zcc.app-profiles`"
+  - "`kb:zcc.entitlements`"
   - "references/shared/cloud-architecture.md"
   - "references/shared/activation.md"
   - "vendor/zscaler-help/configuring-ssl-tls-inspection-policy.json"
@@ -105,11 +105,11 @@ ZPA Access Policy rules can gate on ZIA-computed user-risk signals.
 
 Client-side evaluation feeds ZPA policy.
 
-**`sendTrustedNetworkResultToZpa` on ZCC Forwarding Profile → `TRUSTED_NETWORK` condition in ZPA Access Policy.** ZCC evaluates trusted-network criteria continuously on the endpoint (see [`../zcc/trusted-networks.md`](../zcc/trusted-networks.md)). The result flows to ZPA only when this toggle is enabled on the active forwarding profile's `forwardingProfileZpaActions` block. See [`../zcc/forwarding-profile.md § ForwardingProfileZpaActions`](../zcc/forwarding-profile.md).
+**`sendTrustedNetworkResultToZpa` on ZCC Forwarding Profile → `TRUSTED_NETWORK` condition in ZPA Access Policy.** ZCC evaluates trusted-network criteria continuously on the endpoint (see [`zcc.trusted-networks`](kb:zcc.trusted-networks)). The result flows to ZPA only when this toggle is enabled on the active forwarding profile's `forwardingProfileZpaActions` block. See [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles).
 
 **Failure mode**: admin adds a TRUSTED_NETWORK condition to a ZPA rule; rule silently never matches because the flag is off on the user's active forwarding profile. This is the **single most common cross-product ZPA rule failure**.
 
-**ZCC Entitlements gate ZPA access itself.** A user not entitled to ZPA via `ZpaGroupEntitlements.group_list` (or the `zpa_enable_for_all` trump-card flag) has **no ZPA microtunnel** at all — ZPA policy never evaluates for them. Distinct from "entitled-but-Deny" (ZPA rule evaluates and denies; LSS records exist). See [`../zcc/entitlements.md`](../zcc/entitlements.md).
+**ZCC Entitlements gate ZPA access itself.** A user not entitled to ZPA via `ZpaGroupEntitlements.group_list` (or the `zpa_enable_for_all` trump-card flag) has **no ZPA microtunnel** at all — ZPA policy never evaluates for them. Distinct from "entitled-but-Deny" (ZPA rule evaluates and denies; LSS records exist). See [`zcc.entitlements`](kb:zcc.entitlements).
 
 **Failure mode**: operator debugs ZPA Access Policy rules extensively for a user who isn't actually entitled. Check entitlements first — it's a one-API-call fast pre-check before rule analysis.
 
@@ -119,13 +119,13 @@ Client-side evaluation feeds ZPA policy.
 
 Client-side settings that shape ZIA's visibility.
 
-**`WebPolicy.pac_url`** (called "App Profile PAC URL" in the admin portal) — the PAC file ZCC honors for traffic-forwarding decisions. Combines with the Forwarding Profile to determine which traffic reaches ZIA at all. See [`../zcc/web-policy.md`](../zcc/web-policy.md).
+**`WebPolicy.pac_url`** (called "App Profile PAC URL" in the admin portal) — the PAC file ZCC honors for traffic-forwarding decisions. Combines with the Forwarding Profile to determine which traffic reaches ZIA at all. See [`zcc.app-profiles`](kb:zcc.app-profiles).
 
 **`WebPolicy.install_ssl_certs`** (per platform) — whether ZCC installs the Zscaler root CA into the OS certificate store. **Required for ZIA SSL Inspection to work without cert errors on the endpoint.** A per-platform `install_ssl_certs = false` silently breaks SSL inspection for users on that platform — they see cert warnings or outright TLS failures.
 
 **`WebPolicy.zia_posture_config_id`** — references a ZIA device-posture configuration. Cross-product hook for posture-gated access. Not yet written up as a dedicated reference doc.
 
-**Forwarding Profile `actionType: NONE` on the Trusted branch** — ZCC bypasses ZIA entirely on trusted networks. A TrustedNetwork criterion that's too permissive (home Wi-Fi with a default consumer subnet) silently exempts users from ZIA inspection while off-corporate. See [`../zcc/forwarding-profile.md § ForwardingProfileActions`](../zcc/forwarding-profile.md).
+**Forwarding Profile `actionType: NONE` on the Trusted branch** — ZCC bypasses ZIA entirely on trusted networks. A TrustedNetwork criterion that's too permissive (home Wi-Fi with a default consumer subnet) silently exempts users from ZIA inspection while off-corporate. See [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles).
 
 ### ZIdentity → ZIA + ZPA (shared step-up-auth layer)
 
@@ -284,7 +284,7 @@ See [`./cloud-architecture.md § Feed Central`](./cloud-architecture.md).
 
 **Failure mode**: admin adds users to ZIA but ZDX dashboards don't immediately show them. ZDX is sourcing from its periodic sync with ZIA — expect minutes-to-hours propagation, not real-time.
 
-**ZDX depends on ZCC entitlement to receive device metrics.** Without a user being entitled via `ZdxGroupEntitlements` (see [`../zcc/entitlements.md`](../zcc/entitlements.md)), ZCC doesn't send ZDX telemetry for them. No data → no ZDX Score.
+**ZDX depends on ZCC entitlement to receive device metrics.** Without a user being entitled via `ZdxGroupEntitlements` (see [`zcc.entitlements`](kb:zcc.entitlements)), ZCC doesn't send ZDX telemetry for them. No data → no ZDX Score.
 
 ### ZDX → Microsoft Azure Data Explorer (analytics backend)
 
@@ -325,17 +325,17 @@ Routing hints for question patterns that often hit these hooks. Use this section
 |---|---|---|
 | "ZIA SSL rule isn't matching traffic to our ZPA app" | ZIA SSL `zpa_app_segments` — Source IP Anchor not enabled on the segment | [`zia.ssl-inspection`](kb:zia.ssl-inspection), then `kb:zpa.app-segments` |
 | "Multimatch won't save on this segment" | `inspect_traffic_with_zia` on the segment is true (or one of the other Multimatch-incompatible features) | [`zpa.app-segments`](kb:zpa.app-segments) |
-| "Our ZPA TRUSTED_NETWORK rule never matches" | `sendTrustedNetworkResultToZpa` flag off on forwarding profile | [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md) |
-| "User can't reach any ZPA app" | ZPA entitlement via ZCC (`zpa_enable_for_all` / `group_list`) | [`../zcc/entitlements.md`](../zcc/entitlements.md) before ZPA policy |
+| "Our ZPA TRUSTED_NETWORK rule never matches" | `sendTrustedNetworkResultToZpa` flag off on forwarding profile | [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles) |
+| "User can't reach any ZPA app" | ZPA entitlement via ZCC (`zpa_enable_for_all` / `group_list`) | [`zcc.entitlements`](kb:zcc.entitlements) before ZPA policy |
 | "CAC can't tell apart these two Google apps" | SSL Inspection bypass prevents app identification | [`zia.cloud-app-control`](kb:zia.cloud-app-control) |
 | "DLP/Sandbox/Malware aren't catching this" | SSL Inspection bypass for the URL's category | [`zia.ssl-inspection`](kb:zia.ssl-inspection) |
-| "macOS users see cert errors but Windows doesn't" | `install_ssl_certs` per-platform on Web Policy | [`../zcc/web-policy.md`](../zcc/web-policy.md) |
+| "macOS users see cert errors but Windows doesn't" | `install_ssl_certs` per-platform on Web Policy | [`zcc.app-profiles`](kb:zcc.app-profiles) |
 | "URL was accessible last week, blocked now, no rule change" | ATP AI/ML recategorized to Botnet or Phishing | [`zia.atp`](kb:zia.atp) |
 | "Conditional / Require Approval rule doesn't fire for GRE users" | Step-up auth needs ZCC forwarding, not GRE | [`zia.url-filtering`](kb:zia.url-filtering) and `kb:zpa.policy` |
 | "Activated my ZIA rule, still not working" | Activation gate — `GET /status` — or quota/validation activation failure | [`./activation.md`](./activation.md) |
 | "Changes propagated for ZPA but not ZIA" | Product-specific activation model — not a bug | [`./activation.md`](./activation.md) |
 | "During an outage, ZPA traffic broke but ZIA didn't" | BC Cloud is ZIA-only; ZPA has its own availability model | [`./cloud-architecture.md § Business Continuity Cloud`](./cloud-architecture.md) |
-| "ZDX has no data for this user" | ZCC entitlement not granted — user can't report telemetry | [`../zcc/entitlements.md`](../zcc/entitlements.md), then [`../zdx/overview.md`](../zdx/overview.md) |
+| "ZDX has no data for this user" | ZCC entitlement not granted — user can't report telemetry | [`zcc.entitlements`](kb:zcc.entitlements), then [`../zdx/overview.md`](../zdx/overview.md) |
 | "ZDX probe works but real traffic fails" | SSL Inspection skipped on synthetic probes only | [`../zdx/probes.md § Web probes`](../zdx/probes.md) |
 | "ZDX data residency question" | Analytics backend is Microsoft Azure Data Explorer | [`../zdx/overview.md`](../zdx/overview.md) |
 | "Isolate URL Filter rule matches but user doesn't get isolated" | SSL Inspection not decrypting that URL | [`../zbi/policy-integration.md`](../zbi/policy-integration.md), then [`zia.ssl-inspection`](kb:zia.ssl-inspection) |
@@ -377,7 +377,7 @@ Three themes show up across the hooks:
 - ZIA Malware Protection / ATP — [`zia.atp`](kb:zia.atp)
 - ZPA app segments — [`zpa.app-segments`](kb:zpa.app-segments)
 - ZPA policy precedence — [`zpa.policy`](kb:zpa.policy)
-- ZCC forwarding profile — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
-- ZCC trusted networks — [`../zcc/trusted-networks.md`](../zcc/trusted-networks.md)
-- ZCC Web Policy / App Profile — [`../zcc/web-policy.md`](../zcc/web-policy.md)
-- ZCC entitlements — [`../zcc/entitlements.md`](../zcc/entitlements.md)
+- ZCC forwarding profile — [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
+- ZCC trusted networks — [`zcc.trusted-networks`](kb:zcc.trusted-networks)
+- ZCC Web Policy / App Profile — [`zcc.app-profiles`](kb:zcc.app-profiles)
+- ZCC entitlements — [`zcc.entitlements`](kb:zcc.entitlements)

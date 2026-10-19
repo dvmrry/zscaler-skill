@@ -1,0 +1,372 @@
+{
+  "schema_version": 1,
+  "id": "zcc.app-profiles.selection",
+  "title": "Which app profile a device gets: rule order, groups and the longest match",
+  "aliases": [
+    "app profile rule order",
+    "which app profile applies",
+    "app profile precedence",
+    "wrong app profile",
+    "app profile device group",
+    "default app profile",
+    "web policy rule order"
+  ],
+  "binds": [
+    "zcc/application-profiles#ruleOrder",
+    "zcc/application-profiles#active",
+    "zcc/application-profiles#groupAll",
+    "zcc/application-profiles#groupIds",
+    "zcc/application-profiles#userIds",
+    "zcc/application-profiles#deviceGroupIds",
+    "zcc/application-profiles#enableDeviceGroups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.app-profiles.propagation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each platform has its own list of profile rules, and a device receives one of them. {{enrollment-download}} {{ascending-precedence}} {{first-applicable}}"
+    },
+    {
+      "label": "Disabled rules.",
+      "text": "{{disabled-not-enforced}}"
+    },
+    {
+      "label": "The exception to rule order.",
+      "text": "{{longest-match}}"
+    },
+    {
+      "label": "Who a rule names.",
+      "text": "{{user-groups}} {{group-all-docstring}} The API document says all device groups instead: [[zcc.api.web-policy-wire:group-all-scope]]. {{users-limit}} {{device-group-versions}} {{unassigned-rule}} Whether `groupAll` makes a populated group list irrelevant, and whether a disabled device-group switch ignores its list, is open {{gap:group-flags}}."
+    },
+    {
+      "label": "Names on the edit body.",
+      "text": "{{name-lists}}"
+    },
+    {
+      "label": "The default policy.",
+      "text": "{{default-policy-page}} When a device receives it, and how it appears in the API, is open {{gap:default-policy}}."
+    },
+    {
+      "text": "Whether the rule order numbers must be contiguous is open {{gap:rule-order-contiguity}}."
+    },
+    {
+      "text": "A device keeps the profile it downloaded until it downloads again: [[zcc.app-profiles.propagation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "List the enabled rules for the device's platform that name the user, one of the user's groups, or all groups.",
+      "uses": [
+        "disabled-not-enforced",
+        "user-groups",
+        "users-limit"
+      ]
+    },
+    {
+      "do": "If one of those rules also names the device's device group, it wins over a lower-numbered rule that matches the user group only.",
+      "uses": [
+        "longest-match"
+      ]
+    },
+    {
+      "do": "Otherwise the applicable rule with the lowest rule order applies.",
+      "uses": [
+        "ascending-precedence",
+        "first-applicable"
+      ]
+    },
+    {
+      "do": "If no rule applies, the platform's default policy; how that is chosen is open.",
+      "uses": [
+        "default-policy"
+      ]
+    }
+  ],
+  "claims": {
+    "enrollment-download": {
+      "statement": "When a user enrolls, the app uses the order of precedence and the user's identity to download an app profile with the appropriate policy rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "When a user enrolls the app with the Zscaler service, the app uses the order of precedence and identity of the user to download an app profile with the appropriate policy rule."
+          ]
+        }
+      ]
+    },
+    "ascending-precedence": {
+      "statement": "The rule order is the order of precedence among a platform's profile rules and determines which rule the app downloads for a user; precedence is by ascending number.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#ruleOrder"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "The rule order reflects the order of precedence among configured profile policy rules and helps determine which rule the app downloads for a user upon enrollment. Precedence is based on ascending numerical order."
+          ]
+        }
+      ]
+    },
+    "first-applicable": {
+      "statement": "The vendor's example walks the rules in order: the app checks whether rule 1 applies to the user, moves on to rule 2 and, finding that it applies, downloads that rule's profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zscaler-client-connector-profile-rule-example.json",
+          "quotes": [
+            "Zscaler Client Connector begins by checking whether rule 1 applies to the user.",
+            "The app moves on to rule 2 and upon determining it applies to the user, downloads the profile containing the appropriate policy rule."
+          ]
+        }
+      ]
+    },
+    "disabled-not-enforced": {
+      "statement": "A rule whose status is Disabled is not enforced.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#active"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Select Disabled to inactivate the rule or select Enabled to activate the rule. If you don't enable the rule, the policy rule is not enforced."
+          ]
+        }
+      ]
+    },
+    "longest-match": {
+      "statement": "If a user's group is assigned to two profiles and one of them also names a device group, the app applies the profile matching both the user group and the device group, because the longest match has priority, regardless of rule order.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#deviceGroupIds",
+        "zcc/application-profiles#ruleOrder"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "If a user belongs to the same user group that is assigned to two different profiles and one of the profiles is assigned a device group, then Zscaler Client Connector applies the app profile matching both the user group and device group (because the longest match has priority) regardless of the rule order."
+          ]
+        }
+      ]
+    },
+    "user-groups": {
+      "statement": "A rule names selected user groups (with no limit on how many) or all groups; newly added groups are selected automatically and must be cleared to exclude them. Groups are synced from Internet & SaaS and may not appear if it is not enabled and configured.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#groupIds",
+        "zcc/application-profiles#groupAll"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "When new user groups are added, they are automatically selected. You can clear the checkbox to exclude them from your policy.",
+            "There is no limit to the number of groups you can select.",
+            "Click All to select all groups.",
+            "Groups are synced from Internet & SaaS, and are only available when Internet & SaaS is enabled and configured."
+          ]
+        }
+      ]
+    },
+    "group-all-docstring": {
+      "statement": "The Python SDK documents `group_all` as 0 or 1: whether the policy applies to all groups.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#groupAll"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "whether the policy applies to all groups."
+          ]
+        }
+      ]
+    },
+    "users-limit": {
+      "statement": "A rule can also name specific users, up to 50; none are selected by default.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#userIds"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "You can select up to 50 users. By default, no users are selected."
+          ]
+        }
+      ]
+    },
+    "device-group-versions": {
+      "statement": "A rule can name device groups; on mobile they require Client Connector 4.5 or later for iOS and 3.7 or later for Android.",
+      "tier": "A",
+      "binds": [
+        "zcc/application-profiles#deviceGroupIds",
+        "zcc/application-profiles#enableDeviceGroups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Device Groups: Select this option to apply this rule to specific groups or to all device groups."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Device groups are available only on Zscaler Client Connector version 4.5 and later for iOS devices.",
+            "Device groups are available only on Zscaler Client Connector version 3.7 and later for Android devices."
+          ]
+        }
+      ]
+    },
+    "unassigned-rule": {
+      "statement": "A rule can be saved with no user or user group, to create it before applying it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "Don't select a user or a user group if you want to create and save a rule before applying it to a user or a user group."
+          ]
+        }
+      ]
+    },
+    "default-policy-page": {
+      "statement": "Each platform's App Profiles page shows a default policy alongside the configured rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "View a list of all configured app profile rules.",
+            "View the default policy."
+          ]
+        }
+      ]
+    },
+    "name-lists": {
+      "statement": "Besides the ID lists, the API document's web policy edit body has string-array name lists: `userNames`, `groupNames`, `deviceGroupNames`, `appIdentityNames` and `appServiceNames`. It does not describe them.",
+      "tier": "A",
+      "conditions": "Added (verifier w2 A15): these keys had been dropped as generated, but the generated layer does not carry them; the API document gives types only.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties",
+          "expect": {
+            "userNames": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "groupNames": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "deviceGroupNames": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "appIdentityNames": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "appServiceNames": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "default-policy": {
+      "kind": "semantic",
+      "title": "When the default app profile applies, and where it lives in the API",
+      "status": "open",
+      "former_ids": [
+        "zcc-07"
+      ],
+      "detail": "Unverified legacy statement: \"A null sub-policy means 'no platform-specific policy defined' — not 'inherit defaults.' Devices on an unscoped platform fall through to the tenant's default Web Policy\", and \"If the tenant default policy is permissive, this can be a security gap.\" The help shows a default policy per platform but not when a device receives it (no rule matches the user, or no rule exists), nor whether the API shows it as a flagged record, the last rule, or a separate setting. A Go SDK test comment (a test comment, not documentation) says a list response can carry ID 0, for example the default policy, and that a GET by ID 0 is not supported.",
+      "blocks": "answers about which settings an unmatched user or device gets",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/application_profiles/application_profiles_test.go",
+          "quotes": [
+            "ID 0 is valid in list responses (e.g. default policy); GET-by-id for 0 is not supported by the API."
+          ]
+        }
+      ]
+    },
+    "group-flags": {
+      "kind": "semantic",
+      "title": "Whether groupAll and a disabled device-group switch override populated lists",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"group_all = true with non-empty group_ids — the broader flag takes priority at enforcement time; group_ids is effectively ignored. Same for enable_device_groups = false with a populated device_group_ids list.\" The sources also disagree on what `groupAll` covers: the API document says all device groups, the Python SDK all groups (divergence group-all-scope in zcc.api.web-policy-wire).",
+      "blocks": "audits that flag a rule's group list as dormant",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    },
+    "rule-order-contiguity": {
+      "kind": "semantic",
+      "title": "Whether app profile rule order must be contiguous",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"The portal does not enforce contiguous ordering\", with the advice to number rules with gaps (10, 20, 30). The help has the rule order chosen from a drop-down, which suggests the console offers only existing positions; neither is stated.",
+      "blocks": "scripts that insert a rule at a chosen position",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

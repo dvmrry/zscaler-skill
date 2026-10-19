@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "id": "zcc.forwarding-profiles",
+  "title": "ZCC forwarding profiles",
+  "aliases": [
+    "forwarding profile",
+    "zcc forwarding profile",
+    "how does zcc decide where to send traffic",
+    "traffic bypassed zscaler",
+    "web forwarding profile",
+    "zcc_forwarding_profile"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.assignment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.private-access-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.fail-open"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.forwarding-profile-wire"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zcc.trusted-networks.detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} \"Where did this device's traffic go?\" needs four questions answered in order."
+    },
+    {
+      "steps": [
+        {
+          "label": "Which forwarding profile does the device run?",
+          "text": "The one its app profile selects, as of the last login or restart: [[zcc.forwarding-profiles.assignment]]."
+        },
+        {
+          "label": "Which network type was the device in?",
+          "text": "On-Trusted, VPN-Trusted, Split VPN-Trusted or Off-Trusted: [[zcc.forwarding-profiles.network-types]], decided for On-Trusted by the trusted network criteria in [[zcc.trusted-networks.detection]]."
+        },
+        {
+          "label": "What does the profile do on that network type?",
+          "text": "Separately for internet traffic and for Private Access: [[zcc.forwarding-profiles.internet-actions]], [[zcc.forwarding-profiles.private-access-actions]]."
+        },
+        {
+          "label": "If it tunnels, how?",
+          "text": "Z-Tunnel version, transport and bypasses: [[zcc.z-tunnel]]."
+        }
+      ]
+    },
+    {
+      "text": "When the app cannot protect traffic at all, the fail-open settings decide: [[zcc.forwarding-profiles.fail-open]]. Reading or writing profiles through the API, including the undocumented integer codes: [[zcc.api.forwarding-profile-wire]]."
+    },
+    {
+      "label": "Unified tunnel.",
+      "text": "Profiles can also carry a unified tunnel list instead of per-network-type actions: [[zcc.api.forwarding-profile-wire:unified-tunnel-shape]]. What unified tunnel mode changes for the device is open {{gap:unified-tunnel-semantics}}."
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "A forwarding profile tells Client Connector how to treat traffic from users' systems in different network environments, for the Internet & SaaS and Private Access services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-forwarding-profiles.json",
+          "quotes": [
+            "The forwarding profile tells Zscaler Client Connector how to treat traffic from your users' systems in different network environments for the Internet & SaaS and Private Access services."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "unified-tunnel-semantics": {
+      "kind": "semantic",
+      "title": "What unified tunnel mode changes for the device",
+      "status": "open",
+      "former_ids": [
+        "zcc-84"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#unifiedTunnel"
+      ],
+      "detail": "Unverified legacy statement (inferred from the structure): ZIA and ZPA traffic share a single transport connection instead of two separate tunnels, with policy still separate per traffic kind. No captured help page describes unified tunnel.",
+      "blocks": "explaining tunnel behavior on a profile with unified tunnel enabled",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

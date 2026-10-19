@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "zcc.sdk-go.paging-and-requests",
+  "title": "How the Go SDK sends ZCC requests and pages v1 and v2 lists",
+  "aliases": [
+    "NewZccRequestDo",
+    "zcc ReadAllPages",
+    "zcc ReadAllPagesV2",
+    "QueryParamsV2 skip perPage",
+    "GetDeviceTypeByName",
+    "zcc go pagination",
+    "zcc IntOrString"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.list-pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.request-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-python.pagination"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.sdk-go.legacy-routing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.v2-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Go ZCC services are package functions that take a `*zscaler.Service`. Most go through `NewZccRequestDo`; some reads and deletes use the generic path: [[zcc.sdk-go.legacy-routing:zcc-services-use-generic-path]]. Function names and endpoints are generated: run `node scripts/kb.mjs surface <package>`."
+    },
+    {
+      "label": "The request helper.",
+      "text": "{{request-do-decodes}} The response it hands back is synthetic: [[shared.sdk-go.request-handling:request-do-fabricates-200]] Methods that pass it pre-marshaled bytes send an empty object: [[shared.sdk-go.request-handling:zcc-request-do-double-marshals]] {{legacy-body-encoded-again}} In legacy mode it routes as described in [[zcc.sdk-go.legacy-routing]]."
+    },
+    {
+      "label": "v1 lists.",
+      "text": "How the v1 helper pages and stops is [[shared.sdk-go.list-pagination:zcc-v1-stops-on-page-shorter-than-requested]] and [[shared.sdk-go.list-pagination:zcc-v1-extra-request]]. {{v1-readallpages}} {{v1-callers}} The forwarding-profile list makes one request: [[shared.sdk-go.list-pagination:zcc-forwarding-profile-single-request]]."
+    },
+    {
+      "label": "v2 lists.",
+      "text": "The v2 query keys and list envelope are [[zcc.api.v2-wire:offset-query]] and [[zcc.api.v2-wire:list-envelope]]. The page size it sends is [[shared.sdk-go.list-pagination:zcc-v2-page-size]]. How the v2 helper advances and stops is in [[shared.sdk-go.list-pagination:zcc-skip-advances-by-requested-size]] and [[shared.sdk-go.list-pagination:zcc-guards-need-envelope-metadata]]; its callers are [[shared.sdk-go.list-pagination:zcc-v2-callers]]."
+    },
+    {
+      "label": "Values.",
+      "text": "{{device-type-by-name}} {{common-intorstring}} Fractions are truncated: [[zcc.terraform.field-fidelity:intorstring-truncates-fractions]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a v1 list was drained with `ReadAllPages` or fetched as one page, and whether a v2 list carried paging metadata.",
+      "uses": [
+        "shared.sdk-go.list-pagination:zcc-v1-stops-on-page-shorter-than-requested",
+        "v1-callers",
+        "zcc.api.v2-wire:list-envelope",
+        "shared.sdk-go.list-pagination:zcc-guards-need-envelope-metadata"
+      ]
+    },
+    {
+      "do": "Whether a v2 call was given `page` or `search` keys, which v2 endpoints do not read.",
+      "uses": [
+        "zcc.api.v2-wire:offset-query"
+      ]
+    }
+  ],
+  "claims": {
+    "request-do-decodes": {
+      "statement": "`NewZccRequestDo` encodes its options struct as query parameters, JSON-marshals the body, sends the request, and decodes the response body into the target value when one is passed, so callers get a decoded value rather than a body to read themselves.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zccrequests.go",
+          "quotes": [
+            "q, err := query.Values(options)",
+            "if err := decodeJSON(respBody, v); err != nil {"
+          ]
+        }
+      ]
+    },
+    "v1-readallpages": {
+      "statement": "`common.ReadAllPages` applies any JMESPath filter from the context only after all pages are collected.",
+      "tier": "A",
+      "conditions": "Narrowed to the JMESPath fact: the page-size clamp, page-1 start and short-page stop are held by shared.sdk-go.list-pagination:zcc-v1-stops-on-page-shorter-than-requested.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func ReadAllPages[T any](",
+          "quotes": [
+            "filtered, err := zscaler.ApplyJMESPathFromContext(ctx, allResults)"
+          ]
+        }
+      ]
+    },
+    "v1-callers": {
+      "statement": "The v1 helper backs the Go reads of admin roles, admin users, the fail-open policy, ZDX and ZPA group entitlements, and devices.",
+      "tier": "A",
+      "conditions": "Dropped the device list's page size of 1000, which shared.sdk-go.list-pagination:zcc-v1-stops-on-page-shorter-than-requested holds; the devices quote stays as proof it is a caller.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/devices/devices.go",
+          "quotes": [
+            "return common.ReadAllPages[GetDevices](ctx, service.Client, getDevicesEndpoint, params, 1000)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/admin_roles/admin_roles.go",
+          "quotes": [
+            "return common.ReadAllPages[AdminRole](ctx, service.Client, adminRolesEndpoint, common.QueryParams{}, effectivePageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/failopen_policy/failopen_policy.go",
+          "quotes": [
+            "policies, err := common.ReadAllPages[WebFailOpenPolicy](ctx, service.Client, endpoint, common.QueryParams{}, pageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/entitlements/entitlements.go",
+          "quotes": [
+            "return common.ReadAllPages[ZdxGroupEntitlements](ctx, service.Client, getZdxGroupEndpoint, params, pageSize)",
+            "return common.ReadAllPages[ZpaGroupEntitlements](ctx, service.Client, getZpaGroupEndpoint, params, pageSize)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/admin_users/admin_users.go",
+          "quotes": [
+            "return common.ReadAllPages[AdminUser](ctx, service.Client, getAdminUserEndpoint, params, effectivePageSize)"
+          ]
+        }
+      ]
+    },
+    "device-type-by-name": {
+      "statement": "`common.GetDeviceTypeByName` turns a platform name, in any case, into its number (ios 1, android 2, windows 3, macos 4, linux 5), also accepts the numeric strings 1 to 5, returns 0 with no error for an empty string, and errors on anything else.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "after": "func GetDeviceTypeByName(name string) (int, error) {",
+          "quotes": [
+            "return 0, nil",
+            "if val, ok := deviceTypeNameToID[strings.ToLower(name)]; ok {",
+            "if val, err := strconv.Atoi(name); err == nil {"
+          ]
+        }
+      ]
+    },
+    "common-intorstring": {
+      "statement": "The shared `common.IntOrString` always marshals as a JSON number and decodes a number, a numeric string, null or an empty string (the last two as 0). Its comment says every ZCC write endpoint wants the number, and that quoted integers on the web-policy `/edit` endpoint fail silently with `{\"success\":\"false\",\"id\":0}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/common/common.go",
+          "quotes": [
+            "return json.Marshal(int(i))",
+            "if len(trimmed) == 0 || bytes.Equal(trimmed, []byte(\"null\")) || bytes.Equal(trimmed, []byte(`\"\"`)) {",
+            "quoted-int strings are rejected with a silent",
+            "{\"success\":\"false\",\"id\":0} on the web_policy /edit endpoint),"
+          ]
+        }
+      ]
+    },
+    "legacy-body-encoded-again": {
+      "statement": "The Go legacy ZCC client also JSON-encodes whatever body it is given, so the four methods that pass an already-marshaled `bytes.Buffer` (admin-user update, both entitlement updates, manage-pass update) send an empty object in legacy mode as well as on the OneAPI path.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-go.request-handling:zcc-request-do-double-marshals"
+      ],
+      "conditions": "The legacy client encodes with `json.NewEncoder(buf).Encode(body)`, which renders a `*bytes.Buffer` as `{}` like `json.Marshal`; not sent to a tenant.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/v2_client.go",
+          "after": "func (client *Client) newRequest(",
+          "quotes": [
+            "err := json.NewEncoder(buf).Encode(body)"
+          ]
+        }
+      ]
+    }
+  }
+}

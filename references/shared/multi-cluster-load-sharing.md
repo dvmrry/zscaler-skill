@@ -238,4 +238,4 @@ Source: `vendor/zscaler-help/understanding-multi-cluster-load-sharing.json`; `ve
 - Subclouds (DC restriction for GDPR, private-DC enforcement, PAC variable forms) — [`./subclouds.md`](./subclouds.md)
 - Private Service Edge (PSE cluster design, DSR, tiers, open-proxy risk) — [`zia.private-service-edge`](kb:zia.private-service-edge)
 - Forwarding Control + SIPA (forward methods, egress IP anchoring) — [`zia.forwarding-control`](kb:zia.forwarding-control)
-- ZCC fail-open and Forwarding Profile (client behavior when cloud is unreachable) — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- ZCC fail-open and Forwarding Profile (client behavior when cloud is unreachable) — [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)

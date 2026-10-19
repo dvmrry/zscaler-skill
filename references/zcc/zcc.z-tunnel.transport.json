@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "zcc.z-tunnel.transport",
+  "title": "Z-Tunnel 2.0 transport: DTLS and TLS, fallback, MTU, and what happens when the tunnel cannot be set up",
+  "aliases": [
+    "dtls or tls",
+    "z-tunnel 2.0 transport",
+    "primary transport selection",
+    "allow tls fallback",
+    "z-tunnel 2.0 setup failure behavior",
+    "tunnel2FallbackType",
+    "mtu for zscaler adapter",
+    "z-tunnel 2.0 udp 443 blocked",
+    "dtls instability"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles#forwardingProfileActions"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.z-tunnel.versions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.fail-open"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.forwarding-profile-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Selecting Z-Tunnel 2.0 in a forwarding profile opens its advanced settings, which decide how the tunnel connects and what happens when it cannot."
+    },
+    {
+      "label": "DTLS or TLS.",
+      "text": "{{primary-transport}} {{ios-tls-only}} {{connection-timeouts}} {{tls-fallback}} {{dtls-instability}} The integer that encodes the transport is open in [[zcc.api.forwarding-profile-wire]]."
+    },
+    {
+      "label": "MTU.",
+      "text": "{{mtu}} {{windows-mss}} {{pmtud}}"
+    },
+    {
+      "label": "When Z-Tunnel 2.0 cannot be set up.",
+      "text": "{{setup-failure-behavior}} {{fail-close-dns}} {{fallback-field}} Which code is which option is open {{gap:fallback-type-values}}."
+    },
+    {
+      "text": "Why setup fails behind a multi-IP NAT is in [[zia.traffic-forwarding.zcc:z-tunnel-2-single-ip-nat]] and [[zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress]]; what the vendor does not document about sessions on the Service Edge side is open {{gap:session-internals}}. The tenant-wide failover settings are in [[zcc.forwarding-profiles.fail-open]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether UDP 443 is allowed out of the user's network when DTLS is the primary transport, and whether Allow TLS Fallback is on for the client version in use.",
+      "uses": [
+        "primary-transport",
+        "tls-fallback"
+      ]
+    },
+    {
+      "do": "Which Z-Tunnel 2.0 Setup Failure Behavior the profile uses before explaining blocked non-web traffic.",
+      "uses": [
+        "setup-failure-behavior"
+      ]
+    }
+  ],
+  "claims": {
+    "primary-transport": {
+      "statement": "Primary Transport Selection sets how Z-Tunnel 2.0 connects to the cloud: DTLS over UDP port 443 or TLS over TCP port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Primary Transport Selection: Select the primary transport for Z-Tunnel 2.0. This setting determines how Zscaler Client Connector connects to the cloud. DTLS uses UDP over port 443 and TLS uses TCP over port 443."
+          ]
+        }
+      ]
+    },
+    "ios-tls-only": {
+      "statement": "Client Connector 4.3 and later for iOS supports Z-Tunnel 2.0 over TLS; DTLS is not supported on iOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.3 and later for iOS supports Z-Tunnel 2.0 over TLS. DTLS is not supported on iOS devices."
+          ]
+        }
+      ]
+    },
+    "connection-timeouts": {
+      "statement": "The DTLS and TLS connection timeouts, 5 to 60 seconds each, set how long the app waits before falling back to another transport.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "DTLS Connection Timeout: Enter any value from 5 to 60 seconds. This setting determines how long Zscaler Client Connector waits before falling back to another transport mechanism."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "DTLS Connection Timeout: Enter any value from 5 to 60 seconds.",
+          "quotes": [
+            "TLS Connection Timeout: Enter any value from 5 to 60 seconds."
+          ]
+        }
+      ]
+    },
+    "tls-fallback": {
+      "statement": "Allow TLS Fallback (Windows 3.4+, macOS 3.9+, iOS 4.3+) applies when DTLS is the primary transport: if the app cannot connect with DTLS, it tries TLS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Allow TLS Fallback: (Optional) This option is only applicable if you’re using Zscaler Client Connector version 3.4 or later for Windows, Zscaler Client Connector version 3.9 or later for macOS, and Zscaler Client Connector version 4.3 and later for iOS.",
+            "If DTLS is set as your primary transport selection, you can enable TLS as a fallback option. If Zscaler Client Connector is unable to connect using DTLS, it attempts to connect using TLS."
+          ]
+        }
+      ]
+    },
+    "dtls-instability": {
+      "statement": "With DTLS primary and TLS fallback on, Enable DTLS Instability Detection and Fallback makes the app watch the DTLS connection and switch to TLS when it detects a data-rate restriction such as throttling; it applies only to Windows 4.8 and later and must be enabled by Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Enable DTLS Instability Detection and Fallback: If DTLS is set as your primary transport selection and Allow TLS Fallback is enabled, you can enable this option to have Zscaler Client Connector monitor the stability of the DTLS connection and automatically switch to TLS if a data transfer rate restriction is detected",
+            "Applies only to Zscaler Client Connector version 4.8 and later for Windows. Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "mtu": {
+      "statement": "MTU for Zscaler Adapter (client 2.1.2+) sets the Z-Tunnel 2.0 inner packet MTU between 800 and 1400 (1300 to 1400 for IPv6); the setting defaults to 0, and the default MTU is 1400 for a direct connection and 1360 or 1300 behind GRE or IPSec tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Select Maximum Transmission Unit (MTU) value between 800 and 1400 for Z-Tunnel 2.0 inner IP packet. The default value is 0 (zero). The default value for a direct connection is 1400 and 1360/1300 for GRE/IPSec tunnels, respectively.",
+            "For IPv6, the acceptable range is 1300–1400."
+          ]
+        }
+      ]
+    },
+    "windows-mss": {
+      "statement": "On Windows, Z-Tunnel 2.0 in DTLS mode adjusts the TCP MSS from the configured MTU, because it uses the Windows filter driver rather than the Zscaler adapter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "For the Windows version of Zscaler Client Connector, Z-Tunnel 2.0 (in DTLS mode) changes the MSS for the TCP stream based on the configured MTU value because it uses the Windows filter driver instead of the Zscaler adapter."
+          ]
+        }
+      ]
+    },
+    "pmtud": {
+      "statement": "Path MTU Discovery makes the app discover the optimal path MTU for Z-Tunnel 2.0, and can be used even with a configured adapter MTU.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Path MTU Discovery: Select this option to have Zscaler Client Connector discover the optimal path MTU for Z-Tunnel 2.0. You can use this option even if you change the value for MTU for Zscaler Adapter."
+          ]
+        }
+      ]
+    },
+    "setup-failure-behavior": {
+      "statement": "Z-Tunnel 2.0 Setup Failure Behavior (client 3.4+) chooses what happens when the app must switch away from Z-Tunnel 2.0: fall back to Z-Tunnel 1.0 for web traffic and bypass everything else; fall back to Z-Tunnel 1.0 for web traffic and block all other traffic except DNS; or block all traffic except DNS and control-channel traffic to the Zero Trust Exchange for policy, PAC files and software updates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Z-Tunnel 2.0 Setup Failure Behavior: (Optional) This option is only applicable if you’re using Zscaler Client Connector version 3.4 or later.",
+            "Fall back to Z-Tunnel 1.0 and bypass non-web traffic: Zscaler Client Connector tunnels web traffic via Z-Tunnel 1.0 and bypasses everything else.",
+            "Fall back to Z-Tunnel 1.0 and block non-web traffic: Zscaler Client Connector tunnels web traffic via Z-Tunnel 1.0 and blocks all traffic that cannot be tunneled, except the DNS.",
+            "Block all traffic: Zscaler Client Connector blocks all traffic except DNS and control-channel communications to the Zscaler Zero Trust Exchange (ZTE) for policy, PAC file, and software updates."
+          ]
+        }
+      ]
+    },
+    "fail-close-dns": {
+      "statement": "Send All DNS During Fail-Close to Trusted-DNS Server sends DNS to configured IPv4 and IPv6 servers during a Z-Tunnel 2.0 failure, or, with none entered, to the request's original or the system's first DNS server; it applies to Windows 4.7 with the bypass or block-all failure options and must be enabled by Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Send All DNS During Fail-Close to Trusted-DNS Server: (Optional) Select this option to send DNS traffic to a specific DNS server during a Z-Tunnel 2.0 failure.",
+            "If enabled, you can enter IP addresses for an IPv4 DNS server and an IPv6 DNS server.",
+            "If you select this option but don’t enter a server, Zscaler Client Connector uses the DNS server in the original request if it’s configured on the device or the first DNS server on the system.",
+            "Applies only to Zscaler Client Connector version 4.7 for Windows and is available only if Fall back to Z-Tunnel 1.0 and bypass non-web traffic or Block all traffic is selected. Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ],
+      "conditions": "Quoted the IPv4/IPv6 server clause and the Support-enablement clause, which were unquoted (verifier)."
+    },
+    "fallback-field": {
+      "statement": "The Terraform provider documents the action field `tunnel2_fallback_type` (wire `tunnel2FallbackType`) as the behavior when the Tunnel 2.0 transport fails, without listing its values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zcc",
+          "path": "docs/resources/zcc_forwarding_profile.md",
+          "quotes": [
+            "| `tunnel2_fallback_type` | Number | Behavior when the Tunnel 2.0 transport fails. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fallback-type-values": {
+      "kind": "semantic",
+      "title": "Which tunnel2FallbackType code is which setup failure option",
+      "status": "open",
+      "about": [
+        "zcc/forwarding-profiles#forwardingProfileActions"
+      ],
+      "detail": "Three console options exist; the code values are undocumented. Unverified legacy statement: the field selects \"Z-Tunnel 2.0 to 1.0 / direct / drop\" on a mid-session failure; the console option is a setup failure behavior and offers no plain direct option.",
+      "blocks": "reading the setup failure behavior from tenant data",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    },
+    "session-internals": {
+      "kind": "semantic",
+      "title": "Z-Tunnel session internals and behavior when connections land on different Service Edges",
+      "status": "open",
+      "former_ids": [
+        "zcc-101"
+      ],
+      "detail": "Not documented for customers: whether the control connection stays up while data reroutes when a session re-lands on another Service Edge, or the session tears down; and the protocol's framing, keepalive and resumption. The legacy doc suggested packet captures or a Support engagement.",
+      "resolves_with": [
+        "support-ticket",
+        "operator-experience"
+      ]
+    }
+  }
+}

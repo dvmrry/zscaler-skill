@@ -1,0 +1,550 @@
+{
+  "schema_version": 1,
+  "id": "zcc.trusted-networks.detection",
+  "title": "How Client Connector decides it is on a trusted network",
+  "aliases": [
+    "trusted network criteria",
+    "trusted network detection",
+    "why is the user off-trusted in the office",
+    "why is the user on-trusted at home",
+    "condition match any all",
+    "evaluate trusted network",
+    "predefined trusted networks",
+    "split vpn trusted detection",
+    "skip trusted criteria match"
+  ],
+  "binds": [
+    "zcc/forwarding-profiles#dnsServers",
+    "zcc/forwarding-profiles#dnsSearchDomains",
+    "zcc/forwarding-profiles#hostname",
+    "zcc/forwarding-profiles#resolvedIpsForHostname",
+    "zcc/forwarding-profiles#trustedSubnets",
+    "zcc/forwarding-profiles#trustedGateways",
+    "zcc/forwarding-profiles#trustedDhcpServers",
+    "zcc/forwarding-profiles#trustedEgressIps",
+    "zcc/forwarding-profiles#trustedNetworkIds",
+    "zcc/forwarding-profiles#predefinedTrustedNetworks",
+    "zcc/forwarding-profiles#predefinedTnAll",
+    "zcc/forwarding-profiles#conditionType",
+    "zcc/forwarding-profiles#evaluateTrustedNetwork",
+    "zcc/forwarding-profiles#enableAllDefaultAdaptersTN",
+    "zcc/forwarding-profiles#enableSplitVpnTN",
+    "zcc/forwarding-profiles#skipTrustedCriteriaMatch"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.trusted-networks.object"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.trusted-networks.zcc-relationship"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Trusted-network detection decides whether a device is On-Trusted, which in turn picks the forwarding action. It is configured on the forwarding profile, either inline or by selecting predefined trusted networks."
+    },
+    {
+      "label": "Why it exists.",
+      "text": "{{refarch-purpose}} What the app then does on a trusted network is the profile's On-Trusted action: [[zcc.forwarding-profiles.internet-actions]]."
+    },
+    {
+      "label": "The conditions.",
+      "text": "{{criteria-defined}} {{dns-server}} {{dns-search-domains}} {{hostname-ip}} {{hostname-not-private-access}} {{other-conditions}} {{egress-ip}}"
+    },
+    {
+      "label": "Combining them.",
+      "text": "{{any-all}} {{predefined}} {{profile-match-scope}} How several predefined networks combine, and what `predefinedTnAll` selects, is open {{gap:multiple-networks}}."
+    },
+    {
+      "label": "Static over dynamic.",
+      "text": "{{static-recommended}}"
+    },
+    {
+      "label": "Evaluation options.",
+      "text": "{{eval-all-adapters}} {{enable-split-vpn}} {{skip-criteria-vpn}} {{option-fields}} What `evaluateTrustedNetwork` turns off is open {{gap:evaluate-switch}}."
+    },
+    {
+      "label": "When it runs.",
+      "text": "{{reassess-on-connect}} Other triggers, debouncing and caching are open {{gap:transition-handling}}."
+    },
+    {
+      "label": "Where criteria go wrong.",
+      "text": "Criteria that also match outside the office are open {{gap:criteria-overlap}}, as are an SSID condition on wired devices {{gap:wired-ssid}}, whitespace in comma-separated values {{gap:criteria-whitespace}} and egress-IP timing at network bring-up {{gap:egress-ip-timing}}."
+    },
+    {
+      "text": "ZPA's trusted network objects and the TRUSTED_NETWORK policy operand are separate records fed from this detection: [[zpa.trusted-networks.zcc-relationship]], [[zpa.trusted-networks.policy-operand]]. The standalone Client Connector trusted network object is [[zcc.trusted-networks.object]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which conditions the active profile uses and whether Condition Match is Any or All; with Any, check each condition alone against the user's network.",
+      "uses": [
+        "any-all",
+        "criteria-defined",
+        "criteria-overlap"
+      ]
+    },
+    {
+      "do": "Whether the profile relies on Hostname and IP, which can fail during network transitions and yield the untrusted action.",
+      "uses": [
+        "static-recommended",
+        "hostname-ip"
+      ]
+    },
+    {
+      "do": "Whether the Hostname condition uses a domain covered by a Private Access application segment.",
+      "uses": [
+        "hostname-not-private-access"
+      ]
+    },
+    {
+      "do": "For VPN users: the profile's evaluation options (all default-route adapters, Split VPN-Trusted, skip criteria for VPN adapters).",
+      "uses": [
+        "eval-all-adapters",
+        "enable-split-vpn",
+        "skip-criteria-vpn"
+      ]
+    },
+    {
+      "do": "Whether the profile's `evaluateTrustedNetwork` is set, without assuming what it disables.",
+      "uses": [
+        "evaluate-switch"
+      ]
+    }
+  ],
+  "claims": {
+    "refarch-purpose": {
+      "statement": "Trusted network detection lets Client Connector recognize the organization's network segments and disable itself there, so traffic is tunneled by the internet gateway over GRE or IPSec; when it detects it is not on a trusted segment, it tries to connect to the nearest ZIA Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "You configure the software to understand when it is on one of your organization’s network segments and disable itself.",
+            "This allows your traffic to be tunneled by your internet gateway using GRE or IPSec.",
+            "it automatically tries to connect to the nearest ZIA Service Edge."
+          ]
+        }
+      ]
+    },
+    "criteria-defined": {
+      "statement": "A forwarding profile's Trusted Network Criteria define the network information and conditions a network must meet for Client Connector to verify that it is one of the organization's trusted networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Define the network information and conditions that your network must meet for Zscaler Client Connector to verify that it's one of your trusted networks."
+          ]
+        }
+      ]
+    },
+    "dns-server": {
+      "statement": "DNS Server lists the DNS servers the corporate network sends requests to, comma-separated (IPv6 from Windows 3.4); the app verifies at least one DNS server.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#dnsServers"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "DNS Server: The DNS servers where your corporate network sends DNS requests.",
+            "Enter the DNS servers, separated by commas. IPv6 addresses are supported if you’re using Zscaler Client Connector version 3.4 and later for Windows.",
+            "The app verifies at least one DNS server."
+          ]
+        }
+      ],
+      "conditions": "Quoted the comma-separated and IPv6 clauses, which were unquoted (verifier)."
+    },
+    "dns-search-domains": {
+      "statement": "DNS Search Domains lists the primary search domains of the adapter used to connect to Zscaler; the app verifies only the primary domains assigned to the active network adapter.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#dnsSearchDomains"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "DNS Search Domains: The search domains configured as the primary domains for the network adapter used for connecting to Zscaler.",
+            "The app only verifies the primary domains assigned to the active network adapter."
+          ]
+        }
+      ]
+    },
+    "hostname-ip": {
+      "statement": "Hostname and IP names a hostname and the IP addresses it resolves to on the corporate network; the app verifies at least one of those IP addresses.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#hostname",
+        "zcc/forwarding-profiles#resolvedIpsForHostname"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Hostname and IP: The hostname and the IP addresses where the hostname resolves when users are on the corporate network.",
+            "The app verifies at least one IP address."
+          ]
+        }
+      ]
+    },
+    "hostname-not-private-access": {
+      "statement": "The vendor says not to use a domain covered by a Private Access application segment for this condition, unless the domain's bypass in the Client Connector Access section is Always.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Don’t use a domain that is covered by a Private Access Application Segment, unless the domain is configured with Always as the bypass in the Client Connector Access section."
+          ]
+        }
+      ]
+    },
+    "other-conditions": {
+      "statement": "The other inline conditions are Network Range (subnets and private IPs), Default Gateway (the default gateway to the internet) and DHCP Server.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#trustedSubnets",
+        "zcc/forwarding-profiles#trustedGateways",
+        "zcc/forwarding-profiles#trustedDhcpServers"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Network Range: The network range for subnets and private IPs.",
+            "Default Gateway: Enter the IP address of the default gateway to the internet.",
+            "DHCP Server: Enter the valid DHCP server, separated by commas."
+          ]
+        }
+      ]
+    },
+    "egress-ip": {
+      "statement": "Egress IP matches the network's egress IP address, which distinguishes a location that otherwise matches another location's criteria; it applies only to Client Connector 4.6 and later for Windows.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#trustedEgressIps"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Egress IP: Enter the egress IP address of the network. This option allows you to differentiate a location that matches the trusted network criteria of other locations. Applies only to Zscaler Client Connector version 4.6 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "any-all": {
+      "statement": "With more than one condition, Condition Match sets whether the app validates only one of them (Any) or all of them (All) to decide the network is trusted.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#conditionType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Any: Select if you want the app to validate only one of the conditions to determine if the network is trusted.",
+            "All: Select if you want the app to validate all of the conditions to determine if the network is trusted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "you can specify a match on ANY or ALL configured criteria for a more robust detection"
+          ]
+        }
+      ]
+    },
+    "predefined": {
+      "statement": "Predefined Trusted Networks (Windows 2.1 and later) selects several networks whose criteria are defined on the Trusted Networks page; it cannot be used together with DNS Server, DNS Search Domains or Hostname and IP conditions, and the reference architecture calls it the only criterion used when configured.",
+      "tier": "A",
+      "binds": [
+        "zcc/forwarding-profiles#predefinedTrustedNetworks",
+        "zcc/forwarding-profiles#trustedNetworkIds"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Predefined Trusted Networks: This option is only applicable if you have Zscaler Client Connector version 2.1 and later for Windows. Using this option allows you to select multiple trusted networks.",
+            "You cannot configure Trusted Network Criteria for a network (i.e., DNS Server, DNS Search Domains, or Hostname and IP) and use the Predefined Trusted Networks option at the same time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "This detection option cannot be combined with any of the other three options in the policy, and is the only criteria used if configured."
+          ]
+        }
+      ]
+    },
+    "profile-match-scope": {
+      "statement": "So the profile's Any/All applies across its own inline conditions; a profile that selects predefined trusted networks does not also combine them with DNS Server, DNS Search Domains or Hostname conditions.",
+      "tier": "B",
+      "conditions": "Inference from the console rules. The help names three conditions that cannot be combined with Predefined Trusted Networks; whether Network Range, Default Gateway, DHCP Server or Egress IP can be is not stated. Added the reference architecture, which states the first half directly (verifier).",
+      "derived_from": [
+        "any-all",
+        "predefined"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Except for Pre- Defined Trusted Networks, you can specify a match on ANY or ALL configured criteria"
+          ]
+        }
+      ]
+    },
+    "static-recommended": {
+      "statement": "Zscaler recommends static conditions, DNS Server and DNS Search Domains, over Hostname and IP, which is dynamic: the hostname must resolve to the configured IP, resolution can fail during network transitions, and the app may then decide the network is untrusted and apply the wrong forwarding profile action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler recommends using static properties, such as DNS Server and DNS Search Domains, for Trusted Network Criteria.",
+            "There is a chance that a resolution might fail because of network transition processes. If a resolution fails, the app could incorrectly determine the network is an untrusted one, in which case it applies the incorrect forwarding profile action."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Zscaler recommends using DNS Server and/or DNS Search Domains for detecting trusted networks. These are the most static checks possible."
+          ]
+        }
+      ]
+    },
+    "eval-all-adapters": {
+      "statement": "Evaluate Trusted NW against All Default Route Adapters evaluates the criteria against every adapter with a default route, and uses the adapter with the lowest metric when more than one matches.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Select Evaluate Trusted NW against All Default Route Adapters to have Zscaler Client Connector evaluate trusted network criteria against all adapters with a default route. Zscaler Client Connector uses the adapter with the lowest metric if it finds more than one match."
+          ]
+        }
+      ]
+    },
+    "enable-split-vpn": {
+      "statement": "Enable Split VPN-Trusted Network makes Client Connector detect a split-tunnel VPN in addition to full-tunnel VPN-Trusted detection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Select Enable Split VPN-Trusted Network to have Zscaler Client Connector detect whether the device is running a split-tunnel VPN in addition to the currently supported full-tunnel VPN-trusted network detection."
+          ]
+        }
+      ]
+    },
+    "skip-criteria-vpn": {
+      "statement": "Skip Trusted Criteria match for VPN Adapters stops requiring the criteria to match on VPN adapters: the adapter's presence triggers network detection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "quotes": [
+            "Select Skip Trusted Criteria match for VPN Adapters to have Zscaler Client Connector not require trusted network criteria to match VPN adapters. The adapter's presence triggers network detection."
+          ]
+        }
+      ]
+    },
+    "option-fields": {
+      "statement": "On the wire, `skipTrustedCriteriaMatch` is the Skip Trusted Criteria match for VPN Adapters option, and by their names `enableAllDefaultAdaptersTN` and `enableSplitVpnTN` are the other two evaluation options.",
+      "tier": "B",
+      "conditions": "The API contract describes `skipTrustedCriteriaMatch` explicitly; the other two are matched to console options by name only.",
+      "derived_from": [
+        "eval-all-adapters",
+        "enable-split-vpn"
+      ],
+      "binds": [
+        "zcc/forwarding-profiles#skipTrustedCriteriaMatch",
+        "zcc/forwarding-profiles#enableAllDefaultAdaptersTN",
+        "zcc/forwarding-profiles#enableSplitVpnTN"
+      ],
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1webForwardingProfile~1listByCompany/get/responses/200/content/application~1json/schema/items/properties/skipTrustedCriteriaMatch",
+          "expect": {
+            "description": "Indicates if Skip Trusted Criteria match for VPN Adapters is enabled."
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "quotes": [
+            "EnableAllDefaultAdaptersTN int `json:\"enableAllDefaultAdaptersTN\"`",
+            "EnableSplitVpnTN int `json:\"enableSplitVpnTN\"`"
+          ]
+        }
+      ]
+    },
+    "reassess-on-connect": {
+      "statement": "Any time a network adapter connects to a network, Client Connector reassesses the trusted and untrusted criteria and decides whether it should be active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "Traffic_Forwarding_in_ZIA_Reference_Architecture.txt",
+          "quotes": [
+            "Any time a network adapter connects to a network, it reassesses the trusted/untrusted criteria and determines if Zscaler Client Connector should be active or not."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "multiple-networks": {
+      "kind": "semantic",
+      "title": "How several predefined trusted networks on one profile combine, and what predefinedTnAll selects",
+      "status": "open",
+      "former_ids": [
+        "zcc-96"
+      ],
+      "about": [
+        "zcc/forwarding-profiles#trustedNetworkIds",
+        "zcc/forwarding-profiles#predefinedTnAll"
+      ],
+      "detail": "Unverified legacy statements: `predefinedTnAll` is \"a shortcut that treats any of a pre-defined set of trusted networks as a match\", and the profile `conditionType` \"combines the profile's inline criteria with its referenced TrustedNetworks\". The console says predefined networks cannot be mixed with the main inline conditions, and no source says whether one matching predefined network is enough, or which wins when several partially match.",
+      "blocks": "saying a device is On-Trusted when only one of several selected networks matches",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "evaluate-switch": {
+      "kind": "semantic",
+      "title": "What evaluateTrustedNetwork turns off",
+      "status": "open",
+      "about": [
+        "zcc/forwarding-profiles#evaluateTrustedNetwork"
+      ],
+      "detail": "Unverified legacy statement: \"If evaluate_trusted_network is false, trusted-network evaluation is skipped entirely and ZCC always behaves as if on an untrusted network\" (and so ZPA TRUSTED_NETWORK rules never match). A related unverified statement: a profile with no On-Trusted action block likely behaves the same. No captured help page names this setting. The Terraform provider says the listing does not return the field ([[zcc.terraform.field-fidelity:prior-state-overlays-elsewhere]]), but a recorded listing does return it: 1 on profile SGIO-Tunnel2.0 and 0 on the Default profile (one test tenant, recorded with SDK 1.9.13 (Python SDK cassette)). So a tenant read shows the value; what the value turns off is still not documented.",
+      "blocks": "blaming this flag when users are always Off-Trusted",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestForwardingProfile.yaml",
+          "after": "interactions:",
+          "quotes": [
+            "\\\"name\\\" : \\\"SGIO-Tunnel2.0\\\",",
+            "\\\"evaluateTrustedNetwork\\\" : 1,",
+            "\\\"name\\\" : \\\"Default\\\",",
+            "\\\"evaluateTrustedNetwork\\\" : 0,"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/forwarding_profile.go",
+          "quotes": [
+            "// The webForwardingProfile/listByCompany GET response does not echo"
+          ]
+        }
+      ]
+    },
+    "transition-handling": {
+      "kind": "semantic",
+      "title": "What triggers re-evaluation, and whether it is debounced or cached",
+      "status": "open",
+      "former_ids": [
+        "zcc-95"
+      ],
+      "detail": "Unverified legacy statement: \"ZCC re-evaluates when network conditions change: adapter up/down, DHCP renewal, SSID switch, or manual trigger.\" The reference architecture states only that it reassesses when an adapter connects to a network. Whether rapid changes are debounced, or a previous result cached, is not documented.",
+      "blocks": "explaining a device that kept the wrong network type after a change",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "criteria-overlap": {
+      "kind": "semantic",
+      "title": "Conditions that also match networks outside the organization",
+      "status": "open",
+      "detail": "Unverified legacy statements: a broad Network Range such as 192.168.0.0/16 matches typical home routers; a parent DNS suffix (example.com rather than corp.example.com) can appear in a home ISP's search list; a split-tunnel VPN can expose corporate DNS servers while the device is at home; and with Any, a guest SSID marks visitors trusted. No source describes these cases; each would make an off-site device On-Trusted and give it the On-Trusted action.",
+      "blocks": "naming the criterion that marked an off-site device trusted",
+      "resolves_with": [
+        "operator-experience",
+        "tenant-data"
+      ]
+    },
+    "wired-ssid": {
+      "kind": "semantic",
+      "title": "SSID conditions on wired devices",
+      "status": "open",
+      "about": [
+        "zcc/trusted-networks#ssids"
+      ],
+      "detail": "Unverified legacy statement: a trusted network that requires an SSID under All never matches wired devices, which have no SSID. The forwarding profile's own condition list in the help has no SSID condition; the standalone trusted network object carries `ssids`. How an SSID condition evaluates on a wired adapter is not documented.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "criteria-whitespace": {
+      "kind": "semantic",
+      "title": "Whether spaces around commas in criteria values affect matching",
+      "status": "open",
+      "detail": "Unverified legacy statement: a value such as '10.11.12.13 , 10.11.12.14' may fail to match. The vendor examples include a space after each comma, and the Terraform provider trims values on its side ([[zcc.terraform.trusted-network-backend:csv-trim]]); how the app parses the values is not documented. The API stores and returns a spaced value as sent: a recorded trusted network carries `dnsServers` \"10.10.10.10, 10.10.10.11\" (one test tenant, recorded with SDK 1.9.13 (Python SDK cassette)). That still says nothing about how the app matches it.",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+          "after": "interactions:",
+          "quotes": [
+            "\\\"dnsServers\\\" : \\\"10.10.10.10, 10.10.10.11\\\""
+          ]
+        }
+      ]
+    },
+    "egress-ip-timing": {
+      "kind": "semantic",
+      "title": "Whether an Egress IP condition can fail right after the network comes up",
+      "status": "open",
+      "about": [
+        "zcc/forwarding-profiles#trustedEgressIps"
+      ],
+      "detail": "Unverified legacy statement: the app probes for the egress IP after network bring-up, so an egress-IP-only network may not match at first and the untrusted action may stick until the next re-evaluation. No source describes how the egress IP is learned.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

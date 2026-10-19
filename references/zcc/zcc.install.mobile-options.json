@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.mobile-options",
+  "title": "iOS and Android-only install keys",
+  "aliases": [
+    "newBindFlow",
+    "PAVConnectionSynced",
+    "SkipInterfaceInstallation",
+    "DropNonRoutingTraffic",
+    "MatchDomainsNoSearch",
+    "disableCaptivePortalNotification",
+    "SystemDNSEnabled",
+    "customDNS",
+    "allowRunningOnRootedDevice",
+    "allowZccOnRootedDevice",
+    "allowRunningOnEmulator",
+    "allowZccOnEmulator",
+    "httpAuthAllowedHosts"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zcc.install" },
+    { "rel": "see-also", "to": "zcc.install.enrollment" }
+  ],
+  "prose": [
+    {
+      "text": "Besides the shared enrollment keys, the iOS and Android parameter tables carry keys for their own tunnel, DNS and device checks."
+    },
+    {
+      "heading": "iOS"
+    },
+    {
+      "items": [
+        { "label": "Per-app VPN.", "text": "{{ios-per-app-vpn}}" },
+        { "label": "Tunnel and notification switches.", "text": "{{ios-switches}}" },
+        { "label": "DNS.", "text": "{{ios-system-dns}}" }
+      ]
+    },
+    {
+      "heading": "Android and Android on ChromeOS"
+    },
+    {
+      "items": [
+        { "label": "DNS.", "text": "{{android-custom-dns}}" },
+        { "label": "Rooted devices and emulators.", "text": "{{android-rooted-emulator}}" },
+        { "label": "SAML authentication hosts.", "text": "{{android-http-auth-hosts}}" }
+      ]
+    }
+  ],
+  "claims": {
+    "ios-per-app-vpn": {
+      "statement": "For per-app VPN deployments on iOS, newBindFlow enables a multithreaded binding of Client Connector's microservices to its virtual interface (on by default), and PAVConnectionSynced delays the per-app VPN connection until Client Connector is connected (off by default).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "Enables multithreaded implementation of Zscaler Client Connector microservices binding with Zscaler Client Connector virtual interface.",
+            "1 = Enable (default) 0 = Disable | Applicable to per-app VPN deployments only.",
+            "Delays Per-app VPN connection until Zscaler Client Connector is connected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "after": "| PAVConnectionSynced |",
+          "quotes": [
+            "1 = Enable 0 = Disable (default)"
+          ]
+        }
+      ]
+    },
+    "ios-switches": {
+      "statement": "Other iOS keys, all off by default: SkipInterfaceInstallation shows the VPN icon only while the user is logged in to Client Connector (Tunnel SDK 3.7 or later); DropNonRoutingTraffic drops traffic without routes; MatchDomainsNoSearch stops Private Access match domains being appended as search domains; disableCaptivePortalNotification suppresses notifications when a captive portal is detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "When enabled, only shows VPN icon in iOS when user is logged into Zscaler Client Connector.",
+            "Requires Tunnel SDK version 3.7 and later.",
+            "| DropNonRoutingTraffic | Drops traffic without routes.",
+            "When enabled, Private Access match domains are not appended as search domains on the device.",
+            "When enabled, Zscaler Client Connector suppresses notifications when it detects a captive portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "after": "| SkipInterfaceInstallation |",
+          "quotes": [
+            "1 = Enable 0 = Disable (default)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "after": "| DropNonRoutingTraffic |",
+          "quotes": [
+            "1 = Enable 0 = Disable (default)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "after": "| MatchDomainsNoSearch |",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "after": "| disableCaptivePortalNotification |",
+          "quotes": [
+            "1 = Enable0= Disable (default)"
+          ]
+        }
+      ]
+    },
+    "ios-system-dns": {
+      "statement": "On iOS, SystemDNSEnabled makes Client Connector resolve DNS queries that are not forwarded to the Zscaler cloud with the system DNS, falling back to Google DNS if that fails; 1 enables it and 2, the default, disables it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-ios.json",
+          "quotes": [
+            "Zscaler Client Connector uses this parameter to resolve DNS queries which aren't forwarded to the Zscaler cloud.",
+            "If Zscaler Client Connector fails to resolve the DNS using the system DNS domain, it falls back to Google DNS.",
+            "1 = Enable2 = Disable (default)"
+          ]
+        }
+      ]
+    },
+    "android-custom-dns": {
+      "statement": "On Android, Client Connector uses the device's DNS server by default; customDNS sets another DNS server by IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "By default, Zscaler Client Connector uses the device's DNS server. You can change the value to another DNS server using this setting."
+          ]
+        }
+      ]
+    },
+    "android-rooted-emulator": {
+      "statement": "Client Connector does not run on rooted Android devices or emulators unless allowRunningOnRootedDevice (from 3.7, formerly allowZccOnRootedDevice) or allowRunningOnEmulator (formerly allowZccOnEmulator) is set to 1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "Restricts users from running Zscaler Client Connector on a rooted device. Enter 1 to allow users to run Zscaler Client Connector on a rooted device.",
+            "This parameter was formerly allowZccOnRootedDevice.",
+            "Restricts users from running Zscaler Client Connector on an emulator.",
+            "This parameter was formerly allowZccOnEmulator."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "after": "| allowRunningOnRootedDevice |",
+          "quotes": [
+            "Applies to Zscaler Client Connector version 3.7 and later for Android"
+          ]
+        }
+      ]
+    },
+    "android-http-auth-hosts": {
+      "statement": "On Android from 4.2, httpAuthAllowedHosts lists the hosts allowed for HTTP Basic authentication in the SAML WebView and for client certificate requests during SAML authentication; requests from other hosts are cancelled. It is mandatory for those requests, takes FQDNs without scheme or path, rejects wildcards, and a listed domain also matches its subdomains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "parameters-guide-zscaler-client-connector-android-and-android-chromeos.json",
+          "quotes": [
+            "Use this parameter to specify a comma-separated list of hosts allowed for HTTP Basic authentication in the SAML WebView and for client certificate requests during SAML authentication.",
+            "allows these requests only from those hosts and cancels all others.",
+            "Mandatory parameter for HTTP Basic authentication and clientCert request.",
+            "Wildcard (*) character not accepted.",
+            "Requires Zscaler Client Connector version 4.2 or later for Android."
+          ]
+        }
+      ]
+    }
+  }
+}

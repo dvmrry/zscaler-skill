@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "zcc.device-posture",
+  "title": "ZCC device posture profiles",
+  "aliases": [
+    "zcc device posture",
+    "device posture profile",
+    "posture profile zcc",
+    "device trust level",
+    "zia posture profile app profile"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.check-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.platform-support"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.linux-client-certificate"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture.failure-modes"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.posture-profiles"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zpa.posture-profiles.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Device posture profiles are defined on the Client Connector side and consumed by Private Access policy and Internet & SaaS trust levels. {{evaluated-on-device}}"
+    },
+    {
+      "steps": [
+        {
+          "label": "Where is the profile defined, and who uses it?",
+          "text": "One definition serves both products: [[zpa.posture-profiles.object-model:zcc-defined]]."
+        },
+        {
+          "label": "What does each type check?",
+          "text": "Pass conditions and version floors: [[zcc.device-posture.check-types]]; per platform: [[zcc.device-posture.platform-support]]; Linux certificates: [[zcc.device-posture.linux-client-certificate]]."
+        },
+        {
+          "label": "When is it evaluated?",
+          "text": "Schedule, immediate types and triggers: [[zpa.posture-profiles.evaluation]]; the pre-login machine tunnel: [[zpa.machine-tunnels.posture]]."
+        },
+        {
+          "label": "Why is it failing?",
+          "text": "[[zcc.device-posture.failure-modes]]."
+        }
+      ]
+    },
+    {
+      "label": "Private Access.",
+      "text": "Access rules refer to a profile through the POSTURE operand: [[zpa.posture-profiles.policy-operand]]."
+    },
+    {
+      "label": "Internet & SaaS.",
+      "text": "Each app profile rule can apply one: {{zia-posture-profile}} {{trust-level-shown}} Whether posture also drives forwarding or app-profile selection is open {{gap:posture-and-forwarding}}."
+    },
+    {
+      "text": "The cross-product overview has not been converted yet: [[doc:references/shared/device-posture.md]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product consumes the result in question: a Private Access rule's POSTURE condition, or an Internet & SaaS trust level through the app profile's ZIA posture profile.",
+      "uses": [
+        "zia-posture-profile",
+        "zpa.posture-profiles.policy-operand:console-states"
+      ]
+    },
+    {
+      "do": "The device's trust level on its details page when an Internet & SaaS posture question comes up.",
+      "uses": [
+        "trust-level-shown"
+      ]
+    }
+  ],
+  "claims": {
+    "evaluated-on-device": {
+      "statement": "A device posture profile is a set of criteria evaluated on the device, and policies in both Internet & SaaS and Private Access can act on the outcome.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-device-posture-profiles.json",
+          "quotes": [
+            "The Device Posture profile is a set of criteria evaluated on devices. You can configure policies in both Internet & SaaS and Private Access based on the outcome of this evaluation."
+          ]
+        }
+      ]
+    },
+    "trust-level-shown": {
+      "statement": "A device's details page shows its Device Trust Level, Low, Medium, High or Unknown, based on the levels configured in Internet & SaaS posture profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-device-fingerprint-enrolled-device.json",
+          "quotes": [
+            "Device Trust Level: Displays the device trust level based on the configured levels in Internet & SaaS posture profiles. Trust levels are Low, Medium, High, or Unknown."
+          ]
+        }
+      ]
+    },
+    "zia-posture-profile": {
+      "statement": "An app profile, on each platform's policy page (Windows, macOS, Linux, iOS and Android), can apply an Internet & SaaS (ZIA) posture profile.",
+      "tier": "A",
+      "conditions": "Restated per verifier: the subject was lost when the claim moved from the app profile subject; the platform list is read from each platform's policy section.",
+      "binds": [
+        "zcc/application-profiles#ziaPostureConfigId"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Windows Policy window appears.",
+          "quotes": [
+            "ZIA Posture Profile: Select an Internet & SaaS (ZIA) posture profile from the drop-down menu to apply to the app profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add macOS Policy window appears.",
+          "quotes": [
+            "ZIA Posture Profile: Select an Internet & SaaS (ZIA) posture profile from the drop-down menu to apply to the app profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Linux Policy window appears.",
+          "quotes": [
+            "ZIA Posture Profile: Select an Internet & SaaS (ZIA) posture profile from the drop-down menu to apply to the app profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add iOS Policy window appears.",
+          "quotes": [
+            "ZIA Posture Profile: Select an Internet & SaaS (ZIA) posture profile from the drop-down menu to apply to the app profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "The Add Android Policy window appears.",
+          "quotes": [
+            "ZIA Posture Profile: Select an Internet & SaaS (ZIA) posture profile from the drop-down menu to apply to the app profile."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "posture-and-forwarding": {
+      "kind": "semantic",
+      "title": "Whether posture results feed forwarding or app-profile selection",
+      "status": "open",
+      "detail": "Unverified legacy statement: there is no direct link between a posture profile and a forwarding profile or web policy in the ZCC object model; posture is consumed only downstream by ZPA and ZIA policy, and trusted networks are a separate signal. The app profile does reference a ZIA posture profile, and the company settings carry `enablePostureBasedProfile` and `postureBasedService` with no documented meaning.",
+      "blocks": "answering whether a posture change can change a device's app profile or forwarding",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    }
+  }
+}

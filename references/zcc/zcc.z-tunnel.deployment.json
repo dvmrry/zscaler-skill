@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "zcc.z-tunnel.deployment",
+  "title": "Rolling out Z-Tunnel 2.0 and migrating from 1.0",
+  "aliases": [
+    "z-tunnel 2.0 rollout",
+    "migrate z-tunnel 1.0 to 2.0",
+    "z-tunnel 2.0 best practices",
+    "z-tunnel 2.0 over gre",
+    "z-tunnel 2.0 test group"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.z-tunnel.versions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.bypasses"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.mixed-deployments"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler publishes two phased procedures, one for a new Z-Tunnel 2.0 deployment and one for a migration from 1.0; they share the first phase."
+    },
+    {
+      "label": "Before starting.",
+      "text": "{{supported-version}}"
+    },
+    {
+      "label": "Phase 1, test configuration.",
+      "text": "{{test-group}} {{test-forwarding-profile}} {{test-app-profile}}"
+    },
+    {
+      "label": "GRE sites.",
+      "text": "{{gre-guidance}} Why several GRE egress IPs also break Z-Tunnel 2.0 setup is in [[zia.traffic-forwarding.mixed-deployments:gre-ztunnel2-egress]]."
+    },
+    {
+      "label": "New deployment, phases 2 to 5.",
+      "text": "{{deploy-phases}}"
+    },
+    {
+      "label": "Migration, phases 2 to 6.",
+      "text": "{{migration-phases}} The PAC statements those steps use are in [[zcc.z-tunnel.bypasses:dual-pac]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether on-premises users of a GRE site send Z-Tunnel 2.0 inside the GRE tunnel; if so, the profile's On-Trusted action or a policy-based route should keep it out.",
+      "uses": [
+        "gre-guidance"
+      ]
+    },
+    {
+      "do": "For a migration: whether the VPN gateway bypasses, PAC network bypasses and PAC domain bypasses of the old app profile were all carried to their Z-Tunnel 2.0 places.",
+      "uses": [
+        "migration-phases",
+        "zcc.z-tunnel.bypasses:pac-not-for-2"
+      ]
+    }
+  ],
+  "claims": {
+    "supported-version": {
+      "statement": "Z-Tunnel 2.0 needs a supported Client Connector version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-z-tunnel-2.0.json",
+          "quotes": [
+            "You must have a supported version of Zscaler Client Connector to use Z-Tunnel 2.0."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "migrating-z-tunnel-1.0-z-tunnel-2.0.json",
+          "quotes": [
+            "You must have a supported version of Zscaler Client Connector to use Z-Tunnel 2.0."
+          ]
+        }
+      ]
+    },
+    "test-group": {
+      "statement": "Phase 1 starts with a small test group of users; groups configured in Internet & SaaS User Management are available in Client Connector's Directory Sync advanced settings, and can also be synced manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-z-tunnel-2.0.json",
+          "quotes": [
+            "In the Zscaler Admin Console, identify and create a small group of users for testing Z-Tunnel 2.0. Groups you configure in User Management in Internet & SaaS are automatically available for selection in the Advanced Settings tab of Directory Sync & Custom Root Cert in Client Connector.",
+            "You can also manually sync the groups between Internet & SaaS and Client Connector."
+          ]
+        }
+      ],
+      "conditions": "Quoted the manual-sync clause, which was unquoted (verifier)."
+    },
+    "test-forwarding-profile": {
+      "statement": "The vendor recommends a new forwarding profile for the test with the Packet Filter-Based driver, Tunnel on On-Trusted Network, Z-Tunnel 2.0 selected, and VPN-Trusted and Off-Trusted set to Same as On-Trusted Network, changing the other network types only after initial testing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-z-tunnel-2.0.json",
+          "quotes": [
+            "To prevent confusion, Zscaler recommends creating a new forwarding profile for your Z-Tunnel 2.0 test.",
+            "Tunnel Driver Type: Select Packet Filter-Based.",
+            "On-Trusted Network: Select Tunnel.",
+            "Tunnel version selection: Select Z-Tunnel 2.0.",
+            "VPN-Trusted Network and Off-Trusted Network: Select Same as \"On-Trusted Network\".",
+            "For testing purposes, Zscaler recommends that you don’t configure the VPN-Trusted Network and Off-Trusted Network forwarding profile actions. After initial testing, you can change the behavior for all network environments."
+          ]
+        }
+      ],
+      "conditions": "Quoted the On-Trusted Tunnel step, which was unquoted (verifier)."
+    },
+    "test-app-profile": {
+      "statement": "The test app profile has rule order 1 so the test users receive it first, is enabled, selects the test forwarding profile, enables Install Zscaler SSL Certificate, targets the test group, and leaves the Custom PAC URL and the logout and disable passwords empty; a Client Connector Store app update assigns the test users a supported version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-z-tunnel-2.0.json",
+          "quotes": [
+            "Rule Order: Select 1 to ensure that your users receive this app profile before other profiles.",
+            "Enable Install Zscaler SSL Certificate.",
+            "Under Traffic Steering, on the PAC and Proxy tab, leave the Custom PAC URL field empty.",
+            "Under Passwords, leave the Logout Password and Disable Password ZIA fields empty.",
+            "You can configure a Zscaler Client Connector Store app update to assign a supported Zscaler Client Connector version to your test users."
+          ]
+        }
+      ]
+    },
+    "gre-guidance": {
+      "statement": "Zscaler says not to route Z-Tunnel 2.0 through GRE tunnels; to prevent performance issues where GRE exists, either have the forwarding profile fall back to Z-Tunnel 1.0 when the trusted network criteria are met, or exclude Z-Tunnel 2.0 traffic from the GRE tunnel with a policy-based route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-z-tunnel-2.0.json",
+          "quotes": [
+            "Don’t route Z-Tunnel 2.0 traffic through GRE tunnels. For on-premises environments with existing GRE infrastructure, implement one of the following options to prevent performance issues:",
+            "Configure the Zscaler Client Connector forwarding profile to fall back to Z-Tunnel 1.0 when Trusted Network Criteria are met.",
+            "Configure a policy-based route to exclude Z-Tunnel 2.0 traffic from the GRE tunnel."
+          ]
+        }
+      ]
+    },
+    "deploy-phases": {
+      "statement": "A new deployment then blocks ICMP with a firewall rule and confirms the block in the logs (phase 2), adds internal network ranges to the app profile's IPv4 or IPv6 exclusions (phase 3), tests the top business applications with the group for one to two weeks (phase 4), and rolls out to everyone else in batches of 100 to 200 users, checking business applications after each (phase 5).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "best-practices-deploying-z-tunnel-2.0.json",
+          "quotes": [
+            "Create a firewall rule to block ICMP traffic.",
+            "To exclude these ranges, you must add them to the IPv4 Exclusion or IPv6 Exclusion list in the app profile you created for testing.",
+            "Continue to test this group of test users for one to two weeks.",
+            "Roll out a supported version of Zscaler Client Connector and Z-Tunnel 2.0 to the rest of your employees in batches of 100 to 200 users."
+          ]
+        }
+      ]
+    },
+    "migration-phases": {
+      "statement": "A migration copies the VPN gateway bypasses from the old app profile to the Z-Tunnel 2.0 app profile (phase 2), moves the network address and range bypasses from the old app profile PAC into Destination Exclusions (phase 3), moves URL and domain bypasses into a new forwarding profile PAC that returns the Z-Tunnel 2.0 bypass and a new app profile PAC that returns DIRECT (phase 4), tests (phase 5), and rolls out in batches of 100 to 200 users (phase 6).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "migrating-z-tunnel-1.0-z-tunnel-2.0.json",
+          "quotes": [
+            "Add the VPN gateway bypasses from the VPN Gateway Bypass field in your original app profile to the Z‑Tunnel 2.0 app profile you created.",
+            "Gather all the network address and range bypasses in the original app profile PAC file.",
+            "In the Z‑Tunnel 2.0 app profile, add the bypasses to the Destination Exclusions list.",
+            "Create a new forwarding profile PAC file to route these destinations to the Z‑Tunnel 2.0 bypass gateway.",
+            "Create a new app profile PAC file to send these bypasses directly.",
+            "Phase 6: Roll out Zscaler Client Connector a supported version of Zscaler Client Connector and Z‑Tunnel 2.0",
+            "in batches of 100–200 users"
+          ]
+        }
+      ],
+      "conditions": "Quoted the batch size, which was unquoted (verifier)."
+    }
+  }
+}

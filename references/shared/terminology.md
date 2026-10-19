@@ -137,7 +137,7 @@ When an operator says *"the PSEN in Frankfurt"*, they mean a specific **instance
 - GRE tunnels — [`./gre-tunnels.md`](./gre-tunnels.md)
 - Z-Tunnel 1.0 vs 2.0 — [`./z-tunnel.md`](./z-tunnel.md)
 - ZPA Public / Private / Virtual Service Edges — [`zpa.public-service-edges`](kb:zpa.public-service-edges)
-- ZCC forwarding profiles — [`../zcc/forwarding-profile.md`](../zcc/forwarding-profile.md)
+- ZCC forwarding profiles — [`zcc.forwarding-profiles`](kb:zcc.forwarding-profiles)
 - Source IP Anchoring (SIPA) — [`./source-ip-anchoring.md`](./source-ip-anchoring.md)
 - ZIdentity (API clients, step-up auth) — [`../zidentity/overview.md`](../zidentity/overview.md)
 - Cloud Connector — [`../cloud-connector/overview.md`](../cloud-connector/overview.md)
@@ -146,5 +146,5 @@ When an operator says *"the PSEN in Frankfurt"*, they mean a specific **instance
 
 ## Open questions (terminology-adjacent)
 
-- **Z-Tunnel 1.0 vs 2.0** — **resolved at the customer-facing level 2026-04-24**. Dedicated help articles exist at `help.zscaler.com/zscaler-client-connector/about-z-tunnel-1.0-z-tunnel-2.0` (and the Best-Practices / Bypasses / Migration sibling articles). Codified in [`../zcc/z-tunnel.md`](../zcc/z-tunnel.md). 1.0 = HTTP CONNECT proxy, web traffic only. 2.0 = DTLS/TLS packet tunnel, all ports and protocols, requires single-IP NAT. Wire-format protocol internals remain undocumented customer-facing (Zscaler Support territory).
+- **Z-Tunnel 1.0 vs 2.0** — **resolved at the customer-facing level 2026-04-24**. Dedicated help articles exist at `help.zscaler.com/zscaler-client-connector/about-z-tunnel-1.0-z-tunnel-2.0` (and the Best-Practices / Bypasses / Migration sibling articles). Codified in [`zcc.z-tunnel`](kb:zcc.z-tunnel). 1.0 = HTTP CONNECT proxy, web traffic only. 2.0 = DTLS/TLS packet tunnel, all ports and protocols, requires single-IP NAT. Wire-format protocol internals remain undocumented customer-facing (Zscaler Support territory).
 - **"Broker" vs "Service Edge"** on the ZPA side — ZPA Admin Console UI uses "Public Service Edge" for the cloud-side component; LSS log field names and some older docs use "broker". Treat them as synonyms.

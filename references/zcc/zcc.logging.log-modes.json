@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "id": "zcc.logging.log-modes",
+  "title": "Client Connector log modes as users and the API see them: Verbose, user choice, logMode and logLevel",
+  "aliases": [
+    "zcc log mode",
+    "zcc log level",
+    "logLevel vs logMode",
+    "zcc debug logging",
+    "zcc verbose logging",
+    "change log mode in zcc"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zcc.app-profiles.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.user-access"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zcc.app-profiles.propagation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.web-policy-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "What each of Error, Warn, Info and Debug records, the per-profile override of the global default, and the log file size are in [[zcc.app-profiles.logging]]. {{verbose-android}}"
+    },
+    {
+      "label": "Who chooses.",
+      "text": "{{user-choice}} {{android-verbose-logging}} {{android-verbose-api}} Whether that option is the Verbose mode is open {{gap:verbose-option-vs-mode}}. When a device picks up a changed profile is in [[zcc.app-profiles.propagation]]."
+    },
+    {
+      "label": "In the API.",
+      "text": "{{log-mode-is-console-mode}} {{python-log-mode-codes}} The full coding is not documented, and vendor code disagrees on what -1 means {{gap:log-mode-codes}}; the SDKs' readings are compared in [[zcc.api.web-policy-wire:log-mode-minus-one]]. What `logLevel` changes on the device, and how it differs from `logMode`, is open {{gap:level-vs-mode}}. How the Go SDK writes these fields is in [[zcc.api.web-policy-wire:numbers-on-write]]."
+    },
+    {
+      "label": "Default.",
+      "text": "The value of the tenant's global default log mode is not sourced {{gap:default-mode}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before reproducing an issue for support, set the user's app profile to Debug and confirm the device has downloaded the profile since.",
+      "uses": [
+        "zcc.app-profiles.logging:log-mode-ladder",
+        "zcc.app-profiles.propagation:download-on-relogin"
+      ]
+    },
+    {
+      "do": "Whether the user could have changed the mode themselves, which needs visible logging controls.",
+      "uses": [
+        "user-choice",
+        "zcc.logging.user-access:hide-toggle"
+      ]
+    },
+    {
+      "do": "When writing `logMode` through the API, read the profile first and reuse a known value, since the full integer coding is undocumented.",
+      "uses": [
+        "log-mode-codes",
+        "python-log-mode-codes"
+      ]
+    }
+  ],
+  "claims": {
+    "verbose-android": {
+      "statement": "A fifth mode, Verbose, logs when invoked by external events such as a Firebase push notification or Mobile Manager flags, and exists only in Client Connector 1.5 and later for Android.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "Verbose: Logs when invoked by some external events (e.g., Firebase Push Notification or Mobile Manager flags).",
+            "This log mode is only available for Zscaler Client Connector version 1.5 and later for Android."
+          ]
+        }
+      ]
+    },
+    "user-choice": {
+      "statement": "When logging controls are visible, users change the log mode in the app's More window, among the modes the app profile makes available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-user-access-logging-controls-zscaler-client-connector.json",
+          "quotes": [
+            "Change the log mode in the More window of Zscaler Client Connector.",
+            "The following log modes are available to users depending on the app profile configuration:"
+          ]
+        }
+      ]
+    },
+    "android-verbose-logging": {
+      "statement": "The Android app profile's Verbose Logging option lets users enable extra debugging logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Verbose Logging: When you select this option, users can enable extra debugging logs in Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "android-verbose-api": {
+      "statement": "By name, the Android block of the web policy carries Verbose Logging as `androidPolicy.enableVerboseLog`, a string the contract gives no description.",
+      "tier": "B",
+      "derived_from": [
+        "android-verbose-logging"
+      ],
+      "conditions": "Name correspondence only; no source maps enableVerboseLog to the console option or documents its values.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put/requestBody/content/application~1json/schema/properties/androidPolicy/properties/enableVerboseLog",
+          "expect": {
+            "type": "string"
+          }
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "quotes": [
+            "EnableVerboseLog string `json:\"enableVerboseLog\"`"
+          ]
+        }
+      ]
+    },
+    "log-mode-is-console-mode": {
+      "statement": "`logMode` in the API is the console's Log Mode: the API reference describes it as the scope of the logs, the console's own words for that setting. `logLevel`, which the API reference describes as a three-step severity (Low 0, Normal 1, High 2), has no counterpart in the captured console articles; `logFileSize` is the maximum log file size.",
+      "tier": "B",
+      "binds": [
+        "zcc/application-profiles#logMode",
+        "zcc/application-profiles#logLevel",
+        "zcc/application-profiles#logFileSize"
+      ],
+      "conditions": "Rests on matching descriptions: the console introduces Log Mode \"to specify the scope of the logs\" and the API reference describes logMode as \"the scope of the logs\". No source maps logLevel to a console setting.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "To specify the scope of the logs, select one of the following log modes:"
+          ],
+          "after": "To add a new Windows policy rule:"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/logMode",
+          "expect": {
+            "description": "Specifies the scope of the logs.",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/logLevel",
+          "expect": {
+            "description": "Specifies log severity (Low 0, Normal 1, and High 2)",
+            "type": "integer"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1application-profiles/get/responses/200/content/application~1json/schema/properties/policies/items/properties/logFileSize",
+          "expect": {
+            "description": "Specifies the maximum size of the log file.",
+            "type": "integer"
+          }
+        }
+      ]
+    },
+    "python-log-mode-codes": {
+      "statement": "The Python SDK's docstring gives example `log_mode` codes: -1 disabled, 0 info, 3 debug; reading -1 as disabled is that docstring's alone.",
+      "tier": "A",
+      "conditions": "Reworded (v5 item 8, v2 A16): previously stated the codes as the Python SDK's documentation without noting that other vendor code reads -1 differently; the dispute is in gap log-mode-codes.",
+      "binds": [
+        "zcc/application-profiles#logMode"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/web_policy.py",
+          "quotes": [
+            "log_mode (int): Log mode (e.g. ``-1`` disabled, ``0`` info, ``3`` debug)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "verbose-option-vs-mode": {
+      "kind": "semantic",
+      "title": "Whether Android's Verbose Logging option is the Verbose log mode",
+      "status": "open",
+      "detail": "The Android app profile's Verbose Logging option lets users enable extra debugging logs, and the logging-controls article describes a Verbose mode that logs when invoked by external events such as a Firebase push notification or Mobile Manager flags. No source says the option turns on that mode. Unverified legacy statement: androidPolicy.enableVerboseLog turns on the Firebase-triggered Verbose mode.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "log-mode-codes": {
+      "kind": "semantic",
+      "title": "Full integer coding of logMode",
+      "status": "open",
+      "about": [
+        "zcc/application-profiles#logMode"
+      ],
+      "detail": "The API types logMode as an integer (a string on /web/policy/edit) without listing its values. Debug = 3 is corroborated: the Python docstring's example and the Go SDK's UI-captured defaults, whose Log Mode picker is Debug with value 3. What -1 means is disputed: the Python docstring says disabled, the ZCC Terraform provider's schema says -1 disables, and the Go SDK's defaults say -1 means \"follow picker\". The console UI also sends `logModeSelected` (a label and value) beside `logMode`. The Python SDK's recorded traffic (one test tenant, recorded with SDK 1.9.13, Python SDK cassette) writes logMode -1 with logModeSelected Debug/3 and reads the profile back with logMode -1. Error, Warn and Default remain unknown. Corrects the legacy statement that logMode accepts the strings Error, Warn, Info and Debug, and its SDK example `log_mode=\"Debug\"`.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ],
+      "blocks": "writing a log mode through the API",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/defaults.go",
+          "quotes": [
+            "debug log_mode=3 via the",
+            "raw logMode left at -1 which means \"follow picker\")",
+            "Label: \"Debug\","
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/common/common.go",
+          "quotes": [
+            "Log mode flag (-1 to disable, otherwise the numeric mode id). Sent as a JSON number."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestWebPolicy.yaml",
+          "quotes": [
+            "\"logMode\": -1, \"logLevel\":",
+            "\"logModeSelected\": {\"label\": \"Debug\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestWebPolicy.yaml",
+          "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/web/policy/edit",
+          "quotes": [
+            "\\\"name\\\" : \\\"tests-web-policy-vcr0001\\\",\\n  \\\"description\\\"",
+            "\\ \\\"logMode\\\" : -1.0,\\n  \\\"logLevel\\\" : 0.0,\\n  \\\"logFileSize\\\" : 100.0,\\n"
+          ]
+        }
+      ]
+    },
+    "default-mode": {
+      "kind": "data",
+      "title": "The tenant's global default log mode",
+      "status": "open",
+      "former_ids": [
+        "zcc-56"
+      ],
+      "detail": "Profiles left on Default follow the global log mode in Platform Settings, whose value is tenant data; the vendor's initial value is not documented. Unverified legacy statements: \"Info: Default in most deployments\" and \"Error: Production default (quiet)\". Former zcc-56 asked what log mode a newly created app profile starts with; the profile follows this global value unless overridden (zcc.app-profiles.logging:default-follows-global), so the open question is the global value itself.",
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "level-vs-mode": {
+      "kind": "semantic",
+      "title": "How logLevel differs from logMode",
+      "status": "open",
+      "detail": "Unverified legacy statement: \"log_mode — Log mode (may overlap with log_level — exact distinction not documented).\" Both keys are in the edit body; the help describes one Log Mode setting. The API reference describes logMode as the scope of the logs and logLevel as a three-step severity (log-mode-is-console-mode), but no source says what logLevel changes on the device.",
+      "blocks": "reading a profile's verbosity from its API record",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "former_ids": [
+        "log-21",
+        "zcc-57"
+      ]
+    }
+  }
+}
