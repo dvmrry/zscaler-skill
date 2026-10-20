@@ -273,7 +273,7 @@
       "conditions": "Found by searching every Delete handler in zia/resource_zia_*.go for an object-not-found branch (RESOURCE_NOT_FOUND, IsObjectNotFound or 404) whose body returns nil without SetId, against a `git archive` of tf-zia at v4.8.3 and at HEAD. Both refs list exactly four handlers: dlp_web_rules, endpoint_dlp_rules, endpoint_dlp_sub_rules, outbound_email_dlp. What Terraform does with a destroy that succeeds while the ID is still set is Terraform core behavior and was not tested."
     },
     "create-reposts-after-read-error": {
-      "statement": "In DLP web rule create, after the POST succeeds and the ID is set, a Read that returns an error diagnostic makes the create loop sleep and `continue` while time remains in the create timeout. The next loop pass calls `Create` again with the same request; the object from the first POST is not looked up or adopted before it.",
+      "statement": "In DLP web rule create, after the POST succeeds and the ID is set, a Read that returns an error diagnostic makes the create loop sleep and `continue` while time remains in the create timeout. The `continue` returns to the top of that `for` loop, whose body calls `dlp_web_rules.Create` with `&req` again; the object from the first POST is not looked up or adopted before it.",
       "tier": "A",
       "evidence": [
         {

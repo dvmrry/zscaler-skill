@@ -20,7 +20,7 @@
     },
     {
       "label": "Accepted names.",
-      "text": "{{alert-name-closed-list}} {{list-is-provider-boundary}}"
+      "text": "{{alert-name-closed-list}} {{alert-name-match-case-sensitive}} {{list-is-provider-boundary}}"
     },
     {
       "label": "Lookups.",
@@ -44,7 +44,7 @@
   ],
   "claims": {
     "alert-name-closed-list": {
-      "statement": "The `alert_name` of `zia_ueba_alert_definitions` is validated, case-sensitively, against a fixed list of alert names compiled into the provider; a name outside that list fails validation at plan time.",
+      "statement": "The `alert_name` of `zia_ueba_alert_definitions` is validated with `validation.StringInSlice(supportedUEBAAlertNames, false)` against a fixed list of alert names compiled into the provider; a name outside that list fails validation at plan time.",
       "tier": "A",
       "evidence": [
         {
@@ -59,6 +59,14 @@
           ]
         }
       ]
+    },
+    "alert-name-match-case-sensitive": {
+      "statement": "The match against that list is case-sensitive: a name that differs from a listed one only in case fails validation.",
+      "tier": "B",
+      "derived_from": [
+        "alert-name-closed-list"
+      ],
+      "conditions": "Rests on the second StringInSlice argument being the Terraform plugin SDK's ignoreCase flag, set to false here; the plugin SDK is not a registered source and the provider does not state it."
     },
     "list-is-provider-boundary": {
       "statement": "So the closed list is what Terraform accepts, not evidence that the backend's alert catalog is the same set or that every listed alert is enabled for every tenant.",

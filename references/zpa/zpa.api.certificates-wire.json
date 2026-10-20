@@ -44,7 +44,7 @@
     },
     {
       "label": "Writes.",
-      "text": "{{enrollment-cert-allow-signing-omitempty}} {{python-validity-window-checks}} {{python-delete-dry-run}}"
+      "text": "{{enrollment-cert-allow-signing-omitempty}} {{python-validity-window-checks}} {{go-no-validity-checks}} {{python-delete-dry-run}}"
     },
     {
       "label": "Python model.",
@@ -342,8 +342,16 @@
       ],
       "conditions": "Statement changed per verifier: it said any description sent through the model is dropped, but add_enrollment_cert and update_enrollment build the body from keyword arguments, and no call in enrollment_certificates.py uses request_format (read from the whole file). The absence of description from the config branch and from request_format was read from the whole model; a quote cannot prove an absence. The Go struct and the OpenAPI schema both define description."
     },
+    "go-no-validity-checks": {
+      "statement": "The Go SDK has no such validity-window or time-zone checks: its enrollment certificate writes send whatever the struct holds.",
+      "tier": "B",
+      "derived_from": [
+        "python-validity-window-checks"
+      ],
+      "conditions": "Rests on the three Go write functions opening with the NewRequestDo call and on a read of the whole enrollmentcert package at the pin, which converts and validates nothing; a quote cannot pin the absence."
+    },
     "python-validity-window-checks": {
-      "statement": "The Python SDK checks valid_from, valid_to and time_zone, rejecting a start more than one hour in the past, a range over 365 days, and a time zone not in the pytz list; the Go SDK has no such checks. add_enrollment_cert and generate_self_signed send the body as the keyword arguments, so the window goes out as epoch seconds in strings. update_enrollment copies the keyword arguments into a new body before converting, so it sends the raw valid_from, valid_to and time_zone and no epoch values.",
+      "statement": "The Python SDK checks valid_from, valid_to and time_zone, rejecting a start more than one hour in the past, a range over 365 days, and a time zone not in the pytz list. The Go SDK's `Create`, `Update` and self-signed generate functions open by passing the certificate struct to `NewRequestDo`, with nothing before the call but allocating the response or building the path. add_enrollment_cert and generate_self_signed send the body as the keyword arguments, so the window goes out as epoch seconds in strings. update_enrollment copies the keyword arguments into a new body before converting, so it sends the raw valid_from, valid_to and time_zone and no epoch values.",
       "tier": "A",
       "evidence": [
         {

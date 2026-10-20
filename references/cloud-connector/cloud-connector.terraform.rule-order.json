@@ -22,7 +22,7 @@
     },
     {
       "label": "Putting it back.",
-      "text": "{{background-worker}} {{registry-keyed-by-type-only}} {{worker-reads-only-a-count}} {{worker-cannot-report-failure}} {{count-error-ignored}} {{write-error-logged-only}} {{completes-on-quiet-ticks}} {{same-size-reregistration-ignored}} {{writes-registered-rules-only}} {{wrong-order-reported-success}}"
+      "text": "{{background-worker}} {{registry-keyed-by-type-only}} {{worker-reads-only-a-count}} {{worker-cannot-report-failure}} {{count-error-ignored}} {{write-error-logged-only}} {{completes-on-quiet-ticks}} {{write-effect-unknown}} {{same-size-reregistration-ignored}} {{writes-registered-rules-only}} {{wrong-order-reported-success}}"
     },
     {
       "label": "The shared registry.",
@@ -765,7 +765,7 @@
       ]
     },
     "completes-on-quiet-ticks": {
-      "statement": "A write pass runs only once every registered rule is marked done and the number of registered rules differs from the number at the last pass. After that, the worker returns once three further ticks see the same number, even if the pass skipped some writes or some writes failed. The worker does not read a rule back after writing it, so beyond the write error it cannot tell whether a write took effect.",
+      "statement": "A write pass runs only once every registered rule is marked done and the number of registered rules differs from the number at the last pass. Each later tick that sees the same number counts toward stability, and when that count reaches 3 the worker logs the reorder as complete and returns, even if the pass skipped some writes or some writes failed. Each order-write callback ends by calling Update, discarding the returned rule, and returning only the error.",
       "tier": "A",
       "evidence": [
         {
@@ -781,7 +781,7 @@
             "if allDone && size > 0 { if size != lastReorderedSize {",
             "for _, v := range sorted { if v.Order.Order <= count { if err := updateOrder(v.ID, v.Order); err != nil { log.Printf(\"[ERROR] couldn't reorder the rule after tick, the order may not have taken place: %v\\n\", err) } } } lastReorderedSize = size stableAfterReorder = 0",
             "} else { // Same size as last reorder — count towards stability stableAfterReorder++",
-            "if stableAfterReorder >= 3 {"
+            "if stableAfterReorder >= 3 { log.Printf(\"[INFO] reorder complete for %s: %d rules, stable for 3 ticks\", resourceType, size) rules.Unlock() return }"
           ],
           "after": "func reorderAll(resourceType string, getCount func() (int, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {"
         },
@@ -956,7 +956,7 @@
       ]
     },
     "worker-lock-held-across-network-calls": {
-      "statement": "The worker takes the global registry lock at the start of each tick and releases it only at the end of the tick, so the count read, the optional before-reorder hook and every order write (each a network call in the three resources) run with the lock held. Registration, marking a rule done and the waiters' channel lookup take the same lock, so a slow API call blocks them, for every resource type.",
+      "statement": "The worker takes the global registry lock at the start of each tick and releases it only at the end of the tick, so the count read, the optional before-reorder hook and every order write run with the lock held (in the three resources, the count callback calls the SDK's GetAll and each order-write callback calls its Get and Update). Registration, marking a rule done and the waiters' channel lookup take the same lock, so a slow API call blocks them, for every resource type.",
       "tier": "A",
       "evidence": [
         {
@@ -1102,6 +1102,18 @@
           "status": "unfiled",
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
         }
+      ]
+    },
+    "write-effect-unknown": {
+      "statement": "Beyond the Update error, the worker has no signal that an order write took effect: it never reads a rule's position back after writing it.",
+      "tier": "B",
+      "derived_from": [
+        "completes-on-quiet-ticks",
+        "worker-reads-only-a-count"
+      ],
+      "conditions": "Rests on the three order-write callbacks ending at the Update call and the worker having only a count callback; no source says what the API does with a write it accepts (gap api-order-shift).",
+      "gaps": [
+        "api-order-shift"
       ]
     },
     "new-cycle-rewrites-whole-registry": {

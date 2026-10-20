@@ -171,7 +171,7 @@
       ]
     },
     "cipa-exclusive": {
-      "statement": "CIPA compliance cannot be enabled together with newly-registered-domain lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization; both SDKs reject that combination before sending it.",
+      "statement": "CIPA compliance cannot be enabled together with newly-registered-domain lookup, embedded-site categorization, SafeSearch enforcement, or dynamic content categorization; both SDKs check for that combination and return an error before the PUT is built or sent.",
       "tier": "A",
       "evidence": [
         {
@@ -180,7 +180,8 @@
           "quotes": [
             "EnableCIPACompliance cannot be enabled with the following options: EnableNewlyRegisteredDomains, ConsiderEmbeddedSites, EnforceSafeSearch, EnableDynamicContentCat",
             "if urlAndAppSettings.EnableCIPACompliance {",
-            "resp, err := service.Client.UpdateWithPut(ctx, urladvSettingsEndpoint, urlAndAppSettings)"
+            "resp, err := service.Client.UpdateWithPut(ctx, urladvSettingsEndpoint, urlAndAppSettings)",
+            "EnforceSafeSearch, EnableDynamicContentCat\") } } // Pass the struct directly to the UpdateWithPut method resp, err := service.Client.UpdateWithPut(ctx, urladvSettingsEndpoint, urlAndAppSettings)"
           ]
         },
         {
@@ -192,7 +193,8 @@
             "mutually_exclusive = [ \"enable_newly_registered_domains\", \"consider_embedded_sites\", \"enforce_safe_search\", \"enable_dynamic_content_cat\", ]",
             "return ( None, None, ValueError(f\"Invalid configuration:",
             "ValueError(f\"Invalid configuration: '{key}' cannot be True when 'enable_cipa_compliance' is True\"),",
-            "response, error = self._request_executor.execute(request, AdvancedUrlFilterAndCloudAppSettings)"
+            "response, error = self._request_executor.execute(request, AdvancedUrlFilterAndCloudAppSettings)",
+            "cannot be True when 'enable_cipa_compliance' is True\"), ) http_method = \"put\".upper()"
           ]
         }
       ],

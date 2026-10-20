@@ -41,7 +41,7 @@
     },
     {
       "label": "Failures during detach.",
-      "text": "{{get-failure-skips-update-silently}} {{reread-result-discarded}} {{five-second-sleep-per-rule}} {{delete-follows-detach}} {{other-detach-callers-same-shape}} {{masked-read-failure-reaches-delete}}"
+      "text": "{{get-failure-skips-update-silently}} {{reread-result-discarded}} {{five-second-sleep-per-rule}} {{sleep-adds-time-per-referencing-rule}} {{delete-follows-detach}} {{other-detach-callers-same-shape}} {{masked-read-failure-reaches-delete}}"
     },
     {
       "text": "Related provider behavior that also reports success without confirming the result is in [[zia.terraform.rule-order]], and staged changes after a write are covered in [[zia.terraform.activation]]."
@@ -444,7 +444,7 @@
       ]
     },
     "five-second-sleep-per-rule": {
-      "statement": "The helper sleeps five seconds for each rule that references the object, before re-reading it, even if that rule is then skipped, so detaching from many rules makes the delete slow.",
+      "statement": "For each rule that references the object, the helper sleeps five seconds before re-reading the rule.",
       "tier": "A",
       "evidence": [
         {
@@ -463,6 +463,15 @@
           ]
         }
       ]
+    },
+    "sleep-adds-time-per-referencing-rule": {
+      "statement": "The sleep comes before the re-read that may skip the rule, so it is spent even for a skipped rule, and a delete waits five seconds for every rule that references the object.",
+      "tier": "B",
+      "derived_from": [
+        "five-second-sleep-per-rule",
+        "get-failure-skips-update-silently"
+      ],
+      "conditions": "Read from the order of the sleep, the re-read and the update inside the helper's loop; the provider does not state the cost."
     },
     "delete-follows-detach": {
       "statement": "Both callers quoted here delete the object whenever the helper returns no error, and the helper returns no error for a rule it skipped because the re-read failed, so such a rule does not stop the delete.",

@@ -66,7 +66,7 @@
       "heading": "Extranet object"
     },
     {
-      "text": "{{extranet-dto-go-fields}} {{extranet-dto-python-fields}} The three shapes disagree {{divergence:extranet-dto-shape}}. {{extranet-dto-python-location-group-not-sent}}"
+      "text": "{{extranet-dto-go-fields}} {{extranet-dto-python-fields}} {{extranet-dto-python-no-zpn-er}} The three shapes disagree {{divergence:extranet-dto-shape}}. {{extranet-dto-python-location-group-not-sent}}"
     },
     {
       "text": "Both SDKs call the server summary path: {{server-summary-sdk-calls}}"
@@ -521,8 +521,16 @@
         }
       ]
     },
+    "extranet-dto-python-no-zpn-er": {
+      "statement": "The Python ExtranetDTO model has no zpnErId.",
+      "tier": "B",
+      "derived_from": [
+        "extranet-dto-python-fields"
+      ],
+      "conditions": "Rests on reading the whole ExtranetDTO class at the pin: no zpnErId appears in its config reads or request_format; the separate ZPNERID model elsewhere in the file is not part of it. A quote cannot pin the absence."
+    },
     "extranet-dto-python-fields": {
-      "statement": "The Python ExtranetDTO model reads id, modifiedTime, creationTime, modifiedBy, ziaErName, ziaErId, locationDTO and locationGroupDTO, and has no zpnErId.",
+      "statement": "The Python ExtranetDTO model reads id, modifiedTime, creationTime, modifiedBy, ziaErName, ziaErId, locationDTO and locationGroupDTO.",
       "tier": "A",
       "evidence": [
         {
@@ -547,7 +555,7 @@
           "note": "every config read in the class (8 of 8) and its whole request_format dict; neither has zpnErId"
         }
       ],
-      "conditions": "No zpnErId appears in the ExtranetDTO class; the separate ZPNERID model elsewhere in the file is not part of it."
+      "conditions": "The quotes cover every config read in the class and its whole request_format dict."
     },
     "extranet-dto-python-location-group-not-sent": {
       "statement": "The Python ExtranetDTO request_format emits locationDTO but no locationGroupDTO, so a location group read from a response is not written back, and an ExtranetDTO built without a config does not set a location_group_dto attribute at all.",

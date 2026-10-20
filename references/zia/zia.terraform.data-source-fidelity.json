@@ -75,7 +75,7 @@
     },
     {
       "label": "GRE VIP source IP.",
-      "text": "{{gre-vip-empty-id-without-source-ip}} Whether the SDK and Terraform accept an empty ID is open {{gap:nonnumeric-or-empty-id-outcome}}."
+      "text": "{{gre-vip-empty-id-without-source-ip}} {{gre-vip-empty-id-when-source-ip-unset}} Whether the SDK and Terraform accept an empty ID is open {{gap:nonnumeric-or-empty-id-outcome}}."
     },
     {
       "label": "Name matching and required fields.",
@@ -484,7 +484,7 @@
       ]
     },
     "flatten-schema-shape-mismatch-elsewhere": {
-      "statement": "Three more data sources hand a checked `d.Set` a shape its schema does not declare. The DLP dictionary data source declares `primary_field` (an int) under `exact_data_match_details` but its flattener emits `primary_fields` carrying the SDK's `[]int`. SSL inspection `proxy_gateways` declares `id` as an int but its flattener returns one object whose `id` is a slice of ints. Cloud App Control `cbi_profile` is a `TypeList` but its flattener returns a single map, with an extra `profile_seq` key.",
+      "statement": "The DLP dictionary, SSL inspection rule and Cloud App Control rule data sources each hand a checked `d.Set` a shape its schema does not declare. The DLP dictionary data source declares `primary_field` (an int) under `exact_data_match_details` but its flattener emits `primary_fields` carrying the SDK's `[]int`. SSL inspection `proxy_gateways` declares `id` as an int but its flattener returns one object whose `id` is a slice of ints. Cloud App Control `cbi_profile` is a `TypeList` but its flattener returns a single map, with an extra `profile_seq` key.",
       "tier": "A",
       "evidence": [
         {
@@ -969,7 +969,7 @@
       ]
     },
     "gre-vip-empty-id-without-source-ip": {
-      "statement": "`source_ip` is optional on the GRE VIP recommendation data source and the read ends with an unconditional `d.SetId(sourceIP)`, so a configuration without it finishes with an empty ID.",
+      "statement": "`source_ip` is optional on the GRE VIP recommendation data source; its read takes `sourceIP` from `source_ip` and, after the block that trims the list to the required count, calls `d.SetId(sourceIP)`.",
       "tier": "A",
       "evidence": [
         {
@@ -984,7 +984,8 @@
             "\"source_ip\": { Type: schema.TypeString, Optional: true, },",
             "d.SetId(sourceIP)",
             "sourceIP := d.Get(\"source_ip\").(string)",
-            "d.SetId(sourceIP) _ = d.Set(\"list\", flattenVIPList(*resp)) return nil }"
+            "d.SetId(sourceIP) _ = d.Set(\"list\", flattenVIPList(*resp)) return nil }",
+            "*resp = (*resp)[:requiredCount] } d.SetId(sourceIP)"
           ]
         }
       ],
@@ -996,6 +997,17 @@
           "status": "unfiled",
           "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
         }
+      ]
+    },
+    "gre-vip-empty-id-when-source-ip-unset": {
+      "statement": "So a configuration that omits `source_ip` finishes the read with an empty ID.",
+      "tier": "B",
+      "derived_from": [
+        "gre-vip-empty-id-without-source-ip"
+      ],
+      "conditions": "Read from the whole read function, where the SetId call sits under no condition, plus the SDK behavior that an unset optional string reads as empty; the provider does not state the outcome.",
+      "gaps": [
+        "nonnumeric-or-empty-id-outcome"
       ]
     },
     "case-sensitive-name-lookups-diverge-from-sdk": {

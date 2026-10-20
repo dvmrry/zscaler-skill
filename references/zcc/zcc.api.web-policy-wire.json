@@ -919,7 +919,7 @@
       ]
     },
     "go-top-level-install": {
-      "statement": "Among them the Go SDK sends a top-level `install_ssl_certs` besides the certificate key in the platform block.",
+      "statement": "Among them, the Go SDK's `WebPolicy` struct, which `UpdateWebPolicy` sends as the PUT body, has a top-level `install_ssl_certs` field, alongside `install_ssl_certs` in `MacPolicy` and `installCerts` in `AndroidPolicy`, `LinuxPolicy` and `WindowsPolicy`.",
       "tier": "A",
       "evidence": [
         {
@@ -951,6 +951,30 @@
           "after": "type LinuxPolicy struct {",
           "quotes": [
             "InstallCerts string `json:\"installCerts\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type AndroidPolicy struct {",
+          "quotes": [
+            "InstallCerts     string `json:\"installCerts\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "type WindowsPolicy struct {",
+          "quotes": [
+            "InstallCerts                  string `json:\"installCerts\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/web_policy/web_policy.go",
+          "after": "func UpdateWebPolicy(ctx context.Context, service *zscaler.Service, webPolicy *WebPolicy) (*EditResponse, error) {",
+          "quotes": [
+            "_, err := service.Client.NewZccRequestDo(ctx, \"PUT\", url, nil, webPolicy, &resp)"
           ]
         }
       ]

@@ -48,7 +48,7 @@
     },
     {
       "label": "Rule fields.",
-      "text": "{{min-max-fields}} Those are the console's guaranteed and maximum percentages ([[zia.bandwidth-control.allocation]]). {{rule-scope-fields}} {{protocols-spec}} {{protocols-terraform}} The two protocol lists disagree {{divergence:protocol-vocabulary}}. {{tf-location-caps}} The Help location limit differs {{divergence:locations-per-rule}}. Rule order, state and rank semantics: [[zia.bandwidth-control.rules]]; provider reorder behavior: [[zia.terraform.rule-order.registry]]."
+      "text": "{{min-max-fields}} Those are the console's guaranteed and maximum percentages ([[zia.bandwidth-control.allocation]]). {{rule-scope-fields}} {{device-fields-not-in-help}} {{protocols-spec}} {{protocols-terraform}} The two protocol lists disagree {{divergence:protocol-vocabulary}}. {{tf-location-caps}} The Help location limit differs {{divergence:locations-per-rule}}. Rule order, state and rank semantics: [[zia.bandwidth-control.rules]]; provider reorder behavior: [[zia.terraform.rule-order.registry]]."
     },
     {
       "label": "Class typing.",
@@ -218,7 +218,7 @@
       ]
     },
     "rule-scope-fields": {
-      "statement": "Besides locations, location groups, time windows, labels, bandwidth classes and protocols, the rule schema also carries devices, deviceGroups and deviceTrustLevels, which the console Help does not list among the rule conditions.",
+      "statement": "Besides locations, location groups, time windows, labels, bandwidth classes and protocols, the rule schema also carries devices, deviceGroups and deviceTrustLevels.",
       "tier": "A",
       "binds": [
         "zia/bandwidth-control-rules#locations",
@@ -279,6 +279,14 @@
         }
       ]
     },
+    "device-fields-not-in-help": {
+      "statement": "The console Help groups the rule conditions as Where (locations or location groups), When (time) and What (bandwidth classes and protocols), so the schema's device, device group and device trust level fields have no counterpart among the conditions it documents.",
+      "tier": "B",
+      "derived_from": [
+        "rule-scope-fields"
+      ],
+      "conditions": "Rests on the three condition categories the Help page lists and on a search of that page, which has no occurrence of device."
+    },
     "protocols-spec": {
       "statement": "The API schema lists these rule protocol values: ANY_RULE, DOHTTPS_RULE, TUNNELSSL_RULE, HTTP_PROXY, FOHTTP_RULE, FTP_RULE, HTTPS_RULE, HTTP_RULE, SSL_RULE and TUNNEL_RULE.",
       "tier": "A",
@@ -308,7 +316,7 @@
       ]
     },
     "protocols-terraform": {
-      "statement": "The Terraform bandwidth rule resource requires at least one protocol and validates it with the URL Filtering protocol list, which adds SMRULEF_ZPA_BROKERS_RULE, TCP_RULE, UDP_RULE, WEBSOCKETSSL_RULE and WEBSOCKET_RULE to the API list.",
+      "statement": "The Terraform bandwidth rule resource requires at least one protocol and validates it with the URL Filtering protocol list, `supportedURLFilteringProtocols`: SMRULEF_ZPA_BROKERS_RULE, ANY_RULE, TCP_RULE, UDP_RULE, DOHTTPS_RULE, TUNNELSSL_RULE, HTTP_PROXY, FOHTTP_RULE, FTP_RULE, HTTPS_RULE, HTTP_RULE, SSL_RULE, TUNNEL_RULE, WEBSOCKETSSL_RULE and WEBSOCKET_RULE.",
       "tier": "A",
       "binds": [
         "zia/bandwidth-control-rules#protocols"

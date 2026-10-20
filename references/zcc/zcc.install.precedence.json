@@ -23,7 +23,7 @@
     },
     {
       "label": "The console replaces the parameter.",
-      "text": "{{policytoken-replaced}} {{custom-proxy-detection}} {{anti-tampering}}"
+      "text": "{{policytoken-replaced}} {{custom-proxy-detection}} {{custom-proxy-msi-name}} {{anti-tampering}}"
     },
     {
       "label": "The parameter replaces the console.",
@@ -61,7 +61,7 @@
       ]
     },
     "custom-proxy-detection": {
-      "statement": "On Windows, enableCustomProxyDetection (MSI `ENABLECUSTOMPROXYDETECTION`) sets how Client Connector finds the system proxy before the first policy download: enabled, it downloads the PAC file and parses the proxy instead of using the Microsoft APIs. After the first policy download it follows the app profile's Detect External Proxy Using Custom Method, and it returns to the install setting after the user logs out.",
+      "statement": "On Windows, enableCustomProxyDetection sets how Client Connector finds the system proxy before the first policy download: enabled, it downloads the PAC file and parses the proxy instead of using the Microsoft APIs. After the first policy download it follows the app profile's Detect External Proxy Using Custom Method, and it returns to the install setting after the user logs out.",
       "tier": "A",
       "evidence": [
         {
@@ -76,6 +76,24 @@
         }
       ]
     },
+    "custom-proxy-msi-name": {
+      "statement": "Its MSI name is ENABLECUSTOMPROXYDETECTION.",
+      "tier": "B",
+      "derived_from": [
+        "custom-proxy-detection"
+      ],
+      "conditions": "The help capture joins the row's MSI and EXE labels into 'MSI: ENABLECUSTOMPROXYDETECTIONEXE: enableCustomProxyDetection'; this reads it as MSI name plus EXE name, as the page's prose confirms for other rows (ENABLESSO or enableSSO, INSTALLWEBVIEW2 or installWebView2) and its note that MSI and EXE names differ. No source writes this MSI name on its own.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: ENABLECUSTOMPROXYDETECTIONEXE: enableCustomProxyDetection",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
+          ]
+        }
+      ]
+    },
     "anti-tampering": {
       "statement": "On Windows, enableAntiTampering (MSI `ENABLEANTITAMPERING`) prevents end users from stopping, modifying or deleting Zscaler products and services; the app profile's Override Anti Tampering Install Parameter option can override it.",
       "tier": "A",
@@ -86,7 +104,15 @@
           "quotes": [
             "MSI: ENABLEANTITAMPERINGEXE: enableAntiTampering",
             "Prevents end users from stopping, modifying, and deleting Zscaler products and services.",
-            "This option can be overridden by the Override Anti Tampering Install Parameter option in app profiles."
+            "This option can be overridden by the Override Anti Tampering Install Parameter option in app profiles.",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "regardless of how the --enableAntiTampering or ENABLEANTITAMPERING install option was set during installation."
           ]
         }
       ]

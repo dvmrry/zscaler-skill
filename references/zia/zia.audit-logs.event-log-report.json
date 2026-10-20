@@ -28,7 +28,7 @@
     },
     {
       "label": "Download.",
-      "text": "{{download-exists}} {{go-sdk-surface}} {{spec-status-object}} The Go SDK and the spec disagree on the status shape {{divergence:event-status-shape}}."
+      "text": "{{download-exists}} {{go-sdk-surface}} {{go-sdk-no-download}} {{spec-status-object}} The Go SDK and the spec disagree on the status shape {{divergence:event-status-shape}}."
     },
     {
       "label": "Purpose.",
@@ -227,7 +227,7 @@
       "conditions": "The absence of admin-oriented filters rests on reading the property list of the request schema; the four searched names do not appear in it."
     },
     "go-sdk-surface": {
-      "statement": "The Go SDK exposes only GetAll, Create and Delete for event log reports (no download function), and GetAll decodes the status into a slice.",
+      "statement": "The Go SDK's event log report package defines GetAll, Create and Delete, and GetAll decodes the status into a slice.",
       "tier": "A",
       "evidence": [
         {
@@ -244,6 +244,15 @@
           ]
         }
       ]
+    },
+    "go-sdk-no-download": {
+      "statement": "The Go SDK has no function that downloads an event log report; its package stops at GetAll, Create and Delete.",
+      "tier": "B",
+      "derived_from": [
+        "go-sdk-surface",
+        "download-exists"
+      ],
+      "conditions": "A read of the one file in the eventlogentryreport package found only those three top-level functions; no other Go package was searched for a download call."
     },
     "spec-status-object": {
       "statement": "The spec describes the event log status response as a single object, like the audit report's.",

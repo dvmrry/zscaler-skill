@@ -293,7 +293,7 @@
       ]
     },
     "custom-http-client-not-used-for-service-endpoints": {
-      "statement": "A client passed with `WithHttpClientPtr` is stored only as the generic client, and any later rebuilding option overwrites it. Requests to ZIA, ZPA, ZCC, ZTW and ZDX endpoints use the per-service clients chosen by `getServiceHTTPClient`, so a caller-supplied client reaches only the default and admin routes.",
+      "statement": "A client passed with `WithHttpClientPtr` is stored only as the generic client, and any later rebuilding option overwrites it. Requests to ZIA, ZPA, ZCC, ZTW and ZDX endpoints use the per-service clients chosen by `getServiceHTTPClient`. The client holds its configuration as `oauth2Credentials`, so a caller-supplied client is used only where that function returns `oauth2Credentials.HTTPClient`: admin endpoints, the default branch, and endpoints whose service type cannot be detected.",
       "tier": "A",
       "evidence": [
         {
@@ -336,7 +336,8 @@
             "v3.8.44"
           ],
           "quotes": [
-            "httpClient := c.getServiceHTTPClient(endpoint)"
+            "httpClient := c.getServiceHTTPClient(endpoint)",
+            "oauth2Credentials *Configuration"
           ]
         },
         {

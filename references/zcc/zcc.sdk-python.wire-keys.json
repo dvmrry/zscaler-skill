@@ -145,7 +145,7 @@
       ]
     },
     "serializer-callers": {
-      "statement": "Two ZCC writes use the serializer: `web_policy_edit` with the `WebPolicy` model and `update_forwarding_profile` with the `ForwardingProfile` model. On the OneAPI client, the executor sends their bodies unchanged; every other ZCC body gets the selective camel-case conversion.",
+      "statement": "Two ZCC writes use the serializer: `web_policy_edit` with the `WebPolicy` model and `update_forwarding_profile` with the `ForwardingProfile` model. `zcc_to_wire` returns a `_ZccWireBody`. When the endpoint contains `/zcc/` (both modules' base endpoint is `/zcc/papi/public/v1`), the executor returns such a body as a plain dict with no key conversion, and any other non-empty dict body gets the selective camel-case conversion.",
       "tier": "A",
       "conditions": "Searching zscaler/zcc for `zcc_to_wire(` finds only these two calls. Narrowed to the OneAPI client: the legacy client strips `/zcc` from the path first, so this branch does not match there (legacy-client-full-camel-case).",
       "evidence": [
@@ -172,7 +172,16 @@
             "if isinstance(body, _ZccWireBody):",
             "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)",
             "return dict(body)",
-            "if \"/zcc/\" in endpoint and body:"
+            "if \"/zcc/\" in endpoint and body:",
+            "if isinstance(body, _ZccWireBody): return dict(body) # Legacy path for ZCC endpoints that have not yet been migrated # to the model-driven serializer. body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS) return body"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/_serialize.py",
+          "after": "def zcc_to_wire(body: Any, schema_cls: Type[ZscalerObject]) -> Any:",
+          "quotes": [
+            "out = _ZccWireBody()"
           ]
         },
         {
@@ -374,7 +383,7 @@
       ]
     },
     "param-mapper": {
-      "statement": "`zcc_param_mapper` turns `os_type`/`os_types`, `device_type` and `registration_type`/`registration_types` names into their numeric codes, joined with commas as a string (so `deviceType` is sent as \"3\", not 3), formats `start_date` and `end_date`, and moves `time_zone` to `Time-Zone`.",
+      "statement": "`zcc_param_mapper` turns `os_type`/`os_types` and `registration_type`/`registration_types` names, and `device_type` names or integers, into numeric codes, converts each to a string with `str` and joins them with commas (so `deviceType` holds the string \"3\", not the integer 3), formats `start_date` and `end_date`, and moves `time_zone` to `Time-Zone`.",
       "tier": "A",
       "evidence": [
         {
@@ -389,6 +398,8 @@
             "mapped_params[\"osType\"] = \",\".join(mapped)",
             "mapped_params[\"osTypes\"] = \",\".join(mapped)",
             "str(zcc_param_map[\"os\"].get(dt.lower()) if isinstance(dt, str) else dt)",
+            "# Handle device_type (uses same mapping as os_type)",
+            "mapped = [ str(zcc_param_map[\"os\"].get(dt.lower()) if isinstance(dt, str) else dt) for dt in raw_device_type if (isinstance(dt, str) and zcc_param_map[\"os\"].get(dt.lower())) or isinstance(dt, int) ]",
             "str(zcc_param_map[\"reg_type\"].get(rt.lower())) for rt in raw_reg if zcc_param_map[\"reg_type\"].get(rt.lower())",
             "mapped_params[\"registrationType\"] = \",\".join(mapped)",
             "mapped_params[\"registrationTypes\"] = \",\".join(mapped)",
@@ -409,18 +420,18 @@
       ]
     },
     "numeric-strings-rejected": {
-      "statement": "The mapper accepts `os_type` only as a platform name and `device_type` as a name or an integer; a numeric string such as \"3\" raises ValueError, although the `list_devices` and `activate_web_policy` docstring examples pass \"3\" and '3'.",
+      "statement": "For `os_type`, the mapper keeps a string only when its lower-cased form is a platform name in its map, and raises ValueError when nothing is kept; for `device_type`, it keeps such names and integers (`isinstance(dt, int)`), and raises ValueError likewise. A numeric string such as \"3\" is neither, so it raises ValueError, although the `list_devices` and `activate_web_policy` docstring examples pass \"3\" and '3'.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
-            "raise ValueError(\"Invalid `os_type` or `os_types` provided.\")",
-            "if (isinstance(dt, str) and zcc_param_map[\"os\"].get(dt.lower())) or isinstance(dt, int)",
-            "mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())]",
-            "raise ValueError(\"Invalid `device_type` provided. Valid options: ios, android, windows, macos, linux.\")"
-          ]
+            "raw_os = [raw_os] if isinstance(raw_os, str) else raw_os mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())] if not mapped: raise ValueError(\"Invalid `os_type` or `os_types` provided.\")",
+            "raw_device_type = query_params.get(\"device_type\") or body.get(\"device_type\")",
+            "mapped = [ str(zcc_param_map[\"os\"].get(dt.lower()) if isinstance(dt, str) else dt) for dt in raw_device_type if (isinstance(dt, str) and zcc_param_map[\"os\"].get(dt.lower())) or isinstance(dt, int) ] if not mapped: raise ValueError(\"Invalid `device_type` provided. Valid options: ios, android, windows, macos, linux.\")"
+          ],
+          "after": "def zcc_param_mapper(func):"
         },
         {
           "source": "sdk-python",

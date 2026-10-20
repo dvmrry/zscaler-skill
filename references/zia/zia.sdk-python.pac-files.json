@@ -217,17 +217,16 @@
       ]
     },
     "go-action-body-is-raw-commit-message": {
-      "statement": "Go's `UpdatePacFile` takes a commit message string and sends it as the raw request body, because its comment says the endpoint expects the message that way and that a serialized object corrupts the stored commit message.",
+      "statement": "Go's `UpdatePacFile` takes a `commitMessage` string and, when it is not empty, sends it as the raw request body. Its doc comment says the endpoint expects the commit message as the raw request body (not a JSON object) and that sending a serialized object corrupts the version's stored commit message.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/pacfiles/pacfiles.go",
           "quotes": [
-            "commit message as the raw request body (not a JSON object); sending a",
-            "serialized object corrupts the version's stored commit message.",
-            "body = strings.NewReader(commitMessage)",
-            "commitMessage: the commit message for the version. The endpoint expects the",
+            "commitMessage: the commit message for the version. The endpoint expects the // commit message as the raw request body (not a JSON object); sending a // serialized object corrupts the version's stored commit message.",
+            "// Send the commit message as the raw request body, mirroring the",
+            "if commitMessage != \"\" { body = strings.NewReader(commitMessage) }",
             "func UpdatePacFile(ctx context.Context, service *zscaler.Service, pacID, pacVersion int, pacVersionAction string, commitMessage string, newLKGVer *int) (*PACFileConfig, error) {"
           ]
         }

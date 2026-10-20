@@ -29,7 +29,7 @@
     },
     {
       "label": "Shared keys.",
-      "text": "{{registry-key-is-a-string}}"
+      "text": "{{registry-key-is-a-string}} {{later-closures-unused}}"
     },
     {
       "label": "Traffic capture keys.",
@@ -49,7 +49,7 @@
     },
     {
       "label": "Entries that never settle.",
-      "text": "{{worker-waits-forever-on-undone-entry}} {{create-registers-before-read-then-marks}} {{create-registers-before-read-sites}} {{undone-entry-hangs-later-waiters}}"
+      "text": "{{worker-waits-forever-on-undone-entry}} {{undone-entry-blocks-cycle}} {{create-registers-before-read-then-marks}} {{create-registers-before-read-sites}} {{undone-entry-hangs-later-waiters}}"
     },
     {
       "label": "Entries that are never removed.",
@@ -122,7 +122,7 @@
   ],
   "claims": {
     "registry-key-is-a-string": {
-      "statement": "All ZIA rule resources share one in-process registry, `rules`, whose entries are keyed only by a resource-type string chosen by the calling resource. A cycle's background worker is started by the first registration under a key, with that registration's `getCurrent` and `updateOrder` closures; a registration that finds the cycle open only adds its rule to the registry, and its own closures are never used.",
+      "statement": "The provider keeps one package-level registry, `rules`, whose maps are keyed by the `resourceType` string the caller of `reorderWithBeforeReorder` passes in. A registration that finds no cycle running for its key starts the background reorder with its own `getCurrent` and `updateOrder` closures; a registration that finds the cycle still running only adds its rule to the registry.",
       "tier": "A",
       "evidence": [
         {
@@ -139,7 +139,8 @@
             "rules.orders[resourceType][id] = orderWithState{order, false}",
             "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
             "if shouldCallReorder {",
-            "reorderAll(resourceType, getCurrent, updateOrder, beforeReorder)"
+            "reorderAll(resourceType, getCurrent, updateOrder, beforeReorder)",
+            "go func() {"
           ]
         }
       ],
@@ -286,7 +287,7 @@
       ]
     },
     "worker-waits-forever-on-undone-entry": {
-      "statement": "The worker does nothing on a tick unless every registered entry is marked done. That `continue` precedes every counter and every give-up check, so one entry that is never marked done keeps the cycle running with no exit, and every waiter on that key's channel blocks with it.",
+      "statement": "On each tick the worker sets `allDone` to false if any entry registered under its key is not done, and when `!(allDone && size > 0)` it unlocks and runs `continue` before calling `getCurrent`. A waiter receives from the key's done channel, which the goroutine closes only after `reorderAll` returns.",
       "tier": "A",
       "evidence": [
         {
@@ -322,6 +323,15 @@
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
         }
       ]
+    },
+    "undone-entry-blocks-cycle": {
+      "statement": "That `continue` comes before every counter and every give-up check, so one entry that is never marked done keeps the cycle running with no exit, and every waiter on that key's channel blocks with it.",
+      "tier": "B",
+      "derived_from": [
+        "worker-waits-forever-on-undone-entry",
+        "zia.terraform.rule-order:gives-up-silently"
+      ],
+      "conditions": "Read from the whole reorderAll loop: every counter and return sits after the read of current positions, which the continue skips; the provider does not state the hang."
     },
     "create-registers-before-read-then-marks": {
       "statement": "In bandwidth control create the rule is registered with the reorder engine first, then the resource is read, and `markOrderRuleAsDone` runs only after that read succeeds. If the read keeps failing until the create timeout, the function returns the read diagnostics and the registration stays not done.",
@@ -379,6 +389,7 @@
       "tier": "B",
       "derived_from": [
         "worker-waits-forever-on-undone-entry",
+        "undone-entry-blocks-cycle",
         "create-registers-before-read-sites",
         "zia.terraform.error-handling:create-reposts-after-read-error"
       ],
@@ -1124,6 +1135,14 @@
         "done-channel-read-after-unlock"
       ],
       "conditions": "Inferred from the Go runtime's handling of unsynchronized map access and from the registration logic: the key's channel is replaced only by a registration that finds the previous cycle's channel closed, and the reading registration's own cycle has not started its goroutine yet. No crash with this message is recorded from a provider run."
+    },
+    "later-closures-unused": {
+      "statement": "So within one cycle, the getCurrent and updateOrder closures of every registration after the first are never called: the cycle reads and writes order through the first registration's closures only.",
+      "tier": "B",
+      "derived_from": [
+        "registry-key-is-a-string"
+      ],
+      "conditions": "Follows from the registry code: only the registration that starts the cycle passes its closures to reorderAll, and a later registration under the same key returns after adding its rule. Not exercised by a provider test."
     }
   },
   "gaps": {

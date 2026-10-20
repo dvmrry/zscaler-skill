@@ -56,7 +56,7 @@
     },
     {
       "label": "Sharing and associations.",
-      "text": "{{main-share-separate-write}} {{association-block-first-only}} {{association-block-first-only-places}}"
+      "text": "{{main-share-separate-write}} {{association-block-first-only}} {{association-block-first-only-drops-rest}} {{association-block-first-only-places}}"
     },
     {
       "label": "Deletes.",
@@ -722,7 +722,7 @@
       ]
     },
     "association-block-first-only": {
-      "statement": "The helper that turns the `server_groups` argument into a request reads only the first block (`blocks[0]`) and ignores any others, with no error. Only the IDs inside the first block are sent.",
+      "statement": "The helper that turns the `server_groups` argument into a request indexes only the first block (`blocks[0]`) and builds its server groups from the `id` set in that block; it returns only a slice, no error. The schema declares `server_groups` as an optional list with no item limit before its element.",
       "tier": "A",
       "binds": [
         "zpa/application-segments#serverGroups"
@@ -741,7 +741,19 @@
             "block, ok := blocks[0].(map[string]interface{})",
             "d *schema.ResourceData) []servergroup.ServerGroup {",
             "idRaw, ok := block[\"id\"]",
-            "for _, id := range idSet.List() {"
+            "for _, id := range idSet.List() {",
+            "blocks := raw.([]interface{}) if len(blocks) == 0 { return nil } block, ok := blocks[0].(map[string]interface{})"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "\"server_groups\": { Type: schema.TypeList, Optional: true, Elem: &schema.Resource{"
           ]
         }
       ],
@@ -751,6 +763,14 @@
           "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
         }
       ]
+    },
+    "association-block-first-only-drops-rest": {
+      "statement": "So any `server_groups` block after the first is dropped without an error, and only the IDs in the first block reach the request.",
+      "tier": "B",
+      "derived_from": [
+        "association-block-first-only"
+      ],
+      "conditions": "Rests on a read of the whole helper at the pin, which indexes no block but blocks[0], and on the segment request carrying the helper's result."
     },
     "association-block-first-only-places": {
       "statement": "The same first-block-only read is in the other association expanders in `common.go` (app connector groups, app server groups, service edge groups), which feed the v1 and v2 access policy rules, the redirection rule and the server group resource, and in the server group, service edge group (`trusted_networks`) and user portal link expanders, where the schema allows several blocks (the private cloud and `service_edges` expanders are single-block by schema).",
@@ -1016,7 +1036,7 @@
       ]
     },
     "custom-control-association-errors-logged": {
-      "statement": "Associating an inspection custom control with its profiles is done by a helper with no return value: it logs a failed control lookup and returns, and logs a failed profile lookup or patch and continues, and create and update call it without a result to check. On delete, the loop that removes the control from each profile skips a profile whose lookup fails and ignores the error from the profile update, then deletes the control.",
+      "statement": "Associating an inspection custom control with its profiles is done by a helper with no return value: it logs a failed control lookup and returns, logs a failed profile lookup and continues to the next profile, and logs a failed profile patch, the loop's last statement, before the loop and the function close; create and update call it without a result to check. On delete, the loop that removes the control from each profile skips a profile whose lookup fails and ignores the error from the profile update, then deletes the control.",
       "tier": "A",
       "evidence": [
         {

@@ -14,6 +14,7 @@ const PYTEST_FILES = [
   "scripts/test_automate_pages.py",
   "scripts/test_check_vendor_drift.py",
   "scripts/test_issue_watch.py",
+  "scripts/test_family_coverage.py",
   "scripts/test_maintenance_digest.py",
   "scripts/automate-capture/test_extract_docusaurus_blobs.py",
   "scripts/automate-capture/test_build_openapi_from_blobs.py",
@@ -135,7 +136,6 @@ const FULL_CHECKS = [
     name: "vendor family coverage",
     command: "./scripts/check-family-coverage.py",
     args: [],
-    advisory: true,
   },
   {
     name: "vendor-source drift",

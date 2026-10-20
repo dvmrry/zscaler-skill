@@ -43,7 +43,7 @@
     },
     {
       "label": "Validator rules not recorded elsewhere.",
-      "text": "The required-field and bypass-exclusion rules are in [[zia.sdk-go.service-defects]]; the Terraform plan-time checks are there too. {{go-validator-block-and-cert-rules}} {{python-no-client-validation}}"
+      "text": "The required-field and bypass-exclusion rules are in [[zia.sdk-go.service-defects]]; the Terraform plan-time checks are there too. {{go-validator-block-and-cert-rules}} {{python-no-client-validation}} {{python-action-combinations-unchecked}}"
     },
     {
       "label": "Casing.",
@@ -542,9 +542,8 @@
       ]
     },
     "python-no-client-validation": {
-      "statement": "Apart from turning `enabled` into `state`, rewriting ID fields and camelCasing keys, the Python SDK sends the caller's keyword arguments as the request body without checking the action: `add_rule` assigns `body = kwargs`, so a `decryptSubActions` block on a `DO_NOT_DECRYPT` rule, or any of the combinations the Go SDK rejects, reaches the API unchecked.",
+      "statement": "The Python SSL inspection `add_rule` assigns `body = kwargs`, turns `enabled` into `state`, rewrites the common ID fields with `transform_common_id_fields` and passes that body to `create_request`.",
       "tier": "A",
-      "conditions": "Code read: no validation step appears between kwargs and the request. What the API itself does with such a body is gap zia.sdk-go.service-defects:ssl-action-api-contract.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -571,16 +570,17 @@
             "body = convert_keys_to_camel_case(body)"
           ],
           "after": "# Preserve existing logic for other services"
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zia/services/sslinspection/sslinspection.go",
-          "quotes": [
-            "when action.type is 'BLOCK', neither decryptSubActions nor doNotDecryptSubActions can be set",
-            "when action.type is 'DECRYPT', neither showEUN nor showEUNATP can be set"
-          ]
         }
+      ]
+    },
+    "python-action-combinations-unchecked": {
+      "statement": "So the Python SDK checks no action combination before sending: a `decryptSubActions` block on a `DO_NOT_DECRYPT` rule, or a combination the Go validator rejects such as a sub-action block on a `BLOCK` rule, reaches the API as the caller wrote it.",
+      "tier": "B",
+      "derived_from": [
+        "python-no-client-validation",
+        "go-validator-block-and-cert-rules"
       ],
+      "conditions": "Code read: no validation step appears between kwargs and the request in add_rule. What the API itself does with such a body is gap zia.sdk-go.service-defects:ssl-action-api-contract.",
       "gaps": [
         "zia.sdk-go.service-defects:ssl-action-api-contract"
       ]

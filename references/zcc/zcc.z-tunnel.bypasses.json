@@ -284,7 +284,7 @@
       ]
     },
     "dual-pac": {
-      "statement": "On Windows 3.7 and earlier, a domain bypass needs two PAC files: the forwarding profile PAC returns `PROXY ${ZAPP_TUNNEL2_BYPASS}` for the domain (and DIRECT by default, which tunnels over Z-Tunnel 2.0), and the app profile PAC returns DIRECT for the same domain.",
+      "statement": "On Windows 3.7 and earlier, a domain bypass needs two PAC files: the forwarding profile PAC returns `PROXY ${ZAPP_TUNNEL2_BYPASS}` for the domain (the vendor's example then falls through to DIRECT for all other traffic, which its comment says tunnels using Tunnel2), and the app profile PAC returns DIRECT for the same domain.",
       "tier": "A",
       "evidence": [
         {
@@ -293,7 +293,7 @@
           "after": "For Zscaler Client Connector Version 3.7 and Earlier for Windows",
           "quotes": [
             "Configure the forwarding profile PAC file to include the Z-Tunnel 2.0 bypass return statement for any destinations you want to send directly.",
-            "return \"PROXY ${ZAPP_TUNNEL2_BYPASS}\"; /* Default Traffic Forwarding. Return DIRECT to tunnel using Tunnel2 */ return \"DIRECT\";",
+            "function FindProxyForURL(url, host) { /* Updates are directly accessible */ if (dnsDomainIs(host, \"<domain>\")) return \"PROXY ${ZAPP_TUNNEL2_BYPASS}\"; /* Default Traffic Forwarding. Return DIRECT to tunnel using Tunnel2 */ return \"DIRECT\"; }",
             "Configure the app profile PAC file to include a return direct statement for the domain:"
           ]
         }

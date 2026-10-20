@@ -166,7 +166,7 @@
       ]
     },
     "declared-version-pins": {
-      "statement": "When `pac_version` is declared it selects an existing version: a change to `name`, `description`, `domain` or `pac_url_obfuscated` is rejected, a `pac_content` change is accepted only when it exactly matches the selected version's content and is then not cloned, and a status-only change acts on the selected version without cloning.",
+      "statement": "When `pac_version` is declared it selects an existing version: a change that includes `name`, `description`, `domain` or `pac_url_obfuscated` counts as a content change, skips the match check, leaves `pinnedMatches` false and so returns the does-not-match error, a `pac_content` change is accepted only when it exactly matches the selected version's content and is then not cloned, and a status-only change acts on the selected version without cloning.",
       "tier": "A",
       "evidence": [
         {
@@ -177,6 +177,7 @@
           ],
           "quotes": [
             "if versionDeclared { declaredVersion := d.Get(\"pac_version\").(int) if contentChanged {",
+            "contentChanged := d.HasChanges(\"pac_content\", \"name\", \"description\", \"domain\", \"pac_url_obfuscated\")",
             "pinnedMatches := false if d.HasChange(\"pac_content\") && !d.HasChanges(\"name\", \"description\", \"domain\", \"pac_url_obfuscated\") {",
             "pinnedMatches = pinned.PACContent == d.Get(\"pac_content\").(string)",
             "if !pinnedMatches { return diag.Errorf(\"pac_version %d is declared, but the configuration does not match that version.",

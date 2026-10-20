@@ -34,7 +34,7 @@
     },
     {
       "label": "Writing company info.",
-      "text": "{{set-company-info-go}} {{set-company-info-undocumented}} {{company-info-mixed-types}}"
+      "text": "{{set-company-info-go}} {{set-company-info-undocumented}} {{python-company-read-only}} {{company-info-mixed-types}}"
     },
     {
       "label": "Password management.",
@@ -82,7 +82,7 @@
     "terraform-data-source-only": {
       "statement": "The Terraform provider exposes company info only as the `zcc_company_info` data source; it has no company-info resource.",
       "tier": "A",
-      "conditions": "Added per verifier, who found the earlier sentence unmarked. Absence: no file under internal/framework/resources of the provider handles company info (searched at the pin).",
+      "conditions": "Added per verifier, who found the earlier sentence unmarked. Absence: the provider's Resources list, quoted from its opening to its closing brace, has no company-info entry, and no file under internal/framework/resources handles company info.",
       "evidence": [
         {
           "source": "tf-zcc",
@@ -102,7 +102,7 @@
           "source": "tf-zcc",
           "path": "internal/framework/provider.go",
           "quotes": [
-            "resources.NewTrustedNetworkResource, resources.NewNotificationTemplateResource, resources.NewZIAPostureResource, resources.NewForwardingProfileResource, resources.NewFailOpenPolicyResource, resources.NewDeviceCleanupResource, resources.NewWebPrivacyResource, }"
+            "return []func() resource.Resource{ resources.NewTrustedNetworkResource, resources.NewNotificationTemplateResource, resources.NewZIAPostureResource, resources.NewForwardingProfileResource, resources.NewFailOpenPolicyResource, resources.NewDeviceCleanupResource, resources.NewWebPrivacyResource, }"
           ],
           "after": "func (p *ZCCProvider) Resources(ctx context.Context) []func() resource.Resource {"
         },
@@ -134,10 +134,18 @@
         }
       ]
     },
+    "python-company-read-only": {
+      "statement": "The Python SDK has only the company-info read: `CompanyInfoAPI` has no write method.",
+      "tier": "B",
+      "derived_from": [
+        "set-company-info-undocumented"
+      ],
+      "conditions": "Rests on reading the whole of zscaler/zcc/company.py at the pin (a constructor and get_company_info only) and a search of the SDK for company_info and CompanyInfo, which finds only that module, the model and the two accessors; a quote cannot pin the absence."
+    },
     "set-company-info-undocumented": {
-      "statement": "The captured contract has `getCompanyInfo` but no `setCompanyInfo` operation, and the Python SDK has only the read.",
+      "statement": "The captured contract has `getCompanyInfo` but no `setCompanyInfo` operation. The Python SDK's `CompanyInfoAPI` defines `get_company_info`, which sends a GET.",
       "tier": "A",
-      "conditions": "Absence: no contract path contains setCompanyInfo, and zscaler/zcc/company.py defines only `get_company_info`.",
+      "conditions": "Absence: no contract path contains setCompanyInfo (expect_absent on /paths).",
       "evidence": [
         {
           "source": "api-specs",

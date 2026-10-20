@@ -47,7 +47,7 @@
     },
     {
       "items": [
-        { "label": "Start after install.", "text": "{{launch-tray}} The macOS table contradicts itself on the default {{divergence:macos-launchtray-default}}." },
+        { "label": "Start after install.", "text": "{{launch-tray}} {{launch-tray-msi-name}} The macOS table contradicts itself on the default {{divergence:macos-launchtray-default}}." },
         { "label": "Hidden window.", "text": "{{hide-ui}} Under strict enforcement on non-persistent Citrix VDIs it must stay 0: [[zcc.install.strict-enforcement:citrix-hide-ui]]." },
         { "label": "Kiosk mode.", "text": "{{kiosk-mode}} The Windows table contradicts itself on the default {{divergence:windows-kioskmode-default}}." },
         { "label": "Configuration wait.", "text": "{{config-timeout}}" },
@@ -185,9 +185,8 @@
       ]
     },
     "launch-tray": {
-      "statement": "launchTray (Windows and macOS; MSI `LAUNCHTRAY` on Windows) controls whether Client Connector starts its services and user interface after installation, which it does by default. Disabled, users must open Client Connector manually, or it runs after the next reboot.",
+      "statement": "launchTray (Windows and macOS) controls whether Client Connector starts its services and user interface after installation, which it does by default. Disabled, users must open Client Connector manually, or it runs after the next reboot.",
       "tier": "A",
-      "conditions": "The help capture joins each row's two parameter labels: 'MSI: XEXE: y' reads as MSI name X and EXE name y; the page says the names differ for MSI and EXE.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -218,6 +217,24 @@
           "source": "zscaler-help",
           "path": "supported-parameters-zscaler-client-connector-windows.json",
           "quotes": [
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
+          ]
+        }
+      ]
+    },
+    "launch-tray-msi-name": {
+      "statement": "On Windows its MSI name is LAUNCHTRAY.",
+      "tier": "B",
+      "derived_from": [
+        "launch-tray"
+      ],
+      "conditions": "The help capture joins the row's MSI and EXE labels into 'MSI: LAUNCHTRAYEXE: launchTray'; this reads it as MSI name plus EXE name, as the page's prose confirms for other rows (HIDEAPPUIONLAUNCH or hideAppUIOnLaunch, ENABLESSO or enableSSO) and its note that MSI and EXE names differ. No source writes this MSI name on its own.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "| MSI: LAUNCHTRAYEXE: launchTray | By default",
             "The parameter names are different based on whether you are using an MSI file or an EXE file."
           ]
         }

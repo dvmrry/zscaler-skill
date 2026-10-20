@@ -296,7 +296,7 @@
       ]
     },
     "tf-lss-validator": {
-      "statement": "The provider's twelve-value `supportedClientTypes` map is consulted when validating log receiver filters (the `zpn_auth_log` and `zpn_trans_log` source types); the v1 and v2 policy rule validators check client types against their own lists.",
+      "statement": "The provider's twelve-value `supportedClientTypes` map is consulted when validating log receiver filters (the `zpn_auth_log` and `zpn_trans_log` source types); the v1 policy rule validator (`ValidateConditions`, which calls `validateOperand` for each operand) and the v2 validator (`ValidatePolicyRuleConditions`) check client types against their own lists.",
       "tier": "A",
       "binds": [
         "zpa/client-types#zpn_client_type_machine_tunnel",
@@ -329,6 +329,14 @@
             "case \"CLIENT_TYPE\":\nreturn customValidate(operand, []string{\"id\"},",
             "if id != \"zpn_client_type_zapp\" && id != \"zpn_client_type_exporter\" && id != \"zpn_client_type_exporter_noauth\" && id != \"zpn_client_type_ip_anchoring\" && id != \"zpn_client_type_browser_isolation\" && id != \"zpn_client_type_machine_tunnel\" &&",
             "id != \"zpn_client_type_edge_connector\" && id != \"zpn_client_type_slogger\" && id != \"zpn_client_type_branch_connector\" && id != \"zpn_client_type_zapp_partner\" && id != \"zpn_client_type_vdi\" {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error {",
+          "quotes": [
+            "if err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {"
           ]
         },
         {

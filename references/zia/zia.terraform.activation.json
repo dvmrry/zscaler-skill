@@ -21,7 +21,7 @@
     },
     {
       "label": "The auth settings URLs resource.",
-      "text": "{{auth-settings-update-unconditional}} {{only-unguarded-call}} {{update-publishes-unrelated-changes}}"
+      "text": "{{auth-settings-update-unconditional}} {{auth-settings-update-activates-ungated}} {{only-unguarded-call}} {{update-publishes-unrelated-changes}}"
     }
   ],
   "checks": [
@@ -116,7 +116,7 @@
       ]
     },
     "auth-settings-update-unconditional": {
-      "statement": "`zia_auth_settings_urls` activates implicitly on update without checking `ZIA_ACTIVATION`: its create honors the variable, its update always activates.",
+      "statement": "In `zia_auth_settings_urls`, create calls `triggerActivation` inside `if shouldActivate() {`, the helper that reads `ZIA_ACTIVATION`; update calls `triggerActivation` straight after `user_authentication_settings.Update` returns without an error.",
       "tier": "A",
       "evidence": [
         {
@@ -128,7 +128,8 @@
           ],
           "after": "func resourceAuthSettingsUrlsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if shouldActivate() {"
+            "if shouldActivate() {",
+            "if activationErr := triggerActivation(ctx, zClient); activationErr != nil {"
           ]
         },
         {
@@ -164,6 +165,15 @@
         }
       ]
     },
+    "auth-settings-update-activates-ungated": {
+      "statement": "So an update of `zia_auth_settings_urls` activates whether or not `ZIA_ACTIVATION` is set, while its create activates only when the variable parses as true.",
+      "tier": "B",
+      "derived_from": [
+        "auth-settings-update-unconditional",
+        "activation-env-gate"
+      ],
+      "conditions": "Read from the whole update function, which has no shouldActivate call before triggerActivation, and from triggerActivation, which posts the activation without reading the variable; the provider does not state it."
+    },
     "only-unguarded-call": {
       "statement": "Every other implicit activation (`triggerActivation` after a write) is guarded by `ZIA_ACTIVATION`: 220 guarded calls at v4.8.3 and 223 at the pin, with this update the only unguarded one at both. The explicit `zia_activation_status` resource activates unconditionally by design.",
       "tier": "B",
@@ -190,6 +200,7 @@
       "tier": "B",
       "derived_from": [
         "auth-settings-update-unconditional",
+        "auth-settings-update-activates-ungated",
         "activation-is-tenant-wide"
       ],
       "upstream": [

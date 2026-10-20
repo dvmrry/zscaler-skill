@@ -270,7 +270,7 @@
       "conditions": "The five-value resource schema is held in zpa.sdk-go.service-defects:provider-provisioning-key-schema-and-importer."
     },
     "mcp-requires-cert-for-connector": {
-      "statement": "The MCP create tool raises an error when key_type is connector and enrollment_cert_id is missing; its validation checks the field only for connector, so a service_edge key may omit it. The rule is enforced in the tool, not in the SDK.",
+      "statement": "The MCP create tool raises an error when key_type is connector and enrollment_cert_id is missing; the function body opens with a name and component_id check, then this connector-only check, then gets the client, so the tool itself raises no error for a service_edge key without it. The rule is enforced in the tool, not in the SDK.",
       "tier": "A",
       "evidence": [
         {
@@ -281,6 +281,7 @@
             "raise ValueError(\"enrollment_cert_id is required for 'connector' key_type\")",
             "if args.key_type == \"connector\" and not args.enrollment_cert_id:",
             "Field(default=None, description=\"Enrollment certificate ID (required for 'connector').\"),",
+            "`enrollment_cert_id` is required when `key_type` is 'connector'. \"\"\" if not args.name or not args.component_id:",
             "if not args.name or not args.component_id: raise ValueError(\"name and component_id are required\") if args.key_type == \"connector\" and not args.enrollment_cert_id: raise ValueError(\"enrollment_cert_id is required for 'connector' key_type\") client = get_zscaler_client(service=\"zpa\")"
           ]
         },

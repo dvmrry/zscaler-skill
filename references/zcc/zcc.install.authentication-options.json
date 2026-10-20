@@ -32,7 +32,7 @@
     },
     {
       "label": "Imprivata.",
-      "text": "{{imprivata}}"
+      "text": "{{imprivata}} {{imprivata-msi-name}}"
     },
     {
       "label": "Machine tunnel.",
@@ -81,7 +81,9 @@
           "quotes": [
             "MSI: ENABLESSOEXE: enableSSO",
             "Enables SSO using the Windows Primary account in an Azure Active Directory environment.",
-            "2 = Based on policy (default)1 = Enable0= Disable"
+            "2 = Based on policy (default)1 = Enable0= Disable",
+            "You must pass the ENABLESSO or enableSSO option if you want to test SSO with WebView2.",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
           ]
         }
       ]
@@ -97,13 +99,15 @@
             "MSI: INSTALLWEBVIEW2EXE: installWebView2",
             "Enables installation of the WebView2 framework",
             "This option is used for testing WebView2-based functionality on a single device and should be used for testing only.",
-            "You must pass the ENABLESSO or enableSSO option if you want to test SSO with WebView2."
+            "You must pass the ENABLESSO or enableSSO option if you want to test SSO with WebView2.",
+            "To use this option, you must pass the INSTALLWEBVIEW2 or installWebView2 option if you want to test SSO with WebView2.",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
           ]
         }
       ]
     },
     "imprivata": {
-      "statement": "On Windows from Client Connector 4.4, enableImprivataIntegration (MSI `ENABLEIMPRIVATAINTEGRATION`) integrates with Imprivata OneSign: Client Connector silently logs the Imprivata OneSign user in, applies security policies and logs the user's activity.",
+      "statement": "On Windows from Client Connector 4.4, enableImprivataIntegration integrates with Imprivata OneSign: Client Connector silently logs the Imprivata OneSign user in, applies security policies and logs the user's activity.",
       "tier": "A",
       "evidence": [
         {
@@ -113,6 +117,24 @@
             "MSI: ENABLEIMPRIVATAINTEGRATIONEXE: enableImprivataIntegration",
             "If enabled, Zscaler Client Connector silently logs in an Imprivata OneSign user to Zscaler Client Connector, applies security policies, and logs the end user activity in Zscaler Client Connector.",
             "This option is available only in Zscaler Client Connector version 4.4 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "imprivata-msi-name": {
+      "statement": "Its MSI name is ENABLEIMPRIVATAINTEGRATION.",
+      "tier": "B",
+      "derived_from": [
+        "imprivata"
+      ],
+      "conditions": "The help capture joins the row's MSI and EXE labels into 'MSI: ENABLEIMPRIVATAINTEGRATIONEXE: enableImprivataIntegration'; this reads it as MSI name plus EXE name, as the page's prose confirms for other rows (ENABLESSO or enableSSO, INSTALLWEBVIEW2 or installWebView2) and its note that MSI and EXE names differ. No source writes this MSI name on its own.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "quotes": [
+            "MSI: ENABLEIMPRIVATAINTEGRATIONEXE: enableImprivataIntegration",
+            "The parameter names are different based on whether you are using an MSI file or an EXE file."
           ]
         }
       ]

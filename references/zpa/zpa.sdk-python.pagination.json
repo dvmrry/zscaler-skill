@@ -340,13 +340,14 @@
       ]
     },
     "post-search-callers": {
-      "statement": "`list_tag_groups` builds a fixed name-ascending search body and passes only the microtenant ID as a request parameter, and the helper is the only paging path for it; other query parameters in the call are not read.",
+      "statement": "`list_tag_groups` builds a fixed name-ascending search body and passes only the microtenant ID as a request parameter, and returns what `_post_search_all_pages` returns; its body after the docstring, quoted in full, reads no other query parameter.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/tag_group.py",
           "quotes": [
+            "\"\"\" params = query_params or {} microtenant_id = params.get(\"microtenant_id\")",
             "params = query_params or {} microtenant_id = params.get(\"microtenant_id\") req_params = {\"microtenantId\": microtenant_id} if microtenant_id else {} search_body = {\"sortBy\": {\"sortName\": \"name\", \"sortOrder\": \"ASC\"}} try:",
             "return _post_search_all_pages( self._request_executor, self._tag_group_search_endpoint, TagGroup, search_body, req_params, self.form_response_body, ) except Exception as error: return (None, None, error)"
           ],

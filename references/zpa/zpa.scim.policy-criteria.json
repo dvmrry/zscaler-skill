@@ -184,7 +184,7 @@
       ]
     },
     "value-must-be-observed": {
-      "statement": "For a v1 SCIM operand the provider fetches the attribute's observed values with GetValues and rejects an rhs that matches none of them, comparing with strings.EqualFold, so the check ignores case.",
+      "statement": "For a SCIM operand in a v1 policy resource (`zpa_policy_access_rule` validates through `ValidateConditions`, which calls `validateOperand`; `zpa_policy_access_rule_v2` calls `ValidatePolicyRuleConditions` instead), the provider fetches the attribute's observed values with GetValues and rejects an rhs that matches none of them, comparing with strings.EqualFold, so the check ignores case.",
       "tier": "A",
       "evidence": [
         {
@@ -208,6 +208,30 @@
             "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
           ],
           "after": "func resourcePolicyAccessCreate(ctx"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "if err := ValidatePolicyRuleConditions(d); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessV2Create(ctx"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/provider.go",
+          "quotes": [
+            "\"zpa_policy_access_rule\": resourcePolicyAccessRule(),",
+            "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error {",
+          "quotes": [
+            "if err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {"
+          ]
         }
       ]
     },

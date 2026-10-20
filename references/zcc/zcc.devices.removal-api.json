@@ -170,11 +170,20 @@
           "after": "def zcc_param_mapper(func):",
           "quotes": [
             "raw_os = query_params.get(\"os_type\") or query_params.get(\"os_types\") or body.get(\"os_type\") or body.get(\"os_types\")",
+            "mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())]",
             "mapped_params[\"osType\"] = \",\".join(mapped)",
             "if \"query_params\" in kwargs:",
             "kwargs.update(mapped_params)",
             "query_params.update(mapped_params)",
             "kwargs[\"query_params\"] = query_params"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "zcc_param_map = {",
+          "quotes": [
+            "\"os\": { \"ios\": 1, \"android\": 2, \"windows\": 3, \"macos\": 4, \"linux\": 5, },"
           ]
         },
         {
@@ -277,7 +286,7 @@
       "conditions": "Corroborated per verifier by recorded requests: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette); the remove request body carries username and the force-remove body userName."
     },
     "python-remove-example-os-code-raises": {
-      "statement": "The `remove_devices` docstring example passes `os_type='3'`, but the Python decorator maps only platform names (ios, android, windows, macos, linux), so a numeric code maps to nothing and the call raises `ValueError` before any request is sent.",
+      "statement": "The `remove_devices` docstring example passes `os_type='3'`, but the Python decorator maps only platform names (ios, android, windows, macos, linux), so a numeric code maps to nothing and the decorator raises `ValueError` before it calls the wrapped method.",
       "tier": "A",
       "conditions": "Added per verifier from a code read of zcc_param_mapper at the pin; not executed.",
       "evidence": [
@@ -294,8 +303,8 @@
           "path": "zscaler/utils.py",
           "after": "def zcc_param_mapper(func):",
           "quotes": [
-            "mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())]",
-            "raise ValueError(\"Invalid `os_type` or `os_types` provided.\")"
+            "raw_os = [raw_os] if isinstance(raw_os, str) else raw_os mapped = [str(zcc_param_map[\"os\"].get(os.lower())) for os in raw_os if zcc_param_map[\"os\"].get(os.lower())] if not mapped: raise ValueError(\"Invalid `os_type` or `os_types` provided.\")",
+            "return func(self, *args, **kwargs) return wrapper"
           ]
         },
         {

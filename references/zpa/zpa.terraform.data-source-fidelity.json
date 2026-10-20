@@ -38,14 +38,14 @@
     },
     {
       "label": "Nil dereferences.",
-      "text": "{{lss-config-flattened-without-nil-check}} {{lss-by-name-dereferences-config}} {{lss-condition-operands-dereferenced}} How often these fire is open {{gap:api-omits-nested-objects}}."
+      "text": "{{lss-config-flattened-without-nil-check}} {{lss-by-name-dereferences-config}} {{lss-condition-operands-dereferenced}} {{lss-condition-null-operands-panic}} How often these fire is open {{gap:api-omits-nested-objects}}."
     },
     {
       "heading": "Objects that appear when they should not"
     },
     {
       "label": "Blocks built from zero values.",
-      "text": "{{lss-empty-config-becomes-a-block}} {{app-connector-assistant-version-always-a-block}} {{service-edge-group-brokers-always-blocks}} {{cbi-external-profile-empty-objects-become-blocks}} {{customer-version-profile-empty-side-becomes-empty-id}} {{customer-version-profile-one-side-empty-id}}"
+      "text": "{{lss-empty-config-becomes-a-block}} {{app-connector-assistant-version-always-a-block}} {{service-edge-group-brokers-always-blocks}} {{cbi-external-profile-empty-objects-become-blocks}} {{cbi-external-profile-blocks-ambiguous}} {{customer-version-profile-empty-side-becomes-empty-id}} {{customer-version-profile-one-side-empty-id}}"
     },
     {
       "heading": "Fields that never arrive"
@@ -283,8 +283,19 @@
         }
       ]
     },
+    "lss-condition-null-operands-panic": {
+      "statement": "So a condition whose operands are absent or null panics the read.",
+      "tier": "B",
+      "derived_from": [
+        "lss-condition-operands-dereferenced"
+      ],
+      "conditions": "Rests on Go panicking when a nil pointer is dereferenced (a missing or null operands field decodes to a nil *[]Operands); needs a condition with null or missing operands in the API response (gap api-omits-nested-objects).",
+      "gaps": [
+        "api-omits-nested-objects"
+      ]
+    },
     "lss-condition-operands-dereferenced": {
-      "statement": "The SDK declares a policy-rule condition's `operands` as `*[]Operands`, and the LSS data source reads it as `len(*operands.Operands)` and ranges over `*operands.Operands` with no nil check. A condition whose operands are absent or null panics the read.",
+      "statement": "The SDK declares a policy-rule condition's `operands` as `*[]Operands`, and the LSS data source's `flattenLSSConditionOperands` reads it as `len(*operands.Operands)` on its first line and then ranges over `*operands.Operands`; its caller calls it for each condition inside the map literal it builds, with no check first.",
       "tier": "A",
       "evidence": [
         {
@@ -298,6 +309,19 @@
           "quotes": [
             "len(*operands.Operands)",
             "for i, conditionOperand := range *operands.Operands {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "func flattenLSSConditionOperands(operands lssconfigcontroller.Conditions) []interface{} { conditionOperands := make([]interface{}, len(*operands.Operands)) for i, conditionOperand := range *operands.Operands {",
+            "for i, ruleCondition := range conditions.Conditions { ruleConditions[i] = map[string]interface{}{",
+            "\"operands\":      flattenLSSConditionOperands(ruleCondition),"
           ]
         },
         {
@@ -515,8 +539,19 @@
       ],
       "conditions": "Rests on the Go standard library's documented behavior for splitting an empty string, which is not a captured source; not run against a tenant. Split out of customer-version-profile-empty-side-becomes-empty-id."
     },
+    "cbi-external-profile-blocks-ambiguous": {
+      "statement": "So the three blocks cannot tell \"not configured\" from \"all off\".",
+      "tier": "B",
+      "derived_from": [
+        "cbi-external-profile-empty-objects-become-blocks"
+      ],
+      "conditions": "Rests on the API returning an empty object for an unconfigured setting (gap api-omits-nested-objects) and on Go decoding an empty object into a non-nil struct of zero values, which read the same as settings turned off.",
+      "gaps": [
+        "api-omits-nested-objects"
+      ]
+    },
     "cbi-external-profile-empty-objects-become-blocks": {
-      "statement": "The CBI external profile data source flattens `security_controls` and `user_experience` whenever the SDK pointer is non-nil, and each flattener returns one outer block with every scalar copied. A decoded empty object therefore appears as a block of zero values. The same file's `flattenDebugMode` also builds its block from whatever it is given, so the three blocks cannot tell \"not configured\" from \"all off\".",
+      "statement": "The CBI external profile data source flattens `security_controls` and `user_experience` whenever the SDK pointer is non-nil, and each flattener returns one outer block with every scalar copied. A decoded empty object therefore appears as a block of zero values. The same file's `flattenDebugMode`, called when `resp.DebugMode` is non-nil, likewise returns one block with both fields copied.",
       "tier": "A",
       "evidence": [
         {
@@ -530,7 +565,8 @@
           "quotes": [
             "if resp.SecurityControls != nil { _ = d.Set(\"security_controls\", flattenSecurityControls(resp.SecurityControls)) }",
             "if resp.UserExperience != nil { _ = d.Set(\"user_experience\", flattenUserExperience(resp.UserExperience)) }",
-            "if resp.DebugMode != nil {"
+            "if resp.DebugMode != nil {",
+            "_ = d.Set(\"debug_mode\", flattenDebugMode(resp.DebugMode))"
           ]
         },
         {

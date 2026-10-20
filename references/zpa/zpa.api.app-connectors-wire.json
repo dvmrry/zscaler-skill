@@ -66,7 +66,7 @@
       "text": "{{version-profile-put}} {{python-version-profile-put}} The two update paths disagree {{divergence:version-profile-put-path}}."
     },
     {
-      "text": "{{python-version-profile-slugs}} The key reaches the wire camel-cased as `versionProfile`; what the server does with it is open {{gap:python-version-profile-wire}}."
+      "text": "{{python-version-profile-slugs}} {{python-version-profile-slugs-unused}} The key reaches the wire camel-cased as `versionProfile`; what the server does with it is open {{gap:python-version-profile-wire}}."
     },
     {
       "text": "The type of the interval differs between the contract and the Go SDK {{divergence:schedule-frequency-interval-type}}."
@@ -303,7 +303,7 @@
       ]
     },
     "version-profile-gid-key": {
-      "statement": "Inside a version profile's `versions` entries the Go SDK tags the profile reference `version_profile_gid`, in snake case, while the sibling fields are camel case. The Python ComponentLevelVersion model (the `version` object of a connector or connector group) looks up and emits the same `version_profile_gid` key, but the Python client camel-cases every response key before a model reads it.",
+      "statement": "Inside a version profile's `versions` entries the Go SDK tags the profile reference `version_profile_gid`, in snake case, while the sibling fields are camel case. The Python ComponentLevelVersion model (which the AppConnectorController and App Connector group models build from their `version` key) looks up and emits the same `version_profile_gid` key, but the Python client camel-cases every response key before a model reads it.",
       "tier": "A",
       "evidence": [
         {
@@ -328,8 +328,16 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/models/app_connectors.py",
+          "after": "class AppConnectorController(ZscalerObject):",
           "quotes": [
             "self.version = ComponentLevelVersion(config[\"version\"])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "quotes": [
+            "self.version = app_connectors.ComponentLevelVersion(config[\"version\"])"
           ]
         },
         {
@@ -413,8 +421,16 @@
         }
       ]
     },
+    "python-version-profile-slugs-unused": {
+      "statement": "So the group add and update methods never convert a `version_profile` slug: nothing in the SDK calls `pick_version_profile`.",
+      "tier": "B",
+      "derived_from": [
+        "python-version-profile-slugs"
+      ],
+      "conditions": "Rests on the group module's import list and a search of zscaler/ at the pin finding no caller of pick_version_profile; a quote cannot pin an absent call."
+    },
     "python-version-profile-slugs": {
-      "statement": "The Python helper `pick_version_profile` converts the slugs `default`, `previous_default` and `new_release` to version profile IDs 0, 1 and 2 and sets `overrideVersionProfile`, but the App Connector group add and update methods pass their keyword arguments as the request body without calling it.",
+      "statement": "The Python helper `pick_version_profile` converts the slugs `default`, `previous_default` and `new_release` to version profile IDs 0, 1 and 2 and sets `overrideVersionProfile`, but the App Connector group add and update methods pass their keyword arguments as the request body, and the group module's imports do not include it.",
       "tier": "A",
       "evidence": [
         {
@@ -463,7 +479,7 @@
           "after": "def update_connector_group(self, group_id: str, **kwargs)"
         }
       ],
-      "conditions": "pick_version_profile has no caller anywhere under zscaler/ at the pin (grep). The group docstrings still document `version_profile` with the three slugs as accepted values. The executor camel-cases the request body, so a `version_profile` keyword reaches the wire as `versionProfile`; what the server does with that key is not shown.",
+      "conditions": "The group docstrings still document `version_profile` with the three slugs as accepted values. The executor camel-cases the request body, so a `version_profile` keyword reaches the wire as `versionProfile`; what the server does with that key is not shown.",
       "gaps": [
         "python-version-profile-wire"
       ]

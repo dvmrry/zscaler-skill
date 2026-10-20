@@ -48,7 +48,7 @@
     },
     {
       "label": "Requests.",
-      "text": "{{python-create-body}} {{python-add-key-leaks-snake-case}} {{python-update-key-needs-wire-keys}} {{update-params-in-headers}} {{update-query-microtenant}} Whether the service honors the header or the body field is open {{gap:update-header-microtenant}}. What an update returns is [[zpa.api.provisioning-keys-wire:update-returns-no-body]]."
+      "text": "{{python-create-body}} {{python-add-key-leaks-snake-case}} {{python-update-key-needs-wire-keys}} {{update-params-in-headers}} {{update-query-microtenant}} {{update-query-microtenant-config-only}} Whether the service honors the header or the body field is open {{gap:update-header-microtenant}}. What an update returns is [[zpa.api.provisioning-keys-wire:update-returns-no-body]]."
     },
     {
       "label": "By component.",
@@ -381,8 +381,17 @@
       ],
       "conditions": "That no code in the function maps component_id rests on reading it. Corrected because the executor camel-cases the body (shared.sdk-python.request-handling:body-camel-case), so only component_id is affected; previously \"The Python update_provisioning_key sends its keyword arguments as the body with no key remapping, so a caller must supply the wire-cased keys, unlike add_provisioning_key, which accepts snake_case arguments.\""
     },
+    "update-query-microtenant-config-only": {
+      "statement": "So on a provisioning key update the `microtenantId` query parameter is the client's configured microtenant, or absent, never the call's `microtenant_id`: the params are empty and the body has no `microtenantId` key when the lookup runs.",
+      "tier": "B",
+      "derived_from": [
+        "update-params-in-headers",
+        "update-query-microtenant"
+      ],
+      "conditions": "Rests on create_request not converting the body between its start and _prepare_params (read at the pin) and on self.microtenant_id being the configured client microtenant; read from the code for a caller who passes the snake_case microtenant_id keyword, not run against a tenant."
+    },
     "update-query-microtenant": {
-      "statement": "On a provisioning key update the `microtenantId` query parameter is the client's configured microtenant, or absent, never the call's `microtenant_id`: the params passed are empty, and `create_request` builds the query parameters before it camel-cases the body, so the executor's lookup finds no `microtenantId` key in the body and falls back to the configuration.",
+      "statement": "`create_request` prepares the query parameters with `_prepare_params`, which calls `_get_microtenant_id` and sets any result as `microtenantId`, before it prepares the body with `_prepare_body`. `_get_microtenant_id` returns a non-empty `microtenantId` from the body, else from the params, else `self.microtenant_id`. The update's body holds the call's value under the snake_case key `microtenant_id`.",
       "tier": "A",
       "evidence": [
         {
@@ -395,6 +404,14 @@
             "headers = headers or {} params = params or {}"
           ],
           "after": "def create_request("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "params = self._prepare_params(service_type, endpoint, params, body)",
+          "quotes": [
+            "json_payload = self._prepare_body(endpoint, body)"
+          ]
         },
         {
           "source": "sdk-python",

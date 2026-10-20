@@ -41,7 +41,7 @@
     },
     {
       "label": "Updates.",
-      "text": "{{update-is-put}} The API response to a partial PUT is gap `omitted-field-on-put`, the same open question as [[zia.sdk-go.write-encoding]] raises for rules."
+      "text": "{{update-is-put}} {{sdk-caller-sends-whole-object}} The API response to a partial PUT is gap `omitted-field-on-put`, the same open question as [[zia.sdk-go.write-encoding]] raises for rules."
     },
     {
       "label": "Activation.",
@@ -145,7 +145,7 @@
       ]
     },
     "update-is-put": {
-      "statement": "Update is a PUT to `/timeIntervals/{Id}`, and the MCP update tool describes it as a PUT-replace that backfills omitted fields from the existing record before sending, so a caller using the SDK directly should send the whole object.",
+      "statement": "Update is a PUT to `/timeIntervals/{Id}`, and the MCP update tool describes it as a PUT-replace that backfills omitted fields.",
       "tier": "A",
       "evidence": [
         {
@@ -172,6 +172,17 @@
           ]
         }
       ],
+      "gaps": [
+        "omitted-field-on-put"
+      ]
+    },
+    "sdk-caller-sends-whole-object": {
+      "statement": "A caller using the SDK directly gets no such backfill, since the Go update sends the interval object it is given, so it should send the whole object.",
+      "tier": "B",
+      "derived_from": [
+        "update-is-put"
+      ],
+      "conditions": "Advice resting on the MCP tool's PUT-replace description and the Go UpdateWithPut call; whether the API clears an omitted field is gap omitted-field-on-put.",
       "gaps": [
         "omitted-field-on-put"
       ]

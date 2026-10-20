@@ -57,7 +57,7 @@
     },
     {
       "label": "Changing the reference.",
-      "text": "{{credential-update-restores-remote-association}} {{credential-swap-does-not-clear-old}}"
+      "text": "{{credential-update-restores-remote-association}} {{credential-empty-block-keeps-remote}} {{credential-swap-does-not-clear-old}}"
     }
   ],
   "checks": [
@@ -988,8 +988,16 @@
         }
       ]
     },
+    "credential-empty-block-keeps-remote": {
+      "statement": "So a rule cannot be written without an association, and an update with an empty block keeps the remote credential or pool without an error.",
+      "tier": "B",
+      "derived_from": [
+        "credential-update-restores-remote-association"
+      ],
+      "conditions": "Follows from the fallback running before the final ID check and from the read returning the rule's current association; an empty block expands to no credential because the expander sets one only when the id is not empty."
+    },
     "credential-update-restores-remote-association": {
-      "statement": "The credential rule schema requires exactly one of `credential` or `credential_pool`, and the update code, when its request has neither (a block whose `id` is empty), copies the credential or pool from the rule it just read. A rule cannot be written without an association, and an empty block silently keeps the remote one.",
+      "statement": "The credential rule schema requires exactly one of `credential` or `credential_pool`, and the update code, when its request has neither (a block whose `id` is empty), copies the credential or pool from the rule it just read; it then returns an error only if neither carries an ID.",
       "tier": "A",
       "evidence": [
         {
@@ -1007,7 +1015,9 @@
             "if id, ok := m[\"id\"].(string); ok && id != \"\" {",
             "credential = &policysetcontrollerv2.Credential{ID: id}",
             "if req.Credential == nil && req.CredentialPool == nil {",
-            "return diag.Errorf(\"either credential or credential_pool block must be present and contain an ID during update\")"
+            "return diag.Errorf(\"either credential or credential_pool block must be present and contain an ID during update\")",
+            "if resp != nil { if resp.Credential != nil && resp.Credential.ID != \"\" { req.Credential = resp.Credential } else if resp.CredentialPool != nil && resp.CredentialPool.ID != \"\" { req.CredentialPool = resp.CredentialPool } }",
+            "if (req.Credential == nil || req.Credential.ID == \"\") && (req.CredentialPool == nil || req.CredentialPool.ID == \"\") {"
           ]
         }
       ],

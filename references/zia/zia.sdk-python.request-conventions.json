@@ -54,7 +54,7 @@
     },
     {
       "label": "Key casing.",
-      "text": "{{camel-case-body}} {{url-settings-model-eight-flags}} {{mistral-key-casing}} The Go side of the same settings write is in [[zia.url-filtering.advanced-settings]]."
+      "text": "{{camel-case-body}} Which services leave or convert bodies differently is in [[shared.sdk-python.request-handling:body-camel-case]]. {{zia-body-camel-cased}} {{url-settings-model-eight-flags}} {{mistral-key-casing}} The Go side of the same settings write is in [[zia.url-filtering.advanced-settings]]."
     },
     {
       "label": "Batches.",
@@ -325,7 +325,7 @@
       ]
     },
     "camel-case-body": {
-      "statement": "For ZIA the executor camel-cases the keys of a dictionary request body (keys inside `featurePermissions` are left as is). The conversion special-cases keys listed in an exceptions table and otherwise lower-cases the first segment of a snake_case key and capitalizes each later segment; a key with no underscore is returned unchanged.",
+      "statement": "A ZIA request body takes the executor's generic path: its dictionary keys are camel-cased, except that keys inside `featurePermissions` are left as they are. The conversion maps keys listed in an exceptions table and otherwise lower-cases the first segment of a snake_case key and capitalizes each later segment; a key with no underscore is returned unchanged.",
       "tier": "A",
       "evidence": [
         {
@@ -333,15 +333,7 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "def _prepare_body(self, endpoint, body): if not isinstance(body, dict): return body",
-            "if self.use_legacy_client and self.zdx_legacy_client: return body # Do not convert anything, just return as-is",
-            "if self.use_legacy_client and self.ztb_legacy_client: return body # Do not convert anything, just return as-is",
-            "# Preserve existing logic for other services",
-            "body = convert_keys_to_camel_case(body)",
-            "# Preserve existing logic for other services if body: body = convert_keys_to_camel_case(body)",
-            "if \"/zdx/\" in endpoint: return body # Do not convert ZDX requests to camelCase",
-            "if \"/easm/\" in endpoint: return body # Do not convert ZEASM requests to camelCase",
-            "if \"/ztb/\" in endpoint: return body # Do not convert ZTB requests to camelCase",
-            "if \"/zcc/\" in endpoint and body:"
+            "# Preserve existing logic for other services if body: body = convert_keys_to_camel_case(body)"
           ]
         },
         {
@@ -356,6 +348,14 @@
           ]
         }
       ]
+    },
+    "zia-body-camel-cased": {
+      "statement": "A ZIA request body takes that default branch, so its keys are camel-cased before sending.",
+      "tier": "B",
+      "derived_from": [
+        "camel-case-body"
+      ],
+      "conditions": "ZIA endpoints contain none of the four path markers and the legacy-client exceptions name only ZDX and ZTB; the SDK does not name ZIA in this branch."
     },
     "url-settings-model-eight-flags": {
       "statement": "The Python typed model for the advanced URL filtering and cloud app settings reads and emits eight Gen AI prompt flags: ChatGPT, Microsoft Copilot, Gemini, Poe, Meta, Perplexity, Google AI and QuillBot.",
@@ -382,7 +382,8 @@
       "statement": "A snake_case keyword `enable_mistral_ai_prompt` passed to the Python settings update becomes `enableMistralAiPrompt`, not the Go SDK's wire name `enableMistralAIPrompt`; the exact key `enableMistralAIPrompt` passes through unchanged.",
       "tier": "B",
       "derived_from": [
-        "camel-case-body"
+        "camel-case-body",
+        "zia-body-camel-cased"
       ],
       "conditions": "Holds because the Python exceptions table has no Mistral entry (a search of helpers.py at the pin finds none) and the generic branch capitalizes each later segment; the Go field tag is the evidence for the wire name.",
       "evidence": [

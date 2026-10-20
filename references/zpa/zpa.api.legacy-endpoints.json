@@ -49,7 +49,7 @@
     },
     {
       "label": "Step-up levels.",
-      "text": "The response shape differs by SDK [[zpa.api.policy-wire:step-up-auth-shape]]. {{stepup-no-writes}} Whether the API has write verbs is open {{gap:stepup-write-verbs}}."
+      "text": "The response shape differs by SDK [[zpa.api.policy-wire:step-up-auth-shape]]. {{stepup-no-writes}} {{stepup-sdk-read-only}} Whether the API has write verbs is open {{gap:stepup-write-verbs}}."
     },
     {
       "label": "Provisioning key types.",
@@ -246,8 +246,16 @@
         }
       ]
     },
+    "stepup-sdk-read-only": {
+      "statement": "Neither SDK has a create, update or delete call for step-up auth levels.",
+      "tier": "B",
+      "derived_from": [
+        "stepup-no-writes"
+      ],
+      "conditions": "Rests on reading the whole of each at the pin: step_up_auth.go is the Go package's only file and GetStepupAuthLevel its only func; the Python module defines only __init__ and get_step_up_auth_levels. A quote cannot pin the absence."
+    },
     "stepup-no-writes": {
-      "statement": "Neither the Go step_up_auth service nor the Python stepup_auth_level module has a create, update or delete call, and the OpenAPI document has no route at their /stepupauthlevel path.",
+      "statement": "The Go step_up_auth service's `GetStepupAuthLevel` and the Python stepup_auth_level module's `get_step_up_auth_levels` read the /stepupauthlevel path, and the OpenAPI document has no route at that path.",
       "tier": "A",
       "evidence": [
         {

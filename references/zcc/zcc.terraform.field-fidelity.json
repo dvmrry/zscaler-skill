@@ -663,7 +663,7 @@
       ]
     },
     "create-ignores-success-flag": {
-      "statement": "Forwarding-profile create does not check the `success` field the API returns. The SDK returns the response object after logging it, and the provider only logs `success`, then looks the profile up by the returned ID and, if that fails, by name.",
+      "statement": "Forwarding-profile create does not check the `success` field the API returns. After a nil error the SDK logs the response object and returns it; the provider logs `success` and goes straight on to look the profile up by the returned ID and, if that fails, by name.",
       "tier": "A",
       "evidence": [
         {
@@ -676,7 +676,8 @@
           "after": "func CreateForwardingProfile(",
           "quotes": [
             "service.Client.GetLogger().Printf(\"[DEBUG] forwarding profile create/update response: %+v\", response)",
-            "return &response, nil"
+            "return &response, nil",
+            "if err != nil { return nil, fmt.Errorf(\"failed to create/update forwarding profile: %w\", err) } service.Client.GetLogger().Printf(\"[DEBUG] forwarding profile create/update response: %+v\", response) return &response, nil }"
           ]
         },
         {
@@ -814,7 +815,7 @@
       ]
     },
     "trusted-network-create-sleeps-blindly": {
-      "statement": "Creating a v1 trusted network resolves the new ID by name, six attempts, and sleeps two seconds after every failed attempt, including the last, without looking at the request context. A cancelled create keeps sleeping, and a lookup error is returned only after all six attempts.",
+      "statement": "Creating a v1 trusted network resolves the new ID by name, six attempts, and sleeps two seconds after every failed attempt, including the last. The loop passes the request context to each lookup but never checks it itself, and waits with `time.Sleep`. A cancelled create keeps sleeping, and a lookup error is returned only after all six attempts.",
       "tier": "A",
       "evidence": [
         {

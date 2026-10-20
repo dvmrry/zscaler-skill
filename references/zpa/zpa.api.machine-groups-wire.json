@@ -109,7 +109,7 @@
       "conditions": "Whether the server treats a missing microtenantId as the default or as the customer-data microtenant is stated only by the OpenAPI description. The Python half was restated because the executor camel-cases and back-fills microtenantId, so an integer 0 is not dropped as the earlier statement said."
     },
     "np-client-no-microtenant-filter": {
-      "statement": "The Go np_client service passes an empty common.Filter to both GetAll and GetByName for vpnConnectedUsers, so the service's microtenant ID is never added. The Python NPNClientControllerAPI list_vpn_connected_users forwards query_params without the microtenant_id mapping that list_machine_groups performs, but Python scopes it anyway, because the executor camel-cases microtenant_id and falls back to the client's configured microtenantId.",
+      "statement": "The Go np_client service passes an empty common.Filter to the paging helper in both GetAll and GetByName for vpnConnectedUsers, so neither function puts the service's microtenant ID in the filter, and the helper, which takes the client and the filter rather than the service, has no service to read it from. The Python NPNClientControllerAPI list_vpn_connected_users forwards query_params without the microtenant_id mapping that list_machine_groups performs, but Python scopes it anyway, because the executor camel-cases microtenant_id and falls back to the client's configured microtenantId.",
       "tier": "A",
       "evidence": [
         {

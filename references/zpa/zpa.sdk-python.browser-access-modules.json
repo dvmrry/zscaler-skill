@@ -130,7 +130,7 @@
       ]
     },
     "v1-clientless-lookup": {
-      "statement": "In the v1 module `update_segment_ba` expands `clientless_app_ids` by fetching the BROWSER_ACCESS segments and matching on domain and on the ID of the segment being updated.",
+      "statement": "In the `app_segments_ba` module (`ApplicationSegmentBAAPI`, as opposed to `AppSegmentsBAV2API` in `app_segments_ba_v2`), `update_segment_ba` expands `clientless_app_ids` by fetching the BROWSER_ACCESS segments and matching on domain and on the ID of the segment being updated.",
       "tier": "A",
       "evidence": [
         {
@@ -150,7 +150,16 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "quotes": [
-            "def update_segment_ba(self, segment_id: str, **kwargs) -> APIResult[dict]:"
+            "def update_segment_ba(self, segment_id: str, **kwargs) -> APIResult[dict]:",
+            "class ApplicationSegmentBAAPI(APIClient):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/zpa_service.py",
+          "quotes": [
+            "from zscaler.zpa.app_segments_ba import ApplicationSegmentBAAPI",
+            "from zscaler.zpa.app_segments_ba_v2 import AppSegmentsBAV2API"
           ]
         }
       ]

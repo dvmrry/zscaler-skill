@@ -31,7 +31,7 @@
     },
     {
       "label": "Page size.",
-      "text": "{{list-devices-docstring-size}} The contract's own default and maximum are [[zcc.api.devices-wire:api-page-size]]. The key goes on the wire camel-cased: [[zcc.api.conventions:query-params-camel]] {{wrapper-zcc-limits}} {{limit-clamp-local-only}} {{no-default-size-sent}} {{zero-page-size}}"
+      "text": "{{list-devices-docstring-size}} The contract's own default and maximum are [[zcc.api.devices-wire:api-page-size]]. The key goes on the wire camel-cased: [[zcc.api.conventions:query-params-camel]] {{wrapper-zcc-limits}} {{limit-clamp-local-only}} {{oversized-page-size-sent}} {{no-default-size-sent}} {{zero-page-size}}"
     },
     {
       "label": "Walking pages.",
@@ -116,8 +116,16 @@
         }
       ]
     },
+    "oversized-page-size-sent": {
+      "statement": "So a `page_size` above the ZCC maximum is sent unchanged as `pageSize`; the clamp changes only the response object's own continuation limit.",
+      "tier": "B",
+      "derived_from": [
+        "limit-clamp-local-only"
+      ],
+      "conditions": "Rests on the clamp running in the response constructor after fire_request, and on a read of the whole of _prepare_params at the pin finding no page-size check outside the ZPA branch; not observed on the wire."
+    },
     "limit-clamp-local-only": {
-      "statement": "A caller-supplied page size is clamped into that range only for the response object's own continuation limit. The request has already gone out with the caller's value, because ZCC query parameters are only camel-cased, not checked, so a `page_size` above the maximum is sent unchanged as `pageSize`.",
+      "statement": "A caller-supplied page size is clamped into that range by `validate_page_size`, which the response object runs when it is built, storing the result as its own `_limit`; `execute` builds that object only after `fire_request` has sent the request. Outside the ZPA branch, `_prepare_params` camel-cases the query parameters and drops `microtenantId`.",
       "tier": "A",
       "evidence": [
         {
@@ -266,7 +274,7 @@
       ]
     },
     "zcc-next-branch": {
-      "statement": "For ZCC, `next()` takes the generic branch: it adds one to the page counter, sets `page`, and resends the original query parameters.",
+      "statement": "`next()` tests the service type for zdx, zcell, zia and ziam in turn, so ZCC (service type `zcc`) takes the final else branch: it adds one to the page counter, sets `page`, and resends the original query parameters.",
       "tier": "A",
       "evidence": [
         {
@@ -284,11 +292,18 @@
           "path": "zscaler/oneapi_response.py",
           "after": "def _fetch_next_page(self) -> Tuple[List[Any], Optional[Exception]]:",
           "quotes": [
-            "if self._service_type == \"zdx\":",
-            "elif self._service_type == \"zcell\":",
-            "elif self._service_type == \"zia\":",
-            "elif self._service_type == \"ziam\":",
-            "else: logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")"
+            "if not self._has_next(): logger.debug(\"No more pages to fetch\") return [], None if self._service_type == \"zdx\": logger.debug(\"[DEBUG] Taking ZDX pagination branch.\") self._params[\"offset\"] = self._next_offset elif self._service_type == \"zcell\": logger.debug(\"[DEBUG] Taking ZCell pagination branch.\")",
+            "# ZCell pages are 0-based: the first (un-paginated) request returns # page 0. The internal _page counter is 1-based, so the API page # index is _page - 1 (e.g. _page == 2 -> page=1, the second page). self._page += 1 self._params[\"page\"] = self._page - 1 elif self._service_type == \"zia\":",
+            "logger.debug(\"[DEBUG] Taking ZIA pagination branch.\") self._page += 1 self._params[\"page\"] = self._page # Only set pageSize if user explicitly provided it (don't override API defaults) if self._limit and \"pageSize\" not in self._params: self._params[\"pageSize\"] = self._limit",
+            "logger.debug(f\"[DEBUG] _fetch_next_page params for ZIA: {self._params}\") elif self._service_type == \"ziam\": logger.debug(\"[DEBUG] Taking ZIAM pagination branch.\") if self._next_link: from urllib.parse import parse_qs, urlparse parsed_url = urlparse(self._next_link) query_params = parse_qs(parsed_url.query)",
+            "for key, value in query_params.items(): self._params[key] = value[0] if len(value) == 1 else value self._url = f\"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}\" logger.debug(f\"[DEBUG] _fetch_next_page params for ZIAM: {self._params}\") else: logger.debug(\"[DEBUG] Taking ZPA/other pagination branch.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if self._service_type == \"zcc\" and \"page\" in self._params:"
           ]
         }
       ]

@@ -34,7 +34,7 @@
     },
     {
       "label": "Putting it back.",
-      "text": "{{background-worker}} {{worker-cannot-report-failure}} {{converges-on-registered-rules-only}} {{stale-positions-within-a-pass}} {{gives-up-silently}} {{wrong-order-reported-success}}"
+      "text": "{{background-worker}} {{worker-cannot-report-failure}} {{converges-on-registered-rules-only}} {{unregistered-rules-not-compared}} {{stale-positions-within-a-pass}} {{gives-up-silently}} {{wrong-order-reported-success}}"
     },
     {
       "label": "Rules the apply did not touch.",
@@ -253,7 +253,7 @@
       ]
     },
     "converges-on-registered-rules-only": {
-      "statement": "A pass is judged only on the rules registered by this apply: it is \"clean\" when none of them needed a move, was skipped, or failed, and the number registered did not change since the previous pass. Rules the apply did not register are never checked.",
+      "statement": "A pass is judged only on the rules registered by this apply: it is \"clean\" when none of them needed a move, was skipped, or failed, and the number registered did not change since the previous pass.",
       "tier": "A",
       "evidence": [
         {
@@ -272,6 +272,14 @@
           ]
         }
       ]
+    },
+    "unregistered-rules-not-compared": {
+      "statement": "A rule the apply did not register is never compared with a declared position or moved by the worker; it enters a pass only through the read of current positions.",
+      "tier": "B",
+      "derived_from": [
+        "converges-on-registered-rules-only"
+      ],
+      "conditions": "Read from reorderAll: the comparison and move loop ranges over the sorted registry, and the read of current positions is used only for lookups and the orderable count."
     },
     "stale-positions-within-a-pass": {
       "statement": "Within a pass, each rule is compared against the positions read at the start of the pass; positions are not refreshed after a move, so later rules in the same pass are judged against stale positions.",
@@ -295,7 +303,7 @@
       ]
     },
     "gives-up-silently": {
-      "statement": "The worker returns without an error in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.7 an oscillation breaker also returns after repeated non-improving passes (SUP-4231). From v4.8.11 it also returns after six consecutive passes in which the current rule order could not be read (#610); before v4.8.11 a failed read only logged the error and continued, so a read that kept failing kept the worker looping. Waiters proceed as if the order were applied; the v4.8.11 comment says the waiting create or update then reads the rule back and reports the API error.",
+      "statement": "The worker gives up and returns, with no value to report, in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.7 an oscillation breaker (SUP-4231) also logs the still-misplaced rules and returns after repeated passes that issue PUTs without improving on the best at-target count. From v4.8.11 it also returns after six consecutive passes in which the current rule order could not be read (#610); before v4.8.11 a failed read only logged the error and continued, so a read that kept failing kept the worker looping. The v4.8.11 comment says the waiting create or update then reads the rule back and reports the API error.",
       "tier": "A",
       "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"The worker returns without an error in several situations: after six ticks in which registered rules stay deferred or their moves fail with no progress, or after two ticks in which only deferred rules remain. From v4.8.7 an oscillation breaker also returns after repeated non-improving passes (SUP-4231). Waiters proceed as if the order were applied.\"",
       "evidence": [
@@ -335,7 +343,11 @@
             "const maxNoProgressTicks = 6",
             "const maxStuckOnSkippedTicks = 2",
             "} else if skipped > 0 || puterrs > 0 { noProgressTicks++",
-            "if skipped > 0 && inRangeAtTarget && !progressedThisPass && puterrs == 0 {"
+            "if skipped > 0 && inRangeAtTarget && !progressedThisPass && puterrs == 0 {",
+            "if stuckOnSkippedTicks >= maxStuckOnSkippedTicks {",
+            "Returning so the next batch of Creates can extend the orderable range.\", resourceType, alreadyAtTarget, skipped, count) return",
+            "if noProgressTicks >= maxNoProgressTicks {",
+            "Re-run terraform apply to retry.\", noProgressTicks, resourceType) return"
           ]
         },
         {
@@ -357,7 +369,8 @@
             "HEAD"
           ],
           "quotes": [
-            "// maxNonImprovingPutTicks is the oscillation breaker (SUP-4231). When the"
+            "// maxNonImprovingPutTicks is the oscillation breaker (SUP-4231). When the",
+            "// PUTs without improving on the best at-target count, the loop logs the // still-misplaced rules and returns so the apply can complete; the"
           ]
         },
         {

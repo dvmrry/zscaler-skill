@@ -47,7 +47,7 @@
       "heading": "Headers and the 429"
     },
     {
-      "text": "{{headers}} {{back-off-exponentially}}"
+      "text": "{{headers}} {{back-off-exponentially}} What base delay, multiplier or retry count to use is open {{gap:backoff-parameters}}."
     },
     {
       "text": "Whether `X-Rate-Limit-Remaining` is sent on successful responses is open {{gap:remaining-on-success}}, and so is the body of a 429 {{gap:body-shape-429}}."
@@ -139,7 +139,7 @@
       "conditions": "The article names no limit-ceiling or reset-timestamp header; the retry-after value is a relative number of seconds."
     },
     "back-off-exponentially": {
-      "statement": "Clients that hit the rate limit must back off exponentially; no base delay, multiplier or retry count is given.",
+      "statement": "Clients subject to rate limits must back off exponentially to proceed further.",
       "tier": "A",
       "evidence": [
         {
@@ -160,7 +160,7 @@
       ]
     },
     "legacy-local-counters": {
-      "statement": "The Python legacy ZCC client counts calls locally and checks the counters before sending: 100 per hour for every path, and 3 per day for `/downloadDevices` only. It keeps no local daily counter for `/downloadServiceStatus` or `/downloadDisableReasons`.",
+      "statement": "The Python legacy ZCC client counts calls locally in `check_rate_limit`, which it calls before sending: 100 per hour for every path, and 3 per day for a path containing `/downloadDevices`. That function, which ends after incrementing the hourly counter, has no daily check for `/downloadServiceStatus` or `/downloadDisableReasons`, which the vendor article also limits to 3 calls per day.",
       "tier": "A",
       "conditions": "Narrowed per verifier: what the caller sees when a counter is exhausted is an AttributeError, not the client's rate-limit messages, because the exception it tries to raise cannot be built from a string (zcc.sdk-python.client-configuration:legacy-preflight-message).",
       "evidence": [
@@ -186,7 +186,8 @@
           "quotes": [
             "now = datetime.utcnow() # ----- hourly generic limit --------------------------------- if now - self.last_request_time >= self.RATE_LIMIT_RESET_TIME: self.request_count = 0 self.last_request_time = now if self.request_count >= self.RATE_LIMIT: raise RateLimitExceededError(\"IP address exceeded 100 calls per hour\")",
             "# ----- /downloadDevices daily limit ------------------------ if \"/downloadDevices\" in path: if now - self.download_devices_last_reset >= self.DOWNLOAD_DEVICES_RESET_TIME: self.download_devices_count = 0 self.download_devices_last_reset = now",
-            "if self.download_devices_count >= self.DOWNLOAD_DEVICES_LIMIT: raise RateLimitExceededError(\"/downloadDevices exceeded 3 calls per day\") self.download_devices_count += 1 # ----- increment generic counter --------------------------- self.request_count += 1"
+            "if self.download_devices_count >= self.DOWNLOAD_DEVICES_LIMIT: raise RateLimitExceededError(\"/downloadDevices exceeded 3 calls per day\") self.download_devices_count += 1 # ----- increment generic counter --------------------------- self.request_count += 1",
+            "self.request_count += 1 def get_base_url(self, endpoint):"
           ]
         },
         {
@@ -263,7 +264,7 @@
       "conditions": "The special cases in the legacy client test the path for `/downloadDevices` and `/downloadServiceStatus` only."
     },
     "legacy-remaining-zero-resend": {
-      "statement": "When any response that is not a 429 carries `X-Rate-Limit-Remaining: 0`, the Python legacy client treats it as a soft 429: it sleeps 60 seconds and sends the same request again, up to its attempt limit, without checking the status of the response it already received.",
+      "statement": "The 429 branch of the Python legacy client's send loop always raises or retries, so the next check sees only other responses: when one carries `X-Rate-Limit-Remaining` set to 0, the client treats it as a soft 429, sleeps 60 seconds and goes back to the top of the loop, which sends the request again, raising a ValueError once the attempts reach `max_attempts` (3). This check comes before the response is checked for errors.",
       "tier": "A",
       "evidence": [
         {
@@ -280,7 +281,7 @@
           "after": "# ---------- proactive check of Remaining header ------",
           "quotes": [
             "remaining = response.headers.get(\"X-Rate-Limit-Remaining\")",
-            "# treat as a soft-429 attempts += 1 if attempts == max_attempts: raise ValueError(\"Specific IP addresses are subjected to a rate limit of 100 calls per hour.\") logger.warning(\"Server reports 0 remaining calls. Retrying in 60 seconds …\") time.sleep(60)",
+            "# treat as a soft-429 attempts += 1 if attempts == max_attempts: raise ValueError(\"Specific IP addresses are subjected to a rate limit of 100 calls per hour.\") logger.warning(\"Server reports 0 remaining calls. Retrying in 60 seconds …\") time.sleep(60) continue",
             "# ---------- API-level errors ------------------------- _, err = check_response_for_error(url, response, response.text)"
           ]
         },
@@ -291,7 +292,9 @@
             "while True: try: self.refreshToken()",
             "response = requests.request( method=method, url=url, json=json, headers=headers_with_user_agent, stream=stream, timeout=self.timeout, )",
             "time.sleep(backoff) continue # ---------- proactive check of Remaining header ------",
-            "if response.status_code == 429:"
+            "if response.status_code == 429: if \"/downloadDevices\" in path or \"/downloadServiceStatus\" in path: retry_after = self._get_backoff_seconds(response, default=86400) raise ValueError(",
+            "# for all other paths, allow limited retry attempts += 1 if attempts == max_attempts: raise ValueError(\"Specific IP addresses are subjected to a rate limit of 100 calls per hour.\") backoff = self._get_backoff_seconds(response, default=60)",
+            "max_attempts = 3 attempts = 0"
           ]
         }
       ],
@@ -319,6 +322,16 @@
     }
   },
   "gaps": {
+    "backoff-parameters": {
+      "kind": "semantic",
+      "title": "What exponential back-off the ZCC API expects",
+      "status": "open",
+      "detail": "The legacy rate-limiting article says clients must back off exponentially but gives no base delay, multiplier or retry count. Searched the whole article (every block) and the captured ZCC OpenAPI contract; neither states them.",
+      "blocks": "stating a back-off schedule the vendor considers compliant",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
     "download-cap-scope": {
       "kind": "semantic",
       "title": "Whether the 3-a-day download allowance is per endpoint and separate from the hourly budget",
