@@ -48,7 +48,7 @@
     },
     {
       "label": "OneAPI client.",
-      "text": "{{oneapi-extra-ids}} {{oneapi-env-key-format}} {{oneapi-customer-env}} {{oneapi-zpa-env-names}} The README disagrees {{divergence:readme-zpa-env-names}}. The shared OneAPI settings (client ID, secret, vanity domain, cloud, partner ID) are in [[zia.sdk-python.authentication]]."
+      "text": "{{oneapi-extra-ids}} [[shared.sdk-python.client-configuration:env-key-format]] {{oneapi-customer-env}} {{oneapi-zpa-env-names}} The README disagrees {{divergence:readme-zpa-env-names}}. The shared OneAPI settings (client ID, secret, vanity domain, cloud, partner ID) are in [[zia.sdk-python.authentication]]."
     },
     {
       "label": "What the tenant ID is used for.",
@@ -106,40 +106,6 @@
     }
   ],
   "claims": {
-    "oneapi-env-key-format": {
-      "statement": "The Python OneAPI configuration setter reads each client setting from an environment variable named ZSCALER_ followed by the upper-cased snake_case form of the setting key.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/config/config_setter.py",
-          "quotes": [
-            "_ZSCALER = \"ZSCALER\"",
-            "self._apply_env_config(\"client\")",
-            "flattened_config = flatten_dict(self._config.get(conf_key, {}), delimiter=\"_\")",
-            "for key in flattened_keys:",
-            "env_key = ConfigSetter._ZSCALER + \"_\" + to_snake_case(key).upper()",
-            "env_value = os.environ.get(env_key, None)"
-          ]
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/config/config_setter.py",
-          "quotes": [
-            "\"customerId\": \"\",",
-            "\"microtenantId\": \"\","
-          ]
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_client.py",
-          "quotes": [
-            "from zscaler.config.config_setter import ConfigSetter",
-            "client_config_setter = ConfigSetter()"
-          ]
-        }
-      ]
-    },
     "oneapi-customer-env": {
       "statement": "The OneAPI client reads the ZPA customer ID from the `customerId` configuration key, falling back to the environment variable ZSCALER_CUSTOMER_ID.",
       "tier": "A",
@@ -157,7 +123,7 @@
       "statement": "For the OneAPI client the tenant ID and microtenant ID environment variables are ZSCALER_CUSTOMER_ID and ZSCALER_MICROTENANT_ID.",
       "tier": "B",
       "derived_from": [
-        "oneapi-env-key-format",
+        "shared.sdk-python.client-configuration:env-key-format",
         "oneapi-customer-env"
       ],
       "conditions": "Assumes the SDK's to_snake_case turns customerId into customer_id and microtenantId into microtenant_id (zscaler/helpers.py), which was not exercised."

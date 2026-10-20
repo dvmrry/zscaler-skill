@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-python.response-handling",
+  "title": "What the Python SDK does with a response: key casing, models, the response object",
+  "aliases": [
+    "form_response_body",
+    "python sdk response keys",
+    "ZscalerAPIResponse",
+    "as_dict",
+    "request_format",
+    "jmespath search",
+    "python sdk model attributes none"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-python.request-handling"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-python.pagination"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Python SDK methods return `(result, response, error)`; the result is built from a response body whose keys the SDK has already rewritten."
+    },
+    {
+      "label": "Key casing.",
+      "text": "{{response-keys-camel-cased}} Where a product's models then look up snake_case keys, the multi-word fields come back empty: [[zcc.sdk-python.wire-keys:response-keys-camel-cased]], [[zidentity.sdk-python:form-response-camel]], [[zdx.sdk-python.response-models:multiword-attrs-lost]]."
+    },
+    {
+      "label": "Models.",
+      "text": "{{as-dict}} Result models subclass the SDK's object base class: [[zpa.sdk-python.return-shapes:result-models-subclass]]."
+    },
+    {
+      "label": "The response object.",
+      "text": "{{status-accessor}} {{no-status-code-attr}} {{search-current-page}} Paging is in [[shared.sdk-python.pagination]]."
+    },
+    {
+      "text": "{{tuple-return}}"
+    }
+  ],
+  "claims": {
+    "response-keys-camel-cased": {
+      "statement": "`form_response_body` camel-cases every key of a response body, recursing into nested objects and into objects inside lists, and leaves out keys whose value is None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "after": "def form_response_body(",
+          "quotes": [
+            "if val is None: continue",
+            "result[_to_camel(key)] = APIClient.form_response_body(val)",
+            "processed_list.append(APIClient.form_response_body(item))",
+            "result[_to_camel(key)] = val"
+          ]
+        }
+      ]
+    },
+    "as-dict": {
+      "statement": "A model's as_dict returns snake_case keys and omits attributes whose value is None, while its request_format method is the camelCase form the API expects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "quotes": [
+            "if val is None:",
+            "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
+            "The keys are in camelCase as expected by the API."
+          ]
+        }
+      ]
+    },
+    "status-accessor": {
+      "statement": "`ZscalerAPIResponse` keeps the HTTP status in `_status`, reads it from the underlying response once in its constructor, and exposes it through `get_status()`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "class ZscalerAPIResponse:",
+            "self._status = res_details.status_code if res_details and hasattr(res_details, \"status_code\") else None",
+            "def get_status(self) -> Optional[int]:"
+          ]
+        }
+      ]
+    },
+    "no-status-code-attr": {
+      "statement": "`ZscalerAPIResponse` defines no `status_code` attribute or property of its own, so callers read the status through `get_status()`.",
+      "tier": "B",
+      "derived_from": [
+        "status-accessor"
+      ],
+      "conditions": "An absence: a search of zscaler/oneapi_response.py at the pin finds status_code only in the constructor line that reads res_details.status_code into _status."
+    },
+    "search-current-page": {
+      "statement": "The response object's search method applies a JMESPath expression to the current page of results only, so filtering across a collection means searching each page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "`.search()` operates on the current page. To filter across all pages, apply it to each page as you paginate:",
+            "The `.search()` method applies a JMESPath expression to the current page of results and returns a list of matching items."
+          ]
+        }
+      ]
+    },
+    "tuple-return": {
+      "statement": "Python SDK methods return a three-element tuple of result, response and error rather than a bare result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "README.md",
+          "quotes": [
+            "Returns `(result, response, error)` tuples"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_filtering.py",
+          "quotes": [
+            "return (result, response, None)"
+          ],
+          "after": "def list_rules("
+        }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "do": "Whether a None model attribute is really absent from the response, or a multi-word key the model looked up under its snake_case name after the response was camel-cased.",
+      "uses": [
+        "response-keys-camel-cased"
+      ]
+    }
+  ]
+}

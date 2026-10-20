@@ -15,7 +15,8 @@
     "local forwarding method",
     "cloud connector east-west",
     "cloud connector snat dnat",
-    "wan selection"
+    "wan selection",
+    "workload to workload access failing"
   ],
   "binds": [
     "ztw/forwarding-rules#forwardMethod",
@@ -49,7 +50,7 @@
         },
         {
           "label": "ZPA.",
-          "text": "{{zpa-method}} {{zpa-default-gateway}} Private Access policy can name Cloud Connector groups as a criterion: [[zpa.policy.criteria:criteria-list]]; what else a ZPA-forwarded flow needs is open {{gap:zpa-prerequisites}}."
+          "text": "{{zpa-method}} {{zpa-default-gateway}} Private Access policy can name Cloud Connector groups as a criterion: [[zpa.policy.criteria:criteria-list]]; what else a ZPA-forwarded flow needs is open {{gap:zpa-prerequisites}}. Application segments on the Private Access side: [[zpa.app-segments]]."
         },
         {
           "label": "Direct.",
@@ -86,6 +87,15 @@
     }
   ],
   "checks": [
+    {
+      "do": "For a ZPA-method flow that fails (workload to an on-premises or other-cloud application), the Cloud Connector's Private Access enrollment first, then the application segment and access policy on the Private Access side.",
+      "uses": [
+        "zpa-method",
+        "cloud-connector.overview.gateway-failover:zpa-enrolled",
+        "cloud-connector.aws.troubleshooting:zpa-enrollment-limit",
+        "zpa-prerequisites"
+      ]
+    },
     {
       "do": "The rule's `forwardMethod` as stored, mapped back to the console label (ECZPA is ZPA; LOCAL_SWITCH or ECSELF may appear for Local).",
       "uses": [

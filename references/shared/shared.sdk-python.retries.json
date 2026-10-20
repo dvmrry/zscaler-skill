@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-python.retries",
+  "title": "How the Python SDK retries: budget, statuses, waits, re-authentication",
+  "aliases": [
+    "python sdk retries",
+    "maxRetries",
+    "maxRetrySeconds",
+    "RetryTooLong",
+    "python sdk 429",
+    "python sdk 401 reauth",
+    "Retry-After python"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-go.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Python SDK's OneAPI request executor, shared by every product. The Go SDK's retries are in [[shared.sdk-go.retries]]; each product's own rate limits and wait headers are in its rate-limits subject, for example [[zia.api.rate-limits]] and [[zcc.api.rate-limits]]."
+    },
+    {
+      "label": "Budget.",
+      "text": "{{max-retries}} {{max-retry-seconds}}"
+    },
+    {
+      "label": "What is retried.",
+      "text": "{{retryable-statuses}} {{method-not-consulted}} {{wait-from-headers}}"
+    },
+    {
+      "label": "Expired tokens.",
+      "text": "{{reauth-on-401}} A legacy client has no OAuth handler to re-authenticate with: [[zdx.sdk-python.legacy-client:no-reauth]]."
+    }
+  ],
+  "claims": {
+    "max-retries": {
+      "statement": "The executor reads `client.rateLimit.maxRetries` from the configuration with a default of 2, and rejects a negative value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self._max_retries = config[\"client\"][\"rateLimit\"].get(\"maxRetries\", 2)",
+            "raise ValueError(f\"Invalid max retries: {self._max_retries}. Must be 0 or greater.\")"
+          ]
+        }
+      ]
+    },
+    "max-retry-seconds": {
+      "statement": "A rateLimit maxRetrySeconds setting caps the wait: a computed backoff above it raises RetryTooLong instead of sleeping.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "max_retry_seconds = self._config.get(\"client\", {}).get(\"rateLimit\", {}).get(\"maxRetrySeconds\", None)",
+            "raise RetryTooLong(",
+            "if backoff > max_retry_seconds:",
+            "f\"Retry wait time {backoff} seconds exceeds configured maxRetrySeconds {max_retry_seconds}.\"",
+            "backoff_seconds = self.get_retry_after(response.headers, logger)"
+          ]
+        }
+      ]
+    },
+    "wait-from-headers": {
+      "statement": "The retry wait comes from Retry-After plus one second, or else from the rate-limit reset header plus one second; with neither header the request is not retried and an error is returned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "backoff = int(retry_after.strip(\"s\")) + 1",
+            "backoff = float(retry_limit_reset_header) + 1",
+            "return None, response, response.text, Exception(ERROR_MESSAGE_429_MISSING_DATE_X_RESET)"
+          ]
+        }
+      ]
+    },
+    "retryable-statuses": {
+      "statement": "The Python executor's retryable-status helper documents 429, 500, 502, 503 and 504 as retryable, but its code tests only 429, 503 and 504, so a 500 or 502 is not retried by it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "Retryable statuses: 429, 500, 502, 503, 504",
+            "HTTPStatus.TOO_MANY_REQUESTS,",
+            "HTTPStatus.SERVICE_UNAVAILABLE,",
+            "HTTPStatus.GATEWAY_TIMEOUT,",
+            "return status is not None and status in ( # HTTPStatus.REQUEST_TIMEOUT, # HTTPStatus.CONFLICT, # HTTPStatus.PRECONDITION_FAILED, HTTPStatus.TOO_MANY_REQUESTS, HTTPStatus.SERVICE_UNAVAILABLE, HTTPStatus.GATEWAY_TIMEOUT, )"
+          ]
+        }
+      ]
+    },
+    "method-not-consulted": {
+      "statement": "The branch that retries the retryable statuses (`TOO_MANY_REQUESTS`, `SERVICE_UNAVAILABLE` and `GATEWAY_TIMEOUT`) is decided by `attempts < max_retries` and `is_retryable_status(response.status_code)`, and `is_retryable_status` takes only the status; the request method is not consulted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Handle \"retryable\" statuses such as 429, 503, etc. if attempts < max_retries and self.is_retryable_status(response.status_code):",
+            "return status is not None and status in ( # HTTPStatus.REQUEST_TIMEOUT, # HTTPStatus.CONFLICT, # HTTPStatus.PRECONDITION_FAILED, HTTPStatus.TOO_MANY_REQUESTS, HTTPStatus.SERVICE_UNAVAILABLE, HTTPStatus.GATEWAY_TIMEOUT, )",
+            "def is_retryable_status(self, status):"
+          ]
+        }
+      ]
+    },
+    "reauth-on-401": {
+      "statement": "On a 401 the executor clears the OAuth token, fetches a new one and retries while attempts remain; otherwise it returns a token-refresh-exhausted error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "Got 401 response; clearing token and re-authenticating.",
+            "401 Unauthorized - token refresh attempts exhausted or OAuth not available."
+          ],
+          "after": "# Check for 401 -> Trigger re-auth if we still have retries left"
+        }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "do": "Whether a write that timed out with a 503 or 504 was retried and so possibly applied twice, since the retry does not look at the method.",
+      "uses": [
+        "method-not-consulted",
+        "retryable-statuses"
+      ]
+    }
+  ]
+}

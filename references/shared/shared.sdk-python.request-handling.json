@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-python.request-handling",
+  "title": "How the Python SDK builds a request: body and query key casing, ID lists",
+  "aliases": [
+    "python sdk camelcase",
+    "convert_keys_to_camel_case",
+    "FIELD_EXCEPTIONS",
+    "to_lower_camel_case",
+    "_prepare_body",
+    "python sdk snake_case body",
+    "transform_common_id_fields"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-python.response-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Python SDK takes snake_case arguments and rewrites key names before a request goes out; which keys it rewrites depends on the service and the client."
+    },
+    {
+      "label": "Request bodies.",
+      "text": "{{body-camel-case}} {{camel-rule}} Product-specific consequences: ZIA's exceptions in [[zia.sdk-python.request-conventions:camel-case-body]], ZCC's in [[zcc.api.conventions:python-body-casing]], ZTB's in [[zero-trust-branch.api:snake-case-bodies]]."
+    },
+    {
+      "label": "Query parameters.",
+      "text": "{{query-params-camel-case}} ZPA's own page-size and search handling is in [[zpa.sdk-python.pagination]]."
+    },
+    {
+      "label": "ID lists.",
+      "text": "{{id-list-helper}} Which keys ZIA reshapes this way is in [[zia.sdk-python.request-conventions:id-list-reshape]]."
+    }
+  ],
+  "claims": {
+    "body-camel-case": {
+      "statement": "For a dictionary request body, the request executor camel-cases the keys with `convert_keys_to_camel_case`, except on the ZDX and ZTB legacy clients and on endpoints containing `/zdx/`, `/easm/` or `/ztb/`, whose bodies it sends as given. For `/zcc/` it converts selectively, leaving `WebPolicy.SNAKE_CASE_KEYS` as they are, and a body the ZCC serializer already produced (`_ZccWireBody`) is sent unchanged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_body(self, endpoint, body):",
+          "quotes": [
+            "if self.use_legacy_client and self.zdx_legacy_client:",
+            "return body  # Do not convert anything, just return as-is",
+            "if self.use_legacy_client and self.ztb_legacy_client:",
+            "if \"/zdx/\" in endpoint:",
+            "return body  # Do not convert ZDX requests to camelCase",
+            "if \"/easm/\" in endpoint:",
+            "return body  # Do not convert ZEASM requests to camelCase",
+            "if \"/ztb/\" in endpoint:",
+            "return body  # Do not convert ZTB requests to camelCase",
+            "if \"/zcc/\" in endpoint and body:",
+            "if isinstance(body, _ZccWireBody):",
+            "return dict(body)",
+            "body = convert_keys_to_camel_case_selective(body, WebPolicy.SNAKE_CASE_KEYS)",
+            "# Preserve existing logic for other services",
+            "body = convert_keys_to_camel_case(body)"
+          ]
+        }
+      ]
+    },
+    "query-params-camel-case": {
+      "statement": "For every service other than ZPA, the request executor camel-cases query parameter names with `convert_keys_to_camel_case` and removes `microtenantId`; on the ZDX legacy client it leaves the parameters as given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "after": "def _prepare_params(self, service_type, endpoint, params, body):",
+          "quotes": [
+            "if self.use_legacy_client and self.zdx_legacy_client:",
+            "return params",
+            "# Normal param conversion if not ZPA",
+            "params = convert_keys_to_camel_case(params)\n            params.pop(\"microtenantId\", None)"
+          ]
+        }
+      ]
+    },
+    "camel-rule": {
+      "statement": "The camel-casing helper returns a key from its exceptions table as mapped and leaves a key without an underscore unchanged; otherwise it splits on underscores, lowercases the first part, capitalizes every later part and joins them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "if string in FIELD_EXCEPTIONS: return FIELD_EXCEPTIONS[string]",
+            "if not string or \"_\" not in string: return string",
+            "components = string.split(\"_\")",
+            "for i, comp in enumerate(components):",
+            "lower = comp.lower()",
+            "if i == 0:\n            converted.append(lower)\n        else:\n            converted.append(comp.capitalize())",
+            "return \"\".join(converted)"
+          ]
+        }
+      ]
+    },
+    "id-list-helper": {
+      "statement": "`transform_common_id_fields` pops each snake_case key from the source dict and stores a list of `{\"id\": ...}` objects under the wire key; items that are already dicts with an id are kept.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "id_groups: list, source_dict: dict, target_dict: dict, coerce_ids: bool = True",
+            "id_groups: List of ``(snake_case_key, wire_key)`` tuples to remap.",
+            "convert that list/dict to the final ``{\"id\": ...}`` structure,",
+            "value = source_dict.pop(key)",
+            "final_list.append({\"id\": _maybe_coerce(item)})",
+            "elif isinstance(item, dict) and \"id\" in item:",
+            "final_list.append(item)",
+            "target_dict[payload_key] = final_list"
+          ],
+          "after": "def transform_common_id_fields("
+        }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "do": "Whether the product's endpoint is one whose body the executor leaves in snake_case (ZDX, EASM, ZTB) or converts selectively (ZCC) before predicting a wire key.",
+      "uses": [
+        "body-camel-case"
+      ]
+    }
+  ]
+}

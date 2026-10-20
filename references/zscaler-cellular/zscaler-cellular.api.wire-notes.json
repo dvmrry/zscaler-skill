@@ -10,7 +10,8 @@
     "tower-location history",
     "zcell days parameter",
     "zcell sim lock imei",
-    "zcell audit search body"
+    "zcell audit search body",
+    "tower location history"
   ],
   "related": [
     {
@@ -28,7 +29,7 @@
     },
     {
       "label": "Paging.",
-      "text": "{{paging-contract}} {{sdk-paging}} {{next-page-get}} {{next-page-post-search}}"
+      "text": "{{paging-contract}} {{sdk-paging}} [[shared.sdk-python.pagination:next-is-get]] {{next-page-post-search}}"
     },
     {
       "label": "Time windows.",
@@ -156,20 +157,6 @@
         }
       ]
     },
-    "next-page-get": {
-      "statement": "The SDK's next-page request is always a GET built from the response's URL, headers and query parameters (with the page advanced); the request it builds has no body key.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_response.py",
-          "quotes": [
-            "req = { \"method\": \"GET\", \"url\": self._url, \"headers\": self._headers, \"params\": self._params, \"uuid\": uuid.uuid4(), }"
-          ],
-          "after": "def _fetch_next_page(self)"
-        }
-      ]
-    },
     "next-page-post-search": {
       "statement": "Paging forward through a ZCell POST search (SIM search, audit search) with the SDK response's next-page helper sends a GET without the search body, which is not the documented method for those paths.",
       "tier": "B",
@@ -184,7 +171,7 @@
         }
       ],
       "derived_from": [
-        "next-page-get"
+        "shared.sdk-python.pagination:next-is-get"
       ],
       "conditions": "Follows from next-page-get and the contract listing those searches as POST only; not observed against a tenant."
     },

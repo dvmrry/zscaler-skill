@@ -158,13 +158,13 @@ A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mj
 | Server group | `kb:zpa.server-groups` |
 | ZIA URL filtering, URL category, allow / block rule | `kb:zia.url-filtering` |
 | SSL inspection, TLS inspection, inspection bypass | `kb:zia.ssl-inspection` and `kb:zia.ssl-inspection.pipeline` |
-| ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | start at `references/zcc/index.md` |
+| ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | `node scripts/kb.mjs resolve zcc.forwarding-profiles` (all ZCC areas: `resolve zcc`) |
 | Service Edge, ZEN, broker, Public Service Edge | `node scripts/kb.mjs resolve shared.cloud-architecture` and `node scripts/kb.mjs resolve shared.terminology` |
 | Private Service Edge, PSE, PSEN | `kb:zia.private-service-edge` (Virtual Service Edge: `kb:zia.virtual-service-edge`) |
-| Cloud Connector, Branch Connector | `references/cloud-connector/index.md` |
-| ZDX probe, deeptrace, Cloud Path | start at `references/zdx/index.md` |
-| ZIdentity, OneAPI, Authentication Level, step-up auth | start at `references/zidentity/index.md` |
-| Anything else, or unsure | load `references/<product>/index.md` to find the specific file, then load the file |
+| Cloud Connector, Branch Connector | `node scripts/kb.mjs resolve cloud-connector.overview` (all areas: `resolve cloud-connector`) |
+| ZDX probe, deeptrace, Cloud Path | `node scripts/kb.mjs resolve zdx.overview` (all areas: `resolve zdx`) |
+| ZIdentity, OneAPI, Authentication Level, step-up auth | `node scripts/kb.mjs resolve zidentity.overview` (all areas: `resolve zidentity`) |
+| Anything else, or unsure | `node scripts/kb.mjs resolve <product>` lists its areas; resolve the one that fits |
 
 Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural assumptions (single connector vs cluster, app-segment scope vs server-group, IdP-provided vs SCIM-provided attributes) change which hypotheses are plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 

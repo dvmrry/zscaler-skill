@@ -29,11 +29,22 @@ function reaching(s, paths) {
   };
 }
 
-/** Look up a Terraform name, an API path, a Go SDK package, or a Python module, class or method. */
+/** Look up a product key, a Terraform name, an API path, a Go SDK package, or a Python module, class or method. */
 export function lookupSurface(root, query) {
   const q = query.trim();
   const out = [];
   for (const [product, s] of Object.entries(loadSurfaces(root))) {
+    // A product key lists its whole surface by name: API paths, Go packages, Python modules, Terraform types.
+    if (product === q) {
+      out.push({
+        product, match: "product", base: s.base,
+        api: Object.keys(s.api).sort(),
+        sdk_go: Object.fromEntries(Object.entries(s.sdk_go).map(([k, e]) => [k, e.functions])),
+        sdk_python: Object.fromEntries(Object.entries(s.sdk_python).map(([k, e]) => [k, { class: e.class, methods: e.methods }])),
+        terraform: Object.keys(s.terraform).sort(),
+      });
+      continue;
+    }
     for (const t of Object.values(s.terraform)) {
       if (t.name === q || `${t.kind}:${t.name}` === q) out.push({ product, match: "terraform", ...t, operations: pick(s.api, t.api) });
     }

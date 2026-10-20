@@ -35,11 +35,11 @@
     },
     {
       "label": "Walking pages.",
-      "text": "{{flat-array-fix}} {{page-seeds-counter}} {{zcc-next-branch}} {{has-next-first-page}} {{has-next-later-pages}} {{next-stop-vs-empty}}"
+      "text": "{{flat-array-fix}} {{page-seeds-counter}} {{zcc-next-branch}} {{has-next-first-page}} {{has-next-later-pages}} [[shared.sdk-python.pagination:next-empty-page]]"
     },
     {
       "label": "Limits of the heuristic.",
-      "text": "{{no-loop-guard}} Whether every ZCC v1 list endpoint honours `page` and `pageSize` is open {{gap:page-param-honored}}. Client-side filtering of a page is [[zia.sdk-python.response-shape:search-current-page]]."
+      "text": "{{no-loop-guard}} Whether every ZCC v1 list endpoint honours `page` and `pageSize` is open {{gap:page-param-honored}}. Client-side filtering of a page is [[shared.sdk-python.response-handling:search-current-page]]."
     }
   ],
   "checks": [
@@ -60,7 +60,7 @@
     {
       "do": "Whether a `next()` that returned None meant an empty page rather than an error, by checking the error slot.",
       "uses": [
-        "next-stop-vs-empty"
+        "shared.sdk-python.pagination:next-empty-page"
       ]
     }
   ],
@@ -335,23 +335,6 @@
           "quotes": [
             "# Subsequent pages - if no explicit limit, use heuristic based on results returned",
             "# If we got results, try one more page. The next call will return empty and stop."
-          ]
-        }
-      ]
-    },
-    "next-stop-vs-empty": {
-      "statement": "`next()` raises StopIteration only when `has_next()` is already false; when the page it fetches is empty it returns None with no error instead.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_response.py",
-          "after": "def next(self) -> Tuple[Optional[List[Any]], \"ZscalerAPIResponse\", Optional[Exception]]:",
-          "quotes": [
-            "raise StopIteration(\"No more pages available.\")",
-            "if not results:",
-            "return None, self, None",
-            "if not self.has_next():"
           ]
         }
       ]

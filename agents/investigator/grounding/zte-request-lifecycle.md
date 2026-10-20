@@ -8,7 +8,7 @@ confidence: medium
 source-tier: practice
 sources:
   - "kb:shared.cloud-architecture"
-  - "references/zcc/index.md"
+  - "kb:zcc.forwarding-profiles"
   - "kb:zia.traffic-forwarding"
   - "`kb:zpa.app-segments`"
   - "kb:zia.url-filtering"
@@ -55,8 +55,8 @@ Fast triage:
 | Stage | Failure cues | First docs | Related grounding |
 |---|---|---|---|
 | Origin | DNS points somewhere unexpected; host override; suffix issue | `node scripts/kb.mjs resolve shared.terminology` | none |
-| Forwarding | Z-Tunnel down; PAC/DIRECT surprise; GRE/IPsec/Cloud Connector path issue | `references/zcc/index.md`, `kb:zia.traffic-forwarding`, `references/cloud-connector/index.md` | none |
-| Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `references/zidentity/index.md`, `node scripts/kb.mjs resolve shared.scim` | none |
+| Forwarding | Z-Tunnel down; PAC/DIRECT surprise; GRE/IPsec/Cloud Connector path issue | `kb:zcc.forwarding-profiles`, `kb:zia.traffic-forwarding`, `kb:cloud-connector.forwarding` | none |
+| Identity | user/group/attribute mismatch; SCIM/SAML drift; step-up auth ambiguity | `kb:zidentity.overview`, `node scripts/kb.mjs resolve shared.scim` | none |
 | Service Edge | wrong PoP; PSE/PSEN issue; subcloud/routing concern | `node scripts/kb.mjs resolve shared.cloud-architecture`, `kb:zia.private-service-edge` | none |
 | Routing | internet vs private-app path is wrong; app segment catches/misses traffic | `kb:zpa.app-segments`, `node scripts/kb.mjs resolve shared.source-ip-anchoring` | `grounding/zpa-segment-matching.md` |
 | ZIA policy | URL/category/rule/CAC/SSL/DLP/Sandbox outcome looks wrong | `kb:zia.url-filtering`, `kb:zia.ssl-inspection` | `grounding/zia-url-filtering-precedence.md`, `grounding/zia-ssl-inspection-bypass.md` |

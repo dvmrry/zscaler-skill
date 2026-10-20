@@ -30,7 +30,7 @@
     },
     {
       "label": "Return shape.",
-      "text": "{{tuple-return}} {{single-assignment-yields-tuple}} {{result-models-snake-case-attrs}}"
+      "text": "[[shared.sdk-python.response-handling:tuple-return]] {{single-assignment-yields-tuple}} {{result-models-snake-case-attrs}}"
     },
     {
       "label": "Errors are values.",
@@ -38,14 +38,14 @@
     },
     {
       "label": "Filtering.",
-      "text": "{{search-current-page}}"
+      "text": "[[shared.sdk-python.response-handling:search-current-page]]"
     }
   ],
   "checks": [
     {
       "do": "Whether the call site unpacks all three values and tests the error value before using the result.",
       "uses": [
-        "tuple-return",
+        "shared.sdk-python.response-handling:tuple-return",
         "errors-in-third-slot",
         "callers-must-check-error"
       ]
@@ -64,27 +64,6 @@
     }
   ],
   "claims": {
-    "tuple-return": {
-      "statement": "Python SDK methods return a three-element tuple of result, response and error rather than a bare result.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "README.md",
-          "quotes": [
-            "Returns `(result, response, error)` tuples"
-          ]
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/zia/url_filtering.py",
-          "quotes": [
-            "return (result, response, None)"
-          ],
-          "after": "def list_rules("
-        }
-      ]
-    },
     "errors-in-third-slot": {
       "statement": "A ZIA list call catches its own exceptions and returns them in the third slot with a None result, instead of raising.",
       "tier": "A",
@@ -121,7 +100,7 @@
       "statement": "So a try/except around a ZIA SDK call does not catch API errors; the caller has to test the error value of every returned tuple, and a test double has to return tuples rather than raise.",
       "tier": "B",
       "derived_from": [
-        "tuple-return",
+        "shared.sdk-python.response-handling:tuple-return",
         "errors-in-third-slot"
       ],
       "conditions": "Holds with the default `raiseException=False` (with True, `check_response_for_error` raises `ZscalerAPIException`), for calls that complete the request path as the ZIA methods read at the pin do; construction errors and the page iterator can still raise."
@@ -130,7 +109,7 @@
       "statement": "Assigning a call to a single name therefore binds the whole tuple, not the list or object, so iterating it yields the result, response and error.",
       "tier": "B",
       "derived_from": [
-        "tuple-return"
+        "shared.sdk-python.response-handling:tuple-return"
       ],
       "conditions": "Follows directly from the return shape."
     },
@@ -156,20 +135,6 @@
             "if val is None:",
             "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
             "The keys are in camelCase as expected by the API."
-          ]
-        }
-      ]
-    },
-    "search-current-page": {
-      "statement": "The response object's search method applies a JMESPath expression to the current page of results only, so filtering across a collection means searching each page.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "README.md",
-          "quotes": [
-            "`.search()` operates on the current page. To filter across all pages, apply it to each page as you paginate:",
-            "The `.search()` method applies a JMESPath expression to the current page of results and returns a list of matching items."
           ]
         }
       ]

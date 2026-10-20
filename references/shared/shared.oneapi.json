@@ -59,7 +59,7 @@
     },
     {
       "label": "SDKs.",
-      "text": "{{sdk-support}} {{python-legacy-switch}} {{no-use-legacy-env}} The environment variables the Python SDK reads are [[zia.sdk-python.authentication:oneapi-env-vars]]. Go SDK token renewal, retries and request handling are in [[shared.sdk-go.auth-lifecycle]], [[shared.sdk-go.retries]] and [[shared.sdk-go.request-handling]]."
+      "text": "{{sdk-support}} [[shared.sdk-python.client-configuration:legacy-switch]] {{no-use-legacy-env}} The environment variables the Python SDK reads are [[zia.sdk-python.authentication:oneapi-env-vars]]. Go SDK token renewal, retries and request handling are in [[shared.sdk-go.auth-lifecycle]], [[shared.sdk-go.retries]] and [[shared.sdk-go.request-handling]]."
     },
     {
       "label": "Legacy APIs.",
@@ -70,7 +70,7 @@
     {
       "do": "Whether the tenant and client use OneAPI or a product's legacy API, before applying anything here.",
       "uses": [
-        "python-legacy-switch",
+        "shared.sdk-python.client-configuration:legacy-switch",
         "zia.sdk-python.authentication:legacy-framework"
       ]
     },
@@ -154,25 +154,11 @@
         }
       ]
     },
-    "python-legacy-switch": {
-      "statement": "The Python SDK's unified client chooses a legacy client through its `use_legacy_client` constructor argument, which defaults to False.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_client.py",
-          "quotes": [
-            "use_legacy_client: bool = False,",
-            "self.use_legacy_client = use_legacy_client"
-          ]
-        }
-      ]
-    },
     "no-use-legacy-env": {
       "statement": "The Python SDK reads no `ZSCALER_USE_LEGACY` environment variable; the legacy path is selected in code, not by that variable.",
       "tier": "B",
       "derived_from": [
-        "python-legacy-switch"
+        "shared.sdk-python.client-configuration:legacy-switch"
       ],
       "conditions": "Search of the pinned Python SDK (code and README) for USE_LEGACY found nothing. The ZPA Terraform provider has its own ZSCALER_USE_LEGACY_CLIENT variable (zpa.terraform.provider-config:legacy-client-switch)."
     }

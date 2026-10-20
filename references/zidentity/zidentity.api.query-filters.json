@@ -34,7 +34,7 @@
     },
     {
       "label": "Python.",
-      "text": "{{python-docstring-keys}} {{python-params-camel-cased}} {{python-camel-rule}} {{python-wire-keys}} The Python keys therefore differ from the contract's {{divergence:filter-key-spelling}}, and whether the server accepts them anyway is open {{gap:filter-key-case}}. {{python-contract-spelling-passes}}"
+      "text": "{{python-docstring-keys}} {{python-params-camel-cased}} [[shared.sdk-python.request-handling:camel-rule]] {{python-wire-keys}} The Python keys therefore differ from the contract's {{divergence:filter-key-spelling}}, and whether the server accepts them anyway is open {{gap:filter-key-case}}. {{python-contract-spelling-passes}}"
     },
     {
       "label": "List-valued filters.",
@@ -218,33 +218,13 @@
         }
       ]
     },
-    "python-camel-rule": {
-      "statement": "The camel-casing helper returns a key from its exceptions table as mapped and leaves a key without an underscore unchanged; otherwise it splits on underscores, lowercases the first part, capitalizes every later part and joins them.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/helpers.py",
-          "after": "def to_lower_camel_case(string):",
-          "quotes": [
-            "if string in FIELD_EXCEPTIONS:",
-            "if not string or \"_\" not in string:",
-            "components = string.split(\"_\")",
-            "for i, comp in enumerate(components):",
-            "lower = comp.lower()",
-            "if i == 0:\n            converted.append(lower)\n        else:\n            converted.append(comp.capitalize())",
-            "return \"\".join(converted)"
-          ]
-        }
-      ]
-    },
     "python-wire-keys": {
       "statement": "So a Python caller using the docstring names sends `loginName`, `loginName[like]`, `displayName[like]`, `primaryEmail[like]`, `domainName`, `idpName` and `excludeDynamicGroups`; only `name[like]`, `offset` and `limit` go out as the contract spells them.",
       "tier": "B",
       "derived_from": [
         "zidentity.api.query-filters:python-docstring-keys",
         "zidentity.api.query-filters:python-params-camel-cased",
-        "zidentity.api.query-filters:python-camel-rule"
+        "shared.sdk-python.request-handling:camel-rule"
       ],
       "conditions": "Follows from applying the helper's rule to the docstring keys; none of these keys appears in the exceptions table at the pin (searched)."
     },
@@ -252,7 +232,7 @@
       "statement": "A Python caller can send the contract's spelling by passing it as the key (`loginname`, `excludedynamicgroups`), since a key without an underscore is not changed.",
       "tier": "B",
       "derived_from": [
-        "zidentity.api.query-filters:python-camel-rule",
+        "shared.sdk-python.request-handling:camel-rule",
         "zidentity.api.query-filters:contract-keys"
       ],
       "conditions": "Follows from the helper's rule; not exercised by an SDK test or example."

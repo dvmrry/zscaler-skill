@@ -28,7 +28,7 @@
     },
     {
       "label": "Where it goes.",
-      "text": "{{executor-query-param}} {{non-zpa-pop}} {{body-camel}} {{body-camel-microtenant}} {{body-keeps-key}}"
+      "text": "{{executor-query-param}} {{non-zpa-pop}} [[shared.sdk-python.request-handling:body-camel-case]] {{body-camel-microtenant}} {{body-keeps-key}}"
     }
   ],
   "checks": [
@@ -182,42 +182,11 @@
         }
       ]
     },
-    "body-camel": {
-      "statement": "The executor converts request-body keys to camelCase before sending: `convert_keys_to_camel_case` renames each key with `to_lower_camel_case`, which splits it on underscores and capitalizes each later part.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "body = convert_keys_to_camel_case(body)"
-          ],
-          "after": "# Preserve existing logic for other services"
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/helpers.py",
-          "quotes": [
-            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
-          ],
-          "after": "def convert_keys_to_camel_case(data):"
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/helpers.py",
-          "quotes": [
-            "components = string.split(\"_\")",
-            "converted.append(comp.capitalize())"
-          ],
-          "after": "def to_lower_camel_case(string):"
-        }
-      ]
-    },
     "body-camel-microtenant": {
       "statement": "So a `microtenant_id` key left in the body is sent as `microtenantId`.",
       "tier": "B",
       "derived_from": [
-        "body-camel"
+        "shared.sdk-python.request-handling:body-camel-case"
       ],
       "conditions": "Applies the quoted camel-casing rule to the key; `microtenant_id` is not in the `FIELD_EXCEPTIONS` table of `to_lower_camel_case` (read at HEAD). Not observed in a captured request."
     },
@@ -226,7 +195,7 @@
       "tier": "B",
       "derived_from": [
         "wrapper-sources",
-        "body-camel"
+        "shared.sdk-python.request-handling:body-camel-case"
       ],
       "conditions": "Follows from the wrapper using get, not pop, on the body it sends. Whether the service accepts or ignores the extra body field is not shown."
     }

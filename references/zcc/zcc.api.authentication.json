@@ -40,7 +40,7 @@
     },
     {
       "label": "OneAPI path.",
-      "text": "{{oneapi-base-url}} {{oneapi-bearer-header}} The OneAPI credential variables and token endpoint are common to the Python SDK: [[zia.sdk-python.authentication:oneapi-env-vars]], [[zia.sdk-python.authentication:vanity-domain-token-url]]. Which roles or scopes an API client needs for ZCC is open {{gap:oneapi-zcc-scopes}}."
+      "text": "{{oneapi-base-url}} [[shared.sdk-python.client-configuration:bearer-header]] The OneAPI credential variables and token endpoint are common to the Python SDK: [[zia.sdk-python.authentication:oneapi-env-vars]], [[zia.sdk-python.authentication:vanity-domain-token-url]]. Which roles or scopes an API client needs for ZCC is open {{gap:oneapi-zcc-scopes}}."
     },
     {
       "label": "Legacy login.",
@@ -123,20 +123,6 @@
         }
       ],
       "conditions": "The Python SDK resolves other gateway hosts for non-production and government clouds; this claim is about the default commercial gateway."
-    },
-    "oneapi-bearer-header": {
-      "statement": "On the OneAPI path the Python SDK sends the OAuth access token as `Authorization: Bearer <token>` on every request that does not go through a legacy client.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "if \"/zscsb\" not in endpoint and not self.use_legacy_client:",
-            "headers[\"Authorization\"] = f\"Bearer {self._oauth._get_access_token()}\""
-          ]
-        }
-      ]
     },
     "legacy-login-request": {
       "statement": "The legacy API is signed in to with a POST to `/papi/auth/v1/login` carrying `apiKey` and `secretKey`; the response's `jwtToken` is the token passed on subsequent calls.",

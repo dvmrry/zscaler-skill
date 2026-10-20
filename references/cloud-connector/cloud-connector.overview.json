@@ -10,7 +10,10 @@
     "ztc",
     "edge connector",
     "what is cloud connector",
-    "cloud connector architecture"
+    "cloud connector architecture",
+    "cloud connector overview",
+    "cloud connector not registering",
+    "cloud connector fails to come up after deployment"
   ],
   "related": [
     {
@@ -96,6 +99,10 @@
         {
           "label": "Branch and SD-WAN devices.",
           "text": "[[cloud-connector.sdwan]]."
+        },
+        {
+          "label": "A Connector that never registers.",
+          "text": "AWS: [[cloud-connector.aws.provisioning]] and [[cloud-connector.aws.troubleshooting]]; Azure: [[cloud-connector.azure:missing-from-console-checks]]; GCP's credentials and service accounts: [[cloud-connector.gcp]]."
         }
       ]
     },
@@ -150,6 +157,18 @@
           "label": "Terraform.",
           "text": "[[cloud-connector.terraform.coverage]], [[cloud-connector.terraform.provider-behavior]], [[cloud-connector.terraform.rule-order]]."
         }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a Connector that never registers after deployment, the cloud's provisioning inputs first: a provisioning template for that cloud and its URL in the deployment, an autoscaling template only for an autoscaling deployment, the credentials secret, and the instance identity's permissions to read it.",
+      "uses": [
+        "cloud-connector.aws.provisioning:wrong-url-recreate",
+        "cloud-connector.aws.provisioning:secret-iam",
+        "cloud-connector.overview.groups:template-match",
+        "cloud-connector.azure:missing-from-console-checks",
+        "cloud-connector.gcp:vm-sa"
       ]
     }
   ],

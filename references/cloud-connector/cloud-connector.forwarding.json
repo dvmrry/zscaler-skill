@@ -7,7 +7,9 @@
     "cloud connector forwarding rules",
     "ecRdr",
     "ztc_traffic_forwarding_rule",
-    "where does cloud connector send this traffic"
+    "where does cloud connector send this traffic",
+    "cloud connector workload cannot reach internet",
+    "workload going direct instead of through zscaler"
   ],
   "binds": [
     "ztw/forwarding-rules"
@@ -66,10 +68,33 @@
       "text": "For ZIA-method traffic, the tunnels to the Service Edges and what happens when they fail: [[cloud-connector.overview.gateway-failover]]."
     },
     {
+      "text": "Once traffic reaches the Zero Trust Exchange, Internet & SaaS or Private Access policy applies to it: [[cloud-connector.sdwan:traffic-to-zte]]. A workload that cannot reach an internet destination can therefore be a forwarding question (a Direct or Drop rule matched) or a ZIA policy question after the forward, where Connector traffic arrives at a workload location: [[zia.locations.workload-scopes]], [[zia.url-filtering]], [[zia.ssl-inspection]]. A Private Access flow continues on the ZPA side: [[zpa.app-segments]]."
+    },
+    {
       "text": "Two other policies run beside traffic forwarding: DNS policies and gateways ([[cloud-connector.dns]]), and Log and Control Forwarding for the Connector's own logs and control traffic ([[cloud-connector.forwarding.log-and-control]])."
     },
     {
       "text": "ZIA's Forwarding Control is a separate policy in a different product: [[zia.forwarding-control]]. Terraform behavior of these rules: [[cloud-connector.terraform.forwarding-rules]], [[cloud-connector.terraform.rule-order]], [[cloud-connector.terraform.delete-detach]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a workload that cannot reach an internet or SaaS destination, which rule matched the flow and its method: a Direct or Drop match is a forwarding-rule problem; a ZIA match moves the question to ZIA policy (URL Filtering, SSL Inspection) for the workload's location.",
+      "uses": [
+        "cloud-connector.forwarding.methods:zia-method",
+        "cloud-connector.forwarding.methods:direct-method",
+        "cloud-connector.forwarding.methods:drop-method",
+        "cloud-connector.sdwan:traffic-to-zte"
+      ]
+    },
+    {
+      "do": "For traffic going direct that should go to ZIA, the enabled Direct or Drop rules ordered ahead of the predefined default Internet & SaaS rule; where that rule sits and whether the first match ends evaluation are not stated.",
+      "uses": [
+        "cloud-connector.forwarding.predefined-rules:default-zia",
+        "cloud-connector.forwarding.rule-order:ascending",
+        "cloud-connector.forwarding.rule-order:first-match",
+        "cloud-connector.forwarding.rule-order:default-position"
+      ]
     }
   ],
   "claims": {

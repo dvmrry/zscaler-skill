@@ -26,7 +26,7 @@
     },
     {
       "label": "The helpers.",
-      "text": "{{transform-helper}} {{no-coerce}} {{add-id-groups-truthy}}"
+      "text": "[[shared.sdk-python.request-handling:id-list-helper]] {{no-coerce}} {{add-id-groups-truthy}}"
     },
     {
       "label": "The key maps.",
@@ -38,7 +38,7 @@
       "do": "Whether an ID list argument was passed empty or as an already nested list, and which helper handles it.",
       "uses": [
         "add-id-groups-truthy",
-        "transform-helper"
+        "shared.sdk-python.request-handling:id-list-helper"
       ]
     },
     {
@@ -50,27 +50,6 @@
     }
   ],
   "claims": {
-    "transform-helper": {
-      "statement": "`transform_common_id_fields` pops each snake_case key from the source dict and stores a list of `{\"id\": ...}` objects under the wire key; items that are already dicts with an id are kept.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/utils.py",
-          "quotes": [
-            "id_groups: list, source_dict: dict, target_dict: dict, coerce_ids: bool = True",
-            "id_groups: List of ``(snake_case_key, wire_key)`` tuples to remap.",
-            "convert that list/dict to the final ``{\"id\": ...}`` structure,",
-            "value = source_dict.pop(key)",
-            "final_list.append({\"id\": _maybe_coerce(item)})",
-            "elif isinstance(item, dict) and \"id\" in item:",
-            "final_list.append(item)",
-            "target_dict[payload_key] = final_list"
-          ],
-          "after": "def transform_common_id_fields("
-        }
-      ]
-    },
     "no-coerce": {
       "statement": "With `coerce_ids=False` the helper passes ID values through verbatim, which its docstring says ZPA needs because its 19-digit string IDs must be preserved on the wire; `add_segment` in `application_segment.py` calls it that way. The server-group wrapper also calls it that way, but its own loops pop `server_ids` and `app_connector_group_ids` first, so the call changes nothing there and a None for either key still raises TypeError.",
       "tier": "A",

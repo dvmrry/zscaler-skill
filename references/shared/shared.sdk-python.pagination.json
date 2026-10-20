@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-python.pagination",
+  "title": "How the Python SDK pages a list: has_next, next and the per-service branches",
+  "aliases": [
+    "python sdk pagination",
+    "has_next",
+    "resp.next",
+    "StopIteration",
+    "python sdk page size",
+    "next page"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-python.response-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "One response object (`ZscalerAPIResponse`) pages every service, with a branch per service for how the next page is requested and when the walk stops. The branches are in each product's subject: [[zia.sdk-python.request-conventions:has-next-zia]], [[zpa.sdk-python.pagination]], [[zcc.sdk-python.pagination]], [[zidentity.api.pagination:python-next]], [[zdx.sdk-python.response-models:paging]], [[zscaler-cellular.api.wire-notes:sdk-paging]]."
+    },
+    {
+      "label": "Every service.",
+      "text": "{{next-is-get}} So a list fetched with POST (a search) cannot be continued with `next()`: [[zscaler-cellular.api.wire-notes:next-page-post-search]]. {{next-stopiteration}} {{next-empty-page}}"
+    }
+  ],
+  "claims": {
+    "next-stopiteration": {
+      "statement": "`next()` raises `StopIteration(\"No more pages available.\")` when `has_next()` is false, and otherwise returns the tuple (results, response, error).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "raise StopIteration(\"No more pages available.\")",
+            "return results, self, None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if not self.has_next():"
+          ],
+          "after": "def next(self)"
+        }
+      ]
+    },
+    "next-empty-page": {
+      "statement": "`next()` raises StopIteration only when `has_next()` is already false; when the page it fetches is empty it returns None with no error instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def next(self) -> Tuple[Optional[List[Any]], \"ZscalerAPIResponse\", Optional[Exception]]:",
+          "quotes": [
+            "raise StopIteration(\"No more pages available.\")",
+            "if not results:",
+            "return None, self, None",
+            "if not self.has_next():"
+          ]
+        }
+      ]
+    },
+    "next-is-get": {
+      "statement": "The SDK's next-page request is always a GET built from the response's URL, headers and query parameters (with the page advanced); the request it builds has no body key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "req = { \"method\": \"GET\", \"url\": self._url, \"headers\": self._headers, \"params\": self._params, \"uuid\": uuid.uuid4(), }"
+          ],
+          "after": "def _fetch_next_page(self)"
+        }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "do": "Whether the list was fetched with POST before paging it with `next()`, which always sends a GET.",
+      "uses": [
+        "next-is-get"
+      ]
+    }
+  ]
+}

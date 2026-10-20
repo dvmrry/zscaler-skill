@@ -65,11 +65,11 @@
     },
     {
       "label": "What is retried.",
-      "text": "{{retry-statuses-docstring-mismatch}} {{retry-by-status-only}} The wait, the retry count and the edit-lock backoff are in [[zia.api.rate-limits]]."
+      "text": "[[shared.sdk-python.retries:retryable-statuses]] [[shared.sdk-python.retries:method-not-consulted]] The wait, the retry count and the edit-lock backoff are in [[zia.api.rate-limits]]."
     },
     {
       "label": "Sessions.",
-      "text": "{{reauth-on-401}} The Go retry policy is in [[shared.sdk-go.retries]]."
+      "text": "[[shared.sdk-python.retries:reauth-on-401]] The Go retry policy is in [[shared.sdk-go.retries]]."
     }
   ],
   "checks": [
@@ -92,10 +92,10 @@
     {
       "do": "Whether a write was replayed after a retryable status, and whether retries were exhausted.",
       "uses": [
-        "retry-statuses-docstring-mismatch",
-        "retry-by-status-only",
-        "zia.api.rate-limits:sdk-wait-from-headers",
-        "zia.api.rate-limits:sdk-max-retries-default",
+        "shared.sdk-python.retries:retryable-statuses",
+        "shared.sdk-python.retries:method-not-consulted",
+        "shared.sdk-python.retries:wait-from-headers",
+        "shared.sdk-python.retries:max-retries",
         "zia.api.rate-limits:zia-edit-lock-retry"
       ]
     },
@@ -321,53 +321,6 @@
           "quotes": [
             "APIResult = Tuple[T, ZscalerAPIResponse, Optional[Exception]]"
           ]
-        }
-      ]
-    },
-    "retry-statuses-docstring-mismatch": {
-      "statement": "The Python executor's retryable-status helper documents 429, 500, 502, 503 and 504 as retryable, but its code tests only 429, 503 and 504, so a 500 or 502 is not retried by it.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "Retryable statuses: 429, 500, 502, 503, 504",
-            "HTTPStatus.TOO_MANY_REQUESTS,",
-            "HTTPStatus.SERVICE_UNAVAILABLE,",
-            "HTTPStatus.GATEWAY_TIMEOUT,",
-            "return status is not None and status in ( # HTTPStatus.REQUEST_TIMEOUT, # HTTPStatus.CONFLICT, # HTTPStatus.PRECONDITION_FAILED, HTTPStatus.TOO_MANY_REQUESTS, HTTPStatus.SERVICE_UNAVAILABLE, HTTPStatus.GATEWAY_TIMEOUT, )"
-          ]
-        }
-      ]
-    },
-    "retry-by-status-only": {
-      "statement": "The branch that retries the retryable statuses (429, 503 and 504) is decided by the attempt count and the response status alone; the request method is not consulted.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "# Handle \"retryable\" statuses such as 429, 503, etc. if attempts < max_retries and self.is_retryable_status(response.status_code):",
-            "return status is not None and status in ( # HTTPStatus.REQUEST_TIMEOUT, # HTTPStatus.CONFLICT, # HTTPStatus.PRECONDITION_FAILED, HTTPStatus.TOO_MANY_REQUESTS, HTTPStatus.SERVICE_UNAVAILABLE, HTTPStatus.GATEWAY_TIMEOUT, )",
-            "def is_retryable_status(self, status):"
-          ]
-        }
-      ]
-    },
-    "reauth-on-401": {
-      "statement": "On a 401 the executor clears the OAuth token, fetches a new one and retries while attempts remain; otherwise it returns a token-refresh-exhausted error.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "Got 401 response; clearing token and re-authenticating.",
-            "401 Unauthorized - token refresh attempts exhausted or OAuth not available."
-          ],
-          "after": "# Check for 401 -> Trigger re-auth if we still have retries left"
         }
       ]
     },

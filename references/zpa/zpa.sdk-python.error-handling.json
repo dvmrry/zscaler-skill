@@ -12,7 +12,7 @@
   "related": [
     {
       "rel": "see-also",
-      "to": "zpa.sdk-python.retries-and-rate-limits"
+      "to": "shared.sdk-python.retries"
     },
     {
       "rel": "see-also",
@@ -29,7 +29,7 @@
     },
     {
       "label": "Returned.",
-      "text": "{{tuple-shape}} {{http-errors-returned}} {{model-error-in-slot}} {{string-errors}}"
+      "text": "{{tuple-shape}} [[shared.sdk-python.errors:errors-returned]] {{model-error-in-slot}} {{string-errors}}"
     },
     {
       "label": "Raised.",
@@ -51,7 +51,7 @@
       "uses": [
         "string-errors",
         "model-error-in-slot",
-        "http-errors-returned"
+        "shared.sdk-python.errors:errors-returned"
       ]
     }
   ],
@@ -75,21 +75,6 @@
             "tuple: (list of TagKey, Response, error)."
           ],
           "after": "def list_tag_keys("
-        }
-      ]
-    },
-    "http-errors-returned": {
-      "statement": "The executor's `execute` catches exceptions from firing the request and from the response error check, and returns them as the error element instead of raising.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "try: request, response, response_body, error = self.fire_request(request) except Exception as ex: logger.error(f\"Exception during HTTP request: {ex}\") return None, ex",
-            "try: response_data, error = check_response_for_error(request[\"url\"], response, response_body) except Exception as ex: logger.error(f\"Exception while checking response for errors: {ex}\") return None, ex"
-          ],
-          "after": "def execute("
         }
       ]
     },

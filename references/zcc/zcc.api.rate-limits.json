@@ -65,7 +65,7 @@
       "heading": "Python OneAPI client"
     },
     {
-      "text": "{{oneapi-retry-headers}} {{oneapi-retry-budget}} {{oneapi-no-header-no-retry}}"
+      "text": "{{oneapi-retry-headers}} [[shared.sdk-python.retries:max-retry-seconds]] [[shared.sdk-python.retries:wait-from-headers]]"
     },
     {
       "text": "Go SDK retry behavior, shared across products, is in [[shared.sdk-go.retries]]."
@@ -313,43 +313,6 @@
             "retry_after = headers.get(\"Retry-After\") or headers.get(\"retry-after\")",
             "elif retry_limit_reset_header is not None:",
             "Retryable statuses: 429, 500, 502, 503, 504"
-          ]
-        }
-      ]
-    },
-    "oneapi-retry-budget": {
-      "statement": "The Python SDK's request executor retries at most `rateLimit.maxRetries` times, 2 by default, and raises `RetryTooLong` instead of waiting when a computed wait exceeds a configured `rateLimit.maxRetrySeconds`.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "self._max_retries = config[\"client\"][\"rateLimit\"].get(\"maxRetries\", 2)",
-            "Retry wait time {backoff} seconds exceeds configured maxRetrySeconds",
-            "if backoff > max_retry_seconds: from zscaler.exceptions.exceptions import RetryTooLong raise RetryTooLong("
-          ]
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "after": "# Handle \"retryable\" statuses such as 429, 503, etc.",
-          "quotes": [
-            "if attempts < max_retries and self.is_retryable_status(response.status_code): backoff_seconds = self.get_retry_after(response.headers, logger)",
-            "time.sleep(backoff_seconds)"
-          ]
-        }
-      ]
-    },
-    "oneapi-no-header-no-retry": {
-      "statement": "When a retryable response carries none of the recognized wait headers, the OneAPI executor returns an error without retrying.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "return None, response, response.text, Exception(ERROR_MESSAGE_429_MISSING_DATE_X_RESET)"
           ]
         }
       ]

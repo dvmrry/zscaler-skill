@@ -8,7 +8,9 @@
     "how does zcc decide where to send traffic",
     "traffic bypassed zscaler",
     "web forwarding profile",
-    "zcc_forwarding_profile"
+    "zcc_forwarding_profile",
+    "traffic goes direct instead of through zscaler",
+    "why didn't zia see this traffic"
   ],
   "binds": [
     "zcc/forwarding-profiles"
@@ -112,5 +114,31 @@
         "lab-test"
       ]
     }
-  }
+  },
+  "checks": [
+    {
+      "do": "Before reading ZIA policy for traffic ZIA never logged: which network type the device was in, and whether the profile's Internet & SaaS action for it is None, which tunnels nothing.",
+      "uses": [
+        "zcc.forwarding-profiles.network-types:network-type-displayed",
+        "zcc.forwarding-profiles.internet-actions:none-mode",
+        "zcc.forwarding-profiles.internet-actions:trusted-none-skips-zia"
+      ]
+    },
+    {
+      "do": "Whether the trusted network criteria matched where the user actually was, which puts the device On-Trusted and selects the On-Trusted actions.",
+      "uses": [
+        "zcc.trusted-networks.detection:criteria-defined",
+        "zcc.trusted-networks.detection:any-all",
+        "zcc.forwarding-profiles.network-types:on-trusted"
+      ]
+    },
+    {
+      "do": "When a Private Access application is not reached and its segment configuration looks right: the profile's Private Access action for the device's network type, which is set separately from the internet action and can be None.",
+      "uses": [
+        "zcc.forwarding-profiles.private-access-actions:independent-of-internet",
+        "zcc.forwarding-profiles.private-access-actions:none-direct",
+        "zpa.app-segments.bypass:bypass-beats-cfp"
+      ]
+    }
+  ]
 }

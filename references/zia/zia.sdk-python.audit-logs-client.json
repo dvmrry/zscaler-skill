@@ -30,7 +30,7 @@
     },
     {
       "label": "Cancel.",
-      "text": "{{response-status-accessor}} {{cancel-attribute-error}}"
+      "text": "[[shared.sdk-python.response-handling:status-accessor]] {{cancel-attribute-error}}"
     }
   ],
   "checks": [
@@ -131,27 +131,12 @@
         }
       ]
     },
-    "response-status-accessor": {
-      "statement": "`ZscalerAPIResponse` keeps the HTTP status in `_status`, reads it from the underlying response once in its constructor, and exposes it through `get_status()`; the class defines no `status_code` attribute or property.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_response.py",
-          "quotes": [
-            "class ZscalerAPIResponse:",
-            "self._status = res_details.status_code if res_details and hasattr(res_details, \"status_code\") else None",
-            "def get_status(self) -> Optional[int]:"
-          ]
-        }
-      ]
-    },
     "cancel-attribute-error": {
       "statement": "`AuditLogsAPI.cancel` raises AttributeError when the DELETE request succeeds, because it reads `response.status_code` from a `ZscalerAPIResponse`.",
       "tier": "B",
       "derived_from": [
         "raw-return-values",
-        "response-status-accessor"
+        "shared.sdk-python.response-handling:status-accessor"
       ],
       "conditions": "Holds if the executor returns a `ZscalerAPIResponse` for this call, as it does by default; derived from reading the code, not from running the call."
     },

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-python.errors",
+  "title": "How the Python SDK reports errors: the error slot, exception classes, raiseException",
+  "aliases": [
+    "ZscalerAPIError",
+    "ZscalerAPIException",
+    "raiseException",
+    "python sdk error tuple",
+    "python sdk exceptions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-python.retries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Python SDK methods return `(result, response, error)` and, by default, put an API failure in the error slot rather than raising it."
+    },
+    {
+      "label": "The error slot.",
+      "text": "{{api-error-object}} {{errors-returned}}"
+    },
+    {
+      "label": "Raising instead.",
+      "text": "{{raise-exception}} {{exception-classes}}"
+    }
+  ],
+  "claims": {
+    "api-error-object": {
+      "statement": "A non-2xx REST response is turned into a `ZscalerAPIError` built from the URL, the response and the parsed body, and the request executor hands it back in the error slot. A response whose Content-Type is JSON but whose body does not parse is returned as an `HTTPError` carrying the status code and body text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/response_checker.py",
+          "quotes": [
+            "error = ZscalerAPIError(url, response_details, formatted_response)",
+            "return None, HTTPError(url, response_details, body_text)",
+            "is_json = \"application/json\" in content_type",
+            "formatted_response = json.loads(response_body) if is_json else response_body",
+            "except json.JSONDecodeError:",
+            "if 200 <= status_code < 300: return formatted_response, None",
+            "error = ZscalerAPIError(url, response_details, formatted_response) if exceptions.raise_exception: raise ZscalerAPIException(error) return None, error"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "response_data, error = check_response_for_error(request[\"url\"], response, response_body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/http_error.py",
+          "quotes": [
+            "self.status_code: int = response_details.status_code",
+            "self.message: str = f\"HTTP {self.status_code} {response_body}\""
+          ]
+        }
+      ]
+    },
+    "raise-exception": {
+      "statement": "The client setting `raiseException` defaults to False. When it is true the same API errors are raised as `ZscalerAPIException` (or `HTTPException`) instead of being returned in the error slot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "exceptions.raise_exception = self._config[\"client\"].get(\"raiseException\", False)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/response_checker.py",
+          "after": "# Standard REST API response handling",
+          "quotes": [
+            "raise ZscalerAPIException(error)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/response_checker.py",
+          "quotes": [
+            "if exceptions.raise_exception: raise HTTPException(url, response_details, body_text) return None, HTTPError(url, response_details, body_text)",
+            "error = ZscalerAPIError(url, response_details, formatted_response) if exceptions.raise_exception: raise ZscalerAPIException(error) return None, error"
+          ]
+        }
+      ]
+    },
+    "exception-classes": {
+      "statement": "The Python SDK defines its own exception classes: `HTTPError` and `ZscalerAPIError` in `zscaler/errors`, `ZscalerAPIException` and `HTTPException` in `zscaler/exceptions`, and `RateLimitExceededError` in `zscaler/utils.py`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/http_error.py",
+          "quotes": [
+            "class HTTPError(Exception):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/errors/zscaler_api_error.py",
+          "quotes": [
+            "class ZscalerAPIError(Exception):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/exceptions/exceptions.py",
+          "quotes": [
+            "class HTTPException(ZscalerBaseException):",
+            "class ZscalerAPIException(ZscalerBaseException):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "quotes": [
+            "class RateLimitExceededError(Exception):"
+          ]
+        }
+      ]
+    },
+    "errors-returned": {
+      "statement": "The executor's `execute` catches exceptions from firing the request and from the response error check, and returns them as the error element instead of raising.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "try: request, response, response_body, error = self.fire_request(request) except Exception as ex: logger.error(f\"Exception during HTTP request: {ex}\") return None, ex",
+            "try: response_data, error = check_response_for_error(request[\"url\"], response, response_body) except Exception as ex: logger.error(f\"Exception while checking response for errors: {ex}\") return None, ex"
+          ],
+          "after": "def execute("
+        }
+      ]
+    }
+  },
+  "checks": [
+    {
+      "do": "That the caller checks the error element of the returned tuple, unless the client was built with raiseException.",
+      "uses": [
+        "errors-returned",
+        "raise-exception"
+      ]
+    }
+  ]
+}

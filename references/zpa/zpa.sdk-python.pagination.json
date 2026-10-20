@@ -51,7 +51,7 @@
     },
     {
       "label": "Walking pages.",
-      "text": "[[zia.sdk-python.pagination:first-page-only]] [[zia.sdk-python.pagination:has-next-next]] {{next-uses-page}} {{next-stopiteration}} {{zpa-next-counter}} {{zpa-later-page-restarts}} [[zia.sdk-python.response-shape:search-current-page]]"
+      "text": "[[zia.sdk-python.pagination:first-page-only]] [[zia.sdk-python.pagination:has-next-next]] {{next-uses-page}} [[shared.sdk-python.pagination:next-stopiteration]] {{zpa-next-counter}} {{zpa-later-page-restarts}} [[shared.sdk-python.response-handling:search-current-page]]"
     },
     {
       "label": "Page size.",
@@ -76,7 +76,7 @@
       "uses": [
         "zia.sdk-python.pagination:first-page-only",
         "next-uses-page",
-        "next-stopiteration"
+        "shared.sdk-python.pagination:next-stopiteration"
       ]
     },
     {
@@ -305,28 +305,6 @@
             "self._total_pages = int(self._body.get(\"totalPages\", 1))"
           ],
           "after": "if self._service_type == \"zpa\":"
-        }
-      ]
-    },
-    "next-stopiteration": {
-      "statement": "`next()` raises `StopIteration(\"No more pages available.\")` when `has_next()` is false, and otherwise returns the tuple (results, response, error).",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_response.py",
-          "quotes": [
-            "raise StopIteration(\"No more pages available.\")",
-            "return results, self, None"
-          ]
-        },
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_response.py",
-          "quotes": [
-            "if not self.has_next():"
-          ],
-          "after": "def next(self)"
         }
       ]
     },

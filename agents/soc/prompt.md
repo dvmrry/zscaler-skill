@@ -211,7 +211,7 @@ Check-set:
 - **Stale admins** — last login > 90 days; offboarded users still active in the admin database; service accounts without rotation.
 - **Role bloat** — custom roles defined but accumulated permissions over time without periodic review.
 - **API client privilege** — OneAPI clients with broad resource-server scope; secrets last-rotated > policy threshold.
-- **Step-up auth coverage** — high-sensitivity apps / actions without Conditional Access / step-up authentication required. (ZIdentity Authentication Levels — see [`../zidentity/`](../../references/zidentity/index.md).)
+- **Step-up auth coverage** — high-sensitivity apps / actions without Conditional Access / step-up authentication required. (ZIdentity Authentication Levels — `node scripts/kb.mjs resolve zidentity.step-up`.)
 - **SAML attribute drift** — IdP-provided attributes that don't match the SCIM directory; impacts policy evaluation correctness.
 
 ### Subtype: telemetry coverage

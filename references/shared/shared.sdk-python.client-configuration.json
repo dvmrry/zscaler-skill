@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "id": "shared.sdk-python.client-configuration",
+  "title": "How the Python SDK's unified client is configured: OneAPI or legacy, settings, environment variables",
+  "aliases": [
+    "ZscalerClient",
+    "use_legacy_client",
+    "python sdk environment variables",
+    "ZSCALER_CLIENT_ID",
+    "python sdk legacy client",
+    "python sdk timeout"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.sdk-python.request-handling"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are claims about the Python SDK's unified client (`ZscalerClient`), shared by every product it reaches. How a token is obtained is in [[shared.oneapi.authentication]]."
+    },
+    {
+      "label": "OneAPI or legacy.",
+      "text": "{{legacy-switch}} {{legacy-clients}} {{no-zidentity-legacy}} {{bearer-header}} Each product's legacy client and its settings are in that product's client-configuration subject, for example [[zcc.sdk-python.client-configuration]] and [[cloud-connector.sdk-python.client-configuration]]."
+    },
+    {
+      "label": "Settings.",
+      "text": "{{env-key-format}} {{request-timeout}} Retry settings are in [[shared.sdk-python.retries]]."
+    }
+  ],
+  "claims": {
+    "legacy-switch": {
+      "statement": "The Python SDK's unified client chooses a legacy client through its `use_legacy_client` constructor argument, which defaults to False.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "use_legacy_client: bool = False,",
+            "self.use_legacy_client = use_legacy_client"
+          ]
+        }
+      ]
+    },
+    "env-key-format": {
+      "statement": "The Python OneAPI configuration setter reads each client setting from an environment variable named ZSCALER_ followed by the upper-cased snake_case form of the setting key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/config/config_setter.py",
+          "quotes": [
+            "_ZSCALER = \"ZSCALER\"",
+            "self._apply_env_config(\"client\")",
+            "flattened_config = flatten_dict(self._config.get(conf_key, {}), delimiter=\"_\")",
+            "for key in flattened_keys:",
+            "env_key = ConfigSetter._ZSCALER + \"_\" + to_snake_case(key).upper()",
+            "env_value = os.environ.get(env_key, None)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/config/config_setter.py",
+          "quotes": [
+            "\"customerId\": \"\",",
+            "\"microtenantId\": \"\","
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "from zscaler.config.config_setter import ConfigSetter",
+            "client_config_setter = ConfigSetter()"
+          ]
+        }
+      ]
+    },
+    "legacy-clients": {
+      "statement": "The Python SDK's legacy (non-OneAPI) clients cover ZPA, ZIA, ZTW, ZCC, AI Guard, ZDX, ZWA and ZTB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZPAClient(Client):",
+            "class LegacyZIAClient(Client):",
+            "class LegacyZTWClient(Client):",
+            "class LegacyZCCClient(Client):",
+            "class LegacyAIGuardClient(Client):",
+            "class LegacyZDXClient(Client):",
+            "class LegacyZWAClient(Client):",
+            "class LegacyZTBClient(Client):"
+          ]
+        }
+      ],
+      "conditions": "The eight classes quoted are every legacy client class in oneapi_client.py at the pin."
+    },
+    "no-zidentity-legacy": {
+      "statement": "There is no legacy client for ZIdentity: `oneapi_client.py` imports a legacy helper for each of the eight products but only the service module for ZIdentity.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "from zscaler.zia.legacy import LegacyZIAClientHelper from zscaler.zia.zia_service import ZIAService from zscaler.zid.zid_service import ZIdService from zscaler.zpa.legacy import LegacyZPAClientHelper"
+          ]
+        }
+      ],
+      "derived_from": [
+        "legacy-clients"
+      ],
+      "conditions": "An absence: a read of oneapi_client.py at the pin finds the eight Legacy*Client classes in legacy-clients and no ZIdentity one, and its sorted import block (quoted around zid) brings in no zid legacy helper."
+    },
+    "bearer-header": {
+      "statement": "The Python SDK sets the `Authorization` header to `Bearer` plus the OAuth access token when the client is not a legacy client and the endpoint does not contain `/zscsb`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "if \"/zscsb\" not in endpoint and not self.use_legacy_client:",
+            "headers[\"Authorization\"] = f\"Bearer {self._oauth._get_access_token()}\""
+          ]
+        }
+      ]
+    },
+    "request-timeout": {
+      "statement": "The executor reads `client.requestTimeout` with a default of 240 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self._request_timeout = config[\"client\"].get(\"requestTimeout\", 240)"
+          ]
+        }
+      ]
+    }
+  }
+}

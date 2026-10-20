@@ -213,6 +213,9 @@ export function resolve(g, query, { overlay = null, cases = "summary", evidence 
   const base = { bundle_version: BUNDLE_VERSION, query, tiers: tiers(overlay) };
   let id = query;
   if (!g.nodes.has(id) && g.formerIds.has(id)) id = g.formerIds.get(id);
+  // A product's ID always lists its areas; a product alias does only when no subject or type claims it exactly.
+  const product = !g.nodes.has(id) && productOf(g, query, g.aliases.has(normalizeText(query)));
+  if (product) return { ...base, resolved: { id: product, kind: "product" }, areas: areasOf(g, product) };
   if (!g.nodes.has(id)) {
     let hits = [...(g.aliases.get(normalizeText(query)) || [])].sort();
     if (!hits.length) hits = containingAllWords(g, query);
@@ -225,6 +228,36 @@ export function resolve(g, query, { overlay = null, cases = "summary", evidence 
   if (node.kind === "type" || node.kind === "field") return { ...base, resolved: { id, kind: node.kind }, ...typeBundle(g, node.kind === "type" ? id : node.type, node.kind === "field" ? node.path : null, overlay, ctx) };
   const subjectId = node.kind === "subject" ? id : node.subject;
   return { ...base, resolved: { id, kind: node.kind }, ...(node.kind !== "subject" ? { focus: id } : {}), ...subjectBundle(g, subjectId, overlay, ctx) };
+}
+
+/** The product (or "shared") a query names by its ID, or by its name or a products.json alias unless idOnly. */
+function productOf(g, query, idOnly) {
+  const q = normalizeText(query);
+  if (q === "shared") return "shared";
+  for (const [id, p] of Object.entries(g.products.products)) {
+    if (normalizeText(id) === q || (!idOnly && [p.name, ...(p.aliases || [])].some((a) => a && normalizeText(a) === q))) return id;
+  }
+  return null;
+}
+
+/**
+ * A product's areas, generated from its subject IDs: one entry per second ID segment, with the area's own
+ * subject when there is one and every subject under it. This is the product's table of contents; nothing
+ * hand-maintained.
+ */
+function areasOf(g, product) {
+  const areas = new Map();
+  for (const n of g.nodes.values()) {
+    if (n.kind !== "subject" || n.id.split(".")[0] !== product) continue;
+    const area = n.id.split(".").slice(0, 2).join(".");
+    if (!areas.has(area)) areas.set(area, []);
+    areas.get(area).push(n.id);
+  }
+  return [...areas.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([area, ids]) => ({
+    id: area,
+    ...(g.nodes.has(area) ? { title: titleOf(g, area) } : {}),
+    subjects: ids.filter((i) => i !== area).sort(),
+  }));
 }
 
 /**

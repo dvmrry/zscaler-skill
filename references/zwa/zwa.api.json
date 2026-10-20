@@ -10,7 +10,9 @@
     "LegacyZWAClient",
     "ZWA_API_KEY_ID",
     "ZWA_CLIENT_ID",
-    "zwa sdk"
+    "zwa sdk",
+    "zwa mcp",
+    "workflow automation mcp"
   ],
   "related": [
     {
@@ -53,7 +55,7 @@
       "heading": "Coverage"
     },
     {
-      "text": "{{uncovered-operations}} Incident and audit wire behavior is in [[zwa.api.incidents-wire]] and [[zwa.audit-logs]]. Which credentials and host a tenant should use is open {{gap:auth-boundary}}."
+      "text": "{{uncovered-operations}} {{mcp-no-zwa}} Incident and audit wire behavior is in [[zwa.api.incidents-wire]] and [[zwa.audit-logs]]. Which credentials and host a tenant should use is open {{gap:auth-boundary}}."
     }
   ],
   "checks": [
@@ -379,6 +381,30 @@
         }
       ],
       "conditions": "Compared against the Python dlp_incidents and audit_logs modules and the Go dlp_incidents and customeraudit packages at their pins, whose paths are all under /dlp/v1/incidents and /dlp/v1/customer/audit."
+    },
+    "mcp-no-zwa": {
+      "statement": "The MCP server has no Workflow Automation tools: the table of contents of its generated tool reference lists ZIA, ZPA, ZDX, ZCC, ZTW, ZIdentity, EASM, Z-Insights, ZMS and ZCell, and no Workflow Automation section.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "docs/guides/supported-tools.md",
+          "quotes": [
+            "The tables below are rebuilt from the live tool inventory",
+            "[ZIA — Internet Access](#zia--internet-access)",
+            "[ZPA — Private Access](#zpa--private-access)",
+            "[ZDX — Digital Experience](#zdx--digital-experience)",
+            "[ZCC — Client Connector](#zcc--client-connector)",
+            "[ZTW — Workload Segmentation](#ztw--workload-segmentation)",
+            "[ZIdentity](#zidentity)",
+            "[EASM — External Attack Surface Management](#easm--external-attack-surface-management)",
+            "[Z-Insights](#z-insights)",
+            "[ZMS — Microsegmentation](#zms--microsegmentation)",
+            "[ZCell — Cellular](#zcell--cellular)"
+          ]
+        }
+      ],
+      "conditions": "Rests on the generated supported-tools page's table of contents at the pin, which the page says is rebuilt from the live tool inventory, and on the server's tools tree at the pin, whose service packages are easm, zcc, zcell, zdx, zia, zid, zins, zms, zpa and ztw with no zwa package. A newer or private server is not ruled out."
     }
   },
   "gaps": {

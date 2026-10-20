@@ -148,7 +148,7 @@
       "heading": "A second surface"
     },
     {
-      "text": "{{application-profiles-surface}} Whether it addresses the same records and IDs as `/web/policy` is open {{gap:surface-equivalence}}."
+      "text": "{{application-profiles-surface}} Whether it addresses the same records and IDs as `/web/policy` is open {{gap:surface-equivalence}}. Whether it carries the captive-portal settings is open {{gap:application-profiles-captive-portal}}."
     },
     {
       "text": "Go SDK calls in legacy-client mode route web policy reads and deletes to the wrong client: [[zcc.sdk-go.legacy-routing]]. The Terraform provider has no web policy resource: [[zcc.terraform.coverage:no-terraform-resource]]."
@@ -2040,6 +2040,17 @@
       "detail": "The Go SDK's comment says reads return a `deviceType` string such as `DEVICE_TYPE_MAC` beside the integer `device_type`, but the SDK does not model it, so the string's presence on the wire rests on that comment and is not confirmed from a captured `web/policy/listByCompany` response.",
       "blocks": "telling a policy's platform from a raw listing",
       "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "application-profiles-captive-portal": {
+      "kind": "semantic",
+      "title": "Whether the /application-profiles object carries the captive-portal settings",
+      "status": "open",
+      "detail": "Captive-portal keys appear on the web policy body (`captivePortalConfig`, and in the Go SDK `enableCaptivePortalDetection` and `captivePortalWebSecDisableMinutes`), on the fail-open policy and on the company info object. A search of the API contract's `/papi/public/v1/application-profiles` operations, the Python SDK's application profiles model and the Go SDK's application_profiles package found no captive-portal key, so whether the captive-portal window can be read or set through the second surface is not established.",
+      "blocks": "reading or writing captive-portal grace through the application-profiles surface",
+      "resolves_with": [
+        "source-read",
         "tenant-data"
       ]
     }

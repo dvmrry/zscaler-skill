@@ -397,6 +397,25 @@ test("resolve follows former IDs and returns candidates for ambiguous text", () 
 // Line numbers are computed at render time and move with every vendor bump; goldens ignore them.
 const stripLines = (v) => JSON.parse(JSON.stringify(v, (k, x) => (k === "line" || k === "lines" ? undefined : x)));
 
+test("a product name resolves to its areas, generated from subject IDs", () => {
+  const g = graphOf(ROOT);
+  const schemas = loadSchemas(path.join(ROOT, "references/_meta/schema"));
+  for (const q of ["zia", "ZIA", "Client Connector", "shared"]) {
+    const bundle = resolve(g, q);
+    assert.deepEqual(validate(schemas, "bundle.schema.json", bundle), [], q);
+    assert.equal(bundle.resolved.kind, "product", q);
+  }
+  const zia = resolve(g, "zia");
+  const urlFiltering = zia.areas.find((a) => a.id === "zia.url-filtering");
+  assert.ok(urlFiltering.title, "an area with its own subject carries its title");
+  assert.ok(urlFiltering.subjects.includes("zia.url-filtering.rule-order"));
+  // A product alias that a subject also claims goes to the subject.
+  assert.equal(resolve(g, "AI Guard").resolved?.id, "ai-security.ai-guard");
+  const sdkPython = resolve(g, "shared").areas.find((a) => a.id === "shared.sdk-python");
+  assert.equal(sdkPython.title, undefined, "an area without a subject of its own lists only its subjects");
+  assert.ok(sdkPython.subjects.includes("shared.sdk-python.retries"));
+});
+
 test("bundles match the golden files and the bundle contract", () => {
   const g = graphOf(ROOT);
   const ov = loadOverlay(g, OVERLAY);
@@ -416,6 +435,9 @@ test("the surface layer links a Terraform resource through its SDK package to AP
   assert.ok(hit.api.includes("/firewallFilteringRules/{ruleId}"));
   const [byPath] = lookupSurface(ROOT, "/zia/api/v1/firewallFilteringRules");
   assert.ok(byPath.reached_by.terraform.includes("resource:zia_firewall_filtering_rule"));
+  const [zdx] = lookupSurface(ROOT, "zdx");
+  assert.equal(zdx.match, "product");
+  assert.ok(zdx.api.includes("/v1/alerts/ongoing") && zdx.sdk_python.alerts.methods.length && !zdx.terraform.length);
 });
 
 test("Terraform field paths convert to API field paths", () => {

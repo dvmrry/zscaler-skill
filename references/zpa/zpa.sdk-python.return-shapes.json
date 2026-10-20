@@ -35,7 +35,7 @@
     },
     {
       "label": "Results are model objects.",
-      "text": "{{result-models-subclass}} {{result-model-objects}} {{as-dict-snake-case}}"
+      "text": "{{result-models-subclass}} {{result-model-objects}} [[shared.sdk-python.response-handling:as-dict]]"
     },
     {
       "label": "Where errors are raised instead of returned.",
@@ -52,7 +52,7 @@
     {
       "do": "Whether the keys read from as_dict are snake_case, which is what the SDK emits, and not the API's camelCase.",
       "uses": [
-        "as-dict-snake-case"
+        "shared.sdk-python.response-handling:as-dict"
       ]
     },
     {
@@ -94,21 +94,6 @@
         "result-models-subclass"
       ],
       "conditions": "Holds for the models that subclass ZscalerObject; calls that return a bare dict, such as the LSS helpers, are the exception (zpa.sdk-python.lss-helpers)."
-    },
-    "as-dict-snake-case": {
-      "statement": "A model's as_dict returns snake_case keys and omits attributes whose value is None, while its request_format method is the camelCase form the API expects.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/oneapi_object.py",
-          "quotes": [
-            "if val is None:",
-            "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
-            "The keys are in camelCase as expected by the API."
-          ]
-        }
-      ]
     }
   },
   "gaps": {}

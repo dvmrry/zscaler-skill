@@ -185,7 +185,7 @@ For each in-scope reference, read frontmatter `confidence` and `sources`. Apply:
 
 Severity: `High` for inflated confidence with no remediation path; `Medium` for honest-but-thin medium claims; `Low` for missing "Open questions" alone.
 
-**Index / curator files are a special case.** A pure index file (e.g., `references/shared/index.md`) whose body is a curated list of pointers to other references doesn't have "external sources" the same way a content file does — its sources *are* the child references. For an index file, accept any of:
+**Index / curator files are a special case.** A pure index file (e.g., `references/_meta/primer/index.md`) whose body is a curated list of pointers to other references doesn't have "external sources" the same way a content file does — its sources *are* the child references. For an index file, accept any of:
 - `sources:` empty AND a body composed of cross-links to listed children, OR
 - `sources:` populated with the child reference paths, OR
 - A note in the body explaining the curation pattern

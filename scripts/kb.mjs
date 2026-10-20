@@ -13,7 +13,9 @@
 //   export-zscalerctl                export the pinned zscalerctl catalogue (needs Go)
 //   import-types                     regenerate references/_meta/types/*.json
 //   migrate-links                    rewrite legacy links to converted docs as kb: links
-//   surface <query>                  API, SDK and Terraform surface for a Terraform name, API path,
+//   move-claim <from> <to> [--merge] move a claim to another subject, rewriting every reference to it;
+//                                    --merge drops it in favour of an existing claim that says the same
+//   surface <query>                  API, SDK and Terraform surface for a product key (zia, zdx, zid, ...), a Terraform name, API path,
 //                                    Go SDK package, or Python module, class or method (generated layer)
 //
 // Exit codes: 0 ok, 1 validation failed, 2 usage error.
@@ -27,7 +29,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|lint|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|surface|freshness> [args]");
+  console.error("usage: kb.mjs <validate|lint|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|move-claim|surface|freshness> [args]");
   process.exit(2);
 }
 
@@ -51,6 +53,15 @@ async function main(argv) {
     const { written, unmatched } = importTypes(ROOT);
     for (const f of written) console.log(`wrote ${f}`);
     if (unmatched.length) console.log(`${unmatched.length} types have no infrawright Terraform mapping: ${unmatched.join(", ")}`);
+    return 0;
+  }
+  if (cmd === "move-claim") {
+    const merge = args.includes("--merge");
+    const ids = args.filter((a) => a !== "--merge");
+    if (ids.length !== 2) usage("move-claim needs <from> <to>");
+    const { moveClaim } = await import("./kb-move.mjs");
+    const { from, to, rewritten } = moveClaim(ROOT, ids[0], ids[1], { merge });
+    console.log(`${merge ? "merged" : "moved"} ${from} -> ${to}; rewrote ${rewritten.length} file(s)${rewritten.length ? `: ${rewritten.join(", ")}` : ""}`);
     return 0;
   }
   if (cmd === "surface") {

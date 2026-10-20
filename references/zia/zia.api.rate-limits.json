@@ -35,7 +35,7 @@
     },
     {
       "label": "SDK retries.",
-      "text": "{{sdk-max-retries-default}} Which statuses the executor retries is in [[zia.sdk-python.request-conventions:retry-statuses-docstring-mismatch]]. The SDK's two lists of retryable statuses disagree {{divergence:retryable-status-sets}}. {{sdk-wait-from-headers}} {{sdk-max-retry-seconds}}"
+      "text": "[[shared.sdk-python.retries:max-retries]] Which statuses the executor retries is in [[shared.sdk-python.retries:retryable-statuses]]. The SDK's two lists of retryable statuses disagree {{divergence:retryable-status-sets}}. [[shared.sdk-python.retries:wait-from-headers]] [[shared.sdk-python.retries:max-retry-seconds]]"
     },
     {
       "label": "Edit lock.",
@@ -53,9 +53,9 @@
     {
       "do": "Whether the client retried: the status was one the SDK retries, and the retry budget was not exhausted or capped by maxRetrySeconds.",
       "uses": [
-        "zia.sdk-python.request-conventions:retry-statuses-docstring-mismatch",
-        "sdk-max-retries-default",
-        "sdk-max-retry-seconds"
+        "shared.sdk-python.retries:retryable-statuses",
+        "shared.sdk-python.retries:max-retries",
+        "shared.sdk-python.retries:max-retry-seconds"
       ]
     },
     {
@@ -111,51 +111,6 @@
             "x-ratelimit-limit: The rate limit ceiling that is applicable for the current API request.",
             "x-ratelimit-remaining: The number of API requests remaining for the current rate limit window.",
             "ZIA sends Rate Limit headers in API responses"
-          ]
-        }
-      ]
-    },
-    "sdk-max-retries-default": {
-      "statement": "The Python request executor retries up to the rateLimit maxRetries setting, which defaults to 2.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "self._max_retries = config[\"client\"][\"rateLimit\"].get(\"maxRetries\", 2)"
-          ]
-        }
-      ]
-    },
-    "sdk-wait-from-headers": {
-      "statement": "The retry wait comes from Retry-After plus one second, or else from the rate-limit reset header plus one second; with neither header the request is not retried and an error is returned.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "backoff = int(retry_after.strip(\"s\")) + 1",
-            "backoff = float(retry_limit_reset_header) + 1",
-            "return None, response, response.text, Exception(ERROR_MESSAGE_429_MISSING_DATE_X_RESET)"
-          ]
-        }
-      ]
-    },
-    "sdk-max-retry-seconds": {
-      "statement": "A rateLimit maxRetrySeconds setting caps the wait: a computed backoff above it raises RetryTooLong instead of sleeping.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-python",
-          "path": "zscaler/request_executor.py",
-          "quotes": [
-            "max_retry_seconds = self._config.get(\"client\", {}).get(\"rateLimit\", {}).get(\"maxRetrySeconds\", None)",
-            "raise RetryTooLong(",
-            "if backoff > max_retry_seconds:",
-            "f\"Retry wait time {backoff} seconds exceeds configured maxRetrySeconds {max_retry_seconds}.\"",
-            "backoff_seconds = self.get_retry_after(response.headers, logger)"
           ]
         }
       ]
