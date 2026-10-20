@@ -17,7 +17,8 @@
     "ai guard throttling",
     "retryAfterMillis",
     "X-ApiKey",
-    "AIGUARD_CLOUD"
+    "AIGUARD_CLOUD",
+    "ai guard api divergences"
   ],
   "related": [
     {
@@ -68,6 +69,10 @@
     {
       "label": "Other entry points.",
       "text": "The Anthropic inference-hook endpoint is in [[ai-security.ai-guard.tenant-settings:anthropic-webhook]], and Zscaler's integration examples in [[ai-security.ai-guard.integrations]]."
+    },
+    {
+      "label": "What the integration examples say.",
+      "text": "Zscaler's integration examples use the regional host form {{examples-regional-host}} {{examples-match-sdk}}; they do not show whether the global host also works, so that stays open. They also state, at rank 4, that a policy ID the key cannot use comes back as \"Policy not found\" in an HTTP 200 with no action ([[ai-security.ai-guard.integrations:soft-failure]]), that a non-UUID transactionId gets HTTP 500 ([[ai-security.ai-guard.integrations:transaction-id-uuid]]), and that resolve-and-execute ignores a policyId in the body ([[ai-security.ai-guard.integrations.google-apigee-proxy:resolve-ignores-policy-id]]); their statement that the API takes only content, direction, transactionId and policyId conflicts with the SDK's `user` field ([[ai-security.ai-guard.integrations.google-apigee-sharedflow:api-fields]]). The native LiteLLM guardrail defaults to execute-policy with `policy_id` optional ([[ai-security.ai-guard.integrations.litellm:native-endpoint]])."
     }
   ],
   "checks": [
@@ -518,6 +523,59 @@
         "throttle-metrics"
       ],
       "conditions": "Follows from Python `hasattr` on an attribute the request executor never sets: a search of the package finds no other `zguard_legacy_client` and no `__getattr__` on the executor. Not exercised against a live endpoint."
+    },
+    "examples-regional-host": {
+      "statement": "Zscaler's integration examples build the DAS host from the cloud name as `https://api.{cloud}.zseclipse.net` (the repository's agent notes and the Cursor, n8n and Azure AI Gateway READMEs); the CI scanner treats a blank cloud as `us1` because an empty one yields `api..zseclipse.net`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "- **Endpoint**: `https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy`"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/README.md",
+          "quotes": [
+            "| `AIGUARD_CLOUD` | No | `us1` | Cloud region. Builds URL: `https://api.{cloud}.zseclipse.net` |"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/README.md",
+          "quotes": [
+            "Used to build the API URL: `https://api.{cloud}.zseclipse.net`."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/README.md",
+          "quotes": [
+            "**Endpoint**: `https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy`",
+            "# Azure AI Gateway + Zscaler AI Guard Integration"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/scripts/scan_policy.py",
+          "quotes": [
+            "# becomes api..zseclipse.net. Treat blank like unset.",
+            "if not cloud: cloud = \"us1\""
+          ]
+        }
+      ]
+    },
+    "examples-match-sdk": {
+      "statement": "That host form matches the SDK's regional host, not the global host the Help DAS page uses.",
+      "tier": "B",
+      "derived_from": [
+        "examples-regional-host",
+        "sdk-host",
+        "help-host"
+      ],
+      "conditions": "A comparison of the host strings in examples-regional-host, sdk-host and help-host; no example document states the comparison itself."
     }
   },
   "divergences": {
@@ -616,7 +674,7 @@
       "about": [
         "ai-security.ai-guard.runtime-api:das-host"
       ],
-      "detail": "Static sources do not establish whether the global and regional hosts both work, whether one is preferred, or whether the regional form is stale. Unverified legacy statements: public integration examples in zguard-ai-integrations (Microsoft README, github-actions README and scan_policy.py) also describe region-derived hosts such as api.{cloud}.zseclipse.net; that repository is vendored but not a registered source. An upstream issue (zguard-ai-integrations#10) reports the regional policy-resolution host no longer working and the global host working; it is an issue report, not a specification.",
+      "detail": "Static sources do not establish whether the global and regional hosts both work, whether one is preferred, or whether the regional form is stale. The SDK and Zscaler's integration examples build the regional form (examples-regional-host); the help names the global host. An upstream issue (zguard-ai-integrations#10) reports the regional policy-resolution host no longer working and the global host working; it is an issue report, not a specification.",
       "blocks": "which host a DAS client should be configured with",
       "resolves_with": [
         "lab-test",

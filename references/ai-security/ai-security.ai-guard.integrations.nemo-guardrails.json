@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.nemo-guardrails",
+  "title": "AI Guard with NVIDIA NeMo Guardrails: the ready-to-use custom action and rails, the proposed library plugin, and the defects in both as shipped",
+  "aliases": [
+    "ai guard nemo",
+    "ai guard nemo guardrails",
+    "zs-ai-guard.py",
+    "CallZscalerAiGuardAction",
+    "CallZsAiGuardAction",
+    "zscaler aiguard moderation on input",
+    "zscaler_aiguard library plugin"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The NeMo folder holds a configuration to copy into a NeMo Guardrails project and a library-format plugin written for submission to the NeMo Guardrails repository. {{two-forms}}"
+    },
+    {
+      "label": "The custom action.",
+      "text": "{{config-rails}} {{config-endpoint}} {{config-verdict}} {{action-name-mismatch}} Whether NeMo still finds the action is open {{gap:action-name-resolution}}."
+    },
+    {
+      "label": "The library plugin.",
+      "text": "{{library-import}} {{library-always-blocks}} {{library-flows}} {{library-no-verdict}} The README promises fail-closed handling {{divergence:library-fail-closed}}."
+    },
+    {
+      "label": "Versions.",
+      "text": "{{versions}} {{sdk-unpinned}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "With the custom config, that the action name in rails.co matches the name registered in actions/zs-ai-guard.py, and that a test prompt actually produces an AI Guard transaction.",
+      "uses": [
+        "action-name-mismatch",
+        "action-name-resolution"
+      ]
+    },
+    {
+      "do": "Do not deploy the library plugin as shipped: its SDK import fails, so every turn is blocked.",
+      "uses": [
+        "library-import",
+        "library-always-blocks"
+      ]
+    }
+  ],
+  "claims": {
+    "two-forms": {
+      "statement": "`config/` is a standalone NeMo Guardrails configuration (a custom action plus Colang input and output rails), and `library-plugin/` is a library-format plugin (`zscaler_aiguard`) with a system action and Colang 2.0 and Colang 1.0 flows, meant to be submitted to NeMo Guardrails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/README.md",
+          "quotes": [
+            "### `config/` — Ready-to-Use Custom Config",
+            "A library-format plugin (`zscaler_aiguard/`) ready to submit as a PR to [NVIDIA-NeMo/Guardrails](https://github.com/NVIDIA-NeMo/Guardrails).",
+            "| `actions/zs-ai-guard.py` | Custom action using `zscaler-sdk-python` |",
+            "| `rails/rails.co` | Colang flow definitions for input/output scanning |"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/actions.py",
+          "quotes": [
+            "@action(is_system_action=True, output_mapping=call_zscaler_aiguard_api_mapping)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.co",
+          "quotes": [
+            "Zscaler AI Guard moderation flows (Colang 2.0)."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.v1.co",
+          "quotes": [
+            "Zscaler AI Guard moderation flows (Colang 1.0)."
+          ]
+        }
+      ]
+    },
+    "config-rails": {
+      "statement": "The custom rails scan `$user_message` as the prompt (direction IN) on input and `$bot_message` as the response (direction OUT) on output, and on a block make the bot refuse to respond and stop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/rails/rails.co",
+          "quotes": [
+            "$result = execute CallZscalerAiGuardAction(prompt=$user_message)",
+            "$result = execute CallZscalerAiGuardAction(response=$bot_message)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/actions/zs-ai-guard.py",
+          "quotes": [
+            "direction = Direction.OUTBOUND",
+            "direction = Direction.INBOUND"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/rails/rails.co",
+          "quotes": [
+            "if $result[blocked]\n    bot refuse to respond\n    stop"
+          ],
+          "after": "define flow zscaler aiguard inspect prompt"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/rails/rails.co",
+          "quotes": [
+            "if $result[blocked]\n    bot refuse to respond\n    stop"
+          ],
+          "after": "define flow zscaler aiguard inspect response"
+        }
+      ]
+    },
+    "config-endpoint": {
+      "statement": "The custom action calls `resolve_and_execute_policy` through the SDK's `LegacyZGuardClientHelper` unless `AIGUARD_POLICY_ID` holds an integer, in which case it calls `execute_policy` with it; a non-integer value is logged as a warning and ignored. No transaction ID is sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/actions/zs-ai-guard.py",
+          "quotes": [
+            "_policy_id = int(_env_policy_id)",
+            "log.warning(\"AIGUARD_POLICY_ID=%r is not a valid integer, ignoring\", _env_policy_id)",
+            "result, response, error = client.policy_detection.execute_policy(",
+            "result, response, error = client.policy_detection.resolve_and_execute_policy(",
+            "_scan_sync, text, direction.value, None"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/actions/zs-ai-guard.py",
+          "quotes": [
+            "_client = LegacyZGuardClientHelper(cloud=CLOUD)"
+          ]
+        }
+      ]
+    },
+    "config-verdict": {
+      "statement": "The custom action starts from a blocked verdict and clears it only when the action is ALLOW or DETECT, so an SDK error, an exception, a None result or a missing action all leave the turn blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/actions/zs-ai-guard.py",
+          "quotes": [
+            "\"blocked\": True,",
+            "ALLOWED_ACTIONS = (PolicyAction.ALLOW, PolicyAction.DETECT)",
+            "action_value = str(_get_attr(result, \"action\", \"\")).upper()",
+            "log.error(\"AI Guard scan failed: %s - %s\", type(e).__name__, str(e))",
+            "if result is None:\n            log.warning(\"AI Guard returned None\")\n            return verdict",
+            "if error:\n        raise Exception(f\"AI Guard API error: {error}\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/actions/zs-ai-guard.py",
+          "quotes": [
+            "return verdict"
+          ],
+          "after": "log.error(\"AI Guard scan failed: %s - %s\", type(e).__name__, str(e))"
+        }
+      ]
+    },
+    "action-name-mismatch": {
+      "statement": "The custom action is registered as `CallZsAiGuardAction`, while `config.yml` and `rails.co` refer to `CallZscalerAiGuardAction`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/actions/zs-ai-guard.py",
+          "quotes": [
+            "@action(name=\"CallZsAiGuardAction\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/config.yml",
+          "quotes": [
+            "name: CallZscalerAiGuardAction"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/config/rails/rails.co",
+          "quotes": [
+            "execute CallZscalerAiGuardAction(prompt=$user_message)"
+          ]
+        }
+      ]
+    },
+    "library-import": {
+      "statement": "The library plugin imports `LegacyZGuardClientHelper` from `zscaler.zaiguard.legacy`, the module path the repository's 0.2.0 changelog says was wrong and fixed to `zscaler.aiguard.legacy` for NeMo Guardrails among others; the import is lazy, inside `_get_sdk_client`, which `_scan_sync` calls from within the action's try block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/actions.py",
+          "quotes": [
+            "from zscaler.zaiguard.legacy import LegacyZGuardClientHelper",
+            "result = await asyncio.to_thread(_scan_sync, text, direction)",
+            "try:\n            from zscaler.zaiguard.legacy import LegacyZGuardClientHelper",
+            "client = _get_sdk_client()",
+            "except Exception as e:\n        log.error(\"AI Guard scan failed: %s — %s\", type(e).__name__, e)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "CHANGELOG.md",
+          "after": "## 0.2.0 (September 1, 2026)",
+          "quotes": [
+            "Fixed `ModuleNotFoundError: zscaler.zaiguard` in LiteLLM, NeMo Guardrails, Portkey and TrueFoundry — the module is `zscaler.aiguard.legacy`"
+          ]
+        }
+      ]
+    },
+    "library-always-blocks": {
+      "statement": "As shipped, every library-plugin scan fails on the import and the action returns BLOCK, so the flows refuse every user prompt and bot message.",
+      "tier": "B",
+      "derived_from": [
+        "library-import",
+        "library-flows"
+      ],
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/actions.py",
+          "quotes": [
+            "return {\"action\": \"BLOCK\", \"severity\": \"UNKNOWN\", \"detectors\": {}, \"error\": str(e)}"
+          ]
+        }
+      ],
+      "conditions": "The SDK at its registered pin has no zscaler/zaiguard package (directory listing of vendor/zscaler-sdk-python/zscaler), so the import raises ImportError, which the action's broad except turns into BLOCK. Not executed."
+    },
+    "library-flows": {
+      "statement": "The library action returns the verdict's action upper-cased (ALLOW without a scan for empty text, BLOCK on an exception or a None result), and both flow files act only when `$result.action == \"BLOCK\"`; the action's output mapping, which treats anything but ALLOW or DETECT as a block, is not what the flows test.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/actions.py",
+          "quotes": [
+            "return {\"action\": \"ALLOW\", \"severity\": \"NONE\", \"detectors\": {}}",
+            "action_val = str(_get_attr(result, \"action\", \"BLOCK\")).upper()",
+            "@action(is_system_action=True, output_mapping=call_zscaler_aiguard_api_mapping)",
+            "return action_val not in ALLOWED_ACTIONS",
+            "log.warning(\"AI Guard returned None — blocking by default\")",
+            "return {\"action\": \"BLOCK\", \"severity\": \"UNKNOWN\", \"detectors\": {}, \"error\": str(e)}",
+            "if not text:\n        return {\"action\": \"ALLOW\", \"severity\": \"NONE\", \"detectors\": {}}",
+            "Returns True (block) for anything that is not an explicit ALLOW or the\n    monitor-only DETECT",
+            "ALLOWED_ACTIONS = (\"ALLOW\", \"DETECT\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.co",
+          "after": "flow zscaler aiguard moderation on input",
+          "quotes": [
+            "if $result.action == \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.v1.co",
+          "after": "define subflow zscaler aiguard moderation on input",
+          "quotes": [
+            "if $result.action == \"BLOCK\""
+          ]
+        }
+      ]
+    },
+    "library-no-verdict": {
+      "statement": "Once the import is corrected, a verdict-less reply (an HTTP 200 without `action`, such as \"Policy not found\") becomes the action string `NONE`, which the flows do not treat as a block, so the turn proceeds.",
+      "tier": "B",
+      "derived_from": [
+        "library-flows"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/models/policy_detection.py",
+          "after": "class ResolveAndExecuteDetectionsPolicyResponse(ZscalerObject):",
+          "quotes": [
+            "self.action = config[\"action\"] if \"action\" in config else None"
+          ]
+        }
+      ],
+      "conditions": "Follows from the SDK model setting action to None when the reply has none and from Python's str(None).upper() being \"NONE\"; whether NeMo applies the output mapping anywhere the flows would see it is not established."
+    },
+    "versions": {
+      "statement": "The README requires NeMo Guardrails 0.18.0 or later and installs `zscaler-sdk-python` without a version constraint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/README.md",
+          "quotes": [
+            "- NVIDIA NeMo Guardrails 0.18.0+",
+            "pip install nemoguardrails zscaler-sdk-python python-dotenv"
+          ]
+        }
+      ]
+    },
+    "sdk-unpinned": {
+      "statement": "Nothing in the folder pins `zscaler-sdk-python`, so the SDK version is whatever the README's unconstrained install resolves.",
+      "tier": "B",
+      "derived_from": [
+        "versions"
+      ],
+      "conditions": "Rests on a file listing of NemoGuardrails/ at the pin (LICENSE.md, README.md, SUPPORT.md, config/config.yml, config/actions, config/rails, library-plugin/README.md and the zscaler_aiguard package), which has no requirements.txt, pyproject.toml or setup file; an absence from a listing, not a quoted line."
+    }
+  },
+  "gaps": {
+    "action-name-resolution": {
+      "kind": "semantic",
+      "title": "Whether NeMo Guardrails resolves CallZscalerAiGuardAction to the action registered as CallZsAiGuardAction",
+      "status": "open",
+      "detail": "The shipped rails execute CallZscalerAiGuardAction but the custom action registers CallZsAiGuardAction. If NeMo cannot resolve the name, the rails never reach AI Guard; what NeMo then does (an error, or a rail that passes) depends on NeMo's action dispatcher, which is not a registered source.",
+      "blocks": "whether the NeMo custom configuration scans anything as shipped",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  },
+  "divergences": {
+    "library-fail-closed": {
+      "summary": "Whether the NeMo library plugin fails closed on a reply without a verdict.",
+      "positions": [
+        {
+          "says": "The NeMo README says the integration is fail-closed: content is blocked if the API call fails or returns an unexpected response.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "NemoGuardrails/README.md",
+            "quotes": [
+              "- **Fail-closed**: If the API call fails or returns an unexpected response, content is blocked by default."
+            ]
+          }
+        },
+        {
+          "says": "The library flows block only when the returned action equals BLOCK.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.co",
+            "after": "flow zscaler aiguard moderation on output",
+            "quotes": [
+              "if $result.action == \"BLOCK\""
+            ]
+          }
+        }
+      ],
+      "impact": "The custom-config action does fail closed (config-verdict); the library plugin, once its import is fixed, would pass verdict-less replies (library-no-verdict)."
+    }
+  }
+}

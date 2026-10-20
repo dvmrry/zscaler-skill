@@ -1,0 +1,891 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.claude-code",
+  "title": "Claude Code hooks for AI Guard (Zscaler example): events hooked, directions, verdict and failure handling, and what content is scanned",
+  "aliases": [
+    "claude code aiguard hooks",
+    "scan_user_input.py",
+    "scan_mcp_request.py",
+    "scan_response.py",
+    "scan_url.py",
+    "scan_file_read.py",
+    "claude-code-aiguard"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.claude-code-skill"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Claude Code example registers Python command hooks that send prompts, file reads, web-tool inputs, MCP calls and tool results to AI Guard's detection API through the Python SDK. This page covers the hooks in Anthropic/claude-code-aiguard; the on-demand skill is [[ai-security.ai-guard.integrations.claude-code-skill]]."
+    },
+    {
+      "label": "What is hooked.",
+      "text": "{{registered-hooks}} {{unscanned-tools}} Whether the README agrees is a divergence {{divergence:file-read-registration}}."
+    },
+    {
+      "label": "When each hook runs.",
+      "text": "{{event-timing}} {{post-tool-after-effects}}"
+    },
+    {
+      "label": "Which call it makes.",
+      "text": "{{directions}} HOOKS_EXPLAINED.md disagrees for URLs {{divergence:url-direction}}. {{endpoint-selection}} The endpoints themselves are in [[ai-security.ai-guard.runtime-api]]. {{policy-id-parsing}} {{malformed-policy-id-resolves}} {{response-policy-id-unguarded}} {{response-hook-crash}} The changelog claims otherwise {{divergence:quoted-policy-id-fix}}."
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{config}} {{shared-utils-unused}}"
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{fail-closed-errors}} {{no-action-blocks}} {{only-block-blocks}} The README says unrecognised verdicts block {{divergence:unknown-verdict}}. {{unparsable-input-allows}}"
+    },
+    {
+      "label": "How a block is signalled.",
+      "text": "{{block-signal}} Older documents in the directory describe it differently {{divergence:block-signal-docs}}. What a PostToolUse block does to the result is open {{gap:post-tool-withholding}}."
+    },
+    {
+      "label": "What content is scanned.",
+      "text": "{{url-extraction}} {{web-search-query}} {{mcp-extraction}} {{mcp-partial-scan}} {{response-limits}} {{file-read-scope}}"
+    },
+    {
+      "label": "Across hosts.",
+      "text": "How this compares with the other examples' fail posture and timing is in [[ai-security.ai-guard.integrations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which events and tools the installed settings.json hooks: the shipped file covers prompts, Read, web tools and MCP tools only, so Bash, edits and the assistant's replies go unscanned unless more hooks are added.",
+      "uses": [
+        "registered-hooks",
+        "unscanned-tools",
+        "file-read-registration"
+      ]
+    },
+    {
+      "do": "That AIGUARD_POLICY_ID is unset or a plain integer; a malformed value is silently ignored by four hooks and crashes the response hook.",
+      "uses": [
+        "policy-id-parsing",
+        "malformed-policy-id-resolves",
+        "response-hook-crash"
+      ]
+    },
+    {
+      "do": "When testing a hook by hand, read stdout for continue false rather than relying on the exit code.",
+      "uses": [
+        "block-signal",
+        "block-signal-docs"
+      ]
+    },
+    {
+      "do": "Whether the tool inputs and responses that matter fall inside what the hooks extract: one field of an MCP call, the first 5000 characters of a response, and only sensitive-looking file names.",
+      "uses": [
+        "mcp-partial-scan",
+        "response-limits",
+        "file-read-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "registered-hooks": {
+      "statement": "The example's shipped `settings.json` registers `scan_user_input.py` on `UserPromptSubmit`; on `PreToolUse` it runs `scan_file_read.py` for the `Read` tool, `scan_url.py` for `WebFetch|WebSearch|web_search` and `scan_mcp_request.py` for MCP tools (`mcp__.*`); on `PostToolUse` it runs `scan_response.py` for the web tools and for MCP tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/settings.json",
+          "quotes": [
+            "\"UserPromptSubmit\": [",
+            "\"command\": \"python3 ~/.claude/hooks/aiguard/scan_user_input.py\"",
+            "\"matcher\": \"Read\",",
+            "\"command\": \"python3 ~/.claude/hooks/aiguard/scan_file_read.py\"",
+            "\"command\": \"python3 ~/.claude/hooks/aiguard/scan_url.py\"",
+            "\"command\": \"python3 ~/.claude/hooks/aiguard/scan_mcp_request.py\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/settings.json",
+          "quotes": [
+            "\"matcher\": \"WebFetch|WebSearch|web_search\",",
+            "\"matcher\": \"mcp__.*__read.*|mcp__.*__resource.*|mcp__.*\","
+          ],
+          "after": "\"PreToolUse\": ["
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/settings.json",
+          "quotes": [
+            "\"matcher\": \"WebFetch|WebSearch|web_search\",",
+            "\"command\": \"python3 ~/.claude/hooks/aiguard/scan_response.py\"",
+            "\"matcher\": \"mcp__.*__read.*|mcp__.*__resource.*|mcp__.*\","
+          ],
+          "after": "\"PostToolUse\": ["
+        }
+      ]
+    },
+    "unscanned-tools": {
+      "statement": "With the shipped settings, Claude Code's other tools (Bash, Write and Edit among them) are not scanned before or after they run, and the assistant's own replies are never scanned: only prompts, file reads, web tools and MCP tools reach AI Guard.",
+      "tier": "B",
+      "derived_from": [
+        "registered-hooks"
+      ],
+      "conditions": "Read of the whole shipped settings.json at the pin: its hooks object holds only UserPromptSubmit, PreToolUse and PostToolUse, with the matchers in registered-hooks; there is no Stop entry and no Bash, Write or Edit matcher. A user's own settings may add hooks."
+    },
+    "event-timing": {
+      "statement": "HOOKS_EXPLAINED.md says `UserPromptSubmit` fires before Claude sees the user's message, `PreToolUse` before any tool execution, and `PostToolUse` after the tool's execution completes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/HOOKS_EXPLAINED.md",
+          "quotes": [
+            "| `UserPromptSubmit` | User presses Enter on their prompt | Before Claude sees the user's message |",
+            "| `PreToolUse` | Claude is **about to call** a tool | Before any tool execution |",
+            "| `PostToolUse` | A tool has **returned** its response | After tool execution completes |"
+          ]
+        }
+      ]
+    },
+    "post-tool-after-effects": {
+      "statement": "A block from `scan_response.py` comes after the web fetch or MCP call has already run: it can withhold the result but cannot undo the call's side effects.",
+      "tier": "B",
+      "derived_from": [
+        "event-timing",
+        "registered-hooks"
+      ],
+      "conditions": "Follows from the PostToolUse timing in event-timing and from scan_response being registered only on PostToolUse; what Claude Code does with the tool result after a PostToolUse block is open (post-tool-withholding).",
+      "gaps": [
+        "post-tool-withholding"
+      ]
+    },
+    "directions": {
+      "statement": "Prompts, MCP tool input and sensitive file contents are scanned with direction `IN`; the web-tool input (its `url`, `query`, `search_term`, `uri` or `href` field, scanned before the web tool runs) and tool responses are scanned with direction `OUT`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "content=content, direction=\"IN\", policy_id=policy_id"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "content=content, direction=\"IN\", policy_id=policy_id"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "content=content, direction=\"IN\", policy_id=policy_id"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "content=url, direction=\"OUT\", policy_id=policy_id",
+            "for field in [\"url\", \"query\", \"search_term\", \"uri\", \"href\"]:"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "truncated_content, \"OUT\", policy_id"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/settings.json",
+          "after": "\"PreToolUse\": [",
+          "quotes": [
+            "\"command\": \"python3 ~/.claude/hooks/aiguard/scan_url.py\""
+          ]
+        }
+      ]
+    },
+    "endpoint-selection": {
+      "statement": "Each hook calls `resolve_and_execute_policy` through `LegacyAIGuardClient` unless `AIGUARD_POLICY_ID` parses as a non-zero integer, in which case it calls `execute_policy` with that ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "from zscaler.oneapi_client import LegacyAIGuardClient",
+            "if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=content, direction=\"IN\", policy_id=policy_id )",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\")",
+            "result, response, error = client.aiguard.policy_detection.execute_policy(",
+            "client.aiguard.policy_detection.resolve_and_execute_policy(",
+            "return int(raw)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=url, direction=\"OUT\", policy_id=policy_id )",
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=url, direction=\"OUT\" )"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=content, direction=\"IN\", policy_id=policy_id )",
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=\"IN\" )"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=content, direction=\"IN\", policy_id=policy_id )",
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=\"IN\" )"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=content, direction=direction, policy_id=policy_id )",
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=direction )"
+          ]
+        }
+      ]
+    },
+    "policy-id-parsing": {
+      "statement": "In `scan_user_input.py`, `scan_url.py`, `scan_mcp_request.py` and `scan_file_read.py`, `get_policy_id` strips whitespace and surrounding quotes from `AIGUARD_POLICY_ID` and returns None when `int()` rejects the value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "def get_policy_id():",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None"
+          ]
+        }
+      ]
+    },
+    "malformed-policy-id-resolves": {
+      "statement": "In those four hooks a malformed `AIGUARD_POLICY_ID` therefore falls back to policy resolution (`resolve_and_execute_policy`) without any log line saying the ID was ignored.",
+      "tier": "B",
+      "derived_from": [
+        "policy-id-parsing",
+        "endpoint-selection"
+      ],
+      "conditions": "Follows from get_policy_id returning None on a ValueError (policy-id-parsing) and the hooks calling execute_policy only when policy_id is truthy (endpoint-selection); a read of get_policy_id at the pin shows no log call in its except branch. Not run."
+    },
+    "response-policy-id-unguarded": {
+      "statement": "`scan_response.py` parses the policy ID with `int(policy_id) if policy_id else None`, without stripping quotes or catching a ValueError, and `main()` calls it before scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "def get_policy_id(): policy_id = os.environ.get(\"AIGUARD_POLICY_ID\") return int(policy_id) if policy_id else None"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "policy_id = get_policy_id()",
+            "truncated_content = content[:5000]"
+          ],
+          "after": "def main():"
+        }
+      ]
+    },
+    "response-hook-crash": {
+      "statement": "A non-numeric `AIGUARD_POLICY_ID` in the process environment (or one carrying literal quotes there) makes `scan_response.py` raise `ValueError` and exit with a traceback instead of scanning or emitting a block; the other hooks treat the same value as unset.",
+      "tier": "B",
+      "derived_from": [
+        "response-policy-id-unguarded",
+        "policy-id-parsing"
+      ],
+      "conditions": "Follows from Python int() semantics on the unguarded call in response-policy-id-unguarded. The hooks' .env loader strips surrounding quotes, so a quoted value in .env does not trigger it. What Claude Code does with the tool result when a PostToolUse hook crashes is not in the sources (parent gap fail-posture). A read of main() at the pin shows its only try wraps the stdin json.load, so the get_policy_id call sits outside any try."
+    },
+    "config": {
+      "statement": "The hooks read `AIGUARD_API_KEY`, `AIGUARD_CLOUD` (default `us1`) and `AIGUARD_TIMEOUT` (default 30 seconds) from the environment, first loading a `.env` beside the hook or in its parent directory without overriding variables already set, and log to `SECURITY_LOG_PATH` (default `~/.claude/hooks/aiguard/security.log`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
+            "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
+            "env_file = Path(__file__).parent / \".env\"",
+            "env_file = Path(__file__).parent.parent / \".env\"",
+            "if key and value and key not in os.environ:",
+            "\"SECURITY_LOG_PATH\", os.path.expanduser(\"~/.claude/hooks/aiguard/security.log\")"
+          ]
+        }
+      ]
+    },
+    "shared-utils-unused": {
+      "statement": "The bundled `aiguard_utils.py`, whose config falls back to a `config.json` (the example file pins `policy_id` 760), is imported by none of the hook scripts: each hook carries its own copy of the client, policy-ID and logging helpers and reads only the environment and `.env`.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/aiguard_utils.py",
+          "quotes": [
+            "CONFIG_FILE = Path(__file__).parent / \"config.json\"",
+            "raw = load_config().get(\"policy_id\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/config.example.json",
+          "quotes": [
+            "\"policy_id\": 760,"
+          ]
+        }
+      ],
+      "conditions": "Search of the hook scripts at the pin finds no import of aiguard_utils or load_env; each defines its own get_client_config and get_policy_id. The README's file list describes aiguard_utils.py as the shared helpers."
+    },
+    "fail-closed-errors": {
+      "statement": "A missing `AIGUARD_API_KEY`, an error returned by the SDK, or an exception during the call blocks in every hook: the prompt, file-read, URL and MCP hooks return a block naming the cause, and `scan_response.py` withholds the tool response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "log_message(\"ERROR: AIGUARD_API_KEY not set - blocking (fail-closed)\")",
+            "log_message(f\"ERROR: AI Guard API error: {error} - blocking (fail-closed)\")",
+            "log_message(f\"ERROR: Exception during scan: {str(e)} - blocking (fail-closed)\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "log_message(\"ERROR: AIGUARD_API_KEY not set - blocking (fail-closed)\")",
+            "log_message(f\"ERROR: Exception during URL scan: {str(e)} - blocking (fail-closed)\")",
+            "log_message(f\"ERROR: AI Guard API error for URL scan: {error} - blocking (fail-closed)\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "log_message(\"ERROR: AIGUARD_API_KEY not set - blocking (fail-closed)\")",
+            "log_message(f\"ERROR: AI Guard API error for {tool_name}: {error} - blocking (fail-closed)\")",
+            "log_message(f\"ERROR: Exception during MCP scan for {tool_name}: {str(e)} - blocking (fail-closed)\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "log_message(f\"ERROR: AIGUARD_API_KEY not set - blocking file read: {filepath}\")",
+            "log_message(f\"ERROR: AI Guard API error for {filepath}: {error} - blocking\")",
+            "log_message(f\"ERROR: Exception during file scan for {filepath}: {str(e)} - blocking\")",
+            "return True, (\"Blocked by Zscaler AI Guard: scan of %s failed (%s)\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "return \"BLOCK\", None, None, [], None, \"AIGUARD_API_KEY not set\"",
+            "f\"Tool response withheld: scan did not complete ({error})\",",
+            "if error: return \"BLOCK\", None, None, [], None, str(error)",
+            "except Exception as e: return \"BLOCK\", None, None, [], None, str(e)"
+          ]
+        }
+      ]
+    },
+    "no-action-blocks": {
+      "statement": "A response whose `action` is empty (the shape the README gives a soft failure) is treated as `BLOCK` in every hook.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "action = str(result.action or \"\").upper()",
+            "if not action: action = \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "if not action: action = \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "if not action: action = \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "if not action: action = \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "if not action: action = \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/README.md",
+          "quotes": [
+            "| HTTP 200 carrying no `action` | blocked |",
+            "A verdict-less 200 is the shape a soft failure takes"
+          ]
+        }
+      ]
+    },
+    "only-block-blocks": {
+      "statement": "Every hook blocks only when the upper-cased action equals `BLOCK`: the prompt and file-read hooks log `DETECT` as a warning and allow it, and in all hooks any other action value, including one the hook does not recognise, takes the allow branch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "if action == \"BLOCK\":",
+            "# Allow with warning",
+            "# ALLOW if detectors_str:",
+            "elif action == \"DETECT\": if detectors_str: log_message( f\"WARNING USER INPUT: severity={severity} policy={policy_name} detectors=[{detectors_str}] (txn:{transaction_id})\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "if action == \"BLOCK\":",
+            "log_message(f\"ALLOWED URL: {url} (txn:{transaction_id})\")",
+            "return True, message, {} else: log_message(f\"ALLOWED URL: {url} (txn:{transaction_id})\") return False, None, {}"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "if action == \"BLOCK\":",
+            "log_message(f\"ALLOWED MCP REQUEST {tool_name} (txn:{transaction_id})\")",
+            "return True, message, {} else: log_message(f\"ALLOWED MCP REQUEST {tool_name} (txn:{transaction_id})\") return False, None, {}"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "if action == \"BLOCK\":",
+            "log_message(f\"ALLOWED {tool_name} response (txn:{txn_id})\")",
+            "sys.exit(0) else: log_message(f\"ALLOWED {tool_name} response (txn:{txn_id})\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "if action == \"BLOCK\":",
+            "# Allow with warning",
+            "elif action == \"DETECT\": if detectors_str: log_message( f\"WARNING FILE READ {filepath}: severity={severity} policy={policy_name} detectors=[{detectors_str}] (txn:{transaction_id})\""
+          ]
+        }
+      ]
+    },
+    "block-signal": {
+      "statement": "On a block, `scan_user_input.py` writes the reason to stderr, prints a JSON object with `continue` false and exits 2; the `PreToolUse` hooks print the same kind of JSON and exit 0; `scan_response.py` prints it with `hookEventName` `PostToolUse` and exits 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "\"continue\": False,",
+            "sys.exit(2)  # Exit 2 to signal block",
+            "print(message, file=sys.stderr)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "\"continue\": False,",
+            "\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\"},",
+            "sys.exit(0)  # Exit 0 with JSON response"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "sys.exit(0)  # Exit 0 with JSON response (not exit 2)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "\"continue\": False,",
+            "\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\"},",
+            "output_block_response( \"Zscaler AI Guard blocked tool response\", \"Operation blocked by Zscaler AI Guard security policy\", ) sys.exit(0)"
+          ]
+        }
+      ]
+    },
+    "unparsable-input-allows": {
+      "statement": "When the hook's stdin is not valid JSON, or carries no prompt, URL or file path, the hooks exit 0 without scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+          "quotes": [
+            "# If no valid JSON, allow",
+            "user_message = input_json.get(\"prompt\", \"\") if not user_message: sys.exit(0)  # Nothing to scan"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "url = extract_url(input_json)",
+            "if not url: sys.exit(0)",
+            "except json.JSONDecodeError: sys.exit(0) url = extract_url(input_json)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "if not filepath: # No file path, nothing to scan sys.exit(0)",
+            "except json.JSONDecodeError: # If no valid JSON, allow sys.exit(0)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "except json.JSONDecodeError: sys.exit(0) tool_name = input_json.get(\"tool_name\", \"unknown\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "except json.JSONDecodeError: sys.exit(0) tool_name = input_json.get(\"tool_name\", \"unknown\")"
+          ]
+        }
+      ]
+    },
+    "url-extraction": {
+      "statement": "`scan_url.py` scans the first non-empty of the tool input's `url`, `query`, `search_term`, `uri` and `href` fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "for field in [\"url\", \"query\", \"search_term\", \"uri\", \"href\"]:",
+            "if field in tool_input and tool_input[field]: return str(tool_input[field])"
+          ]
+        }
+      ]
+    },
+    "web-search-query": {
+      "statement": "A web search is therefore scanned on its query text, when the search tool sends it as `query` or `search_term`.",
+      "tier": "B",
+      "derived_from": [
+        "url-extraction"
+      ],
+      "conditions": "Rests on the field order in extract_url (url-extraction) and on the web search tools carrying their search text in a query or search_term field, which no file in the example states."
+    },
+    "mcp-extraction": {
+      "statement": "`scan_mcp_request.py` scans the first non-empty field of the tool input among query, message, prompt, text, content, request, input, data, body, url and path (JSON-encoding a dict or list value); only when none is present does it join up to ten strings from the whole input, and it skips content under 5 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "\"query\", \"message\", \"prompt\", \"text\", \"content\", \"request\", \"input\", \"data\", \"body\", \"url\", \"path\",",
+            "elif isinstance(value, (dict, list)): return json.dumps(value)",
+            "return \" \".join(strings[:10])",
+            "if not content or len(content) < 5:"
+          ]
+        }
+      ]
+    },
+    "mcp-partial-scan": {
+      "statement": "An MCP call is scanned on one argument when any of the listed fields is present: a benign `query` or `path` lets the call's other arguments through unscanned.",
+      "tier": "B",
+      "derived_from": [
+        "mcp-extraction"
+      ],
+      "conditions": "Follows from the first-match return in mcp-extraction; not exercised against a live MCP server."
+    },
+    "response-limits": {
+      "statement": "`scan_response.py` takes the first of the response's result, content, text, body, message, data, output, response and value fields (else the whole response as JSON), skips content under 5 characters, scans only the first 5000 characters, and scans only when those are at least 10 characters long.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "if not content or len(content) < 5:",
+            "truncated_content = content[:5000]",
+            "if len(truncated_content) >= 10:",
+            "for field in [ \"result\", \"content\", \"text\", \"body\", \"message\", \"data\", \"output\", \"response\", \"value\", ]:",
+            "return json.dumps(tool_response)"
+          ]
+        }
+      ]
+    },
+    "file-read-scope": {
+      "statement": "`scan_file_read.py` scans only paths matching its sensitive-file patterns (credentials, keys, `.env` files, SSH files, and names containing secret, password, token or api key among them), reading up to `AIGUARD_MAX_FILE_SCAN_SIZE` characters itself (default 51200); a non-matching, missing, non-regular or unreadable file, or content under 5 characters, is allowed without a scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "# Not a sensitive file pattern, allow without scanning",
+            "(r\".*secret.*\", \"file with 'secret' in name\"),",
+            "(r\".*token.*\", \"file with 'token' in name\"),",
+            "(r\".*api.?key.*\", \"API key file\"),",
+            "os.environ.get(\"AIGUARD_MAX_FILE_SCAN_SIZE\", \"51200\")",
+            "content = f.read(max_scan_size)",
+            "log_message(f\"FILE READ: could not read {filepath} ({e}); nothing to scan\")",
+            "(r\".*credentials.*\\.json$\", \"credentials file\"),",
+            "(r\".*\\.key$\", \"key file\"),",
+            "(r\".*\\.env$\", \"environment file\"),",
+            "(r\".*/\\.ssh/.*\", \"SSH configuration/keys\"),",
+            "(r\".*password.*\", \"file with 'password' in name\"),",
+            "if not file_path.exists(): log_message(f\"FILE READ: File does not exist: {filepath}\") sys.exit(0)",
+            "if not file_path.is_file(): log_message(f\"FILE READ: Not a regular file: {filepath}\") sys.exit(0)",
+            "if len(content) < 5: log_message(f\"FILE READ: File too small to scan: {filepath}\") sys.exit(0)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "file-read-registration": {
+      "summary": "Whether the shipped settings enable file-read scanning.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/README.md",
+            "quotes": [
+              "is not wired up by the bundled `settings.json`"
+            ]
+          },
+          "says": "The Claude Code README says scan_file_read.py is not enabled by the bundled settings.json and must be added by hand."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/settings.json",
+            "quotes": [
+              "\"command\": \"python3 ~/.claude/hooks/aiguard/scan_file_read.py\""
+            ]
+          },
+          "says": "The shipped settings.json registers scan_file_read.py on PreToolUse for the Read tool."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Wired `scan_file_read.py` into the shipped Claude Code `settings.json`"
+            ],
+            "after": "## 0.2.0 (September 1, 2026)"
+          },
+          "says": "The 0.2.0 changelog says the hook was wired into the shipped settings.json."
+        }
+      ],
+      "impact": "A reader following the README may believe file reads are unscanned, or add a second Read hook; the README's hand-written settings sample also omits it, while its merge command copies the shipped hooks, Read included."
+    },
+    "url-direction": {
+      "summary": "Which direction scan_url.py sends.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/HOOKS_EXPLAINED.md",
+            "quotes": [
+              "3. Calls AI Guard with `direction: IN`"
+            ],
+            "after": "### 3. `scan_url.py`"
+          },
+          "says": "HOOKS_EXPLAINED.md says scan_url.py calls AI Guard with direction IN."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+            "quotes": [
+              "content=url, direction=\"OUT\", policy_id=policy_id"
+            ]
+          },
+          "says": "The code sends URLs and search terms with direction OUT, as the README's overview also says."
+        }
+      ],
+      "impact": "A policy whose URL detectors are set on one direction only may catch or miss URLs depending on which document the operator configured from."
+    },
+    "block-signal-docs": {
+      "summary": "How the hooks signal a block.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/HOOKS_EXPLAINED.md",
+            "quotes": [
+              "4. If AI Guard returns `BLOCK` → exit code 2 (blocks the MCP call)"
+            ]
+          },
+          "says": "HOOKS_EXPLAINED.md says scan_mcp_request.py blocks with exit code 2."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/SILENT_BLOCK_FIX.md",
+            "quotes": [
+              "We changed from `sys.exit(2)` to `sys.exit(0)` when blocking"
+            ]
+          },
+          "says": "SILENT_BLOCK_FIX.md says every hook, scan_user_input.py included, now blocks with JSON and exit 0."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
+            "quotes": [
+              "sys.exit(2)  # Exit 2 to signal block"
+            ]
+          },
+          "says": "The code exits 2 from scan_user_input.py and 0 with JSON from the tool hooks, as the README states."
+        }
+      ],
+      "impact": "A hand test that reads only the exit code misreads tool-hook blocks as allows; check stdout for continue false."
+    },
+    "unknown-verdict": {
+      "summary": "What the hooks do with an action they do not recognise.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/README.md",
+            "quotes": [
+              "| Any unrecognised verdict | blocked |"
+            ]
+          },
+          "says": "The Claude Code README's fail-closed table says any unrecognised verdict is blocked."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+            "quotes": [
+              "if action == \"BLOCK\":",
+              "log_message(f\"ALLOWED URL: {url} (txn:{transaction_id})\")"
+            ]
+          },
+          "says": "The code blocks only on BLOCK; any other non-empty action is allowed."
+        }
+      ],
+      "impact": "A new or unexpected verdict value from the API passes in this integration while its README says it blocks."
+    },
+    "quoted-policy-id-fix": {
+      "summary": "Whether every Claude Code hook survives a malformed policy ID.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Fixed an unhandled `ValueError` on a quoted `AIGUARD_POLICY_ID`, which crashed every Claude Code hook"
+            ],
+            "after": "## 0.2.0 (September 1, 2026)"
+          },
+          "says": "The 0.2.0 changelog says the ValueError crash was fixed across the Claude Code hooks."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+            "quotes": [
+              "return int(policy_id) if policy_id else None"
+            ]
+          },
+          "says": "scan_response.py still converts the value with an unguarded int()."
+        }
+      ],
+      "impact": "The response hook alone can still crash on a malformed ID (response-hook-crash)."
+    }
+  },
+  "gaps": {
+    "post-tool-withholding": {
+      "kind": "semantic",
+      "title": "What Claude Code does with a tool result after a PostToolUse hook returns continue false",
+      "status": "open",
+      "detail": "scan_response.py prints continue false with a stop reason and system message after the tool has run. Whether Claude Code then keeps the tool output out of the model's context, or only stops the turn after the model has seen it, is not stated by any registered source; the example's documents say the JSON stops execution.",
+      "blocks": "whether a PostToolUse block keeps sensitive tool output away from the model",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

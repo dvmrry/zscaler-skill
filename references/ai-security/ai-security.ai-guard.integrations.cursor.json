@@ -1,0 +1,435 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.cursor",
+  "title": "Cursor hooks for AI Guard (Zscaler example): hooks, failClosed, directions, and per-hook verdict and failure handling",
+  "aliases": [
+    "cursor aiguard hooks",
+    "beforeSubmitPrompt",
+    "beforeMCPExecution",
+    "afterAgentResponse",
+    "updated_mcp_tool_output",
+    "failClosed"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Cursor example runs Python hook scripts that send prompts, MCP tool input, tool output and the agent's reply to AI Guard's detection API through the Python SDK."
+    },
+    {
+      "label": "What is hooked, and when.",
+      "text": "{{hooks}} {{readme-timing}} Whether a blocked reply is hidden is open {{gap:after-response-block}}."
+    },
+    {
+      "label": "The fail-closed setting.",
+      "text": "{{shipped-failclosed-false}} {{failclosed-meaning}} The README installs the false copy {{divergence:failclosed-setting}}."
+    },
+    {
+      "label": "Which call it makes.",
+      "text": "{{config}} {{policy-id}} The endpoints are in [[ai-security.ai-guard.runtime-api]]."
+    },
+    {
+      "label": "Verdicts and failures, hook by hook.",
+      "text": "{{scan-errors}} {{prompt-hook}} {{mcp-hook}} {{mcp-untruncated}} {{post-tool-hook}} {{post-tool-gaps}} {{agent-response-hook}} The README describes all hooks as fail-closed {{divergence:readme-fail-posture}}. Whether Shell output is replaced at all is open {{gap:shell-output-replacement}}."
+    },
+    {
+      "label": "Across hosts.",
+      "text": "The comparison with the other examples is in [[ai-security.ai-guard.integrations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That the installed .cursor/hooks.json sets failClosed true; the shipped copy the README installs says false.",
+      "uses": [
+        "shipped-failclosed-false",
+        "failclosed-setting"
+      ]
+    },
+    {
+      "do": "That AIGUARD_API_KEY reaches the hooks: without it postToolUse and afterAgentResponse pass everything unscanned while the prompt and MCP hooks block.",
+      "uses": [
+        "post-tool-hook",
+        "agent-response-hook",
+        "prompt-hook"
+      ]
+    },
+    {
+      "do": "Whether large MCP results matter for the threat model: output over 51200 characters is never scanned.",
+      "uses": [
+        "post-tool-gaps"
+      ]
+    }
+  ],
+  "claims": {
+    "hooks": {
+      "statement": "The example wires four Cursor hooks: `beforeSubmitPrompt` runs `pre_submit_prompt.py` (direction `IN`), `beforeMCPExecution` runs `pre_mcp_execution.py` (`IN`), `postToolUse` runs `scan_response.py` (also `IN`), and `afterAgentResponse` runs `agent_response_scan.py` (`OUT`), each with a hook timeout of 5000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/.cursor/hooks.json",
+          "quotes": [
+            "\"beforeSubmitPrompt\": [ {\"command\": \"python3 Cursor/hooks/pre_submit_prompt.py\", \"timeout\": 5000,",
+            "\"beforeMCPExecution\": [ {\"command\": \"python3 Cursor/hooks/pre_mcp_execution.py\", \"timeout\": 5000,",
+            "\"postToolUse\": [ {\"command\": \"python3 Cursor/hooks/scan_response.py\", \"timeout\": 5000,",
+            "\"afterAgentResponse\": [ {\"command\": \"python3 Cursor/hooks/agent_response_scan.py\", \"timeout\": 5000,"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_submit_prompt.py",
+          "quotes": [
+            "r = scan_content(text, \"IN\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_mcp_execution.py",
+          "quotes": [
+            "r = scan_content(tool_input_str, \"IN\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/scan_response.py",
+          "quotes": [
+            "r = scan_content(truncated, \"IN\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/agent_response_scan.py",
+          "quotes": [
+            "r = scan_content(truncated, \"OUT\")"
+          ]
+        }
+      ]
+    },
+    "readme-timing": {
+      "statement": "The Cursor README says `afterAgentResponse` fires on the complete response after streaming ends and cannot intercept mid-stream, and that `postToolUse` skips Cursor's built-in tools so only MCP tool and Shell command output is scanned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/README.md",
+          "quotes": [
+            "`afterAgentResponse` fires on the complete response after streaming ends — it can block display but cannot intercept mid-stream.",
+            "`postToolUse` skips Cursor's built-in tools",
+            "Only MCP tools and Shell command output are scanned."
+          ]
+        }
+      ]
+    },
+    "shipped-failclosed-false": {
+      "statement": "The shipped `Cursor/.cursor/hooks.json` sets `failClosed` false on all four hooks, while `hooks.json.example` sets it true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/.cursor/hooks.json",
+          "quotes": [
+            "{\"command\": \"python3 Cursor/hooks/pre_submit_prompt.py\", \"timeout\": 5000, \"failClosed\": false}",
+            "{\"command\": \"python3 Cursor/hooks/pre_mcp_execution.py\", \"timeout\": 5000, \"failClosed\": false}",
+            "{\"command\": \"python3 Cursor/hooks/scan_response.py\", \"timeout\": 5000, \"failClosed\": false}",
+            "{\"command\": \"python3 Cursor/hooks/agent_response_scan.py\", \"timeout\": 5000, \"failClosed\": false}"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks.json.example",
+          "quotes": [
+            "{\"command\": \"python3 Cursor/hooks/pre_submit_prompt.py\", \"timeout\": 5000, \"failClosed\": true}",
+            "{\"command\": \"python3 Cursor/hooks/pre_mcp_execution.py\", \"timeout\": 5000, \"failClosed\": true}",
+            "{\"command\": \"python3 Cursor/hooks/scan_response.py\", \"timeout\": 5000, \"failClosed\": true}",
+            "{\"command\": \"python3 Cursor/hooks/agent_response_scan.py\", \"timeout\": 5000, \"failClosed\": true}"
+          ]
+        }
+      ]
+    },
+    "failclosed-meaning": {
+      "statement": "The README says `failClosed` true covers a hook process that crashes or exceeds Cursor's own timeout, and that left at false a hook that dies silently allows the action it was meant to scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/README.md",
+          "quotes": [
+            "`failClosed: true` covers the case the hook cannot handle itself: the hook process crashing or exceeding Cursor's own `timeout`.",
+            "Left at `false`, a hook that dies silently allows the action it was meant to scan."
+          ]
+        }
+      ]
+    },
+    "config": {
+      "statement": "`aiguard_utils.py` loads `.env` from the workspace root and then `Cursor/.env` with python-dotenv, never overriding the process environment, and reads `AIGUARD_API_KEY`, `AIGUARD_CLOUD` (default `us1`) and `AIGUARD_TIMEOUT` (default 3 seconds); it logs to `Cursor/hooks/aiguard.log`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/aiguard_utils.py",
+          "quotes": [
+            "_project_root() / \".env\",",
+            "_cursor_integration_dir() / \".env\",",
+            "load_dotenv(env_path, override=False)",
+            "timeout = int(os.environ.get(\"AIGUARD_TIMEOUT\", \"3\"))",
+            "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\", \"\").strip().strip('\"').strip(\"'\"),",
+            "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\").strip().strip('\"').strip(\"'\"),",
+            "\"\"\"Log next to this package (Cursor/hooks/aiguard.log).\"\"\""
+          ]
+        }
+      ]
+    },
+    "policy-id": {
+      "statement": "When `AIGUARD_POLICY_ID` parses as an integer the hooks call `execute_policy` with it; otherwise, including for a value `int()` rejects, they call `resolve_and_execute_policy`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/aiguard_utils.py",
+          "quotes": [
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "return int(raw)",
+            "except ValueError: return None",
+            "if policy_id is not None: api_result, _r, error = client.aiguard.policy_detection.execute_policy( content=content, direction=direction, policy_id=policy_id, )",
+            "client.aiguard.policy_detection.resolve_and_execute_policy("
+          ]
+        }
+      ]
+    },
+    "scan-errors": {
+      "statement": "`scan_content` returns an `error` (with no verdict) for a missing key, an SDK error, a response without an action, or an exception, and its docstring says callers must treat that as a block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/aiguard_utils.py",
+          "quotes": [
+            "def scan_content(content: str, direction: str) -> dict[str, Any]:",
+            "result[\"error\"] = \"AIGUARD_API_KEY not set\"",
+            "if not api_result.action: result[\"error\"] = \"scan returned no action verdict (%s)\" % (",
+            "On failure the returned dict carries ``error`` and no verdict. Callers must treat that as a block",
+            "if error: result[\"error\"] = str(error) return result",
+            "except Exception as e:  # noqa: BLE001 — hooks must not crash Cursor result[\"error\"] = str(e)"
+          ]
+        }
+      ]
+    },
+    "prompt-hook": {
+      "statement": "`pre_submit_prompt.py` scans the first 20000 characters of the prompt; a `BLOCK` prints `continue` false with a user message and exits 2, and a missing key, a scan error or any action other than `ALLOW`, `BLOCK` or `DETECT` also returns `continue` false; `ALLOW` and `DETECT` continue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_submit_prompt.py",
+          "quotes": [
+            "text = truncate_text(prompt, 20000)",
+            "print(json.dumps({\"continue\": False, \"user_message\": msg}))",
+            "return 2",
+            "\"(AIGUARD_API_KEY missing) — blocking.\"}))",
+            "log_message(f\"PRE-PROMPT: API error; blocking (fail-closed): {r['error']}\")",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
+            "print(json.dumps({\"continue\": True})) return 0 if __name__ == \"__main__\":"
+          ]
+        }
+      ]
+    },
+    "mcp-hook": {
+      "statement": "`pre_mcp_execution.py` scans the whole tool input as compact JSON; a `BLOCK` returns `permission` deny with user and agent messages and exits 2, and a missing key or scan error also denies, but an action other than `ALLOW`, `BLOCK` or `DETECT` is logged as blocking while the hook prints `permission` allow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_mcp_execution.py",
+          "quotes": [
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"): log_message( f\"PRE-MCP: Empty or unparseable AI Guard response for tool={tool_name}; blocking (fail-closed)\" ) print(json.dumps({\"permission\": \"allow\"})) return 0",
+            "tool_input_str = normalize_tool_io(raw_in)",
+            "r = scan_content(tool_input_str, \"IN\")",
+            "log_message(f\"PRE-MCP: API error scanning tool={tool_name}; blocking (fail-closed): {r['error']}\")",
+            "if action == \"BLOCK\": sev = r.get(\"severity\") or \"NONE\"",
+            "\"permission\": \"deny\", \"user_message\": user_msg, \"agent_message\": agent_msg, } ) ) return 2",
+            "print(json.dumps({\"permission\": \"deny\", \"userMessage\": \"Zscaler AI Guard is not configured \"",
+            "print(json.dumps({\"permission\": \"deny\", \"userMessage\": \"Zscaler AI Guard: scan did not complete — blocking (fail-closed)\"}))"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/aiguard_utils.py",
+          "quotes": [
+            "return json.dumps(raw, separators=(\",\", \":\"))"
+          ]
+        }
+      ]
+    },
+    "mcp-untruncated": {
+      "statement": "That tool input reaches AI Guard untruncated, unlike the prompt, tool-output and reply hooks, which cut at 20000 characters.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_mcp_execution.py",
+          "quotes": [
+            "from aiguard_utils import get_client_config, log_message, normalize_tool_io, scan_content"
+          ]
+        }
+      ],
+      "derived_from": [
+        "mcp-hook"
+      ],
+      "conditions": "A read of pre_mcp_execution.py at the pin: its only aiguard_utils import omits truncate_text, and tool_input_str passes from normalize_tool_io to scan_content unchanged; scan_content itself does not truncate."
+    },
+    "post-tool-hook": {
+      "statement": "`scan_response.py` skips the built-in tools Grep, Read, Write, Delete, Task, Glob, Edit and NotebookEdit, skips empty output, skips the scan for output whose `len()` exceeds `MAX_TOOL_OUTPUT_BYTES` (51200), printing `{}`, and skips the scan with a warning when no API key is set; otherwise it scans the first 20000 characters and, on `BLOCK`, a scan error or an unrecognised action, replaces the output with a notice in `updated_mcp_tool_output`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/aiguard_utils.py",
+          "quotes": [
+            "{\"Grep\", \"Read\", \"Write\", \"Delete\", \"Task\", \"Glob\", \"Edit\", \"NotebookEdit\"},",
+            "MAX_SCAN_CHARS = 20000",
+            "MAX_TOOL_OUTPUT_BYTES = 51200"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/scan_response.py",
+          "quotes": [
+            "if tool_name in SKIP_BUILTIN_TOOLS:",
+            "if len(tool_output) > MAX_TOOL_OUTPUT_BYTES: log_message( f\"SCAN-RESPONSE: tool_output too large ({len(tool_output)} bytes), skipping scan\" ) print(\"{}\") return 0",
+            "log_message(\"SCAN-RESPONSE: WARNING: AIGUARD_API_KEY not set, skipping scan\")",
+            "truncated = truncate_text(tool_output, MAX_SCAN_CHARS)",
+            "print(json.dumps({\"updated_mcp_tool_output\": msg}))",
+            "if not tool_output or not tool_output.strip(): log_message(\"SCAN-RESPONSE: tool_output is empty, skipping scan\") print(\"{}\") return 0",
+            "log_message(f\"SCAN-RESPONSE: scan did not complete; blocking (fail-closed): {r['error']}\") print(json.dumps({\"updated_mcp_tool_output\": \"BLOCKED by Zscaler AI Guard: scan did not complete \"",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"): log_message( \"SCAN-RESPONSE: no recognised verdict; blocking (fail-closed)\" ) print(json.dumps({\"updated_mcp_tool_output\":"
+          ]
+        }
+      ]
+    },
+    "post-tool-gaps": {
+      "statement": "Tool output over 51200 characters, and all tool output when the key is missing, reaches the agent unscanned, contrary to the README's fail-closed description; a large MCP result is the case an injection payload can use.",
+      "tier": "B",
+      "derived_from": [
+        "post-tool-hook"
+      ],
+      "conditions": "Follows from the skip paths in post-tool-hook returning an empty JSON object; not exercised in Cursor."
+    },
+    "agent-response-hook": {
+      "statement": "`agent_response_scan.py` scans the first 20000 characters of the reply with direction `OUT`; on `BLOCK` it writes the reason to stderr and exits 2, but a missing key, a scan error or an unrecognised action exits 0 after logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/agent_response_scan.py",
+          "quotes": [
+            "if action == \"BLOCK\":",
+            "truncated = truncate_text(text, 20000)",
+            "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing response without scan\") return 0",
+            "log_message(f\"AGENT-RESPONSE: API error; no verdict obtained: {r['error']}\") return 0",
+            "log_message(\"AGENT-RESPONSE: Empty or unparseable AI Guard response; no verdict obtained\") return 0",
+            "r = scan_content(truncated, \"OUT\")",
+            "print(msg, file=sys.stderr) print(\"\", file=sys.stderr) return 2"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "failclosed-setting": {
+      "summary": "Which hooks.json the install uses, and whether it fails closed.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cursor/README.md",
+            "quotes": [
+              "cp path/to/zguard-ai-integrations/Cursor/.cursor/hooks.json .cursor/hooks.json",
+              "The `.cursor/hooks.json` is pre-configured. Cursor detects it automatically on restart."
+            ]
+          },
+          "says": "The README installs the shipped .cursor/hooks.json and describes failClosed true as the protection against crashed or timed-out hooks."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "CHANGELOG.md",
+            "quotes": [
+              "Changed the shipped Cursor `hooks.json.example` from `failClosed: false` to `true`"
+            ],
+            "after": "## 0.2.0 (September 1, 2026)"
+          },
+          "says": "The 0.2.0 changelog changed only hooks.json.example to true."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cursor/.cursor/hooks.json",
+            "quotes": [
+              "{\"command\": \"python3 Cursor/hooks/pre_submit_prompt.py\", \"timeout\": 5000, \"failClosed\": false}"
+            ]
+          },
+          "says": "The shipped .cursor/hooks.json that the README copies still says false."
+        }
+      ],
+      "impact": "Following the README installs hooks that, by the README's own account, allow the action when the hook crashes or times out."
+    },
+    "readme-fail-posture": {
+      "summary": "Whether every Cursor hook fails closed.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cursor/README.md",
+            "quotes": [
+              "On timeout, network error, or any response that carries no verdict, the hooks"
+            ]
+          },
+          "says": "The README says the hooks fail closed on a timeout, a network error or a verdict-less response."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cursor/hooks/agent_response_scan.py",
+            "quotes": [
+              "log_message(f\"AGENT-RESPONSE: API error; no verdict obtained: {r['error']}\")"
+            ]
+          },
+          "says": "afterAgentResponse exits 0 on a scan error, and postToolUse skips the scan when no key is set."
+        }
+      ],
+      "impact": "The response-side hooks let content through when AI Guard cannot be reached or is not configured."
+    }
+  },
+  "gaps": {
+    "shell-output-replacement": {
+      "kind": "semantic",
+      "title": "Whether Cursor applies updated_mcp_tool_output to Shell tool output",
+      "status": "open",
+      "detail": "scan_response.py runs on postToolUse for Shell and MCP tools and on a block prints only updated_mcp_tool_output. The README says Shell output is scanned, but no registered source says Cursor honours an MCP-named field for a Shell result; if it does not, a blocked Shell output still reaches the agent.",
+      "blocks": "whether Cursor's Shell output is actually withheld on a block",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "after-response-block": {
+      "kind": "semantic",
+      "title": "What exit 2 from afterAgentResponse does to a reply that has already streamed",
+      "status": "open",
+      "detail": "The README says afterAgentResponse can block display but fires after streaming ends; whether Cursor hides or retracts the already-streamed text on exit 2 is not shown by any registered source.",
+      "blocks": "whether a blocked agent reply is ever kept from the user",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

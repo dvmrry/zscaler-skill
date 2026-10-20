@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "ai-security.ai-guard.integrations",
-  "title": "Zscaler's public AI Guard integration examples (zguard-ai-integrations): what the legacy reference recorded, pending a registered source",
+  "title": "Zscaler's AI Guard integration examples (zguard-ai-integrations): the catalog, the promised fail-closed posture against what each example does, and where each intercepts",
   "aliases": [
     "zguard-ai-integrations",
     "ai guard integrations",
@@ -16,7 +16,9 @@
     "ai guard cloud run",
     "ai guard windsurf",
     "ai guard n8n",
-    "AIGUARD_POLICY_ID"
+    "AIGUARD_POLICY_ID",
+    "ai guard cursor hooks",
+    "ai guard cline"
   ],
   "related": [
     {
@@ -30,117 +32,837 @@
   ],
   "prose": [
     {
-      "text": "Zscaler publishes example integrations that call AI Guard's DAS API from developer tools, gateways, cloud agent frameworks and CI pipelines. The repository is vendored here but not yet a registered source, so everything the legacy reference said about it is held as open statements to verify."
+      "text": "Zscaler publishes example integrations that call AI Guard's detection API from developer tools, gateways, agent frameworks, workflow tools and CI pipelines. This page lists them, sets the posture their documents promise against what each example's code does, and compares where each one intercepts. {{examples-not-product}}"
     },
     {
       "label": "What the repository offers.",
-      "text": "{{gap:catalog}}"
+      "text": "{{catalog}} {{das-pattern}} How DAS differs from proxy mode is in [[ai-security.ai-guard:das-not-inline]]."
     },
     {
-      "label": "Failure posture.",
-      "text": "Whether an integration fails open or closed depends on the host {{gap:fail-posture}}."
+      "label": "Per host.",
+      "text": "Developer tools: [[ai-security.ai-guard.integrations.claude-code]], [[ai-security.ai-guard.integrations.claude-code-skill]], [[ai-security.ai-guard.integrations.cursor]], [[ai-security.ai-guard.integrations.cline]], [[ai-security.ai-guard.integrations.windsurf]], [[ai-security.ai-guard.integrations.codex]]. CI and workflow: [[ai-security.ai-guard.integrations.github-actions]], [[ai-security.ai-guard.integrations.jenkins]], [[ai-security.ai-guard.integrations.n8n]]. Cloud and gateways: [[ai-security.ai-guard.integrations.aws]], [[ai-security.ai-guard.integrations.aws-bedrock-agentcore]], [[ai-security.ai-guard.integrations.aws-bedrock-sdk-hooks]], [[ai-security.ai-guard.integrations.aws-lambda-decorator]], [[ai-security.ai-guard.integrations.aws-strands-agents]], [[ai-security.ai-guard.integrations.azure-apim]], [[ai-security.ai-guard.integrations.google-apigee-proxy]], [[ai-security.ai-guard.integrations.google-apigee-sharedflow]], [[ai-security.ai-guard.integrations.google-cloudrun]], [[ai-security.ai-guard.integrations.kong-plugin]], [[ai-security.ai-guard.integrations.kong-request-callout]], [[ai-security.ai-guard.integrations.litellm]]."
     },
     {
-      "label": "Where each host intercepts.",
-      "text": "{{gap:host-timing}}"
+      "label": "How they call AI Guard.",
+      "text": "{{client-kinds}} {{sdk-floor}} {{sdk-pins}} The SDK fix behind that floor is [[ai-security.ai-guard.runtime-api:sdk-bearer]]. {{policy-id-switch}} {{malformed-policy-id}} Per host: the AWS modules drop a non-numeric ID and apply the key's policy ([[ai-security.ai-guard.integrations.aws:malformed-id-autoresolves]]), the NeMo custom action ignores it ([[ai-security.ai-guard.integrations.nemo-guardrails:config-endpoint]]), and the Apigee and Azure examples parse it as an integer ([[ai-security.ai-guard.integrations.google-apigee-proxy:policy-id-from-kvm]], [[ai-security.ai-guard.integrations.azure-apim:endpoint]]). The Apigee example records that resolve-and-execute ignores a policy ID [[ai-security.ai-guard.integrations.google-apigee-proxy:resolve-ignores-policy-id]]. {{transaction-id-uuid}} The endpoints, hosts and response fields are in [[ai-security.ai-guard.runtime-api]]."
     },
     {
-      "label": "Known source defects.",
-      "text": "{{gap:static-defects}} {{gap:policy-id-parsing}}"
+      "label": "Directions.",
+      "text": "{{direction-convention}} The Cursor example departs from it {{divergence:tool-output-direction}}. {{agentic-guide}} That contradicts the other examples {{divergence:llm-prompt-direction}}; the both-directions advice is [[ai-security.ai-guard.runtime-api:both-directions]]."
     },
     {
-      "label": "SDK version.",
-      "text": "The repository's minimum Python SDK version is open {{gap:sdk-minimum}}; the SDK fix it points at is [[ai-security.ai-guard.runtime-api:sdk-bearer]]."
+      "heading": "Fail posture: what the documents say"
     },
     {
-      "label": "The API they call.",
-      "text": "The DAS endpoints, host and direction values are in [[ai-security.ai-guard.runtime-api]]."
+      "text": "{{posture-table}} {{soft-failure}} {{posture-exceptions}}"
+    },
+    {
+      "heading": "Fail posture: what each example does"
+    },
+    {
+      "table": {
+        "columns": [
+          "Integration",
+          "Missing key",
+          "Scan error or no verdict",
+          "Unrecognised action",
+          "Late or audit-only paths"
+        ],
+        "rows": [
+          [
+            "Claude Code hooks",
+            "Blocks [[ai-security.ai-guard.integrations.claude-code:fail-closed-errors]]",
+            "Blocks [[ai-security.ai-guard.integrations.claude-code:no-action-blocks]]",
+            "Allowed [[ai-security.ai-guard.integrations.claude-code:only-block-blocks]]",
+            "PostToolUse acts after the tool ran [[ai-security.ai-guard.integrations.claude-code:post-tool-after-effects]]"
+          ],
+          [
+            "Claude Code skill",
+            "Error exit with action BLOCK [[ai-security.ai-guard.integrations.claude-code-skill:fail-closed]]",
+            "Same",
+            "Single scans exit 0 [[ai-security.ai-guard.integrations.claude-code-skill:verdict-exit]]",
+            "Advisory only [[ai-security.ai-guard.integrations.claude-code-skill:advisory-only]]"
+          ],
+          [
+            "Cursor",
+            "Prompt and MCP hooks block; postToolUse and afterAgentResponse pass [[ai-security.ai-guard.integrations.cursor:post-tool-hook]]",
+            "afterAgentResponse passes, the others block [[ai-security.ai-guard.integrations.cursor:agent-response-hook]]",
+            "MCP hook allows [[ai-security.ai-guard.integrations.cursor:mcp-hook]]",
+            "Shipped failClosed false [[ai-security.ai-guard.integrations.cursor:shipped-failclosed-false]]"
+          ],
+          [
+            "Cline",
+            "Allowed [[ai-security.ai-guard.integrations.cline:missing-key-allows]]",
+            "Cancelled [[ai-security.ai-guard.integrations.cline:errors-cancel]]",
+            "Cancelled [[ai-security.ai-guard.integrations.cline:errors-cancel]]",
+            "TaskComplete logs only [[ai-security.ai-guard.integrations.cline:task-complete-audit]]"
+          ],
+          [
+            "Windsurf",
+            "Allowed [[ai-security.ai-guard.integrations.windsurf:pre-handling]]",
+            "Pre-hooks block, post-hooks pass [[ai-security.ai-guard.integrations.windsurf:post-handling]]",
+            "Pre-hooks block [[ai-security.ai-guard.integrations.windsurf:pre-handling]]",
+            "Post-hooks alert only [[ai-security.ai-guard.integrations.windsurf:post-cannot-block]]"
+          ],
+          [
+            "Codex CLI",
+            "Blocks [[ai-security.ai-guard.integrations.codex:fail-closed]]",
+            "Blocks, except Stop, which passes [[ai-security.ai-guard.integrations.codex:stop-hook]]",
+            "Blocks [[ai-security.ai-guard.integrations.codex:fail-closed]]",
+            "Stop runs after display [[ai-security.ai-guard.integrations.codex:coverage-limits]]"
+          ],
+          [
+            "n8n",
+            "Open [[ai-security.ai-guard.integrations.n8n:node-behaviour]]",
+            "BLOCK only with Continue On Fail [[ai-security.ai-guard.integrations.n8n:node-error-posture]]",
+            "Template IF blocks [[ai-security.ai-guard.integrations.n8n:template-verdict]]",
+            "None"
+          ],
+          [
+            "GitHub Actions and Jenkins",
+            "Job fails [[ai-security.ai-guard.integrations.github-actions:scan-disabled]]",
+            "Case fails [[ai-security.ai-guard.integrations.github-actions:pass-fail]]",
+            "Case fails unless listed [[ai-security.ai-guard.integrations.github-actions:pass-fail]]",
+            "No live traffic [[ai-security.ai-guard.integrations.github-actions:purpose]]"
+          ],
+          [
+            "AWS components",
+            "Scan error: blocks by default, passes with on_error allow [[ai-security.ai-guard.integrations.aws:on-error]]",
+            "Same [[ai-security.ai-guard.integrations.aws:on-error]]",
+            "Scan error [[ai-security.ai-guard.integrations.aws:verdict-mapping]]",
+            "Boto3 hook skips streamed responses [[ai-security.ai-guard.integrations.aws-bedrock-sdk-hooks:stream-response-skipped]]"
+          ],
+          [
+            "Apigee inline proxy",
+            "See [[ai-security.ai-guard.integrations.google-apigee-proxy]]",
+            "Blocks [[ai-security.ai-guard.integrations.google-apigee-proxy:block-rule]]",
+            "Blocks [[ai-security.ai-guard.integrations.google-apigee-proxy:block-rule]]",
+            "Non-Gemini bodies pass unscanned [[ai-security.ai-guard.integrations.google-apigee-proxy:no-text-passes]]"
+          ],
+          [
+            "Apigee SharedFlow",
+            "See [[ai-security.ai-guard.integrations.google-apigee-sharedflow]]",
+            "Blocks unless failOpen [[ai-security.ai-guard.integrations.google-apigee-sharedflow:verdict]]",
+            "Blocks unless failOpen [[ai-security.ai-guard.integrations.google-apigee-sharedflow:verdict]]",
+            "Unclassifiable requests pass unless failClosedOnUnknown [[ai-security.ai-guard.integrations.google-apigee-sharedflow:unknown-passes]]"
+          ],
+          [
+            "Azure APIM fragment",
+            "See [[ai-security.ai-guard.integrations.azure-apim]]",
+            "503 unless FailOpen, which the shipped inbound scan sets [[ai-security.ai-guard.integrations.azure-apim:scanner-unavailable]] [[ai-security.ai-guard.integrations.azure-apim:example-fail-open]]",
+            "403 [[ai-security.ai-guard.integrations.azure-apim:verdict]]",
+            "Streamed responses scanned as empty [[ai-security.ai-guard.integrations.azure-apim:sse-empty]]"
+          ],
+          [
+            "Kong Lua plugin",
+            "Key required by the schema [[ai-security.ai-guard.integrations.kong-plugin:schema]]",
+            "Prompt fails closed [[ai-security.ai-guard.integrations.kong-plugin:prompt-fail-closed]]",
+            "See [[ai-security.ai-guard.integrations.kong-plugin:prompt-fail-closed]]",
+            "Response scan skipped in some cases [[ai-security.ai-guard.integrations.kong-plugin:response-skips]]"
+          ],
+          [
+            "Kong Konnect callout",
+            "See [[ai-security.ai-guard.integrations.kong-request-callout]]",
+            "No callout response: forwarded unscanned [[ai-security.ai-guard.integrations.kong-request-callout:no-response-passes]]",
+            "403 unless ALLOW or DETECT [[ai-security.ai-guard.integrations.kong-request-callout:decision]]",
+            "No response scan [[ai-security.ai-guard.integrations.kong-request-callout:request-only]]"
+          ],
+          [
+            "LiteLLM callback",
+            "See [[ai-security.ai-guard.integrations.litellm:sdk-unpinned]]",
+            "SDK error re-raised; no action blocks [[ai-security.ai-guard.integrations.litellm:callback-verdict]]",
+            "403 unless ALLOW or DETECT [[ai-security.ai-guard.integrations.litellm:callback-verdict]]",
+            "No user content or tool-call-only reply: not scanned [[ai-security.ai-guard.integrations.litellm:callback-skips]]"
+          ],
+          [
+            "Portkey (SDK examples)",
+            "See [[ai-security.ai-guard.integrations.portkey:scanner]]",
+            "Stops unless ALLOW or DETECT [[ai-security.ai-guard.integrations.portkey:client-side]]",
+            "Stops [[ai-security.ai-guard.integrations.portkey:client-side]]",
+            "The gateway itself does not scan [[ai-security.ai-guard.integrations.portkey:not-in-gateway]]"
+          ],
+          [
+            "TrueFoundry server",
+            "See [[ai-security.ai-guard.integrations.truefoundry]]",
+            "Raises; TrueFoundry's guardrail mode decides [[ai-security.ai-guard.integrations.truefoundry:scan-error-raises]] [[ai-security.ai-guard.integrations.truefoundry:error-posture]]",
+            "Blocks [[ai-security.ai-guard.integrations.truefoundry:verdict-body]]",
+            "No user or assistant content: allowed unscanned [[ai-security.ai-guard.integrations.truefoundry:skips]]"
+          ],
+          [
+            "NeMo Guardrails",
+            "See [[ai-security.ai-guard.integrations.nemo-guardrails]]",
+            "Custom action blocks [[ai-security.ai-guard.integrations.nemo-guardrails:config-verdict]]; library plugin blocks every turn as shipped [[ai-security.ai-guard.integrations.nemo-guardrails:library-always-blocks]]",
+            "Custom action blocks [[ai-security.ai-guard.integrations.nemo-guardrails:config-verdict]]",
+            "Rails call an action name the code does not register [[ai-security.ai-guard.integrations.nemo-guardrails:action-name-mismatch]]"
+          ]
+        ]
+      }
+    },
+    {
+      "text": "The code departs from the README for a missing key {{divergence:missing-key-posture}}, for unrecognised actions {{divergence:unknown-verdict-posture}} and for which hooks are audit-only {{divergence:audit-only-exceptions}}. The documents disagree on a stale policy ID {{divergence:stale-policy-id}}. What the host applications do when a hook itself fails is open {{gap:fail-posture}}. {{gateway-posture-exceptions}}"
+    },
+    {
+      "heading": "Where each example intercepts"
+    },
+    {
+      "table": {
+        "columns": [
+          "Integration",
+          "Before the model",
+          "Before a tool runs",
+          "After a tool runs",
+          "After the reply"
+        ],
+        "rows": [
+          [
+            "Claude Code hooks",
+            "UserPromptSubmit [[ai-security.ai-guard.integrations.claude-code:event-timing]]",
+            "Read, web tools, MCP [[ai-security.ai-guard.integrations.claude-code:registered-hooks]]",
+            "Web tools and MCP [[ai-security.ai-guard.integrations.claude-code:post-tool-after-effects]]",
+            "Not scanned [[ai-security.ai-guard.integrations.claude-code:unscanned-tools]]"
+          ],
+          [
+            "Cursor",
+            "beforeSubmitPrompt [[ai-security.ai-guard.integrations.cursor:hooks]]",
+            "MCP only [[ai-security.ai-guard.integrations.cursor:mcp-hook]]",
+            "MCP and Shell output [[ai-security.ai-guard.integrations.cursor:readme-timing]]",
+            "afterAgentResponse, after streaming [[ai-security.ai-guard.integrations.cursor:agent-response-hook]]"
+          ],
+          [
+            "Cline",
+            "UserPromptSubmit [[ai-security.ai-guard.integrations.cline:hooks]]",
+            "Commands, MCP, file writes and other tools [[ai-security.ai-guard.integrations.cline:pre-tool-extraction]]",
+            "PostToolUse [[ai-security.ai-guard.integrations.cline:post-tool-content]]",
+            "No hook on a reply without a tool [[ai-security.ai-guard.integrations.cline:no-reply-hook]]"
+          ],
+          [
+            "Windsurf",
+            "pre_user_prompt [[ai-security.ai-guard.integrations.windsurf:hooks]]",
+            "Commands and MCP [[ai-security.ai-guard.integrations.windsurf:pre-content]]",
+            "MCP results, audit only [[ai-security.ai-guard.integrations.windsurf:post-handling]]",
+            "Cascade reply, audit only [[ai-security.ai-guard.integrations.windsurf:post-cannot-block]]"
+          ],
+          [
+            "Codex CLI",
+            "UserPromptSubmit [[ai-security.ai-guard.integrations.codex:hooks]]",
+            "Bash and MCP; not apply_patch or WebSearch [[ai-security.ai-guard.integrations.codex:coverage-limits]]",
+            "Bash and MCP output [[ai-security.ai-guard.integrations.codex:block-mechanisms]]",
+            "Stop, after display [[ai-security.ai-guard.integrations.codex:stop-hook]]"
+          ],
+          [
+            "Claude Code skill and n8n",
+            "Wherever the user, model or workflow invokes it [[ai-security.ai-guard.integrations.claude-code-skill:invocation]] [[ai-security.ai-guard.integrations.n8n:operations]]",
+            "-",
+            "-",
+            "-"
+          ],
+          [
+            "GitHub Actions and Jenkins",
+            "Before deployment, on test prompts [[ai-security.ai-guard.integrations.github-actions:purpose]] [[ai-security.ai-guard.integrations.jenkins:pipeline]]",
+            "-",
+            "-",
+            "-"
+          ],
+          [
+            "Bedrock AgentCore",
+            "Prompt leg the agent calls [[ai-security.ai-guard.integrations.aws-bedrock-agentcore:guard-not-hook]]",
+            "Tool input leg",
+            "Tool output leg",
+            "Streamed responses left to the caller [[ai-security.ai-guard.integrations.aws-bedrock-agentcore:streaming-caller]]"
+          ],
+          [
+            "Bedrock boto3 hook",
+            "Before the call [[ai-security.ai-guard.integrations.aws-bedrock-sdk-hooks:prompt-before-signing]]",
+            "-",
+            "-",
+            "After the call; streams skipped [[ai-security.ai-guard.integrations.aws-bedrock-sdk-hooks:stream-response-skipped]]"
+          ],
+          [
+            "Lambda decorator",
+            "Handler input [[ai-security.ai-guard.integrations.aws-lambda-decorator:boundary]]",
+            "Not seen",
+            "Not seen",
+            "Handler return"
+          ],
+          [
+            "Strands Agents",
+            "See [[ai-security.ai-guard.integrations.aws-strands-agents:hook-events]]",
+            "Cancels the tool [[ai-security.ai-guard.integrations.aws-strands-agents:tool-input-cancel]]",
+            "After side effects [[ai-security.ai-guard.integrations.aws-strands-agents:side-effects]]",
+            "Tokens may stream before the verdict [[ai-security.ai-guard.integrations.aws-strands-agents:stream-before-verdict]]"
+          ],
+          [
+            "Apigee inline proxy",
+            "Gemini prompts [[ai-security.ai-guard.integrations.google-apigee-proxy:flow]]",
+            "-",
+            "-",
+            "Response PostFlow, no streaming [[ai-security.ai-guard.integrations.google-apigee-proxy:no-streaming]]"
+          ],
+          [
+            "Apigee SharedFlow",
+            "See [[ai-security.ai-guard.integrations.google-apigee-sharedflow:dialects]]",
+            "MCP tool calls [[ai-security.ai-guard.integrations.google-apigee-sharedflow:mcp]]",
+            "-",
+            "Streams reassembled before the scan [[ai-security.ai-guard.integrations.google-apigee-sharedflow:sse-response]]"
+          ],
+          [
+            "Azure APIM fragment",
+            "Last message or input [[ai-security.ai-guard.integrations.azure-apim:prompt-extraction]]",
+            "-",
+            "-",
+            "HTTP 200 replies only [[ai-security.ai-guard.integrations.azure-apim:response-extraction]]"
+          ],
+          [
+            "Kong Lua plugin",
+            "Access phase, last user message [[ai-security.ai-guard.integrations.kong-plugin:phases]]",
+            "-",
+            "-",
+            "Response phase [[ai-security.ai-guard.integrations.kong-plugin:response-block]]"
+          ],
+          [
+            "Kong Konnect callout",
+            "Prompt matched by a Lua pattern [[ai-security.ai-guard.integrations.kong-request-callout:prompt-pattern]]",
+            "-",
+            "-",
+            "Not scanned [[ai-security.ai-guard.integrations.kong-request-callout:request-only]]"
+          ],
+          [
+            "Cloud Run pipelines",
+            "Deploy the Apigee bundles unchanged [[ai-security.ai-guard.integrations.google-cloudrun:bundle-copies-identical]]",
+            "-",
+            "-",
+            "-"
+          ],
+          [
+            "LiteLLM callback",
+            "async_pre_call_hook, last user message [[ai-security.ai-guard.integrations.litellm:callback-hooks]]",
+            "-",
+            "-",
+            "async_post_call_success_hook [[ai-security.ai-guard.integrations.litellm:callback-hooks]]"
+          ],
+          [
+            "Portkey (SDK examples)",
+            "Client scans before calling the gateway [[ai-security.ai-guard.integrations.portkey:client-side]]",
+            "-",
+            "-",
+            "Client scans the reply [[ai-security.ai-guard.integrations.portkey:client-side]]"
+          ],
+          [
+            "TrueFoundry server",
+            "/input-scan, last user message [[ai-security.ai-guard.integrations.truefoundry:endpoints]]",
+            "-",
+            "-",
+            "/output-scan [[ai-security.ai-guard.integrations.truefoundry:endpoints]]"
+          ],
+          [
+            "NeMo Guardrails",
+            "Input rail on the user message [[ai-security.ai-guard.integrations.nemo-guardrails:config-rails]]",
+            "-",
+            "-",
+            "Output rail on the bot message [[ai-security.ai-guard.integrations.nemo-guardrails:config-rails]]"
+          ]
+        ]
+      }
     }
   ],
   "checks": [
     {
-      "do": "Read the specific integration's own fail-open or fail-closed handling and its interception point before relying on it; the legacy notes differ by host.",
+      "do": "Read the specific example's handling of a missing key, a scan error and an unrecognised verdict before relying on it; the README's fail-closed table does not hold for every host.",
       "uses": [
-        "fail-posture",
-        "host-timing"
+        "posture-table",
+        "missing-key-posture",
+        "unknown-verdict-posture"
       ]
     },
     {
-      "do": "That an explicit policy ID in an integration's configuration is numeric; malformed values may silently fall back to policy resolution.",
+      "do": "Which events the chosen host can still act on after the fact (post-tool, Stop, afterAgentResponse): those paths see content the model or user may already have.",
       "uses": [
-        "policy-id-parsing"
+        "audit-only-exceptions",
+        "fail-posture"
+      ]
+    },
+    {
+      "do": "That AIGUARD_POLICY_ID is unset or a numeric ID the key can use; a malformed value is silently ignored and an unusable numeric one blocks everything.",
+      "uses": [
+        "malformed-policy-id",
+        "soft-failure",
+        "stale-policy-id"
+      ]
+    },
+    {
+      "do": "That the installed zscaler-sdk-python is 1.9.44 or later.",
+      "uses": [
+        "sdk-floor"
       ]
     }
   ],
-  "gaps": {
-    "catalog": {
-      "kind": "data",
-      "title": "What the zguard-ai-integrations repository covers",
-      "status": "open",
-      "detail": "Unverified legacy statement: zscaler/zguard-ai-integrations provides DAS examples for developer tools and IDE hooks (Claude Code, Windsurf, Cline), CI/CD (GitHub Actions), gateways, orchestration (n8n) and AI guardrail libraries, describing DAS as application-by-application wiring without proxy infrastructure; the September 1, 2026 head (release 0.2.0) added AWS Bedrock AgentCore, a boto3 hook, a Lambda decorator and Strands, OpenAI Codex CLI hooks, and Google Apigee X and Cloud Run. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
-      "blocks": "answers on which hosts have a ready AI Guard integration",
-      "resolves_with": [
-        "source-read"
-      ],
-      "resolvable_by": [
-        "none"
+  "claims": {
+    "examples-not-product": {
+      "statement": "Zscaler publishes these integrations as community examples and reference implementations, to be reviewed, adapted and validated before production use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/README.md",
+          "quotes": [
+            "The contents of this repository are community examples and reference",
+            "implementations. They are intended as starting points to illustrate integration",
+            "patterns — review, adapt, and validate them for your own environment before any production use."
+          ]
+        }
       ]
     },
+    "catalog": {
+      "statement": "The root README lists as complete: Claude Code and OpenAI Codex CLI hooks, an Azure AI Gateway APIM policy fragment, Cursor, Cline and Windsurf hooks, GitHub Actions and Jenkins pipelines, a Google Apigee X proxy and SharedFlow, Google Cloud Run provisioning pipelines, AWS Bedrock, Lambda and Strands components, a Kong Lua plugin, LiteLLM, NeMo Guardrails, Portkey and TrueFoundry integrations, and an n8n node; LangChain callbacks are planned. The Anthropic directory adds an on-demand Claude Code skill.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "README.md",
+          "quotes": [
+            "| **Claude Code** | Hooks (Python) | ✅ Complete |",
+            "| **OpenAI Codex CLI** | Hooks (Python) | ✅ Complete |",
+            "| **Azure AI Gateway** | APIM Policy Fragment | ✅ Complete |",
+            "| **Cursor IDE** | Hooks (Python) | ✅ Complete |",
+            "| **Cline** | VS Code hooks (Python) | ✅ Complete |",
+            "| **Windsurf** | Cascade hooks (Python) | ✅ Complete |",
+            "| **GitHub Actions** | CI/CD Pipeline (Python) | ✅ Complete |",
+            "| **Jenkins** | Declarative Pipeline (Python) | ✅ Complete |",
+            "| **Google Apigee X** | API Proxy + SharedFlow | ✅ Complete |",
+            "| **Google Cloud Run** | Provisioning pipelines (Python) | ✅ Complete |",
+            "| **AWS Bedrock / Lambda / Strands** | SDK hooks, decorator, agent wrapper (Python) | ✅ Complete |",
+            "| **Kong Gateway** | Lua Plugin | ✅ Complete |",
+            "| **LiteLLM** | Native Plugin + Python Callback | ✅ Complete |",
+            "| **NeMo Guardrails** | Library Plugin (Python) | ✅ Complete |",
+            "| **Portkey AI Gateway** | Native Plugin + SDK Client | ✅ Complete |",
+            "| **TrueFoundry** | FastAPI Guardrail Server | ✅ Complete |",
+            "| **n8n** | TypeScript Node | ✅ Complete |",
+            "| LangChain | Callbacks | 🚧 Planned | - |"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/README.md",
+          "quotes": [
+            "| [Claude Code Skill](./claude-code-skill/) | Skill | On-demand scanning via `/aiguard` slash command | ✅ Available |"
+          ]
+        }
+      ]
+    },
+    "das-pattern": {
+      "statement": "The root README's architecture section says AI Guard uses a DAS pattern in which each AI application integrates independently, with no proxy infrastructure required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "README.md",
+          "quotes": [
+            "AI Guard uses a **DAS pattern** where each AI application integrates independently:",
+            "- ✅ No proxy infrastructure required",
+            "## Architecture: Detection as a Service (DAS)"
+          ]
+        }
+      ]
+    },
+    "client-kinds": {
+      "statement": "The Python examples call AI Guard through `zscaler-sdk-python`; the AWS components instead call the API with `urllib` and the standard library only, and the n8n node uses Node.js's native `https` module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "CLAUDE.md",
+          "quotes": [
+            "1. Use `zscaler-sdk-python` **>= 1.9.44** when Python is available",
+            "**Exception: AWS.** Those components run inside Lambda and agent runtimes where adding a dependency is a deployment-package cost the user pays, so they call the API with `urllib` and stay stdlib-only."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/README.md",
+          "quotes": [
+            "The node makes direct HTTPS calls to the Zscaler AI Guard API using Node.js's native `https` module"
+          ]
+        }
+      ]
+    },
+    "sdk-floor": {
+      "statement": "Release 0.2.0 requires `zscaler-sdk-python>=1.9.44` for every Python integration, because earlier SDK releases never attached the Bearer token to AI Guard policy-detection calls and every scan failed with 401 Unauthorized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "**Breaking:** all Python integrations now require `zscaler-sdk-python>=1.9.44`. Earlier releases never attached the Bearer token to AI Guard policy-detection calls, so every scan failed with `401 Unauthorized`."
+          ],
+          "after": "## 0.2.0 (September 1, 2026)"
+        }
+      ]
+    },
+    "policy-id-switch": {
+      "statement": "The examples call `resolve_and_execute_policy` when `AIGUARD_POLICY_ID` is unset, letting the API resolve the policy bound to the key, and switch to `execute_policy` against a configured ID; the documents recommend leaving it unset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "docs/ARCHITECTURE.md",
+          "quotes": [
+            "Leave `AIGUARD_POLICY_ID` unset. The API resolves the policy bound to your",
+            "This switches the call to `execute_policy` against that exact id.",
+            "result, response, error = client.aiguard.policy_detection.resolve_and_execute_policy("
+          ]
+        }
+      ]
+    },
+    "posture-table": {
+      "statement": "The root README says every integration fails closed: `ALLOW` is allowed, `DETECT` is allowed as monitor-only (reported and logged, not enforced), `BLOCK` is blocked, and a missing API key, an unreachable API, a timeout or network error, HTTP 401 or 403, an HTTP 200 carrying no `action`, and any unrecognised verdict are all blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "README.md",
+          "quotes": [
+            "Every integration in this repository **fails closed**.",
+            "| `DETECT` | allowed — monitor-only: reported and logged, not enforced |",
+            "| No API key configured | blocked |",
+            "| API unreachable, timeout, or network error | blocked |",
+            "| HTTP 401/403 — bad or revoked key | blocked |",
+            "| **HTTP 200 carrying no `action`** | blocked |",
+            "| Any unrecognised verdict | blocked |",
+            "| `ALLOW` | allowed |",
+            "| `BLOCK` | blocked |"
+          ]
+        }
+      ]
+    },
+    "posture-exceptions": {
+      "statement": "The README names two exceptions: the Windsurf and Cline post-hooks and the Codex `Stop` hook are audit-only because those events cannot block, and unclassifiable gateway traffic is passed unscanned unless `failClosedOnUnknown` is set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "README.md",
+          "quotes": [
+            "- **Windsurf and Cline post-hooks** and the **Codex `Stop` hook** are audit-only, because those events cannot block by design. They report and log.",
+            "- **Unclassifiable gateway traffic** — a request body no walker recognises — is passed unscanned unless `failClosedOnUnknown` is set."
+          ]
+        }
+      ]
+    },
+    "soft-failure": {
+      "statement": "The example documents say a policy ID the key cannot use comes back as \"Policy not found\" inside an HTTP 200 with no `action` field, so reading a verdict-less 200 as permission silently disables scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "docs/ARCHITECTURE.md",
+          "quotes": [
+            "cannot use comes back as `\"Policy not found\"` **inside an HTTP 200**, with",
+            "no `action` field. Every integration here treats that as no verdict and"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "README.md",
+          "quotes": [
+            "arrives as an HTTP **200** with no `action` field. Reading that as permission silently disables scanning while every integration still looks healthy."
+          ]
+        }
+      ]
+    },
+    "transaction-id-uuid": {
+      "statement": "The example documents say the API answers HTTP 500 to a `transactionId` that is not a standard 36-character UUID; the 0.2.0 fix hashes such values with `uuid5` or omits them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/README.md",
+          "quotes": [
+            "**The API requires `transactionId` to be a standard 36-character UUID** and returns",
+            "HTTP 500 for anything else"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed non-UUID `transactionId` values causing HTTP 500 — they are now hashed with `uuid5` or omitted"
+          ],
+          "after": "## 0.2.0 (September 1, 2026)"
+        }
+      ]
+    },
+    "malformed-policy-id": {
+      "statement": "Across the Python examples a non-numeric `AIGUARD_POLICY_ID` is treated as unset and the call auto-resolves, so a malformed ID quietly applies the key's bound policy; only a numeric ID the key cannot use reaches the verdict-less 200 the README warns about. The Claude Code response hook is the exception and crashes instead.",
+      "tier": "B",
+      "derived_from": [
+        "ai-security.ai-guard.integrations.claude-code:policy-id-parsing",
+        "ai-security.ai-guard.integrations.claude-code:response-hook-crash",
+        "ai-security.ai-guard.integrations.cursor:policy-id",
+        "ai-security.ai-guard.integrations.cline:config",
+        "ai-security.ai-guard.integrations.windsurf:config",
+        "ai-security.ai-guard.integrations.codex:config",
+        "ai-security.ai-guard.integrations.claude-code-skill:config",
+        "ai-security.ai-guard.integrations.github-actions:config",
+        "ai-security.ai-guard.integrations.aws:malformed-id-autoresolves"
+      ],
+      "conditions": "Chain over the hosts' parsing claims (each strips the value and returns None when int() fails). The legacy note called this inconsistent with the README's stale-ID warning; the code shows the two cases differ (malformed vs numeric-but-unusable), so it is not a contradiction."
+    },
+    "direction-convention": {
+      "statement": "ARCHITECTURE.md defines direction `IN` as data coming into the system (user prompts, MCP tool parameters) and `OUT` as data going out (tool responses, URLs being fetched).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "docs/ARCHITECTURE.md",
+          "quotes": [
+            "| `IN` | Data coming **into** your system | User prompts, MCP tool parameters |",
+            "| `OUT` | Data going **out** from your system | Tool responses, URLs being fetched |"
+          ]
+        }
+      ]
+    },
+    "agentic-guide": {
+      "statement": "The agentic AI guide labels an agent's prompt to its LLM direction `OUT` (to the external LLM), and its example agent scans that prompt with `OUT` and returns the generated reply without scanning it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "docs/AGENTIC_AI_INTEGRATION.md",
+          "quotes": [
+            "**Direction:** `OUT` (to external LLM)",
+            "if not self.aiguard.scan(llm_prompt, direction=\"OUT\"): return {\"error\": \"LLM prompt blocked\"} return self.llm.generate(llm_prompt)"
+          ]
+        }
+      ]
+    },
+    "gateway-posture-exceptions": {
+      "statement": "The root README's statement that every integration fails closed does not hold across the gateway, cloud and framework examples at the pin: the Azure example policy sets FailOpen on the prompt leg, the Apigee inline proxy forwards JSON bodies without Gemini text unscanned, the SharedFlow passes unclassified traffic and harness-tagged requests unscanned, the Kong plugin returns unscannable responses unscanned, the Konnect callout passes when no callout response exists, TrueFoundry's error posture is set by the TrueFoundry guardrail mode, and the NeMo library flows would pass a verdict-less reply.",
+      "tier": "B",
+      "derived_from": [
+        "ai-security.ai-guard.integrations.azure-apim:example-fail-open",
+        "ai-security.ai-guard.integrations.google-apigee-proxy:no-text-passes",
+        "ai-security.ai-guard.integrations.google-apigee-sharedflow:unknown-passes",
+        "ai-security.ai-guard.integrations.google-apigee-sharedflow:harness-bypass",
+        "ai-security.ai-guard.integrations.kong-plugin:response-skips",
+        "ai-security.ai-guard.integrations.kong-request-callout:no-response-passes",
+        "ai-security.ai-guard.integrations.truefoundry:error-posture",
+        "ai-security.ai-guard.integrations.nemo-guardrails:library-no-verdict"
+      ],
+      "conditions": "Each item is a code path in one example; the root README's own exceptions (Windsurf and Cline post-hooks, Codex Stop, failClosedOnUnknown) are separate. Not exercised against deployed gateways."
+    },
+    "sdk-pins": {
+      "statement": "Of the SDK-based gateway examples, Portkey requires zscaler-sdk-python>=1.9.44 and TrueFoundry >=1.10.0 (for user forwarding), while the LiteLLM callback image and the NeMo install line leave the SDK unpinned; the AWS and Apigee examples do not use the SDK.",
+      "tier": "B",
+      "derived_from": [
+        "ai-security.ai-guard.integrations.portkey:requirements",
+        "ai-security.ai-guard.integrations.truefoundry:user-forwarding",
+        "ai-security.ai-guard.integrations.litellm:sdk-unpinned",
+        "ai-security.ai-guard.integrations.nemo-guardrails:versions",
+        "ai-security.ai-guard.integrations.aws:stdlib-only"
+      ],
+      "conditions": "A composition of the examples' requirement and install files at the pin; the changelog's >=1.9.44 statement (which says all requirements.txt files were pinned) is the parent's evidence for sdk-minimum."
+    }
+  },
+  "divergences": {
+    "missing-key-posture": {
+      "summary": "What an example does when no API key is configured.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "README.md",
+            "quotes": [
+              "| No API key configured | blocked |"
+            ]
+          },
+          "says": "The root README says a missing key blocks in every integration."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cline/README.md",
+            "quotes": [
+              "Missing **`AIGUARD_API_KEY`** allows traffic and logs a warning (local dev convenience)."
+            ]
+          },
+          "says": "The Cline README and code allow every hook without a scan."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Windsurf/README.md",
+            "quotes": [
+              "**Pre-hooks:** missing `AIGUARD_API_KEY` allows traffic with a warning."
+            ]
+          },
+          "says": "The Windsurf README and code allow; Cursor's postToolUse and afterAgentResponse hooks also pass unscanned."
+        }
+      ],
+      "impact": "An unconfigured or lost key silently turns off scanning in the Cline, Windsurf and part of the Cursor examples, while the index promises a block."
+    },
+    "unknown-verdict-posture": {
+      "summary": "What an example does with an action it does not recognise.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "README.md",
+            "quotes": [
+              "| Any unrecognised verdict | blocked |"
+            ]
+          },
+          "says": "The root README says any unrecognised verdict blocks."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+            "quotes": [
+              "log_message(f\"ALLOWED URL: {url} (txn:{transaction_id})\")"
+            ]
+          },
+          "says": "The Claude Code hooks allow anything that is not BLOCK."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cursor/hooks/pre_mcp_execution.py",
+            "quotes": [
+              "print(json.dumps({\"permission\": \"allow\"}))"
+            ],
+            "after": "f\"PRE-MCP: Empty or unparseable AI Guard response for tool={tool_name}; blocking (fail-closed)\""
+          },
+          "says": "Cursor's MCP hook logs a block but answers allow."
+        }
+      ],
+      "impact": "A new verdict value would pass in those hooks; the API today returns ALLOW, BLOCK or DETECT, so the effect is latent."
+    },
+    "audit-only-exceptions": {
+      "summary": "Which post-event hooks are audit-only.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "README.md",
+            "quotes": [
+              "- **Windsurf and Cline post-hooks** and the **Codex `Stop` hook** are audit-only"
+            ]
+          },
+          "says": "The root README calls the Cline post-hooks and the Codex Stop hook audit-only."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cline/README.md",
+            "quotes": [
+              "| After tool | `PostToolUse` | OUT | Yes |"
+            ]
+          },
+          "says": "The Cline README and code cancel on a PostToolUse block; only TaskComplete is audit-only."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "OpenAI/codex-hooks/.codex/hooks/scan_stop_response.py",
+            "quotes": [
+              "\"continue\": False, \"stopReason\": ("
+            ]
+          },
+          "says": "The Codex Stop hook halts the session on a blocking verdict (after the reply is displayed)."
+        }
+      ],
+      "impact": "Readers of the index under-count where Cline can act and over-state how passive the Codex Stop hook is."
+    },
+    "stale-policy-id": {
+      "summary": "What a stale AIGUARD_POLICY_ID does.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "README.md",
+            "quotes": [
+              "Setting a stale ID fails closed"
+            ]
+          },
+          "says": "The root README says a stale ID fails closed on every request."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Anthropic/claude-code-aiguard/README.md",
+            "quotes": [
+              "If the ID is stale or belongs to a more"
+            ]
+          },
+          "says": "The Claude Code README (and the Codex README) say a stale ID silently weakens scanning with no error."
+        }
+      ],
+      "impact": "The code blocks on a verdict-less response, which supports the root README for an ID the key cannot use; an ID that exists but names a more permissive policy does weaken scanning silently."
+    },
+    "tool-output-direction": {
+      "summary": "Which direction tool output is scanned with.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "docs/ARCHITECTURE.md",
+            "quotes": [
+              "| `OUT` | Data going **out** from your system | Tool responses, URLs being fetched |"
+            ]
+          },
+          "says": "ARCHITECTURE.md assigns tool responses to OUT, as the Claude Code, Codex, Cline, Windsurf and AWS examples do."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Cursor/hooks/scan_response.py",
+            "quotes": [
+              "r = scan_content(truncated, \"IN\")"
+            ]
+          },
+          "says": "The Cursor example scans tool output with IN."
+        }
+      ],
+      "impact": "A policy that sets detectors per direction applies different detectors to tool output in Cursor than in the other examples."
+    },
+    "llm-prompt-direction": {
+      "summary": "Which direction a prompt bound for a model is scanned with.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "docs/AGENTIC_AI_INTEGRATION.md",
+            "quotes": [
+              "**Direction:** `OUT` (to external LLM)"
+            ]
+          },
+          "says": "The agentic AI guide scans an agent's prompt to its LLM with OUT."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+            "quotes": [
+              "\"prompt\": \"IN\","
+            ]
+          },
+          "says": "The AgentCore example, like every hook example, scans content heading into the model with IN."
+        }
+      ],
+      "impact": "Following the guide applies response detectors to prompts and leaves the model's reply unscanned, against the both-directions advice in the runtime API page."
+    }
+  },
+  "gaps": {
     "fail-posture": {
       "kind": "semantic",
-      "title": "Which integrations fail closed, and their exceptions",
+      "title": "What the host applications do when an example's hook crashes, times out or exits unexpectedly",
       "status": "open",
-      "detail": "Unverified legacy statement: the root README presents a fail-closed default (ALLOW permits, DETECT is monitor-only, BLOCK blocks; missing keys, API errors, HTTP 401/403, HTTP 200 without an action, and unknown verdicts block), but the same README records exceptions: Windsurf and Cline post-hooks and the Codex Stop hook are audit-only, and unclassifiable gateway traffic passes unless failClosedOnUnknown is enabled. Codex Stop runs after the response has streamed, blocks on a BLOCK verdict, fails open on scan errors and skips short content. Windsurf pre-hooks allow traffic when AIGUARD_API_KEY is missing but fail closed on API errors. n8n documents fail-closed behavior only for its Continue On Fail path. The 0.2.0 changelog says the Claude Code hooks' fail-open paths (missing key, API error, exception, verdict-less response) were fixed, making older Claude Code file-read fail-open prose stale. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
-      "blocks": "whether a given integration lets content through when AI Guard is unreachable or unsure",
+      "detail": "The examples' own handling is recorded per host (see the comparison table). Still open: what Claude Code, Cline, Windsurf and Codex do when a hook process crashes, times out or exits with an unexpected code (for example the Claude Code response hook's ValueError), and what the n8n node does with Continue On Fail off; only Cursor documents a switch (failClosed). No registered source states the hosts' behaviour.",
+      "blocks": "whether a broken hook lets content through",
       "resolves_with": [
-        "source-read",
-        "lab-test"
-      ]
-    },
-    "host-timing": {
-      "kind": "semantic",
-      "title": "Where each integration intercepts and when enforcement happens",
-      "status": "open",
-      "detail": "Unverified legacy statements: AWS Bedrock AgentCore scans prompt, response, tool input (before the tool runs) and tool output (before it re-enters the model) as tool events, awaiting async tools and draining generators first, with streamed-response granularity left to the caller. The Bedrock boto3 hook intercepts client calls before and after the operation and skips streaming responses at after_call. The Lambda decorator sees only one prompt and one response at the handler boundary; HTTP proxy events get 403 on a block, while direct and asynchronous invocations raise AIGuardBlocked to keep retry and dead-letter behavior. Strands hooks cover prompt, response, tool input and tool output: a blocked response can only request a retry and finally raises, tool input is cancelled before execution, tool output can be replaced only after the tool has run, streams may emit before the verdict, and Agent.structured_output() is outside the hooks. Codex hooks cover user prompts, Bash and MCP pre-tool input, Bash and MCP post-tool output, and Stop; apply_patch, other tools and stream interception are not covered, and post-tool hooks run after side effects. The Apigee inline proxy is synchronous and Gemini-only and blocks with HTTP 403; the SharedFlow covers Gemini, OpenAI, Anthropic, MCP and SSE and returns caller-shaped HTTP 200 refusals. Cloud Run pipelines deploy either pattern, the flow pipeline answering with HTTP 200 refusals and the proxy pipeline with JSON 403. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
-      "blocks": "what content a given integration can still let through or act on too late",
-      "resolves_with": [
-        "source-read",
-        "lab-test"
-      ]
-    },
-    "static-defects": {
-      "kind": "semantic",
-      "title": "Defects and contradictions in the integration examples",
-      "status": "open",
-      "detail": "Unverified legacy statements: the Strands README's constructor example has two bare policy_id= assignments and is invalid Python; the agentic integration guide labels Agent-to-LLM prompts OUT, scans llm_prompt with direction OUT and returns the generated response without a final scan, contradicting the architecture direction table and the AgentCore mapping (prompt IN, response OUT); the Bedrock response helpers discard the opaque-content flag and apply on_unscannable only when no text is extracted, so a mixed text-plus-image, document or unknown response may be scanned on its text alone; the Apigee SharedFlow MCP extractor copies only result.content[*].text, omitting non-text results; the Cloud Run README says the pipelines configure an existing Apigee organization, while the separate provision_org.py helper creates the organization, runtime, environment, group and attachments. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
-      "blocks": "copying vendor examples as working configurations",
-      "resolves_with": [
-        "source-read",
-        "lab-test"
-      ]
-    },
-    "policy-id-parsing": {
-      "kind": "semantic",
-      "title": "Malformed explicit policy IDs in the integrations",
-      "status": "open",
-      "detail": "Unverified legacy statement: the AgentCore, Bedrock boto3, Lambda and Strands helpers and the Codex utility strip quotes, attempt int() and return None for a malformed or non-numeric AIGUARD_POLICY_ID, so an invalid configured ID is treated as unset and auto-resolution runs, inconsistent with the root README's warning that a stale explicit ID can return HTTP 200 with no action and fail closed. vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
-      "blocks": "diagnosing an integration that applies a different policy than configured",
-      "resolves_with": [
-        "source-read",
-        "lab-test"
-      ]
-    },
-    "sdk-minimum": {
-      "kind": "data",
-      "title": "The integrations' minimum Python SDK version",
-      "status": "open",
-      "detail": "Unverified legacy statement: zguard-ai-integrations 0.2.0 requires zscaler-sdk-python>=1.9.44 because earlier releases did not attach the Bearer token to AI Guard policy-detection calls. The SDK side of this is sourced (ai-security.ai-guard.runtime-api:sdk-bearer). vendor/zguard-ai-integrations is vendored but is not a registered source in references/_meta/sources.json, so none of this can be cited; registering it and quoting at its pin would resolve or correct each point.",
-      "blocks": "pinning SDK versions for the integrations",
-      "resolves_with": [
+        "lab-test",
         "source-read"
-      ],
-      "resolvable_by": [
-        "none"
       ]
     }
   }

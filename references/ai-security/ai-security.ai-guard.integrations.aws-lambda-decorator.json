@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.aws-lambda-decorator",
+  "title": "The AI Guard decorator for AWS Lambda handlers: prompt and response scanning at the function boundary, default extractors, and block shapes",
+  "aliases": [
+    "ai guard lambda",
+    "ai guard lambda decorator",
+    "aiguard_protect",
+    "aiguard_decorator.py",
+    "ai guard lambda 403",
+    "AIGuardBlocked lambda"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.integrations.aws"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Lambda decorator guards the function boundary: it sees the event entering the handler and the result leaving it, and nothing the handler does in between. {{boundary}}"
+    },
+    {
+      "label": "Finding the text.",
+      "text": "{{default-extractors}} {{error-results-skipped}}"
+    },
+    {
+      "label": "What is sent.",
+      "text": "{{response-leg-content}} {{transaction-request-id}} {{no-truncation}}"
+    },
+    {
+      "label": "Blocking.",
+      "text": "{{block-shapes}}"
+    },
+    {
+      "label": "Timeouts and degraded verdicts.",
+      "text": "{{timeout}} {{strict-verdict-errormsg}} The README describes a wider check {{divergence:strict-verdict-scope}}. Shared behavior is in [[ai-security.ai-guard.integrations.aws]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That prompt_from and response_from read the same fields the handler reads; the default extractors take the first non-empty string from a fixed key list.",
+      "uses": [
+        "default-extractors"
+      ]
+    },
+    {
+      "do": "For an asynchronous event source, that a block raises (the default) rather than returning a value, so Lambda's retry and dead-letter handling applies.",
+      "uses": [
+        "block-shapes"
+      ]
+    },
+    {
+      "do": "That the function timeout covers the handler plus two scans of up to the scan timeout each.",
+      "uses": [
+        "timeout"
+      ]
+    }
+  ],
+  "claims": {
+    "boundary": {
+      "statement": "The decorator scans the extracted prompt before the handler body runs, so a blocked prompt never reaches the handler or its model, and scans the handler's returned text before Lambda returns it; model and tool calls inside the handler are not seen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "1. the inbound prompt is scanned by Zscaler AI Guard *before* the handler body runs",
+            "2. the handler's response is scanned *before* Lambda returns it to the caller"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/README.md",
+          "quotes": [
+            "**Blind below the boundary.** Model calls, tool calls, and agent loops inside the handler are invisible;"
+          ]
+        }
+      ]
+    },
+    "default-extractors": {
+      "statement": "The default extractors parse an API Gateway or ALB proxy body as JSON (base64-decoded when flagged; a flagged body that does not decode to UTF-8 is unscannable), fall back to the raw body when it is not JSON, and take the first non-empty string among `prompt`, `message`, `input`, `query`, `question`, `text` for the prompt and `response`, `completion`, `output`, `answer`, `reply`, `message`, `text` for the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "PROMPT_KEYS = (\"prompt\", \"message\", \"input\", \"query\", \"question\", \"text\")",
+            "RESPONSE_KEYS = (\"response\", \"completion\", \"output\", \"answer\", \"reply\", \"message\", \"text\")",
+            "return base64.b64decode(raw).decode(\"utf-8\")",
+            "if not (isinstance(envelope, dict) and envelope.get(\"isBase64Encoded\")):"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "after": "def default_prompt_from(event):",
+          "quotes": [
+            "return raw if isinstance(raw, str) and raw.strip() else None"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/README.md",
+          "quotes": [
+            "The default extractors understand API Gateway (REST and HTTP APIs), ALB proxy events, and plain direct-invoke payloads: they parse the JSON body (base64-decoded when the envelope flags it, on **both** legs;",
+            "a flagged body that does not decode to UTF-8 text -- gzip, images, any binary media type -- is reported unscannable and follows `on_unscannable` instead of being scanned as its base64 wrapper) and take the first non-empty string among"
+          ]
+        }
+      ]
+    },
+    "error-results-skipped": {
+      "statement": "A handler result with a `statusCode` of 400 or more is not scanned (the decorator treats it as the handler's own error path), and a custom extractor can return `SKIP` to pass a leg deliberately; otherwise an empty extraction follows `on_unscannable`, blocking by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "return _SKIP  # the handler's own error path carries no model output",
+            "SKIP = _SKIP",
+            "return blocked(\"prompt\", {\"action\": \"block\", \"reason\": \"unscannable\"})",
+            "# Public alias: return SKIP from a custom prompt_from/response_from to say"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "if isinstance(result, dict) and \"statusCode\" in result:",
+            "if isinstance(status, int) and status >= 400:"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "if on_unscannable == \"block\":"
+          ],
+          "after": "elif not isinstance(extracted, str) or not extracted.strip():"
+        }
+      ]
+    },
+    "response-leg-content": {
+      "statement": "The response scan sends the response text together with the prompt, and with any `context_from` grounding text and `code_response_from` text, joined into one `content` string with direction OUT; the prompt scan can likewise carry `code_prompt_from` text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "for key in (\"prompt\", \"response\", \"code_prompt\", \"code_response\", \"context\"):",
+            "contents[\"prompt\"] = prompt_text",
+            "contents[\"context\"] = grounding",
+            "contents[\"code_prompt\"] = code_prompt",
+            "return (\"\\n\".join(unique), direction)",
+            "payload = {\"content\": text, \"direction\": direction}",
+            "_LEG_DIRECTION = {\"prompt\": \"IN\", \"response\": \"OUT\"}"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "grounding = _maybe(context_from, event)",
+            "code_response = _maybe(code_response_from, result)",
+            "code_prompt = _maybe(code_prompt_from, event)"
+          ]
+        }
+      ]
+    },
+    "transaction-request-id": {
+      "statement": "The transaction ID is the Lambda request ID (`context.aws_request_id`), else a fresh uuid4, so a scan matches a CloudWatch request; a `session_id_from` value is written to the log line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "transaction_id = getattr(context, \"aws_request_id\", None) or str(uuid.uuid4())",
+            "record[\"session_id\"] = session_id"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "session_id = _maybe(session_id_from, event, context)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/README.md",
+          "quotes": [
+            "so a scan in the AI Guard Console matches a request in CloudWatch one-to-one"
+          ]
+        }
+      ]
+    },
+    "no-truncation": {
+      "statement": "Content is sent as-is without truncation; if the API rejects an oversized payload the leg follows `on_error`, blocking by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/README.md",
+          "quotes": [
+            "**Large payloads are not truncated.** Content is sent to AI Guard as-is; if the API rejects an oversized payload the result follows `on_error` (blocked, by default)."
+          ]
+        }
+      ]
+    },
+    "block-shapes": {
+      "statement": "By default an HTTP proxy event (recognized from envelope keys such as `httpMethod`, `routeKey`, `requestContext.http` or `requestContext.elb`, even without a body) gets a 403 JSON response naming the leg, severity, policy and detectors, and every other event raises `AIGuardBlocked`; the README's reason is that an asynchronous source treats a returned value as success and would delete the blocked message. An `on_block` callable replaces both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "\"httpMethod\" in event                    # REST (v1) and ALB",
+            "or \"routeKey\" in event                   # HTTP API (v2)",
+            "or \"elb\" in ctx                          # ALB target group",
+            "\"statusCode\": 403,",
+            "raise AIGuardBlocked(leg, verdict, transaction_id)",
+            "return on_block(leg, verdict, event, context)",
+            "# Non-HTTP events (direct invoke, SQS, SNS, EventBridge, ...): raise, so",
+            "on_block          callable(leg, verdict, event, context) -> replacement\n                        return value. Default: HTTP 403 for proxy events,\n                        raises AIGuardBlocked for everything else"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/README.md",
+          "quotes": [
+            "because an async event source treats any returned value as success and would silently delete the blocked message"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "ctx = event.get(\"requestContext\")",
+            "or \"http\" in ctx                         # HTTP API (v2) / Function URL",
+            "an HTTP API\n    (payload format 2.0) or Function URL event omits \"body\" entirely on a\n    bodyless request -- a GET route, an OPTIONS preflight, an empty POST -- and\n    those still have to receive the 403"
+          ],
+          "after": "def _is_http_event(event):"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "\"message\": \"Request blocked by Zscaler AI Guard (%s scan).\" % leg,",
+            "\"detectors\": verdict.get(\"blocking_detectors\")",
+            "\"policyName\": verdict.get(\"policy_name\"),"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "\"leg\": leg,",
+            "\"severity\": verdict.get(\"severity\"),"
+          ],
+          "after": "def _default_block_response(event, leg, verdict, transaction_id):"
+        }
+      ]
+    },
+    "timeout": {
+      "statement": "With no `timeout=` argument the scan timeout is `AIGUARD_TIMEOUT`, else 30 seconds, read once when the handler is decorated; the README sizes a Lambda timeout as handler time plus two scans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "# None means \"take AIGUARD_TIMEOUT\", resolved once at decoration time.",
+            "return float(os.environ.get(\"AIGUARD_TIMEOUT\", \"\").strip() or 30.0)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/README.md",
+          "quotes": [
+            "Size the Lambda timeout for handler time plus two scans;"
+          ]
+        }
+      ]
+    },
+    "strict-verdict-errormsg": {
+      "statement": "Under `strict_verdict=True` the decorator rejects an allow verdict only when it carries an `errorMsg`; it reads no other degradation signal from the verdict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "if error is None and strict_verdict and action == \"allow\" and verdict.get(\"error_msg\"):",
+            "\"error_msg\": parsed.get(\"errorMsg\"),"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "strict-verdict-scope": {
+      "summary": "What strict_verdict treats as a degraded scan in the Lambda decorator.",
+      "positions": [
+        {
+          "says": "The README says strict_verdict rejects a verdict whose detection services report trouble: timeout or error flags, an error or timeout category, or a populated per-service errors array.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/lambda-decorator/README.md",
+            "quotes": [
+              "a verdict whose detection services report trouble (the `timeout`/`error` flags, an `error`/`timeout` category, or a populated per-service `errors` array)"
+            ]
+          }
+        },
+        {
+          "says": "The code checks only whether an allow verdict carries errorMsg; its verdict parser keeps no timeout, error or errors field.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/lambda-decorator/aiguard_decorator.py",
+            "quotes": [
+              "if error is None and strict_verdict and action == \"allow\" and verdict.get(\"error_msg\"):"
+            ]
+          }
+        }
+      ],
+      "impact": "A degraded scan that reports trouble only through per-detector fields passes as allow even under strict_verdict."
+    }
+  }
+}

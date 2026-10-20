@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.n8n",
+  "title": "n8n node for AI Guard (Zscaler example): an external community node, its operations, and the example chatbot workflow",
+  "aliases": [
+    "n8n aiguard",
+    "@bdzscaler/n8n-nodes-aiguard",
+    "AIGuard_Secure_AI_Chatbot",
+    "n8n-nodes-aiguard"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's n8n integration is a workflow node that scans text with AI Guard wherever a workflow puts it, plus an example chatbot workflow."
+    },
+    {
+      "label": "The node.",
+      "text": "{{node-external}} {{repo-contents}} {{operations}} {{configuration}} The endpoints are in [[ai-security.ai-guard.runtime-api]]."
+    },
+    {
+      "label": "Failures.",
+      "text": "{{node-error-posture}} The rest is open {{gap:node-behaviour}}."
+    },
+    {
+      "label": "The example workflow.",
+      "text": "{{template-flow}} {{template-verdict}} {{block-routing}} Whether its data flow works is open {{gap:template-data-flow}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Enable Continue On Fail on AI Guard nodes and branch on action, treating anything but ALLOW or DETECT as a block, as the template's IF nodes do.",
+      "uses": [
+        "node-error-posture",
+        "template-verdict"
+      ]
+    },
+    {
+      "do": "Test the example workflow end to end before reuse: it reads the prompt and reply from fields the AI Guard node's output may not carry.",
+      "uses": [
+        "template-data-flow",
+        "template-flow"
+      ]
+    }
+  ],
+  "claims": {
+    "node-external": {
+      "statement": "The n8n integration is the community node `@bdzscaler/n8n-nodes-aiguard`, installed from npm; its source is kept in a standalone repository and published as an npm package independently from the integrations repository.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/README.md",
+          "quotes": [
+            "Search for `@bdzscaler/n8n-nodes-aiguard`",
+            "The node source code is maintained in a standalone repository and published as an npm package independently from this integrations repository."
+          ]
+        }
+      ]
+    },
+    "repo-contents": {
+      "statement": "The integrations repository's `n8n` directory ships only the README and the example workflow `AIGuard_Secure_AI_Chatbot.json`, no node source.",
+      "tier": "B",
+      "derived_from": [
+        "node-external"
+      ],
+      "conditions": "A listing of n8n/ in zguard-ai-integrations at the pin holds README.md and workflows/AIGuard_Secure_AI_Chatbot.json only; a listing cannot be quoted."
+    },
+    "operations": {
+      "statement": "The README describes three operations: Prompt Scan (direction `IN`), Response Scan (`OUT`), and Dual Scan, which scans the prompt and then the response and skips the response scan when the prompt is blocked; the node runs where a workflow places it and does not intercept tool calls or streams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/README.md",
+          "quotes": [
+            "\"Prompt Scan\" operation scans user input for threats (direction: `IN`)",
+            "\"Response Scan\" operation scans AI-generated responses (direction: `OUT`)",
+            "* **Dual Scan:** Scans both a prompt and a response sequentially. If the prompt is blocked, the response scan is skipped.",
+            "| Pre-tool call | ❌ | Workflow-based — not automatic tool interception |",
+            "| Streaming | ❌ | Node processes complete responses after generation |",
+            "\"Dual Scan\" operation scans both prompt and response in sequence"
+          ]
+        }
+      ]
+    },
+    "configuration": {
+      "statement": "The credential holds the API key, a cloud (default `us1`, building `https://api.{cloud}.zseclipse.net`), an optional override URL and an optional policy ID; per node a policy ID override, a transaction ID, a timeout (default 30000 ms) and an environment tag can be set; a policy ID selects `execute-policy`, otherwise `resolve-and-execute-policy`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/README.md",
+          "quotes": [
+            "* **Cloud:** The Zscaler cloud for your tenancy (default: `us1`). Used to build the API URL: `https://api.{cloud}.zseclipse.net`.",
+            "| Timeout (ms) | `30000` | Request timeout in milliseconds |",
+            "| Policy ID provided | `POST /v1/detection/execute-policy` |",
+            "| No Policy ID (default) | `POST /v1/detection/resolve-and-execute-policy` |",
+            "| Policy ID Override | *(empty)* | Override the credential-level policy ID for this node |",
+            "* **API Key:** Your Zscaler AI Guard API key (Bearer token).",
+            "* **Override URL:** (Optional) Override the API base URL entirely.",
+            "* **Policy ID:** (Optional) A specific AI Guard policy ID.",
+            "| Transaction ID | *(empty)* | Custom transaction ID for tracking; omitted if empty |",
+            "| Environment | *(empty)* | Environment tag (e.g. `production`) included in output metadata |"
+          ]
+        }
+      ]
+    },
+    "node-error-posture": {
+      "statement": "The README says the node returns `action` `BLOCK` on internal errors when Continue On Fail is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/README.md",
+          "quotes": [
+            "On internal errors, the node returns `action: BLOCK` when \"Continue On Fail\" is enabled, ensuring security is never silently bypassed"
+          ]
+        }
+      ]
+    },
+    "template-flow": {
+      "statement": "The example workflow `AIGuard_Secure_AI_Chatbot.json` starts from a manual-trigger node named \"When chat message received\", sets `userMessage` from `$json.chatInput`, runs a prompt scan, then an OpenAI `gpt-4` chat completion on `$json.userMessage`, then a response scan of `$json.message.content`, and returns `$json.message.content` as the safe response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/workflows/AIGuard_Secure_AI_Chatbot.json",
+          "quotes": [
+            "\"name\": \"When chat message received\", \"type\": \"n8n-nodes-base.manualTrigger\",",
+            "\"value\": \"={{ $json.chatInput }}\",",
+            "\"name\": \"userMessage\",",
+            "\"operation\": \"promptScan\",",
+            "\"modelId\": \"gpt-4\",",
+            "\"operation\": \"responseScan\", \"content\": \"={{ $json.message.content }}\"",
+            "\"name\": \"OpenAI: Generate Response\", \"type\": \"n8n-nodes-base.openAi\",",
+            "\"name\": \"Return Safe Response\", \"type\": \"n8n-nodes-base.set\","
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/workflows/AIGuard_Secure_AI_Chatbot.json",
+          "quotes": [
+            "\"value\": \"={{ $json.message.content }}\","
+          ],
+          "after": "\"name\": \"Return Block Message\","
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/workflows/AIGuard_Secure_AI_Chatbot.json",
+          "quotes": [
+            "\"content\": \"={{ $json.userMessage }}\""
+          ],
+          "after": "\"operation\": \"create\","
+        }
+      ]
+    },
+    "template-verdict": {
+      "statement": "Both IF nodes in the template treat any action other than `ALLOW` or `DETECT`, a missing one included, as `BLOCK`, test that value for equality with `BLOCK`, and connect their first output to a block-message node.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/workflows/AIGuard_Secure_AI_Chatbot.json",
+          "quotes": [
+            "\"leftValue\": \"={{ [\\\"ALLOW\\\",\\\"DETECT\\\"].includes(String($json.action || \\\"\\\").toUpperCase()) ? \\\"PASS\\\" : \\\"BLOCK\\\" }}\",",
+            "\"rightValue\": \"BLOCK\", \"operator\": { \"type\": \"string\", \"operation\": \"equals\" }"
+          ],
+          "after": "\"name\": \"AI Guard: Scan Prompt\","
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/workflows/AIGuard_Secure_AI_Chatbot.json",
+          "quotes": [
+            "\"leftValue\": \"={{ [\\\"ALLOW\\\",\\\"DETECT\\\"].includes(String($json.action || \\\"\\\").toUpperCase()) ? \\\"PASS\\\" : \\\"BLOCK\\\" }}\",",
+            "\"rightValue\": \"BLOCK\", \"operator\": { \"type\": \"string\", \"operation\": \"equals\" }"
+          ],
+          "after": "\"name\": \"AI Guard: Scan Response\","
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "n8n/workflows/AIGuard_Secure_AI_Chatbot.json",
+          "quotes": [
+            "\"Prompt Blocked?\": { \"main\": [ [ { \"node\": \"Return Block Message\",",
+            "\"Response Blocked?\": { \"main\": [ [ { \"node\": \"Return Response Block\","
+          ]
+        }
+      ]
+    },
+    "block-routing": {
+      "statement": "A `BLOCK` (or anything the expression maps to it) therefore reaches the block message instead of the model or the reply.",
+      "tier": "B",
+      "derived_from": [
+        "template-verdict"
+      ],
+      "conditions": "Rests on an n8n IF node sending items whose condition holds to its first output, which the example does not state; the workflow was not run."
+    }
+  },
+  "gaps": {
+    "node-behaviour": {
+      "kind": "semantic",
+      "title": "What the n8n node does on errors, timeouts and unrecognised verdicts",
+      "status": "open",
+      "detail": "The node's code is not in the registered source. The README covers only the Continue On Fail path; what the node does with Continue On Fail off, on a timeout, or with an HTTP 200 that carries no action, and whether it passes its input fields through to its output, cannot be read here.",
+      "blocks": "the n8n integration's fail posture",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "template-data-flow": {
+      "kind": "semantic",
+      "title": "Whether the example workflow carries the prompt and the model reply past the AI Guard nodes",
+      "status": "open",
+      "detail": "The nodes after each AI Guard node read $json.userMessage, $json.message.content and $json.detectors, which in n8n refer to the AI Guard node's own output; the README lists action, severity, detectorResponses, policy and transactionId as that output, not the input fields or a detectors list. The trigger is a manual trigger that supplies no chatInput. If the node does not pass its input through, the template sends an empty prompt to OpenAI and returns the scan result instead of the reply.",
+      "blocks": "using the shipped workflow as a working chatbot guard",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

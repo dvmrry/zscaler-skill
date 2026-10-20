@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.kong-request-callout",
+  "title": "The Kong Konnect Request Callout recipe for AI Guard: a prompt-only scan described in a README, how it extracts the prompt, and where it passes traffic",
+  "aliases": [
+    "ai guard kong konnect",
+    "ai guard request callout",
+    "kong request-callout ai guard",
+    "aiguard_request_scan"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.kong-plugin"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Konnect variant expresses an AI Guard scan with Kong's built-in Request Callout plugin, because Konnect's SaaS gateways do not run custom Lua; at the pin it exists only as a README with Lua snippets. {{readme-only}}"
+    },
+    {
+      "label": "Coverage.",
+      "text": "{{request-only}} The Kong overview says both legs are scanned {{divergence:response-leg}}."
+    },
+    {
+      "label": "Extracting the prompt.",
+      "text": "{{prompt-pattern}} {{pattern-gaps}}"
+    },
+    {
+      "label": "Decision.",
+      "text": "{{decision}} {{no-response-passes}} The README also describes a graceful fallback during outages {{divergence:outage-posture}}."
+    },
+    {
+      "label": "Forwarding and settings.",
+      "text": "{{upstream-host}} {{settings}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Treat the response as unscanned on Konnect; only the prompt is checked by this recipe.",
+      "uses": [
+        "request-only"
+      ]
+    },
+    {
+      "do": "That prompts are plain strings without escaped quotes; multimodal or quoted content is truncated or sent empty by the pattern.",
+      "uses": [
+        "prompt-pattern",
+        "pattern-gaps"
+      ]
+    },
+    {
+      "do": "That the service is OpenAI, since the forwarding snippet fixes the Host header to api.openai.com.",
+      "uses": [
+        "upstream-host"
+      ]
+    }
+  ],
+  "claims": {
+    "readme-only": {
+      "statement": "At the pin the Kong `request-callout` directory holds only its README; the `request-callout-zscaler-aiguard-config.json` the README tells users to apply and the `KONNECT-DEPLOYMENT.md` it points to are not in the repository.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "Use the provided `request-callout-zscaler-aiguard-config.json`:",
+            "- **Detailed Deployment**: See `KONNECT-DEPLOYMENT.md` for step-by-step Konnect configuration"
+          ]
+        }
+      ],
+      "conditions": "Rests on the repository's file listing at d6bf200, where Kong/request-callout contains README.md alone and no file of either name exists elsewhere."
+    },
+    "request-only": {
+      "statement": "The recipe scans only the request: the prompt is checked before the upstream call and the AI service's response is returned directly to the client; the README points to the custom plugin for response scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "> **Note**: The current implementation focuses on **request-side scanning** to block malicious prompts before they reach AI services. Response scanning capabilities are available using the custom plugin approach (see `../custom-plugin/`).",
+            "7. **Response Delivery**: AI service response returned directly to client with security headers"
+          ]
+        }
+      ]
+    },
+    "prompt-pattern": {
+      "statement": "The request snippet does not decode the JSON body: it applies a Lua pattern that captures the characters between `\"content\": \"` and the next double quote after a `\"role\": \"user\"`, keeps the last such match, escapes it into a hand-built JSON payload with direction IN, and adds `transactionId` only when `ngx.var.request_id` is a UUID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "local content_pattern = '\"role\"%s*:%s*\"user\".-\"content\"%s*:%s*\"([^\"]*)\"'",
+            "for content in string.gmatch(original_body, content_pattern) do",
+            "local tr_id = ngx.var.request_id",
+            "if tr_id and tr_id:match(uuid_pattern) then",
+            "for content in string.gmatch(original_body, content_pattern) do\n        user_prompt = content\n    end",
+            "local function escape_json_string(str)",
+            "\"direction\": \"IN\",\n  \"transactionId\": %s",
+            "}]], escape_json_string(user_prompt), escape_json_string(tr_id))"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "\"transactionId\": %s"
+          ]
+        }
+      ]
+    },
+    "pattern-gaps": {
+      "statement": "A prompt containing an escaped double quote is scanned only up to the backslash before it, a message whose content is an array (multimodal parts) produces no match, and a body with no match sends an empty `content` string.",
+      "tier": "B",
+      "derived_from": [
+        "prompt-pattern"
+      ],
+      "conditions": "Follows from Lua pattern semantics ([^\"]* stops at the first double-quote character); what AI Guard answers for empty content is not stated by any source (see ai-security.ai-guard.integrations.azure-apim:empty-content)."
+    },
+    "decision": {
+      "statement": "The response snippet reads the callout reply, upper-cases the `action` matched in it, and returns HTTP 403 unless it is ALLOW or DETECT, a missing action included; if no callout response is found it logs a warning and returns without blocking.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "if not (co and co.aiguard_request_scan and co.aiguard_request_scan.response) then",
+            "kong.log.warn(\"No AI Guard callout response found\")",
+            "if action ~= \"ALLOW\" and action ~= \"DETECT\" then",
+            "or \"Scan returned no verdict (fail-closed)\"",
+            "local action = response_body:match('\"action\"%s*:%s*\"([%a_]+)\"')",
+            "action = action and action:upper() or nil",
+            "kong.log.warn(\"No AI Guard callout response found\")\n  return\nend"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "return kong.response.exit(403, {"
+          ]
+        }
+      ]
+    },
+    "no-response-passes": {
+      "statement": "When the callout yields no response object, the request is forwarded upstream unscanned.",
+      "tier": "B",
+      "derived_from": [
+        "decision"
+      ],
+      "conditions": "Follows from the snippet's early return; whether the Request Callout plugin produces a response object on a network failure or timeout, or errors out itself, is not documented in the repository."
+    },
+    "upstream-host": {
+      "statement": "Before forwarding, the snippet restores the original body and sets the `host` header to `api.openai.com`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "kong.service.request.set_header(\"host\", \"api.openai.com\")",
+            "kong.service.request.set_raw_body(body)",
+            "local body = kong.ctx.shared.original_request_body",
+            "kong.ctx.shared.original_request_body = original_body",
+            "3. **Upstream Phase**: Restore original request body and forward to AI service"
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "statement": "The README's settings are the us1 resolve-and-execute endpoint, the key from Kong's vault, caching off, a 2000 ms connect and 10000 ms read and write timeout, and 2 retries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/request-callout/README.md",
+          "quotes": [
+            "- **API Endpoint**: `https://api.us1.zseclipse.net/v1/detection/resolve-and-execute-policy`",
+            "- **Authentication**: `{vault://env/aiguard-api-key}` (Bearer token)",
+            "- Connect: 2000ms",
+            "- Read: 10000ms (10s)",
+            "- **Error Handling**: 2 retries with fail-fast behavior",
+            "- **Cache Strategy**: Disabled (`\"off\"`) for real-time scanning accuracy",
+            "- Write: 10000ms (10s)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "response-leg": {
+      "summary": "Whether Kong's Konnect variant scans the LLM response.",
+      "positions": [
+        {
+          "says": "The Kong overview README says both Kong forms scan the prompt on the way in and the LLM response on the way out.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/README.md",
+            "quotes": [
+              "prompt on the way in and the LLM response on the way out, and both fail closed"
+            ]
+          }
+        },
+        {
+          "says": "The request-callout README says the current implementation scans requests only.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/request-callout/README.md",
+            "quotes": [
+              "The current implementation focuses on **request-side scanning**"
+            ]
+          }
+        }
+      ],
+      "impact": "On Konnect, model output reaches clients without an AI Guard check unless the custom plugin is used on hybrid data planes."
+    },
+    "outage-posture": {
+      "summary": "What the Konnect recipe does when AI Guard is unreachable.",
+      "positions": [
+        {
+          "says": "The Kong overview README says both forms fail closed when a verdict cannot be reached, and the request-callout README describes fail-fast 403 blocks.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/request-callout/README.md",
+            "quotes": [
+              "- **Error Handling**: Fail fast with 403 blocks"
+            ]
+          }
+        },
+        {
+          "says": "The same README lists graceful fallback, continuing operation during AI Guard API outages, as a key component.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/request-callout/README.md",
+            "quotes": [
+              "- **Graceful Fallback**: Continue operation during AI Guard API outages"
+            ]
+          }
+        }
+      ],
+      "impact": "The snippet blocks a reply without an action but passes when no callout response exists (no-response-passes); which path an outage takes depends on the Request Callout plugin and is untested."
+    }
+  }
+}

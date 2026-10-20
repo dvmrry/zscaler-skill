@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.google-apigee-proxy",
+  "title": "The inline Apigee X proxy for Vertex AI with AI Guard: the policy flow, what it extracts, when it blocks, and what passes unscanned",
+  "aliases": [
+    "ai guard apigee",
+    "ai guard apigee inline proxy",
+    "vertex-aiguard",
+    "ai guard vertex ai",
+    "aiguard-config kvm",
+    "x-aiguard-blocked"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.google-apigee-sharedflow"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.google-cloudrun"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The inline proxy is a single Apigee X bundle that fronts Vertex AI generateContent and carries its scanning policies itself; the reusable variant is [[ai-security.ai-guard.integrations.google-apigee-sharedflow]]. {{flow}}"
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{kvm}} {{endpoint}} {{policy-id-from-kvm}} {{resolve-ignores-policy-id}}"
+    },
+    {
+      "label": "What is scanned.",
+      "text": "{{prompt-extraction}} {{no-text-passes}} The README says other dialects are scanned raw {{divergence:non-gemini-bodies}}. {{response-extraction}} {{scan-body}} {{api-transaction-id}} {{no-streaming}}"
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{block-rule}} {{block-body}} {{config-error}} {{timeout-faults}}"
+    },
+    {
+      "label": "Cost.",
+      "text": "{{latency}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "That callers send Gemini-shaped bodies with text parts; a JSON body with no contents text, or only system instructions or images, is forwarded to Vertex unscanned.",
+      "uses": [
+        "prompt-extraction",
+        "no-text-passes",
+        "non-gemini-bodies"
+      ]
+    },
+    {
+      "do": "Whether aiguard_policy_id is set in the aiguard-config KVM; a stale ID blocks every request with scan_detail \"Policy not found\", and a KVM change takes up to 300 s to apply.",
+      "uses": [
+        "kvm",
+        "block-rule",
+        "block-body"
+      ]
+    }
+  ],
+  "claims": {
+    "flow": {
+      "statement": "The proxy listens on base path `/vertex` and targets Vertex AI `generateContent` in `us-central1` for the KVM's project and model; its request PreFlow scans the prompt (direction IN) and its response PostFlow scans the answer (direction OUT), each with a ServiceCallout to AI Guard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/proxies/default.xml",
+          "quotes": [
+            "<BasePath>/vertex</BasePath>",
+            "<!-- Step 5: Call AI Guard (direction=IN). Auto-resolve unless a policy id",
+            "<!-- Step 10: Call AI Guard (direction=OUT), same endpoint choice as step 5 -->"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/targets/vertex-target.xml",
+          "quotes": [
+            "<URL>https://us-central1-aiplatform.googleapis.com/v1/projects/{private.vertex.project}/locations/us-central1/publishers/google/models/{private.vertex.model}:generateContent</URL>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/proxies/default.xml",
+          "quotes": [
+            "<PreFlow name=\"PreFlow\">",
+            "<Step><Name>JS-ScanPrompt</Name></Step>",
+            "<Name>SC-AIGuardScan</Name>",
+            "<PostFlow name=\"PostFlow\">",
+            "<Name>SC-AIGuardResponseScan</Name>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardScan.xml",
+          "quotes": [
+            "<ServiceCallout name=\"SC-AIGuardScan\">"
+          ]
+        }
+      ]
+    },
+    "kvm": {
+      "statement": "Configuration comes from the environment-scoped encrypted KVM `aiguard-config`: `aiguard_api_key`, `aiguard_cloud`, `aiguard_policy_id` (optional), `vertex_project` and `vertex_model`, cached for 300 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/KVM-GetConfig.xml",
+          "quotes": [
+            "mapIdentifier=\"aiguard-config\"",
+            "<ExpiryTimeInSecs>300</ExpiryTimeInSecs>",
+            "<Scope>environment</Scope>",
+            "<Key><Parameter>aiguard_api_key</Parameter></Key>",
+            "<Key><Parameter>aiguard_cloud</Parameter></Key>",
+            "<Key><Parameter>aiguard_policy_id</Parameter></Key>",
+            "<Key><Parameter>vertex_project</Parameter></Key>",
+            "<Key><Parameter>vertex_model</Parameter></Key>",
+            "Reads configuration from the env-scoped encrypted KVM `aiguard-config`",
+            "aiguard_policy_id is optional and normally absent"
+          ]
+        }
+      ]
+    },
+    "endpoint": {
+      "statement": "Each leg calls `https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy` when no policy ID is configured and `/v1/detection/execute-policy` when one is, with the key as a Bearer token; the prompt callout times out after 5000 ms and the response callout after 6000 ms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardScan.xml",
+          "quotes": [
+            "<Timeout>5000</Timeout>",
+            "<URL>https://api.{aiguard.cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy</URL>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardResponseExecutePolicy.xml",
+          "quotes": [
+            "<Timeout>6000</Timeout>",
+            "<URL>https://api.{aiguard.cloud}.zseclipse.net/v1/detection/execute-policy</URL>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/proxies/default.xml",
+          "quotes": [
+            "<Condition>(aiguard.prompt.present = \"true\") and (aiguard.policy.id = \"\")</Condition>",
+            "<Condition>(aiguard.prompt.present = \"true\") and (aiguard.policy.id != \"\")</Condition>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/AM-AIGuardRequest.xml",
+          "quotes": [
+            "<Header name=\"Authorization\">Bearer {private.aiguard.apikey}</Header>"
+          ]
+        }
+      ]
+    },
+    "policy-id-from-kvm": {
+      "statement": "The policy ID comes only from the KVM and is converted with parseInt; a caller cannot choose a policy per request (an earlier revision honoured an `X-AIGuard-Policy` header).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
+          "quotes": [
+            "var policyId = context.getVariable('private.aiguard.policyid') || '';",
+            "payload.policyId = parseInt(policyId);"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/README.md",
+          "quotes": [
+            "The policy id is **not** overridable per request. An earlier revision honoured an",
+            "`X-AIGuard-Policy` header, which let any caller name a policy that does not"
+          ]
+        }
+      ]
+    },
+    "resolve-ignores-policy-id": {
+      "statement": "The example's architecture note says resolve-and-execute-policy ignores a `policyId` in the body without an error and applies the key's own policy, which is why a pinned ID is routed to execute-policy instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/ARCHITECTURE.md",
+          "quotes": [
+            "The two endpoints need separate callouts because **`resolve-and-execute-policy`",
+            "ignores `policyId` outright** — it does not error on an id it cannot use, it",
+            "resolves the key's own policy and answers normally."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/proxies/default.xml",
+          "quotes": [
+            "Auto-resolve unless a policy id\n           is pinned; resolve-and-execute-policy ignores policyId outright.",
+            "<Condition>(aiguard.prompt.present = \"true\") and (aiguard.policy.id != \"\")</Condition>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardExecutePolicy.xml",
+          "quotes": [
+            "<URL>https://api.{aiguard.cloud}.zseclipse.net/v1/detection/execute-policy</URL>"
+          ]
+        }
+      ]
+    },
+    "prompt-extraction": {
+      "statement": "The prompt script concatenates the text of every part of every `contents` entry, of any role, with no separator; the raw body is scanned only when parsing or walking it throws (as for a body that does not parse), and when nothing is extracted it marks the prompt absent, which skips the scan and block steps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
+          "quotes": [
+            "prompt += content.parts[j].text;",
+            "prompt = body;",
+            "context.setVariable('aiguard.prompt.present', prompt.length > 0 ? 'true' : 'false');",
+            "} catch (e) {\n  prompt = body;"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/ARCHITECTURE.md",
+          "quotes": [
+            "so a turn carrying no text is never scanned — and,",
+            "just as importantly, is never blocked for lacking a verdict on nothing."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
+          "quotes": [
+            "if (obj.contents && Array.isArray(obj.contents)) {"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/ARCHITECTURE.md",
+          "quotes": [
+            "Both fall back to the raw body if it will not parse"
+          ]
+        }
+      ]
+    },
+    "no-text-passes": {
+      "statement": "A request body that parses as JSON but has no Gemini text parts (an OpenAI-, Anthropic- or MCP-shaped body, image-only parts, or only a `systemInstruction`) is forwarded to Vertex without a prompt scan.",
+      "tier": "B",
+      "derived_from": [
+        "prompt-extraction",
+        "block-rule"
+      ],
+      "conditions": "Follows from the extraction script (it walks only contents[].parts[].text) and the step conditions gating every scan and block step on aiguard.prompt.present; how Vertex then answers such a body was not examined."
+    },
+    "response-extraction": {
+      "statement": "The response leg runs only for a 2xx response from the Vertex target and scans the concatenated text of every candidate's parts; a response with no text parts skips the scan and block steps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/proxies/default.xml",
+          "quotes": [
+            "<Condition>(response.status.code >= 200) and (response.status.code &lt; 300)</Condition>",
+            "<TargetEndpoint>vertex-target</TargetEndpoint>",
+            "<Condition>(aiguard.response.present = \"true\") and (aiguard.policy.id = \"\")</Condition>",
+            "<Condition>(aiguard.response.present = \"true\") and ((aiguardRespscanResult.status.code != 200) or ((aiguard.scan.response.action != \"ALLOW\") and (aiguard.scan.response.action != \"DETECT\")))</Condition>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-response.js",
+          "quotes": [
+            "responseText += candidate.content.parts[j].text;",
+            "context.setVariable('aiguard.response.present', responseText.length > 0 ? 'true' : 'false');"
+          ]
+        }
+      ]
+    },
+    "scan-body": {
+      "statement": "The scan request body holds only `content`, `direction` and, when a policy ID is set in the KVM, `policyId`; the session ID the script reads from `X-Session-ID` is stored in a flow variable and not sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
+          "quotes": [
+            "content: prompt,",
+            "direction: 'IN'",
+            "var sessionId = context.getVariable('request.header.X-Session-ID') || context.getVariable('messageid');",
+            "context.setVariable('aiguard.session.id', sessionId);",
+            "var payload = {\n  content: prompt,\n  direction: 'IN'\n};",
+            "if (policyId && policyId.length > 0) {",
+            "context.setVariable('aiguard.request.payload', JSON.stringify(payload));"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
+          "quotes": [
+            "payload.policyId = parseInt(policyId);"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/AM-AIGuardRequest.xml",
+          "quotes": [
+            "<Payload contentType=\"application/json\">{aiguard.request.payload}</Payload>"
+          ]
+        }
+      ]
+    },
+    "api-transaction-id": {
+      "statement": "Because the proxy sends no `transactionId`, the transaction ID it returns in its block headers and body is the one AI Guard put in the verdict, not one the gateway chose.",
+      "tier": "B",
+      "derived_from": [
+        "scan-body",
+        "block-body"
+      ],
+      "conditions": "Rests on the complete payload in scan-body having no transactionId and on EV-AIGuardVerdict lifting $.transactionId from the AI Guard response into the variable the block uses; that the API generates an ID when none is sent is inferred, not stated."
+    },
+    "no-streaming": {
+      "statement": "The proxy handles synchronous generateContent only: `streamGenerateContent`, tool calls and other dialects are left to the SharedFlow, and block messages carry no detector names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/README.md",
+          "quotes": [
+            "**No streaming.** `streamGenerateContent` is not handled; use the [SharedFlow](sharedflow).",
+            "**No detector names in the block message.**"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/ARCHITECTURE.md",
+          "quotes": [
+            "Streaming, tool calls, and OpenAI/Anthropic/MCP request shapes are the\n[SharedFlow](sharedflow)'s job."
+          ]
+        }
+      ]
+    },
+    "block-rule": {
+      "statement": "On both legs the proxy blocks unless the scan callout returned HTTP 200 and the action is ALLOW or DETECT, so BLOCK, any other action, a 200 without an action and a non-200 all block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/proxies/default.xml",
+          "quotes": [
+            "<Condition>(aiguard.prompt.present = \"true\") and ((aiguard.response.status.code != 200) or ((aiguard.action != \"ALLOW\") and (aiguard.action != \"DETECT\")))</Condition>",
+            "<Condition>(aiguard.response.present = \"true\") and ((aiguardRespscanResult.status.code != 200) or ((aiguard.scan.response.action != \"ALLOW\") and (aiguard.scan.response.action != \"DETECT\")))</Condition>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardScan.xml",
+          "quotes": [
+            "<Response>aiguard.response</Response>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardExecutePolicy.xml",
+          "quotes": [
+            "<Response>aiguard.response</Response>",
+            "Both write the same response variable so EV-AIGuardVerdict"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardResponseScan.xml",
+          "quotes": [
+            "<Response>aiguardRespscanResult</Response>"
+          ]
+        }
+      ]
+    },
+    "block-body": {
+      "statement": "A block returns HTTP 403 with headers `x-aiguard-blocked`, `x-aiguard-severity` and `x-aiguard-transaction-id` and a JSON body giving the direction, action, severity, policy, transaction ID and the API's in-body `statusCode` and `errorMsg` as `scan_status` and `scan_detail`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/RF-Block.xml",
+          "quotes": [
+            "<Header name=\"x-aiguard-blocked\">true</Header>",
+            "<Header name=\"x-aiguard-severity\">{aiguard.severity}</Header>",
+            "<Header name=\"x-aiguard-transaction-id\">{aiguard.transaction.id}</Header>",
+            "\"scan_status\":\"{aiguard.body.status}\",\"scan_detail\":\"{aiguard.error.msg}\"",
+            "<StatusCode>403</StatusCode>",
+            "{\"error\":\"ZSCALER AI GUARD: REQUEST BLOCKED\",\"direction\":\"IN\",\"action\":\"{aiguard.action}\",\"severity\":\"{aiguard.severity}\",\"policy\":\"{aiguard.policy.name}\",\"transaction_id\":\"{aiguard.transaction.id}\","
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/EV-AIGuardVerdict.xml",
+          "quotes": [
+            "<JSONPath>$.errorMsg</JSONPath>",
+            "<JSONPath>$.statusCode</JSONPath>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/RF-BlockResponse.xml",
+          "quotes": [
+            "{\"error\":\"ZSCALER AI GUARD: RESPONSE BLOCKED\",\"direction\":\"OUT\","
+          ]
+        }
+      ]
+    },
+    "config-error": {
+      "statement": "With no API key in the KVM the proxy answers HTTP 500 `ZSCALER AI GUARD: NOT CONFIGURED` before any scan and does not proxy the request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/RF-ConfigError.xml",
+          "quotes": [
+            "{\"error\":\"ZSCALER AI GUARD: NOT CONFIGURED\"",
+            "Refusing to proxy traffic that cannot be scanned.",
+            "<StatusCode>500</StatusCode>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/proxies/default.xml",
+          "quotes": [
+            "<Condition>(private.aiguard.apikey is null) or (private.aiguard.apikey = \"\")</Condition>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/KVM-GetConfig.xml",
+          "quotes": [
+            "<Get assignTo=\"private.aiguard.apikey\">",
+            "<Key><Parameter>aiguard_api_key</Parameter></Key>"
+          ]
+        }
+      ]
+    },
+    "timeout-faults": {
+      "statement": "A scan callout that times out or cannot connect faults the flow, so on the request leg Vertex is never called.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/README.md",
+          "quotes": [
+            "| scan timed out or unreachable | the flow faults; Vertex is never called |"
+          ]
+        }
+      ]
+    },
+    "latency": {
+      "statement": "Two synchronous scans sit on the critical path of each request, which the README estimates at roughly 100 to 300 ms each.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/README.md",
+          "quotes": [
+            "**Two scans per request** on the critical path, roughly 100–300 ms each."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/ARCHITECTURE.md",
+          "quotes": [
+            "Two scans per request, each a synchronous call to the AI Guard API, on the\ncritical path."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "non-gemini-bodies": {
+      "summary": "What the inline proxy does with request bodies that are not in the Gemini dialect.",
+      "positions": [
+        {
+          "says": "The README's Limitations say OpenAI, Anthropic and MCP request shapes fall back to scanning the raw body.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/README.md",
+            "quotes": [
+              "**Gemini dialect only.** OpenAI, Anthropic and MCP request shapes fall back to scanning the raw body."
+            ]
+          }
+        },
+        {
+          "says": "The extraction script falls back to the raw body only when JSON.parse throws; valid JSON without contents yields an empty prompt and the scan is skipped.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
+            "quotes": [
+              "} catch (e) {",
+              "prompt = body;"
+            ]
+          }
+        }
+      ],
+      "impact": "Those request shapes are JSON, so they are forwarded unscanned rather than scanned raw (no-text-passes); the architecture note's own wording, raw fallback only for a body that will not parse, matches the code."
+    }
+  }
+}

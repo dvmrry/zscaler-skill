@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.kong-plugin",
+  "title": "The zscaler-aiguard-intercept Lua plugin for Kong Gateway: access and response phase scans, its configuration, and where it blocks or lets traffic pass",
+  "aliases": [
+    "ai guard kong",
+    "ai guard kong plugin",
+    "zscaler-aiguard-intercept",
+    "ai guard kong lua",
+    "ai guard konnect hybrid"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.kong-request-callout"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Kong plugin is Lua code for self-managed Kong Gateway nodes, including Konnect hybrid data planes; Konnect's SaaS gateways cannot run custom Lua and use [[ai-security.ai-guard.integrations.kong-request-callout]] instead. {{phases}} {{compat}}"
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{schema}} {{endpoint-only-knob}} {{transaction-id}} The README shows a different field {{divergence:payload-field}}."
+    },
+    {
+      "label": "The prompt.",
+      "text": "{{prompt-fail-closed}}"
+    },
+    {
+      "label": "The response.",
+      "text": "{{response-skips}} {{response-block}} The README says the response phase cannot change the status {{divergence:response-status}}, and what the client receives is open {{gap:response-block-delivery}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That api_endpoint names the tenant's cloud; the default is the us1 resolve-and-execute URL and the plugin has no cloud or policy-ID setting.",
+      "uses": [
+        "schema"
+      ]
+    },
+    {
+      "do": "Whether the upstream answers in OpenAI chat-completion shape with message content; any other response, including a tool-call-only reply, is returned unscanned.",
+      "uses": [
+        "response-skips"
+      ]
+    }
+  ],
+  "claims": {
+    "phases": {
+      "statement": "In the access phase the plugin enables request buffering, takes the content of the last user-role message of the body's `messages` array and scans it with direction IN; in the response phase it takes the first choice's `message.content` (or `delta.content`) from the buffered body and scans it with direction OUT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "kong.service.request.enable_buffering()",
+            "if request_body.messages[i].role == \"user\" then",
+            "local action, reason = perform_scan(config, \"IN\", prompt, transaction_id)",
+            "local msg = decoded.choices[1].message",
+            "local delta = decoded.choices[1].delta",
+            "local action, reason = perform_scan(config, \"OUT\", llm_response, transaction_id)",
+            "if request_body and request_body.messages and type(request_body.messages) == \"table\" then",
+            "for i = #request_body.messages, 1, -1 do",
+            "local response_body_str = ngx.ctx.buffered_body"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "if msg then return msg.content end",
+            "if delta then return delta.content end"
+          ]
+        }
+      ]
+    },
+    "compat": {
+      "statement": "The plugin is version 0.1.0 with priority 1000 and is documented as compatible with Kong Gateway 3.4 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "PRIORITY = 1000,",
+            "VERSION = \"0.1.0\","
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/README.md",
+          "quotes": [
+            "- **Compatible with**: Kong Gateway 3.4+"
+          ]
+        }
+      ]
+    },
+    "schema": {
+      "statement": "The configuration has four fields: `api_key` (required, encrypted), `api_endpoint` (default `https://api.us1.zseclipse.net/v1/detection/resolve-and-execute-policy`), `ssl_verify` (default true) and `timeout_ms` (default 10000); there is no policy-ID or cloud field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/schema.lua",
+          "quotes": [
+            "{ api_key = { type = \"string\", required = true, encrypted = true }, },",
+            "default = \"https://api.us1.zseclipse.net/v1/detection/resolve-and-execute-policy\",",
+            "{ ssl_verify = { type = \"boolean\", required = true, default = true }, },",
+            "{ timeout_ms = { type = \"number\", required = false, default = 10000 }, },"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/schema.lua",
+          "quotes": [
+            "{ api_endpoint = {",
+            "fields = {\n          { api_key",
+            "{ timeout_ms = { type = \"number\", required = false, default = 10000 }, },\n        },\n      },"
+          ]
+        }
+      ]
+    },
+    "endpoint-only-knob": {
+      "statement": "With no policy-ID or cloud field and no `policyId` in the scan body, the plugin cannot pin a policy, and reaching another cloud means setting `api_endpoint` to that cloud's URL.",
+      "tier": "B",
+      "derived_from": [
+        "schema",
+        "transaction-id"
+      ],
+      "conditions": "Rests on the complete config field list in schema and the complete payload in perform_scan (content, direction, optional transactionId); no source states the consequence."
+    },
+    "transaction-id": {
+      "statement": "The scan body is `content` and `direction`, plus `transactionId` only when the `Kong-Request-ID` header (or Kong's request ID) is a UUID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "content = content_to_scan,",
+            "payload_table.transactionId = transaction_id",
+            "local transaction_id = kong.request.get_header(\"Kong-Request-ID\")",
+            "if transaction_id and transaction_id:match(\n      \"^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$\") then",
+            "or kong.ctx.shared.request_id\n    or ngx.var.request_id"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "direction = direction,"
+          ]
+        }
+      ]
+    },
+    "prompt-fail-closed": {
+      "statement": "On the prompt, an unreadable body or one with no user message gets HTTP 400; a failed call, a non-200 reply, an empty or non-JSON body and a reply with no `action` are scan errors that block; and any action other than ALLOW or DETECT, compared in lower case, gets HTTP 403.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "return kong.response.exit(400, { message = \"Invalid or unreadable request body.\" })",
+            "return kong.response.exit(400, { message = \"No user prompt found in request.\" })",
+            "return \"block\", \"AI Guard API call failed: \" .. tostring(err)",
+            "local reason = \"AI Guard API returned non-200 status: \" .. res.status",
+            "return \"block\", \"'action' field not found in AI Guard API response.\"",
+            "return string.lower(tostring(action)), \"Verdict received from AI Guard security scan.\"",
+            "message = \"Request blocked by Zscaler AI Guard security policy.\","
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "return \"block\", \"AI Guard API response body was empty, despite 200 OK status.\"",
+            "return \"block\", \"Failed to decode AI Guard API response JSON: \" .. tostring(decode_err)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "if action ~= \"allow\" and action ~= \"detect\" then",
+            "return kong.response.exit(403, {"
+          ],
+          "after": "function ZscalerAIGuardHandler:access(config)"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "return \"block\", reason"
+          ],
+          "after": "local reason = \"AI Guard API returned non-200 status: \" .. res.status"
+        }
+      ]
+    },
+    "response-skips": {
+      "statement": "The response scan is skipped and the response returned unscanned when the buffered body is missing, the request context was not stored, or no message or delta content can be extracted (a body that does not decode or has no `choices`, or a first choice with no message or delta content).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "kong.log.warn(\"ZscalerAIGuard: No response body found in response phase.\")",
+            "kong.log.warn(\"ZscalerAIGuard: Original request context not found. Skipping response scan.\")",
+            "kong.log.warn(\"ZscalerAIGuard: Could not extract LLM response content. Skipping response scan.\")",
+            "if ok and decoded and decoded.choices and decoded.choices[1] then",
+            "if msg then return msg.content end"
+          ]
+        }
+      ]
+    },
+    "response-block": {
+      "statement": "When the response scan returns anything but allow or detect, the plugin calls `kong.response.exit` with HTTP 403 \"Response blocked by Zscaler AI Guard security policy.\" from its response phase.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "message = \"Response blocked by Zscaler AI Guard security policy.\","
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "quotes": [
+            "if action ~= \"allow\" and action ~= \"detect\" then",
+            "return kong.response.exit(403, {"
+          ],
+          "after": "function ZscalerAIGuardHandler:response(config)"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "response-block-delivery": {
+      "kind": "semantic",
+      "title": "Whether the Kong plugin's response-phase 403 replaces the upstream response",
+      "status": "open",
+      "detail": "The plugin calls kong.response.exit(403) in its response handler, while its README says the response phase cannot change the status because it was already sent. Which holds depends on Kong's buffered-proxying behavior for the response phase and on whether the buffered body the plugin reads is populated; no registered source states either.",
+      "blocks": "whether a blocked LLM response reaches the client through Kong",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "payload-field": {
+      "summary": "The transaction field the Kong plugin sends.",
+      "positions": [
+        {
+          "says": "The README's scan payload examples carry transaction_id set to the Kong request ID.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/custom-plugin/README.md",
+            "quotes": [
+              "\"transaction_id\": \"kong-request-id\""
+            ],
+            "after": "**Prompt scan (Access phase)**:"
+          }
+        },
+        {
+          "says": "The code sends transactionId, and only when the request ID is a UUID.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/custom-plugin/handler.lua",
+            "quotes": [
+              "-- The API field is camelCase, and it only accepts a 36-character UUID; any"
+            ]
+          }
+        }
+      ],
+      "impact": "Searching the AI Guard console for a Kong request ID that is not a UUID finds nothing; AI Guard assigns its own ID."
+    },
+    "response-status": {
+      "summary": "Whether the Kong plugin's response phase can block with a 403.",
+      "positions": [
+        {
+          "says": "The README's Limitations say the response phase cannot change the HTTP status code because it was already sent to the client.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/custom-plugin/README.md",
+            "quotes": [
+              "- Response phase cannot change HTTP status code (already sent to client)"
+            ]
+          }
+        },
+        {
+          "says": "The code calls kong.response.exit with a 403 from its response handler when the response scan does not allow.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Kong/custom-plugin/handler.lua",
+            "quotes": [
+              "message = \"Response blocked by Zscaler AI Guard security policy.\","
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a blocked response is withheld is open (response-block-delivery); response-leg enforcement should not be assumed without a test."
+    }
+  }
+}

@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.aws-bedrock-agentcore",
+  "title": "The AI Guard guard for Amazon Bedrock AgentCore agents: the four legs you call, the tool wrapper, and what each leg sends",
+  "aliases": [
+    "ai guard bedrock agentcore",
+    "AIGuardGuard",
+    "aiguard_agentcore.py",
+    "guard_tool",
+    "scan_tool_output",
+    "ai guard agentcore tool_event"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.integrations.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.aws-strands-agents"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The AgentCore integration is a guard object that an agent's own loop calls; AgentCore Runtime hosts the code but offers no interception point. {{guard-not-hook}} {{blocked-raises}}"
+    },
+    {
+      "label": "Wrapping tools.",
+      "text": "{{guard-tool-shapes}} {{lazy-result-unscannable}}"
+    },
+    {
+      "label": "What each leg sends.",
+      "text": "{{empty-model-legs}} {{response-leg-content}} {{tool-event-serialized}} The README describes the tool legs as structured tool events {{divergence:tool-event-shape}}."
+    },
+    {
+      "label": "Runtime context.",
+      "text": "{{runtime-ids}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{streaming-caller}} {{source-code-detector}} {{latency}} The call, verdict handling, timeout and failure switches shared by the AWS examples are in [[ai-security.ai-guard.integrations.aws]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That every model call and every tool in the agent loop goes through a scan_* call or a guard_tool-wrapped function; a leg the code does not call is not scanned.",
+      "uses": [
+        "guard-not-hook",
+        "guard-tool-shapes"
+      ]
+    },
+    {
+      "do": "For a streamed model response, where the agent scans the text (per chunk or assembled), since the guard does not intercept streams.",
+      "uses": [
+        "streaming-caller"
+      ]
+    },
+    {
+      "do": "Whether the tool-leg policy has the source-code detector enabled, which can block benign tool calls before they run.",
+      "uses": [
+        "source-code-detector",
+        "tool-event-serialized"
+      ]
+    }
+  ],
+  "claims": {
+    "guard-not-hook": {
+      "statement": "The integration is a guard the agent's own loop calls at four legs (scan the prompt before the model, the response after it, a tool's input before it runs, its output before it re-enters the model); nothing is automatic beyond tools wrapped with `guard_tool`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "before-model   scan the prompt going to the model",
+            "after-model    scan the model's response",
+            "before-tool    scan a tool call's input",
+            "after-tool     scan a tool call's output"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "**You place the calls.** Unlike the SDK hooks, nothing is automatic beyond the tools you wrap with `guard_tool`. A leg you do not call is a leg not scanned."
+          ]
+        }
+      ]
+    },
+    "blocked-raises": {
+      "statement": "Each `scan_*` method returns the verdict on allow and raises `AIGuardBlocked`, carrying the leg, the verdict and the transaction ID, on a block; under the default postures a scan error or unscannable content raises it too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "Every `scan_*` method returns the verdict dict on allow and raises `AIGuardBlocked` (carrying `leg`, `verdict`, `transaction_id`) on block."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "raise AIGuardBlocked(leg, verdict, transaction_id,",
+            "AIGuardBlocked on block (unless on_error/on_unscannable relax it).",
+            "app_user=None, ai_model=None, on_error=\"block\",",
+            "on_unscannable=\"block\", strict_verdict=False,"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "Missing credentials, an unreachable or erroring AI Guard API, a scan that exceeds its `timeout`, and a verdict without an `action` all block unless you choose `on_error=\"allow\"`."
+          ]
+        }
+      ]
+    },
+    "guard-tool-shapes": {
+      "statement": "`guard_tool` scans a tool's input before it runs and its output before returning, binding arguments to parameter names and dropping a `self` or `cls` receiver; an async tool is awaited and its scans run in a worker thread, and a generator or async-generator tool is drained so its whole output is scanned once before the first item is yielded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "An `async def` tool is wrapped by an `async def` wrapper that awaits the tool before scanning its output -- and runs the scan itself in a worker thread",
+            "A generator or async-generator tool is wrapped by a generator of the same kind that drains the tool and scans the whole output before yielding the first item.",
+            "`guard_tool()` binds a tool's arguments to their parameter names before scanning"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "if first in (\"self\", \"cls\"):",
+            "items = list(fn(*args, **kwargs))"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "def guard_tool(self, server_name=\"agent-tools\"):",
+            "Decorator: scan a tool function's input before it runs and its output\n        before it returns"
+          ]
+        }
+      ]
+    },
+    "lazy-result-unscannable": {
+      "statement": "A wrapped tool that returns a coroutine or a generator instead of a value is treated as unscannable output and follows `on_unscannable` (block by default); other lazy iterators such as `map` or `filter` are not recognized and are serialized as they stand, usually as their repr.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "so `guard_tool` treats it as unscannable output and blocks by default",
+            "Other lazy iterators (`map`, `filter`, `itertools`, a custom `__iter__`) are not recognized as lazy and are serialized as they stand, which for most of them means their `repr`;",
+            "A tool that *returns* a coroutine or a generator rather than a value has produced nothing to scan"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "def _unscannable_tool_output(self, tool_name, result):"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "if self.on_unscannable == \"block\":"
+          ],
+          "after": "def _unscannable_tool_output(self, tool_name, result):"
+        }
+      ]
+    },
+    "empty-model-legs": {
+      "statement": "On the prompt and response legs an empty text follows `on_unscannable` (block by default), each judged on its own field, so a prompt passed as context does not satisfy an empty response; the tool legs always scan, since a tool event names the tool even with no arguments or result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "**Empty content follows `on_unscannable` on the model legs**, and each leg is judged on its own field",
+            "The **tool legs always scan whatever the tool call carries**",
+            "an empty prompt blocks `scan_prompt()`, and an empty model turn blocks `scan_response()` even when a prompt is passed as context",
+            "a `tool_event` still names the tool and its server, so a tool that legitimately takes no arguments or returns nothing is scanned, not blocked"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "text = contents.get(\"response\") if leg == \"response\" else contents.get(\"prompt\")",
+            "on_unscannable=\"block\", strict_verdict=False,"
+          ]
+        }
+      ]
+    },
+    "response-leg-content": {
+      "statement": "`scan_response` sends the prompt, when one is passed, and the response joined into one `content` string with direction OUT; its `context` argument is stored but not sent, because the payload builder reads only the `prompt`, `response` and `tool_event` keys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "contents[\"context\"] = _as_text(context)",
+            "for key in (\"prompt\", \"response\", \"tool_event\"):",
+            "return (\"\\n\".join(p for p in parts if p), direction)",
+            "\"response\": \"OUT\","
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "def scan_response(self, response, prompt=None, context=None,"
+          ]
+        }
+      ]
+    },
+    "tool-event-serialized": {
+      "statement": "A tool leg builds a tool event with metadata (ecosystem `mcp`, method `tools/call`, the server name, default `agent-tools`, and the tool name), the input and, on the output leg, the output, then serializes it with json.dumps into the `content` string; the API receives text, not a separate tool-event field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "TOOL_ECOSYSTEM = \"mcp\"",
+            "\"method\": \"tools/call\",",
+            "def scan_tool_input(self, tool_name, tool_input, server_name=\"agent-tools\",",
+            "AI Guard scans a single string",
+            "else json.dumps(value, ensure_ascii=False, sort_keys=True))",
+            "tool_event[\"output\"] = tool_output"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "payload = {\"content\": text, \"direction\": direction}",
+            "payload[\"transactionId\"] = api_transaction_id",
+            "payload[\"policyId\"] = self.policy_id",
+            "AI Guard's detection API carries no metadata field -- it takes content,\n        direction, transactionId and policyId only"
+          ]
+        }
+      ]
+    },
+    "runtime-ids": {
+      "statement": "Inside AgentCore Runtime the guard takes the request and session IDs from `BedrockAgentCoreContext` and the agent ARN from `cloud.resource_id` in `OTEL_RESOURCE_ATTRIBUTES`, cutting a runtime-endpoint ARN back to the runtime ARN; off-runtime it falls back to a generated ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "quotes": [
+            "return BedrockAgentCoreContext.get_request_id(), BedrockAgentCoreContext.get_session_id()",
+            "attrs = os.environ.get(\"OTEL_RESOURCE_ATTRIBUTES\", \"\")",
+            "if key.strip() == \"cloud.resource_id\" and value.strip():",
+            "arn = arn.split(\"/runtime-endpoint/\")[0]",
+            "when it is available (so a scan in the AI Guard Console lines up with an",
+            "invocation in the AgentCore logs), and falls back to a generated id off-runtime."
+          ]
+        }
+      ]
+    },
+    "streaming-caller": {
+      "statement": "Non-streamed model calls are covered; for a streamed response the guard intercepts nothing, and the agent code chooses whether to scan each buffered chunk or the assembled text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "**Streaming.** For a streamed model response you choose when to scan (per buffered chunk or on the assembled text); the guard does not intercept the stream for you.",
+            "Non-streamed model calls are fully covered"
+          ]
+        }
+      ]
+    },
+    "source-code-detector": {
+      "statement": "The README reports that on a profile with the source-code detector enabled, tool input, which is a serialized JSON object, can be flagged on its own (arguments as plain as `{\"x\": \"x\"}`), so the input leg blocks before the tool runs and a benign tool call is denied; it advises a profile without that detector for tool legs, or scanning tool output only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "`tool_event.input` is a serialized JSON object by construction, and on a profile with the source-code detector enabled that shape can be flagged on its own merits -- a tool called with arguments as ordinary as `{\"x\": \"x\"}` is enough.",
+            "use a profile without that detector for the tool legs, or scan tool output only.",
+            "The input leg then blocks before the tool runs, so the output leg never happens and a benign tool call is denied."
+          ]
+        }
+      ]
+    },
+    "latency": {
+      "statement": "Each leg adds one scan and each tool round two; `timeout=` bounds the connect and, separately, the response read, so a peer trickling bytes costs at most about twice the timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/README.md",
+          "quotes": [
+            "Each leg adds one scan call; a tool round adds two (input + output).",
+            "a peer that trickles bytes costs at most about twice `timeout` rather than stalling the caller indefinitely",
+            "`timeout=` bounds the connect and, separately, the response read"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tool-event-shape": {
+      "summary": "Whether the AgentCore and Strands tool legs reach AI Guard as a structured tool event that gets a tool-specific verdict.",
+      "positions": [
+        {
+          "says": "The AgentCore README says the tool input is sent as a tool_event, which lets AI Guard return a tool-specific verdict such as context poisoning or credential leakage instead of treating the result as plain text.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/bedrock-agentcore/README.md",
+            "quotes": [
+              "it is the only seat positioned to treat a tool call as a `tool_event`, which is what lets AI Guard return a tool-specific verdict (`context poisoning`, `credential leakage`) instead of seeing the tool result merely as text in the next prompt."
+            ]
+          }
+        },
+        {
+          "says": "The Strands README says the same of its tool-output leg.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/strands-agents/README.md",
+            "quotes": [
+              "a tool result is scanned as a `tool_event`, so AI Guard returns a tool-specific verdict (`context poisoning`, `credential leakage`) instead of seeing it as plain text."
+            ]
+          }
+        },
+        {
+          "says": "Both modules serialize the tool event into the single content string, noting that AI Guard scans one string per call, and their notes also say the API rejects any tool ecosystem but mcp with HTTP 400, a check that would need a structured field.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+            "quotes": [
+              "{\"response\": ...} or {\"tool_event\": {...}}. AI Guard scans a single string",
+              "# The scan API accepts exactly one tool ecosystem today: \"mcp\". Every other"
+            ]
+          }
+        }
+      ],
+      "impact": "What AI Guard receives at the pin is text in content (tool-event-serialized); whether it recognizes that text as a tool event and returns tool-specific detections is not shown by the code, the SDK or Help. The modules' log code reads a tool_detected field that their verdict parser never fills."
+    }
+  }
+}

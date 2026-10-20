@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.litellm",
+  "title": "AI Guard with the LiteLLM proxy: LiteLLM's native zscaler_ai_guard guardrail as the README describes it, and the SDK-based callback example",
+  "aliases": [
+    "ai guard litellm",
+    "zscaler_ai_guard guardrail",
+    "litellm zscaler ai guard",
+    "aiguard_guardrail.py",
+    "ZSCALER_AI_GUARD_API_KEY",
+    "zguard_policy_id"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The LiteLLM folder offers two routes: a guardrail that ships inside LiteLLM itself, whose code is not in this repository, and an example callback built on the Zscaler Python SDK. {{native}} {{native-endpoint}} Whether execute-policy works without a policy ID is open in [[ai-security.ai-guard.runtime-api:execute-without-policy-id]]."
+    },
+    {
+      "label": "The SDK callback.",
+      "text": "{{callback-hooks}} {{callback-skips}} {{callback-verdict}} What LiteLLM does with the callback's exceptions, and whether the hooks run for streamed responses, is open {{gap:hook-behavior}}."
+    },
+    {
+      "label": "SDK version.",
+      "text": "{{sdk-unpinned}} The SDK release that fixed detection authentication is in [[ai-security.ai-guard.runtime-api:sdk-bearer]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For the native guardrail, whether a policy_id is configured; its default endpoint is execute-policy.",
+      "uses": [
+        "native-endpoint",
+        "ai-security.ai-guard.runtime-api:policy-id-required"
+      ]
+    },
+    {
+      "do": "For the callback image, which zscaler-sdk-python version pip installed; the Dockerfile does not pin it.",
+      "uses": [
+        "sdk-unpinned",
+        "ai-security.ai-guard.runtime-api:sdk-bearer"
+      ]
+    },
+    {
+      "do": "Whether clients stream; the callback's response behavior for streams is not established.",
+      "uses": [
+        "hook-behavior"
+      ]
+    }
+  ],
+  "claims": {
+    "native": {
+      "statement": "The README describes LiteLLM's built-in `zscaler_ai_guard` guardrail, configured in config.yaml with `mode` `during_call` for input and `post_call` for output, an API key, an optional base URL and policy ID, per-request overrides through `metadata.zguard_policy_id`, per-team and per-key policies, and forwarding of user information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/README.md",
+          "quotes": [
+            "The native plugin uses `guardrail: zscaler_ai_guard` directly in your `config.yaml` and supports `during_call` (input) and `post_call` (output) modes, per-request/team/key policy overrides, and user info forwarding.",
+            "- Per-request policy overrides via `metadata.zguard_policy_id`",
+            "- User info forwarding (`api_key_alias`, `user_id`, `team_id`)",
+            "api_key: os.environ/ZSCALER_AI_GUARD_API_KEY\n      api_base: os.environ/ZSCALER_AI_GUARD_URL        # Optional, defaults to us1\n      policy_id: os.environ/ZSCALER_AI_GUARD_POLICY_ID  # Optional"
+          ]
+        }
+      ]
+    },
+    "native-endpoint": {
+      "statement": "The example native configuration notes that `api_base` defaults to `https://api.us1.zseclipse.net/v1/detection/execute-policy` and marks `policy_id` optional, and the README's comparison lists the native plugin's policy selection as an explicit policy ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/config-native-guardrail.yaml",
+          "quotes": [
+            "api_base: os.environ/ZSCALER_AI_GUARD_URL         # Optional, defaults to https://api.us1.zseclipse.net/v1/detection/execute-policy",
+            "policy_id: os.environ/ZSCALER_AI_GUARD_POLICY_ID  # Optional"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/README.md",
+          "quotes": [
+            "| Policy selection | Explicit `policy_id` | Auto-resolution |"
+          ]
+        }
+      ]
+    },
+    "callback-hooks": {
+      "statement": "The example callback is a LiteLLM CustomLogger: `async_pre_call_hook` scans the last user message (text parts joined) with direction IN, and `async_post_call_success_hook` scans the first choice that has message content with direction OUT, each through the SDK's `LegacyZGuardClientHelper` `resolve_and_execute_policy` with a fresh uuid4 transaction ID, run in a worker thread.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "quotes": [
+            "class ZscalerAIGuardCallback(CustomLogger):",
+            "async def async_pre_call_hook(self, user_api_key_dict, cache, data, call_type):",
+            "async def async_post_call_success_hook(self, data, user_api_key_dict, response):",
+            "result, response, error = self.client.policy_detection.resolve_and_execute_policy(",
+            "result = await asyncio.to_thread(self._scan, content, \"IN\", transaction_id)",
+            "result = await asyncio.to_thread(self._scan, content, \"OUT\", transaction_id)",
+            "self.client = LegacyZGuardClientHelper(cloud=cloud)",
+            "\"\"\"Extract the last user message from the request.\"\"\"",
+            "return \" \".join(",
+            "for choice in choices:",
+            "if content:\n                return str(content)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "quotes": [
+            "transaction_id = str(uuid.uuid4())"
+          ],
+          "after": "async def async_pre_call_hook(self, user_api_key_dict, cache, data, call_type):"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "quotes": [
+            "transaction_id = str(uuid.uuid4())"
+          ],
+          "after": "async def async_post_call_success_hook(self, data, user_api_key_dict, response):"
+        }
+      ]
+    },
+    "callback-skips": {
+      "statement": "When the request has no user content, or the response has no choice with message content (for example a tool-call-only reply), the callback returns without scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "after": "async def async_pre_call_hook(self, user_api_key_dict, cache, data, call_type):",
+          "quotes": [
+            "if not content:",
+            "return data"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "after": "async def async_post_call_success_hook(self, data, user_api_key_dict, response):",
+          "quotes": [
+            "if not content:",
+            "return response"
+          ]
+        }
+      ]
+    },
+    "callback-verdict": {
+      "statement": "The callback raises an HTTP 403 `HTTPException` unless the action is ALLOW or DETECT, so a missing action blocks; an SDK error is logged and raised as a plain Exception carrying the error text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "quotes": [
+            "ALLOWED_ACTIONS = (\"ALLOW\", \"DETECT\")",
+            "return str(action or \"\").upper() not in self.ALLOWED_ACTIONS",
+            "raise Exception(f\"AI Guard API error: {error}\")",
+            "verbose_proxy_logger.warning(\"AI Guard BLOCKED (input): %s\", msg)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "after": "verbose_proxy_logger.warning(\"AI Guard BLOCKED (input): %s\", msg)",
+          "quotes": [
+            "raise HTTPException(status_code=403, detail=msg)"
+          ]
+        }
+      ]
+    },
+    "sdk-unpinned": {
+      "statement": "The callback's Dockerfile extends the LiteLLM `main-stable` image and installs `zscaler-sdk-python` with no version constraint; the key and cloud come from `AIGUARD_API_KEY` and `AIGUARD_CLOUD` (default us1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/Dockerfile",
+          "quotes": [
+            "FROM ghcr.io/berriai/litellm:main-stable",
+            "RUN pip install --no-cache-dir zscaler-sdk-python"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "quotes": [
+            "AIGUARD_API_KEY   - Zscaler AI Guard API key",
+            "cloud = os.environ.get(\"AIGUARD_CLOUD\", \"us1\")"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "hook-behavior": {
+      "kind": "semantic",
+      "title": "How LiteLLM handles the callback's exceptions and streamed responses",
+      "status": "open",
+      "detail": "The callback raises HTTPException(403) on a block and a plain Exception when the SDK reports an error, and scans responses only in async_post_call_success_hook. What LiteLLM returns to the client for the plain Exception (an error, so fail closed, or a logged pass) and whether that hook runs for streamed responses depends on LiteLLM, whose source is not registered.",
+      "blocks": "the callback's fail posture on AI Guard errors and its coverage of streamed output",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

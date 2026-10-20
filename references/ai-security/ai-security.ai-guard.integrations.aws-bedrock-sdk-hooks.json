@@ -1,0 +1,491 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.aws-bedrock-sdk-hooks",
+  "title": "The AI Guard boto3 hook for Amazon Bedrock: before-call and after-call scanning, what the content walkers read, block styles, and what is not scanned",
+  "aliases": [
+    "ai guard boto3 hook",
+    "ai guard bedrock sdk hooks",
+    "aiguard_boto3_hook.py",
+    "protect_client",
+    "protect_session",
+    "ai guard bedrock converse",
+    "ai guard invoke_model",
+    "apply_masked_data"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.integrations.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.aws-bedrock-agentcore"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The boto3 hook attaches to the botocore event system of a bedrock-runtime client, so every model call through that client is scanned, including calls a framework makes. {{registration}} {{prompt-before-signing}}"
+    },
+    {
+      "label": "The prompt leg.",
+      "text": "{{prompt-coverage}} {{block-walker}} {{invoke-dialects}} {{prompt-opaque-blocks}}"
+    },
+    {
+      "label": "The response leg.",
+      "text": "{{response-only-text-sent}} The README says the prompt rides along as context {{divergence:response-context}}. {{response-opaque-ignored}} {{stream-response-skipped}} {{aws-errors-pass}}"
+    },
+    {
+      "label": "Blocking.",
+      "text": "{{block-styles}}"
+    },
+    {
+      "label": "Options.",
+      "text": "{{unknown-options-rejected}} {{masking-option-rejected}} The README documents a masking mode {{divergence:masking}}. {{readme-invalid-python}} {{session-unused}}"
+    },
+    {
+      "label": "Shared behavior.",
+      "text": "Endpoint, verdicts, the on_error switch and the timeout default are in [[ai-security.ai-guard.integrations.aws]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the application streams (ConverseStream or InvokeModelWithResponseStream); for those only the prompt is scanned.",
+      "uses": [
+        "stream-response-skipped"
+      ]
+    },
+    {
+      "do": "Whether a protected client is the only path to Bedrock; other clients, processes and raw HTTPS calls are not covered.",
+      "uses": [
+        "registration"
+      ]
+    },
+    {
+      "do": "Whether the request carries assistant turns or tool specifications built outside this client; those reach the model unscanned.",
+      "uses": [
+        "prompt-coverage"
+      ]
+    },
+    {
+      "do": "That the hook is constructed only with the options its code accepts; apply_masked_data from the README raises TypeError.",
+      "uses": [
+        "unknown-options-rejected",
+        "masking-option-rejected"
+      ]
+    }
+  ],
+  "claims": {
+    "registration": {
+      "statement": "`protect_client` (one client) or `protect_session` (every bedrock-runtime client later created from the session) registers before-call and after-call handlers for Converse, ConverseStream, InvokeModel and InvokeModelWithResponseStream under fixed unique IDs, so protecting twice registers one set; other clients, processes and raw HTTPS calls are not covered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "_HOOK_OPERATIONS = (\"Converse\", \"ConverseStream\", \"InvokeModel\", \"InvokeModelWithResponseStream\")",
+            "events.register(\"before-call.bedrock-runtime.%s\" % operation, hook.before_call,",
+            "unique_id=\"aiguard-before-%s\" % operation)",
+            "def protect_session(session, **config):",
+            "events.register(\"after-call.bedrock-runtime.%s\" % operation, hook.after_call,",
+            "unique_id=\"aiguard-after-%s\" % operation)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "Other clients, other processes, other languages, and raw HTTPS calls to Bedrock are not covered"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "def protect_client(client, **config):"
+          ]
+        }
+      ]
+    },
+    "prompt-before-signing": {
+      "statement": "The prompt is scanned in before-call; a block returns before botocore signs or sends the request, so nothing reaches AWS or is billed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/README.md",
+          "quotes": [
+            "A blocked prompt is stopped **before the request is signed or sent**: nothing reaches AWS, nothing is billed."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "return self._blocked(\"prompt\", blocked_verdict, transaction_id, operation, model_id)"
+          ]
+        }
+      ]
+    },
+    "prompt-coverage": {
+      "statement": "For Converse calls the prompt leg scans the system prompt and every user-role message; assistant-role turns and the tool specifications in `toolConfig.tools[].toolSpec` are sent to the model unscanned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "\"\"\"(text, opaque): the system prompt plus EVERY user-role message, not just",
+            "Assistant-role turns and tool specifications are not scanned here.",
+            "if message.get(\"role\") != \"user\":"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "as is `toolConfig.tools[].toolSpec` (name, description, input schema), which Bedrock renders into the model's context."
+          ]
+        }
+      ]
+    },
+    "block-walker": {
+      "statement": "The content walker is an allowlist: it reads text, guardContent text, toolUse name and arguments, toolResult text, JSON and search results, reasoning text, searchResult passages and citation text; documents, images, video, audio, redacted reasoning and any unrecognized block are flagged opaque, except a `cachePoint` holding only `type` and `ttl`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "if \"guardContent\" in block:",
+            "if \"reasoningContent\" in block:",
+            "if \"citationsContent\" in block:",
+            "if members and all(key in (\"type\", \"ttl\") for key in members):",
+            "# document / image / video / audio -- and, fail-closed, everything else.",
+            "return [], True                 # redactedContent is an encrypted blob"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "if \"cachePoint\" in block:",
+            "elif \"json\" in sub:",
+            "elif \"searchResult\" in sub:"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "Both legs walk the content blocks the same way: `text`, `guardContent` text, `toolResult` text and JSON, `toolUse` (tool name plus serialized arguments -- model-emitted arguments are text the application is about to act on),",
+            "`reasoningContent` reasoning text, `searchResult` passages, and `citationsContent` answer and cited source text."
+          ]
+        }
+      ]
+    },
+    "invoke-dialects": {
+      "statement": "For InvokeModel the prompt is taken from the messages dialect, from Cohere's `message` with `chat_history`, `documents` and `tool_results`, or from `inputText` or `prompt`; a body in no known dialect, or one that is not JSON, is scanned whole as raw text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "if isinstance(body.get(\"messages\"), list):        # messages dialect (incl. amazon nova)",
+            "for key in (\"documents\", \"tool_results\"):",
+            "for key in (\"inputText\", \"prompt\"):               # titan / llama, mistral",
+            "prompt = raw           # unknown dialect: scan the whole body",
+            "return raw, False"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "for turn in body.get(\"chat_history\") or []:   # every turn, not just the newest",
+            "if isinstance(body.get(\"message\"), str):          # cohere",
+            "except ValueError:\n        return None, raw"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "Cohere (newest message plus `chat_history`, `documents`, and `tool_results`)"
+          ]
+        }
+      ]
+    },
+    "prompt-opaque-blocks": {
+      "statement": "On the prompt leg any opaque content blocks the call when `on_unscannable` is `\"block\"` (the default), even when the request also carries text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "if opaque and self.on_unscannable == \"block\":",
+            "note=\"content that cannot be inspected as text\")",
+            "self.on_unscannable = config.get(\"on_unscannable\", \"block\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "Unscannable content follows the `on_unscannable` posture **on the prompt leg** (blocked by default;",
+            "The request leg applies the posture to both cases."
+          ]
+        }
+      ]
+    },
+    "response-only-text-sent": {
+      "statement": "The response leg scans the assistant text with direction OUT and sends only that text; the prompt the hook stores for the response leg is not included in the request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "contents[\"prompt\"] = prompt",
+            "text = contents.get(\"prompt\") if leg == \"prompt\" else contents.get(\"response\")",
+            "payload = {\"content\": text, \"direction\": direction}",
+            "direction = \"IN\" if leg == \"prompt\" else \"OUT\""
+          ]
+        }
+      ]
+    },
+    "response-opaque-ignored": {
+      "statement": "The response leg discards the walker's opaque flag: a reply with no extractable text follows `on_unscannable`, but a reply that mixes text with a block the walker cannot inspect (such as a document, an image or an unrecognized block) is scanned on its text alone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "texts, _ = _texts_from_converse_content(message.get(\"content\") if message else None)",
+            "texts, _ = _texts_from_converse_content(body[\"content\"])"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "A response that carries no extractable text at all follows `on_unscannable`; one that mixes text with a block the walker cannot inspect is scanned on its text.",
+            "**The response leg blocks on \"no text\", not on \"some opaque content\".**",
+            "documents, images, video, audio, redacted reasoning, and any block shape it does not recognize are flagged unscannable rather than skipped"
+          ]
+        }
+      ]
+    },
+    "stream-response-skipped": {
+      "statement": "For ConverseStream and InvokeModelWithResponseStream only the prompt is scanned; the streamed response is still on the wire when after-call fires, so the hook logs a skipped-stream line and returns without scanning it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "_STREAM_OPERATIONS = (\"ConverseStream\", \"InvokeModelWithResponseStream\")",
+            "self._log(\"response\", \"skipped-stream\", transaction_id, 0.0, operation=operation)\n            return"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "For the two streaming operations the response is still on the wire when `after-call` fires; only their prompt leg is scanned.",
+            "Streamed responses are not scanned."
+          ]
+        }
+      ]
+    },
+    "aws-errors-pass": {
+      "statement": "An AWS error response (a parsed `Error` or an HTTP status of 300 or more) is not scanned: the hook steps aside so botocore raises the genuine exception (a throttle, auth failure or validation error) instead of masking it with a scan verdict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "if \"Error\" in parsed or getattr(http_response, \"status_code\", 200) >= 300:"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "An AWS error (throttle, auth failure, validation error) carries no model output; the hook steps aside so botocore raises the genuine exception instead of masking it with a scan verdict."
+          ]
+        }
+      ]
+    },
+    "block-styles": {
+      "statement": "With `on_block=\"raise\"` (the default) a block raises `AIGuardBlocked`; with `\"respond\"` the hook returns a well-formed reply instead: a Converse message with `stopReason` `content_filtered`, a JSON body for InvokeModel, or a minimal event stream for the streaming operations, with the verdict under `ResponseMetadata.AIGuard`; a blocked response is replaced the same way.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "self.on_block = config.get(\"on_block\", \"raise\")",
+            "raise AIGuardBlocked(leg, verdict, transaction_id, operation)",
+            "\"stopReason\": \"content_filtered\",",
+            "{\"messageStop\": {\"stopReason\": \"content_filtered\"}},",
+            "meta = {\"HTTPStatusCode\": 200, \"AIGuard\": {",
+            "json.dumps({\"aiguard\": \"response replaced\", \"text\": text}).encode(\"utf-8\"))"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "raise ValueError('on_block must be \"raise\" or \"respond\"')",
+            "meta = parsed.setdefault(\"ResponseMetadata\", {})",
+            "meta[\"AIGuard\"] = {\"blocked\": True, \"leg\": \"response\",",
+            "body = json.dumps({\"aiguard_blocked\": True, \"message\": message}).encode(\"utf-8\")",
+            "parsed = {\"ResponseMetadata\": meta, \"stream\": iter([",
+            "\"body\": iter([{\"chunk\": {\"bytes\": chunk}}])}"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "`on_block=\"respond\"` delivers a well-formed response instead -- a `content_filtered` Converse reply on either leg, a JSON body for `InvokeModel`, or a minimal valid event stream for the two streaming operations -- whose text states the block, with the verdict attached under `ResponseMetadata.AIGuard`"
+          ]
+        }
+      ]
+    },
+    "unknown-options-rejected": {
+      "statement": "The hook accepts only `app_name`, `policy_id`, `session_id`, `app_user`, `on_block`, `on_verdict`, `on_error`, `on_unscannable`, `strict_verdict`, `scan_prompt`, `scan_response` and `timeout`, and raises TypeError for any other option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "valid = {\"app_name\", \"policy_id\", \"session_id\", \"app_user\",",
+            "\"on_block\", \"on_verdict\", \"on_error\", \"on_unscannable\",",
+            "\"strict_verdict\", \"scan_prompt\",",
+            "\"scan_response\", \"timeout\"}",
+            "raise TypeError(\"unknown options: %s\" % \", \".join(sorted(unknown)))"
+          ]
+        }
+      ]
+    },
+    "masking-option-rejected": {
+      "statement": "Passing `apply_masked_data`, which the README documents for masking, makes `protect_client` or `protect_session` raise TypeError, and the module contains no masking path.",
+      "tier": "B",
+      "derived_from": [
+        "unknown-options-rejected"
+      ],
+      "conditions": "Follows from the complete option set; a search of the module at the pin finds no other mask handling (the only `masked` occurrence is a log-level label)."
+    },
+    "readme-invalid-python": {
+      "statement": "The README's configuration example has two bare `policy_id=` lines, so it is not valid Python as written, and one describes the policy ID as an \"AI profile UUID\" while the module parses it with int().",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/README.md",
+          "quotes": [
+            "policy_id=         # overrides AIGUARD_POLICY_ID",
+            "policy_id=           # AI profile UUID; name or id must resolve"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "return int(raw)"
+          ]
+        }
+      ]
+    },
+    "session-unused": {
+      "statement": "`session_id`, `app_name` and `app_user` are accepted and stored but never used: each call gets a fresh uuid4 transaction ID, and neither the scan request nor the log line carries them.",
+      "tier": "B",
+      "derived_from": [
+        "unknown-options-rejected",
+        "ai-security.ai-guard.integrations.aws:payload-fields"
+      ],
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+          "quotes": [
+            "self.session_id = config.get(\"session_id\")",
+            "transaction_id = str(uuid.uuid4())"
+          ]
+        }
+      ],
+      "conditions": "Rests on a search of the module at the pin: the three attributes are assigned in the constructor and read nowhere. The README promises session correlation and metadata.app_name."
+    }
+  },
+  "divergences": {
+    "response-context": {
+      "summary": "Whether the response scan carries the prompt as context.",
+      "positions": [
+        {
+          "says": "The README's sequence diagram shows the after-call scan sending the response with the prompt as context when prompt scanning is on.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/bedrock-sdk-hooks/python/README.md",
+            "quotes": [
+              "B->>A: after-call: scan response (prompt as context, when scan_prompt is on)"
+            ]
+          }
+        },
+        {
+          "says": "The code stores the prompt with the response but sends only the response text.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+            "quotes": [
+              "text = contents.get(\"prompt\") if leg == \"prompt\" else contents.get(\"response\")"
+            ]
+          }
+        }
+      ],
+      "impact": "Detections that need the prompt beside the response see only the response on this seat; the Lambda decorator and the AgentCore guard do send both."
+    },
+    "masking": {
+      "summary": "Whether the boto3 hook can apply AI Guard masking to a response.",
+      "positions": [
+        {
+          "says": "The README documents apply_masked_data=True: masked text replaces the response's text blocks on mask-and-allow profiles, and InvokeModel gets a replacement envelope.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/bedrock-sdk-hooks/python/README.md",
+            "quotes": [
+              "apply_masked_data=False,   # masked text replaces the response on mask-and-allow profiles"
+            ]
+          }
+        },
+        {
+          "says": "The module's option set has no apply_masked_data and it rejects unknown options.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
+            "quotes": [
+              "raise TypeError(\"unknown options: %s\" % \", \".join(sorted(unknown)))"
+            ]
+          }
+        },
+        {
+          "says": "The Apigee example's architecture note says AI Guard returns a verdict, not a rewritten payload, so there is no masking path.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/ARCHITECTURE.md",
+            "quotes": [
+              "AI Guard returns a **verdict**, not a rewritten payload, so there is no"
+            ]
+          }
+        }
+      ],
+      "impact": "Following the README's masking setup fails at construction with TypeError. Whether the detection API returns masked content at all is not settled by these examples; the SDK's response model (ai-security.ai-guard.runtime-api:response-fields) lists no masked-content field."
+    }
+  }
+}

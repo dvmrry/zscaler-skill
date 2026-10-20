@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.cline",
+  "title": "Cline hooks for AI Guard (Zscaler example): hooks, directions, cancel handling, and the missing-key allow",
+  "aliases": [
+    "cline aiguard hooks",
+    ".clinerules/hooks",
+    "TaskComplete",
+    "cline cancel"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.windsurf"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Cline example is a set of hook scripts Cline discovers in the workspace's .clinerules/hooks directory; each calls AI Guard's detection API through the Python SDK."
+    },
+    {
+      "label": "What is hooked.",
+      "text": "{{hooks}} {{no-reply-hook}} {{block-signal}}"
+    },
+    {
+      "label": "Which call it makes.",
+      "text": "{{config}} The endpoints are in [[ai-security.ai-guard.runtime-api]]."
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{missing-key-allows}} {{errors-cancel}}"
+    },
+    {
+      "label": "What content is scanned.",
+      "text": "{{pre-tool-extraction}} {{pre-tool-untruncated}} {{mcp-partial-scan}} {{post-tool-content}} {{task-complete-audit}} What the task field holds is open {{gap:task-field}}."
+    },
+    {
+      "label": "After the tool has run.",
+      "text": "What a PostToolUse cancel achieves is open {{gap:post-tool-cancel-effect}}. The comparison with other hosts is in [[ai-security.ai-guard.integrations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That AIGUARD_API_KEY is set where Cline launches the hooks: without it every Cline hook allows unscanned.",
+      "uses": [
+        "missing-key-allows"
+      ]
+    },
+    {
+      "do": "Whether replies the model writes without calling a tool need scanning; no Cline hook sees them.",
+      "uses": [
+        "no-reply-hook"
+      ]
+    },
+    {
+      "do": "Whether MCP calls carry sensitive data outside the one argument the hook scans.",
+      "uses": [
+        "mcp-partial-scan"
+      ]
+    }
+  ],
+  "claims": {
+    "hooks": {
+      "statement": "The example ships four Cline hook scripts in `.clinerules/hooks/`: `UserPromptSubmit` and `PreToolUse` scan with direction `IN` and can block, `PostToolUse` scans with `OUT` and can block, and `TaskComplete` scans with `OUT` but cannot cancel (Cline marks it not cancellable).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/README.md",
+          "quotes": [
+            "| User prompt | `UserPromptSubmit` | IN | Yes |",
+            "| Before tool | `PreToolUse` | IN | Yes |",
+            "| After tool | `PostToolUse` | OUT | Yes |",
+            "| Task finished | `TaskComplete` | OUT | No (Cline `isCancellable: false`) |"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/UserPromptSubmit",
+          "quotes": [
+            "r = scan_content(text, \"IN\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PreToolUse",
+          "quotes": [
+            "r = scan_content(content, \"IN\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PostToolUse",
+          "quotes": [
+            "r = scan_content(content, \"OUT\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/TaskComplete",
+          "quotes": [
+            "r = scan_content(text, \"OUT\")"
+          ]
+        }
+      ]
+    },
+    "no-reply-hook": {
+      "statement": "The README says no hook sees the model's plain-text reply when no tool runs, and that `PostToolUse` runs only when a tool returns content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/README.md",
+          "quotes": [
+            "There is no hook on the model’s plain-text reply when no tool runs. `PostToolUse` only runs when a tool returns content"
+          ]
+        }
+      ]
+    },
+    "block-signal": {
+      "statement": "A hook blocks by printing `{\"cancel\": true, \"errorMessage\": ...}` on stdout and exiting 0, not by exit code 2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/aiguard_utils.py",
+          "quotes": [
+            "print(json.dumps({\"cancel\": True, \"errorMessage\": error_message}, ensure_ascii=False))"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/README.md",
+          "quotes": [
+            "Unlike Windsurf, Cline uses **stdout JSON** (`\"cancel\": true` to block), not exit code `2`."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/UserPromptSubmit",
+          "quotes": [
+            "respond_json(True, block_message(r, \"user prompt\")) return 0",
+            "raise SystemExit(main())"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PreToolUse",
+          "quotes": [
+            "respond_json(True, block_message(r, f\"tool request ({tool_label})\")) return 0",
+            "raise SystemExit(main())"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PostToolUse",
+          "quotes": [
+            "respond_json(True, block_message(r, f\"tool output ({tool_label})\")) return 0",
+            "raise SystemExit(main())"
+          ]
+        }
+      ]
+    },
+    "missing-key-allows": {
+      "statement": "With no `AIGUARD_API_KEY`, every hook allows without scanning, and `UserPromptSubmit`, `PreToolUse` and `PostToolUse` log a warning; the README calls this a local development convenience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/UserPromptSubmit",
+          "quotes": [
+            "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\") respond_json(False) return 0"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PreToolUse",
+          "quotes": [
+            "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\") respond_json(False) return 0"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PostToolUse",
+          "quotes": [
+            "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\") respond_json(False) return 0"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/TaskComplete",
+          "quotes": [
+            "if not get_client_config().get(\"api_key\"): respond_json(False) return 0 text = truncate_text(task, MAX_POST_CHARS)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/README.md",
+          "quotes": [
+            "Missing **`AIGUARD_API_KEY`** allows traffic and logs a warning (local dev convenience)."
+          ]
+        }
+      ]
+    },
+    "errors-cancel": {
+      "statement": "In `UserPromptSubmit`, `PreToolUse` and `PostToolUse`, a scan error (including a response without an action) and any action other than `ALLOW`, `BLOCK` or `DETECT` cancel; `BLOCK` cancels with the severity, policy, transaction ID and blocking detectors; `ALLOW` and `DETECT` continue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/aiguard_utils.py",
+          "quotes": [
+            "result[\"error\"] = \"scan returned no action verdict (%s)\" % (",
+            "f\"Blocked by Zscaler AI Guard: {prefix} — action=BLOCK, severity={sev}, \"",
+            "f\"policy={pol}, transactionId={txn}\"",
+            "msg += f\", blockingDetectors=[{bd}]\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/UserPromptSubmit",
+          "quotes": [
+            "respond_json(True, f\"Zscaler AI Guard scan failed: {r['error']}\")",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
+            "respond_json(True, block_message(r, \"user prompt\"))",
+            "respond_json( True, \"Zscaler AI Guard returned an unexpected response; blocked for safety.\", )",
+            "respond_json(False) return 0 if __name__ == \"__main__\": raise SystemExit(main())"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PreToolUse",
+          "quotes": [
+            "respond_json(True, f\"Zscaler AI Guard scan failed: {r['error']}\")",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
+            "respond_json( True, \"Zscaler AI Guard returned an unexpected response; blocked for safety.\", )",
+            "respond_json(True, block_message(r, f\"tool request ({tool_label})\"))",
+            "respond_json(False) return 0 if __name__ == \"__main__\": raise SystemExit(main())"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PostToolUse",
+          "quotes": [
+            "respond_json(True, f\"Zscaler AI Guard scan failed: {r['error']}\")",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
+            "respond_json( True, \"Zscaler AI Guard returned an unexpected response; blocked for safety.\", )",
+            "respond_json(True, block_message(r, f\"tool output ({tool_label})\"))",
+            "respond_json(False) return 0 if __name__ == \"__main__\": raise SystemExit(main())"
+          ]
+        }
+      ]
+    },
+    "pre-tool-extraction": {
+      "statement": "`PreToolUse` scans `execute_command` on its command and `write_to_file` on its content; for `use_mcp_tool` it scans `query`, `search_query` or `q` when the MCP tool's name contains `search`, `url` or `uri` when it names a fetch, else the first of the `query`, `prompt`, `message` and `content` arguments, else the text `Accessing resource:` with a path-like argument, and only then the whole arguments JSON; any other tool is scanned as its parameters JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PreToolUse",
+          "quotes": [
+            "content, tool_label, source = extract_pre_tool_scan(data)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/aiguard_utils.py",
+          "quotes": [
+            "if tool == \"execute_command\": cmd = params.get(\"command\") or \"\"",
+            "if tool == \"use_mcp_tool\": server = params.get(\"server_name\") or \"unknown\"",
+            "if tool == \"write_to_file\": return (str(params.get(\"content\") or \"\"), tool, \"write-file\")",
+            "scan = f\"Accessing resource: {path_param}\"",
+            "if not scan: scan = normalize_tool_io(args)",
+            "return (normalize_tool_io(params), tool, \"tool-request\")",
+            "if any(x in mt_lower for x in (\"web_search\", \"websearch\")) or \"search\" in mt_lower: scan = ( str(args.get(\"query\") or args.get(\"search_query\") or args.get(\"q\") or \"\") )",
+            "x in mt_lower for x in (\"web_fetch\", \"webfetch\", \"fetch\", \"get_url\") ): scan = str(args.get(\"url\") or args.get(\"uri\") or \"\")",
+            "if not scan: scan = str( args.get(\"query\") or args.get(\"prompt\") or args.get(\"message\") or args.get(\"content\") or \"\" )",
+            "path_param = ( args.get(\"path\") or args.get(\"file\") or args.get(\"resource\") or args.get(\"url\") or args.get(\"uri\") or \"\" )"
+          ]
+        }
+      ]
+    },
+    "pre-tool-untruncated": {
+      "statement": "`PreToolUse` sends that content untruncated, unlike the 20000-character cut the other hooks apply.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PreToolUse",
+          "quotes": [
+            "from aiguard_utils import ( block_message, extract_pre_tool_scan, get_client_config, log_message, respond_json, scan_content, )",
+            "r = scan_content(content, \"IN\")"
+          ]
+        }
+      ],
+      "derived_from": [
+        "pre-tool-extraction"
+      ],
+      "conditions": "A read of extract_pre_tool_scan and PreToolUse at the pin finds no call to truncate_text and no MAX_POST_CHARS use on this path (the quoted import list omits both); the comparison rests on UserPromptSubmit and the post-tool extraction calling truncate_text."
+    },
+    "mcp-partial-scan": {
+      "statement": "An MCP call that carries any of the named arguments is scanned on that one argument (or only on a path label); its other arguments reach the MCP server unscanned.",
+      "tier": "B",
+      "derived_from": [
+        "pre-tool-extraction"
+      ],
+      "conditions": "Follows from the first-match returns in pre-tool-extraction; not exercised against Cline."
+    },
+    "post-tool-content": {
+      "statement": "`PostToolUse` scans the tool result with newlines replaced, truncated to 20000 characters; for MCP tools it scans one text combining server, tool, the arguments (truncated) and the output; content under 10 characters is allowed unscanned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/aiguard_utils.py",
+          "quotes": [
+            "MAX_POST_CHARS = 20000",
+            "combined = ( f\"MCP server={server} tool={mcp_tool}\\nInput={truncated_in}\\nOutput={truncated_out}\"",
+            "truncated = truncate_text(result_str.replace(\"\\n\", \" \"), MAX_POST_CHARS)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/PostToolUse",
+          "quotes": [
+            "if len(content) < 10:"
+          ]
+        }
+      ]
+    },
+    "task-complete-audit": {
+      "statement": "`TaskComplete` scans the payload's `task` text (truncated to 20000 characters) with direction `OUT` and only logs: a `BLOCK` is written as a would-block alert, and scan errors are logged as audit-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/aiguard_utils.py",
+          "quotes": [
+            "MAX_POST_CHARS = 20000"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/TaskComplete",
+          "quotes": [
+            "r = scan_content(text, \"OUT\")",
+            "task = tc.get(\"task\") or \"\"",
+            "text = truncate_text(task, MAX_POST_CHARS)",
+            "f\"ALERT TaskComplete: would-block policy={r.get('policy_name')} \"",
+            "log_message(f\"TaskComplete: API error (audit only): {r['error']}\")",
+            "\"\"\"Cline TaskComplete — AI Guard audit scan (direction OUT); always non-blocking.\"\"\"",
+            "log_message(f\"TaskComplete: API error (audit only): {r['error']}\") respond_json(False) return 0",
+            "respond_json(False) return 0 if __name__ == \"__main__\": raise SystemExit(main())"
+          ]
+        }
+      ]
+    },
+    "config": {
+      "statement": "`aiguard_utils.py` loads `.env` from the repository root and then `Cline/.env` with python-dotenv without overriding the environment, reads `AIGUARD_CLOUD` (blank or unset means `us1`) and `AIGUARD_TIMEOUT` (default 30), calls `execute_policy` when `AIGUARD_POLICY_ID` parses as an integer and `resolve_and_execute_policy` otherwise, and logs to `.clinerules/hooks/aiguard.log`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Cline/.clinerules/hooks/aiguard_utils.py",
+          "quotes": [
+            "_project_root() / \".env\",",
+            "_cline_integration_dir() / \".env\",",
+            "load_dotenv(env_path, override=False)",
+            "timeout = int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\"))",
+            "cloud = os.environ.get(\"AIGUARD_CLOUD\", \"us1\").strip().strip('\"').strip(\"'\")",
+            "if not cloud: cloud = \"us1\"",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None",
+            "if policy_id is not None: api_result, _r, error = client.aiguard.policy_detection.execute_policy( content=content, direction=direction, policy_id=policy_id, )",
+            "else: api_result, _r, error = ( client.aiguard.policy_detection.resolve_and_execute_policy(",
+            "def get_log_file() -> Path: path = _hooks_dir() / \"aiguard.log\""
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "post-tool-cancel-effect": {
+      "kind": "semantic",
+      "title": "What cancelling PostToolUse does to a tool result Cline already has",
+      "status": "open",
+      "detail": "PostToolUse runs after the tool returned and the example cancels on a block. Whether Cline then withholds the result from the model, aborts the task, or only shows the error is not stated by a registered source; the root README even calls Cline's post-hooks audit-only (parent divergence audit-only-exceptions).",
+      "blocks": "whether a blocked tool result is kept from the model in Cline",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "task-field": {
+      "kind": "semantic",
+      "title": "What the TaskComplete task field holds",
+      "status": "open",
+      "detail": "TaskComplete scans taskComplete.task. Whether Cline puts the original task text or the final result there is not stated by any registered source, so what this audit scan covers is unknown.",
+      "blocks": "whether the TaskComplete audit sees the model's final output",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

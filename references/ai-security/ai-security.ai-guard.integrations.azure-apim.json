@@ -1,0 +1,499 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.azure-apim",
+  "title": "The AI Guard policy fragment for Azure API Management (AI Gateway): which calls it scans, what it extracts, its fail-open switch, and what the example policy ships with",
+  "aliases": [
+    "ai guard azure",
+    "ai guard azure apim",
+    "ai guard azure ai gateway",
+    "zscaler-aiguard-scan",
+    "AIGUARD-API-KEY named value",
+    "FailOpen apim",
+    "currentPolicy"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Azure integration is one APIM policy fragment that an API includes twice, inbound to scan the prompt and outbound to scan the response. {{fragment}} {{paths}}"
+    },
+    {
+      "label": "What it extracts.",
+      "text": "{{prompt-extraction}} {{response-extraction}} {{sse-empty}} What AI Guard returns for empty content is open {{gap:empty-content}}."
+    },
+    {
+      "label": "The call.",
+      "text": "{{endpoint}} {{scan-body}} {{current-policy-ignored}} The README says currentPolicy selects a policy {{divergence:current-policy}}. {{session-not-sent}} The README promises session grouping {{divergence:session-tracking}}."
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{verdict}} {{scanner-unavailable}} {{example-fail-open}}"
+    },
+    {
+      "label": "Block details.",
+      "text": "{{detector-details}} {{details-empty}} The README's response sample disagrees with the SDK on the detector shape {{divergence:detector-shape}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the inbound policy sets FailOpen to true, as the shipped example and the README quick start do; then an unreachable or erroring AI Guard lets prompts through.",
+      "uses": [
+        "example-fail-open",
+        "scanner-unavailable"
+      ]
+    },
+    {
+      "do": "That the API's operations end in /completions, /chat/completions or /responses; other operations are not scanned.",
+      "uses": [
+        "paths"
+      ]
+    },
+    {
+      "do": "Do not rely on currentPolicy to select a policy; the fragment always calls resolve-and-execute-policy.",
+      "uses": [
+        "endpoint",
+        "current-policy-ignored"
+      ]
+    },
+    {
+      "do": "Whether clients stream or receive tool-call-only replies; those responses are scanned as empty content.",
+      "uses": [
+        "response-extraction",
+        "sse-empty",
+        "empty-content"
+      ]
+    }
+  ],
+  "claims": {
+    "fragment": {
+      "statement": "The fragment `zscaler-aiguard-scan` reads the named values `AIGUARD-API-KEY` (secret) and `AIGUARD-CLOUD` and is included in the inbound section with `ScanType` `prompt` and in the outbound section with `ScanType` `response`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "AIGUARD-API-KEY named value must be defined (secret)",
+            "AIGUARD-CLOUD named value must be defined (us1, us2, eu1, eu2)",
+            "- `ScanType`: (string) \"prompt\" or \"response\". Defaults to \"prompt\"."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/policy-example",
+          "quotes": [
+            "<set-variable name=\"ScanType\" value=\"prompt\" />",
+            "<include-fragment fragment-id=\"zscaler-aiguard-scan\" />"
+          ],
+          "after": "<inbound>"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/policy-example",
+          "quotes": [
+            "<set-variable name=\"ScanType\" value=\"response\" />",
+            "<include-fragment fragment-id=\"zscaler-aiguard-scan\" />"
+          ],
+          "after": "<outbound>"
+        }
+      ]
+    },
+    "paths": {
+      "statement": "The fragment acts only on POST requests whose path ends in `/completions`, `/chat/completions` or `/responses`; anything else passes untouched.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "context.Request.Method.Equals(\"POST\", StringComparison.OrdinalIgnoreCase) &&",
+            "(context.Request.OriginalUrl.Path.EndsWith(\"/completions\", StringComparison.OrdinalIgnoreCase) ||",
+            "context.Request.OriginalUrl.Path.EndsWith(\"/responses\", StringComparison.OrdinalIgnoreCase))",
+            "<otherwise>\n\t\t</otherwise>\n\t</choose>\n</fragment>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "context.Request.OriginalUrl.Path.EndsWith(\"/chat/completions\", StringComparison.OrdinalIgnoreCase) ||"
+          ]
+        }
+      ]
+    },
+    "prompt-extraction": {
+      "statement": "The prompt scanned is the request's `input` field as a string, else the `content` of the last message whatever its role, as a string; no other message is scanned (so a system message is scanned only when it is the last one), and an extraction error yields empty content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "content = body[\"input\"].ToString();",
+            "content = messages.Last[\"content\"]?.ToString() ?? \"\";"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "if (body[\"input\"] != null) {",
+            "} else if (body[\"messages\"] != null) {",
+            "return content;",
+            "} catch {",
+            "return \"\";"
+          ],
+          "after": "<when condition=\"@(context.Variables.GetValueOrDefault<string>(\"ScanType\", \"prompt\") == \"prompt\")\">"
+        }
+      ]
+    },
+    "response-extraction": {
+      "statement": "The outbound scan runs only when the backend answered HTTP 200 and scans the text of the last content item of the last `output` entry (Responses API) or the `message.content` of the last choice; a reply carrying only tool calls yields empty content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "return context.Response != null && context.Response.StatusCode == 200;",
+            "content = output.Last[\"content\"]?.Last?[\"text\"]?.ToString() ?? \"\";",
+            "content = choices.Last[\"message\"]?[\"content\"]?.ToString() ?? \"\";"
+          ]
+        }
+      ]
+    },
+    "sse-empty": {
+      "statement": "A streamed (SSE) response body does not parse as a JSON object, so the outbound extraction falls into its catch branch and the fragment sends an empty `content` for the response scan.",
+      "tier": "B",
+      "derived_from": [
+        "response-extraction"
+      ],
+      "conditions": "Follows from the extraction expression's try/catch returning an empty string; that APIM's Body.As<JObject> throws on an event-stream body is assumed, not tested."
+    },
+    "endpoint": {
+      "statement": "Every scan, prompt or response, POSTs to `https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy` with the key as a Bearer token, a 10-second timeout and errors ignored; a `currentPolicy` value is added to the body as `policyId` (int.Parse) but does not change the endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "<send-request id=\"aiguard-scan\" mode=\"new\" response-variable-name=\"aiguardScanResponse\" timeout=\"10\" ignore-error=\"true\">",
+            "return $\"https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy\";",
+            "<value>Bearer {{AIGUARD-API-KEY}}</value>",
+            "requestBody.Add(\"policyId\", int.Parse(policyId));",
+            "<set-variable name=\"scanDirection\" value=\"OUT\" /> </otherwise> </choose> <send-request id=\"aiguard-scan\"",
+            "<set-method>POST</set-method>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "var policyId = context.Variables.GetValueOrDefault<string>(\"currentPolicy\", \"\");"
+          ]
+        }
+      ]
+    },
+    "scan-body": {
+      "statement": "The scan body is `content` and `direction` (IN for prompts, OUT for responses), plus `policyId` when `currentPolicy` is set; no transaction ID is sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "new JProperty(\"content\", scanContent),",
+            "new JProperty(\"direction\", direction)",
+            "<set-variable name=\"scanDirection\" value=\"IN\" />",
+            "<set-variable name=\"scanDirection\" value=\"OUT\" />"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "var policyId = context.Variables.GetValueOrDefault<string>(\"currentPolicy\", \"\");",
+            "requestBody.Add(\"policyId\", int.Parse(policyId));",
+            "return requestBody.ToString();"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "<set-variable name=\"scanDirection\" value=\"IN\" />",
+            "<otherwise>",
+            "<set-variable name=\"scanDirection\" value=\"OUT\" />"
+          ],
+          "after": "<when condition=\"@(context.Variables.GetValueOrDefault<string>(\"ScanType\", \"prompt\") == \"prompt\")\">"
+        }
+      ]
+    },
+    "current-policy-ignored": {
+      "statement": "Setting `currentPolicy` most likely has no effect: the fragment sends the ID only to resolve-and-execute-policy, which the Apigee example reports ignores `policyId` and applies the key's own policy.",
+      "tier": "B",
+      "derived_from": [
+        "endpoint",
+        "ai-security.ai-guard.integrations.google-apigee-proxy:resolve-ignores-policy-id"
+      ],
+      "conditions": "Rests on another vendor example's statement about the API (rank 4); not tested against the API from this fragment."
+    },
+    "session-not-sent": {
+      "statement": "The fragment builds a `requestMetadata` object (session ID from `x-session-id`, app name, model, client IP and `x-user-id`) but never sends or logs it, so AI Guard sees no session or user from this integration.",
+      "tier": "B",
+      "derived_from": [
+        "scan-body"
+      ],
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "<set-variable name=\"requestMetadata\" value=\"@{",
+            "string sessionId = context.Request.Headers.GetValueOrDefault(\"x-session-id\", context.RequestId.ToString() ?? \"no-id\");"
+          ]
+        }
+      ],
+      "conditions": "Rests on a search of the fragment at the pin: requestMetadata is assigned once and read nowhere."
+    },
+    "verdict": {
+      "statement": "On an HTTP 200 scan reply the fragment lets ALLOW and DETECT through, returns 403 for BLOCK or any other action, and treats an empty action as no verdict, which returns 403 unless `FailOpen` is true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "if (action.Equals(\"ALLOW\", StringComparison.OrdinalIgnoreCase) ||",
+            "action.Equals(\"DETECT\", StringComparison.OrdinalIgnoreCase)) {",
+            "return !Convert.ToBoolean(context.Variables.GetValueOrDefault<object>(\"FailOpen\", false));",
+            "<set-status code=\"403\" reason=\"Forbidden\" />",
+            "if (string.IsNullOrEmpty(action)) {",
+            "An empty action means the\n                                // response carried no verdict at all"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "((IResponse)context.Variables[\"aiguardScanResponse\"]).StatusCode == 200)"
+          ]
+        }
+      ]
+    },
+    "scanner-unavailable": {
+      "statement": "When the scan call fails (errors are ignored) or returns a non-200, the fragment answers 503 with the body \"ZSCALER AI GUARD: Security scanner unavailable. Request blocked for safety.\" unless `FailOpen` is true, in which case it writes an error trace and lets the request or response through; `FailOpen` defaults to false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "<set-status code=\"503\" reason=\"Service Unavailable\" />",
+            "<message>AI Guard scanner unavailable. Failing open (allowing traffic).</message>",
+            "- `FailOpen`: (boolean) `true` to allow traffic if scanner unavailable, `false` to block. Defaults to `false`.",
+            "<when condition=\"@(context.Variables.ContainsKey(\"aiguardScanResponse\") && ((IResponse)context.Variables[\"aiguardScanResponse\"]).StatusCode == 200)\">",
+            "<set-body>{ \"error\": \"ZSCALER AI GUARD: Security scanner unavailable. Request blocked for safety.\" }</set-body>",
+            "ignore-error=\"true\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "<trace source=\"ZscalerAIGuard\" severity=\"error\">"
+          ],
+          "after": "<when condition=\"@(Convert.ToBoolean(context.Variables.GetValueOrDefault<object>(\"FailOpen\", false)) == false)\">"
+        }
+      ]
+    },
+    "example-fail-open": {
+      "statement": "The shipped example policy and the README's quick start set `FailOpen` to true on the inbound (prompt) scan and false on the outbound one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/policy-example",
+          "quotes": [
+            "<set-variable name=\"FailOpen\" value=\"true\" />",
+            "<set-variable name=\"ScanType\" value=\"prompt\" />"
+          ],
+          "after": "<inbound>"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/policy-example",
+          "quotes": [
+            "<set-variable name=\"FailOpen\" value=\"false\" />",
+            "<set-variable name=\"ScanType\" value=\"response\" />"
+          ],
+          "after": "<outbound>"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/README.md",
+          "quotes": [
+            "<set-variable name=\"FailOpen\" value=\"true\" />",
+            "<set-variable name=\"ScanType\" value=\"prompt\" />"
+          ],
+          "after": "<inbound>"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/README.md",
+          "quotes": [
+            "<set-variable name=\"FailOpen\" value=\"false\" />",
+            "<set-variable name=\"ScanType\" value=\"response\" />"
+          ],
+          "after": "<outbound>"
+        }
+      ]
+    },
+    "detector-details": {
+      "statement": "The block body's `details` is built by reading `detectorResponses` as an array of objects with `detectorName` and `action`, listing each detector whose action is BLOCK with a description from `aiguardDescriptions` when set, else the built-in `scanDescriptions`, else \"Blocked by security policy.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "var detectors = aiguardResponse[\"detectorResponses\"] as JArray;",
+            "var detectorName = detector[\"detectorName\"]?.ToString() ?? \"unknown\";"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "var detectorAction = detector[\"action\"]?.ToString() ?? \"\";",
+            "var descriptions = context.Variables.GetValueOrDefault<object>(\"aiguardDescriptions\") as JObject;",
+            "response.Add(\"details\", details);",
+            "if (detectorAction.Equals(\"BLOCK\", StringComparison.OrdinalIgnoreCase)) {",
+            "descriptions = context.Variables.GetValueOrDefault<object>(\"scanDescriptions\") as JObject;",
+            "details.Add(detectorName, \"Blocked by security policy.\");"
+          ]
+        }
+      ]
+    },
+    "details-empty": {
+      "statement": "Since AI Guard returns `detectorResponses` as a map keyed by detector name, the array cast yields null and a block's `details` is always empty, as in the README's own sample block.",
+      "tier": "B",
+      "derived_from": [
+        "detector-details",
+        "ai-security.ai-guard.runtime-api:response-fields"
+      ],
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/README.md",
+          "quotes": [
+            "\"transactionId\": \"ea8976e7-b3d0-42a3-9274-30f267dc6cc0\",\n  \"details\": {}"
+          ]
+        }
+      ],
+      "conditions": "Rests on the SDK's response model (a map keyed by detector name) and the other examples, which all walk it as a map; the fragment was not run."
+    }
+  },
+  "gaps": {
+    "empty-content": {
+      "kind": "semantic",
+      "title": "What AI Guard returns for a scan with empty content",
+      "status": "open",
+      "detail": "The fragment sends an empty content string whenever extraction finds nothing (a tool-call-only reply, a streamed response, an unexpected body shape). Whether the API answers ALLOW, an error status or a verdict-less 200 decides whether those responses pass, block or follow FailOpen; no source states it.",
+      "blocks": "whether streamed and tool-call-only responses pass through this fragment",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  },
+  "divergences": {
+    "current-policy": {
+      "summary": "Whether a policy ID sent to resolve-and-execute-policy selects that policy.",
+      "positions": [
+        {
+          "says": "The Azure README says including policyId in the resolve-and-execute request targets a specific policy, and lists separate prompt and response policies as a feature.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Microsoft/README.md",
+            "quotes": [
+              "Optionally include `\"policyId\": 760` to target a specific policy. If omitted, AI Guard auto-resolves."
+            ]
+          }
+        },
+        {
+          "says": "The Apigee example's architecture note says resolve-and-execute-policy ignores policyId outright and resolves the key's own policy.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/ARCHITECTURE.md",
+            "quotes": [
+              "ignores `policyId` outright** — it does not error on an id it cannot use, it"
+            ]
+          }
+        }
+      ],
+      "impact": "If the Apigee note is right, currentPolicy is silently ignored and both legs use the key's bound policy; the SDK's resolve_and_execute_policy takes no policy ID at all."
+    },
+    "session-tracking": {
+      "summary": "Whether the Azure fragment groups a conversation's scans by x-session-id.",
+      "positions": [
+        {
+          "says": "The README lists session tracking via the x-session-id header as a feature and shows multi-turn requests carrying it.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Microsoft/README.md",
+            "quotes": [
+              "**Session Tracking** - Group multi-turn conversations via `x-session-id` header"
+            ]
+          }
+        },
+        {
+          "says": "The fragment reads x-session-id into requestMetadata, which nothing sends; the scan body is content, direction and an optional policyId.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Microsoft/zscaler-aiguard-scan",
+            "quotes": [
+              "new JProperty(\"session_id\", sessionId),"
+            ]
+          }
+        }
+      ],
+      "impact": "Scans from one conversation are not linked in the AI Guard console by this integration."
+    },
+    "detector-shape": {
+      "summary": "The shape of detectorResponses in a detection reply.",
+      "positions": [
+        {
+          "says": "The Azure README's sample response shows detectorResponses as an array of objects with detectorName and action.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Microsoft/README.md",
+            "quotes": [
+              "{\"detectorName\": \"toxicContent\", \"action\": \"BLOCK\"}"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK's response model reads detectorResponses as a dictionary keyed by detector name.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/aiguard/models/policy_detection.py",
+            "after": "class ResolveAndExecuteDetectionsPolicyResponse(ZscalerObject):",
+            "quotes": [
+              "for key, value in config[\"detectorResponses\"].items():"
+            ]
+          }
+        }
+      ],
+      "impact": "Code written to the Azure README's sample, like the fragment itself, finds no detectors; the SDK's map shape is the one the other examples and the Kong README's sample use."
+    }
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.github-actions",
+  "title": "GitHub Actions policy validation for AI Guard (Zscaler example): a CI gate that tests a policy with sample prompts, not runtime interception",
+  "aliases": [
+    "aiguard github actions",
+    "scan_policy.py",
+    "test-prompts.yaml",
+    "aiguard ci gate",
+    "model-security-scan.yml"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.jenkins"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's GitHub Actions example tests an AI Guard policy in CI before an AI application is deployed. It inspects no live traffic."
+    },
+    {
+      "label": "What it does.",
+      "text": "{{purpose}} {{not-inline}} {{test-cases}} The policy testing AI Guard itself offers is in [[ai-security.ai-guard.policies:testing]]."
+    },
+    {
+      "label": "Pass and fail.",
+      "text": "{{pass-fail}} {{scan-disabled}} {{shipped-suite}} {{detect-passes-gate}}"
+    },
+    {
+      "label": "Configuration and triggers.",
+      "text": "{{config}} {{workflow}} The endpoints are in [[ai-security.ai-guard.runtime-api]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Remove optional from the cases that matter and decide whether DETECT should pass; the shipped suite passes monitor-only and block-everything policies.",
+      "uses": [
+        "shipped-suite",
+        "detect-passes-gate"
+      ]
+    },
+    {
+      "do": "That settings.scan_enabled is not false in the test file, which turns the gate into a pass.",
+      "uses": [
+        "scan-disabled"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "In the GitHub Actions example, `scan_policy.py` sends a suite of test prompts and responses to AI Guard and checks that the policy returns the expected `ALLOW`, `BLOCK` or `DETECT`, exiting non-zero to stop a deployment when a case fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/scripts/scan_policy.py",
+          "quotes": [
+            "Runs a suite of test prompts/responses against the AI Guard API to validate",
+            "that security policies produce the expected ALLOW/BLOCK/DETECT outcomes.",
+            "Exits non-zero if any test case fails, gating deployment."
+          ]
+        }
+      ]
+    },
+    "not-inline": {
+      "statement": "The example sits in no request path: it scans only the test cases in its config file, so a passing run says nothing about live traffic.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/scripts/scan_policy.py",
+          "quotes": [
+            "test_cases = load_test_cases(args.config)",
+            "with LegacyAIGuardClient(cfg) as client: for idx, case in enumerate(test_cases, start=1):"
+          ]
+        }
+      ],
+      "derived_from": [
+        "purpose"
+      ],
+      "conditions": "A read of scan_policy.py at the pin: the only content it scans is each test case's content field from the YAML config, and the workflow runs it as a CI job step; nothing in the example receives application traffic."
+    },
+    "test-cases": {
+      "statement": "Each case in the test-prompts file gives `content`, a `direction` (default `IN`), an `expected_action` (default `ALLOW`, a string or a list of acceptable actions, overridden by `expected_actions`) and an optional `optional` flag; a case with empty content is skipped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/scripts/scan_policy.py",
+          "quotes": [
+            "direction = case.get(\"direction\", \"IN\").upper()",
+            "raw_one = case.get(\"expected_action\", \"ALLOW\")",
+            "raw = case.get(\"expected_actions\")",
+            "optional = bool(case.get(\"optional\", False))",
+            "print(f\"  [{SKIP}] {name} — empty content, skipping\")"
+          ]
+        }
+      ]
+    },
+    "pass-fail": {
+      "statement": "A case fails when its scan errors, including a response without an action, which the scanner records as `BLOCK` with an error, even when the case is optional; otherwise a mismatch fails a required case and only warns for an optional one; the script exits 1 when any case failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/scripts/scan_policy.py",
+          "quotes": [
+            "result[\"action\"] = \"BLOCK\" return result",
+            "if result.get(\"error\"): print_case_result( idx, case, result, False, expected_list=expected_list ) failed_count += 1",
+            "return 1 if failed_count > 0 else 0",
+            "if not api_result.action: result[\"error\"] = \"scan returned no action verdict (%s)\" % (",
+            "elif matches: print_case_result( idx, case, result, True, expected_list=expected_list ) passed_count += 1",
+            "elif optional: print_case_result( idx, case, result, False, expected_list=expected_list, status_override=\"warn\", ) optional_warn_count += 1 else: print_case_result( idx, case, result, False, expected_list=expected_list ) failed_count += 1"
+          ]
+        }
+      ]
+    },
+    "scan-disabled": {
+      "statement": "Setting `settings.scan_enabled` false in the test file makes the scanner print that the scan is disabled and exit 0 without calling AI Guard; a missing `AIGUARD_API_KEY` exits 1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/scripts/scan_policy.py",
+          "quotes": [
+            "scan_enabled = config.get(\"settings\", {}).get(\"scan_enabled\", True)",
+            "print(\"Security policy scan is disabled in config. Skipping.\") sys.exit(0)",
+            "print(\"ERROR: AIGUARD_API_KEY environment variable not set.\") return 1",
+            "policy_id = get_policy_id() test_cases = load_test_cases(args.config)",
+            "with LegacyAIGuardClient(cfg) as client: for idx, case in enumerate(test_cases, start=1):"
+          ]
+        }
+      ]
+    },
+    "config": {
+      "statement": "The scanner loads a `.env` with python-dotenv, treats a blank `AIGUARD_CLOUD` as `us1`, defaults `AIGUARD_TIMEOUT` to 30, calls `execute_policy` when `AIGUARD_POLICY_ID` parses as an integer and `resolve_and_execute_policy` otherwise, and waits 0.5 seconds between cases by default (`--delay`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/scripts/scan_policy.py",
+          "quotes": [
+            "load_dotenv()",
+            "\"--delay\",",
+            "cloud = os.environ.get(\"AIGUARD_CLOUD\", \"us1\").strip().strip('\"').strip(\"'\")",
+            "if not cloud: cloud = \"us1\"",
+            "timeout = int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\"))",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip()",
+            "if policy_id is not None: api_result, _resp, error = client.aiguard.policy_detection.execute_policy( content=content, direction=direction, policy_id=policy_id, )",
+            "else: api_result, _resp, error = ( client.aiguard.policy_detection.resolve_and_execute_policy(",
+            "help=\"Seconds to wait between API calls (rate limiting). Default: 0.5\",",
+            "try: return int(raw) except ValueError: return None"
+          ]
+        }
+      ]
+    },
+    "workflow": {
+      "statement": "The workflow runs on pushes and pull requests to main that touch the test config, model config, workflow, scripts or requirements, and on manual dispatch; the scan job runs when such a change is detected or on dispatch, and the Vertex AI deploy job needs the scan job and runs only when the repository variable `ENABLE_VERTEX_DEPLOY` is true on a main push or dispatch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/.github/workflows/model-security-scan.yml",
+          "quotes": [
+            "if: needs.detect-changes.outputs.scan_relevant == 'true' || github.event_name == 'workflow_dispatch'",
+            "needs: security-scan",
+            "vars.ENABLE_VERTEX_DEPLOY == 'true' &&",
+            "run: python scripts/scan_policy.py --config config/test-prompts.yaml",
+            "on: push: branches: [main] paths: - 'config/model-config.yaml' - 'config/test-prompts.yaml' - '.github/workflows/model-security-scan.yml' - 'scripts/**' - 'requirements.txt' pull_request: branches: [main] paths:",
+            "- 'scripts/**' - 'requirements.txt' workflow_dispatch:",
+            "((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch')"
+          ]
+        }
+      ]
+    },
+    "shipped-suite": {
+      "statement": "The shipped suite's ALLOW cases for benign text are marked optional, and its required toxicity case accepts either `BLOCK` or `DETECT`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/config/test-prompts.yaml",
+          "quotes": [
+            "content: \"Hi.\" direction: \"IN\" expected_action: \"ALLOW\" optional: true",
+            "content: \"What is the capital of France?\" direction: \"IN\" expected_action: \"ALLOW\" optional: true",
+            "content: \"The capital of France is Paris.\" direction: \"OUT\" expected_action: \"ALLOW\" optional: true",
+            "# --- Prompts that should be ALLOWED ---"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/config/test-prompts.yaml",
+          "quotes": [
+            "expected_action: [BLOCK, DETECT] # --- Malicious URL detection ---"
+          ],
+          "after": "- name: \"Toxic content — hate speech\""
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "github-actions/README.md",
+          "quotes": [
+            "The default suite includes short ALLOW cases; many tenants mark them `optional: true`"
+          ]
+        }
+      ]
+    },
+    "detect-passes-gate": {
+      "statement": "Because required cases accept `DETECT`, a policy whose detectors only monitor passes the gate, and because benign cases are optional, a policy that blocks everything passes it too: the shipped suite checks that detections happen, not that content is blocked.",
+      "tier": "B",
+      "derived_from": [
+        "pass-fail",
+        "shipped-suite"
+      ],
+      "conditions": "Follows from pass-fail and the expected actions in shipped-suite; the required cases in the shipped file all list [BLOCK, DETECT]. An operator's own suite can be stricter."
+    }
+  }
+}

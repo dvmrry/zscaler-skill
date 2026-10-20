@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.google-cloudrun",
+  "title": "The Cloud Run provisioning pipelines that deploy the AI Guard Apigee patterns: what they create, the KVM they write, and the cloud the SharedFlow pipeline leaves at us1",
+  "aliases": [
+    "ai guard cloud run",
+    "ai guard cloud build",
+    "aiguard-apigee-provisioner",
+    "provision_org.py",
+    "ai guard apigee pipeline"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.integrations.google-apigee-sharedflow"
+    },
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.integrations.google-apigee-proxy"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Cloud Run folder automates deploying the two Apigee patterns; it adds no scanning logic of its own. {{pipelines}} {{bundle-copies}} {{bundle-copies-identical}}"
+    },
+    {
+      "label": "What they need.",
+      "text": "{{org-not-created}} {{api-key-secret}}"
+    },
+    {
+      "label": "The KVM they write.",
+      "text": "{{kvm-entries}} {{flow-cloud-us1}}"
+    },
+    {
+      "label": "What gets deployed.",
+      "text": "The scanning behavior is the inline proxy's ([[ai-security.ai-guard.integrations.google-apigee-proxy]]) or the SharedFlow's ([[ai-security.ai-guard.integrations.google-apigee-sharedflow]])."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For the SharedFlow pipeline, which AI Guard cloud the tenant is on; outside us1 the deployed proxy must be given an aiguardCloud flow variable.",
+      "uses": [
+        "kvm-entries",
+        "flow-cloud-us1"
+      ]
+    },
+    {
+      "do": "After changing a canonical bundle under Google/apigee, that the pipeline's copy under bundles/ was updated too.",
+      "uses": [
+        "bundle-copies"
+      ]
+    }
+  ],
+  "claims": {
+    "pipelines": {
+      "statement": "Each pipeline is Cloud Build building a provisioner image and running it as a Cloud Run Job that enables APIs, creates the Vertex service account and its IAM bindings, writes the encrypted KVM, and imports and deploys the bundles: `flow/` deploys the SharedFlow and the `vertex-aiguard-sync` proxy, `proxy/` the inline `vertex-aiguard` proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/README.md",
+          "quotes": [
+            "Git-push-driven, **Cloud Build → Cloud Run Job** automation that provisions the",
+            "| [`flow/`](flow) | **SharedFlow** — reusable `ZSCALER-AIGUARD` flow + thin `vertex-aiguard-sync` proxy |",
+            "| [`proxy/`](proxy) | **Monolithic** — self-contained `vertex-aiguard` proxy with the policies inline |",
+            "enable\nAPIs, create the Vertex service account and IAM bindings, configure the encrypted\nKVM, and import + deploy the Apigee bundles."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/flow/README.md",
+          "quotes": [
+            "create the Vertex service account and its IAM bindings, write the encrypted KVM,",
+            "Every phase checks before it creates, so re-running after a partial failure is"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/flow/cloudbuild.yaml",
+          "quotes": [
+            "#   1. build the provisioner image"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/proxy/cloudbuild.yaml",
+          "quotes": [
+            "#   1. build the provisioner image"
+          ]
+        }
+      ]
+    },
+    "bundle-copies": {
+      "statement": "Each pipeline carries its own copy of the Apigee bundles under `bundles/`, and the README says to update the matching copy when the canonical bundle under `Google/apigee` changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/README.md",
+          "quotes": [
+            "Each pipeline carries its **own copy** of the Apigee bundles under `bundles/`,",
+            "bundle exists in two places — when you change a canonical bundle in",
+            "when you change a canonical bundle in\n[`../apigee`](../apigee), update the matching copy here."
+          ]
+        }
+      ]
+    },
+    "bundle-copies-identical": {
+      "statement": "At the pin the pipelines' bundle copies are identical to the canonical SharedFlow, `vertex-aiguard-sync` and inline-proxy bundles, so the Apigee subjects describe what the pipelines deploy.",
+      "tier": "B",
+      "derived_from": [
+        "bundle-copies"
+      ],
+      "conditions": "Rests on a recursive diff at d6bf200 of flow/bundles/ZSCALER-AIGUARD/sharedflowbundle, flow/bundles/vertex-aiguard-sync and proxy/bundles/vertex-aiguard/apiproxy against their Google/apigee counterparts, which found no differences."
+    },
+    "org-not-created": {
+      "statement": "The pipelines configure an existing Apigee X organization and do not create one; the separate `provision_org.py` creates the organization, runtime instance, environment, environment group and both attachments, and the README warns the runtime instance takes 20 to 40 minutes and the region must match any existing API Hub instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/README.md",
+          "quotes": [
+            "**No Apigee org yet?** The pipelines configure an org; they do not create one.",
+            "`flow/setup/provision_org.py` does that part — org, runtime instance,",
+            "environment, environment group and both attachments:",
+            "**The runtime instance takes 20–40 minutes**, and it is visible with",
+            "**The region must match any existing API Hub instance in the project.** A",
+            "An Apigee X org, an AI Guard API key, and an account with Owner (or equivalent)"
+          ]
+        }
+      ]
+    },
+    "api-key-secret": {
+      "statement": "The bootstrap script stores the AI Guard key in Secret Manager as `aiguard-api-key` and Cloud Build injects it into the Job; it is not a trigger substitution.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/flow/pipeline.env.example",
+          "quotes": [
+            "# The AI Guard API key is NOT set here. bootstrap.py stores it in Secret",
+            "# Manager as `aiguard-api-key`, and cloudbuild.yaml injects it into the Job."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/flow/cloudbuild.yaml",
+          "quotes": [
+            "The AI Guard API key is NOT here: it is injected into\n# the Job from Secret Manager at step 3.",
+            "- --set-secrets=AIGUARD_API_KEY=aiguard-api-key:latest"
+          ]
+        }
+      ]
+    },
+    "kvm-entries": {
+      "statement": "The SharedFlow pipeline writes only `aiguard_api_key`, plus `aiguard_policy_id` when one is given, to the `aiguard-config` KVM; the inline-proxy pipeline also writes `aiguard_cloud` (substitution `_AIGUARD_CLOUD`, default `us1`), `vertex_project` and `vertex_model`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/flow/provision.py",
+          "quotes": [
+            "entries = {\"aiguard_api_key\": api_key}",
+            "entries[\"aiguard_policy_id\"] = policy_id",
+            "if policy_id:\n        # Only written when explicitly pinned."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/proxy/provision.py",
+          "quotes": [
+            "\"aiguard_cloud\": cloud,",
+            "\"vertex_project\": project,",
+            "\"vertex_model\": model,"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/proxy/pipeline.env.example",
+          "quotes": [
+            "_AIGUARD_CLOUD=us1"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/cloudrun/flow/provision.py",
+          "quotes": [
+            "KVM_NAME = \"aiguard-config\""
+          ]
+        }
+      ]
+    },
+    "flow-cloud-us1": {
+      "statement": "As deployed by the SharedFlow pipeline, scans go to `api.us1.zseclipse.net`: the pipeline has no cloud setting, the SharedFlow takes the cloud only from an `aiguardCloud` flow variable, and the shipped `vertex-aiguard-sync` proxy sets none, so a tenant on another cloud gets authentication failures, which fail closed, until the calling proxy sets `aiguardCloud`.",
+      "tier": "B",
+      "derived_from": [
+        "kvm-entries",
+        "ai-security.ai-guard.integrations.google-apigee-sharedflow:config-vars",
+        "ai-security.ai-guard.integrations.google-apigee-sharedflow:kvm-keys",
+        "ai-security.ai-guard.integrations.google-apigee-sharedflow:verdict"
+      ],
+      "conditions": "Rests on a search of the flow pipeline and the vertex-aiguard-sync bundle at the pin, which assign no aiguardCloud; that a key from another cloud is rejected by the us1 API is assumed, not tested."
+    }
+  }
+}

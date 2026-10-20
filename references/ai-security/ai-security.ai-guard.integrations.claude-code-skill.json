@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.claude-code-skill",
+  "title": "Claude Code skill for AI Guard (Zscaler example): on-demand scans with scan.py, directions, exit codes and failure handling",
+  "aliases": [
+    "aiguard skill",
+    "/aiguard",
+    "claude-code-skill",
+    "scan.py aiguard"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.claude-code"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Claude Code skill is a script Claude can run to scan a piece of text with AI Guard on request. It sits beside the always-on hooks in [[ai-security.ai-guard.integrations.claude-code]]."
+    },
+    {
+      "label": "When it runs.",
+      "text": "{{invocation}} {{workflow}} {{advisory-only}}"
+    },
+    {
+      "label": "Which call it makes.",
+      "text": "{{scan-types}} {{config}} {{env-file-not-exported}} The endpoints are in [[ai-security.ai-guard.runtime-api]]."
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{fail-closed}} {{verdict-exit}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Do not count the skill as enforcement: it scans only when invoked, and the model decides what to do with the verdict.",
+      "uses": [
+        "advisory-only"
+      ]
+    },
+    {
+      "do": "That AIGUARD_API_KEY is exported in the environment Claude Code runs scripts in, not only written to the skill's .env.",
+      "uses": [
+        "config",
+        "env-file-not-exported"
+      ]
+    }
+  ],
+  "claims": {
+    "invocation": {
+      "statement": "The skill is an on-demand scanner: it runs when the user invokes `/aiguard` or when Claude decides to invoke it from the auto-invoke rules in `SKILL.md`; its README marks pre-tool, post-tool and streaming scanning as not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/README.md",
+          "quotes": [
+            "User-invoked via `/aiguard` command with `--type prompt`",
+            "| Streaming | ❌ | Synchronous blocking scan only |",
+            "| Pre-tool call | ❌ | Not designed for pre-tool validation |",
+            "| Post-tool call | ❌ | Not designed for post-tool validation |"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/SKILL.md",
+          "quotes": [
+            "Auto-invoke when: user asks to \"scan this\", \"check for sensitive data\", \"is this safe\","
+          ]
+        }
+      ]
+    },
+    "workflow": {
+      "statement": "`SKILL.md` tells Claude to run the scanner, check the `action` field, and address a `BLOCK` or `DETECT` result before proceeding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/SKILL.md",
+          "quotes": [
+            "4. Check the `action` field in the result",
+            "5. If `BLOCK` or `DETECT`: address the issue before proceeding",
+            "3. Run the scanner"
+          ]
+        }
+      ]
+    },
+    "advisory-only": {
+      "statement": "Nothing in the skill stops content by itself: whether a scan happens, and whether its verdict is honoured, depends on the user or the model invoking it and following `SKILL.md`.",
+      "tier": "B",
+      "derived_from": [
+        "invocation",
+        "workflow"
+      ],
+      "conditions": "Follows from the skill being a script the model runs on request (invocation, workflow) and from the README's own comparison, which gives automatic scanning to the hooks; no hook or gate is part of the skill."
+    },
+    "scan-types": {
+      "statement": "In `scan.py` the prompt type scans with direction `IN`; the response and code types scan with `OUT`; the conversation type scans the prompt with `IN` and the response with `OUT`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/scripts/scan.py",
+          "quotes": [
+            "if args.type == \"prompt\": direction = \"IN\" else: direction = \"OUT\"",
+            "if args.type == \"conversation\": result_prompt = scan_content(config, args.prompt, \"IN\", policy_id)",
+            "result_response = scan_content(config, args.response, \"OUT\", policy_id)"
+          ]
+        }
+      ]
+    },
+    "config": {
+      "statement": "`scan.py` reads `AIGUARD_API_KEY` (required), `AIGUARD_CLOUD` (default `us1`), `AIGUARD_TIMEOUT` (default 30) and an optional `AIGUARD_POLICY_ID` from the process environment only; the policy ID is quote-stripped and a value `int()` rejects is treated as unset, so the call goes to `resolve_and_execute_policy`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/scripts/scan.py",
+          "quotes": [
+            "api_key = os.environ.get(\"AIGUARD_API_KEY\")",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
+            "except ValueError: return None",
+            "client.aiguard.policy_detection.resolve_and_execute_policy("
+          ]
+        }
+      ]
+    },
+    "env-file-not-exported": {
+      "statement": "The README's `.env` route (`cp .env.example .env` then `source .env`) leaves the variables unexported unless the shell exports them, so `scan.py` then sees no key and fails closed.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/README.md",
+          "quotes": [
+            "cp .env.example .env # Edit .env with your credentials source .env"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/.env.example",
+          "quotes": [
+            "AIGUARD_API_KEY=your-api-key-here"
+          ]
+        }
+      ],
+      "derived_from": [
+        "config"
+      ],
+      "conditions": "Rests on POSIX shell semantics (plain assignments in a sourced file are not exported to child processes) and on scan.py reading only os.environ; the template lines are bare KEY=value assignments. Not run."
+    },
+    "fail-closed": {
+      "statement": "A missing key, a missing SDK, an SDK error, a response without an action, or an exception yields JSON with `status` error and `action` `BLOCK`, and the script exits 1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/scripts/scan.py",
+          "quotes": [
+            "\"status\": \"error\", \"error\": \"AIGUARD_API_KEY environment variable not set\", \"action\": \"BLOCK\" })) sys.exit(1)",
+            "\"status\": \"error\", \"error\": \"zscaler-sdk-python not installed. Run: pip install zscaler-sdk-python\", \"action\": \"BLOCK\" })) sys.exit(1)",
+            "return {\"status\": \"error\", \"action\": \"BLOCK\",",
+            "\"error\": \"scan returned no action verdict (%s)\" % detail}",
+            "if result.get(\"status\") == \"error\": sys.exit(1)",
+            "if error: return { \"status\": \"error\", \"error\": str(error), \"action\": \"BLOCK\" }",
+            "except Exception as e: return { \"status\": \"error\", \"error\": str(e), \"action\": \"BLOCK\" }"
+          ]
+        }
+      ]
+    },
+    "verdict-exit": {
+      "statement": "A single scan exits 2 on `BLOCK` and 0 otherwise, reporting `threat_detected` for `DETECT` or any triggered detector and `safe` for the rest, so an unrecognised action exits 0; the conversation type, combining its two scans, turns anything other than `ALLOW` or `DETECT` into `BLOCK`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-skill/scripts/scan.py",
+          "quotes": [
+            "elif action == \"DETECT\" or triggered: result[\"status\"] = \"threat_detected\" else: result[\"status\"] = \"safe\"",
+            "elif result.get(\"action\") == \"BLOCK\": sys.exit(2) else: sys.exit(0)",
+            "if any(a not in (\"ALLOW\", \"DETECT\") for a in _actions): combined_action = \"BLOCK\"",
+            "if args.type == \"prompt\": direction = \"IN\" else: direction = \"OUT\" result = scan_content(config, content, direction, policy_id)"
+          ]
+        }
+      ]
+    }
+  }
+}

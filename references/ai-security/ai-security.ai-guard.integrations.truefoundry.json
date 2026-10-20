@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.truefoundry",
+  "title": "The AI Guard guardrail server for the TrueFoundry AI Gateway: its endpoints, how it reports a block, user forwarding, and its posture on AI Guard errors",
+  "aliases": [
+    "ai guard truefoundry",
+    "truefoundry custom guardrail ai guard",
+    "/input-scan",
+    "/output-scan",
+    "ai guard user forwarding"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The TrueFoundry integration is a small FastAPI server that TrueFoundry's gateway calls as a custom guardrail. {{endpoints}} {{skips}}"
+    },
+    {
+      "label": "Reporting a verdict.",
+      "text": "{{verdict-body}} The README describes a 400 response instead {{divergence:block-shape}}."
+    },
+    {
+      "label": "AI Guard errors.",
+      "text": "{{scan-error-raises}} {{error-posture}}"
+    },
+    {
+      "label": "User attribution.",
+      "text": "{{user-forwarding}} {{identity-logged}} The SDK parameter it relies on is [[ai-security.ai-guard.runtime-api:resolve-user-headers]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which TrueFoundry guardrail mode the scan endpoints run under; with Enforce But Ignore On Error or Audit, an AI Guard outage lets traffic through.",
+      "uses": [
+        "scan-error-raises",
+        "error-posture"
+      ]
+    },
+    {
+      "do": "Whether the server's INFO logs, which carry end-user identities such as email addresses, go somewhere that may hold them.",
+      "uses": [
+        "identity-logged"
+      ]
+    }
+  ],
+  "claims": {
+    "endpoints": {
+      "statement": "The server exposes `POST /input-scan`, which scans the last user message (text parts joined) with direction IN, `POST /output-scan`, which scans the first choice's message content with direction OUT, and `GET /health`; each scan uses the SDK's `LegacyZGuardClientHelper` `resolve_and_execute_policy` with a fresh uuid4 transaction ID and the cloud from `AIGUARD_CLOUD` (default us1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "@app.post(\"/input-scan\")",
+            "@app.post(\"/output-scan\")",
+            "@app.get(\"/health\")",
+            "result = _scan(content, \"IN\", txn_id, user=_extract_user(request.context))",
+            "result = _scan(content, \"OUT\", txn_id, user=_extract_user(request.context))",
+            "return choices[0].get(\"message\", {}).get(\"content\", \"\")",
+            "CLOUD = os.environ.get(\"AIGUARD_CLOUD\", \"us1\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "client = LegacyZGuardClientHelper(cloud=CLOUD)",
+            "result, response, error = client.policy_detection.resolve_and_execute_policy("
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "p.get(\"text\", \"\") for p in content"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "txn_id = str(uuid.uuid4())"
+          ],
+          "after": "def input_scan(request: InputGuardrailRequest):"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "txn_id = str(uuid.uuid4())"
+          ],
+          "after": "def output_scan(request: OutputGuardrailRequest):"
+        }
+      ]
+    },
+    "skips": {
+      "statement": "A request with no user message, or a response with no assistant content, is answered with an allow verdict and no scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "logger.debug(\"/input-scan: no user message found, skipping scan\")\n        return {\"verdict\": True}",
+            "logger.debug(\"/output-scan: no assistant content found, skipping scan\")\n        return {\"verdict\": True}"
+          ]
+        }
+      ]
+    },
+    "verdict-body": {
+      "statement": "Both scan endpoints answer HTTP 200 with `{\"verdict\": true}` to allow or `{\"verdict\": false, ...}` with the block details to deny, blocking on anything but ALLOW or DETECT; the code explains that TrueFoundry treats a non-2xx guardrail response as the guardrail failing, which its Enforce But Ignore On Error and Audit modes would let through.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "Always returns HTTP 200; the policy decision is carried in the body's",
+            "`verdict` field, not the status code. TrueFoundry treats a non-2xx as the",
+            "guardrail itself failing (not a denial) — under \"Enforce But Ignore On",
+            "return {\"verdict\": False, **detail}",
+            "Error\" or \"Audit\" that would silently let a real AI Guard BLOCK through."
+          ],
+          "after": "def input_scan(request: InputGuardrailRequest):"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "ALLOWED_ACTIONS = (\"ALLOW\", \"DETECT\")",
+            "return str(action or \"\").upper() not in ALLOWED_ACTIONS"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "Always returns HTTP 200; the policy decision is carried in the body's\n    `verdict` field, not the status code. See input_scan for why.",
+            "return {\"verdict\": False, **detail}"
+          ],
+          "after": "def output_scan(request: OutputGuardrailRequest):"
+        }
+      ]
+    },
+    "scan-error-raises": {
+      "statement": "When the SDK reports an error, `_scan` logs it at ERROR and raises a plain Exception, which neither endpoint catches, so the endpoint returns no verdict body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "\"AI Guard call failed: direction=%s transactionId=%s error=%s\",",
+            "raise Exception(f\"AI Guard API error: {error}\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "logger.error("
+          ],
+          "after": "if error:"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "result = _scan(content, \"IN\", txn_id, user=_extract_user(request.context))",
+            "result = _scan(content, \"OUT\", txn_id, user=_extract_user(request.context))"
+          ]
+        }
+      ]
+    },
+    "error-posture": {
+      "statement": "An AI Guard error therefore reaches TrueFoundry as a non-2xx guardrail failure, so whether the request is blocked or passed is decided by the TrueFoundry guardrail mode, and under Enforce But Ignore On Error or Audit it passes.",
+      "tier": "B",
+      "derived_from": [
+        "scan-error-raises",
+        "verdict-body"
+      ],
+      "conditions": "Rests on FastAPI answering an unhandled exception with HTTP 500 and on the server's own note about how TrueFoundry treats non-2xx responses; TrueFoundry's documentation is not a registered source."
+    },
+    "user-forwarding": {
+      "statement": "The server passes an end-user identity as `user` to `resolve_and_execute_policy`, taking the first non-empty of the TrueFoundry context's `user.email`, `metadata.user_email`, `user.subjectSlug`, `user.userName`, `user.metadata.displayName`, `user.subjectDisplayName` and `user.subjectId`, and requires `zscaler-sdk-python>=1.10.0`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "(\"user.email\", subject.email if subject else None),",
+            "(\"metadata.user_email\", request_metadata.get(\"user_email\")),",
+            "(\"user.subjectSlug\", subject.subjectSlug if subject else None),",
+            "(\"user.userName\", subject.userName if subject else None),",
+            "(\"user.metadata.displayName\", subject_metadata.get(\"displayName\")),",
+            "(\"user.subjectDisplayName\", subject.subjectDisplayName if subject else None),",
+            "(\"user.subjectId\", subject.subjectId if subject else None),",
+            "user=user,",
+            "for source, value in candidates:",
+            "return value",
+            "def _scan(content: str, direction: str, transaction_id: str, user: Optional[str] = None):",
+            "result = _scan(content, \"IN\", txn_id, user=_extract_user(request.context))"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/requirements.txt",
+          "quotes": [
+            "zscaler-sdk-python>=1.10.0"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "result, response, error = client.policy_detection.resolve_and_execute_policy("
+          ]
+        }
+      ]
+    },
+    "identity-logged": {
+      "statement": "At the default INFO level (`AIGUARD_LOG_LEVEL`) the server logs each identity candidate it checks, up to the first non-empty one, with its value, and then the identity it chose; the first candidate is the subject's email, which a human subject carries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "logger.setLevel(os.environ.get(\"AIGUARD_LOG_LEVEL\", \"INFO\").upper())",
+            "\"identity candidate: source=%s value=%s\",",
+            "\"end-user identity resolved: source=%s value=%s\",",
+            "# Log every candidate, not just the winner",
+            "A human subject (``subjectType: \"user\"``)\n    carries ``email``, and its ``subjectSlug`` is that same email.",
+            "# A human subject carries its email directly."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "block-shape": {
+      "summary": "How the TrueFoundry guardrail server reports allow and block.",
+      "positions": [
+        {
+          "says": "The README says an allowed request returns null with HTTP 200 and a blocked one returns HTTP 400 with detailed JSON.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "TrueFoundry/README.md",
+            "quotes": [
+              "- **Content allowed:** Returns `null` (HTTP 200) — TrueFoundry proceeds normally.",
+              "- **Content blocked:** Returns HTTP 400 with detailed JSON:"
+            ]
+          }
+        },
+        {
+          "says": "The code always answers HTTP 200 and carries the decision in a verdict field.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "TrueFoundry/examples/main.py",
+            "quotes": [
+              "return {\"verdict\": False, **detail}"
+            ],
+            "after": "def input_scan(request: InputGuardrailRequest):"
+          }
+        }
+      ],
+      "impact": "A TrueFoundry setup or test written against the README's 400 contract will not see blocks; the code's note says the 400 form would be treated as a guardrail failure rather than a denial."
+    }
+  }
+}

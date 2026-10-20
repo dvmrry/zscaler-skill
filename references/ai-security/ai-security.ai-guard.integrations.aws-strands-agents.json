@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.aws-strands-agents",
+  "title": "The AI Guard HookProvider for Strands Agents: which hook events it uses, how each leg can block, and what stays out of reach",
+  "aliases": [
+    "ai guard strands",
+    "ai guard strands agents",
+    "AIGuardHooks",
+    "aiguard_strands.py",
+    "AIGuardResponseBlocked",
+    "ai guard strands retry_limit"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.integrations.aws"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.aws-bedrock-agentcore"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Strands integration is one HookProvider passed to the agent; each leg's enforcement is limited by what the Strands event for that leg lets a hook write. {{hook-events}}"
+    },
+    {
+      "label": "Prompt.",
+      "text": "{{prompt-leg}} {{opaque-model-legs}}"
+    },
+    {
+      "label": "Response.",
+      "text": "{{response-retry}} {{stream-before-verdict}} {{retry-scan-count}}"
+    },
+    {
+      "label": "Tools.",
+      "text": "{{tool-input-cancel}} {{tool-output-replace}} {{side-effects}} The tool event is sent as text, as in the AgentCore guard: [[ai-security.ai-guard.integrations.aws-bedrock-agentcore:tool-event-serialized]], with the README disagreement in [[ai-security.ai-guard.integrations.aws-bedrock-agentcore:tool-event-shape]]."
+    },
+    {
+      "label": "Out of reach.",
+      "text": "{{structured-output}} {{seeded-history}}"
+    },
+    {
+      "label": "Options.",
+      "text": "{{constructor-options}} The README names an option the class lacks {{divergence:scan-tool-input}}. {{readme-invalid-python}} {{async-executor}} Shared behavior, including the 10-second timeout that ignores AIGUARD_TIMEOUT, is in [[ai-security.ai-guard.integrations.aws]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a stream consumer (the default printing callback handler, a UI) can show response tokens before the response leg's verdict; the retry cannot unsend them.",
+      "uses": [
+        "stream-before-verdict",
+        "response-retry"
+      ]
+    },
+    {
+      "do": "Whether the application calls Agent.structured_output() or structured_output_async(); those bypass every leg.",
+      "uses": [
+        "structured-output"
+      ]
+    },
+    {
+      "do": "After a blocked prompt, whether the turn was removed from agent.messages; until it is, every later invocation on that agent is cancelled.",
+      "uses": [
+        "prompt-leg"
+      ]
+    }
+  ],
+  "claims": {
+    "hook-events": {
+      "statement": "`AIGuardHooks` registers callbacks on BeforeInvocationEvent (which only resets the response retry budget), BeforeModelCallEvent, AfterModelCallEvent, BeforeToolCallEvent and AfterToolCallEvent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "registry.add_callback(BeforeInvocationEvent, self._on_before_invocation)",
+            "registry.add_callback(BeforeModelCallEvent, self._on_before_model)",
+            "registry.add_callback(AfterModelCallEvent, self._on_after_model)",
+            "registry.add_callback(BeforeToolCallEvent, self._on_before_tool)",
+            "registry.add_callback(AfterToolCallEvent, self._on_after_tool)",
+            "A fifth callback on BeforeInvocationEvent scans nothing: it resets the",
+            "response-leg retry budget so one invocation cannot spend the next one's."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "class AIGuardHooks(HookProvider):"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "of every invocation, so the budget is cleared here as well as on the\n        # response leg's own exits. It scans nothing",
+            "self._retries.pop(event.agent, None)"
+          ],
+          "after": "def _on_before_invocation(self, event: BeforeInvocationEvent) -> None:"
+        }
+      ]
+    },
+    "prompt-leg": {
+      "statement": "Before each model call the provider scans the system prompt plus every user-role message it has not yet scanned (tracked by each message's `tracking_id`) and blocks by setting `cancel`, so the model is not called; a blocked turn is remembered and keeps cancelling, without a new scan, until it is removed from `agent.messages`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "tracking = message.get(\"tracking_id\")",
+            "system = _system_text(agent)",
+            "event.cancel = blocked[held]",
+            "note=\"blocked user turn still in history\")",
+            "# still reach the model, so the leg cancels again -- without a scan."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "Drop the turn from `agent.messages` (or start a new conversation) to clear it;",
+            "the system prompt plus every user-role message not yet scanned"
+          ]
+        }
+      ]
+    },
+    "opaque-model-legs": {
+      "statement": "Content that cannot be read as text (a document, image or video block, encrypted reasoning, or any block type the framework adds later) is checked before the text: when `on_unscannable` is `\"block\"` (the default) it cancels the prompt leg, and on the response leg it raises `AIGuardResponseBlocked` at once, without retrying.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "note=\"content not readable as text\")",
+            "# Document/image/video in the model's own turn cannot be inspected",
+            "# as text, and this event cannot substitute. Fail closed without",
+            "on_error=\"block\", on_unscannable=\"block\", strict_verdict=False,",
+            "# retrying -- the same shape would come back and loop."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "It is checked *before* the text, so a mixed `[{text}, {document}]` turn fails closed instead of being scanned on its text alone",
+            "*everything else* is treated as unreadable -- a document, image or video block, encrypted (`redactedContent`) reasoning, a tool-result member this file does not recognise, and any block type the framework adds after this file was written",
+            "the prompt leg cancels the model call, the response leg raises `AIGuardResponseBlocked`, and the tool-output leg replaces the result"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "raise AIGuardResponseBlocked("
+          ],
+          "after": "# as text, and this event cannot substitute. Fail closed without"
+        }
+      ]
+    },
+    "response-retry": {
+      "statement": "AfterModelCallEvent lets a hook write only `retry`, so a blocked response is discarded and the model is called again, up to `retry_limit` (default 2) per invocation; after that the provider raises `AIGuardResponseBlocked`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "(`AfterModelCallEvent` permits writing only `retry`). A blocked response is",
+            "event.retry = True",
+            "raise AIGuardResponseBlocked(verdict, self._tid(), count - 1)",
+            "on_verdict=None, retry_limit=2, tool_server=\"strands-tools\",",
+            "therefore discarded and the model is called again, up to `retry_limit`;",
+            "# The response-leg retry budget is per invocation"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "(a fresh budget for every invocation)"
+          ]
+        }
+      ]
+    },
+    "stream-before-verdict": {
+      "statement": "Strands streams tokens to the agent's callback handler as the model produces them, so a stream consumer may already have received a response's tokens when the response leg discards it; the README quotes the Strands SDK's own note to that effect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "*\"streaming events from the discarded response will have already been emitted to callers before the retry occurs.\"*",
+            "The response leg detects and can terminate; it cannot guarantee a user never saw the content.",
+            "Strands streams tokens to the agent's callback handler (the default `PrintingCallbackHandler` prints them) as the model produces them",
+            "Per the SDK's own `AfterModelCallEvent` documentation,"
+          ]
+        }
+      ]
+    },
+    "retry-scan-count": {
+      "statement": "A response retry re-enters the model-call loop at BeforeModelCallEvent and repeats both scans, so with `retry_limit=2` and a response that stays blocked one invocation issues six scans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "A response retry repeats **both** the prompt and the response scan, because `event.retry` re-enters the model-call loop at `BeforeModelCallEvent`:",
+            "with `retry_limit=2` and a response that stays blocked, one invocation issues six scans, not four."
+          ]
+        }
+      ]
+    },
+    "tool-input-cancel": {
+      "statement": "A blocked tool input sets `cancel_tool`, so the tool does not run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "event.cancel_tool = self._reason(\"tool_input\", verdict, tool=name)"
+          ]
+        }
+      ]
+    },
+    "tool-output-replace": {
+      "statement": "A blocked tool output, or one carrying a member other than `text` or `json` when `on_unscannable` is `\"block\"` (the default), is replaced by an error tool result whose text is the block reason, so it never re-enters the model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "event.result = self._error_result(tool_use, self._reason(\"tool_output\", verdict, tool=name))",
+            "\"status\": \"error\",",
+            "The member list is an allowlist: `text` and `json` are the two text-bearing",
+            "on_error=\"block\", on_unscannable=\"block\", strict_verdict=False,",
+            "# Block: AfterToolCallEvent CAN substitute -- replace the result so the\n        # poisoned / leaking output never re-enters the model."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "if opaque and self.on_unscannable == \"block\":"
+          ],
+          "after": "output, opaque = _classify_tool_result(result)"
+        }
+      ]
+    },
+    "side-effects": {
+      "statement": "By the after-tool leg a tool's side effect has already happened; that leg protects the model from the result, and the README points to scanning the tool's input (the before-tool leg) to gate the call itself.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "a tool's *side effect* has already happened by the after-tool leg -- that leg protects the model from the result, not the outside world from the tool.",
+            "Scan a tool's input (before-tool) to gate the call itself."
+          ]
+        }
+      ]
+    },
+    "structured-output": {
+      "statement": "`Agent.structured_output()` and `structured_output_async()` call the model outside the agent loop, fire neither model-call event, and so reach the model unscanned; the README points to `agent(prompt, structured_output_model=MyModel)`, which runs through the loop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "Strands fires neither `BeforeModelCallEvent` nor `AfterModelCallEvent` for `structured_output()` / `structured_output_async()`",
+            "which runs through the agent loop and **is** scanned -- use that form.",
+            "Both methods are deprecated in favour of `agent(prompt, structured_output_model=MyModel)`"
+          ]
+        }
+      ]
+    },
+    "seeded-history": {
+      "statement": "In a caller-supplied history, assistant-role turns are not scanned and a `toolResult` block inside a seeded user turn is not walked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "assistant-role turns in such a history are not scanned",
+            "a `toolResult` block inside a seeded user turn is not walked"
+          ]
+        }
+      ]
+    },
+    "constructor-options": {
+      "statement": "The constructor takes `app_name`, `policy_id`, `session_id`, `app_user`, `ai_model`, `agent_arn`, `agent_id`, `agent_version`, `on_error`, `on_unscannable`, `strict_verdict`, `on_verdict`, `retry_limit`, `tool_server` (default `strands-tools`) and `timeout`; it has no option to turn off the tool-input leg.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "def __init__(self, app_name=None, policy_id=None,",
+            "session_id=None, app_user=None, ai_model=None,",
+            "agent_arn=None, agent_id=None, agent_version=None,",
+            "on_error=\"block\", on_unscannable=\"block\", strict_verdict=False,",
+            "on_verdict=None, retry_limit=2, tool_server=\"strands-tools\",",
+            "timeout=10.0):"
+          ]
+        }
+      ]
+    },
+    "readme-invalid-python": {
+      "statement": "The README's configuration example has two bare `policy_id=` lines, so it is not valid Python as written; one calls the value an \"AI profile UUID\", while the module parses the policy ID with int().",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "policy_id=         # overrides AIGUARD_POLICY_ID",
+            "policy_id=           # AI profile UUID"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "return int(raw)"
+          ]
+        }
+      ]
+    },
+    "async-executor": {
+      "statement": "The callbacks are coroutines that hand the blocking scan to the running event loop's default executor; the leg still waits for the verdict, but other sessions on the loop keep running.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/aiguard_strands.py",
+          "quotes": [
+            "verdict, error = await asyncio.get_running_loop().run_in_executor("
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "scan-tool-input": {
+      "summary": "Whether the Strands provider can turn off the tool-input leg.",
+      "positions": [
+        {
+          "says": "The README's Limitations advise setting scan_tool_input=False to keep only the output leg when the source-code detector blocks benign tool input.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/strands-agents/README.md",
+            "quotes": [
+              "or set `scan_tool_input=False` and keep the output leg."
+            ]
+          }
+        },
+        {
+          "says": "The constructor has no scan_tool_input parameter.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "AWS/strands-agents/aiguard_strands.py",
+            "quotes": [
+              "def __init__(self, app_name=None, policy_id=None,"
+            ]
+          }
+        }
+      ],
+      "impact": "Passing scan_tool_input raises TypeError for an unexpected keyword; the remaining workaround is a policy profile without the source-code detector."
+    }
+  }
+}

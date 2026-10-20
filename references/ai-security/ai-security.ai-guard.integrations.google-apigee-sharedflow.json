@@ -1,0 +1,719 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.google-apigee-sharedflow",
+  "title": "The ZSCALER-AIGUARD Apigee SharedFlow: dialects, what each leg scans, MCP tool calls, verdict handling, and the traffic it lets through unscanned",
+  "aliases": [
+    "ZSCALER-AIGUARD",
+    "ai guard apigee sharedflow",
+    "vertex-aiguard-sync",
+    "failClosedOnUnknown",
+    "failOpen apigee",
+    "blockStatus",
+    "ai guard mcp gateway",
+    "forceAgentHarness"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.google-apigee-proxy"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.google-cloudrun"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The SharedFlow is one Apigee bundle that any proxy calls with a FlowCallout on its request leg, its response leg, or both; the shipped `vertex-aiguard-sync` proxy calls it in front of Vertex AI. {{invocation}}"
+    },
+    {
+      "label": "Configuration.",
+      "text": "{{config-vars}} {{kvm-keys}} The inline proxy's README says the KVM is shared alike {{divergence:shared-kvm}}."
+    },
+    {
+      "label": "Which traffic is scanned.",
+      "text": "{{dialects}} {{unknown-passes}} {{harness-skip}} {{harness-bypass}}"
+    },
+    {
+      "label": "What each leg reads.",
+      "text": "{{newest-turn}} {{history-not-rescanned}} {{inline-tools}} {{sse-response}}"
+    },
+    {
+      "label": "MCP tool calls.",
+      "text": "{{mcp}} {{mcp-nontext-output}} {{mcp-args-serialized}} The architecture note says scalar values are sent instead {{divergence:mcp-args}}."
+    },
+    {
+      "label": "The request to AI Guard.",
+      "text": "{{scan-body}} The notes' account of the API's fields differs from the SDK {{divergence:api-fields}}."
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{verdict}} {{block-shape}} {{fail-closed-shape}} {{config-error}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "That every proxy calling the flow sets aiguardCloud when the tenant is not on us1; the flow reads no cloud from the KVM.",
+      "uses": [
+        "config-vars",
+        "kvm-keys",
+        "shared-kvm"
+      ]
+    },
+    {
+      "do": "Whether failClosedOnUnknown is on; with the default, requests on unrecognized paths or with non-POST verbs pass unscanned.",
+      "uses": [
+        "dialects",
+        "unknown-passes"
+      ]
+    },
+    {
+      "do": "On a general-purpose proxy, whether clients can send x-app: cli or x-claude-code-session-id; those headers make small or toolless requests skip scanning.",
+      "uses": [
+        "harness-skip",
+        "harness-bypass"
+      ]
+    },
+    {
+      "do": "Whether callers can supply conversation history or system prompts; only the newest turn is scanned.",
+      "uses": [
+        "newest-turn",
+        "history-not-rescanned"
+      ]
+    }
+  ],
+  "claims": {
+    "invocation": {
+      "statement": "A proxy invokes the flow with a FlowCallout whose `type` parameter is `user-prompt` (request leg), `response-prompt` (response leg) or `both`, or with a `scanType` flow variable; the phase sets the direction, prompt IN and response OUT, and one invocation scans one direction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "if (typeParam === 'response-prompt' || scanType === 'response') { phase = 'response'; }",
+            "in turn decides the scan direction: prompt -> IN, response -> OUT."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/vertex-aiguard-sync/apiproxy/policies/FC-CallAIGuardInput.xml",
+          "quotes": [
+            "<Parameter name=\"type\">user-prompt</Parameter>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/sharedflows/default.xml",
+          "quotes": [
+            "One invocation scans one direction: prompt -> IN, response -> OUT."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "else if (typeParam === 'both' || scanType === 'both') { phase = 'both'; }"
+          ]
+        }
+      ]
+    },
+    "config-vars": {
+      "statement": "Flow variables set before the callout configure it: `aiguardCloud` (default `us1`) or a full-host `aiguardEndpoint`, `aiguardPolicyId` (else the KVM's `aiguard_policy_id`), `failOpen` (default false), `blockStatus` (default `native`), `appName` (default `Gateway`), `scanTools` (default true), `failClosedOnUnknown` (default false) and `forceAgentHarness` (default false).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "endpoint = 'api.' + cfg('aiguardCloud', 'us1') + '.zseclipse.net';",
+            "var endpoint = cfg('aiguardEndpoint', '');",
+            "var policyId = cfg('aiguardPolicyId', cfg('aiguard.policyId', ''));",
+            "context.setVariable('aiguard.cfg.failOpen',  aiguardTruthy(cfg('failOpen', false)) ? 'true' : 'false');",
+            "context.setVariable('aiguard.cfg.blockStatus', cfg('blockStatus', 'native'));",
+            "context.setVariable('aiguard.cfg.appName', cfg('appName', 'Gateway'));",
+            "context.setVariable('aiguard.cfg.scanTools', aiguardTruthy(cfg('scanTools', true)) ? 'true' : 'false');",
+            "aiguardTruthy(cfg('failClosedOnUnknown', false)) ? 'true' : 'false');",
+            "aiguardTruthy(cfg('forceAgentHarness', false)) ? 'true' : 'false');",
+            "aiguardEndpoint ......... full host override, wins over aiguardCloud"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/KVM-GetAIGuardConfig.xml",
+          "quotes": [
+            "<Key><Parameter>aiguard_policy_id</Parameter></Key>"
+          ]
+        }
+      ]
+    },
+    "kvm-keys": {
+      "statement": "The flow reads only `aiguard_api_key` and `aiguard_policy_id` from the environment KVM `aiguard-config`, cached for 300 seconds; the cloud comes from the `aiguardCloud` flow variable, not the KVM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/KVM-GetAIGuardConfig.xml",
+          "quotes": [
+            "mapIdentifier=\"aiguard-config\"",
+            "<ExpiryTimeInSecs>300</ExpiryTimeInSecs>",
+            "<Get assignTo=\"aiguard.token\">",
+            "<Key><Parameter>aiguard_api_key</Parameter></Key>",
+            "<Get assignTo=\"aiguard.policyId\">",
+            "<Key><Parameter>aiguard_policy_id</Parameter></Key>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "endpoint = 'api.' + cfg('aiguardCloud', 'us1') + '.zseclipse.net';",
+            "Caller-overridable flow variables (all optional):",
+            "aiguardCloud ............ cloud region: us1 (default), us2, eu1, eu2"
+          ]
+        }
+      ]
+    },
+    "dialects": {
+      "statement": "The flow classifies a request as `mcp` (JSON-RPC method `tools/call`), `gemini` (path containing generateContent), `llm` (paths ending /chat/completions, /responses or /v1/messages, or an Anthropic rawPredict on Vertex) or `unknown`; any non-POST request and any count-tokens call is unknown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "if (verb && String(verb).toUpperCase() !== 'POST') { return 'unknown'; }",
+            "if (reqBody && reqBody.method && String(reqBody.method) === 'tools/call') { return 'mcp'; }",
+            "if (path.indexOf('generatecontent') !== -1 || path.indexOf('streamgeneratecontent') !== -1) {",
+            "if (/\\/chat\\/completions$/.test(path) || /\\/responses$/.test(path) ||",
+            "if (path.indexOf('count-tokens') !== -1) { return 'unknown'; }",
+            "if ((path.indexOf(':rawpredict') !== -1 || path.indexOf(':streamrawpredict') !== -1) &&\n        path.indexOf('/anthropic/') !== -1) {",
+            "Claude on Vertex is\n    // invoked via :rawPredict / :streamRawPredict on a publishers/anthropic model"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "return 'gemini';"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "return 'llm';"
+          ],
+          "after": "/\\/v1\\/messages$/.test(path)"
+        }
+      ]
+    },
+    "unknown-passes": {
+      "statement": "An unknown request is not scanned and passes through by default; with `failClosedOnUnknown=true` it is refused with HTTP 403.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "if (apiType === 'unknown') { return false; }",
+            "behaviour (APIM parity) is to pass it through unscanned. With",
+            "context.setVariable('aiguard.block.status', '403');",
+            "if (apiType === 'unknown' && context.getVariable('aiguard.cfg.failClosedOnUnknown') === 'true') {",
+            "failClosedOnUnknown=true we refuse it instead (a hard 403)"
+          ]
+        }
+      ]
+    },
+    "harness-skip": {
+      "statement": "A request is treated as coming from a coding-agent harness when it carries an `x-claude-code-session-id` header, an `x-app` header equal to `cli`, or `forceAgentHarness` is set; for such a request the flow skips scanning entirely when it has no tools, a `max_tokens` that is set and 4096 or less, or a last user message containing `[SUGGESTION MODE:`, and otherwise strips `<system-reminder>` blocks from user text and does not fold tool results into the prompt scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "if (!aiguardIsBlank(aiguardHeader('x-claude-code-session-id'))) { isCC = true; }",
+            "else if (aiguardHeader('x-app') === 'cli') { isCC = true; }",
+            "if (toolCount === 0 || (maxTokens > 0 && maxTokens <= 4096)) { return true; }",
+            "if (text.indexOf('[SUGGESTION MODE:') !== -1) { return true; }",
+            "if (isCC && isAgentHarnessBackground()) { return false; }"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/aiguard-lib.js",
+          "quotes": [
+            "var AIGUARD_SYSREMINDER_RE = /<system-reminder>[\\s\\S]*?<\\/system-reminder>/gi;"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "} else if (blk.type === 'tool_result' && scanTools && !isCC) {"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "var maxTokens = reqBody.max_tokens ? Number(reqBody.max_tokens) : 0;",
+            "else if (context.getVariable('aiguard.cfg.forceHarness') === 'true') { isCC = true; }"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "aiguardTruthy(cfg('forceAgentHarness', false)) ? 'true' : 'false');"
+          ]
+        }
+      ]
+    },
+    "harness-bypass": {
+      "statement": "On a proxy that serves ordinary clients, any caller can send `x-app: cli` (or an `x-claude-code-session-id` header) with no tools or a small `max_tokens` and have its prompt forwarded without a scan, and can hide text from the scan inside `<system-reminder>` tags.",
+      "tier": "B",
+      "derived_from": [
+        "harness-skip"
+      ],
+      "conditions": "Follows from the header checks, which trust request headers the client sets; the code comment warns only that forceAgentHarness should be limited to dedicated proxies. Not exercised on a deployed proxy."
+    },
+    "newest-turn": {
+      "statement": "The prompt leg scans only the newest turn: the parts of the last `contents` entry for Gemini, or the last message for OpenAI and Anthropic, read only when it is a user turn or a tool result; system prompts and earlier turns are not read.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "2. PER-TURN ISOLATION. We scan the NEWEST turn's content, not a re-flatten",
+            "var last = reqBody.contents[reqBody.contents.length - 1];",
+            "var msg = arr[arr.length - 1];",
+            "// Newest turn only: last message (a user turn or a trailing tool result).",
+            "if (role === 'user') {",
+            "} else if (role === 'tool' && scanTools && !isCC) {",
+            "var parts = (last && last.parts) ? last.parts : [];"
+          ]
+        }
+      ]
+    },
+    "history-not-rescanned": {
+      "statement": "A caller that supplies its own history can put content in earlier turns or the system prompt and have it reach the model unscanned, since the flow assumes earlier turns were scanned when they were new.",
+      "tier": "B",
+      "derived_from": [
+        "newest-turn"
+      ],
+      "conditions": "Follows from the newest-turn extraction; the code comment states the assumption that prior turns were scanned when new, which holds only when every turn passed through this flow."
+    },
+    "inline-tools": {
+      "statement": "The response scan includes the argument values of tool calls the model emits (Gemini functionCall, OpenAI tool_calls and Responses function_call, Anthropic tool_use, and streamed tool-call arguments) whatever `scanTools` says; with `scanTools` on, the prompt scan also includes Gemini functionResponse, Anthropic tool_result and OpenAI tool-role results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "var vals = aiguardCollectJoined(parts[j].functionCall.args);   // inline tool-call scan",
+            "} else if (p.functionResponse && scanTools) {",
+            "else if (blk.type === 'tool_use') { sb.push(aiguardCollectJoined(blk.input)); usedToolCall = true; }  // inline tool-call scan",
+            "} else if (role === 'tool' && scanTools && !isCC) {",
+            "if (m.tool_calls && m.tool_calls.length) {                // inline tool-call scan",
+            "} else if (item && item.type === 'function_call' && item.arguments) {   // inline tool-call scan",
+            "sb.push(parsed ? aiguardCollectJoined(parsed) : toolArgs);",
+            "} else if (blk.type === 'tool_result' && scanTools && !isCC) {"
+          ]
+        }
+      ]
+    },
+    "sse-response": {
+      "statement": "The response leg reassembles a streamed (SSE or JSON-array) response before scanning it, and a blocked streaming request gets an SSE refusal that completes the stream; the README notes tokens already emitted upstream cannot be recalled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "// Streaming SSE reassembly across OpenAI, Anthropic, and OpenAI Responses.",
+            "if (trimmed.charAt(0) === '[') {                       // streamed JSON array"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/README.md",
+          "quotes": [
+            "a blocked streaming request gets a graceful SSE refusal that completes the stream cleanly. Tokens already emitted upstream cannot be recalled."
+          ]
+        }
+      ]
+    },
+    "mcp": {
+      "statement": "For MCP `tools/call` the flow builds a tool event from `params.name` and `params.arguments`; on the request leg it is scanned with direction IN before the tool server runs, and on the response leg the tool result's text is added as output and scanned with direction OUT, taking only `result.content` entries of type `text`; the `both` phase does not scan MCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "var toolName = (reqBody.params && reqBody.params.name) ? String(reqBody.params.name) : 'unknown';",
+            "if (body.result.content[c] && body.result.content[c].type === 'text') { out += (body.result.content[c].text || ''); }"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/build-aiguard-scan-body.js",
+          "quotes": [
+            "direction = hasOutput ? 'OUT' : 'IN';"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "if (phase === 'both' && apiType === 'mcp') { return false; }  // MCP has no \"both\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "if (reqBody && reqBody.method && String(reqBody.method) === 'tools/call') { return 'mcp'; }"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "var toolArgs = (reqBody.params && reqBody.params.arguments !== undefined)"
+          ]
+        }
+      ]
+    },
+    "mcp-nontext-output": {
+      "statement": "An MCP tool result with no text entries (only images, resources or other content types) leaves the tool event without output, so the response-leg scan re-sends the arguments with direction IN and the result itself returns to the caller unscanned.",
+      "tier": "B",
+      "derived_from": [
+        "mcp"
+      ],
+      "conditions": "Follows from the text-only output extraction and the hasOutput direction choice; not exercised against a deployed proxy."
+    },
+    "mcp-args-serialized": {
+      "statement": "MCP arguments given as an object are serialized with JSON.stringify into the tool event's `input` string, and the scan content is built by collecting the event's values, which keeps that string whole and adds the metadata values (`mcp`, `tools/call`, the proxy name and the tool name).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "? (typeof reqBody.params.arguments === 'string' ? reqBody.params.arguments : aiguardStringify(reqBody.params.arguments))",
+            "metadata: { ecosystem: 'mcp', method: 'tools/call', server_name: serverName, tool_invoked: toolName },",
+            "var serverName = context.getVariable('apiproxy.name') || 'mcp-server';"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/build-aiguard-scan-body.js",
+          "quotes": [
+            "content = aiguardCollectJoined(te);"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/aiguard-lib.js",
+          "quotes": [
+            "if (t === 'string') { if (node.length) { acc.push(node); } return; }"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "input: toolArgs"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/aiguard-lib.js",
+          "quotes": [
+            "try { return JSON.stringify(obj); } catch (e) { return ''; }",
+            "if (t === 'object') {\n        for (var k in node) {"
+          ]
+        }
+      ]
+    },
+    "scan-body": {
+      "statement": "The scan request carries `content` and `direction`, `transactionId` only when the request's `x-request-id` (or the Apigee message ID) is already a UUID, and `policyId` (parseInt) only when a policy ID is set; a set ID routes the call to execute-policy, otherwise to resolve-and-execute-policy, each with a 5000 ms timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/build-aiguard-scan-body.js",
+          "quotes": [
+            "var body = { content: content, direction: direction };",
+            "if (!aiguardIsBlank(txnId) && UUID_RE.test(String(txnId))) {",
+            "body.policyId = parseInt(policyId, 10);",
+            "// Present only when pinned; its presence also selects the execute-policy path.",
+            "Send ours only when\n * it already is one; otherwise omit the field"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "var reqId = aiguardHeader('x-request-id');",
+            "context.setVariable('aiguard.txnId', aiguardIsBlank(reqId) ? context.getVariable('messageid') : reqId);"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/SC-AIGuardExecutePolicy.xml",
+          "quotes": [
+            "<URL>https://{aiguard.cfg.endpoint}/v1/detection/execute-policy</URL>",
+            "<Timeout>5000</Timeout>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/sharedflows/default.xml",
+          "quotes": [
+            "aiguard.contentCount != \"0\" and aiguard.cfg.policyId = \"\"</Condition>",
+            "aiguard.contentCount != \"0\" and aiguard.cfg.policyId != \"\"</Condition>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/build-aiguard-scan-body.js",
+          "quotes": [
+            "body.transactionId = String(txnId);"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/SC-AIGuardScan.xml",
+          "quotes": [
+            "<URL>https://{aiguard.cfg.endpoint}/v1/detection/resolve-and-execute-policy</URL>",
+            "<Timeout>5000</Timeout>"
+          ]
+        }
+      ]
+    },
+    "verdict": {
+      "statement": "The scan callouts continue on error, and the verdict step blocks unless the callout returned HTTP 200 with an action of ALLOW or DETECT: BLOCK blocks, and a missing, unrecognized or non-200 result fails closed unless `failOpen=true`, which allows it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/SC-AIGuardScan.xml",
+          "quotes": [
+            "<ServiceCallout continueOnError=\"true\" enabled=\"true\" name=\"SC-AIGuardScan\">"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/process-verdict.js",
+          "quotes": [
+            "if (scStatus !== 200 || !aiguardHasVerdict(action)) {",
+            "if (failOpen) { context.setVariable('aiguard.outcome', 'allow'); }",
+            "// ALLOW, and DETECT which is monitor-only: reported, not enforced."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/aiguard-lib.js",
+          "quotes": [
+            "if (a === 'BLOCK' || a === 'ALLOW' || a === 'DETECT') { return a; }"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/process-verdict.js",
+          "quotes": [
+            "} else if (action === 'BLOCK') {"
+          ]
+        }
+      ]
+    },
+    "block-shape": {
+      "statement": "A policy block is returned in the caller's own dialect at HTTP 200 (a Gemini candidates envelope, an OpenAI chat completion or Responses object, an Anthropic message, an MCP JSON-RPC error -32000, or an SSE refusal for streaming callers) with `x-aiguard-blocked`, `x-aiguard-category`, `x-aiguard-severity` and `x-aiguard-transaction-id` headers; a numeric `blockStatus` forces that status on non-streaming blocks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/process-verdict.js",
+          "quotes": [
+            "put(JSON.stringify({ jsonrpc: '2.0', error: { code: -32000, message: '🛡️ ' + notice } }),",
+            "if (streaming) { put(buildLlmSSE(flavor, notice), 200, 'text/event-stream'); return; }",
+            "if (status === 200 && ctype !== 'text/event-stream') {",
+            "candidates: [{ content: { role: 'model', parts: [{ text: notice }] }, finishReason: 'STOP' }],",
+            "id: 'chatcmpl-aiguard-block', object: 'chat.completion', model: model,",
+            "id: 'resp_aiguard_block', object: 'response', model: model,",
+            "id: 'msg_aiguard_block', type: 'message', role: 'assistant', model: model,\n            content: [{ type: 'text', text: notice }]",
+            "Blocks return the caller's native shape with HTTP 200 and an\n * `x-aiguard-blocked: true` header unless blockStatus forces a hard status."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/RF-Block.xml",
+          "quotes": [
+            "<Header name=\"x-aiguard-blocked\">true</Header>",
+            "<Header name=\"x-aiguard-category\">{aiguard.block.category}</Header>",
+            "<Header name=\"x-aiguard-transaction-id\">{aiguard.transactionId}</Header>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/RF-Block.xml",
+          "quotes": [
+            "<Header name=\"x-aiguard-severity\">{aiguard.severity}</Header>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/process-verdict.js",
+          "quotes": [
+            "var bs = context.getVariable('aiguard.cfg.blockStatus');",
+            "// blockStatus knob: force a hard status on non-streaming native-200 blocks so",
+            "if (bs && bs !== 'native' && /^[0-9]+$/.test(String(bs))) { eff = parseInt(bs, 10); }"
+          ]
+        }
+      ]
+    },
+    "fail-closed-shape": {
+      "statement": "When the scan did not complete (a non-200 or a verdict-less reply) and `failOpen` is off, the fail-closed response is HTTP 500 JSON naming the cause (\"HTTP\" with the callout status, \"no verdict returned\" with the in-body statusCode and errorMsg, or \"AI Guard API unreachable\"), or for MCP a JSON-RPC error -32603 at HTTP 200, which a numeric `blockStatus` replaces as on any non-streaming 200.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/process-verdict.js",
+          "quotes": [
+            "detail = 'no verdict returned' +",
+            "detail = 'AI Guard API unreachable';",
+            "put(JSON.stringify({ jsonrpc: '2.0', error: { code: -32603, message: msg } }),",
+            "put(JSON.stringify({ error: msg }), 500, 'application/json');",
+            "if (scStatus !== 200 || !aiguardHasVerdict(action)) {",
+            "else { buildFailClosed(); }",
+            "detail = 'HTTP ' + st;",
+            "(aiguardIsBlank(sc) ? '' : ' (statusCode ' + sc + ')') +",
+            "(aiguardIsBlank(em) ? '' : ': ' + em);",
+            "put(JSON.stringify({ jsonrpc: '2.0', error: { code: -32603, message: msg } }),\n            200, 'application/json');",
+            "if (bs && bs !== 'native' && /^[0-9]+$/.test(String(bs))) { eff = parseInt(bs, 10); }",
+            "if (failOpen) { context.setVariable('aiguard.outcome', 'allow'); }",
+            "var bs = context.getVariable('aiguard.cfg.blockStatus');"
+          ]
+        }
+      ]
+    },
+    "config-error": {
+      "statement": "With no API key in the KVM and `failOpen` false the flow answers HTTP 500 before any scan; with `failOpen` true it proceeds, and the unauthenticated scan then fails open.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/sharedflows/default.xml",
+          "quotes": [
+            "<Condition>aiguard.cfg.keyMissing = \"true\" and aiguard.cfg.failOpen = \"false\"</Condition>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "* in fail-open mode we proceed and the scan fails open downstream."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/RF-ConfigError.xml",
+          "quotes": [
+            "<StatusCode>500</StatusCode>"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mcp-args": {
+      "summary": "Whether the SharedFlow scans MCP tool arguments as serialized JSON or as their scalar values.",
+      "positions": [
+        {
+          "says": "The architecture note says the flow collects the JSON's scalar values for tool calls, not its serialization, because a JSON wrapper reads as code and false-positives benign calls.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/sharedflow/ARCHITECTURE.md",
+            "quotes": [
+              "For tool calls the flow collects the JSON's **scalar values**, not its"
+            ]
+          }
+        },
+        {
+          "says": "For MCP the extractor stringifies object arguments before the collector runs, so the collector keeps the serialized string.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+            "quotes": [
+              "? (typeof reqBody.params.arguments === 'string' ? reqBody.params.arguments : aiguardStringify(reqBody.params.arguments))"
+            ]
+          }
+        }
+      ],
+      "impact": "MCP arguments reach the detectors as JSON text, the shape the note says false-positives benign calls; inline tool calls in LLM responses are collected as values (inline-tools)."
+    },
+    "shared-kvm": {
+      "summary": "Whether one aiguard-config KVM configures the inline proxy and the SharedFlow alike.",
+      "positions": [
+        {
+          "says": "The inline proxy's README says its KVM uses the same map and key names as the SharedFlow and both Cloud Run pipelines, so one provisioned environment serves any of them.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/README.md",
+            "quotes": [
+              "the same map and key names",
+              "the SharedFlow and both Cloud Run pipelines use, so one provisioned environment"
+            ]
+          }
+        },
+        {
+          "says": "The SharedFlow reads only the API key and policy ID from that KVM and takes the cloud from the aiguardCloud flow variable, defaulting to us1.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+            "quotes": [
+              "endpoint = 'api.' + cfg('aiguardCloud', 'us1') + '.zseclipse.net';"
+            ]
+          }
+        }
+      ],
+      "impact": "An aiguard_cloud KVM entry set for the inline proxy does nothing for the SharedFlow; a tenant outside us1 must set aiguardCloud in each calling proxy (see ai-security.ai-guard.integrations.google-cloudrun:flow-cloud-us1)."
+    },
+    "api-fields": {
+      "summary": "Which request fields the DAS detection API accepts.",
+      "positions": [
+        {
+          "says": "The SharedFlow's architecture note, like the inline proxy's and the AWS modules', says the API accepts content, direction, transactionId and policyId and no other field, so there is no place for user or session identity.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/sharedflow/ARCHITECTURE.md",
+            "quotes": [
+              "The detection API accepts four fields and no more:"
+            ]
+          }
+        },
+        {
+          "says": "The Python SDK's resolve_and_execute_policy sends a user field when one is given, recorded on the detection event since release 1.10.0, and can add tenant-configured request headers.",
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/aiguard/policy_detection.py",
+            "quotes": [
+              "body[\"user\"] = user"
+            ]
+          }
+        }
+      ],
+      "impact": "The examples' claim that identity cannot reach AI Guard is narrower than the SDK: resolve-and-execute accepts a user (ai-security.ai-guard.runtime-api:resolve-user-headers). Integrations built on the four-field assumption leave user attribution unused."
+    }
+  }
+}

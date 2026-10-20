@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.codex",
+  "title": "OpenAI Codex CLI hooks for AI Guard (Zscaler example): hooks, block mechanisms, the fail-open Stop scan, and what content is scanned",
+  "aliases": [
+    "codex hooks aiguard",
+    "codex-hooks",
+    "scan_stop_response.py",
+    "scan_bash_command.py",
+    "codex cli aiguard"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Codex CLI example is six Python hooks that send prompts, Bash and MCP tool input and output, and the final reply to AI Guard's detection API through the Python SDK."
+    },
+    {
+      "label": "What is hooked, and when.",
+      "text": "{{hooks}} {{coverage-limits}}"
+    },
+    {
+      "label": "Which call it makes.",
+      "text": "{{config}} {{transaction-id}} Why the IDs are hashed is in [[ai-security.ai-guard.integrations:transaction-id-uuid]]. {{self-check}} {{relative-commands}} {{feature-flag}} {{example-env-missing}}"
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{fail-closed}} {{block-mechanisms}} {{stop-hook}}"
+    },
+    {
+      "label": "What content is scanned.",
+      "text": "{{content}} {{mcp-partial-scan}} The README understates the truncation {{divergence:readme-truncation}}. The comparison with other hosts is in [[ai-security.ai-guard.integrations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That Codex is launched from the project root holding .codex/ and the .env, and run the self-check before relying on the hooks.",
+      "uses": [
+        "relative-commands",
+        "config",
+        "self-check"
+      ]
+    },
+    {
+      "do": "Treat the Stop scan as after-the-fact: the reply is already displayed, and a scan error lets it through.",
+      "uses": [
+        "stop-hook",
+        "coverage-limits"
+      ]
+    },
+    {
+      "do": "Whether file edits (apply_patch), WebSearch or other non-Bash, non-MCP tools need coverage; these hooks do not see them.",
+      "uses": [
+        "coverage-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "hooks": {
+      "statement": "The example's `hooks.json` runs `scan_user_input.py` on `UserPromptSubmit` (direction `IN`), `scan_bash_command.py` and `scan_mcp_request.py` on `PreToolUse` for `Bash` and `mcp__.*` (`IN`), `scan_bash_response.py` and `scan_mcp_response.py` on `PostToolUse` for the same matchers (`OUT`), and `scan_stop_response.py` on `Stop` (`OUT`), each with a timeout of 15.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/README.md",
+          "quotes": [
+            "| `scan_user_input.py` | `UserPromptSubmit` | -- | `IN` | exit 2 |",
+            "| `scan_bash_command.py` | `PreToolUse` | `Bash` | `IN` | exit 2 |",
+            "| `scan_bash_response.py` | `PostToolUse` | `Bash` | `OUT` | JSON `decision: block` |",
+            "| `scan_mcp_request.py` | `PreToolUse` | `mcp__.*` | `IN` | exit 2 |",
+            "| `scan_mcp_response.py` | `PostToolUse` | `mcp__.*` | `OUT` | JSON `continue: false` |",
+            "| `scan_stop_response.py` | `Stop` | -- | `OUT` | JSON `continue: false` |"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks.json",
+          "quotes": [
+            "\"command\": \"python3 .codex/hooks/scan_stop_response.py\", \"timeout\": 15",
+            "\"command\": \"python3 .codex/hooks/scan_user_input.py\", \"timeout\": 15",
+            "\"command\": \"python3 .codex/hooks/scan_bash_command.py\", \"timeout\": 15",
+            "\"command\": \"python3 .codex/hooks/scan_mcp_request.py\", \"timeout\": 15",
+            "\"command\": \"python3 .codex/hooks/scan_bash_response.py\", \"timeout\": 15",
+            "\"command\": \"python3 .codex/hooks/scan_mcp_response.py\", \"timeout\": 15"
+          ]
+        }
+      ]
+    },
+    "coverage-limits": {
+      "statement": "The README says `apply_patch` file edits are not scanned, `PreToolUse` and `PostToolUse` do not intercept non-MCP, non-Bash tools such as `WebSearch`, Codex exposes no streaming interception hook, `Stop` fires after the response has been streamed and displayed, and post-tool blocking cannot undo a completed call's side effects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/README.md",
+          "quotes": [
+            "Codex supports `apply_patch` hooks, but this project does not currently scan file edits.",
+            "Current Codex hooks do not intercept non-MCP, non-Bash tools such as `WebSearch`",
+            "Codex does not expose a streaming response interception hook.",
+            "The `Stop` hook fires after the response has already been streamed and displayed.",
+            "it cannot undo side effects from completed tool calls.",
+            "`PreToolUse` / `PostToolUse` do not intercept `WebSearch` or other non-shell, non-MCP tool calls."
+          ]
+        }
+      ]
+    },
+    "fail-closed": {
+      "statement": "`scan_content` reports an error for a missing key, a missing SDK, an SDK error, a response without an action, or an exception, and `verdict_blocks` blocks on any error and on any action other than `ALLOW` or `DETECT`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "quotes": [
+            "def scan_content(",
+            "result[\"error\"] = \"AIGUARD_API_KEY not set\"",
+            "\"zscaler-sdk-python not installed. Run: pip install 'zscaler-sdk-python>=1.9.44'\"",
+            "def verdict_blocks(result: dict[str, Any]) -> bool:",
+            "return str(result.get(\"action\", \"\")).upper() not in (\"ALLOW\", \"DETECT\")",
+            "if error: result[\"error\"] = str(error) return result",
+            "except Exception as exc:  # noqa: BLE001 - any failure must fail closed result[\"error\"] = str(exc)",
+            "if not api_result.action: result[\"error\"] = \"scan returned no action verdict (%s)\" % (",
+            "if result.get(\"error\"): return True"
+          ]
+        }
+      ]
+    },
+    "block-mechanisms": {
+      "statement": "The prompt and pre-tool hooks block by exiting 2 with the reason on stderr; `scan_bash_response.py` prints `decision` block with the reason, which the README says replaces the tool result; `scan_mcp_response.py` prints `continue` false, halting the turn; both post-tool hooks exit 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "quotes": [
+            "EXIT_ALLOW = 0",
+            "EXIT_BLOCK = 2"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_bash_response.py",
+          "quotes": [
+            "json.dumps( { \"decision\": \"block\", \"reason\": message,",
+            "\"\"\"Replace the tool result with feedback; PostToolUse always exits 0.\"\"\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_mcp_response.py",
+          "quotes": [
+            "\"continue\": False,",
+            "\"\"\"Halt the turn; PostToolUse always exits 0.\"\"\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/README.md",
+          "quotes": [
+            "`decision: block` replaces a tool result with the reason"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_user_input.py",
+          "quotes": [
+            "f\" | Transaction ID: {result.get('transaction_id') or 'unknown'}\", file=sys.stderr, ) return EXIT_BLOCK",
+            "f\"Zscaler AI Guard: scan failed — blocking prompt (fail-closed): {result['error']}\", file=sys.stderr, ) return EXIT_BLOCK"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_bash_command.py",
+          "quotes": [
+            "f\" | Transaction ID: {result.get('transaction_id') or 'unknown'}\", file=sys.stderr, ) return EXIT_BLOCK",
+            "f\"Zscaler AI Guard: scan failed — blocking command (fail-closed): {result['error']}\", file=sys.stderr, ) return EXIT_BLOCK"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_mcp_request.py",
+          "quotes": [
+            "f\" | Transaction ID: {result.get('transaction_id') or 'unknown'}\", file=sys.stderr, ) return EXIT_BLOCK",
+            "f\"Zscaler AI Guard: scan failed — blocking MCP request (fail-closed): {result['error']}\", file=sys.stderr, ) return EXIT_BLOCK"
+          ]
+        }
+      ]
+    },
+    "stop-hook": {
+      "statement": "`scan_stop_response.py` scans `last_assistant_message` with direction `OUT` after streaming; a blocking verdict prints `continue` false with the reason, but a scan error lets the turn finish (fail-open), and it does not scan when `stop_hook_active` is set or the message is under 5 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_stop_response.py",
+          "quotes": [
+            "result = scan_content(content, \"OUT\", derive_transaction_id(data))",
+            "\"continue\": False,",
+            "message = str(data.get(\"last_assistant_message\") or \"\").strip()",
+            "if data.get(\"stop_hook_active\"):",
+            "log_message(f\"ERROR scanning final response (fail-open): {result['error']}\")",
+            "if len(message) < MIN_SCAN_CHARS:",
+            "\"stopReason\": ( \"Zscaler AI Guard blocked the response: severity=\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "quotes": [
+            "MIN_SCAN_CHARS = 5"
+          ]
+        }
+      ]
+    },
+    "content": {
+      "statement": "Every hook truncates content to 20000 characters; tool input is the first non-empty of command, query, prompt, message, content, body and url, else the whole input as JSON; tool output is the first of output, stdout, content, text, result and data with at least 5 characters, else every string in it (up to 50, depth 6), else the raw JSON; post-tool output under 5 characters is not scanned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "quotes": [
+            "MAX_SCAN_CHARS = 20000",
+            "for field in (\"command\", \"query\", \"prompt\", \"message\", \"content\", \"body\", \"url\"):",
+            "for field in (\"output\", \"stdout\", \"content\", \"text\", \"result\", \"data\"):",
+            "def collect_strings(value: Any, max_depth: int = 6, max_items: int = 50) -> str:",
+            "return text if len(text) <= MAX_SCAN_CHARS else text[:MAX_SCAN_CHARS]",
+            "if isinstance(value, str) and value.strip(): return value",
+            "return stringify(tool_input)",
+            "if isinstance(value, str) and len(value.strip()) >= MIN_SCAN_CHARS: return value",
+            "harvested = collect_strings(response) return harvested if harvested else stringify(response)",
+            "return json.dumps(value, separators=(\",\", \":\"), ensure_ascii=False)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_user_input.py",
+          "quotes": [
+            "content = truncate(prompt)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_mcp_request.py",
+          "quotes": [
+            "content = truncate(payload)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_bash_response.py",
+          "quotes": [
+            "if len(output.strip()) < MIN_SCAN_CHARS: log_message(f\"Bash: skipping — insufficient content ({len(output)} chars)\") return EXIT_ALLOW",
+            "content = truncate(output)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_bash_command.py",
+          "quotes": [
+            "content = truncate(command)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_stop_response.py",
+          "quotes": [
+            "content = truncate(message)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_mcp_response.py",
+          "quotes": [
+            "content = truncate(output)",
+            "if len(output.strip()) < MIN_SCAN_CHARS: log_message(f\"{tool_name}: skipping — insufficient content ({len(output)} chars)\") return EXIT_ALLOW"
+          ]
+        }
+      ]
+    },
+    "mcp-partial-scan": {
+      "statement": "An MCP call carrying any of the named input fields is scanned on that one field; its other arguments are sent to the MCP server unscanned.",
+      "tier": "B",
+      "derived_from": [
+        "content"
+      ],
+      "conditions": "Follows from the first-match return in content's tool-input extraction; not exercised against Codex."
+    },
+    "transaction-id": {
+      "statement": "The hooks send a transaction ID taken from `turn_id`, else `tool_use_id`, else the session, hashing any non-UUID value into a deterministic UUID (`uuid5`) and passing a UUID unchanged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "quotes": [
+            "for key in (\"turn_id\", \"tool_use_id\"):",
+            "return str(uuid.uuid5(_TRANSACTION_NAMESPACE, raw))",
+            "return str(uuid.UUID(raw))",
+            "return derive_session_id(data)"
+          ]
+        }
+      ]
+    },
+    "config": {
+      "statement": "`aiguard_utils.py` reads `.env` files next to `.codex/`, in the working directory, in `.codex/` and in `.codex/hooks/` (first definition wins, the real environment wins, an `export` prefix is tolerated); `AIGUARD_CLOUD` defaults to `us1` and `AIGUARD_TIMEOUT` to 30; an `AIGUARD_POLICY_ID` that parses as an integer selects `execute_policy`, anything else `resolve_and_execute_policy`; the log is `SECURITY_LOG_PATH`, default `.codex/hooks/aiguard.log`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "quotes": [
+            "_integration_root() / \".env\",  # canonical: next to .codex/",
+            "Path.cwd() / \".env\",",
+            "if line.startswith(\"export \"):",
+            "cloud = os.environ.get(\"AIGUARD_CLOUD\", \"us1\").strip() or \"us1\"",
+            "timeout = int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\"))",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip()",
+            "if policy_id is not None: api_result, _resp, error = detection.execute_policy(",
+            "else: api_result, _resp, error = detection.resolve_and_execute_policy(",
+            "raw = os.environ.get(\"SECURITY_LOG_PATH\") or str(_hooks_dir() / \"aiguard.log\")",
+            "_hooks_dir().parent / \".env\",  # .codex/.env",
+            "_hooks_dir() / \".env\",  # .codex/hooks/.env",
+            "Checked in order; the first definition wins, and real environment variables always take precedence.",
+            "try: return int(raw) except ValueError: return None"
+          ]
+        }
+      ]
+    },
+    "self-check": {
+      "statement": "Running `python3 .codex/hooks/aiguard_utils.py` prints where `.env` was searched, the resolved settings, and the result of a live test scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "quotes": [
+            "Diagnose configuration: where .env was looked for, what was found, and whether",
+            "a live scan succeeds. Run with: python3 .codex/hooks/aiguard_utils.py"
+          ]
+        }
+      ]
+    },
+    "relative-commands": {
+      "statement": "The README says the `hooks.json` commands are relative to the directory Codex is started in, so Codex must be launched from the project root that contains `.codex/`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/README.md",
+          "quotes": [
+            "The commands in `hooks.json` are relative to the directory you start `codex` in, so it must be the",
+            "project root — the directory that *contains* `.codex/`."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks.json",
+          "quotes": [
+            "\"command\": \"python3 .codex/hooks/scan_user_input.py\","
+          ]
+        }
+      ]
+    },
+    "feature-flag": {
+      "statement": "The README says the Codex feature flag is named `hooks`, stable and on by default in current versions; the 0.2.0 changelog corrected it from `codex_hooks`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/README.md",
+          "quotes": [
+            "The flag is named `hooks`; older documentation calling it `codex_hooks` is out of date."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Corrected the Codex hooks feature flag from `codex_hooks` to `hooks`"
+          ],
+          "after": "## 0.2.0 (September 1, 2026)"
+        }
+      ]
+    },
+    "example-env-missing": {
+      "statement": "The README's `cp example.env .env` step names a file the codex-hooks directory does not ship at the pin.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/README.md",
+          "quotes": [
+            "cp example.env .env"
+          ]
+        }
+      ],
+      "conditions": "The tracked file list at the pin (git ls-files OpenAI/codex-hooks) has no example.env; the self-check prints how to create .env instead."
+    }
+  },
+  "divergences": {
+    "readme-truncation": {
+      "summary": "Which hooks truncate before scanning.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "OpenAI/codex-hooks/README.md",
+            "quotes": [
+              "`scan_bash_response.py`, `scan_mcp_response.py`, and `scan_stop_response.py` truncate content to 20,000 characters before scanning."
+            ]
+          },
+          "says": "The README names only the three response-side hooks as truncating."
+        },
+        {
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "OpenAI/codex-hooks/.codex/hooks/scan_user_input.py",
+            "quotes": [
+              "content = truncate(prompt)"
+            ]
+          },
+          "says": "The prompt, Bash-command and MCP-request hooks also truncate to the same limit."
+        }
+      ],
+      "impact": "A prompt or command longer than 20000 characters is scanned only on its start, which the README does not say."
+    }
+  }
+}

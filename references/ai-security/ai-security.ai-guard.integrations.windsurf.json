@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.windsurf",
+  "title": "Windsurf Cascade hooks for AI Guard (Zscaler example): pre-hooks that block, post-hooks that only audit, and the missing-key allow",
+  "aliases": [
+    "windsurf aiguard hooks",
+    "cascade hooks aiguard",
+    "pre_user_prompt",
+    "pre_run_command",
+    "pre_mcp_tool_use",
+    "post_cascade_response"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations.cline"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Windsurf example is a set of Cascade hook scripts that call AI Guard's detection API through the Python SDK."
+    },
+    {
+      "label": "What is hooked.",
+      "text": "{{hooks}} {{post-cannot-block}}"
+    },
+    {
+      "label": "Where Windsurf finds them.",
+      "text": "{{workspace-hooks-file}} {{root-hooks-missing}}"
+    },
+    {
+      "label": "Which call it makes.",
+      "text": "{{config}} {{rate-limit-keys}} The endpoints are in [[ai-security.ai-guard.runtime-api]]."
+    },
+    {
+      "label": "Verdicts and failures.",
+      "text": "{{pre-handling}} {{post-handling}}"
+    },
+    {
+      "label": "What content is scanned.",
+      "text": "{{pre-content}} The same single-argument choice is described for Cline in [[ai-security.ai-guard.integrations.cline:mcp-partial-scan]]. The comparison with other hosts is in [[ai-security.ai-guard.integrations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "That Windsurf was opened on the folder whose .windsurf/hooks.json points at these scripts; the repository root has none.",
+      "uses": [
+        "workspace-hooks-file",
+        "root-hooks-missing"
+      ]
+    },
+    {
+      "do": "That AIGUARD_API_KEY is set: without it every Windsurf hook allows unscanned.",
+      "uses": [
+        "pre-handling",
+        "post-handling"
+      ]
+    },
+    {
+      "do": "Treat MCP results and Cascade replies as audited, not enforced: the post-hooks only alert.",
+      "uses": [
+        "post-cannot-block",
+        "post-handling"
+      ]
+    }
+  ],
+  "claims": {
+    "hooks": {
+      "statement": "The example registers five Cascade hooks: `pre_user_prompt`, `pre_run_command` and `pre_mcp_tool_use` scan with direction `IN` and can block with exit 2; `post_mcp_tool_use` and `post_cascade_response` scan with `OUT` for audit only; `show_output` is on for `pre_mcp_tool_use` and both post hooks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/README.md",
+          "quotes": [
+            "| `pre_user_prompt.py` | User message | Yes — **exit 2** | `direction=IN` |",
+            "| `pre_run_command.py` | Shell command | Yes — **exit 2** | `IN` |",
+            "| `pre_mcp_tool_use.py` | MCP arguments | Yes — **exit 2** | `IN` |",
+            "| `post_mcp_tool_use.py` | MCP result | **No** (Windsurf limit) | `OUT` — log + optional stdout alert |",
+            "| `post_cascade_response.py` | Cascade reply | **No** | `OUT` — log + optional stdout alert |"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks.json",
+          "quotes": [
+            "\"command\": \"python3 .windsurf/hooks/pre_mcp_tool_use.py\", \"show_output\": true",
+            "\"command\": \"python3 .windsurf/hooks/post_mcp_tool_use.py\", \"show_output\": true",
+            "\"command\": \"python3 .windsurf/hooks/post_cascade_response.py\", \"show_output\": true"
+          ]
+        }
+      ]
+    },
+    "post-cannot-block": {
+      "statement": "The README says Windsurf post-hooks cannot block or redact content and that `show_output` only displays stdout to the user without changing Cascade's context.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/README.md",
+          "quotes": [
+            "**Post-hooks cannot block** or redact content",
+            "**`show_output: true`** only displays stdout to the user; it does not change Cascade context."
+          ]
+        }
+      ]
+    },
+    "pre-handling": {
+      "statement": "In the three pre-hooks a missing `AIGUARD_API_KEY` allows without scanning; a scan error (including a response without an action), an action other than `ALLOW`, `BLOCK` or `DETECT`, or `BLOCK` exits 2 with the reason on stderr; `ALLOW` and `DETECT` exit 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/README.md",
+          "quotes": [
+            "**Pre-hooks:** missing `AIGUARD_API_KEY` allows traffic with a warning. API errors and unexpected responses are **fail-closed** (**exit 2**)."
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/pre_user_prompt.py",
+          "quotes": [
+            "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\")",
+            "log_message(f\"pre_user_prompt: API error (fail-closed): {r['error']}\")",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
+            "block_stderr(r, \"user prompt\") return EXIT_BLOCK",
+            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/pre_run_command.py",
+          "quotes": [
+            "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\")",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
+            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/pre_mcp_tool_use.py",
+          "quotes": [
+            "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\")",
+            "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
+            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/aiguard_utils.py",
+          "quotes": [
+            "EXIT_ALLOW = 0",
+            "EXIT_BLOCK = 2",
+            "result[\"error\"] = \"scan returned no action verdict (%s)\" % ("
+          ]
+        }
+      ]
+    },
+    "pre-content": {
+      "statement": "`pre_user_prompt` scans the prompt truncated to 20000 characters, `pre_run_command` scans the whole command line, and `pre_mcp_tool_use` scans one argument: `query`, `search_query` or `q` when the MCP tool's name contains `search`, `url` or `uri` when it names a fetch, else the first of `query`, `prompt`, `message` and `content`, else the text `Accessing resource:` with a path-like argument, else the arguments JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/pre_user_prompt.py",
+          "quotes": [
+            "text = truncate_text(str(prompt), MAX_POST_CHARS)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/pre_run_command.py",
+          "quotes": [
+            "cmd = ti.get(\"command_line\") or \"\"",
+            "r = scan_content(cmd_s, \"IN\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/pre_mcp_tool_use.py",
+          "quotes": [
+            "content, label = extract_mcp_request_content(ti)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/aiguard_utils.py",
+          "quotes": [
+            "MAX_POST_CHARS = 20000",
+            "scan = f\"Accessing resource: {path_param}\"",
+            "if not scan: scan = normalize_tool_io(args)",
+            "if any(x in mt_lower for x in (\"web_search\", \"websearch\")) or \"search\" in mt_lower: scan = str( args.get(\"query\") or args.get(\"search_query\") or args.get(\"q\") or \"\" )",
+            "elif any(x in mt_lower for x in (\"web_fetch\", \"webfetch\", \"fetch\", \"get_url\")): scan = str(args.get(\"url\") or args.get(\"uri\") or \"\")",
+            "if not scan: scan = str( args.get(\"query\") or args.get(\"prompt\") or args.get(\"message\") or args.get(\"content\") or \"\" )",
+            "path_param = ( args.get(\"path\") or args.get(\"file\") or args.get(\"resource\") or args.get(\"url\") or args.get(\"uri\") or \"\" )"
+          ]
+        }
+      ]
+    },
+    "post-handling": {
+      "statement": "`post_mcp_tool_use` scans server, tool, arguments and result in one text (each truncated to 20000 characters) and `post_cascade_response` scans the response text truncated the same way; both skip short content and a missing key, exit 0 on scan errors, and on `BLOCK` print an alert saying the content would be blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/post_mcp_tool_use.py",
+          "quotes": [
+            "combined = ( f\"MCP server={server} tool={mcp_tool}\\nInput={truncated_in}\\nOutput={truncated_out}\"",
+            "if len(result_str) < 5:",
+            "log_message(\"post_mcp_tool_use: AIGUARD_API_KEY not set — skipping\")",
+            "log_message(f\"post_mcp_tool_use: API error (audit only): {r['error']}\") return EXIT_ALLOW",
+            "f\"Zscaler AI Guard ALERT: MCP result for {label} would be BLOCKED \""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/aiguard_utils.py",
+          "quotes": [
+            "MAX_POST_CHARS = 20000"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/post_cascade_response.py",
+          "quotes": [
+            "if len(response_str) < 10:",
+            "truncated = truncate_text(response_str.replace(\"\\n\", \" \"), MAX_POST_CHARS)",
+            "log_message(\"post_cascade_response: AIGUARD_API_KEY not set — skipping\")",
+            "f\"Zscaler AI Guard ALERT: Cascade response would be BLOCKED \"",
+            "log_message(f\"post_cascade_response: API error (audit only): {r['error']}\") return EXIT_ALLOW"
+          ]
+        }
+      ]
+    },
+    "config": {
+      "statement": "`aiguard_utils.py` loads `.env` from the repository root and then `Windsurf/.env` with python-dotenv without overriding the environment, reads `AIGUARD_CLOUD` (blank or unset means `us1`) and `AIGUARD_TIMEOUT` (default 30), calls `execute_policy` when `AIGUARD_POLICY_ID` parses as an integer and `resolve_and_execute_policy` otherwise, and logs to `.windsurf/hooks/aiguard.log`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/aiguard_utils.py",
+          "quotes": [
+            "_project_root() / \".env\",",
+            "_windsurf_integration_root() / \".env\",",
+            "load_dotenv(env_path, override=False)",
+            "timeout = int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\"))",
+            "cloud = os.environ.get(\"AIGUARD_CLOUD\", \"us1\").strip().strip('\"').strip(\"'\")",
+            "if not cloud: cloud = \"us1\"",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None",
+            "if policy_id is not None: api_result, _r, error = client.aiguard.policy_detection.execute_policy( content=content, direction=direction, policy_id=policy_id, )",
+            "else: api_result, _r, error = ( client.aiguard.policy_detection.resolve_and_execute_policy(",
+            "def get_log_file() -> Path: path = _hooks_dir() / \"aiguard.log\""
+          ]
+        }
+      ]
+    },
+    "rate-limit-keys": {
+      "statement": "The Windsurf client config still passes `auto_retry_on_rate_limit` and `max_rate_limit_retries`, which the 0.2.0 changelog says were removed from client configs because `LegacyAIGuardClient` discards them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/aiguard_utils.py",
+          "quotes": [
+            "\"auto_retry_on_rate_limit\": True,",
+            "\"max_rate_limit_retries\": 3,"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Removed `auto_retry_on_rate_limit` and `max_rate_limit_retries` from client configs — `LegacyAIGuardClient` silently discards them"
+          ],
+          "after": "## 0.2.0 (September 1, 2026)"
+        }
+      ]
+    },
+    "workspace-hooks-file": {
+      "statement": "The README says Windsurf loads workspace hooks only from `.windsurf/hooks.json` in the folder opened, and that opening the repository root uses a root-level `.windsurf/hooks.json` included in the repository.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/README.md",
+          "quotes": [
+            "Windsurf only loads **workspace-level** hooks from **`.windsurf/hooks.json` at the folder you open**",
+            "| **`zguard-ai-integrations`** (repo root) | **`.windsurf/hooks.json`** at repo root — included in this repository; it runs scripts under **`Windsurf/.windsurf/hooks/`**. |"
+          ]
+        }
+      ]
+    },
+    "root-hooks-missing": {
+      "statement": "At the pin the repository has no root-level `.windsurf/hooks.json`, so opening the repository root in Windsurf runs none of these hooks; only opening the `Windsurf/` folder does.",
+      "tier": "B",
+      "derived_from": [
+        "workspace-hooks-file"
+      ],
+      "conditions": "The tracked file list at the pin (git ls-files) has Windsurf/.windsurf/hooks.json but no .windsurf path at the repository root; combined with the README's statement in workspace-hooks-file about where Windsurf looks."
+    }
+  }
+}

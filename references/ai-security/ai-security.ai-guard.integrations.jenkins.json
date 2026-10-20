@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.jenkins",
+  "title": "Jenkins policy validation for AI Guard (Zscaler example): the declarative pipeline around the shared scan_policy.py",
+  "aliases": [
+    "aiguard jenkins",
+    "jenkinsfile aiguard",
+    "aiguard-api-key credential",
+    "FORCE_RUN"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.integrations.github-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler's Jenkins example runs the same AI Guard policy validation as the GitHub Actions example, from a Declarative Pipeline."
+    },
+    {
+      "label": "When it scans.",
+      "text": "{{pipeline}} {{deploy-stages}}"
+    },
+    {
+      "label": "What the scan checks.",
+      "text": "{{same-scanner}} The gate's weaknesses are in [[ai-security.ai-guard.integrations.github-actions:detect-passes-gate]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Use FORCE_RUN or a change to a monitored path when the scan stage was skipped; a requirements change alone does not trigger it.",
+      "uses": [
+        "pipeline"
+      ]
+    }
+  ],
+  "claims": {
+    "pipeline": {
+      "statement": "The Jenkins example's Declarative Pipeline polls SCM every five minutes and runs the AI Guard scan stage only when `FORCE_RUN` is set or a change touches `config/model-config.yaml`, `config/test-prompts.yaml`, `scripts/scan_policy.py` or the `Jenkinsfile`; the key comes from the `aiguard-api-key` secret-text credential and the cloud and policy ID from build parameters (cloud default `us1`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Jenkins/declarative-pipeline/Jenkinsfile",
+          "quotes": [
+            "pollSCM('H/5 * * * *')",
+            "'config/model-config.yaml', 'config/test-prompts.yaml', 'scripts/scan_policy.py', 'Jenkinsfile',",
+            "if (params.FORCE_RUN) { echo 'FORCE_RUN enabled — skipping change detection.' env.SCAN_NEEDED = 'true'",
+            "string(credentialsId: 'aiguard-api-key', variable: 'AIGUARD_API_KEY'),",
+            "export AIGUARD_CLOUD='${params.AIGUARD_CLOUD.trim() ?: \"us1\"}'",
+            "export AIGUARD_POLICY_ID='${params.AIGUARD_POLICY_ID.trim()}'",
+            "env.SCAN_NEEDED = 'false'",
+            "if (changes.any { scanPaths.contains(it) }) { echo 'Monitored paths changed — running AI Guard policy scan.' env.SCAN_NEEDED = 'true'",
+            "stage('Zscaler AI Guard Policy Validation') { when { expression { env.SCAN_NEEDED == 'true' } }"
+          ]
+        }
+      ]
+    },
+    "same-scanner": {
+      "statement": "The Jenkins `scan_policy.py` is the GitHub Actions scanner with only comment changes, so test-case format, pass and fail rules and configuration are those of [[ai-security.ai-guard.integrations.github-actions]].",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Jenkins/declarative-pipeline/scripts/scan_policy.py",
+          "quotes": [
+            "Anthropic, Cursor, and GitHub Actions integrations."
+          ]
+        }
+      ],
+      "derived_from": [
+        "ai-security.ai-guard.integrations.github-actions:pass-fail",
+        "ai-security.ai-guard.integrations.github-actions:test-cases"
+      ],
+      "conditions": "A diff of github-actions/scripts/scan_policy.py and Jenkins/declarative-pipeline/scripts/scan_policy.py at the pin differs only in a docstring line and a comment; config/test-prompts.yaml is identical."
+    },
+    "deploy-stages": {
+      "statement": "The optional Vertex AI deploy and endpoint-test stages run only when `SCAN_NEEDED` is true (the condition the scan stage runs on), `SKIP_DEPLOY` is off and the branch is main.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Jenkins/declarative-pipeline/Jenkinsfile",
+          "quotes": [
+            "allOf { expression { env.SCAN_NEEDED == 'true' } expression { !params.SKIP_DEPLOY } expression { env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'origin/main' } }"
+          ],
+          "after": "stage('Deploy Model to Vertex AI') {"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Jenkins/declarative-pipeline/Jenkinsfile",
+          "after": "stage('Test Model Endpoint') {",
+          "quotes": [
+            "allOf { expression { env.SCAN_NEEDED == 'true' } expression { !params.SKIP_DEPLOY } expression { env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'origin/main' } }"
+          ]
+        }
+      ]
+    }
+  }
+}

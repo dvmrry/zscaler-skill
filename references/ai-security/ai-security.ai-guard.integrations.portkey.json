@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.integrations.portkey",
+  "title": "AI Guard with the Portkey AI Gateway: the native Portkey guardrail as the README describes it, and the client-side SDK scanning examples",
+  "aliases": [
+    "ai guard portkey",
+    "portkey zscaler guardrail",
+    "aiguard_scanner.py",
+    "portkey ai gateway ai guard"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "ai-security.ai-guard.runtime-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Portkey folder offers a guardrail built into Portkey's SaaS gateway, whose code is not in this repository, and example scripts that scan around a self-hosted gateway from the client. {{native}}"
+    },
+    {
+      "label": "The SDK examples.",
+      "text": "{{client-side}} {{scanner}} {{not-in-gateway}}"
+    },
+    {
+      "label": "SDK version.",
+      "text": "{{requirements}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "With the SDK approach, that every client calls the scan before and after the gateway request; the self-hosted gateway enforces nothing on its own.",
+      "uses": [
+        "client-side",
+        "not-in-gateway"
+      ]
+    }
+  ],
+  "claims": {
+    "native": {
+      "statement": "The README describes Portkey's native Zscaler AI Guard guardrail on the Portkey SaaS platform: an API key added under Admin Settings, a guardrail with a configurable Policy ID and timeout, `beforeRequestHook` for input and `afterRequestHook` for output, attached to a Portkey config as input and output guardrails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Portkey/README.md",
+          "quotes": [
+            "The native plugin supports `beforeRequestHook` (input scanning) and `afterRequestHook` (output scanning), configurable Policy ID and timeout, and works with all Portkey-managed LLM providers.",
+            "4. Configure **Policy ID** and **Timeout**",
+            "\"input_guardrails\": [\"guardrails-id-xxx\"],",
+            "1. Navigate to **Admin Settings > Plugins** in Portkey",
+            "2. Add your **Zscaler AI Guard API Key**",
+            "\"output_guardrails\": [\"guardrails-id-xxx\"]"
+          ]
+        }
+      ]
+    },
+    "client-side": {
+      "statement": "Each SDK example scans the prompt with direction IN, stops unless the action is ALLOW or DETECT, sends the prompt through a local Portkey gateway, then scans the first choice's content with direction OUT and withholds it unless ALLOW or DETECT, using one uuid4 transaction ID for both scans; an error on the prompt scan aborts the script.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Portkey/examples/test_anthropic.py",
+          "quotes": [
+            "pre_result = scan_content(user_content, \"IN\", txn_id)",
+            "if str(pre_result.get(\"action\") or \"\").upper() not in (\"ALLOW\", \"DETECT\"):",
+            "post_result = scan_content(response_text, \"OUT\", txn_id)",
+            "if str(post_result.get(\"action\") or \"\").upper() not in (\"ALLOW\", \"DETECT\"):",
+            "print(\"\\nScan error — aborting.\")",
+            "return choices[0].get(\"message\", {}).get(\"content\", \"\")",
+            "txn_id = str(uuid.uuid4())",
+            "portkey_url = os.getenv(\"PORTKEY_GATEWAY_URL\", \"http://127.0.0.1:8787\")",
+            "print(f\"\\nPrompt BLOCKED by AI Guard — not sending to LLM.\")\n        return",
+            "print(f\"\\nResponse BLOCKED by AI Guard — not returning to user.\")\n        return"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Portkey/examples/README.md",
+          "quotes": [
+            "Each test script follows a three-step flow:",
+            "2. **Gateway request** — Sends the prompt through the local Portkey gateway to the LLM provider."
+          ]
+        }
+      ]
+    },
+    "scanner": {
+      "statement": "The shared scanner calls the SDK's `LegacyZGuardClientHelper` `resolve_and_execute_policy` with the cloud from `AIGUARD_CLOUD` (default us1) and returns an error entry instead of a verdict when the SDK reports one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Portkey/examples/aiguard_scanner.py",
+          "quotes": [
+            "cloud = os.getenv(\"AIGUARD_CLOUD\", \"us1\")",
+            "client = LegacyZGuardClientHelper(cloud=cloud)",
+            "result, response, error = client.policy_detection.resolve_and_execute_policy(",
+            "return {\"error\": str(error)}",
+            "if error:\n        return {\"error\": str(error)}"
+          ]
+        }
+      ]
+    },
+    "not-in-gateway": {
+      "statement": "In the SDK approach the gateway itself does no scanning; a client that does not run the scan reaches the model through the gateway unscanned.",
+      "tier": "B",
+      "derived_from": [
+        "client-side"
+      ],
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Portkey/README.md",
+          "quotes": [
+            "Use the `zscaler-sdk-python` SDK to scan prompts and responses client-side, before and after they pass through a self-hosted Portkey gateway."
+          ]
+        }
+      ],
+      "conditions": "The examples run the gateway image without any guardrail configuration (docker-compose sets only the image and port); that no other enforcement exists rests on that file and the README's description."
+    },
+    "requirements": {
+      "statement": "The examples require `zscaler-sdk-python>=1.9.44`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Portkey/examples/requirements.txt",
+          "quotes": [
+            "zscaler-sdk-python>=1.9.44"
+          ]
+        }
+      ]
+    }
+  }
+}
