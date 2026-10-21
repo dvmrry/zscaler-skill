@@ -47,6 +47,14 @@ def test_bold_marks_a_recommended_table_value_by_cell():
     assert blocks == [{"table": [["DPD", "Enabled Disabled"]], "strong": [[0, 1, 0, 7]]}]
 
 
+def test_blocks_inside_a_table_cell_stay_separate():
+    _, blocks = render(
+        "<h3>T</h3><table><tr><td><p>MSI: HIDEAPPUIONLAUNCH</p><p>EXE: hideAppUIOnLaunch</p></td>"
+        "<td><ul><li>1 = Enable</li><li>0 = Disable</li></ul></td><td>a<br>b</td></tr></table>"
+    )
+    assert blocks == [{"table": [["MSI: HIDEAPPUIONLAUNCH EXE: hideAppUIOnLaunch", "1 = Enable 0 = Disable", "a b"]]}]
+
+
 def test_lists_nest_and_the_anchoring_text_keeps_one_row_per_line():
     _, blocks = render(ARTICLE)
     assert {"item": "Nested detail", "depth": 1} in blocks

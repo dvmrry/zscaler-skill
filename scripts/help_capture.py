@@ -24,12 +24,15 @@ Usage:
                                                  `node scripts/kb.mjs validate` to see broken quotes)
   help_capture.py rerender [<name.json> ...]     apply a renderer change to captures still at their captured
                                                  revision; a moved revision is reported, not touched
+  With HELP_CAPTURE_HTML_CACHE=<dir> (outside the repo) every fetch keeps the article HTML by node and
+  revision, and rerender uses a cached captured revision without fetching.
   help_capture.py recapture <name.md> ...        replace an older-format capture with the canonical
                                                  one, reading its Source URL from the old header
 """
 from __future__ import annotations
 
 import datetime
+import os
 import difflib
 import email.utils
 import html
@@ -91,7 +94,9 @@ class _Renderer(HTMLParser):
             (self.cell if self.cell is not None else self.buf).append("**")
             return
         if self.cell is not None:
-            if tag == "br":
+            # A line break or a block inside a cell (`<p>MSI: X</p><p>EXE: y</p>`, a list of values) separates
+            # its text; without the space the two runs fuse ("MSI: XEXE: y").
+            if tag == "br" or _cell_break(tag):
                 self.cell.append(" ")
             return
         if tag == "table":
@@ -138,6 +143,8 @@ class _Renderer(HTMLParser):
             self._emit_table(self.table)
             self.table = None
         elif self.cell is not None:
+            if _cell_break(tag):
+                self.cell.append(" ")
             return
         elif tag in ("ul", "ol"):
             self._flush()
@@ -159,6 +166,11 @@ class _Renderer(HTMLParser):
     def _emit_table(self, rows: list[list[str]]) -> None:
         width = max(len(r) for r in rows)
         self.blocks.append({"table": [r + [""] * (width - len(r)) for r in rows]})
+
+
+def _cell_break(tag: str) -> bool:
+    """A tag whose start or end separates text inside a table cell."""
+    return tag in BLOCK or tag in ("li", "ul", "ol") or bool(re.fullmatch(r"h[1-6]", tag))
 
 
 def _tidy(text: str) -> str:
@@ -370,9 +382,19 @@ def page(url: str) -> dict:
             "updated": _last_modified(body.get("pdf_url")), "updated_basis": "pdf-last-modified"}
 
 
+def _cache_file(nid: str, rev: str) -> Path | None:
+    """Where an article revision's HTML is kept when HELP_CAPTURE_HTML_CACHE names a directory (outside the repo)."""
+    root = os.environ.get("HELP_CAPTURE_HTML_CACHE")
+    return Path(root) / f"{nid}-{rev}.html" if root else None
+
+
 def fetch(url: str) -> dict:
     """An article page (see page); anything else is an error here."""
     pg = page(url)
+    cached = pg.get("kind") == "help-article" and _cache_file(pg["nid"], pg["rev"])
+    if cached:
+        cached.parent.mkdir(parents=True, exist_ok=True)
+        cached.write_text(pg["html"], encoding="utf-8")
     if pg["kind"] != "help-article":
         raise SystemExit(f"not an article ({pg['kind']}): {url}")
     return pg
@@ -548,7 +570,12 @@ def rerender(names: list[str]) -> int:
         if not doc or doc["kind"] != "help-article":
             continue
         src = doc["source"]
-        art = fetch(src["url"])
+        # A revision's HTML never changes, so a cached copy of the captured revision re-renders offline.
+        cached = _cache_file(src["node"], src["revision"]) if "node" in src else None
+        if cached and cached.exists():
+            art = {"rev": src["revision"], "html": cached.read_text(encoding="utf-8")}
+        else:
+            art = fetch(src["url"])
         if art["rev"] != src["revision"]:
             moved += 1
             print(f"DRIFT {path.name} (revision {src['revision']} -> {art['rev']}): vendor change, run `check`")
