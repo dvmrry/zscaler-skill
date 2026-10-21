@@ -88,7 +88,7 @@ a company claim or procedure as vendor-documented behavior.
 
 ## Tenant observation and zscalerctl
 
-For tenant-specific questions, start with `node scripts/kb.mjs resolve <id | text>` (public index plus the overlay's records), then the overlay's IaC when `overlay.json` declares `iac`, then `_data/cases/<slug>/evidence/` or user-provided command output. Use live read-only `zscalerctl` (when `overlay.json` declares `live`) only when IaC cannot answer or for drift; use the results in the session (for a case, save them under `_data/cases/<slug>/evidence/` and cite them), but do not keep them as a standing tenant cache.
+For tenant-specific questions, start with `node scripts/kb.mjs resolve <id | text>` (public index plus the overlay's records), then the overlay's IaC: company facets already carry the values their pointers resolve to, and any further IaC read goes only to the repos the bundle lists in `tiers.iac.repos` (each with its `path`; skip one whose `available` is false), then `_data/cases/<slug>/evidence/` or user-provided command output. Use live read-only `zscalerctl` (when `overlay.json` declares `live`) only when IaC cannot answer or for drift; use the results in the session (for a case, save them under `_data/cases/<slug>/evidence/` and cite them), but do not keep them as a standing tenant cache.
 
 If the needed tenant fact is missing or IaC is too stale for the question, and the optional `@zscalerctl` companion is available, hand off the read-only observation instead of guessing. Shape:
 
@@ -100,7 +100,7 @@ If the companion is not clearly available, draft the bounded command for the hum
 
 Cite per claim, inline. The form is `(source: path/to/file.md)` or `(source: path/to/file.md § Section)` when the section anchor matters. If the same file backs multiple claims in one answer, cite it once at the relevant claim and omit the repeats unless the section changes.
 
-If the answer pulls from the overlay's IaC, say it reflects the last backfill (and its date when visible). IaC is only as fresh as that backfill; the reader needs to know whether to trust it as current. Live `zscalerctl` results are current as of the read.
+If the answer pulls from the overlay's IaC, say it reflects the repo as last committed and give the date: each facet `iac` entry carries its file's `committed` date, and `tiers.iac.repos[].committed` the repo's. IaC is only as fresh as that backfill; the reader needs to know whether to trust it as current. Live `zscalerctl` results are current as of the read.
 
 If the answer is partial — some of it grounded, some of it inferred or general knowledge — separate them. Cite the grounded part; mark the rest as inference.
 

@@ -7,7 +7,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { anchorEvidence, buildGraph, captureText, idKind, loadPublic, materialDate, parseProse, validateGraph } from "./kb-lib.mjs";
-import { loadOverlay, renderSubject, resolve, validateOverlay } from "./kb-resolve.mjs";
+import { loadOverlay, renderSubject, resolve, usableOverlay, validateOverlay } from "./kb-resolve.mjs";
 import { loadSchemas, validate } from "./kb-schema.mjs";
 import { snakeToCamel } from "./kb-types.mjs";
 
@@ -413,6 +413,27 @@ test("overlay IaC is a list of repos: JSON pointers into infrawright repos, addr
   assert.ok(facet.iac.some((x) => x.source?.startsWith("iac:coverage.json#") && x.value !== null));
 });
 
+test("resolve degrades on a bad overlay: an invalid record is dropped, an unresolved pointer reported, never a failure", () => {
+  const g = graphOf(ROOT);
+  const bad = fs.mkdtempSync(path.join(os.tmpdir(), "kb-ov-"));
+  fs.cpSync(OVERLAY, bad, { recursive: true });
+  fs.rmSync(path.join(bad, "iac"), { recursive: true }); // a repo that is not checked out
+  const claim = path.join(bad, "knowledge/zia/company.zia.first-pass-user-context.json");
+  const c = JSON.parse(fs.readFileSync(claim, "utf8"));
+  delete c.validated;
+  fs.writeFileSync(claim, JSON.stringify(c));
+  const ov = usableOverlay(g, loadOverlay(g, bad));
+  assert.ok(!ov.records.some((r) => r.data.id === "company.zia.first-pass-user-context"), "the invalid record is dropped");
+  const b = resolve(g, "zia/url-filtering-rules", { overlay: ov });
+  const repo = b.tiers.iac.repos.find((r) => r.id === "iac");
+  assert.equal(repo.available, false);
+  assert.ok(b.tiers.iac.repos.find((r) => r.id === "zia-tf").path.endsWith("zia-tf"), "a repo's path is in the bundle");
+  const facet = b.company.find((f) => f.id === "company.zia.url-filtering-iac");
+  assert.ok(facet.iac.some((x) => /IaC file not found/.test(x.error || "")), "the record stays, its pointer carries the error");
+  const schemas = loadSchemas(path.join(ROOT, "references/_meta/schema"));
+  assert.deepEqual(validate(schemas, "bundle.schema.json", b), []);
+});
+
 test("resolve follows former IDs and returns candidates for ambiguous text", () => {
   const g = graphOf(ROOT);
   assert.equal(resolve(g, "zia-02").resolved.id, "zia.url-categories.membership:same-specificity-collision");
@@ -422,7 +443,8 @@ test("resolve follows former IDs and returns candidates for ambiguous text", () 
 });
 
 // Line numbers are computed at render time and move with every vendor bump; goldens ignore them.
-const stripLines = (v) => JSON.parse(JSON.stringify(v, (k, x) => (k === "line" || k === "lines" ? undefined : x)));
+// IaC commit dates move with every overlay commit, so goldens ignore them too.
+const stripLines = (v) => JSON.parse(JSON.stringify(v, (k, x) => (k === "line" || k === "lines" || k === "committed" ? undefined : x)));
 
 test("a question with no alias match returns ranked candidates, deterministically, never auto-resolved", () => {
   const g = graphOf(ROOT);

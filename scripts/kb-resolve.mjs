@@ -39,7 +39,8 @@ export function loadOverlay(g, dir) {
       }
     }
   }
-  return { root, config, records };
+  const ov = { root, config, records };
+  return { ...ov, iacRepos: iacRepos(g.root, ov) };
 }
 
 /** Validate overlay config and records against public IDs and the relation table. */
@@ -88,7 +89,9 @@ export function validateOverlay(g, ov) {
         need(Boolean(ov.config.iac?.length), "iac-coverage needs overlay.json iac");
         for (const p of data.pointers || []) {
           const r = resolveOverlayPointer(ov, p);
-          if (r.error) err(file, r.error);
+          // A pointer that does not resolve (a repo not checked out, a moved file) is the IaC's state, not a
+          // malformed record: resolve keeps the record and reports the pointer; the contract check fails on it.
+          if (r.error) errors.push({ file, message: r.error, pointer: true });
         }
         break;
       }
@@ -97,6 +100,31 @@ export function validateOverlay(g, ov) {
     if (data.status !== "promoted" && data.promoted_to) err(file, "promoted_to is only for promoted records");
   }
   return errors;
+}
+
+/** A file's (or, without one, a repo's) last commit date, YYYY-MM-DD, when the repo is a git checkout. */
+function committedDate(repoRoot, file) {
+  try {
+    const out = execFileSync("git", ["-C", repoRoot, "log", "-1", "--format=%cs", ...(file ? ["--", file] : [])], {
+      encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    return out || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The overlay's IaC repos as a reader needs them: where each is (relative to the skill root, so a read goes there
+ * and nowhere else), whether it is checked out, and its last commit date.
+ */
+function iacRepos(root, ov) {
+  return (ov?.config.iac || []).map((r) => {
+    const abs = path.resolve(ov.root, r.path);
+    const available = fs.existsSync(abs) && fs.statSync(abs).isDirectory() && fs.readdirSync(abs).length > 0;
+    const committed = available ? committedDate(abs) : null;
+    return { id: r.id, kind: r.kind, path: path.relative(root, abs) || ".", available, ...(committed ? { committed } : {}) };
+  });
 }
 
 /**
@@ -209,9 +237,13 @@ function companyFacets(ov, ids) {
     if (data.pointers) {
       facet.iac = data.pointers.map((p) => {
         const r = resolveOverlayPointer(ov, p);
+        const repo = (ov.config.iac || []).find((x) => x.id === p.repo);
+        const committed = !r.error && repo ? committedDate(path.resolve(ov.root, repo.path), p.file) : null;
+        const where = p.pointer !== undefined ? { source: `${p.repo}:${p.file}#${p.pointer}` } : { location: `${p.repo}:${p.file}${p.address ? ` ${p.address}` : ""}` };
+        if (r.error) return { label: p.label, ...where, error: r.error };
         return r.location
-          ? { label: p.label, location: r.location }
-          : { label: p.label, source: `${p.repo}:${p.file}#${p.pointer}`, value: r.value ?? null };
+          ? { label: p.label, location: r.location, ...(committed ? { committed } : {}) }
+          : { label: p.label, ...where, value: r.value ?? null, ...(committed ? { committed } : {}) };
       });
     }
     out.push(facet);
@@ -220,9 +252,10 @@ function companyFacets(ov, ids) {
 }
 
 function tiers(ov) {
+  const repos = ov?.iacRepos || [];
   return {
     knowledge: { public: true, company: Boolean(ov) },
-    iac: { available: Boolean(ov?.config.iac?.length) },
+    iac: { available: repos.some((r) => r.available), ...(repos.length ? { repos } : {}) },
     live: { available: Boolean(ov?.config.live) },
   };
 }
@@ -740,16 +773,24 @@ function defaultOverlay(root) {
   return fs.existsSync(path.join(dir, "overlay.json")) ? dir : null;
 }
 
+/**
+ * The overlay as resolve uses it: a record that fails validation is dropped with a warning on stderr, so one bad
+ * record or a repo that is not checked out never fails a resolve. A pointer that does not resolve keeps its record
+ * (its facet entry carries the error). `scripts/check-data-contract.mjs` is the strict check.
+ */
+export function usableOverlay(g, ov) {
+  const errors = validateOverlay(g, ov);
+  const bad = new Set();
+  for (const e of errors) {
+    console.error(e.pointer ? `overlay pointer unresolved (record kept): ${e.file}: ${e.message}` : `overlay record skipped: ${e.file}: ${e.message}`);
+    if (!e.pointer) bad.add(e.file);
+  }
+  return { ...ov, records: ov.records.filter((r) => !bad.has(r.file)) };
+}
+
 export async function runCommand(root, g, cmd, args, { option, usage }) {
   const overlayDir = args.includes("--no-overlay") ? null : option(args, "--overlay") ?? process.env.ZSCALER_KB_OVERLAY ?? defaultOverlay(root);
-  const ov = overlayDir ? loadOverlay(g, overlayDir) : null;
-  if (ov) {
-    const errors = validateOverlay(g, ov);
-    if (errors.length) {
-      for (const e of errors) console.error(`overlay error: ${e.file}: ${e.message}`);
-      return 1;
-    }
-  }
+  const ov = overlayDir ? usableOverlay(g, loadOverlay(g, overlayDir)) : null;
   if (cmd === "resolve") {
     // Compact JSON by default: indentation costs agents about a quarter of a bundle's tokens.
     const pretty = args.includes("--pretty");

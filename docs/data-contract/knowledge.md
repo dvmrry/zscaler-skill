@@ -51,8 +51,8 @@ Every record has `schema_version`, `id`, `kind`, `relation`, `about` (one or mor
 |---|---|---|---|
 | `claim` | `extends`, `narrows` or `contradicts` | public subjects or claims; `narrows` and `contradicts` only claims | `statement`, `confidence`, `validated`; `scope` for narrows and contradicts; evidence for contradicts |
 | `procedure` | `extends` | public subjects | `validated` |
-| `mapping` | `maps` | public types or fields | `map` (public field ID to the company's name for it), optional `dropped_fields`, `system`, `refresh` |
-| `iac-coverage` | `extends` | public types or fields | `pointers` into a declared IaC repo |
+| `mapping` | `maps` | public types or fields | optional `map` (public field ID to how the company stores it: a field name or an expression such as `coalesce(a, b)` when one log arrives in two shapes), `dropped_fields`, `system`, `refresh`; a mapping with only `system` and `statement` records where data lives before a field sample exists |
+| `iac-coverage` | `extends` | public types or fields | `pointers` into a declared IaC repo; the type-to-resource link is the record's `about` (the public type) plus a terraform pointer's `address`, whether or not the type carries `names.terraform` |
 
 Optional on any record: `statement`, `scope` (`environment`, `cloud`, `version`, `condition`), `confidence`
 (`high`, `medium`, `low`), `do_not_infer`, `validated` (`YYYY-MM-DD`), `evidence`.
@@ -88,6 +88,10 @@ remain. Their fields map as follows:
 A Markdown record about a product with no conflict names no public ID; give it `about` the subject it extends
 (`node scripts/kb.mjs resolve <product>` lists the areas).
 
+At resolve time a record that fails validation is skipped with a warning on stderr, and a pointer that does
+not resolve (a repo not checked out, a moved file) is reported in its facet entry as `error`; one bad record never
+fails a resolve. The contract check below is the strict gate.
+
 ## At answer time
 
 `node scripts/kb.mjs resolve <id | text>` merges every active record whose `about` touches the bundle as a
@@ -102,7 +106,9 @@ A Markdown record about a product with no conflict names no public ID; give it `
    settle the disagreement silently.
 
 A record describes behavior or a mapping, not current tenant configuration: that comes from IaC or a live
-read.
+read. A bundle's `tiers.iac.repos` lists the overlay's IaC repos with their paths (relative to the skill root),
+whether each is checked out, and its last commit date; each facet `iac` entry carries its file's `committed`
+date, which an answer states.
 
 ## Privacy
 

@@ -17,7 +17,25 @@
           "properties": { "public": { "const": true }, "company": { "type": "boolean" } },
           "additionalProperties": false
         },
-        "iac": { "$ref": "#/$defs/availability" },
+        "iac": {
+          "type": "object", "required": ["available"],
+          "properties": {
+            "available": { "type": "boolean" },
+            "repos": {
+              "description": "The overlay's IaC repositories: where each is (relative to the skill root; IaC reads go there and only there), whether it is checked out, and its last commit date.",
+              "type": "array",
+              "items": {
+                "type": "object", "required": ["id", "kind", "path", "available"],
+                "properties": {
+                  "id": { "type": "string" }, "kind": { "enum": ["infrawright", "terraform"] }, "path": { "type": "string" },
+                  "available": { "type": "boolean" }, "committed": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
         "live": { "$ref": "#/$defs/availability" }
       },
       "additionalProperties": false
@@ -200,16 +218,21 @@
         "iac": {
           "type": "array",
           "items": {
-            "description": "An infrawright pointer's resolved value (source, value), or a terraform pointer's location (repo:file and resource address) for the reader to open.",
+            "description": "An infrawright pointer's resolved value (source, value), a terraform pointer's location (repo:file and resource address) for the reader to open, or a pointer that does not resolve (error). committed is the file's last commit date.",
             "anyOf": [
               {
                 "type": "object", "required": ["label", "source", "value"],
-                "properties": { "label": { "type": "string" }, "source": { "type": "string" }, "value": {} },
+                "properties": { "label": { "type": "string" }, "source": { "type": "string" }, "value": {}, "committed": { "type": "string" } },
                 "additionalProperties": false
               },
               {
                 "type": "object", "required": ["label", "location"],
-                "properties": { "label": { "type": "string" }, "location": { "type": "string" } },
+                "properties": { "label": { "type": "string" }, "location": { "type": "string" }, "committed": { "type": "string" } },
+                "additionalProperties": false
+              },
+              {
+                "type": "object", "required": ["label", "error"],
+                "properties": { "label": { "type": "string" }, "source": { "type": "string" }, "location": { "type": "string" }, "error": { "type": "string" } },
                 "additionalProperties": false
               }
             ]
