@@ -49,30 +49,28 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
 
 ## Where things live (one line, not a directory map)
 
-Reference content is under `references/` organised by product (`zia/`, `zpa/`,
-`zdx/`, `cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`, `ai-security/`,
-`zms/`, `easm/`, `zscaler-cellular/`, `business-insights/`, and the other
-portfolio directories) plus `shared/` for cross-product material and `_meta/`
-for clarifications, evals, and skill metadata. Cross-product clarifications and
-open questions live in `references/_meta/clarifications.md`. Shared terminology,
-disambiguations, and naming conventions are in
-`node scripts/kb.mjs resolve shared.terminology`. Tenant-specific data comes from the knowledge graph (`node scripts/kb.mjs resolve <id | text>`), the overlay's IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`. If root
-`zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
-`runtimeData.mountPath`, treat that configured relative path as the runtime-data
-mount and substitute it for `_data` in tenant-data paths. Use targeted `rg`
-searches against these directories to locate the specific content the question
-needs; do not enumerate them upfront. Exclude stale local runtime copies
-(`--glob '!.claude/worktrees/**'`) and skip `vendor/**` unless the current
-question explicitly needs source verification, SDK/TF/API surface checks, or
-citation repair.
+Product knowledge is a knowledge graph under `references/<product>/` (`zia/`, `zpa/`, `zcc/`, `zdx/`,
+`cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`, `ai-security/`, `zms/`, `easm/`, `zscaler-cellular/`,
+`business-insights/` and the other portfolio directories, with `shared/` for cross-product material), read
+through the resolver, not by opening or grepping the files:
+`node scripts/kb.mjs resolve <subject ID | product | a few words>`. A product name (`zia`, `ZPA`,
+`Client Connector`) lists its areas; a subject returns its reasoning, cited claims, open gaps, bound tenant
+object types and any company-overlay facets. API endpoints, SDK calls and Terraform arguments come from
+`node scripts/kb.mjs surface <product | name | path>`. `references/_meta/` holds the remaining
+clarification ledger, evals and skill metadata; shared terminology is
+`node scripts/kb.mjs resolve shared.terminology`. Tenant-specific data comes from the overlay (records the
+resolver merges in), its IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or
+`<runtime-data mount>/overlay/`. If root `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
+`runtimeData.mountPath`, treat that configured relative path as the runtime-data mount and substitute it for
+`_data` in tenant-data paths. Skip `vendor/**` unless the question explicitly needs source verification,
+SDK/TF/API surface checks, or citation repair.
 
-## Knowledge graph first, where it exists
+## Resolve first
 
-For areas converted to the knowledge graph (see `SKILL.md` § Knowledge graph),
-run `node scripts/kb.mjs resolve "<ID or a few words>"` before searching
-files. One bundle carries the subject's reasoning, its cited claims, open gaps,
-the tenant object types it binds, and any company-overlay facets. Cite claim
-IDs. Use `rg` for areas not yet converted.
+Every product answer starts with `node scripts/kb.mjs resolve`. Text with several matches returns
+`candidates`: pick one and resolve its ID. Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and
+say when an answer rests on an open gap or a Tier B claim (an inference with stated conditions). Search files
+with `rg` only when the resolver finds nothing, and say so.
 
 ## Operational knowledge
 
