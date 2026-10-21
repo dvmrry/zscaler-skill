@@ -397,6 +397,30 @@ test("resolve follows former IDs and returns candidates for ambiguous text", () 
 // Line numbers are computed at render time and move with every vendor bump; goldens ignore them.
 const stripLines = (v) => JSON.parse(JSON.stringify(v, (k, x) => (k === "line" || k === "lines" ? undefined : x)));
 
+test("a question with no alias match returns ranked candidates, deterministically, never auto-resolved", () => {
+  const g = graphOf(ROOT);
+  const schemas = loadSchemas(path.join(ROOT, "references/_meta/schema"));
+  const q = "Our Conditional Access rule in ZIA URL Filtering matches traffic but no MFA prompt ever appears. What should we check first?";
+  const a = resolve(g, q);
+  assert.deepEqual(validate(schemas, "bundle.schema.json", a), []);
+  assert.equal(a.match, "ranked");
+  assert.equal(a.resolved, null);
+  assert.ok(a.candidates.length > 0 && a.candidates.length <= 8);
+  assert.ok(a.candidates.some((c) => c.id === "zidentity.step-up"), "the step-up subject ranks for an MFA-prompt question");
+  assert.deepEqual(resolve(g, q).candidates, a.candidates, "same query, same order");
+  assert.equal(resolve(g, "the of and").candidates.length, 0, "stop words alone rank nothing");
+});
+
+test("a subject bundle lists its parent, children and siblings", () => {
+  const g = graphOf(ROOT);
+  const leaf = resolve(g, "zpa.microtenants.admin-permissions");
+  assert.deepEqual(leaf.neighbors.find((n) => n.rel === "parent"), { id: "zpa.microtenants", title: g.nodes.get("zpa.microtenants").data.title, rel: "parent" });
+  assert.ok(leaf.neighbors.some((n) => n.id === "zpa.microtenants.lifecycle" && n.rel === "sibling"));
+  const hub = resolve(g, "zcc.z-tunnel");
+  assert.ok(hub.neighbors.some((n) => n.rel === "child"), "a hub lists the children that hold its facts");
+  assert.ok(!resolve(g, "zia.url-filtering").neighbors.some((n) => n.rel === "sibling"), "an area subject lists no siblings");
+});
+
 test("a product name resolves to its areas, generated from subject IDs", () => {
   const g = graphOf(ROOT);
   const schemas = loadSchemas(path.join(ROOT, "references/_meta/schema"));

@@ -21,6 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 import {
   makeResponse,
   makeError,
@@ -98,7 +99,7 @@ function resolveResourceContent(uri) {
 
   // Derive the repo root from the server script location (scripts/../ = repo root).
   // Resource URIs only resolve reviews stored under the repo this server binary lives in.
-  const root = path.resolve(new URL("..", import.meta.url).pathname);
+  const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 
   if (kind === "report") {
     // Throws if review does not exist — caught by caller -> -32002.
@@ -512,7 +513,7 @@ function handleRequest(raw) {
 
   // ── resources/list ────────────────────────────────────────────────────────
   if (method === "resources/list") {
-    const root = path.resolve(new URL("..", import.meta.url).pathname);
+    const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
     const reviewsDir = runtimeDataPath(root, "soc-reviews");
     const resources = [];
     try {
@@ -616,7 +617,7 @@ function handleRequest(raw) {
 
 // ── Stdin reader ──────────────────────────────────────────────────────────────
 
-const _RESOURCE_ROOT = path.resolve(new URL("..", import.meta.url).pathname);
+const _RESOURCE_ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 process.stderr.write(`[soc-mcp-server] resource root: ${_RESOURCE_ROOT}\n`);
 
 let buffer = "";

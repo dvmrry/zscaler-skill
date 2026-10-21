@@ -217,11 +217,16 @@ export function resolve(g, query, { overlay = null, cases = "summary", evidence 
   const product = !g.nodes.has(id) && productOf(g, query, g.aliases.has(normalizeText(query)));
   if (product) return { ...base, resolved: { id: product, kind: "product" }, areas: areasOf(g, product) };
   if (!g.nodes.has(id)) {
+    let match = "alias";
     let hits = [...(g.aliases.get(normalizeText(query)) || [])].sort();
-    if (!hits.length) hits = containingAllWords(g, query);
-    if (hits.length === 1) id = hits[0];
+    if (!hits.length) [match, hits] = ["all-words", containingAllWords(g, query)];
+    if (match === "all-words" && hits.length > 1) hits = ranked(g, query, { limit: null, among: hits });
+    // Neither matched (a question in prose, a word no alias carries): rank by the query's words instead. A
+    // ranked list is a suggestion, so even one result comes back as a candidate rather than resolved.
+    if (!hits.length) [match, hits] = ["ranked", ranked(g, query)];
+    if (hits.length === 1 && match !== "ranked") id = hits[0];
     else {
-      return { ...base, resolved: null, candidates: hits.map((h) => ({ id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h) })) };
+      return { ...base, resolved: null, match, candidates: hits.map((h) => ({ id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h) })) };
     }
   }
   const node = g.nodes.get(id);
@@ -266,7 +271,8 @@ function areasOf(g, product) {
  * sorted by ID and the caller picks.
  */
 function containingAllWords(g, query) {
-  const words = normalizeText(query).split(" ").filter(Boolean);
+  // Stop words are dropped, so "what is ZIdentity" needs only "zidentity" in one alias or title.
+  const words = normalizeText(query).split(" ").filter((w) => w && !STOP.has(w));
   if (!words.length) return [];
   const out = new Set();
   for (const [text, ids] of g.aliases) {
@@ -278,6 +284,83 @@ function containingAllWords(g, query) {
     }
   }
   return [...out].sort();
+}
+
+const STOP = new Set(("a an and are as at be but by can do does for from has have how i if in into is it its may "
+  + "my not of on or our should so than that the their them then there these they this to was we what when where "
+  + "which who why will with would you your yes no any all some only also use used using get set").split(" "));
+
+/** Query and index words: lower case, letters and digits, no stop words, a plural `s` dropped. */
+function words(text) {
+  return normalizeText(text).split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !STOP.has(w))
+    .map((w) => (w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w));
+}
+
+/**
+ * For each subject and type, the weight of every word in it: 4 in its ID, 3 in its title or aliases, 1 in its prose,
+ * claim statements and gap titles. Built once per graph.
+ */
+function rankIndex(g) {
+  if (g.rankIndex) return g.rankIndex;
+  const docs = new Map();
+  const add = (id, text, w) => {
+    const m = docs.get(id) || new Map();
+    for (const t of words(text)) m.set(t, Math.max(m.get(t) || 0, w));
+    docs.set(id, m);
+  };
+  for (const n of g.nodes.values()) {
+    if (n.kind === "subject" || n.kind === "type") {
+      add(n.id, n.id.replace(/[./-]/g, " "), 4);
+      add(n.id, `${n.data.title || ""} ${(n.data.aliases || []).join(" ")}`, 3);
+      if (n.kind === "subject") add(n.id, JSON.stringify(n.data.prose || []).replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, " "), 1);
+    } else if ((n.kind === "claim" || n.kind === "gap") && n.subject) {
+      add(n.subject, n.data.statement || n.data.title || "", 1);
+    }
+  }
+  const df = new Map();
+  for (const m of docs.values()) for (const t of m.keys()) df.set(t, (df.get(t) || 0) + 1);
+  g.rankIndex = { docs, df, n: docs.size };
+  return g.rankIndex;
+}
+
+/**
+ * Fallback when no alias matches: subjects and types ranked by the query's words, each word weighted by how
+ * rare it is (inverse document frequency) times where it appears. Deterministic: ties go to the shallower, then
+ * the lower ID.
+ */
+function ranked(g, query, { limit = 8, among = null } = {}) {
+  const { docs, df, n } = rankIndex(g);
+  const q = [...new Set(words(query))].filter((t) => df.has(t));
+  const scored = [];
+  for (const [id, m] of among ? among.map((id) => [id, docs.get(id) || new Map()]) : docs) {
+    let score = 0;
+    for (const t of q) if (m.has(t)) score += m.get(t) * Math.log(n / df.get(t));
+    if (score > 0 || among) scored.push([score, id]);
+  }
+  // Ties: the shallower subject (a hub before its children), then the lower ID.
+  const depth = (id) => id.split(/[./]/).length;
+  return scored.sort((a, b) => b[0] - a[0] || depth(a[1]) - depth(b[1]) || a[1].localeCompare(b[1]))
+    .slice(0, limit ?? scored.length).map(([, id]) => id);
+}
+
+/**
+ * Where a subject sits: its parent, its children and its siblings (same parent prefix), with titles, so a reader
+ * at a hub or a leaf sees the subject next to it that may hold the answer. An area subject (two segments) lists
+ * no siblings; `resolve <product>` lists the areas.
+ */
+function neighborsOf(g, subjectId) {
+  const parts = subjectId.split(".");
+  const parent = parts.slice(0, -1).join(".");
+  const out = [];
+  if (parts.length > 2 && g.nodes.get(parent)?.kind === "subject") out.push({ id: parent, title: titleOf(g, parent), rel: "parent" });
+  for (const node of g.nodes.values()) {
+    if (node.kind !== "subject" || node.id === subjectId) continue;
+    const p = node.id.split(".");
+    if (p.length === parts.length + 1 && node.id.startsWith(`${subjectId}.`)) out.push({ id: node.id, title: titleOf(g, node.id), rel: "child" });
+    else if (parts.length > 2 && p.length === parts.length && node.id.startsWith(`${parent}.`)) out.push({ id: node.id, title: titleOf(g, node.id), rel: "sibling" });
+  }
+  const order = { parent: 0, child: 1, sibling: 2 };
+  return out.sort((a, b) => order[a.rel] - order[b.rel] || a.id.localeCompare(b.id));
 }
 
 function titleOf(g, id) {
@@ -316,6 +399,7 @@ function subjectBundle(g, subjectId, ov, ctx) {
       ...(s.checks ? { checks: s.checks.map((c) => ({ do: c.do, uses: c.uses.map((u) => (g.nodes.has(u) ? u : `${subjectId}:${u}`)) })) } : {}),
       prose,
     },
+    neighbors: neighborsOf(g, subjectId),
     claims,
     gaps: itemsOf(g, subjectId, "gap").map(gapView),
     divergences: itemsOf(g, subjectId, "divergence").map((n) => ({

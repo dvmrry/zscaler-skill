@@ -4,10 +4,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { buildGraph, loadPublic, validateGraph } from "./kb-lib.mjs";
 import { moveClaim } from "./kb-move.mjs";
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** A throwaway git repo with the real schemas and registries, one fake source, and the given files. */
 function tmpRepo(files) {

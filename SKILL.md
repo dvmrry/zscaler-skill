@@ -116,7 +116,10 @@ every claim with tier, confidence and quote-anchored citations, open gaps
 (semantic and data), cases, the bound tenant object types (with IaC coverage
 and the `zscalerctl` read command), and any company-overlay facets labelled
 `layer: company`. Text with several matches returns `candidates`; pick one and
-resolve its ID. A product (`zia`, `ZPA`, `Client Connector`, `shared`) returns
+resolve its ID. A question in plain words works too: when no alias matches, the
+candidates are ranked by the question's words (`"match": "ranked"`), best first.
+Every subject bundle lists its `neighbors` (parent, children, siblings): when the
+subject you resolved does not hold the answer, the one next to it often does. A product (`zia`, `ZPA`, `Client Connector`, `shared`) returns
 `areas`: the product's table of contents, generated from its subject IDs.
 Cite claim IDs (`zia.url-filtering.rule-order:first-match`) in Sources. Old IDs such as `zia-02` resolve to their gap.
 

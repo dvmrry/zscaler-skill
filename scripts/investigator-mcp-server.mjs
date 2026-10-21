@@ -11,6 +11,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 import {
   makeResponse,
   makeError,
@@ -89,7 +90,7 @@ function resolveResourceContent(uri) {
   const { slug, kind } = parsed;
 
   // Derive the repo root from the server script location.
-  const root = path.resolve(new URL("..", import.meta.url).pathname);
+  const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 
   if (kind === "report") {
     const text = renderCaseReport({ root, caseSlug: slug });
@@ -843,7 +844,7 @@ function handleRequest(raw) {
   // ── resources/list ────────────────────────────────────────────────────────
   if (method === "resources/list") {
     // Enumerate existing cases if the runtime data cases dir exists; degrade gracefully if absent.
-    const root = path.resolve(new URL("..", import.meta.url).pathname);
+    const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
     const casesDir = runtimeDataPath(root, "cases");
     const resources = [];
     try {
