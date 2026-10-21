@@ -60,7 +60,7 @@
     },
     {
       "label": "Getting a shell.",
-      "text": "{{cli-ssh}} {{cli-ssm}}"
+      "text": "{{cli-ssh}} Whether an SSM session still works, and how it runs admin commands, is open since the page dropped it {{gap:ssm-shell}}."
     },
     {
       "label": "Not documented.",
@@ -166,7 +166,7 @@
           "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
           "quotes": [
             "CloudFormation built-in rules and constraints are not satisfied due to user input error.",
-            "There is no mismatch with the CloudFormation stack parameters: virtual private cloud (VPC), subnet, and availability zone.The provisioning URL field is not empty and is in the correct format."
+            "There is no mismatch with the CloudFormation stack parameters: virtual private cloud (VPC), subnet, and availability zone. The provisioning URL field is not empty and is in the correct format."
           ]
         }
       ]
@@ -181,7 +181,7 @@
           "quotes": [
             "CloudFormation stack fails to deploy. Resources and the stack are deleted.",
             "Verify that Supported Images in the AWS Marketplace terms and conditions were accepted before deploying to the AWS account for the first time.",
-            "Investigate the event log for errors.Confirm that the user has the correct permissions."
+            "Investigate the event log for errors. Confirm that the user has the correct permissions."
           ]
         }
       ]
@@ -208,7 +208,7 @@
           "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
           "quotes": [
             "The registration and policy fetch are correct. To check, contact Zscaler Support.",
-            "The Zscaler Admin Console can be reached from your VPC/Subnet.AWS Secrets Manager has the correct secret credentials in case of a secrets rotation.",
+            "The Zscaler Admin Console can be reached from your VPC/Subnet. AWS Secrets Manager has the correct secret credentials in case of a secrets rotation.",
             "The Cloud Connector instance is up and running within the AWS Management Console.",
             "The network is connected. Verify by checking the route tables, NAT gateway, and internet gateway configurations."
           ]
@@ -225,7 +225,7 @@
           "quotes": [
             "The Internet & SaaS gateway IP address in the Zscaler Admin Console is not populated, and the tunnel is not established.",
             "The service security group is not blocking access to the management interface (TCP/UDP 443) and the network ACL.",
-            "Ensure that Gateway configuration is set to Auto or Manual (with the proper Data Center set), or in the case of Override, the proper IP Address is input.The PAC file for pac.<cloudname>.net is reachable from the customer's VPC or subnet."
+            "Ensure that Gateway configuration is set to Auto or Manual (with the proper Data Center set), or in the case of Override, the proper IP Address is input. The PAC file for pac.<cloudname>.net is reachable from the customer's VPC or subnet."
           ]
         }
       ]
@@ -251,7 +251,7 @@
           "source": "zscaler-help",
           "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
           "quotes": [
-            "The DNS to ec2br.prod.zpath.net is resolvable from the Cloud Connector.The connection to TCP/UDP port 443 is allowed in the network ACL.",
+            "The DNS to ec2br.prod.zpath.net is resolvable from the Cloud Connector. The connection to TCP/UDP port 443 is allowed in the network ACL.",
             "AWS Cloud Connector does not have an assigned Private Access Private Service Edge or Private Access Public Service Edge IP address, resulting in a DNS or reachability issue."
           ]
         }
@@ -280,7 +280,7 @@
           "source": "zscaler-help",
           "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
           "quotes": [
-            "Configure a default route and associate the route to the ENI of the Cloud Connector Service Interface.The network ACL on the Cloud Connector subnet does not restrict access from the workload subnet.The security group on the Cloud Connector service ENI does not restrict access from the workload.",
+            "Configure a default route and associate the route to the ENI of the Cloud Connector Service Interface. The network ACL on the Cloud Connector subnet does not restrict access from the workload subnet. The security group on the Cloud Connector service ENI does not restrict access from the workload.",
             "The routing of the workload subnet does not interfere with the connection."
           ]
         }
@@ -323,20 +323,6 @@
           ]
         }
       ]
-    },
-    "cli-ssm": {
-      "statement": "Cloud Connector appliances have the AWS SSM Agent installed by default; in an SSM session sudo is not in PATH, so administrative commands such as starting a support tunnel use /usr/local/bin/sudo zssupport start.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
-          "quotes": [
-            "Cloud Connector appliances have the AWS SSM Agent installed by default.",
-            "However, this user does not have the sudo command within its PATH variable. To execute any administrative tasks, such as starting a support tunnel, on the appliance via SSM, enter the sudo $ /usr/local/bin/sudo zssupport start command."
-          ]
-        }
-      ]
     }
   },
   "gaps": {
@@ -349,6 +335,17 @@
       "resolves_with": [
         "lab-test",
         "source-read"
+      ]
+    },
+    "ssm-shell": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether Cloud Connector appliances still ship the AWS SSM Agent, and how an SSM session runs admin commands",
+      "detail": "Unverified legacy statement: the AWS troubleshooting page at revision 3222984 said Cloud Connector appliances have the AWS SSM Agent installed by default, and that the SSM session user has no sudo on its PATH, so an administrative task such as starting a support tunnel is run as `/usr/local/bin/sudo zssupport start`. Revision 3247711 of the same page no longer says either, and no other captured page does.",
+      "blocks": "telling an operator to reach a Cloud Connector shell through SSM",
+      "resolves_with": [
+        "source-read",
+        "operator-experience"
       ]
     }
   }
