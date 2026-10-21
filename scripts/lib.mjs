@@ -8,6 +8,7 @@
 
 import childProcess from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 // The runtime-data mount contract: top-level dirs and the files that count
@@ -356,4 +357,22 @@ export function gitTryOutput(cwd, args) {
   } catch {
     return "";
   }
+}
+
+/**
+ * A temporary root for one gate run: every child process gets it as TMPDIR (and TMP, TEMP), so the fixtures
+ * tests create with os.tmpdir() or Python's tempfile land inside it, and the whole tree is removed when the
+ * run exits, pass or fail. Without it each run leaves its fixtures behind in the system temp directory.
+ */
+export function runTempRoot(prefix) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  const cleanup = () => fs.rmSync(dir, { recursive: true, force: true });
+  process.on("exit", cleanup);
+  for (const signal of ["SIGINT", "SIGTERM"]) {
+    process.on(signal, () => {
+      cleanup();
+      process.exit(130);
+    });
+  }
+  return { dir, env: { TMPDIR: dir, TMP: dir, TEMP: dir }, cleanup };
 }

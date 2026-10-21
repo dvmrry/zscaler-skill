@@ -5,6 +5,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { checkNodeVersion, MIN_NODE_VERSION } from "./doctor.mjs";
+import { runTempRoot } from "./lib.mjs";
 
 const nodeCheck = checkNodeVersion();
 if (nodeCheck.status === "FAIL") {
@@ -12,6 +13,9 @@ if (nodeCheck.status === "FAIL") {
   console.error(`Minimum supported Node.js version is ${MIN_NODE_VERSION}; see ${nodeCheck.next}.`);
   process.exit(1);
 }
+
+// Every check's temporary files go under one root that is removed when this run exits.
+const runTemp = runTempRoot("zscaler-skill-fast-");
 
 // Auto-discover every scripts/**/*.test.mjs (recursively, so suites in subdirs
 // like scripts/bridge/ are never silently skipped) — a new test file is picked
@@ -92,7 +96,7 @@ function runCheck(check) {
   return new Promise((resolve) => {
     const child = spawn(check.command, check.args, {
       cwd: process.cwd(),
-      env: process.env,
+      env: { ...process.env, ...runTemp.env },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";

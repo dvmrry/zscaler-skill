@@ -4,8 +4,11 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { checkNodeVersion } from "./doctor.mjs";
+import { runTempRoot } from "./lib.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Set by main: the run's temporary root, handed to every check as TMPDIR and removed when the gate exits.
+let runTemp = { env: {} };
 const referenceFreshnessBase = process.env.REFERENCE_FRESHNESS_BASE || "origin/main";
 const PYTEST_FILES = [
   "scripts/test_check_hygiene.py",
@@ -215,7 +218,7 @@ function runCheck(check, root = repoRoot) {
   return new Promise((resolve) => {
     const child = spawn(check.command, check.args, {
       cwd: root,
-      env: { ...process.env, ...check.env },
+      env: { ...process.env, ...runTemp.env, ...check.env },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let stdout = "";
@@ -255,6 +258,7 @@ function printResult(result) {
 }
 
 async function main() {
+  runTemp = runTempRoot("zscaler-skill-gate-");
   const nodeCheck = checkNodeVersion();
   if (nodeCheck.status === "FAIL") {
     console.error(`check-full: ${nodeCheck.detail}`);
