@@ -109,6 +109,7 @@ reading files:
 ```bash
 node scripts/kb.mjs resolve "<subject ID, old clarification ID, or a few words>"
 node scripts/kb.mjs resolve zdx          # a product ID or name: its areas and their subjects
+node scripts/kb.mjs resolve --each zia.url-filtering zia.ssl-inspection   # several subjects in one call
 ```
 
 The output is one JSON bundle: the subject's reasoning with its claims inlined,

@@ -434,6 +434,12 @@ test("resolve degrades on a bad overlay: an invalid record is dropped, an unreso
   assert.deepEqual(validate(schemas, "bundle.schema.json", b), []);
 });
 
+test("resolve --each returns one bundle per argument in one call", () => {
+  const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--no-overlay", "--each", "zia.url-filtering", "zpa.microtenants.lifecycle"], { encoding: "utf8" });
+  const bundles = JSON.parse(out);
+  assert.deepEqual(bundles.map((b) => b.resolved.id), ["zia.url-filtering", "zpa.microtenants.lifecycle"]);
+});
+
 test("resolve follows former IDs and returns candidates for ambiguous text", () => {
   const g = graphOf(ROOT);
   assert.equal(resolve(g, "zia-02").resolved.id, "zia.url-categories.membership:same-specificity-collision");

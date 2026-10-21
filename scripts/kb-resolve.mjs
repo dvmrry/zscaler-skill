@@ -796,7 +796,16 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     const pretty = args.includes("--pretty");
     const cases = args.includes("--cases") ? "full" : "summary";
     const evidence = args.includes("--evidence");
-    const query = args.filter((a) => !["--pretty", "--cases", "--evidence"].includes(a)).join(" ").trim();
+    const words = args.filter((a) => !["--pretty", "--cases", "--evidence", "--each", "--no-overlay"].includes(a));
+    // --each: every argument is its own query (an ID, or quoted text), returned as one JSON array, so an agent
+    // reads several subjects in one call instead of one round trip each.
+    if (args.includes("--each")) {
+      if (!words.length) usage("resolve --each needs one or more IDs");
+      const bundles = words.map((q) => resolve(g, q, { overlay: ov, cases, evidence }));
+      process.stdout.write(JSON.stringify(bundles, null, pretty ? 2 : 0) + "\n");
+      return 0;
+    }
+    const query = words.join(" ").trim();
     if (!query) usage("resolve needs an ID or text");
     process.stdout.write(JSON.stringify(resolve(g, query, { overlay: ov, cases, evidence }), null, pretty ? 2 : 0) + "\n");
     return 0;
