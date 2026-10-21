@@ -226,7 +226,13 @@ export function resolve(g, query, { overlay = null, cases = "summary", evidence 
     if (!hits.length) [match, hits] = ["ranked", ranked(g, query)];
     if (hits.length === 1 && match !== "ranked") id = hits[0];
     else {
-      return { ...base, resolved: null, match, candidates: hits.map((h) => ({ id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h) })) };
+      return {
+        ...base, resolved: null, match,
+        candidates: hits.map((h) => {
+          const matched = match === "ranked" ? matchedLine(g, h, query) : null;
+          return { id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h), ...(matched ? { matched } : {}) };
+        }),
+      };
     }
   }
   const node = g.nodes.get(id);
@@ -303,6 +309,8 @@ function words(text) {
 function rankIndex(g) {
   if (g.rankIndex) return g.rankIndex;
   const docs = new Map();
+  const lines = new Map(); // subject -> its claim statements, gap titles and prose texts, for `matched`
+  const line = (id, text) => text && (lines.get(id) || lines.set(id, []).get(id)).push(text);
   const add = (id, text, w) => {
     const m = docs.get(id) || new Map();
     for (const t of words(text)) m.set(t, Math.max(m.get(t) || 0, w));
@@ -312,14 +320,18 @@ function rankIndex(g) {
     if (n.kind === "subject" || n.kind === "type") {
       add(n.id, n.id.replace(/[./-]/g, " "), 4);
       add(n.id, `${n.data.title || ""} ${(n.data.aliases || []).join(" ")}`, 3);
-      if (n.kind === "subject") add(n.id, JSON.stringify(n.data.prose || []).replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, " "), 1);
+      if (n.kind === "subject") {
+        add(n.id, JSON.stringify(n.data.prose || []).replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, " "), 1);
+        for (const b of n.data.prose || []) line(n.id, typeof b.text === "string" ? b.text.replace(/\{\{[^}]*\}\}/g, "").trim() : "");
+      }
     } else if ((n.kind === "claim" || n.kind === "gap") && n.subject) {
       add(n.subject, n.data.statement || n.data.title || "", 1);
+      line(n.subject, n.data.statement || n.data.title || "");
     }
   }
   const df = new Map();
   for (const m of docs.values()) for (const t of m.keys()) df.set(t, (df.get(t) || 0) + 1);
-  g.rankIndex = { docs, df, n: docs.size };
+  g.rankIndex = { docs, df, n: docs.size, lines };
   return g.rankIndex;
 }
 
@@ -339,8 +351,25 @@ function ranked(g, query, { limit = 8, among = null } = {}) {
   }
   // Ties: the shallower subject (a hub before its children), then the lower ID.
   const depth = (id) => id.split(/[./]/).length;
-  return scored.sort((a, b) => b[0] - a[0] || depth(a[1]) - depth(b[1]) || a[1].localeCompare(b[1]))
-    .slice(0, limit ?? scored.length).map(([, id]) => id);
+  const order = scored.sort((a, b) => b[0] - a[0] || depth(a[1]) - depth(b[1]) || a[1].localeCompare(b[1])).map(([, id]) => id);
+  if (limit == null) return order;
+  // Subjects hold the reasoning; a type only lists fields, so types follow the subjects and take at most two places.
+  const isType = (id) => g.nodes.get(id)?.kind === "type";
+  return [...order.filter((id) => !isType(id)).slice(0, limit), ...order.filter(isType).slice(0, 2)];
+}
+
+/** The subject's line (claim statement, gap title or prose) that best fits the query, to choose a candidate by. */
+function matchedLine(g, id, query) {
+  const { lines, df, n } = rankIndex(g);
+  const q = new Set(words(query));
+  let best = null;
+  let bestScore = 0;
+  for (const text of lines.get(id) || []) {
+    let score = 0;
+    for (const t of new Set(words(text))) if (q.has(t) && df.has(t)) score += Math.log(n / df.get(t));
+    if (score > bestScore) [best, bestScore] = [text, score];
+  }
+  return best && (best.length > 200 ? `${best.slice(0, 197)}...` : best);
 }
 
 /**

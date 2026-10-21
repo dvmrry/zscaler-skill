@@ -69,8 +69,9 @@ SDK/TF/API surface checks, or citation repair.
 
 Every product answer starts with `node scripts/kb.mjs resolve`. Pass the question's key words (or the
 question itself); text with several matches returns `candidates`, ranked best first when no alias matched:
-pick one and resolve its ID. If the bundle does not hold the answer, check its `neighbors` (parent, children,
-siblings) before guessing another ID. Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and
+pick and resolve its ID. A ranked candidate carries `matched`, the line that fits the question best: read
+them all and open every candidate whose line bears on the question, not only the first. If a bundle does not
+hold the answer, check its `neighbors` (parent, children, siblings) before guessing another ID. Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and
 say when an answer rests on an open gap or a Tier B claim (an inference with stated conditions). Search files
 with `rg` only when the resolver finds nothing, and say so.
 

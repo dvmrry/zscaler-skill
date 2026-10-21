@@ -117,7 +117,8 @@ every claim with tier, confidence and quote-anchored citations, open gaps
 and the `zscalerctl` read command), and any company-overlay facets labelled
 `layer: company`. Text with several matches returns `candidates`; pick one and
 resolve its ID. A question in plain words works too: when no alias matches, the
-candidates are ranked by the question's words (`"match": "ranked"`), best first.
+candidates are ranked by the question's words (`"match": "ranked"`), best first,
+each with the line that `matched`; open every one whose line bears on the question.
 Every subject bundle lists its `neighbors` (parent, children, siblings): when the
 subject you resolved does not hold the answer, the one next to it often does. A product (`zia`, `ZPA`, `Client Connector`, `shared`) returns
 `areas`: the product's table of contents, generated from its subject IDs.

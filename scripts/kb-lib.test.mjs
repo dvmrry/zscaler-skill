@@ -405,9 +405,13 @@ test("a question with no alias match returns ranked candidates, deterministicall
   assert.deepEqual(validate(schemas, "bundle.schema.json", a), []);
   assert.equal(a.match, "ranked");
   assert.equal(a.resolved, null);
-  assert.ok(a.candidates.length > 0 && a.candidates.length <= 8);
+  assert.ok(a.candidates.length > 0 && a.candidates.filter((c) => c.kind === "subject").length <= 8);
   assert.ok(a.candidates.some((c) => c.id === "zidentity.step-up"), "the step-up subject ranks for an MFA-prompt question");
   assert.deepEqual(resolve(g, q).candidates, a.candidates, "same query, same order");
+  assert.ok(a.candidates.filter((c) => c.kind === "subject").every((c) => typeof c.matched === "string"), "each ranked subject says which line matched");
+  const kinds = a.candidates.map((c) => c.kind);
+  assert.ok(kinds.lastIndexOf("subject") < (kinds.indexOf("type") === -1 ? Infinity : kinds.indexOf("type")), "types follow subjects");
+  assert.ok(kinds.filter((k) => k === "type").length <= 2, "at most two types");
   assert.equal(resolve(g, "the of and").candidates.length, 0, "stop words alone rank nothing");
 });
 
