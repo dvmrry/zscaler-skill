@@ -32,7 +32,7 @@
   ],
   "prose": [
     {
-      "text": "{{purpose}} Where its incidents come from is in [[zia.dlp.incident-forwarding:zwa-captures-incidents]]; how they are ingested is open there, [[zia.dlp.incident-forwarding:zwa-ingest-path]]."
+      "text": "{{purpose}} Where its incidents come from is in [[zia.dlp.incident-forwarding:zwa-captures-incidents]]; how they are ingested is below ({{dlp-integration-required|ref}})."
     },
     {
       "heading": "Ownership"
@@ -54,9 +54,20 @@
     },
     {
       "text": "{{values}} {{status-widgets}} {{search}} {{date-range}} {{bulk-limit}} {{evidence-placeholder}}"
+    },
+    {
+      "label": "Getting incidents into Workflow Automation.",
+      "text": "{{dlp-integration-required}} {{integration-methods}} Cloud-to-Cloud forwarding itself is in [[zia.dlp.incident-forwarding]]."
     }
   ],
   "checks": [
+    {
+      "do": "When a DLP violation is in the logs but no incident appears in Workflow Automation, whether the organization's DLP application integration (Incident Receiver or Cloud-to-Cloud forwarding) is configured, before looking at workflow mappings.",
+      "uses": [
+        "dlp-integration-required",
+        "integration-methods"
+      ]
+    },
     {
       "do": "Whether the incident's group is mapped to an admin, since incidents in unmapped groups are not assigned automatically.",
       "uses": [
@@ -80,7 +91,7 @@
       "do": "For a DLP violation with no incident in Workflow Automation, whether the DLP rule fired and recorded an incident upstream, and for inline web DLP whether the transaction was decrypted, before looking in Workflow Automation.",
       "uses": [
         "zia.dlp.incident-forwarding:zwa-captures-incidents",
-        "zia.dlp.incident-forwarding:zwa-ingest-path",
+        "integration-methods",
         "zia.ssl-inspection.bypass-impact:dependent-features"
       ]
     }
@@ -317,6 +328,36 @@
           "quotes": [
             "If an evidence file for a DLP incident exceeds 100 MB in size, the Zscaler service replaces the original file with a placeholder evidence file.",
             "The placeholder file retains the original name with \".txt\" appended (e.g., attachment.pdf.txt and samplefile.xlsx.txt)"
+          ]
+        }
+      ]
+    },
+    "dlp-integration-required": {
+      "statement": "DLP incident transactions appear as incidents in Workflow Automation only once a DLP application integration is configured for the organization, using AWS, GCP or Microsoft Azure; Internet & SaaS and its DLP policies have to be configured before Workflow Automation, and managing incidents needs an Internet & SaaS admin role with the Workflow Access permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "step-step-configuration-guide-workflow-automation-data-protection.json",
+          "quotes": [
+            "Because Workflow Automation integrates with Internet & SaaS (ZIA), you must set up and configure Internet & SaaS and configure the Data Loss Prevention (DLP) policies before you configure Workflow Automation.",
+            "To manage incidents in Workflow Automation, admins must be provisioned in Internet & SaaS with a role that has the Workflow Access permission configured.",
+            "To enable your organization's DLP incident transactions to appear as incidents in Workflow Automation, you must configure a DLP application integration for your organization. You can configure a DLP application integration using AWS, GCP, or Microsoft Azure."
+          ]
+        }
+      ]
+    },
+    "integration-methods": {
+      "statement": "On AWS, the DLP application integration uses Zscaler's incident-forwarding methods, Zscaler Incident Receiver or Cloud-to-Cloud Incident Forwarding, which send information about policy violations to the organization's S3 buckets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-application-integration-using-amazon-web-services.json",
+          "quotes": [
+            "You must configure Workflow Automation integration with the Amazon Web Services (AWS) EC2 instance using Zscaler incident-forwarding methods to allow the Zscaler service to send information about policy violations to public cloud storage (i.e., to your organization's AWS Simple Storage Service (S3) buckets).",
+            "- Zscaler Incident Receiver",
+            "- Cloud-to-Cloud Incident Forwarding"
           ]
         }
       ]

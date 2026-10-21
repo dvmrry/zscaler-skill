@@ -220,16 +220,16 @@ export function resolve(g, query, { overlay = null, cases = "summary", evidence 
     let match = "alias";
     let hits = [...(g.aliases.get(normalizeText(query)) || [])].sort();
     if (!hits.length) [match, hits] = ["all-words", containingAllWords(g, query)];
-    if (match === "all-words" && hits.length > 1) hits = ranked(g, query, { limit: null, among: hits });
+    if (match === "all-words" && hits.length > 1) hits = ranked(g, query, { limit: null, among: hits, overlay });
     // Neither matched (a question in prose, a word no alias carries): rank by the query's words instead. A
     // ranked list is a suggestion, so even one result comes back as a candidate rather than resolved.
-    if (!hits.length) [match, hits] = ["ranked", ranked(g, query)];
+    if (!hits.length) [match, hits] = ["ranked", ranked(g, query, { overlay })];
     if (hits.length === 1 && match !== "ranked") id = hits[0];
     else {
       return {
         ...base, resolved: null, match,
         candidates: hits.map((h) => {
-          const matched = match === "ranked" ? matchedLine(g, h, query) : null;
+          const matched = match === "ranked" ? matchedLine(g, h, query, overlay) : null;
           return { id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h), ...(matched ? { matched } : {}) };
         }),
       };
@@ -306,11 +306,14 @@ function words(text) {
  * For each subject and type, the weight of every word in it: 4 in its ID, 3 in its title or aliases, 1 in its prose,
  * claim statements and gap titles. Built once per graph.
  */
-function rankIndex(g) {
-  if (g.rankIndex) return g.rankIndex;
+function rankIndex(g, overlay = null) {
+  // One index per graph and overlay: a company record lifts the public subject it is about.
+  const holder = overlay || g;
+  if (holder.rankIndex) return holder.rankIndex;
   const docs = new Map();
-  const lines = new Map(); // subject -> its claim statements, gap titles and prose texts, for `matched`
-  const line = (id, text) => text && (lines.get(id) || lines.set(id, []).get(id)).push(text);
+  // subject -> [text, rank] for `matched`: claim statements and gap titles (rank 0) before prose (rank 1).
+  const lines = new Map();
+  const line = (id, text, rank) => text && (lines.get(id) || lines.set(id, []).get(id)).push([text, rank]);
   const add = (id, text, w) => {
     const m = docs.get(id) || new Map();
     for (const t of words(text)) m.set(t, Math.max(m.get(t) || 0, w));
@@ -322,17 +325,28 @@ function rankIndex(g) {
       add(n.id, `${n.data.title || ""} ${(n.data.aliases || []).join(" ")}`, 3);
       if (n.kind === "subject") {
         add(n.id, JSON.stringify(n.data.prose || []).replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, " "), 1);
-        for (const b of n.data.prose || []) line(n.id, typeof b.text === "string" ? b.text.replace(/\{\{[^}]*\}\}/g, "").trim() : "");
+        for (const b of n.data.prose || []) line(n.id, typeof b.text === "string" ? b.text.replace(/\{\{[^}]*\}\}/g, "").trim() : "", 1);
       }
     } else if ((n.kind === "claim" || n.kind === "gap") && n.subject) {
       add(n.subject, n.data.statement || n.data.title || "", 1);
-      line(n.subject, n.data.statement || n.data.title || "");
+      line(n.subject, n.data.statement || n.data.title || "", 0);
+    }
+  }
+  // Company records (company vocabulary: internal app, site and rule names) count against the subjects or
+  // types they are about, at weight 1, and their statements can be the line a candidate matched.
+  for (const { data } of overlay?.records || []) {
+    for (const about of data.about || []) {
+      const node = g.nodes.get(about);
+      const target = node?.kind === "subject" || node?.kind === "type" ? about : node?.subject;
+      if (!target || !docs.has(target)) continue;
+      add(target, `${data.title || ""} ${data.statement || ""}`, 1);
+      if (data.statement || data.title) line(target, `[company] ${data.statement || data.title}`, 0);
     }
   }
   const df = new Map();
   for (const m of docs.values()) for (const t of m.keys()) df.set(t, (df.get(t) || 0) + 1);
-  g.rankIndex = { docs, df, n: docs.size, lines };
-  return g.rankIndex;
+  holder.rankIndex = { docs, df, n: docs.size, lines };
+  return holder.rankIndex;
 }
 
 /**
@@ -340,8 +354,8 @@ function rankIndex(g) {
  * rare it is (inverse document frequency) times where it appears. Deterministic: ties go to the shallower, then
  * the lower ID.
  */
-function ranked(g, query, { limit = 8, among = null } = {}) {
-  const { docs, df, n } = rankIndex(g);
+function ranked(g, query, { limit = 8, among = null, overlay = null } = {}) {
+  const { docs, df, n } = rankIndex(g, overlay);
   const q = [...new Set(words(query))].filter((t) => df.has(t));
   const scored = [];
   for (const [id, m] of among ? among.map((id) => [id, docs.get(id) || new Map()]) : docs) {
@@ -359,15 +373,19 @@ function ranked(g, query, { limit = 8, among = null } = {}) {
 }
 
 /** The subject's line (claim statement, gap title or prose) that best fits the query, to choose a candidate by. */
-function matchedLine(g, id, query) {
-  const { lines, df, n } = rankIndex(g);
+function matchedLine(g, id, query, overlay = null) {
+  const { lines, df, n } = rankIndex(g, overlay);
   const q = new Set(words(query));
   let best = null;
   let bestScore = 0;
-  for (const text of lines.get(id) || []) {
+  let bestRank = Infinity;
+  for (const [text, rank] of lines.get(id) || []) {
+    // Score the words a reader sees, not the IDs inside links: a pointer line ("details are in [[a]] and
+    // [[b]]") would otherwise collect the query's words from its targets and beat the claim that answers.
+    const seen = text.replace(/\[\[[^\]]*\]\]/g, " ");
     let score = 0;
-    for (const t of new Set(words(text))) if (q.has(t) && df.has(t)) score += Math.log(n / df.get(t));
-    if (score > bestScore) [best, bestScore] = [text, score];
+    for (const t of new Set(words(seen))) if (q.has(t) && df.has(t)) score += Math.log(n / df.get(t));
+    if (score > bestScore || (score === bestScore && score > 0 && rank < bestRank)) [best, bestScore, bestRank] = [text, score, rank];
   }
   return best && (best.length > 200 ? `${best.slice(0, 197)}...` : best);
 }

@@ -415,6 +415,28 @@ test("a question with no alias match returns ranked candidates, deterministicall
   assert.equal(resolve(g, "the of and").candidates.length, 0, "stop words alone rank nothing");
 });
 
+test("ranked resolve counts company records against the subject they are about", () => {
+  const g = graphOf(ROOT);
+  const ov = loadOverlay(g, OVERLAY);
+  const q = "synthetic fixture first pass on our GRE locations";
+  const without = resolve(g, q).candidates.map((c) => c.id);
+  const withOv = resolve(g, q, { overlay: ov });
+  const hit = withOv.candidates.find((c) => c.id === "zia.ssl-inspection.pipeline");
+  assert.ok(hit, "the record's words lift the public subject it is about");
+  assert.match(hit.matched, /^\[company\] /, "its statement is the matched line");
+  assert.ok(!without.includes("zia.ssl-inspection.pipeline") || without.indexOf("zia.ssl-inspection.pipeline") > withOv.candidates.indexOf(hit));
+  assert.deepEqual(resolve(g, q).candidates.map((c) => c.id), without, "the public index is unchanged by an overlay query");
+});
+
+test("a matched line is scored on its visible words, not on the IDs inside its links", () => {
+  const g = graphOf(ROOT);
+  const b = resolve(g, "Does OAuth authentication work the same across PAC, GRE and Z-Tunnel forwarding paths?");
+  for (const c of b.candidates.filter((x) => x.matched)) {
+    const seen = c.matched.replace(/\[\[[^\]]*\]\]/g, " ");
+    assert.ok(/[a-z]{3}/i.test(seen), `${c.id}: matched line has visible words`);
+  }
+});
+
 test("a subject bundle lists its parent, children and siblings", () => {
   const g = graphOf(ROOT);
   const leaf = resolve(g, "zpa.microtenants.admin-permissions");

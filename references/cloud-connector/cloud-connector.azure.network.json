@@ -39,7 +39,7 @@
     },
     {
       "label": "Two interfaces, in order.",
-      "text": "{{nic-order-required}} {{vmss-nic-order}} {{service-nic-forwarding}} {{mgmt-nic-no-forwarding}} {{two-nics-always}} What happens on a VM booted with the order reversed is not documented {{gap:nic-order-consequence}}."
+      "text": "{{nic-order-required}} No help page states that requirement for the VM itself, so a deployment built outside the module is not shown wrong by it {{gap:runtime-nic-requirement}}. {{vmss-nic-order}} {{service-nic-forwarding}} {{mgmt-nic-no-forwarding}} {{two-nics-always}} What happens on a VM booted with the order reversed is not documented {{gap:nic-order-consequence}}."
     },
     {
       "label": "One subnet by default.",
@@ -619,6 +619,17 @@
       "detail": "Unverified legacy statement (marked inference in the legacy doc): with ip_forwarding_enabled not set on the service NIC, the VM looks healthy to Azure but passes no traffic, and the load-balancer health probe fails with 503 quickly. Help states only that IP forwarding must stay enabled to avoid connectivity disruptions and unreachable destinations.",
       "blocks": "recognizing a disabled IP-forwarding setting from load-balancer probe results",
       "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "runtime-nic-requirement": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the Cloud Connector VM itself requires separate management and service NICs",
+      "detail": "Only the Zscaler Terraform module's source comment states the interface requirement (nic-order-required); the captured Azure deployment and troubleshooting help pages name no NIC count or order. So whether a single-NIC VM built outside the module is unsupported, merely untested, or works is not documented; the module's layout is a reference implementation, not a stated runtime specification.",
+      "blocks": "telling an operator that a single-NIC Azure Cloud Connector is wrong",
+      "resolves_with": [
+        "support-ticket",
         "lab-test"
       ]
     }
