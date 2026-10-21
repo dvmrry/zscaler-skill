@@ -66,11 +66,11 @@ The skill answers questions by combining three distinct **knowledge layers**. Ea
 
 **What it is:** what your team knows that isn't in Zscaler docs and isn't in tenant config. Operator experience.
 
-**Where it lives:** structured operational-knowledge records under the private
-runtime-data mount at `_data/knowledge/<product>/<slug>.md` by default, plus
-unstructured sources such as team memory, support-ticket archives, runbooks,
-and post-mortems. The mount path is configurable. See
-[`../../docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md).
+**Where it lives:** company records in the private overlay
+(`<mount>/overlay/knowledge/<scope>/<id>.json`, or `$ZSCALER_KB_OVERLAY`), each
+attached to the public IDs it extends, narrows or contradicts, plus unstructured
+sources such as team memory, support-ticket archives, runbooks, and post-mortems.
+See [`../../docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md).
 
 **Authority pattern:** experiential. Tribally-validated but not Zscaler-blessed. May be wrong (the team's mental model might lag a Zscaler product change), and may be right where docs are silent or stale.
 
@@ -80,12 +80,12 @@ and post-mortems. The mount path is configurable. See
 - "Our finance team's SaaS app has a quirky Cloud App Control behavior — bypass URL filter on this category to keep it stable."
 - "We learned the hard way that Multimatch + AppProtection silently breaks; documented in our internal runbook from incident #2348."
 
-**Update cadence:** continuous. Records carry a `last-validated` date and an
+**Update cadence:** continuous. Records carry a `validated` date and an
 explicit confidence; unstructured team knowledge remains informal.
 
-**Where it goes to be useful:** active records may be loaded by the v1 ad-hoc
-and investigator workflows, with Layer 3 attribution, scope, confidence, and
-validation date disclosed. Records stay private. If a public source later
+**Where it goes to be useful:** `node scripts/kb.mjs resolve` merges active
+records into bundles as `layer: company` facets, which answers attribute with
+scope, confidence and validation date disclosed. Records stay private. If a public source later
 supports a claim, a human may re-author it upstream from that public source and
 mark the private record promoted.
 
@@ -109,7 +109,7 @@ Cited sources in the answer should attribute by layer:
 ## Sources
 - kb:zia.url-filtering § Rule precedence (Layer 1: general)
 - overlay IaC for zia/url-filtering-rules, rule 47 (Layer 2: this tenant)
-- _data/knowledge/zia/gre-mtu-flap.md (Layer 3: local operational knowledge)
+- company.zia.gre-mtu-flap (Layer 3: company knowledge, validated 2026-07-25)
 ```
 
 ## When the skill has only some layers
@@ -143,10 +143,10 @@ Currently Layer 2 is a known gap because the public skill has no tenant: tiers 2
 
 ## Where SME knowledge intersects
 
-Structured records under `<mount>/knowledge/` give private operational
-knowledge a durable home. In v1, ad-hoc Q&A and investigator may read relevant
-active records; researcher and auditor never load them, and architect, SOC, and
-retro have no access. Unstructured knowledge floating in chat or runbooks is
+Company records in the overlay give private operational knowledge a durable
+home, and reach answers as company facets on resolved bundles. Researcher and
+auditor, whose output is upstream-bound, resolve with `--no-overlay` and never
+read the overlay. Unstructured knowledge floating in chat or runbooks is
 still unavailable unless the user supplies it in the current conversation.
 
 Promotion does not copy or cite the private record. After a public source

@@ -64,10 +64,12 @@ from review to implementation.
 
 ## Operational-knowledge exclusion
 
-Never load or search `<mount>/knowledge/` during an auditor run, including a
-broad repository audit, diff audit, or user-supplied scope that would otherwise
-include it. Overlay-knowledge auditing is not a v1 auditor mode. Report the
-directory as excluded from scope without inspecting its names or contents.
+Never load or search the company overlay (`$ZSCALER_KB_OVERLAY`, `<mount>/overlay/`)
+or the retired `<mount>/knowledge/` during an auditor run, including a broad
+repository audit, diff audit, or user-supplied scope that would otherwise include
+it, and run the resolver with `--no-overlay`. Overlay auditing is not a v1
+auditor mode (`scripts/check-data-contract.mjs` validates the overlay). Report the
+directories as excluded from scope without inspecting their names or contents.
 The public `docs/data-contract/knowledge.md` contract may be read as workflow
 policy; this exclusion applies to private records under the runtime-data mount.
 

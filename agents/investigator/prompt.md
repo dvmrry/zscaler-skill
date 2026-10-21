@@ -56,16 +56,15 @@ Runtime-data path convention: examples use `_data/` as the default mount. If
 `runtimeData.mountPath`, substitute that configured mount path for `_data` in
 overlay, IaC, case, schema, audit, and SOC-review paths.
 
-During Step 2, after product scope is known, check the matching
-`<mount>/knowledge/<product>/` directory plus `<mount>/knowledge/shared/` for a
-relevant active operational-knowledge record. Missing runtime data, a missing
-`knowledge/` directory, or zero matches is silent. Inspect frontmatter first
-and load only relevant `status: active` bodies. Before using a record, load
+During Step 2, after product scope is known, company knowledge for that scope
+comes with `node scripts/kb.mjs resolve`: an overlay's active records arrive as
+`layer: company` facets on the bundles you resolve. A missing overlay is silent.
+Before using a company facet, load
 [`../../docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md)
-and follow its Layer 3 attribution, scope, confidence, freshness, and inference
-disclosures. The record is the reusable distilled artifact; do not follow its
-evidence references into sibling cases unless the user independently made that
-case the operative directory.
+and follow its answer-time rules (attribution, scope, confidence, `validated`
+date, `do_not_infer` verbatim). The record is the reusable distilled artifact;
+do not follow its evidence references into sibling cases unless the user
+independently made that case the operative directory.
 
 ## User framing — what to include for best results
 

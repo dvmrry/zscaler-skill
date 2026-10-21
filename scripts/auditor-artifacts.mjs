@@ -187,27 +187,31 @@ export function resolveSource(root, checksDir, source) {
   const s = String(source || "").trim();
   if (!s) return { type: "unknown", resolves: false, error: "source is empty" };
 
-  const knowledgeRoot = path.normalize(runtimeDataRelative(root, "knowledge"));
+  // Private company knowledge: overlay records (<mount>/overlay/) and the retired Markdown records
+  // (<mount>/knowledge/) never reach an auditor finding, which can be upstream-bound.
+  const privateRoots = ["overlay", "knowledge"].map((dir) => {
+    const relative = path.normalize(runtimeDataRelative(root, dir));
+    const absolute = path.join(root, relative);
+    return { relative, realpath: fs.existsSync(absolute) ? fs.realpathSync(absolute) : null };
+  });
   const sourcePaths = s
     .split(/,|\s\+\s/)
     .map((part) => part.trim().replace(/:\d[\d-]*$/, ""))
     .filter(Boolean);
-  const knowledgeAbsolute = path.join(root, knowledgeRoot);
-  const knowledgeRealpath = fs.existsSync(knowledgeAbsolute)
-    ? fs.realpathSync(knowledgeAbsolute)
-    : null;
   const citesPrivateKnowledge = sourcePaths.some((sourcePath) => {
     const normalized = path.normalize(sourcePath);
-    if (normalized === knowledgeRoot || normalized.startsWith(`${knowledgeRoot}${path.sep}`)) {
+    if (privateRoots.some(({ relative }) => normalized === relative || normalized.startsWith(`${relative}${path.sep}`))) {
       return true;
     }
-    if (!knowledgeRealpath) return false;
     try {
       const sourceAbsolute = safeRepoPath(root, sourcePath);
       if (!fs.existsSync(sourceAbsolute)) return false;
       const sourceRealpath = fs.realpathSync(sourceAbsolute);
-      const relative = path.relative(knowledgeRealpath, sourceRealpath);
-      return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== "..");
+      return privateRoots.some(({ realpath }) => {
+        if (!realpath) return false;
+        const relative = path.relative(realpath, sourceRealpath);
+        return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== "..");
+      });
     } catch {
       return false;
     }

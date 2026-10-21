@@ -731,13 +731,12 @@ literal file enumeration as plain monospace paths, one path per line where the
 runtime allows it. Do not browse sibling case directories unless the user
 explicitly points to them.
 
-After product scope is known, enumerate only the matching
-`<mount>/knowledge/<product>/` directories plus `<mount>/knowledge/shared/`.
-Missing runtime data, a missing `knowledge/` directory, or no records is silent.
-Inspect record frontmatter first and retain only relevant `status: active`
-records for body loading. Before using any retained record, load
-`docs/data-contract/knowledge.md`. Do not follow its evidence references into
-sibling cases unless the user independently made that case operative.
+After product scope is known, company knowledge for that scope comes from
+`node scripts/kb.mjs resolve`: an overlay's active records arrive as
+`layer: company` facets. A missing overlay, or no facets, is silent. Before
+using a facet, load `docs/data-contract/knowledge.md`. Do not follow its evidence
+references into sibling cases unless the user independently made that case
+operative.
 
 ### 2C — Select Entry Points
 

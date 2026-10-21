@@ -386,6 +386,33 @@ test("the synthetic overlay validates, and the relation table is enforced", () =
   assert.ok(errs.some((m) => /IaC pointer does not resolve/.test(m)));
 });
 
+test("overlay IaC is a list of repos: JSON pointers into infrawright repos, addresses into terraform repos", () => {
+  const g = graphOf(ROOT);
+  const bad = fs.mkdtempSync(path.join(os.tmpdir(), "kb-ov-"));
+  fs.cpSync(OVERLAY, bad, { recursive: true });
+  const iac = path.join(bad, "knowledge/zia/company.zia.url-filtering-iac.json");
+  const cov = JSON.parse(fs.readFileSync(iac, "utf8"));
+  cov.pointers.push(
+    { repo: "zia-tf", file: "url_filtering.tf", pointer: "/resource", label: "a JSON pointer into HCL" },
+    { repo: "nowhere", file: "x.json", pointer: "/a", label: "an undeclared repo" },
+  );
+  fs.writeFileSync(iac, JSON.stringify(cov));
+  const claim = path.join(bad, "knowledge/zia/company.zia.first-pass-user-context.json");
+  const c = JSON.parse(fs.readFileSync(claim, "utf8"));
+  delete c.validated;
+  fs.writeFileSync(claim, JSON.stringify(c));
+  const errs = validateOverlay(g, loadOverlay(g, bad)).map((e) => e.message);
+  assert.ok(errs.some((m) => /zia-tf is a terraform repo: name a resource address/.test(m)));
+  assert.ok(errs.some((m) => /IaC repo "nowhere", which overlay.json iac does not declare/.test(m)));
+  assert.ok(errs.some((m) => /a claim needs validated/.test(m)));
+  // The committed fixture resolves: the terraform pointer is a location, the infrawright pointer a value.
+  const bundle = resolve(g, "zia/url-filtering-rules", { overlay: loadOverlay(g, OVERLAY) });
+  const facet = bundle.company.find((f) => f.id === "company.zia.url-filtering-iac") || bundle.types?.flatMap((t) => t.company || []).find((f) => f.id === "company.zia.url-filtering-iac");
+  assert.ok(facet, "the IaC record reaches the type bundle");
+  assert.ok(facet.iac.some((x) => x.location === "zia-tf:url_filtering.tf zia_url_filtering_rules.block_gambling"));
+  assert.ok(facet.iac.some((x) => x.source?.startsWith("iac:coverage.json#") && x.value !== null));
+});
+
 test("resolve follows former IDs and returns candidates for ambiguous text", () => {
   const g = graphOf(ROOT);
   assert.equal(resolve(g, "zia-02").resolved.id, "zia.url-categories.membership:same-specificity-collision");

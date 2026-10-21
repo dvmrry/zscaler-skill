@@ -28,6 +28,7 @@ const FEEDS = {
   web: { title: "ZIA web log (NSS web feed)", aliases: ["nss web log", "zia web logs", "web insights logs", "zia proxy logs"] },
   firewall: { title: "ZIA firewall log (NSS firewall feed)", aliases: ["nss firewall log", "zia firewall logs", "firewall insights logs"] },
   dns: { title: "ZIA DNS log (NSS DNS feed)", aliases: ["nss dns log", "zia dns logs", "dns insights logs"] },
+  "admin-audit": { title: "ZIA admin audit log (NSS admin audit feed)", aliases: ["nss admin audit log", "zia admin audit logs", "zia audit log", "zscalernss-audit"] },
 };
 
 /** The article's table rows, each with the heading of the table it is in. */

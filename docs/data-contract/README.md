@@ -47,9 +47,9 @@ Expected top-level directories:
 - `_data/audits/`
 - `_data/soc-reviews/`
 
-The optional `_data/knowledge/` directory holds downstream operational
-knowledge. Its absence is normal and silent; see
-[`./knowledge.md`](./knowledge.md) for its schema and loading boundary.
+Company knowledge records live in the overlay (`_data/overlay/knowledge/`); see
+[`./knowledge.md`](./knowledge.md). The former `_data/knowledge/` Markdown records
+are retired: the contract check warns while any remain.
 
 Run the public contract check after creating or replacing `_data`:
 
@@ -142,11 +142,11 @@ committed runtime config.
 
 ### `_data/iac/`
 
-**Fork-customization placeholder for production Infrastructure-as-Code.** Empty in the public upstream skill. Each fork populates this with their org's actual deployed IaC for Zscaler resources — Terraform, CloudFormation, Pulumi, whatever the org uses.
+**Where a company checks out its IaC repositories**, one per directory (`_data/iac/<repo>/`), each declared in `overlay.json` `iac` with its kind (`terraform` or `infrawright`). Empty in the public upstream skill.
 
 The skill's vendored provider source lives separately at `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-zcc/`, and `vendor/terraform-provider-ztc/`; vendored deployment examples or modules live separately under `vendor/terraform-*-modules/` when present. When `_data/iac/` is populated, agents treat it as **production truth** for "how is X actually deployed in our environment" while vendor source stays useful for "what's possible / what fields exist."
 
-See [`./iac.md`](./iac.md) for the full convention, structure options, and sanitization guidance.
+See [`./iac.md`](./iac.md) for the declaration, pointer rules, and sanitization guidance.
 
 ### `_data/schemas/`
 
@@ -175,9 +175,10 @@ Issue-watch output lives under `_data/logs/`:
 
 **The company overlay: company knowledge records plus the pointers to tenant
 sources.** Ignored in the public repo. `overlay.json` declares which answer
-tiers exist beyond the public knowledge graph: `iac` (the IaC repo; see
+tiers exist beyond the public knowledge graph: `iac` (the IaC repositories; see
 `_data/iac/` and [`./iac.md`](./iac.md)) and `live` (the read-only `zscalerctl`
-tool). `node scripts/kb.mjs resolve <id | text>` reads it and reports the
+tool). Its `knowledge/<scope>/<id>.json` records are the company's knowledge
+([`./knowledge.md`](./knowledge.md)). `node scripts/kb.mjs resolve <id | text>` reads it and reports the
 available tiers in the bundle's `tiers` block. The overlay is found at
 `$ZSCALER_KB_OVERLAY`, or else at `<runtime-data mount>/overlay/` when it has an
 `overlay.json` (`node scripts/runtime-data-path.mjs overlay`).
@@ -205,12 +206,10 @@ are safe to commit for institutional memory.
 
 See [`./cases.md`](./cases.md) for the full convention.
 
-### `_data/knowledge/` (optional)
+### `_data/knowledge/` (retired)
 
-**Private operational knowledge learned from incidents and team experience.**
-Records are grouped by product, remain downstream-owned, and are absent from
-public upstream. See [`./knowledge.md`](./knowledge.md) for the record contract,
-validation rules, answer-time disclosures, and workflow exclusions.
+The former Markdown operational-knowledge records. They are no longer read; move
+them to overlay records using the field mapping in [`./knowledge.md`](./knowledge.md).
 
 ### `_data/audits/`
 

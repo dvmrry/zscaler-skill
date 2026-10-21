@@ -218,6 +218,7 @@ then stop unless the question genuinely spans multiple products or policies.
 | ZIA web log fields / what NSS reports | `node scripts/kb.mjs resolve zia/web-log` (fields), `zia.logs.web-records`, `zia.logs.web-field-semantics` |
 | ZIA firewall log fields | `node scripts/kb.mjs resolve zia/firewall-log` (fields), `zia.logs.firewall-records` |
 | ZIA DNS log fields | `node scripts/kb.mjs resolve zia/dns-log` (fields), `zia.logs.dns-record-fields`, `zia.logs.dns-outcome` |
+| ZIA admin audit log fields / who changed what (NSS admin audit feed) | `node scripts/kb.mjs resolve zia/admin-audit-log` (fields), `zia.audit-logs`, `zia.audit-logs.streaming` |
 | ZPA LSS log fields (User Activity, User Status, connector and edge status and metrics) | `node scripts/kb.mjs resolve zpa/user-activity-log` (fields; likewise `zpa/user-status-log`, `zpa/app-connector-metrics-log`, ...), `zpa.logs.user-activity` |
 | Cloud & Branch Connector NSS log fields (session, DNS, event, metrics) | `node scripts/kb.mjs resolve ztw/session-log` (fields; likewise `ztw/dns-log`, `ztw/event-log`, `ztw/metrics-vm-log`, `ztw/metrics-instance-log`, `ztw/metrics-resource-log`), `cloud-connector.logs` |
 | SPL patterns / "how do I query for X?" | `node scripts/kb.mjs resolve shared.splunk` |

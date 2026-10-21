@@ -75,21 +75,18 @@ artifact that can answer the current question, then stop.
 
 ### Operational knowledge (v1)
 
-Ad-hoc Q&A and the investigator may perform a bounded read of operational
-knowledge under `<mount>/knowledge/`: search only product directories matching
-the question plus `shared/`, inspect frontmatter first, and load bodies only for
-relevant `active` records. Follow
-[`docs/data-contract/knowledge.md`](../docs/data-contract/knowledge.md) for the
-schema, applicability rules, and required answer-time disclosures.
+Company knowledge arrives through the resolver: with an overlay configured,
+`node scripts/kb.mjs resolve` merges its active records into each bundle as
+`layer: company` facets, so no workflow reads the overlay's files to find them.
+Follow [`docs/data-contract/knowledge.md`](../docs/data-contract/knowledge.md)
+for the answer-time disclosures. A missing overlay, or no facets, is silent; an
+invalid overlay is reported by `scripts/check-data-contract.mjs`, not at answer
+time.
 
-Missing runtime data, a missing `knowledge/` directory, or zero matches is
-silent. Do not warn, diagnose, or broaden the search. A malformed record is
-different: skip it and preserve an invalid-record diagnostic where the workflow
-has diagnostics or artifacts.
-
-This permission does not extend to architect, SOC, or retro in v1. Researcher
-and auditor have a hard exclusion and must never load `knowledge/`, including
-when a broad search or user-supplied scope would otherwise include it.
+Researcher and auditor have a hard exclusion: their output is upstream-bound, so
+they resolve with `--no-overlay` and never load the overlay or the retired
+`<mount>/knowledge/`, including when a broad search or user-supplied scope would
+otherwise include them.
 
 **Safety boundaries are not budgeted.** A doc that prevents a harmful action —
 `agents/siem-emission-discipline.md` (tenant-data / SIEM emission rules) — is a

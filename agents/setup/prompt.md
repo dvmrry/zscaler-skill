@@ -147,7 +147,9 @@ create a PR unless the user asks for that follow-up.
 Collect:
 
 - **Artifact path**: one or more selected paths under `<mount>/cases`,
-  `<mount>/schemas`, `<mount>/iac`, or `<mount>/knowledge`.
+  `<mount>/schemas` or `<mount>/iac`. Company knowledge records are authored in
+  the overlay repo itself (`<mount>/overlay/knowledge/`), not submitted from the
+  mount.
 - **Overlay repo URL or local path**: from `zscaler-skill-setup.json` or the
   `--repo-url` flag.
 - **Approval**: required. The helper expects `--approve`.
@@ -166,9 +168,7 @@ selected artifacts into a temporary overlay checkout, commits to a named branch,
 and prints JSON with status, branch, files, warnings, and next action.
 Input paths use runtime mount paths; submitted overlay paths are relative to
 the overlay repo root, for example `_data/cases/foo` or
-`tenant-data/cases/foo` becomes `cases/foo`. Operational-knowledge records keep
-the same mount-relative shape (`_data/knowledge/zpa/foo.md` becomes
-`knowledge/zpa/foo.md`).
+`tenant-data/cases/foo` becomes `cases/foo`.
 
 Non-secret overlay policy such as `allowedRoots`, `defaultBranch`,
 `branchPrefix`, and approval requirements may be committed under

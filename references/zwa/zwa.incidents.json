@@ -62,8 +62,9 @@
   ],
   "checks": [
     {
-      "do": "When a DLP violation is in the logs but no incident appears in Workflow Automation, whether the organization's DLP application integration (Incident Receiver or Cloud-to-Cloud forwarding) is configured, before looking at workflow mappings.",
+      "do": "When a DLP violation shows in Internet & SaaS logs but no incident appears in Workflow Automation, walk the chain in order: the DLP rule fired in Internet & SaaS; Internet & SaaS forwards incidents to Workflow Automation through the organization's DLP application integration (Zscaler Incident Receiver or Cloud-to-Cloud Incident Forwarding); only then the workflow mappings, which act on incidents that arrived.",
       "uses": [
+        "zia.dlp.incident-forwarding:zwa-captures-incidents",
         "dlp-integration-required",
         "integration-methods"
       ]

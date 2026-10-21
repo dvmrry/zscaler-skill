@@ -49,8 +49,11 @@ gates.
 
 ## Operational-knowledge exclusion
 
-Never load or search `<mount>/knowledge/` during a researcher run, even when a
-broad search or user-supplied scope would include it. Researcher output is
+Never load or search the company overlay (`$ZSCALER_KB_OVERLAY`, `<mount>/overlay/`)
+or the retired `<mount>/knowledge/` during a researcher run, even when a broad
+search or user-supplied scope would include it, and run the resolver as
+`node scripts/kb.mjs resolve <id | text> --no-overlay` so no company facet enters
+a bundle. Researcher output is
 upstream-bound; private operational records, their evidence, and overlay paths
 must not enter reference prose. A human may instead provide a brief authored
 from a public source, which is evaluated like any other public input.

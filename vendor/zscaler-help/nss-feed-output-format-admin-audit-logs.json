@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "NSS Feed Output Format: Admin Audit Logs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/nss-feed-output-format-admin-audit-logs",
+    "node": "1402731",
+    "revision": "3204713",
+    "updated": "2026-06-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-10-21",
+  "blocks": [
+    {
+      "text": "The admin audit Nanolog Streaming Service (NSS) feed specifies the data from the admin audit logs that the NSS sends to the security information and event management (SIEM) system. You can configure an NSS feed by including one or more fields. The fields and their values display in the NSS feed output."
+    },
+    {
+      "item": "View a sample admin audit log.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"sourcetype\" : \"zscalernss-audit\", \"event\" :{\"time\":\"Thu Feb 12 06:55:48 2026\",\"recordid\":\"6917529027641082311\",\"action\":\"action_test\",\"category\":\"Security\",\"subcategory\":\"Firewall Rule\",\"resource\":\"objectName_test\",\"interface\":\"interface_test\",\"adminid\":\"None\",\"clientip\":\"10.10.10.10\",\"result\":\"result_test\",\"errorcode\":\"None\",\"auditlogtype\":\"ZID\",\"preaction\":{\"status\": \"old\", \"value\": 99},\"postaction\":{\"status\": \"new\", \"value\": 99}}}",
+      "depth": 0
+    },
+    {
+      "text": "The following tables display information about the admin audit log fields and possible values for those fields."
+    },
+    {
+      "heading": "Date/Time",
+      "level": 1
+    },
+    {
+      "text": "The following are date and time fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{time}",
+          "The time and date of the transaction. This excludes the time zone.",
+          "Mon Oct 16 22:55:48 2023"
+        ],
+        [
+          "%s{tz}",
+          "The time zone. This is the same as the time zone you specified when you configured the NSS feed.",
+          "GMT"
+        ],
+        [
+          "%02d{ss}",
+          "Seconds (0–59)",
+          "48"
+        ],
+        [
+          "%02d{mm}",
+          "Minutes (0–59)",
+          "55"
+        ],
+        [
+          "%02d{hh}",
+          "Hours (0–23)",
+          "22"
+        ],
+        [
+          "%02d{dd}",
+          "The day of the month (1–31)",
+          "16"
+        ],
+        [
+          "%02d{mth}",
+          "The month of the year",
+          "10"
+        ],
+        [
+          "%04d{yyyy}",
+          "Year",
+          "2023"
+        ],
+        [
+          "%s{mon}",
+          "The name of the month",
+          "Oct"
+        ],
+        [
+          "%s{day}",
+          "The day of the week",
+          "Mon"
+        ],
+        [
+          "%d{intlogtime}",
+          "The epoch time of the transaction",
+          "1578128400"
+        ]
+      ]
+    },
+    {
+      "heading": "Admin Audit Logs",
+      "level": 1
+    },
+    {
+      "text": "The following are admin audit fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%d{recordid}",
+          "The unique record identifier for each log",
+          ""
+        ],
+        [
+          "%s{action}",
+          "The action performed by the admin in the Zscaler Admin Console",
+          "Activate Create Delete"
+        ],
+        [
+          "%s{category}",
+          "The location in the Zscaler Admin Console where the action was performed",
+          "Data Loss Prevention Resource"
+        ],
+        [
+          "%s{subcategory}",
+          "The sublocation in the Zscaler Admin Console where the action was performed",
+          "DLP Dictionary"
+        ],
+        [
+          "%s{resource}",
+          "The specific location within a subcategory",
+          "SSL Rule Name User Object Name"
+        ],
+        [
+          "%s{interface}",
+          "The means by which the user performs their actions",
+          "The interface is either the Admin UI or an API"
+        ],
+        [
+          "%s{adminid}",
+          "The admin ID. Possible field values include: The login ID of a user from your organization's Internet & SaaS (ZIA) tenant The login ID of a Zscaler partner Zscaler Remote Assistance Service Support (i.e., when a partner accesses your organization’s Internet & SaaS tenant from the Zscaler Management Portal for Partners) Partner Template (i.e., when a Policy Template is created and applied from the Management Portal for Partners to your organization’s Internet & SaaS tenant)",
+          "example@zscaler.com example@partner.com Zscaler remote assistance Service support (Applicable only to Management Portal for Partners tenants) Partner Template (Applicable only to Management Portal for Partners tenants)"
+        ],
+        [
+          "%s{clientip}",
+          "The source IP address for the admin",
+          ""
+        ],
+        [
+          "%s{result}",
+          "The outcome of an action",
+          ""
+        ],
+        [
+          "%s{errorcode}",
+          "An optional field that exists only if the result is a failure",
+          "AUTHENTICATION_FAILED INVALID_INPUT_ARGUMENT"
+        ],
+        [
+          "%s{auditlogtype}",
+          "The admin audit log type",
+          "ZIA Portal Audit Log Branch Connector Portal Audit Log ZDX Portal Audit Log Client Connector Portal Audit Log Authentication Service Admin Audit Log"
+        ],
+        [
+          "%s{preaction}",
+          "Data before any policy or configuration changes",
+          ""
+        ],
+        [
+          "%s{postaction}",
+          "Data after any policy or configuration changes",
+          ""
+        ]
+      ]
+    },
+    {
+      "heading": "Hex-Encoded Fields",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler service hex encodes all non-printable ASCII characters that are in URLs when it sends logs to the NSS. Any URL character that is less than or equal to 0x20, or greater than or equal to 0x7F, is encoded as %HH. This ensures that your SIEM can parse the URLs that contain control characters. For example, a \\n character in a URL is encoded as %0A, and a space is encoded as %20."
+    },
+    {
+      "text": "The following are hex-encoded fields:"
+    },
+    {
+      "item": "epreaction",
+      "depth": 0
+    },
+    {
+      "item": "epostaction",
+      "depth": 0
+    },
+    {
+      "item": "eresource",
+      "depth": 0
+    }
+  ]
+}

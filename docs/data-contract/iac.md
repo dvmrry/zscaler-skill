@@ -1,71 +1,63 @@
-# `_data/iac/` — production IaC for this fork
+# IaC repositories
 
-**Empty in the public upstream skill.** Populate in your fork with your org's production Infrastructure-as-Code for Zscaler resources.
+**Empty in the public upstream skill.** A company declares its own Infrastructure-as-Code repositories for
+Zscaler objects; agents then treat them as production truth for "how is X deployed here" questions.
+
+## Where they live
+
+Check each repository out under `<mount>/iac/<repo>/` (`<mount>` is the runtime-data mount, `_data` by
+default) and declare it in the overlay's `overlay.json`, with its path relative to the overlay root:
+
+```json
+{
+  "schema_version": 1,
+  "iac": [
+    { "id": "zia-terraform", "path": "../iac/zia-terraform", "kind": "terraform" },
+    { "id": "zpa-terraform", "path": "../iac/zpa-terraform", "kind": "terraform" },
+    { "id": "infrawright", "path": "../iac/infrawright", "kind": "infrawright" }
+  ]
+}
+```
+
+Any number of repositories may be declared; `id` is how records point at one.
+
+| `kind` | Holds | A pointer names |
+|---|---|---|
+| `infrawright` | infrawright's JSON | a file and a JSON Pointer into it; the resolver reads the value and merges it into the answer |
+| `terraform` | Terraform HCL | a file and, optionally, a resource address (`zia_url_filtering_rules.block_gambling`); HCL is never parsed, so the resolver reports the location for the reader to open |
+
+An `iac-coverage` company record ([`knowledge.md`](knowledge.md)) attaches pointers to the public types they
+cover:
+
+```json
+{ "repo": "zia-terraform", "file": "url_filtering.tf", "address": "zia_url_filtering_rules.block_gambling",
+  "label": "the rule as our Terraform declares it" }
+```
+
+`scripts/check-data-contract.mjs` checks that every pointer's repository is declared, its file exists inside the
+repository, and an infrawright pointer resolves.
 
 ## Why this exists
 
-The skill ships with Zscaler Terraform provider source under `vendor/terraform-provider-zia/`, `vendor/terraform-provider-zpa/`, `vendor/terraform-provider-zcc/`, and `vendor/terraform-provider-ztc/`. Those repositories are useful for understanding resource schemas, validation rules, and provider coverage. Deployment examples or modules, when vendored, live separately under `vendor/terraform-*-modules/`. Provider source and example modules are reference material, not production truth.
-
-When your fork's `_data/iac/` is populated, agents will treat it as **production truth** for "how is X actually deployed in our environment" questions. Vendored providers and modules stay useful for "what's possible" and field-level shape questions. Where the two diverge, your `_data/iac/` wins for env-specific answers.
-
-## Routing precedence (post-fork)
+The skill ships the Zscaler Terraform providers (`vendor/terraform-provider-*`) and, where vendored, their
+deployment modules (`vendor/terraform-*-modules/`). Those say what is possible and what the reference
+deployment looks like; they are not how a company runs its tenant. Where they diverge, the company's IaC wins
+for questions about its environment.
 
 | Question shape | Authority |
 |---|---|
-| "How does our X get deployed?" | `_data/iac/` (production truth) |
-| "What fields does the API accept for X?" | `vendor/zscaler-sdk-python/` + `vendor/terraform-provider-*` (API contract) |
-| "What's the recommended way to deploy X?" | `vendor/terraform-*-modules/` when present + `vendor/zscaler-help/` (Zscaler guidance) |
-| "Why doesn't our X work?" | `_data/iac/` first (compare to deployed state), then reference for "how Zscaler intends it" |
-
-## Suggested structure
-
-The upstream skill scaffolds **`terraform/` only** — Terraform is the default IaC tool here, matching how Zscaler publishes their reference modules. If your fork uses other tools (CloudFormation, Pulumi, Ansible, OpenTofu, etc.), add directories as needed:
-
-```
-_data/iac/
-├── terraform/         ← TF modules + configs (no .tfstate; manage state separately)
-├── cloudformation/    ← if you use CFN for AWS deployments — fork-add as needed
-├── pulumi/            ← fork-add if applicable
-└── INDEX.md           ← optional: point agents at your structure
-```
-
-If your IaC is **bundled by Zscaler product** rather than by tool (e.g., all-ZIA together regardless of TF vs anything else), organize that way and ignore the per-tool directories:
-
-```
-_data/iac/
-├── zia/
-│   └── terraform/
-├── zpa/
-│   └── terraform/
-├── cloud-connector/
-│   └── terraform/
-└── ...
-```
-
-Whichever pattern fits your repo wins. Agents will discover the structure via `ls` + any `INDEX.md` you provide.
+| "How does our X get deployed?" | the company's IaC |
+| "What fields does the API accept for X?" | the generated surface (`node scripts/kb.mjs surface <name>`) and the providers |
+| "What's the recommended way to deploy X?" | the graph's subjects (`node scripts/kb.mjs resolve <words>`), from Zscaler's help and modules |
+| "Why doesn't our X work?" | the company's IaC first (what is deployed), then the graph (how Zscaler intends it) |
 
 ## Sanitization
 
-Before committing anything to a fork that may eventually be made public:
+Before committing IaC to anything that may become public: strip secrets, API keys and private keys; strip
+account, subscription and tenant identifiers; generic-ize hostnames, domains and IP ranges. A private-only repo
+can skip this, but the habit is cheap.
 
-- Strip secrets, API keys, private keys (`git-secrets` or equivalent + manual review)
-- Strip account IDs, subscription IDs, ARNs that map to your tenant
-- Generic-ize hostnames and domain names
-- Strip any IP ranges that identify your network footprint
+## Why it lives outside `references/`
 
-If your fork is private-only and will never be made public, sanitization is optional — but the routine is good practice in case the policy changes.
-
-## Why this lives outside `references/`
-
-`references/` is the skill's reasoning content — how Zscaler products work, sourced from public docs + vendored SDK + vendored help captures. It's the same for every fork.
-
-`_data/iac/` is your env's deployment content — how you actually run those products. It's per-fork. They serve different audiences:
-
-- `references/` answers any user of the skill
-- `_data/iac/` answers users of *your fork specifically*
-
-The split also keeps your production patterns from leaking back into the public upstream if you ever sync a fork with the upstream main branch.
-
-## Cross-link from agents
-
-When an agent reads a claim from `cloud-connector.azure` (`node scripts/kb.mjs resolve cloud-connector.azure`) like "Zscaler's reference TF deploys CC with two NICs," it should also check `_data/iac/terraform/cloud-connector/` (or wherever your CC IaC lives) to see how *your* deployment is actually configured. The reference doc tells the agent what's possible; `_data/iac/` tells it what's deployed.
+`references/` is the same for every installation: how Zscaler products work, from public sources. IaC is how
+one company runs them. Keeping them apart keeps a company's deployment out of the public upstream.

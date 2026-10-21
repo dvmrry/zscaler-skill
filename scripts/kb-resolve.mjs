@@ -62,6 +62,7 @@ export function validateOverlay(g, ov) {
         need(["extends", "narrows", "contradicts"].includes(data.relation), "a claim's relation is extends, narrows, or contradicts");
         need(Boolean(data.statement), "a claim needs a statement");
         need(Boolean(data.confidence), "a claim needs a confidence");
+        need(Boolean(data.validated), "a claim needs validated (the day it was last checked)");
         if (data.relation === "narrows" || data.relation === "contradicts") {
           need(kinds.every((k) => k === "claim"), `${data.relation} must target public claims only`);
           need(Boolean(data.scope), `${data.relation} requires scope`);
@@ -70,6 +71,7 @@ export function validateOverlay(g, ov) {
         break;
       case "procedure":
         need(data.relation === "extends", "a procedure's relation is extends");
+        need(Boolean(data.validated), "a procedure needs validated (the day it was last checked)");
         need(kinds.every((k) => k === "subject"), "a procedure attaches to subjects");
         break;
       case "mapping":
@@ -83,7 +85,7 @@ export function validateOverlay(g, ov) {
         need(data.relation === "extends", "iac-coverage's relation is extends");
         need(kinds.every((k) => k === "type" || k === "field"), "iac-coverage attaches to types or fields");
         need((data.pointers || []).length > 0, "iac-coverage needs pointers into the IaC repo");
-        need(Boolean(ov.config.iac), "iac-coverage needs overlay.json iac");
+        need(Boolean(ov.config.iac?.length), "iac-coverage needs overlay.json iac");
         for (const p of data.pointers || []) {
           const r = resolveOverlayPointer(ov, p);
           if (r.error) err(file, r.error);
@@ -97,14 +99,26 @@ export function validateOverlay(g, ov) {
   return errors;
 }
 
+/**
+ * Resolve a pointer into the overlay repo it names. An infrawright repo is JSON: the pointer's value is read
+ * and returned. A terraform repo is HCL, which is never parsed: the file must exist, and the pointer is a
+ * location (file and resource address) for the reader to open.
+ */
 function resolveOverlayPointer(ov, p) {
-  if (!ov.config.iac) return { error: "no iac repo configured in overlay.json" };
-  const repoRoot = path.resolve(ov.root, ov.config.iac.path);
+  const repo = (ov.config.iac || []).find((r) => r.id === p.repo);
+  if (!repo) return { error: `pointer names IaC repo "${p.repo}", which overlay.json iac does not declare` };
+  const repoRoot = path.resolve(ov.root, repo.path);
   const file = path.resolve(repoRoot, p.file);
   if (!file.startsWith(repoRoot + path.sep)) return { error: `pointer file escapes the IaC repo: ${p.file}` };
-  if (!fs.existsSync(file)) return { error: `IaC file not found: ${p.file}` };
+  if (!fs.existsSync(file)) return { error: `IaC file not found: ${p.repo}:${p.file}` };
+  if (repo.kind === "terraform") {
+    if (p.pointer !== undefined) return { error: `${p.repo} is a terraform repo: name a resource address, not a JSON pointer` };
+    return { location: `${p.repo}:${p.file}${p.address ? ` ${p.address}` : ""}` };
+  }
+  if (p.pointer === undefined) return { error: `${p.repo} is an infrawright repo: the pointer needs a JSON pointer` };
+  if (p.address !== undefined) return { error: `${p.repo} is an infrawright repo: address is for terraform repos` };
   const value = resolvePointer(readJson(file), p.pointer);
-  if (value === undefined) return { error: `IaC pointer does not resolve: ${p.file}#${p.pointer}` };
+  if (value === undefined) return { error: `IaC pointer does not resolve: ${p.repo}:${p.file}#${p.pointer}` };
   return { value };
 }
 
@@ -183,7 +197,9 @@ function companyFacets(ov, ids) {
     const facet = {
       layer: "company", id: data.id, kind: data.kind, relation: data.relation, about: data.about, title: data.title,
       ...(data.statement ? { statement: data.statement } : {}),
+      ...(data.do_not_infer ? { do_not_infer: data.do_not_infer } : {}),
       ...(data.scope ? { scope: data.scope } : {}),
+      ...(data.validated ? { validated: data.validated } : {}),
       ...(data.confidence ? { confidence: data.confidence } : {}),
       ...(data.map ? { map: data.map } : {}),
       ...(data.dropped_fields ? { dropped_fields: data.dropped_fields } : {}),
@@ -191,7 +207,12 @@ function companyFacets(ov, ids) {
       ...(data.evidence ? { evidence: data.evidence } : {}),
     };
     if (data.pointers) {
-      facet.iac = data.pointers.map((p) => ({ label: p.label, source: `${p.file}#${p.pointer}`, value: resolveOverlayPointer(ov, p).value ?? null }));
+      facet.iac = data.pointers.map((p) => {
+        const r = resolveOverlayPointer(ov, p);
+        return r.location
+          ? { label: p.label, location: r.location }
+          : { label: p.label, source: `${p.repo}:${p.file}#${p.pointer}`, value: r.value ?? null };
+      });
     }
     out.push(facet);
   }
@@ -201,7 +222,7 @@ function companyFacets(ov, ids) {
 function tiers(ov) {
   return {
     knowledge: { public: true, company: Boolean(ov) },
-    iac: { available: Boolean(ov?.config.iac) },
+    iac: { available: Boolean(ov?.config.iac?.length) },
     live: { available: Boolean(ov?.config.live) },
   };
 }

@@ -77,15 +77,14 @@ with `rg` only when the resolver finds nothing, and say so.
 
 ## Operational knowledge
 
-After identifying the product scope, check the matching
-`<mount>/knowledge/<product>/` directory plus `<mount>/knowledge/shared/` for a
-relevant active record. Missing runtime data, a missing `knowledge/` directory,
-or zero matches is silent. Inspect frontmatter first and load only relevant
-`status: active` bodies. Before using a record, load
+Company knowledge arrives with the resolver: when an overlay is configured,
+`node scripts/kb.mjs resolve` merges its active records into the bundle as
+`layer: company` facets. Do not read the overlay's files directly, and a missing
+overlay is silent. Before using a company facet, load
 [`docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md) and
-follow its Layer 3 attribution, scope, confidence, freshness, and inference
-disclosures. Never present a local claim or procedure as vendor-documented
-behavior.
+follow its answer-time rules: attribute it as company knowledge, give its scope,
+confidence and `validated` date, emit `do_not_infer` verbatim, and never present
+a company claim or procedure as vendor-documented behavior.
 
 ## Tenant observation and zscalerctl
 
