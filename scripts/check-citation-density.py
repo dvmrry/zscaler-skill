@@ -601,8 +601,6 @@ def should_skip(path: Path) -> bool:
         return True
     if is_kb_prose(path):  # cited through its claims; checked by kb.mjs validate
         return True
-    if rel == Path("references/_meta/clarifications.md"):
-        return True
     if path.name.endswith(("-schemas.md", "-postman-schemas.md")):
         return True
     if len(parts) >= 3 and parts[:2] == ("references", "_meta") and parts[2] == "primer":

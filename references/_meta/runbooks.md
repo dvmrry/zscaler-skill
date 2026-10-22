@@ -10,7 +10,6 @@ confidence: high
 source-tier: mixed
 sources:
   - "kb:shared.oneapi"
-  - "references/_meta/verification-protocol.md"
   - "vendor/zscaler-sdk-python/zscaler/utils.py"
   - "vendor/zscaler-sdk-python/zscaler/zia/legacy.py"
   - "vendor/zscaler-sdk-python/zscaler/zpa/legacy.py"
@@ -504,5 +503,3 @@ Some changes can't be rolled back even with the patterns above:
 - Authentication mechanisms (full reference, not runbook): [`shared.oneapi`](kb:shared.oneapi)
 - Read/write asymmetries (referenced from TS-6): [`zia.api`](kb:zia.api), [`zpa.api`](kb:zpa.api)
 - Activation gate: [`shared.activation`](kb:shared.activation)
-- Verification protocol (when adding new runbooks here): [`verification-protocol.md`](verification-protocol.md)
-- Tier model (where this doc fits — meta level alongside the protocol): [`layering-model.md`](layering-model.md)

@@ -12,7 +12,7 @@ The product is **codified behavior**, not API access. An agent with live API key
 
 - **The behavior LLMs hallucinate** — URL-filter rule order and first-match semantics, the wildcard-vs-exact specificity gotcha, the two-pass SSL inspection model, Cloud App Control ↔ URL Filtering interaction, ZPA app-segment matching, and cross-product policy evaluation.
 - **Honest coverage tiers** — deep operational depth (SDK / Terraform / OneAPI) on ZIA, ZPA, ZCC, ZDX, ZIdentity, and Cloud & Branch Connector; awareness-level on the rest of the portfolio — and it tells you which tier it's standing on before it answers.
-- **Source-graded answers** — every reference carries `confidence`, `source-tier`, and `sources`; a [verification protocol](./references/_meta/verification-protocol.md) gates what earns a place, so unverified claims don't get dressed up as fact.
+- **Source-graded answers** — every claim is Tier A (it quotes a pinned source, and the quote is re-anchored on every change) or Tier B (an inference with stated conditions); what no source settles is an explicit gap, so unverified claims don't get dressed up as fact.
 - **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from the knowledge graph plus the company overlay's records, the overlay's IaC when it declares `iac`, or live read-only `zscalerctl` when it declares `live` (runtime-data mount `_data/` by default, configurable in `zscaler-skill-runtime.json`). It declines rather than guesses when there is no tenant observation.
 - **Structured workflows** — repeatable, evidence-based roles for investigation, research, audit, and review when a task needs a defined output, not just a chat answer.
 
@@ -104,9 +104,8 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 
 **Reference**
 - [references/_meta/portfolio-map.md](./references/_meta/portfolio-map.md) — product coverage tiers
-- [references/_meta/clarifications.md](./references/_meta/clarifications.md) — open / partial / resolved ambiguity register
 - [references/_meta/tooling.md](./references/_meta/tooling.md) — pre-release `zscalerctl` companion contract and runtime-data cache model
-- [references/_meta/verification-protocol.md](./references/_meta/verification-protocol.md) — how a finding earns its place
+- [docs/kb-layout.md](./docs/kb-layout.md) — what lives where in the knowledge graph
 - [docs/data-contract/](./docs/data-contract/) — expected runtime-data layout
 
 **Project**
@@ -115,7 +114,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 ## Known boundaries
 
 - Malware Protection and ATP **settings** are queryable/configurable through the SDK/API; diagnosing which engine blocked a specific transaction still requires Web Insights or equivalent transaction logs.
-- Some clarifications stay open pending tenant-specific lab tests (see [PLAN.md](./PLAN.md)).
+- Open questions are gaps in the graph, each with what would resolve it; some need tenant-specific lab tests.
 - Field shapes for tenant types come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); validate them against real tenant output before treating them as tenant-confirmed.
 - Z-Tunnel wire-format internals are not customer-documented.
 - Tier 3 / Tier 4 portfolio areas can be routed and explained, but the skill will not invent SDK, Terraform, or API behavior for them.

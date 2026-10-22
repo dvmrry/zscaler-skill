@@ -53,8 +53,8 @@ Ordinary users can skip this section. If you are maintaining or extending a
 fork, use these state sources:
 
 - [`IMPROVEMENTS.md`](../IMPROVEMENTS.md) — current improvement backlog.
-- [`references/_meta/clarifications.md`](../references/_meta/clarifications.md)
-  — unresolved product-behavior questions and lab-test status.
+- Open gaps in the knowledge graph (`node scripts/kb.mjs resolve <subject>` lists a subject's gaps)
+  — unresolved product-behavior questions and what would resolve them.
 - [`PLAN.md`](../PLAN.md) — historical build record and crash-recovery context.
 
 Run `npm run check:fast` while iterating and `npm run check:full` before merge.

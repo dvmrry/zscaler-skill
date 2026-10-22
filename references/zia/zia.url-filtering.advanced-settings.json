@@ -49,6 +49,10 @@
     {
       "label": "Writing through automation.",
       "text": "{{go-full-state-write}} What a serialized Creative Commons false does to an enabled setting is open {{gap:creative-commons-backend-effect}}."
+    },
+    {
+      "label": "One-click breakouts.",
+      "text": "{{ucaas-one-click-fields}}"
     }
   ],
   "checks": [
@@ -269,6 +273,24 @@
       "gaps": [
         "settings-not-live-readable"
       ]
+    },
+    "ucaas-one-click-fields": {
+      "statement": "The Microsoft 365 and UCaaS one-click toggles (`enableMsftO365`, `enableUcaasZoom`, `enableUcaasLogMeIn`, `enableUcaasRingCentral`, `enableUcaasWebex`) are fields of the URL Filtering and Cloud App Control settings at `/advancedUrlFilterAndCloudAppSettings`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "quotes": [
+            "urladvSettingsEndpoint       = \"/zia/api/v1/advancedUrlFilterAndCloudAppSettings\"",
+            "EnableMsftO365 bool `json:\"enableMsftO365\"`",
+            "EnableUcaasZoom bool `json:\"enableUcaasZoom\"`",
+            "EnableUcaasLogMeIn bool `json:\"enableUcaasLogMeIn\"`",
+            "EnableUcaasRingCentral bool `json:\"enableUcaasRingCentral\"`",
+            "EnableUcaasWebex bool `json:\"enableUcaasWebex\"`"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -318,6 +340,18 @@
       "former_ids": [
         "zia-72"
       ]
+    },
+    "ucaas-one-click-location": {
+      "kind": "semantic",
+      "former_ids": [
+        "zia-65"
+      ],
+      "title": "Where the UCaaS one-click toggles live",
+      "status": "resolved",
+      "resolves_with": [
+        "code-read"
+      ],
+      "resolution": "In the URL Filtering and Cloud App Control settings object (claim ucaas-one-click-fields), which the ZIA advanced-settings model does not carry."
     }
   },
   "divergences": {

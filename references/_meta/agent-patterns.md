@@ -236,4 +236,3 @@ result = interpret_error(
 - Tenant-observation boundary: [`tooling.md`](tooling.md)
 - Human-readable runbooks: [`runbooks.md`](runbooks.md)
 - Auth framework reference: [`shared.oneapi`](kb:shared.oneapi)
-- Verification protocol (when adding new patterns): [`verification-protocol.md`](verification-protocol.md)

@@ -39,7 +39,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 T1_PRODUCTS = ["zia", "zpa", "zcc", "zdx", "zbi", "zidentity", "cloud-connector", "zwa", "shared"]
 T2A_PRODUCTS = ["deception", "risk360", "ai-security", "zms"]
 META_DOCS = [
-    "references/_meta/clarifications.md",
     "references/_meta/runbooks.md",
     "references/_meta/agent-patterns.md",
 ]
@@ -48,8 +47,6 @@ QUICK_FILES = [
     "README.md",
     "PLAN.md",
     "references/_meta/portfolio-map.md",
-    "references/_meta/layering-model.md",
-    "references/_meta/verification-protocol.md",
 ]
 
 FRONTMATTER_RE = re.compile(r"\A---\s*\n.*?\n---\s*\n", re.DOTALL)

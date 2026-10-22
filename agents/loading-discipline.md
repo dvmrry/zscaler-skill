@@ -40,20 +40,17 @@ A stage line:
 Treat the context window as a shared runtime resource. Load the smallest
 artifact that can answer the current question, then stop.
 
-1. **Route, then read.** Use workflow metadata, the capability registry, or a
-   short `rg` search to choose a source. Do not open broad product folders,
-   `references/_meta/clarifications.md`, runbooks, or vendor trees before a
-   concrete question points there.
-2. **Prefer indexes before bodies.** Load `agents/**/grounding/index.md`,
-   `references/<product>/index.md`, or a source viewer index before child
-   cards. Read a child card only when the index names it as relevant.
-3. **Search long ledgers, don't page them in.** For
-   `references/_meta/clarifications.md`, search by product prefix and keyword
-   first, for example `rg -n "^(### )?(zia|shared)-|ucTemplateId|urlCategories2"
-   references/_meta/clarifications.md`, then read the small matching section.
-   Always include the `shared-` prefix alongside the product one — cross-product
-   clarifications (37 entries) live under `shared-`, not under each product, so a
-   product-only grep silently misses them.
+1. **Route, then read.** For Zscaler knowledge, resolve
+   (`node scripts/kb.mjs resolve <id | product | words>`); for anything else,
+   use workflow metadata, the capability registry, or a short `rg` search to
+   choose a source. Do not open product folders, runbooks, or vendor trees
+   before a concrete question points there.
+2. **Prefer indexes before bodies.** A product resolve lists its areas; load
+   `agents/**/grounding/index.md` or a source viewer index before child cards.
+   Read a child only when the index names it as relevant.
+3. **Resolve, don't page in.** A subject bundle carries its claims, gaps and
+   neighbors; old clarification IDs (`zia-02`) resolve to their gaps. Do not
+   read or grep the graph's JSON files to answer.
 4. **Default search exclusions.** Broad searches should exclude local runtime
    copies and generated/stale workspaces: `--glob '!.claude/worktrees/**'`.
    Exclude raw vendor source under `vendor/**` unless the current workflow

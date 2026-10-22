@@ -57,4 +57,3 @@ These docs are **prerequisite, not Zscaler depth**. For depth on any specific Zs
 
 - Single-page Zscaler portfolio index: [`../portfolio-map.md`](../portfolio-map.md)
 - Skill routing for specific questions: [`../../../SKILL.md`](../../../SKILL.md)
-- Open / partial / resolved clarifications across the skill: [`../clarifications.md`](../clarifications.md)

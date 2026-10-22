@@ -9,7 +9,6 @@ source-tier: practice
 sources:
   - "https://diataxis.fr/"
   - "https://www.w3.org/TR/prov-overview/"
-  - "references/_meta/template.md"
   - "scripts/check-hygiene.py"
 dependencies: []
 author-status: draft

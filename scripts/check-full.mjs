@@ -11,7 +11,6 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 let runTemp = { env: {} };
 const referenceFreshnessBase = process.env.REFERENCE_FRESHNESS_BASE || "origin/main";
 const PYTEST_FILES = [
-  "scripts/test_check_hygiene.py",
   "scripts/test_help_capture.py",
   "scripts/test_capture_paths.py",
   "scripts/test_automate_pages.py",
@@ -23,7 +22,6 @@ const PYTEST_FILES = [
   "scripts/automate-capture/test_build_openapi_from_blobs.py",
   "scripts/automate-capture/test_reconcile_contract.py",
   "scripts/automate-capture/test_rosetta.py",
-  "scripts/automate-capture/test_reference_anchors.py",
 ];
 
 const FULL_CHECKS = [

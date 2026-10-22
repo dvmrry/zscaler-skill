@@ -2,7 +2,7 @@
 
 Open work items for the skill. Triage by impact + cost; promote items to **In progress** when active, then to **Resolved** / **Wontfix** / **Deferred** with a one-line note when status changes.
 
-This is a planning document, not a verification register — for evidence-based open questions about Zscaler concepts, use [`references/_meta/clarifications.md`](references/_meta/clarifications.md).
+This is a planning document, not a verification register — for evidence-based open questions about Zscaler concepts, use the gaps in the knowledge graph.
 
 ## Format
 
@@ -253,7 +253,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Cross-links
 
-- [`references/_meta/clarifications.md`](references/_meta/clarifications.md) — evidence-based open questions about Zscaler concepts (separate from this planning doc)
 - [`PLAN.md`](PLAN.md) — original skill-building plan
 - [`SKILL.md`](SKILL.md) — skill-routing entry point
 - `scripts/check-*.py` / `check-*.sh` — the hygiene check suite that some of these items extend

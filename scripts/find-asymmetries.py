@@ -597,13 +597,12 @@ def render_report(candidates: dict) -> str:
         f"- Within-validator near-duplicates "
         f"(set size ≤ {NEAR_DUP_MAX_SET_SIZE}): {len(candidates['near_duplicates'])}",
         "",
-        "Each candidate below is a *signal*, not a confirmed finding. Triage per "
-        "[`references/_meta/verification-protocol.md`](../references/_meta/verification-protocol.md):",
+        "Each candidate below is a *signal*, not a confirmed finding. Triage:",
         "",
         "1. Source-check the candidate against TF + Python SDK + Go SDK + Postman + help.",
-        "2. Tier-A confirmed → thread into topical doc + add row to `references/<product>/api.md § Read/write shape asymmetries`.",
+        "2. Confirmed → a Tier A claim (or divergence) in the product's `*.terraform.*` or `*.api.*` subject.",
         "3. False positive (validators differ for legitimate reasons) → note here and move on.",
-        "4. Tier-C single-source claim → file as a clarification candidate.",
+        "4. Unsettled → a gap in that subject, saying what would resolve it.",
         "",
         "---",
         "",

@@ -180,22 +180,17 @@ resolve a capture commit that existed only on the discarded branch.
 
 ## Contributing
 
-- Reference files start as `author-status: stub` with TODO headings. Pick one,
-  fill it in, bump to `draft`, and add sources.
-- Keep hand-authored reasoning (`content-type: reasoning`) separate from
-  reproduced or paraphrased API docs (`content-type: reference`). The
-  distinction matters for later training use.
-- When all cited sources for a behavior document are reverified, update
-  `last-verified` to that verification date. A bounded edit that does not
-  reverify every cited source retains the existing date and records its narrower
-  source scope instead of implying a full-document recheck.
-- Resolving a clarification: update the entry in
-  `references/_meta/clarifications.md` in place. Set `Status: resolved`, add an
-  `Answer:` paragraph, and cite sources. Do not delete resolved entries; other
-  docs link to them by anchor.
-- Adding a new clarification: pick the next `<area>-<num>` ID and link both
-  ways, from the origin reference doc to the clarification and from the
-  clarification back to the origin.
+- Knowledge is JSON subjects under `references/<product>/`, one subject per file, validated against
+  `references/_meta/schema/` (the model is
+  `docs/superpowers/specs/2026-10-17-kb-graph-model-design.md`). A Tier A claim quotes its source; a Tier B
+  claim states its `conditions`. `node scripts/kb.mjs validate` anchors every quote and pointer.
+- What no source settles is a gap, not a hedge in prose. Resolving one: set `status: resolved` and write a
+  `resolution` that names the claim that settles it; keep its `former_ids`, so old IDs still resolve.
+- What a team has observed but no public source states (an incident finding, a support answer) is company
+  knowledge: it goes in the overlay as a record ([`data-contract/knowledge.md`](data-contract/knowledge.md)),
+  never into the public graph.
+- Moving a claim between subjects renames it: use `node scripts/kb.mjs move-claim <from> <to> [--merge]`,
+  which rewrites every reference.
 
 ## Testing the Skill
 
@@ -219,8 +214,8 @@ harness should expect a decline-with-helpful-pointers when no overlay IaC or liv
   scaffolds were removed (2026-06), as were the SDK snapshot / lookup / simulator
   scripts. Tenant config comes from the overlay's IaC or a live read-only
   `zscalerctl` read (no saved snapshot tier); the references reason over it.
-- **Several clarifications remain open** because they require tenant-specific
-  lab tests. See `PLAN.md`.
+- **Open gaps** are in the graph, with what would resolve each (often a lab test or a tenant read):
+  every resolved bundle lists its subject's gaps.
 - **Z-Tunnel wire-format internals are not customer-documented.**
   `kb:zcc.z-tunnel` covers the operational layer. Protocol-level
   questions remain Zscaler Support territory.

@@ -235,11 +235,11 @@ Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the s
 #### g. Open-questions hygiene
 
 For each in-scope file with an `## Open questions` section:
-- Are listed open questions tracked in `_meta/clarifications.md`?
+- Are listed open questions tracked as gaps in the knowledge graph?
 - Are any of them stale — i.e., resolved elsewhere in the skill but not propagated back here?
 - Is the section a real list of open items, or has it become a stale dumping ground?
 
-Cross-reference `_meta/clarifications.md` § "Status summary" to detect stale items. `check-hygiene.py` already does part of this; flag what it doesn't catch (e.g., a question that's resolved but the file's open-questions text doesn't reflect the resolution).
+Cross-reference the graph gaps (`node scripts/kb.mjs resolve <subject>`) to detect stale items; flag what it doesn't catch (e.g., a question that's resolved but the file's open-questions text doesn't reflect the resolution).
 
 Severity: `Medium` for stale open questions; `Low` for "open questions" section that should be removed entirely if empty.
 
@@ -381,4 +381,4 @@ When the lint subtypes are added, this prompt becomes the **skill-meta lint** br
 - [`investigator/methodology.md`](../investigator/methodology.md) — parallel discipline for investigations
 - [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` playbook (the hypothesis-driven sibling)
 - Mechanical CI scripts — `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
-- Clarifications register — `references/_meta/clarifications.md`
+- Open questions — gaps in the knowledge graph (`node scripts/kb.mjs resolve <subject>`)

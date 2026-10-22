@@ -10,7 +10,6 @@ source-tier: practice
 sources:
   - "agents/researcher/grounding/index.md"
   - "agents/declared-records.md"
-  - "references/_meta/template.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
   - "scripts/check-orphans.py"

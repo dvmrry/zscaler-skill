@@ -46,8 +46,8 @@ Authentication:
 Manual review workflow:
     1. Run script (or let CI run it).
     2. Open <runtime-data-mount>/logs/issues-new.md (local) or the sticky issue (CI).
-    3. For each surfaced issue: source-check + thread per
-       references/_meta/verification-protocol.md, or skip if not behavioral.
+    3. For each surfaced issue: source-check it and add a claim, divergence or gap to the
+       subject it touches (docs/maintenance.md, Contributing), or skip if not behavioral.
     4. Comment on the sticky issue (if used) to record the triage decision.
 """
 
@@ -373,8 +373,8 @@ def render_digest(
         "Triage workflow:",
         "",
         "1. Each issue below is a candidate. Read the title; click through if it looks behavioral.",
-        "2. Issues that touch documented skill behavior → source-check + thread per "
-        "[`references/_meta/verification-protocol.md`](../references/_meta/verification-protocol.md).",
+        "2. Issues that touch documented skill behavior → source-check, then add a claim, divergence "
+        "or gap to the subject (docs/maintenance.md, Contributing).",
         "3. Issues that look like TF schema drift or SDK enum changes → re-run "
         "`scripts/find-asymmetries.py`.",
         "4. Issues that don't bear on the skill → skip.",
