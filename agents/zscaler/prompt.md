@@ -68,7 +68,7 @@ question itself); text with several matches returns `candidates`, ranked best fi
 pick and resolve its ID. A ranked candidate carries `matched`, the line that fits the question best: read
 them all and open every candidate whose line bears on the question, not only the first. If a bundle does not
 hold the answer, check its `neighbors` (parent, children, siblings) before guessing another ID. To read several
-subjects (candidates, neighbors), resolve them in one call: `node scripts/kb.mjs resolve --each <id> <id> ...`. Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and
+subjects (candidates, neighbors), scan them in one call with `node scripts/kb.mjs resolve --compact --each <id> <id> ...` (one-line claims, gaps, neighbors), then resolve in full only the one or two that hold the answer. Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and
 say when an answer rests on an open gap or a Tier B claim (an inference with stated conditions). Search files
 with `rg` only when the resolver finds nothing, and say so.
 

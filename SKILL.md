@@ -56,12 +56,14 @@ Read through the resolver, not by opening or grepping files:
 node scripts/kb.mjs resolve <subject ID>              # one subject: prose, cited claims, gaps, types, company facets
 node scripts/kb.mjs resolve "<the question's words>"  # candidates, ranked when no alias matches
 node scripts/kb.mjs resolve zia                       # a product: its areas and their subjects
-node scripts/kb.mjs resolve --each <id> <id> ...      # several subjects in one call
+node scripts/kb.mjs resolve --compact --each <id> ...  # scan several subjects: one-line claims, gaps, neighbors
+node scripts/kb.mjs resolve --each <id> <id> ...      # several full subjects in one call
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
 ```
 
 - **Candidates.** A ranked candidate carries `matched`, the line that fits the question best. Read them all and
-  open every candidate whose line bears on the question (with `--each`), not only the first.
+  scan every candidate whose line bears on the question with `--compact --each`, not only the first, then resolve
+  in full only the one or two that hold the answer. Full bundles are 10-50 KB each; compact ones about a fifth.
 - **Neighbors.** Every subject lists its parent, children and siblings. When the subject you opened does not hold
   the answer, the one next to it often does; check before guessing another ID.
 - **Claims.** Tier A claims quote their source. Tier B claims are inferences with stated `conditions`: say so

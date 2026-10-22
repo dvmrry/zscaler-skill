@@ -440,6 +440,28 @@ test("resolve --each returns one bundle per argument in one call", () => {
   assert.deepEqual(bundles.map((b) => b.resolved.id), ["zia.url-filtering", "zpa.microtenants.lifecycle"]);
 });
 
+test("resolve --compact gives labels and one-line claims that fit the bundle schema, much smaller than full", () => {
+  const run = (...a) => execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--overlay", OVERLAY, "--each", ...a], { encoding: "utf8" });
+  const ids = ["zia.url-filtering.rule-order", "zia/url-filtering-rules", "zpa.microtenants.lifecycle", "wildcard"];
+  const full = run(...ids);
+  const out = run("--compact", ...ids);
+  assert.ok(out.length * 3 < full.length, `compact ${out.length} bytes vs full ${full.length}`);
+  const [subject, type, other, candidates] = JSON.parse(out);
+  const schemas = loadSchemas(path.join(ROOT, "references/_meta/schema"));
+  for (const b of [subject, type, other, candidates]) assert.deepEqual(validate(schemas, "bundle.schema.json", b), []);
+  assert.equal(subject.view, "compact");
+  assert.equal(subject.subject, undefined, "no prose body");
+  // Claims inlined in prose carry no statement in the full bundle; the compact view states every claim.
+  const firstMatch = subject.summary.claims.find((c) => c.id === "zia.url-filtering.rule-order:first-match");
+  assert.match(firstMatch.statement, /first rule whose criteria all match/);
+  assert.ok(subject.summary.claims.every((c) => c.statement.length <= 200));
+  assert.ok(subject.summary.neighbors.length > 0);
+  assert.equal(type.view, "compact");
+  assert.ok(type.summary.company.some((f) => f.id === "company.zia.url-filtering-iac"), "company facet labels survive");
+  assert.equal(candidates.view, undefined, "candidate lists pass through unchanged");
+  assert.ok(candidates.candidates.length > 0);
+});
+
 test("resolve follows former IDs and returns candidates for ambiguous text", () => {
   const g = graphOf(ROOT);
   assert.equal(resolve(g, "zia-02").resolved.id, "zia.url-categories.membership:same-specificity-collision");

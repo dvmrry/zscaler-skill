@@ -6,6 +6,7 @@
 //                                    --strict exits 1 on any error-level finding
 //   resolve <id | text> [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]
 //   resolve --each <id> <id> ...     one bundle per argument, as a JSON array (one call for several subjects)
+//   resolve --compact ...            labels and one-line claims only (with --each: scan several, then open one)
 //     The overlay defaults to $ZSCALER_KB_OVERLAY, then <runtime-data mount>/overlay if it has overlay.json.
 //                                    one layer-labelled bundle (JSON on stdout)
 //   render <subject-id>              the subject as Markdown (deterministic)

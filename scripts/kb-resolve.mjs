@@ -295,6 +295,49 @@ export function resolve(g, query, { overlay = null, cases = "summary", evidence 
   return { ...base, resolved: { id, kind: node.kind }, ...(node.kind !== "subject" ? { focus: id } : {}), ...subjectBundle(g, subjectId, overlay, ctx) };
 }
 
+const oneLine = (t) => (t.length > 200 ? `${t.slice(0, 197)}...` : t);
+
+/**
+ * The compact view of a resolved bundle (--compact): per subject its claims as one-line statements, gap and
+ * divergence labels, company facet labels and neighbor IDs, without prose, checks, citations, cases or types.
+ * An agent reads several subjects this way in one small call, then resolves in full only the one or two it
+ * needs. Candidate lists and product area lists are already compact and pass through unchanged.
+ */
+export function compactBundle(g, bundle) {
+  if (!bundle.resolved || bundle.resolved.kind === "product") return bundle;
+  const { bundle_version, query, tiers: t, resolved, focus } = bundle;
+  const base = { bundle_version, query, tiers: t, resolved, ...(focus ? { focus } : {}), view: "compact" };
+  const company = (bundle.company || []).map((f) => ({ id: f.id, kind: f.kind, title: f.title }));
+  if (bundle.type) {
+    return {
+      ...base,
+      summary: {
+        id: bundle.type.id, title: bundle.type.title || bundle.type.id,
+        subjects: bundle.subjects.map((x) => ({ id: x.id, title: x.title })),
+        gaps: bundle.gaps.map((x) => ({ id: x.id, title: x.title, status: x.status })),
+        company,
+      },
+      hint: "Resolve an ID without --compact for its prose, citations and checks.",
+    };
+  }
+  const sid = bundle.subject.id;
+  const matched = query !== resolved.id && query !== sid ? matchedLine(g, sid, query) : null;
+  return {
+    ...base,
+    ...(matched ? { matched } : {}),
+    summary: {
+      id: sid, title: bundle.subject.title,
+      claims: itemsOf(g, sid, "claim").map((n) => ({ id: n.id, tier: n.data.tier, statement: oneLine(n.data.statement) })),
+      gaps: bundle.gaps.map((x) => ({ id: x.id, title: x.title, status: x.status })),
+      divergences: bundle.divergences.map((x) => ({ id: x.id, summary: oneLine(x.summary) })),
+      company,
+      neighbors: bundle.neighbors.map((x) => ({ id: x.id, rel: x.rel })),
+      related: bundle.subject.related.map((r) => ({ id: r.to, rel: r.rel })),
+    },
+    hint: "Resolve an ID without --compact for its prose, citations and checks.",
+  };
+}
+
 /** The product (or "shared") a query names by its ID, or by its name or a products.json alias unless idOnly. */
 function productOf(g, query, idOnly) {
   const q = normalizeText(query);
@@ -796,18 +839,20 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     const pretty = args.includes("--pretty");
     const cases = args.includes("--cases") ? "full" : "summary";
     const evidence = args.includes("--evidence");
-    const words = args.filter((a) => !["--pretty", "--cases", "--evidence", "--each", "--no-overlay"].includes(a));
+    // --compact: one-line claims and labels only (compactBundle), for scanning several subjects cheaply.
+    const view = args.includes("--compact") ? (b) => compactBundle(g, b) : (b) => b;
+    const words = args.filter((a) => !["--pretty", "--cases", "--evidence", "--each", "--no-overlay", "--compact"].includes(a));
     // --each: every argument is its own query (an ID, or quoted text), returned as one JSON array, so an agent
     // reads several subjects in one call instead of one round trip each.
     if (args.includes("--each")) {
       if (!words.length) usage("resolve --each needs one or more IDs");
-      const bundles = words.map((q) => resolve(g, q, { overlay: ov, cases, evidence }));
+      const bundles = words.map((q) => view(resolve(g, q, { overlay: ov, cases, evidence })));
       process.stdout.write(JSON.stringify(bundles, null, pretty ? 2 : 0) + "\n");
       return 0;
     }
     const query = words.join(" ").trim();
     if (!query) usage("resolve needs an ID or text");
-    process.stdout.write(JSON.stringify(resolve(g, query, { overlay: ov, cases, evidence }), null, pretty ? 2 : 0) + "\n");
+    process.stdout.write(JSON.stringify(view(resolve(g, query, { overlay: ov, cases, evidence })), null, pretty ? 2 : 0) + "\n");
     return 0;
   }
   if (cmd === "render") {
