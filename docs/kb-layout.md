@@ -22,4 +22,4 @@ Read it through `node scripts/kb.mjs resolve`; the model is
 | `references/_meta/citation-inventory.json` | citation density of the remaining Markdown | `scripts/check-citation-density.py` |
 
 Markdown still under `references/_meta/` predates the graph and is being converted or moved out:
-`references/_meta/tooling.md` and `references/_meta/primer/`.
+`references/_meta/primer/`.

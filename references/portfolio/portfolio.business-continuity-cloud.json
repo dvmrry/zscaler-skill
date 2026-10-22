@@ -47,7 +47,7 @@
       "text": "Public cloud upgrades delay the business continuity upgrade on purpose: [[zia.private-service-edge.business-continuity:upgrade-delay]]."
     },
     {
-      "text": "Whether the customer side is only a Private Service Edge deployment is open {{gap:customer-side}}. Whether ZPA's business continuity settings API is this service's configuration surface is open {{gap:sdk-surface}}."
+      "text": "{{bcc-customer-pcc}} The customer side is therefore more than a Private Service Edge deployment {{gap:customer-side}}. Whether ZPA's business continuity settings API is this service's configuration surface is open {{gap:sdk-surface}}."
     }
   ],
   "checks": [
@@ -122,6 +122,19 @@
         }
       ]
     },
+    "bcc-customer-pcc": {
+      "statement": "Customers must configure, enroll and maintain Private Cloud Controllers to provide application access during a global Private Access outage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-cloud-controllers.json",
+          "quotes": [
+            "To provide application access during a global Private Access outage, you must configure, enroll, and maintain Private Cloud Controllers."
+          ]
+        }
+      ]
+    },
     "bcc-private-access": {
       "statement": "The Private Access Business Continuity Cloud uses Private Service Edges, App Connectors and the Private Cloud Controller to keep private applications reachable in business continuity mode.",
       "tier": "A",
@@ -140,12 +153,13 @@
     "customer-side": {
       "kind": "semantic",
       "title": "Whether the customer side of the Business Continuity Cloud is only a Private Service Edge deployment",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: 'Zscaler-managed; customer side is just the Private Service Edge deployment.' The managed-service page says the service needs no on-premises business continuity infrastructure (bcc-isolated-cloud), yet its Private Access half uses Private Service Edges and App Connectors (bcc-private-access); no page lists what the customer deploys.",
       "resolves_with": [
         "source-read",
         "support-ticket"
-      ]
+      ],
+      "resolution": "Resolved: customers must configure, enroll and maintain Private Cloud Controllers (claim bcc-customer-pcc), so the legacy 'only Private Service Edge' statement is wrong."
     },
     "sdk-surface": {
       "kind": "semantic",

@@ -44,13 +44,13 @@
       "text": "{{ssr-path}} {{ssr-export}}"
     },
     {
-      "text": "Whether it also gives IoT device visibility is open {{gap:ssr-iot}}. Whether it is powered by ZIA traffic is open {{gap:ssr-zia}}. Whether it is observability only, with no enforcement, is open {{gap:ssr-enforcement}}."
+      "text": "IoT device visibility is in the IoT Report, not this one: {{ssr-iot-report}} {{gap:ssr-iot}}. Whether it is powered by ZIA traffic is open {{gap:ssr-zia}}. Whether it is observability only, with no enforcement, is open {{gap:ssr-enforcement}}."
     },
     {
       "text": "{{ssr-endpoint}} {{ssr-sdk}} The GraphQL API itself, its auth and its scope are in [[shared.analytics.graphql]]."
     },
     {
-      "text": "The legacy statement that neither SDK has a zins namespace is contradicted for Python {{gap:ssr-no-sdk}}. The rename history is not captured {{gap:ssr-rename}}, and the 8,500-app figure in older marketing {{gap:ssr-8500}}."
+      "text": "The legacy statement that neither SDK has a zins namespace is contradicted for Python {{gap:ssr-no-sdk}}. {{divergence:report-name}} The rename history is not captured {{gap:ssr-rename}}. The 8,500-app figure in older marketing is in no capture {{gap:ssr-8500}}. {{ssr-scale|ref}}"
     }
   ],
   "checks": [
@@ -177,6 +177,19 @@
         }
       ]
     },
+    "ssr-iot-report": {
+      "statement": "The Internet of Things (IoT) Report shows the device inventory and its insights discovered from unauthenticated web traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-iot-report.json",
+          "quotes": [
+            "The Internet of Things (IoT) Report shows the device inventory and its insights discovered from unauthenticated web traffic."
+          ]
+        }
+      ]
+    },
     "ssr-sdk": {
       "statement": "The vendored Python SDK's ShadowItAPI client targets the Z-Insights SHADOW_IT domain and posts to `/zins/graphql`.",
       "tier": "A",
@@ -206,11 +219,12 @@
     "ssr-iot": {
       "kind": "semantic",
       "title": "Whether the SaaS Security Report gives IoT device visibility",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: 'Reporting product covering Shadow IT discovery (unsanctioned cloud apps users access), IoT device visibility, and SaaS-app risk reporting.' The SaaS Security Report capture does not mention IoT devices; IoT device visibility is described by a separate capture (about-iot-report.json).",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "Resolved: IoT device inventory is in the IoT Report (claim ssr-iot-report), not the SaaS Security Report."
     },
     "ssr-zia": {
       "kind": "semantic",
@@ -233,11 +247,12 @@
     "ssr-8500": {
       "kind": "semantic",
       "title": "Older catalogue size in marketing material",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: 'Some marketing material still cites the older 8,500+ figure — outdated.' No captured page gives an 8,500-application figure.",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "Resolved: no captured page gives an 8,500 figure; the current help states up to 50K cloud applications (claim ssr-scale)."
     },
     "ssr-no-sdk": {
       "kind": "semantic",
@@ -247,6 +262,34 @@
       "resolves_with": [
         "source-read"
       ]
+    }
+  },
+  "divergences": {
+    "report-name": {
+      "summary": "The audit-log page and the SaaS Security Report page give different names for the same report.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-audit-logs.json",
+            "quotes": [
+              "Shadow IT Report"
+            ]
+          },
+          "says": "Audit logs name the report the Shadow IT Report."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-saas-security-report.json",
+            "quotes": [
+              "The SaaS Security Report gives a breakdown of applications by their status"
+            ]
+          },
+          "says": "The report's own page names it the SaaS Security Report."
+        }
+      ],
+      "impact": "Searching audit logs by the new name may miss entries recorded under the old one."
     }
   }
 }

@@ -91,7 +91,7 @@ If the needed tenant fact is missing or IaC is too stale for the question, and t
 
 > This needs tenant observation. If `@zscalerctl` is installed, use it for the read-only fetch, then return the JSON here; I will apply the Zscaler policy semantics.
 
-If the companion is not clearly available, draft the bounded command for the human to run. Keep it read-only (`list`, `get`, `show`, `dump`, `diff`) and pass `--format json` explicitly. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests. The pre-release contract lives in `references/_meta/tooling.md`.
+If the companion is not clearly available, draft the bounded command for the human to run. Keep it read-only (`list`, `get`, `show`, `dump`, `diff`) and pass `--format json` explicitly. Do not fall back to raw APIs, SDK credential spelunking, or write-lane tests. The pre-release contract lives in `docs/tooling.md`.
 
 ## Citation discipline
 

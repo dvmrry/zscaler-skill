@@ -23,7 +23,7 @@
     { "text": "{{b2b-what}} {{b2b-vs-zpa}}" },
     { "text": "{{b2b-no-inbound}} {{b2b-inspection}}" },
     { "text": "{{b2b-use-cases}} The ZPA federation feature with a similar name is in [[zpa.b2b-federation]]." },
-    { "text": "Whether B2B handles identity and trust across organizations, and not only across segments of one organization, is open {{gap:b2b-cross-org}}. Whether it has an SDK distinct from ZPA is open {{gap:b2b-sdk}}." }
+    { "text": "Whether B2B handles identity and trust across organizations, and not only across segments of one organization, is open {{gap:b2b-cross-org}}. {{b2b-sdk-class}} Whether that is the B2B surface, distinct from ZPA, is open {{gap:b2b-sdk}}." }
   ],
   "checks": [
     {
@@ -32,6 +32,19 @@
     }
   ],
   "claims": {
+    "b2b-sdk-class": {
+      "statement": "The vendored Python SDK defines a ZPA TenantFederationProvisioningAPI class.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/tenant_federation_provisioning.py",
+          "quotes": [
+            "class TenantFederationProvisioningAPI(APIClient):"
+          ]
+        }
+      ]
+    },
     "b2b-what": {
       "statement": "Zscaler B2B is a cloud service that gives business customers secure and fast access to B2B applications, through site-to-site ZTNA connectivity, partner portal access and B2C mobile app access.",
       "tier": "A",
@@ -40,6 +53,7 @@
           "source": "zscaler-help",
           "path": "zscaler-b2b-marketing.md",
           "quotes": [
+            "Cloud service that gives",
             "business customers secure and fast access to B2B applications",
             "Site-to-site B2B connectivity via zero trust network access (ZTNA)",
             "Partner portal access with browser-based application delivery",
@@ -71,6 +85,7 @@
           "path": "zscaler-b2b-marketing.md",
           "quotes": [
             "Eliminates complex VPNs",
+            "Applications remain \"hidden from the internet\" without inbound DMZs or open ports",
             "without inbound DMZs or open ports"
           ]
         }
@@ -119,7 +134,7 @@
       "kind": "semantic",
       "title": "Whether Zscaler B2B has an SDK surface distinct from ZPA",
       "status": "open",
-      "detail": "Unverified legacy statement: 'No SDK distinct from ZPA's; configured via the broader ZPA admin surfaces.' The B2B capture names no API or SDK surface.",
+      "detail": "Unverified legacy statement: 'No SDK distinct from ZPA's; configured via the broader ZPA admin surfaces.' The B2B capture names no API or SDK surface. The vendored Python SDK does have a ZPA TenantFederationProvisioningAPI (b2b-sdk-class), but whether it is the ZTE-for-B2B surface is not captured.",
       "resolves_with": ["source-read"]
     }
   }

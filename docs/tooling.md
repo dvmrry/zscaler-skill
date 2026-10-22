@@ -1,14 +1,3 @@
----
-product: shared
-topic: "tooling"
-title: "Tooling contract — zscaler-skill and zscalerctl"
-content-type: reference
-last-verified: "2026-06-18"
-confidence: medium
-sources: []
-author-status: draft
----
-
 # Tooling contract — zscaler-skill and zscalerctl
 
 This is the pre-release integration contract between the Zscaler knowledge base

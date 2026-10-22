@@ -27,7 +27,7 @@
     },
     {
       "label": "What is retried.",
-      "text": "{{retryable-statuses}} {{method-not-consulted}} {{wait-from-headers}}"
+      "text": "{{retryable-statuses}} {{divergence:retryable-docstring}} {{method-not-consulted}} {{wait-from-headers}}"
     },
     {
       "label": "Expired tokens.",
@@ -137,5 +137,33 @@
         "retryable-statuses"
       ]
     }
-  ]
+  ],
+  "divergences": {
+    "retryable-docstring": {
+      "summary": "The is_retryable_status docstring and its code list different retryable statuses.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/request_executor.py",
+            "quotes": [
+              "Retryable statuses: 429, 500, 502, 503, 504"
+            ]
+          },
+          "says": "The docstring lists 429, 500, 502, 503 and 504 as retryable."
+        },
+        {
+          "evidence": {
+            "source": "sdk-python",
+            "path": "zscaler/request_executor.py",
+            "quotes": [
+              "return status is not None and status in ("
+            ]
+          },
+          "says": "The code returns True only for 429, 503 and 504."
+        }
+      ],
+      "impact": "Trusting the docstring assumes 500 and 502 responses are retried; the executor does not retry them."
+    }
+  }
 }

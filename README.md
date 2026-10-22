@@ -103,7 +103,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 - [docs/maintenance.md](./docs/maintenance.md) — CI, automated weekly upstream refresh, sticky issues, contribution rules
 
 **Reference**
-- [references/_meta/tooling.md](./references/_meta/tooling.md) — pre-release `zscalerctl` companion contract and runtime-data cache model
+- [docs/tooling.md](./docs/tooling.md) — pre-release `zscalerctl` companion contract and runtime-data cache model
 - [docs/kb-layout.md](./docs/kb-layout.md) — what lives where in the knowledge graph
 - [docs/data-contract/](./docs/data-contract/) — expected runtime-data layout
 
