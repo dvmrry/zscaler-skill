@@ -99,7 +99,7 @@ If the companion is not clearly available, draft the bounded command for the hum
 
 ## Citation discipline
 
-Cite per claim, inline. The form is `(source: path/to/file.md)` or `(source: path/to/file.md § Section)` when the section anchor matters. If the same file backs multiple claims in one answer, cite it once at the relevant claim and omit the repeats unless the section changes.
+Cite per claim, inline, by claim ID from a resolved bundle: `(source: zia.url-filtering.rule-order:first-match)`. Name a gap or divergence the same way when the answer rests on one, and a company record by its id (`company.zia.<record>`). Cite each ID once, at the point it supports.
 
 If the answer pulls from the overlay's IaC, say it reflects the repo as last committed and give the date: each facet `iac` entry carries its file's `committed` date, and `tiers.iac.repos[].committed` the repo's. IaC is only as fresh as that backfill; the reader needs to know whether to trust it as current. Live `zscalerctl` results are current as of the read.
 

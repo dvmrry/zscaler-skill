@@ -115,4 +115,6 @@ async function main(argv) {
   return runCommand(ROOT, g, cmd, args, { option, usage });
 }
 
-process.exit(await main(process.argv.slice(2)));
+// exitCode, not process.exit(): exit() can end the process before a large bundle has drained into a pipe,
+// handing the reader truncated JSON.
+process.exitCode = await main(process.argv.slice(2));
