@@ -98,10 +98,12 @@ class AgentPatternsBoundaryTests(unittest.TestCase):
         self.assertEqual(ap.interpret_error(403).action, "fix-creds")
         self.assertNotEqual(ap.interpret_error(503, {"code": "STATE_READONLY"}).label, "STATE_READONLY")
 
-    def test_use_legacy_env_is_not_a_signal(self) -> None:
-        # The Python SDK reads no ZSCALER_USE_LEGACY variable (shared.oneapi:no-use-legacy-env).
-        env = {"ZSCALER_USE_LEGACY": "true", "ZIA_USERNAME": "a", "ZIA_PASSWORD": "b", "ZIA_API_KEY": "c"}
-        self.assertEqual(ap.detect_auth_framework(env), ap.detect_auth_framework({k: v for k, v in env.items() if k != "ZSCALER_USE_LEGACY"}))
+    def test_legacy_switch_uses_the_vendor_variable_name(self) -> None:
+        # Go SDK and the ZIA/ZPA Terraform providers read ZSCALER_USE_LEGACY_CLIENT; nothing reads ZSCALER_USE_LEGACY.
+        both = {"ZSCALER_CLIENT_ID": "x", "ZSCALER_VANITY_DOMAIN": "y", "ZSCALER_CLIENT_SECRET": "z",
+                "ZIA_USERNAME": "a", "ZIA_PASSWORD": "b", "ZIA_API_KEY": "c"}
+        self.assertEqual(ap.detect_auth_framework({**both, "ZSCALER_USE_LEGACY_CLIENT": "true"}), "zia-legacy")
+        self.assertEqual(ap.detect_auth_framework({**both, "ZSCALER_USE_LEGACY": "true"}), "oneapi")
 
 
 if __name__ == "__main__":

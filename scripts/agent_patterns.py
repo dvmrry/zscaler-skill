@@ -133,9 +133,10 @@ def detect_auth_framework(env: dict[str, str] | None = None) -> AuthFramework:
     ZDX legacy: ZDX_CLIENT_ID + ZDX_CLIENT_SECRET. ZDX never migrated to OneAPI.
 
     Returns the strongest match. If multiple frameworks have credentials present
-    (common during migration), returns 'oneapi'. The Python SDK reads no
-    ZSCALER_USE_LEGACY variable; a caller picks legacy by constructing the
-    product's legacy client, so this function cannot detect that choice.
+    (common during migration), returns 'oneapi' unless ZSCALER_USE_LEGACY_CLIENT
+    is 'true': the Go SDK and the ZIA and ZPA Terraform providers read that
+    variable to pick the legacy client. The Python SDK reads no such variable;
+    it picks legacy by constructing the product's legacy client.
 
     >>> detect_auth_framework({"ZSCALER_CLIENT_ID": "x", "ZSCALER_VANITY_DOMAIN": "y", "ZSCALER_CLIENT_SECRET": "z"})
     'oneapi'
@@ -145,6 +146,18 @@ def detect_auth_framework(env: dict[str, str] | None = None) -> AuthFramework:
     'unknown'
     """
     env = env or {}
+    if env.get("ZSCALER_USE_LEGACY_CLIENT", "").lower() == "true":
+        # Go SDK / Terraform legacy switch; resolve to the most specific legacy path.
+        for prefix, fw in [
+            ("ZIA_", "zia-legacy"),
+            ("ZPA_", "zpa-legacy"),
+            ("ZCC_", "zcc-legacy"),
+            ("ZDX_", "zdx-legacy"),
+        ]:
+            if any(k.startswith(prefix) for k in env):
+                return fw  # type: ignore[return-value]
+        return "unknown"
+
     has_oneapi = (
         env.get("ZSCALER_CLIENT_ID")
         and env.get("ZSCALER_VANITY_DOMAIN")
@@ -234,9 +247,9 @@ def interpret_error(status_code: int, body: str | dict | None = None) -> ErrorIn
                 "Name or ID already exists. Either reuse the existing resource or pick a different identifier.")
         if "INVALID_INPUT_ARGUMENT" in label.upper():
             return ErrorInterpretation(400, "INVALID_INPUT_ARGUMENT", "fix-config",
-                "Request body has an invalid field value. Read the message for the offending field; check enum values against api.md.")
+                "Request body has an invalid field value. Read the message for the offending field; check enum values against the product's API reference.")
         return ErrorInterpretation(400, label or "Bad Request", "fix-config",
-            "Request rejected by API. Check field types, enum values, required fields against the relevant api.md.")
+            "Request rejected by API. Check field types, enum values, required fields against the product's API reference.")
 
     if status_code == 401:
         return ErrorInterpretation(401, "Unauthorized", "fix-creds",
@@ -268,7 +281,7 @@ def interpret_error(status_code: int, body: str | dict | None = None) -> ErrorIn
 
     if status_code == 429:
         return ErrorInterpretation(429, "Rate Limit exceeded", "retry-after-header",
-            "Honor the Retry-After header. Reduce concurrency. ZIA uses weight-based, ZPA per-IP, ZDX tier-based — see oneapi.md § Rate limits.")
+            "Honor the Retry-After header. Reduce concurrency. ZIA uses weight-based, ZPA per-IP, ZDX tier-based — resolve shared.oneapi.rate-limits.")
 
     if status_code == 503:
         return ErrorInterpretation(503, "Service Unavailable", "retry-after-header",

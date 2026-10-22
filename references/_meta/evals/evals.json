@@ -611,12 +611,11 @@
     },
     {
       "id": 27,
-      "prompt": "Use grounded ad-hoc Zscaler routing. A teammate says AI Guard, ZMS, EASM, Zscaler Cellular, and Business Insights are all Tier 3 portal-only products. Correct the tier classification and route each product to its captured programmable surface, including any read-only or naming caveat.",
-      "expected_output": "All five are Tier 2 programmable-but-shallow, not Tier 3. AI Guard has Python `client.aiguard` OneAPI configuration plus a separately authenticated legacy policy-detection path. ZMS uses read-only `client.zms` GraphQL. EASM uses read-only `client.zeasm` for organizations/findings/lookalikes, with additional raw Postman asset reads. ZCell uses `client.zcell` and has an Automate contract, while its MCP tools are read-only. Business Insights uses Python `client.zbi` for custom-app/report-config CRUD and report retrieval; this accessor is Business Insights, not Zero Trust Browser. State exact parity gaps rather than implying every Tier 2 surface is writable.",
+      "prompt": "Use grounded ad-hoc Zscaler routing. A teammate says AI Guard, ZMS, EASM, Zscaler Cellular, and Business Insights are all portal-only products. Correct that and route each product to its captured programmable surface, including any read-only or naming caveat.",
+      "expected_output": "None of the five is portal-only; each has a captured programmable surface. AI Guard has Python `client.aiguard` OneAPI configuration plus a separately authenticated legacy policy-detection path. ZMS uses read-only `client.zms` GraphQL. EASM uses read-only `client.zeasm` for organizations/findings/lookalikes, with additional raw Postman asset reads. ZCell uses `client.zcell` and has an Automate contract, while its MCP tools are read-only. Business Insights uses Python `client.zbi` for custom-app/report-config CRUD and report retrieval; this accessor is Business Insights, not Zero Trust Browser. State exact parity gaps rather than implying every surface is writable.",
       "tenant_data_required": false,
       "expected_confidence": "high",
       "assertions": [
-        "Tier 2",
         "client.aiguard",
         "client.zms",
         "client.zeasm",
@@ -628,9 +627,9 @@
       "must_not_say": [
         "AI Guard has no SDK module",
         "ZMS has no SDK module",
-        "EASM is Tier 4",
+        "EASM is portal-only",
         "Business Insights is portal-only",
-        "Zscaler Cellular is Tier 3"
+        "Zscaler Cellular is portal-only"
       ],
       "must_cite": [
         "business-insights.api"

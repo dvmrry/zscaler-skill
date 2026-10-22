@@ -22,7 +22,7 @@
   ],
   "prose": [
     {
-      "text": "The ZIA Terraform provider supports OneAPI and the legacy framework, and has a no-credential mode and its own rate-limit handling. {{legacy-compat-since-4-0}}"
+      "text": "The ZIA Terraform provider supports OneAPI and the legacy framework, and has a no-credential mode and its own rate-limit handling. {{legacy-compat-since-4-0}} {{legacy-client-switch}}"
     },
     {
       "label": "Government clouds.",
@@ -307,6 +307,20 @@
           "path": "zia/config.go",
           "quotes": [
             "retryCount:     100, // Deliberately above the SDK default so bulk applies survive sustained rate limiting."
+          ]
+        }
+      ]
+    },
+    "legacy-client-switch": {
+      "statement": "The provider chooses the legacy ZIA client when use_legacy_client is true, from the provider attribute or, when that is unset, from ZSCALER_USE_LEGACY_CLIENT being the string true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/config.go",
+          "quotes": [
+            "if val, ok := d.GetOk(\"use_legacy_client\"); ok {",
+            "config.useLegacyClient = strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\""
           ]
         }
       ]
