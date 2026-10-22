@@ -164,9 +164,9 @@ Finding: confidence calibration seems off in some files
 ```
 Better:
 ```
-Finding: confidence: high in references/_meta/portfolio-map.md without sources
+Finding: confidence: high in references/_meta/primer/index.md without sources
          field populated (sources: empty)
-Source: references/_meta/portfolio-map.md:6 (frontmatter)
+Source: references/_meta/primer/index.md:6 (frontmatter)
 Severity: High
 Remediation: Either populate sources (Tier A vendor docs) or downgrade
              to medium

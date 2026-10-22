@@ -20,6 +20,10 @@
   "related": [
     {
       "rel": "see-also",
+      "to": "portfolio.federal-clouds"
+    },
+    {
+      "rel": "see-also",
       "to": "shared.cloud-architecture"
     },
     {
@@ -42,6 +46,10 @@
     {
       "label": "What the list is not.",
       "text": "Which non-production or government clouds exist, and their names, is open {{gap:non-production-clouds}}. API hosts for government clouds are in [[shared.oneapi.government-clouds]]."
+    },
+    {
+      "label": "Names the tools accept.",
+      "text": "{{zia-provider-cloud-names}} {{unset-cloud-production}} The legacy ZPA config hosts for the GOV and GOVUS values are in [[zpa.api.base-paths:legacy-hosts]]. Admin hosts for government tenants are open {{gap:admin-host-gov}}, and reading the cloud from SDK configuration is open {{gap:cloud-from-sdk-config}}."
     }
   ],
   "checks": [
@@ -174,6 +182,49 @@
           ]
         }
       ]
+    },
+    "zia-provider-cloud-names": {
+      "statement": "The ZIA Terraform provider's documentation lists nine ZIA cloud names: zscaler, zscloud, zscalerone, zscalertwo, zscalerthree, zscalerbeta, zscalergov, zscalerten and zspreview.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/index.md",
+          "after": "The ZIA Cloud is identified by several cloud name prefixes",
+          "quotes": [
+            "The following cloud environments are supported:",
+            "`zscaler`",
+            "`zscloud`",
+            "`zscalerone`",
+            "`zscalertwo`",
+            "`zscalerthree`",
+            "`zscalerbeta`",
+            "`zscalergov`",
+            "`zscalerten`",
+            "`zspreview`"
+          ]
+        }
+      ]
+    },
+    "unset-cloud-production": {
+      "statement": "When no cloud is given in configuration and ZSCALER_CLOUD is unset, the Python SDK's base client uses PRODUCTION as its cloud, and the ZIA provider's activation CLI likewise uses the default production cloud when ZSCALER_CLOUD is unset or empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "self._cloud = self._config[\"client\"].get(\"cloud\", os.getenv(\"ZSCALER_CLOUD\", \"PRODUCTION\"))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "when unset or empty, the client uses the default production cloud"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -186,6 +237,26 @@
       "resolves_with": [
         "source-read"
       ]
+    },
+    "admin-host-gov": {
+      "kind": "semantic",
+      "title": "Admin host names for government clouds",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Government admin URLs: admin.zscalergov.net maps to zscalergov, admin.zscalerten.net to zscalerten, and ZPA's admin.zpagov.net and admin.zpagov-us.net to GOV and GOVUS.' No captured help page names these admin hosts. The captured sources give the ZPA legacy config hosts (zpa.api.base-paths:legacy-hosts) and the cloud names only.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "naming a government tenant's cloud from its admin login URL"
+    },
+    "cloud-from-sdk-config": {
+      "kind": "semantic",
+      "title": "Reading a tenant's cloud from SDK configuration",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'If the admin URL and environment do not show the cloud, the SDK's LegacyZIAClient configuration reports it, and the tenant then goes to Zscaler support.' No captured source documents a cloud read from that configuration.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "a cloud name when the admin URL and environment give none"
     }
   }
 }

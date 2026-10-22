@@ -35,7 +35,7 @@
     },
     {
       "label": "Legacy.",
-      "text": "{{legacy-framework}} {{v2-oneapi-only}}"
+      "text": "{{legacy-framework}} {{v2-oneapi-only}} {{legacy-zia-env}}"
     }
   ],
   "checks": [
@@ -261,6 +261,23 @@
             "Zscaler Python SDK **v2.x is now in Public Preview / Beta**",
             "**v1.x (this README) is the current GA release**",
             "`LegacyZTWClient`, etc.) are **not** available in v2.x and will **not** be added."
+          ]
+        }
+      ]
+    },
+    "legacy-zia-env": {
+      "statement": "The Python SDK's LegacyZIAClient reads its username, password, API key and cloud from the environment variables ZIA_USERNAME, ZIA_PASSWORD, ZIA_API_KEY and ZIA_CLOUD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZIAClient(Client):",
+            "username = config.get(\"username\", os.getenv(\"ZIA_USERNAME\"))",
+            "password = config.get(\"password\", os.getenv(\"ZIA_PASSWORD\"))",
+            "api_key = config.get(\"api_key\", os.getenv(\"ZIA_API_KEY\"))",
+            "cloud = config.get(\"cloud\", os.getenv(\"ZIA_CLOUD\"))"
           ]
         }
       ]

@@ -87,6 +87,18 @@
       "uses": [
         "go-zdx-limiter-copies-zcc"
       ]
+    },
+    {
+      "do": "Serialize concurrent jobs against one product where possible. Whether they share one budget is open.",
+      "uses": [
+        "concurrent-jobs-share-budget"
+      ]
+    },
+    {
+      "do": "Whether a persistent 429 is cleared by a rate-limit increase is open; do not assume it is.",
+      "uses": [
+        "rate-limit-increase"
+      ]
     }
   ],
   "claims": {
@@ -320,6 +332,26 @@
             "cfg.ZDXHTTPClient = getHTTPClient(cfg.Logger, zdxRateLimiter, cfg)"
           ]
         }
+      ]
+    }
+  },
+  "gaps": {
+    "rate-limit-increase": {
+      "kind": "semantic",
+      "title": "Whether a persistent 429 can be cleared by a tenant rate-limit increase",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Persistent 429s across windows mean the tenant may need a rate-limit increase; open a TAM or support case with traffic patterns.' No captured source says whether increases are available for these products; the ZCC question is separate (zcc.api.rate-limits:limit-increase).",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "concurrent-jobs-share-budget": {
+      "kind": "semantic",
+      "title": "Whether concurrent jobs against one product share one budget",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Concurrent jobs across one product double-count against the same budget.' The captured pages give each product its own model (models-differ); none says how concurrent clients are counted.",
+      "resolves_with": [
+        "source-read"
       ]
     }
   }

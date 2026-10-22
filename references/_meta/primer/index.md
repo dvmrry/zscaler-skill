@@ -55,5 +55,5 @@ These docs are **prerequisite, not Zscaler depth**. For depth on any specific Zs
 
 ## Cross-links
 
-- Single-page Zscaler portfolio index: [`../portfolio-map.md`](../portfolio-map.md)
+- Single-page Zscaler portfolio index: [`portfolio.overview`](kb:portfolio.overview)
 - Skill routing for specific questions: [`../../../SKILL.md`](../../../SKILL.md)

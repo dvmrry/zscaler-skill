@@ -8,8 +8,9 @@ caller-provided values:
   - detect_auth_framework()     — OneAPI vs legacy from env vars
   - interpret_error()           — map a Zscaler API error to a recovery action
 
-The companion markdown doc at references/_meta/agent-patterns.md mirrors these
-functions for in-context reference.
+The knowledge graph states the facts behind these tables: resolve
+shared.oneapi.auth-selection, shared.cloud-architecture.cloud-names and
+shared.oneapi.response-codes (node scripts/kb.mjs resolve <id>).
 
 Credentialed tenant reads and SDK surface reflection deliberately do not live
 here. Use the read-only zscalerctl companion (when available) or supplied
@@ -132,8 +133,9 @@ def detect_auth_framework(env: dict[str, str] | None = None) -> AuthFramework:
     ZDX legacy: ZDX_CLIENT_ID + ZDX_CLIENT_SECRET. ZDX never migrated to OneAPI.
 
     Returns the strongest match. If multiple frameworks have credentials present
-    (common during migration), returns 'oneapi' — operators should be explicit
-    in that case via ZSCALER_USE_LEGACY=true to pick legacy.
+    (common during migration), returns 'oneapi'. The Python SDK reads no
+    ZSCALER_USE_LEGACY variable; a caller picks legacy by constructing the
+    product's legacy client, so this function cannot detect that choice.
 
     >>> detect_auth_framework({"ZSCALER_CLIENT_ID": "x", "ZSCALER_VANITY_DOMAIN": "y", "ZSCALER_CLIENT_SECRET": "z"})
     'oneapi'
@@ -143,18 +145,6 @@ def detect_auth_framework(env: dict[str, str] | None = None) -> AuthFramework:
     'unknown'
     """
     env = env or {}
-    if env.get("ZSCALER_USE_LEGACY", "").lower() == "true":
-        # Operator explicitly chose legacy; resolve to the most-specific legacy path
-        for prefix, fw in [
-            ("ZIA_", "zia-legacy"),
-            ("ZPA_", "zpa-legacy"),
-            ("ZCC_", "zcc-legacy"),
-            ("ZDX_", "zdx-legacy"),
-        ]:
-            if any(k.startswith(prefix) for k in env):
-                return fw  # type: ignore[return-value]
-        return "unknown"
-
     has_oneapi = (
         env.get("ZSCALER_CLIENT_ID")
         and env.get("ZSCALER_VANITY_DOMAIN")
@@ -214,7 +204,7 @@ def interpret_error(status_code: int, body: str | dict | None = None) -> ErrorIn
       409 STATE_PROCESSING_QUEUE_*      — activation in progress; wait
       409 STATE_INVALID                 — pending change has bad config; fix-config
       429 Rate Limit ... exceeded       — retry-after-header
-      503 STATE_READONLY                — scheduled maintenance; wait
+      403 STATE_READONLY                — scheduled maintenance; wait
       5xx (other)                       — retry-after-header / escalate
 
     Returns ErrorInterpretation with code, label, recovery action, and note.
@@ -253,6 +243,9 @@ def interpret_error(status_code: int, body: str | dict | None = None) -> ErrorIn
             "Auth rejected. Common causes: missing OneAPI audience, expired/rotated secret, or the wrong auth path for this cloud and client/provider.")
 
     if status_code == 403:
+        if "READONLY" in label.upper() or body_dict.get("x-zscaler-mode") == "read-only":
+            return ErrorInterpretation(403, "STATE_READONLY", "wait",
+                "Tenant is in scheduled-maintenance read-only mode. Writes refused, reads still work; retry after the maintenance window.")
         return ErrorInterpretation(403, "Forbidden", "fix-creds",
             "Auth succeeded but RBAC denies. Check the API client's scopes in ZIdentity (or admin role for legacy auth).")
 
@@ -278,9 +271,6 @@ def interpret_error(status_code: int, body: str | dict | None = None) -> ErrorIn
             "Honor the Retry-After header. Reduce concurrency. ZIA uses weight-based, ZPA per-IP, ZDX tier-based — see oneapi.md § Rate limits.")
 
     if status_code == 503:
-        if "READONLY" in label.upper() or body_dict.get("x-zscaler-mode") == "read-only":
-            return ErrorInterpretation(503, "STATE_READONLY", "wait",
-                "Tenant is in scheduled-maintenance read-only mode. Writes refused; retry after maintenance window.")
         return ErrorInterpretation(503, "Service Unavailable", "retry-after-header",
             "Service degradation. Honor Retry-After if present, otherwise exponential backoff.")
 

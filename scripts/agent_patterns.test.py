@@ -91,6 +91,18 @@ class AgentPatternsBoundaryTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(first.action, "retry")
 
+    def test_read_only_maintenance_is_a_403_wait(self) -> None:
+        # shared.oneapi.response-codes:read-only-mode: maintenance writes return 403, not 503.
+        r = ap.interpret_error(403, {"code": "STATE_READONLY"})
+        self.assertEqual((r.code, r.label, r.action), (403, "STATE_READONLY", "wait"))
+        self.assertEqual(ap.interpret_error(403).action, "fix-creds")
+        self.assertNotEqual(ap.interpret_error(503, {"code": "STATE_READONLY"}).label, "STATE_READONLY")
+
+    def test_use_legacy_env_is_not_a_signal(self) -> None:
+        # The Python SDK reads no ZSCALER_USE_LEGACY variable (shared.oneapi:no-use-legacy-env).
+        env = {"ZSCALER_USE_LEGACY": "true", "ZIA_USERNAME": "a", "ZIA_PASSWORD": "b", "ZIA_API_KEY": "c"}
+        self.assertEqual(ap.detect_auth_framework(env), ap.detect_auth_framework({k: v for k, v in env.items() if k != "ZSCALER_USE_LEGACY"}))
+
 
 if __name__ == "__main__":
     unittest.main()

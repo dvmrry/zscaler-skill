@@ -116,9 +116,9 @@ Resolve the subject before answering; these are the points answers most often ge
   EASM `client.zeasm`, Cellular `client.zcell`; Zscaler's AI Guard integration examples are
   `ai-security.ai-guard.integrations`.
 
-For a product not in the graph (Resilience, BCC, CTEM, Posture Control, Red Canary MDR and other
-paragraph-level entries), start at [`references/_meta/portfolio-map.md`](references/_meta/portfolio-map.md), give
-the conceptual answer, and do not invent API details or rule behavior.
+For a portfolio-level entry (Resilience, BCC, CTEM, Posture Control, Red Canary MDR, CASB as a term, B2B, the
+federal clouds), resolve its `portfolio.*` subject; `portfolio.overview` maps each need to its product. Most of
+their API and rule details are open gaps: give the conceptual answer and do not invent API details or rule behavior.
 
 ## Answer format
 

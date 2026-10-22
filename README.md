@@ -16,7 +16,7 @@ The product is **codified behavior**, not API access. An agent with live API key
 - **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from the knowledge graph plus the company overlay's records, the overlay's IaC when it declares `iac`, or live read-only `zscalerctl` when it declares `live` (runtime-data mount `_data/` by default, configurable in `zscaler-skill-runtime.json`). It declines rather than guesses when there is no tenant observation.
 - **Structured workflows** — repeatable, evidence-based roles for investigation, research, audit, and review when a task needs a defined output, not just a chat answer.
 
-[`SKILL.md`](./SKILL.md) is the routing surface — the question-shape table that sends each query to the right reference. [`references/_meta/portfolio-map.md`](./references/_meta/portfolio-map.md) is the per-product coverage index.
+[`SKILL.md`](./SKILL.md) is the routing surface — the question-shape table that sends each query to the right reference. `node scripts/kb.mjs resolve portfolio.overview` maps each customer need to its product.
 
 ## Install
 
@@ -103,7 +103,6 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 - [docs/maintenance.md](./docs/maintenance.md) — CI, automated weekly upstream refresh, sticky issues, contribution rules
 
 **Reference**
-- [references/_meta/portfolio-map.md](./references/_meta/portfolio-map.md) — product coverage tiers
 - [references/_meta/tooling.md](./references/_meta/tooling.md) — pre-release `zscalerctl` companion contract and runtime-data cache model
 - [docs/kb-layout.md](./docs/kb-layout.md) — what lives where in the knowledge graph
 - [docs/data-contract/](./docs/data-contract/) — expected runtime-data layout

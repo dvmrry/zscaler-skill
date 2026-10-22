@@ -273,8 +273,7 @@ def check_frontmatter(path: Path) -> list[Finding]:
 
     # The high-confidence-with-empty-sources warning skips aggregator-style
     # docs: index.md hubs (sources are the docs they link to, not external
-    # citations); meta-docs under references/_meta/ (clarifications,
-    # portfolio-map, verification-protocol, layering-model, etc.); primer
+    # citations); meta-docs under references/_meta/ (tooling, etc.); primer
     # educational material under references/_meta/primer/ (inherently
     # illustrative synthesis, not source-derived); archived content under
     # references/_meta/archive/. Any path whose references/-relative

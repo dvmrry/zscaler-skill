@@ -13,18 +13,11 @@ function read(relativePath) {
   return fs.readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 }
 
-function markdownSection(content, startHeading, endHeading) {
-  const start = content.indexOf(startHeading);
-  assert.notEqual(start, -1, `missing section ${startHeading}`);
-  const end = content.indexOf(endHeading, start + startHeading.length);
-  assert.notEqual(end, -1, `missing section boundary ${endHeading}`);
-  return content.slice(start, end);
-}
-
 test("root and runtime routers retain current SDK accessors", () => {
   const skill = read("SKILL.md");
   const prompt = read("agents/zscaler/prompt.md");
-  const runbooks = read("references/_meta/runbooks.md");
+  // runbooks.md is now shared.rollback and the shared.oneapi.* subjects in the knowledge graph.
+  const rollback = read("references/shared/shared.rollback.json");
   // references/shared/terminology.md is now the shared.terminology subjects in the knowledge graph.
   const terminology = ["shared.terminology", "shared.terminology.product-names"].map((id) => read(`references/shared/${id}.json`)).join("\n");
 
@@ -50,8 +43,8 @@ test("root and runtime routers retain current SDK accessors", () => {
   assert.match(apiClients, /the first one comes from the console/);
   assert.match(resourceServers.claims["read-only"].statement, /only GET on the resource server collection/);
   assert.match(skill, /2\.0\.0bN.*does \*\*not\*\* include ZTW/);
-  assert.doesNotMatch(runbooks, /client\.zaiguard/);
-  assert.match(runbooks, /Python `client\.aiguard` exposes configuration reads and writes/);
+  assert.doesNotMatch(rollback, /client\.zaiguard/);
+  assert.match(rollback, /ai-security\.ai-guard\.admin-api:python-oneapi/);
   assert.doesNotMatch(terminology, /SDK module is `zbi`/);
   assert.doesNotMatch(terminology, /Business Insights.*No API surface/);
   assert.match(terminology, /the `zbi` service client is Zscaler Business Insights/);
@@ -65,23 +58,6 @@ test("root and runtime routers retain current SDK accessors", () => {
   ]) {
     assert.ok(prompt.includes(`\`${directory}\``), `runtime prompt missing ${directory}`);
   }
-});
-
-test("portfolio keeps all seven programmable-shallow products in Tier 2", () => {
-  const portfolio = read("references/_meta/portfolio-map.md");
-  const tier2 = markdownSection(portfolio, "## Tier 2", "## Tier 3");
-  const tier3 = markdownSection(portfolio, "## Tier 3", "## Tier 4");
-
-  assert.match(tier2, /Programmable but shallow \(7 products\)/);
-  for (const product of ["ZBI", "ZWA", "AI Guard", "ZMS", "EASM", "ZCell", "Business Insights"]) {
-    assert.ok(tier2.includes(`**${product}`), `Tier 2 missing ${product}`);
-  }
-  assert.doesNotMatch(tier3, /#### Business Insights/);
-  assert.doesNotMatch(tier3, /#### Zscaler Cellular/);
-  assert.match(portfolio, /singular `client\.zid\.api_client`/);
-  assert.match(portfolio, /v1\.x GA `client\.ztw\.\*`/);
-  assert.doesNotMatch(portfolio, /SDK module is `zbi`/);
-  assert.match(portfolio, /Python `client\.zbi` is not this product/);
 });
 
 test("malware and ATP docs preserve the settings-versus-transaction boundary", () => {

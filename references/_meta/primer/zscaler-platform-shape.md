@@ -5,6 +5,8 @@ title: "Primer — the Zscaler platform on one page"
 content-type: primer
 last-verified: "2026-04-24"
 confidence: high
+verified-against:
+  vendor/zscaler-help: bad52bbd0344dd23c4d835ea7f36fcdee69aad83
 sources:
   - "vendor/zscaler-help/cbc-about-amazon-web-services-zero-trust-gateways.json"
   - "vendor/zscaler-help/cbc-about-google-cloud-platform-zero-trust-gateways.json"
@@ -16,7 +18,7 @@ audience: "non-networking professional who needs to orient on Zscaler quickly"
 
 A "you are here" map of the Zscaler product family. After reading this, you should be able to recognize the major products by name, know what problem each solves, and understand how they fit together.
 
-This is a primer — high-level only. For depth, see [`../portfolio-map.md`](../portfolio-map.md) (single-page index of every Zscaler product) and individual product directories.
+This is a primer — high-level only. For depth, see [`portfolio.overview`](kb:portfolio.overview) (each customer need mapped to its product) and individual product directories.
 
 ## The big picture
 
@@ -179,9 +181,9 @@ These exist; the skill recognizes them but doesn't go deep. Recognize the names 
 - **Resilience** — auto failover (Business+ tiers)
 - **Federal Cloud variants** — `zscalergov`, `zscalerten`, ZPA GOV/GOVUS
 
-**ZMS, EASM, and AI Guard are NOT out-of-scope** — each now has Tier 2 SDK coverage and a dedicated `references/` deep-dive (read-only for ZMS/EASM). See [`../portfolio-map.md`](../portfolio-map.md) and their reference docs.
+**ZMS, EASM, and AI Guard are NOT out-of-scope** — each now has SDK coverage and its own subjects in the knowledge graph (read-only for ZMS/EASM). See [`portfolio.overview`](kb:portfolio.overview) and their subjects.
 
-For each: check [`../portfolio-map.md`](../portfolio-map.md) before assuming.
+For each: check [`portfolio.overview`](kb:portfolio.overview) before assuming.
 
 ## What you should be able to do after this primer
 
@@ -195,7 +197,7 @@ For depth on any single product, descend into its `references/<product>/` direct
 
 ## Cross-links
 
-- Single-page portfolio index: [`../portfolio-map.md`](../portfolio-map.md)
+- Single-page portfolio index: [`portfolio.overview`](kb:portfolio.overview)
 - Routing for any question: [`../../../SKILL.md`](../../../SKILL.md)
 - Cross-product integration catalog: [`shared.integrations`](kb:shared.integrations)
 - Cloud architecture detail: [`shared.cloud-architecture`](kb:shared.cloud-architecture)

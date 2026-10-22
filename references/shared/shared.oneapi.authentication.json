@@ -80,6 +80,18 @@
       "uses": [
         "expires-in-configured"
       ]
+    },
+    {
+      "do": "To rotate a private-key JWT client's key without changing Authentication Service, serve its public keys from a JWKS URL and rotate the keys behind it.",
+      "uses": [
+        "client-auth-methods"
+      ]
+    },
+    {
+      "do": "Before the old JWT public key is removed, confirm that tokens signed with the new key are accepted; whether both keys stay valid meanwhile is open.",
+      "uses": [
+        "jwt-key-overlap"
+      ]
     }
   ],
   "claims": {
@@ -453,6 +465,15 @@
             "| 401 | Unauthorized | The bearer token is missing or expired, has an invalid signature, or fails issuer or audience validation."
           ]
         }
+      ]
+    },
+    "jwt-key-overlap": {
+      "kind": "semantic",
+      "title": "Whether old and new JWT public keys both stay valid during rotation",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Upload the new public key (or update the JWKS URL); both keys remain valid until the old public key is removed.' The captured guide says a JWKS URL lets the client rotate keys with no change in Authentication Service (client-auth-methods) and says nothing about an overlap period.",
+      "resolves_with": [
+        "source-read"
       ]
     }
   }

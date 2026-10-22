@@ -64,6 +64,75 @@
         "zia-409",
         "cbc-403-409"
       ]
+    },
+    {
+      "do": "For a 400 with DUPLICATE_ITEM or INVALID_INPUT_ARGUMENT, read the message for the field, then fix the request or reuse the existing object; the status code is unconfirmed.",
+      "uses": [
+        "status-400-codes"
+      ]
+    },
+    {
+      "do": "For a 401, the token is missing, expired or invalid: check the token request and its audience, then the credentials.",
+      "uses": [
+        "common-codes",
+        "shared.oneapi.authentication:audience-required"
+      ]
+    },
+    {
+      "do": "For a 403, check the API client's resource for the product first. A maintenance 403 is told apart from a permission 403 by its header and code.",
+      "uses": [
+        "common-codes",
+        "zidentity.api-clients:roles-define-access",
+        "read-only-distinguishable"
+      ]
+    },
+    {
+      "do": "For a 404, verify the resource ID, the customer ID for ZPA, and the path.",
+      "uses": [
+        "common-codes",
+        "shared.oneapi.base-urls:zpa-customer-id"
+      ]
+    },
+    {
+      "do": "For a 409 EDIT_LOCK_NOT_AVAILABLE, wait a few seconds and retry. The Python SDK's lock retry starts at 5 seconds, doubles, and is capped at 60.",
+      "uses": [
+        "shared.oneapi.write-practices:edit-lock-409",
+        "zia.api.rate-limits:zia-edit-lock-retry"
+      ]
+    },
+    {
+      "do": "For another 409 from ZIA, treat it as an edit conflict and retry after a short wait.",
+      "uses": [
+        "zia-409",
+        "shared.legacy-api.zia-errors-and-limits:legacy-409"
+      ]
+    },
+    {
+      "do": "For a 409 about activation queues or invalid pending changes, follow the activation checks rather than retrying the write.",
+      "uses": [
+        "zia.api.activation:queue-and-invalid-states"
+      ]
+    },
+    {
+      "do": "For a 429, wait for the Retry-After or reset-header interval before the next call.",
+      "uses": [
+        "zia.api.rate-limits:zia-429-headers",
+        "zpa.api.rate-limits:retry-after",
+        "shared.sdk-python.retries:wait-from-headers"
+      ]
+    },
+    {
+      "do": "For a 403 whose header is `x-zscaler-mode: read-only` and whose code is `STATE_READONLY`, wait for the maintenance window to end; reads still work.",
+      "uses": [
+        "read-only-mode"
+      ]
+    },
+    {
+      "do": "For a 5xx, do not assume the Python SDK retries it: its executor retries only 429, 503 and 504, so a 500 or 502 needs your own retry.",
+      "uses": [
+        "shared.sdk-python.retries:retryable-statuses",
+        "server-error-recovery"
+      ]
     }
   ],
   "claims": {
@@ -199,6 +268,24 @@
       "resolves_with": [
         "lab-test",
         "support-ticket"
+      ]
+    },
+    "status-400-codes": {
+      "kind": "semantic",
+      "title": "Which HTTP status carries DUPLICATE_ITEM and INVALID_INPUT_ARGUMENT",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'INVALID_INPUT_ARGUMENT and DUPLICATE_ITEM are returned as HTTP 400 errors.' The ZIA contract lists both among its error-code values, but no captured source ties either to a status code.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "server-error-recovery": {
+      "kind": "semantic",
+      "title": "How to recover from a 5xx response",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'A 5xx response: honor Retry-After or back off, and escalate to support if it persists.' No captured Zscaler source prescribes this. The Python SDK retries only 429, 503 and 504 (shared.sdk-python.retries:retryable-statuses).",
+      "resolves_with": [
+        "source-read"
       ]
     }
   }

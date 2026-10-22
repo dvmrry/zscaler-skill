@@ -58,6 +58,46 @@
         "zia.terraform.multi-step-writes:user-auth-validator-basic-only",
         "zia.api.url-filtering-wire:tf-description-diff-suppression"
       ]
+    },
+    {
+      "do": "Whether a read-back write fails on server-assigned fields such as id, creationTime or modifiedTime. The legacy note that they are ignored is unverified.",
+      "uses": [
+        "server-fields-ignored"
+      ]
+    },
+    {
+      "do": "For a DUPLICATE_ITEM on a default rule, do not create or manage the default rule through Terraform or the API, and do not import default rules.",
+      "uses": [
+        "shared.oneapi.response-codes:status-400-codes",
+        "zia.api.ssl-inspection-wire:predefined-not-destroyable",
+        "zia.sandbox.rules:default-rule-marker"
+      ]
+    },
+    {
+      "do": "For a rejection on an SSL Inspection default rule, check its read-only fields before writing; which fields the API rejects is open.",
+      "uses": [
+        "read-only-fields-on-write"
+      ]
     }
-  ]
+  ],
+  "gaps": {
+    "server-fields-ignored": {
+      "kind": "semantic",
+      "title": "Whether server-assigned fields can be sent back on write",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Server-assigned fields like id, creationTime and modifiedTime are echoed on read and ignored on write; stripping them is fine but not required.' No captured ZIA source states this for these fields.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "read-only-fields-on-write": {
+      "kind": "semantic",
+      "title": "Which read-only fields the API rejects on write",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Some resources have read-only fields the API rejects on write, such as the ZIA SSL Inspection default_rule and predefined rules.' The captured SSL Inspection sources say only that default and predefined rules cannot be deleted and predefined ones can be imported (zia.api.ssl-inspection-wire:predefined-not-destroyable).",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
 }

@@ -304,7 +304,7 @@
     if (onSource) {
       const p = (new URLSearchParams(location.search).get('p') || '').trim()
         .replace(/^\/+|\/+$/g, '').replace(/\.md$/, '');
-      return p || '_portfolio-map';
+      return p || '_meta/primer/index';
     }
     // On non-source pages, infer the section from the URL path.
     const m = location.pathname.match(/\/(zia|zpa|cloud-connector|zcc|zdx|zidentity|zbi|zwa|zms|ai-security|risk360|deception|shared|_meta)(?:\/|$)/);

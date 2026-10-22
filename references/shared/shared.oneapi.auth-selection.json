@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "id": "shared.oneapi.auth-selection",
+  "title": "Choosing OneAPI or a legacy auth path for a tenant: cloud, products in scope, and whether a ZIdentity API client exists",
+  "aliases": [
+    "oneapi or legacy",
+    "which auth path",
+    "auth decision tree",
+    "legacy or oneapi",
+    "gov cloud auth path",
+    "which auth does my script use",
+    "auth path for tenant"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.legacy-api.auth-models"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.cloud-architecture.cloud-names"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.government-clouds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.oneapi.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Three facts pick the path: the tenant's cloud, the products in scope, and whether the tenant has a ZIdentity API client [[shared.oneapi.authentication:auth-service-subscription]]."
+    },
+    {
+      "heading": "Choosing a path"
+    },
+    {
+      "table": {
+        "columns": [
+          "Tenant",
+          "Products",
+          "Path"
+        ],
+        "rows": [
+          [
+            "Commercial, ZIdentity API client exists",
+            "ZIA, ZPA, Client Connector, Cloud & Branch Connector, Business Insights",
+            "OneAPI OAuth 2.0 [[shared.oneapi:products]]"
+          ],
+          [
+            "Commercial, ZIdentity API client exists",
+            "ZDX",
+            "OneAPI: {{zdx-oneapi-routing}} ZDX legacy sign-in is the fallback [[zdx.sdk-python.legacy-client:token-request]]."
+          ],
+          [
+            "Commercial, no ZIdentity API client",
+            "ZIA",
+            "ZIA legacy session with an obfuscated key [[shared.legacy-api.zia-session:create-session]]"
+          ],
+          [
+            "Commercial, no ZIdentity API client",
+            "ZPA",
+            "ZPA legacy sign-in with client ID and customer ID [[zpa.api.authentication:legacy-signin]]"
+          ],
+          [
+            "Commercial, no ZIdentity API client",
+            "Client Connector",
+            "Legacy login with API key and secret [[zcc.api.authentication:legacy-login-request]]"
+          ],
+          [
+            "Commercial, no ZIdentity API client",
+            "ZDX",
+            "ZDX legacy SHA-256 sign-in [[shared.legacy-api.auth-models:zdx-signed-secret]]"
+          ],
+          [
+            "Government, gov or govus values",
+            "Any",
+            "OneAPI only where the client version routes it and the tenant has an API client [[shared.oneapi.government-clouds:go-gov-routing]]; otherwise the product's legacy API"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Confirming OneAPI"
+    },
+    {
+      "text": "A ZIdentity API client is created in the admin console [[zidentity.api-clients:console-provisioning]], and the API Clients page lists each client's status [[zidentity.api-clients:console-page]]. The admin host and menu path are open {{gap:zidentity-admin-host}}."
+    },
+    {
+      "heading": "Which path a script uses"
+    },
+    {
+      "text": "The Python SDK picks a legacy client through its use_legacy_client argument, which defaults to False [[shared.sdk-python.client-configuration:legacy-switch]]. It reads no ZSCALER_USE_LEGACY variable [[shared.oneapi:no-use-legacy-env]]."
+    },
+    {
+      "text": "The OneAPI variables are [[zia.sdk-python.authentication:oneapi-env-vars]]. The legacy variables are [[zia.sdk-python.authentication:legacy-zia-env]], [[zpa.sdk-python.client-configuration:legacy-client-env]], [[zcc.api.authentication:legacy-zcc-env]] and [[zdx.sdk-python.legacy-client:env-and-host]]."
+    },
+    {
+      "heading": "Cloud and government"
+    },
+    {
+      "text": "The tenant's cloud is named by its admin login host [[shared.cloud-architecture.cloud-names:name-from-admin-url]] and the ZIA cloud names are in [[shared.cloud-architecture.cloud-names:zia-provider-cloud-names]]. An unset ZSCALER_CLOUD means production [[shared.cloud-architecture.cloud-names:unset-cloud-production]], and the cloud setting is needed only for an alternative cloud environment [[zia.sdk-python.authentication:cloud-optional]]."
+    },
+    {
+      "text": "Government routing for gov and govus is in [[shared.oneapi.government-clouds:go-gov-routing]]. Whether a given government tenant is entitled to it is open [[shared.oneapi.government-clouds:tenant-entitlement]]."
+    },
+    {
+      "text": "Whether a sub-cloud follows its parent cloud's auth path is open {{gap:subcloud-auth}}."
+    },
+    {
+      "heading": "Fallback and mixed use"
+    },
+    {
+      "text": "A legacy path needs its own credentials and a tenant that still accepts them [[shared.legacy-api.zia-session:zidentity-tenants]]. Whether legacy credentials keep working after migration is open [[shared.legacy-api.auth-models:legacy-oneapi-coexistence]], and whether legacy and OneAPI return the same data for one tenant is open {{gap:coexistence-rbac}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant is commercial or government, from its admin login host or the ZSCALER_CLOUD value, before choosing a path.",
+      "uses": [
+        "shared.cloud-architecture.cloud-names:name-from-admin-url",
+        "shared.cloud-architecture.cloud-names:unset-cloud-production"
+      ]
+    },
+    {
+      "do": "For a government cloud, confirm the client version routes gov or govus and the tenant has a ZIdentity API client. Do not treat routing support as entitlement.",
+      "uses": [
+        "shared.oneapi.government-clouds:go-gov-routing",
+        "shared.oneapi.government-clouds:tenant-entitlement"
+      ]
+    },
+    {
+      "do": "Whether a ZIdentity API client exists for the tenant, from the API Clients page. With none, use the product's legacy path.",
+      "uses": [
+        "zidentity.api-clients:console-provisioning",
+        "zidentity.api-clients:console-page",
+        "shared.oneapi.authentication:auth-service-subscription"
+      ]
+    },
+    {
+      "do": "For a commercial tenant without a ZIdentity API client, a ZIA script uses the legacy session: POST to /authenticatedSession with the obfuscated key and a millisecond timestamp.",
+      "uses": [
+        "shared.legacy-api.zia-session:create-session",
+        "shared.legacy-api.zia-session:obfuscation-published",
+        "zia.sdk-python.authentication:legacy-framework"
+      ]
+    },
+    {
+      "do": "For a commercial tenant without a ZIdentity API client, a ZPA script uses the legacy sign-in with its client ID and customer ID.",
+      "uses": [
+        "zpa.api.authentication:legacy-signin",
+        "zpa.sdk-python.client-configuration:legacy-client"
+      ]
+    },
+    {
+      "do": "For a commercial tenant without a ZIdentity API client, a Client Connector script logs in with the legacy API key and secret.",
+      "uses": [
+        "zcc.api.authentication:legacy-login-request",
+        "zcc.api.authentication:api-must-be-enabled"
+      ]
+    },
+    {
+      "do": "For a commercial tenant without a ZIdentity API client, a ZDX script signs in with the SHA-256 signed secret.",
+      "uses": [
+        "zdx.sdk-python.legacy-client:token-request",
+        "shared.legacy-api.auth-models:zdx-signed-secret"
+      ]
+    },
+    {
+      "do": "Identify a script's path from its SDK client and variables. A plain client without use_legacy_client is OneAPI; the Legacy classes name a legacy client; OneAPI needs ZSCALER_CLIENT_ID, ZSCALER_VANITY_DOMAIN and ZSCALER_CLIENT_SECRET or ZSCALER_PRIVATE_KEY.",
+      "uses": [
+        "shared.sdk-python.client-configuration:legacy-switch",
+        "shared.sdk-python.client-configuration:legacy-clients",
+        "zia.sdk-python.authentication:oneapi-env-vars"
+      ]
+    },
+    {
+      "do": "Do not treat ZSCALER_CLOUD as needed for a production commercial tenant. Set it only for an alternative cloud environment.",
+      "uses": [
+        "zia.sdk-python.authentication:cloud-optional",
+        "shared.cloud-architecture.cloud-names:unset-cloud-production"
+      ]
+    },
+    {
+      "do": "Treat a fallback from OneAPI to legacy as a migration-window measure, and confirm the legacy path works for the tenant before relying on it.",
+      "uses": [
+        "shared.legacy-api.auth-models:legacy-oneapi-coexistence",
+        "shared.legacy-api.zia-session:zidentity-tenants"
+      ]
+    },
+    {
+      "do": "Before relying on a legacy call in a ZIdentity-enabled tenant, check whether its results match OneAPI's for the same data.",
+      "uses": [
+        "coexistence-rbac"
+      ]
+    },
+    {
+      "do": "For a sub-cloud (CONUS or tenant-specific), do not assume the parent cloud's auth path.",
+      "uses": [
+        "subcloud-auth"
+      ]
+    },
+    {
+      "do": "For a tenant whose cloud the admin URL and environment do not show, the cloud is unresolved; do not infer it.",
+      "uses": [
+        "shared.cloud-architecture.cloud-names:cloud-from-sdk-config"
+      ]
+    }
+  ],
+  "claims": {
+    "zdx-oneapi-routing": {
+      "statement": "Both SDKs route ZDX through OneAPI: the Go SDK maps endpoints beginning /zdx to the zdx service and its ZDX HTTP client, and the Python OneAPI client exposes a ZDXService through its zdx property.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
+            "} else if strings.HasPrefix(endpoint, \"/zdx\") {",
+            "return \"zdx\", nil",
+            "return client.oauth2Credentials.ZDXHTTPClient"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "from zscaler.zdx.zdx_service import ZDXService",
+            "def zdx(self):",
+            "self._zdx = ZDXService(self)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "subcloud-auth": {
+      "kind": "semantic",
+      "title": "Whether a sub-cloud follows its parent cloud's auth path",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'A sub-cloud (custom CONUS or tenant-specific) uses the same OneAPI-versus-legacy logic as its parent commercial cloud.' No captured source addresses authentication for sub-clouds; shared.subclouds describes their edge routing only.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "zidentity-admin-host": {
+      "kind": "semantic",
+      "title": "ZIdentity admin host and API Clients menu path",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'ZIdentity admin is at admin.<vanity>.zslogin.net, and the API clients are under Integrations, then API Clients.' The captured sources give the token endpoint at <vanity>.zslogin.net (shared.oneapi.authentication:token-endpoint) and the API Clients page (zidentity.api-clients:console-page), but not the admin host or the menu path.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "coexistence-rbac": {
+      "kind": "semantic",
+      "title": "Whether legacy and OneAPI calls return the same data for one tenant",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Running legacy calls against a ZIdentity-enabled tenant can work silently and produce different results from OneAPI against the same data, for example because RBAC differs between admin systems.' No captured source compares legacy and OneAPI results for one tenant.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

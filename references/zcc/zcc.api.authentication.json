@@ -44,7 +44,7 @@
     },
     {
       "label": "Legacy login.",
-      "text": "{{legacy-login-request}} {{legacy-token-expiry}} {{legacy-secret-shown-once}}"
+      "text": "{{legacy-login-request}} {{legacy-token-expiry}} {{legacy-secret-shown-once}} {{legacy-zcc-env}} Whether ZCC_API_KEY is also read is open {{gap:zcc-api-key-env}}."
     },
     {
       "text": "{{legacy-auth-token-header}} The legacy host differs between the help article and the SDKs {{divergence:legacy-host}}."
@@ -215,6 +215,21 @@
           ]
         }
       ]
+    },
+    "legacy-zcc-env": {
+      "statement": "The Python SDK's LegacyZCCClient takes its API key and secret key from the environment variables ZCC_CLIENT_ID and ZCC_CLIENT_SECRET.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "quotes": [
+            "class LegacyZCCClient(Client):",
+            "api_key = config.get(\"api_key\", os.getenv(\"ZCC_CLIENT_ID\"))",
+            "secret_key = config.get(\"secret_key\", os.getenv(\"ZCC_CLIENT_SECRET\"))"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -267,6 +282,15 @@
       "resolves_with": [
         "support-ticket",
         "lab-test"
+      ]
+    },
+    "zcc-api-key-env": {
+      "kind": "semantic",
+      "title": "Whether ZCC_API_KEY is read as a legacy credential",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'ZCC legacy auth is detected when ZCC_CLIENT_ID or ZCC_API_KEY is set, with ZCC_CLIENT_SECRET for the secret key.' The Python SDK reads ZCC_CLIENT_ID and ZCC_CLIENT_SECRET (legacy-zcc-env), and no captured source names ZCC_API_KEY.",
+      "resolves_with": [
+        "source-read"
       ]
     }
   }

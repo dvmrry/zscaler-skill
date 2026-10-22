@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "portfolio.business-continuity-cloud",
+  "title": "Business Continuity Cloud: components, constraints and what is open",
+  "aliases": [
+    "business continuity cloud",
+    "bcc",
+    "zscaler business continuity cloud",
+    "business continuity mode",
+    "private policy cache",
+    "private pac servers",
+    "private pac server",
+    "bc cloud"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.private-service-edge.business-continuity" },
+    { "rel": "see-also", "to": "zia.private-service-edge" },
+    { "rel": "see-also", "to": "portfolio.resilience" }
+  ],
+  "prose": [
+    { "text": "The catastrophic-tier deployment is described in [[portfolio.resilience:bcc-relation]]. The ZIA behavior, including prerequisites and failover, is in [[zia.private-service-edge.business-continuity]]." },
+    { "text": "{{bcc-components}} {{bcc-seamless-switch}} Their roles are in [[zia.private-service-edge.business-continuity:policy-cache-roles]] and [[zia.private-service-edge.business-continuity:pac-servers]], and the redundant pairs in [[zia.private-service-edge.business-continuity:redundant-pairs]]." },
+    { "text": "Only last-known-good policy applies in this mode: [[zia.private-service-edge.business-continuity:last-known-good-policy]]. Z-Tunnel 2.0 is not supported: [[zia.private-service-edge.business-continuity:z-tunnel-2-unsupported]]. Which tunnel types the mode supports is a divergence between the two help pages: [[zia.private-service-edge.business-continuity:supported-connectivity-methods]]." },
+    { "text": "Public cloud upgrades delay the business continuity upgrade on purpose: [[zia.private-service-edge.business-continuity:upgrade-delay]]." },
+    { "text": "Whether the customer side is only a Private Service Edge deployment is open {{gap:customer-side}}. Whether ZPA's business continuity settings API is this service's configuration surface is open {{gap:sdk-surface}}." }
+  ],
+  "checks": [
+    {
+      "do": "Before answering a tunnel question about business continuity mode, check the connectivity divergence and do not rely on one help page alone.",
+      "uses": ["zia.private-service-edge.business-continuity:supported-connectivity-methods", "zia.private-service-edge.business-continuity:z-tunnel-2-unsupported"]
+    },
+    {
+      "do": "For a question about configuring the service, say that the configuration surface is open and do not infer one from the ZPA settings API.",
+      "uses": ["sdk-surface"]
+    }
+  ],
+  "claims": {
+    "bcc-components": {
+      "statement": "The Business Continuity Cloud has two Zscaler-managed components, Private Policy Cache and Private PAC Servers, which work with the Private Service Edges for Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-business-continuity-cloud-components.json",
+          "quotes": [
+            "The Zscaler-managed Business Continuity Cloud service includes two components, Private Policy Cache and Private PAC Servers, working with the Private Service Edges for Internet & SaaS (ZIA)"
+          ]
+        }
+      ]
+    },
+    "bcc-seamless-switch": {
+      "statement": "The Private Policy Cache supports a seamless switch between public and private clouds in business continuity mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-business-continuity-cloud-components.json",
+          "quotes": [
+            "Supports a seamless switch between public and private clouds in business continuity mode."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "customer-side": {
+      "kind": "semantic",
+      "title": "Whether the customer side of the Business Continuity Cloud is only a Private Service Edge deployment",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'Zscaler-managed; customer side is just the Private Service Edge deployment.' The components capture says both components are managed by Zscaler and work with the Private Service Edges, but does not say the customer deploys nothing else.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "sdk-surface": {
+      "kind": "semantic",
+      "title": "Whether ZPA's business continuity settings API is the Business Continuity Cloud's configuration surface",
+      "status": "open",
+      "detail": "Unverified legacy statement: 'No SDK / TF surface.' The vendored Python SDK has a ZPA BusinessContinuityAPI (client.zpa.business_continuity) that lists, adds, updates and deletes businessContinuitySettings under the ZPA management config. No captured page says whether those settings are this service's configuration.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}
