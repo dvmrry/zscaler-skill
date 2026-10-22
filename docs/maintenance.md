@@ -38,6 +38,37 @@ the workflow does not silently treat an unavailable baseline as an unchanged
 source. The job summary contains the bounded Markdown report, and the scan
 does not open issues, mutate sources, or send notifications.
 
+## Knowledge-graph refresh loop
+
+Every claim quotes a pinned source, so a source change shows up as quotes that no longer anchor. The loop
+below takes a source change to a reviewable pull request; each step is deterministic and needs no model.
+Keep scratch output outside the checkout (`$TMP` below).
+
+1. **Help captures.** `python3 scripts/help_capture.py check --replace --json > $TMP/drift.json` refetches
+   every capture, rewrites the ones whose page revision moved, and reports them (exit 1 means drift). After a
+   change to the renderer itself, use `help_capture.py rerender` instead: it re-renders captures still at
+   their captured revision and reports any whose revision moved.
+2. **Spacing-only breaks.** `node scripts/kb.mjs requote --write` re-quotes every capture quote or `after`
+   anchor that a re-render broke only by whitespace (one span equal to it up to spacing); without `--write`
+   it lists them. A reworded or ambiguous quote is left for step 3.
+3. **Review.** `node scripts/kb-drift.mjs $TMP/drift.json` sorts every evidence entry that cites a changed
+   page into `broken` (re-anchor it, or turn the claim into a gap if the page no longer says it),
+   `in-change` (it still anchors, on or next to a changed line: read the change against the claim) and
+   `untouched`. Gone and maintenance pages are listed with the claims that cite them.
+4. **Submodule bumps.** A pin bump re-anchors every quote into that submodule at the new pin; a quote that
+   breaks there is a real source change, never a spacing one, so it goes through review, not `requote`.
+5. **Generated layers.** `node scripts/gen-surfaces.mjs <product>` after a spec capture or an SDK or
+   provider pin changes, and `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes;
+   both take `--check`.
+6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
+   `node scripts/kb.mjs verified` regenerates `references/_meta/verified.json`.
+7. **Gate.** `node scripts/check-full.mjs` (validate, lint, generated-layer checks and every test, with
+   temporary files under one root it removes).
+8. **Pull request.** Open it with the drift review in the description. It never merges itself.
+
+A model-graded claim audit (does each quote support its claim's statement?) is worth running on the claims
+the review marks `broken` or `in-change`; it calls a model API, so it runs outside the repo and outside CI.
+
 ## Weekly upstream refresh (automated)
 
 Most weeks, a maintainer does not need to start the upstream bump by hand.

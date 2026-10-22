@@ -14,6 +14,8 @@
 //   export-zscalerctl                export the pinned zscalerctl catalogue (needs Go)
 //   import-types                     regenerate references/_meta/types/*.json
 //   migrate-links                    rewrite legacy links to converted docs as kb: links
+//   requote [--write] [--json]       re-quote capture quotes a re-render broke only by spacing (kb-requote.mjs);
+//                                    without --write, lists what it would change
 //   move-claim <from> <to> [--merge] move a claim to another subject, rewriting every reference to it;
 //                                    --merge drops it in favour of an existing claim that says the same
 //   surface <query>                  API, SDK and Terraform surface for a product key (zia, zdx, zid, ...), a Terraform name, API path,
@@ -30,7 +32,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|lint|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|move-claim|surface|freshness> [args]");
+  console.error("usage: kb.mjs <validate|lint|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|freshness> [args]");
   process.exit(2);
 }
 
@@ -79,6 +81,17 @@ async function main(argv) {
     const days = Number(option(args, "--days") || 365);
     const r = freshness(g, { days, upstream: args.includes("--upstream") });
     process.stdout.write(json ? `${JSON.stringify(r, null, 2)}\n` : freshnessText(r));
+    return 0;
+  }
+  if (cmd === "requote") {
+    const { requote } = await import("./kb-requote.mjs");
+    const r = requote(g, { write: args.includes("--write") });
+    if (args.includes("--json")) process.stdout.write(`${JSON.stringify(r, null, 2)}\n`);
+    else {
+      for (const f of r.fixed) console.log(`${f.where}: "${f.from.slice(0, 70)}" -> "${f.to.slice(0, 70)}"`);
+      for (const b of r.broken) console.log(`still broken: ${b.where}: ${b.errors[0]}`);
+    }
+    console.error(`kb requote: ${r.fixed.length} quotes ${args.includes("--write") ? "re-quoted" : "to re-quote"} in ${r.files.length} files; ${r.broken.length} entries need a person`);
     return 0;
   }
   if (cmd === "lint") {

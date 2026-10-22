@@ -4,7 +4,8 @@
 // Input: the JSON that `python3 scripts/help_capture.py check --replace --json` prints, run after the
 // drifted captures were rewritten. For every evidence entry that cites a changed page it says which of
 // three things is true, so a reviewer reads only what can have changed meaning:
-//   broken     the quote or pointer no longer anchors: re-anchor it (scripts/README, re-anchoring brief)
+//   broken     the quote or pointer no longer anchors: run `kb.mjs requote --write` first, then re-anchor
+//              what is left by hand (docs/maintenance.md, "Knowledge-graph refresh loop")
 //   in-change  it still anchors, but on or next to a changed line: read the change against the claim
 //   untouched  it anchors away from every change: nothing to review
 // Pages that are gone or under maintenance are listed with the claims that cite them.

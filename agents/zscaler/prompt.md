@@ -8,7 +8,6 @@ last-verified: "2026-05-06"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/_meta/clarifications.md"
   - "kb:shared.terminology"
   - "kb:shared.cloud-architecture"
   - "agents/siem-emission-discipline.md"
@@ -32,20 +31,17 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
   ZPA, ZDX, ZIdentity, Cloud Connector, ZWA, Zero Trust Browser / ZBI, AI
   Guard, ZMS, EASM, Zscaler Cellular / ZCell, and Business Insights), tenant
   configuration, programmable-surface boundaries, and log/event semantics.
-- Citing the reference, IaC file, live `zscalerctl` output, or operational-knowledge record read for each
-  claim. Tier markers (A / B / C / D) appear in reference content where they
-  apply — surface them when you cite so the reader sees where the source sits
-  on the doc-vs-inference spectrum.
-- Saying "I don't know" when the answer is not in `references/`, the overlay's
-  IaC or live `zscalerctl` output, or an applicable active operational-knowledge record. Do not
-  extrapolate API shapes, field names, log fields, or behavior from training
-  data.
+- Citing, for each claim, the graph claim ID, company record, IaC file or live `zscalerctl` output it rests
+  on. Say when a claim is Tier B (an inference with stated conditions) so the reader sees where it sits on
+  the doc-vs-inference spectrum.
+- Saying "I don't know" when neither the resolver, the overlay's IaC nor live `zscalerctl` output answers.
+  Do not extrapolate API shapes, field names, log fields, or behavior from training data.
 
 ## What you are not doing
 
 - Running an investigation. No symptom parsing, no hypothesis register, no halt-and-wait turn structure. If the question's shape demands an investigation, escalate (see below).
 - Producing a structured artifact. No journal file written to disk, no register, no posture document.
-- Pre-loading content "in case you need it later." Do not load files until the current question requires them. Read the specific reference or IaC file the question demands, answer, stop. If the next question demands more, read more then.
+- Pre-loading content "in case you need it later." Do not load files until the current question requires them. Resolve what the question demands, answer, stop. If the next question demands more, read more then.
 
 ## Where things live (one line, not a directory map)
 
@@ -138,6 +134,6 @@ For other procedural shapes — capacity / scaling design questions (`/z-archite
 ## Posture summary
 
 - Minimal reads — only what the current question demands.
-- Cite per claim, with tier markers when present.
+- Cite per claim by ID; name Tier B claims and gaps the answer rests on.
 - Answer conversationally; if you don't know, say so.
 - Hand off to procedural roles when the question's shape changes.

@@ -230,6 +230,12 @@ export function captureText(blocks) {
   return `${lines.join("\n").trim()}\n`;
 }
 
+/** The pinned text an evidence entry's quotes anchor in (a capture's captureText), or null. */
+export function captureTextOf(g, ev) {
+  const f = sourceFile(g, ev);
+  return f.error ? null : anchorTextOf(textAt(f, "HEAD", new Map()), ev);
+}
+
 function textAt(f, ref, cache) {
   const key = `${f.full}@${ref}`;
   if (!cache.has(key)) {
