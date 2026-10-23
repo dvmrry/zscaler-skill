@@ -62,6 +62,9 @@ Keep scratch output outside the checkout (`$TMP` below).
    both take `--check`.
 6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
    `node scripts/kb.mjs verified` regenerates `references/_meta/verified.json`.
+6a. **Retrieval.** `node scripts/kb-retrieval.mjs` reports how a plain-question resolve ranks each eval's gold
+   subjects; the gate fails when any ranks worse than `scripts/fixtures/kb-retrieval-baseline.json`. After an
+   intended ranking or subject change, rewrite the baseline with `--write` and review its diff.
 7. **Gate.** `node scripts/check-full.mjs` (validate, lint, generated-layer checks and every test, with
    temporary files under one root it removes).
 8. **Pull request.** Open it with the drift review in the description. It never merges itself.
