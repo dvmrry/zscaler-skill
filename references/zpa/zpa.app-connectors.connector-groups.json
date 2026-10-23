@@ -644,8 +644,8 @@
       ]
     },
     "latitude-longitude-string": {
-      "statement": "An App Connector Group's `latitude` is a string in the OpenAPI document, the Go struct and the Terraform schema. The provider's ValidateLatitude checks the parsed value is in -90..90; a value that does not parse is treated as 0 and accepted. The connector-level latitude in the same response is a read-only double.",
-      "conditions": "Statement narrowed from 'validates it as a number' to the range check: ValidateLatitude discards the ParseFloat error, so a non-numeric string parses as 0 and passes. The validator quote and its body in zpa/utils.go were added as evidence. Restated to say outright that an unparseable value is accepted as 0, and the error text was added as a quote.",
+      "statement": "An App Connector Group's `latitude` is a string in the OpenAPI document, the Go struct and the Terraform schema. The provider's ValidateLatitude checks the parsed value is in -90..90; a value that does not parse is rejected. The connector-level latitude in the same response is a read-only double.",
+      "conditions": "Rewritten for v4.4.15. Up to v4.4.14 ValidateLatitude discarded the ParseFloat error, so a non-numeric string parsed as 0 and passed; v4.4.15 checks the error and rejects it (v4.4.15 changed zpa/utils.go; the changelog does not list it). The error text is quoted below.",
       "tier": "A",
       "evidence": [
         {
@@ -694,8 +694,8 @@
           "source": "tf-zpa",
           "path": "zpa/utils.go",
           "quotes": [
-            "v, _ := strconv.ParseFloat(val.(string), 64)",
-            "if v < -90 || v > 90 {",
+            "v, err := strconv.ParseFloat(val.(string), 64)",
+            "if err != nil || v < -90 || v > 90 {",
             "latitude must be between -90 and 90"
           ],
           "after": "func ValidateLatitude(val interface{}, _ string) (warns []string, errs []error) {"

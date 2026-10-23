@@ -492,7 +492,7 @@
       "conditions": "Absence claim from a read of the Go scimgroup and scimattributeheader files, and of the Python scim_groups.py and scim_attributes.py: the functions listed in claims go-functions and python-methods are the only public ones (Go scimgroup re-read at v3.8.55: Get, GetByName, GetByNameAndIamIdp, GetAllByIdpId). The Go scim_api package, which calls the ZPA SCIM server rather than the management API, does have write functions (go-scim-server-client)."
     },
     "tf-data-sources": {
-      "statement": "The zpa_scim_groups and zpa_scim_attribute_header data sources fail unless idp_id or idp_name is set, find the object by id when it is given and otherwise by name, and zpa_scim_attribute_header also reads the attribute's values into a values set.",
+      "statement": "The zpa_scim_groups and zpa_scim_attribute_header data sources fail unless idp_id or idp_name is set, find the object by id when it is given and otherwise by name, and zpa_scim_attribute_header also reads the attribute's values into a values set. The zpa_scim_groups schema declares idp_id as an integer; up to v4.4.14 its read asserted the value as a string, so a lookup by idp_id found no IdP ID, and v4.4.15 converts the integer to the string the SDK takes.",
       "tier": "A",
       "evidence": [
         {
@@ -518,6 +518,41 @@
             "res, _, err := scimattributeheader.GetByName(ctx, service, name, idpResp.ID)",
             "_ = d.Set(\"values\", values)"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "quotes": [
+            "\"idp_id\": { Type: schema.TypeInt, Optional: true, },"
+          ],
+          "after": "Schema: map[string]*schema.Schema{"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "at": [
+            "v4.4.14"
+          ],
+          "quotes": [
+            "idpId, okidpId := d.Get(\"idp_id\").(string)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_scim_group.go",
+          "quotes": [
+            "// idp_id is numeric in the schema; the SDK takes it as a string.",
+            "if v, ok := d.Get(\"idp_id\").(int); ok && v != 0 {",
+            "idpId = strconv.Itoa(v)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_scim_groups` data source: the lookup by `idp_id` now works."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ]
     },

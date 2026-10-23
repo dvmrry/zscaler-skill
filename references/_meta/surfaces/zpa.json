@@ -7,7 +7,7 @@
   "zscaler-api-specs/automate-zscaler/openapi/zpa.openapi.json": "sha256:61d612223428f5361df8e5435c970844fae39d01bb5f9dad270623eefee8a947",
   "zscaler-sdk-go": "1c99ad6c01b91e6374792d82bf50b40082b592d9",
   "zscaler-sdk-python": "cb42eec7717125e3a9993425d977d5c3f20bb6ac",
-  "terraform-provider-zpa": "725c09d3e9770de68877f4e7762a4a3a1d9ad0d1"
+  "terraform-provider-zpa": "fdf405a83e1c8f82b4712e0c0f41a4fcb4a84348"
  },
  "api": {
   "/cbiconfig/cbi/api/customers/{customerId}/banner": {
@@ -5091,6 +5091,59 @@
       }
      }
     },
+    "tags": {
+     "type": "list",
+     "computed": true,
+     "description": "Tags associated with the application segment.",
+     "block": {
+      "namespace": {
+       "type": "list",
+       "computed": true,
+       "block": {
+        "id": {
+         "type": "string",
+         "computed": true
+        },
+        "name": {
+         "type": "string",
+         "computed": true
+        }
+       }
+      },
+      "origin": {
+       "type": "string",
+       "computed": true
+      },
+      "tag_key": {
+       "type": "list",
+       "computed": true,
+       "block": {
+        "id": {
+         "type": "string",
+         "computed": true
+        },
+        "name": {
+         "type": "string",
+         "computed": true
+        }
+       }
+      },
+      "tag_value": {
+       "type": "list",
+       "computed": true,
+       "block": {
+        "id": {
+         "type": "string",
+         "computed": true
+        },
+        "name": {
+         "type": "string",
+         "computed": true
+        }
+       }
+      }
+     }
+    },
     "tcp_port_range": {
      "type": "set",
      "optional": true,
@@ -8444,6 +8497,12 @@
      "type": "string",
      "optional": true
     },
+    "name": {
+     "type": "string",
+     "optional": true,
+     "computed": true,
+     "description": "The name of the LSS configuration (config.0.name)."
+    },
     "policy_rule": {
      "type": "list",
      "computed": true,
@@ -9163,8 +9222,12 @@
        "type": "string",
        "computed": true
       },
+      "modified_by": {
+       "type": "string",
+       "computed": true
+      },
       "modified_time": {
-       "type": "int",
+       "type": "string",
        "computed": true
       },
       "modifiedby": {
@@ -9188,15 +9251,15 @@
        "computed": true
       },
       "phone_number": {
-       "type": "bool",
-       "computed": true
-      },
-      "pin_session": {
        "type": "string",
        "computed": true
       },
-      "role_id": {
+      "pin_session": {
        "type": "bool",
+       "computed": true
+      },
+      "role_id": {
+       "type": "string",
        "computed": true
       },
       "sync_version": {
@@ -9332,6 +9395,10 @@
          "type": "string",
          "computed": true
         },
+        "microtenant_id": {
+         "type": "string",
+         "computed": true
+        },
         "modified_by": {
          "type": "string",
          "computed": true
@@ -9357,6 +9424,10 @@
            "computed": true
           },
           "lhs": {
+           "type": "string",
+           "computed": true
+          },
+          "microtenant_id": {
            "type": "string",
            "computed": true
           },
@@ -9412,6 +9483,14 @@
        "type": "bool",
        "computed": true
       },
+      "microtenant_id": {
+       "type": "string",
+       "computed": true
+      },
+      "microtenant_name": {
+       "type": "string",
+       "computed": true
+      },
       "modified_by": {
        "type": "string",
        "computed": true
@@ -9461,6 +9540,14 @@
        "computed": true
       },
       "zpn_inspection_profile_id": {
+       "type": "string",
+       "computed": true
+      },
+      "zpn_inspection_profile_name": {
+       "type": "string",
+       "computed": true
+      },
+      "zpn_isolation_profile_id": {
        "type": "string",
        "computed": true
       }
@@ -13414,6 +13501,23 @@
      "description": "Share the Application Segment to microtenants",
      "elem_type": "string"
     },
+    "tags": {
+     "type": "set",
+     "optional": true,
+     "description": "Tags associated with the application segment. Each tag is a tag value of a tag key.",
+     "block": {
+      "tag_key_id": {
+       "type": "string",
+       "required": true,
+       "description": "ID of the tag key"
+      },
+      "tag_value_id": {
+       "type": "string",
+       "required": true,
+       "description": "ID of the tag value"
+      }
+     }
+    },
     "tcp_keep_alive": {
      "type": "string",
      "optional": true,
@@ -16068,7 +16172,9 @@
            "PLATFORM",
            "RISK_FACTOR_TYPE",
            "CHROME_ENTERPRISE",
-           "WORKLOAD_TAG_GROUP"
+           "WORKLOAD_TAG_GROUP",
+           "ENTITY_TAG_GRP",
+           "ENTITY_TAG_VAL"
           ]
          }
         },
@@ -16370,7 +16476,9 @@
            "RISK_FACTOR_TYPE",
            "CHROME_ENTERPRISE",
            "CHROME_POSTURE_PROFILE",
-           "WORKLOAD_TAG_GROUP"
+           "WORKLOAD_TAG_GROUP",
+           "ENTITY_TAG_GRP",
+           "ENTITY_TAG_VAL"
           ]
          }
         },
@@ -18110,7 +18218,12 @@
          "description": "  This is for specifying the policy critiera.",
          "validate": {
           "enum": [
-           "CLIENT_TYPE"
+           "CLIENT_TYPE",
+           "IDP",
+           "SAML",
+           "SCIM",
+           "SCIM_GROUP",
+           "COUNTRY_CODE"
           ]
          }
         },
@@ -18614,11 +18727,13 @@
     },
     "reauth_idle_timeout": {
      "type": "string",
-     "optional": true
+     "optional": true,
+     "diff_suppress": "suppressEquivalentTimeout"
     },
     "reauth_timeout": {
      "type": "string",
-     "optional": true
+     "optional": true,
+     "diff_suppress": "suppressEquivalentTimeout"
     }
    }
   },

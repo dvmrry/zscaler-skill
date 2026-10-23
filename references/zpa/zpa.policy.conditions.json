@@ -64,7 +64,7 @@
       "text": "The list of criteria is in [[zpa.policy.criteria]]."
     },
     {
-      "text": "The v2 access rule schema accepts 19 condition object types {{tf-v2-object-type-values}}."
+      "text": "The v2 access rule schema accepts 21 condition object types {{tf-v2-object-type-values}}."
     }
   ],
   "checks": [
@@ -316,7 +316,7 @@
       ]
     },
     "tf-v2-object-type-values": {
-      "statement": "The Terraform v2 access rule validates a condition's object_type against 19 values: APP, APP_GROUP, LOCATION, IDP, SAML, SCIM, SCIM_GROUP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, BRANCH_CONNECTOR_GROUP, EDGE_CONNECTOR_GROUP, MACHINE_GRP, COUNTRY_CODE, PLATFORM, RISK_FACTOR_TYPE, CHROME_ENTERPRISE, CHROME_POSTURE_PROFILE and WORKLOAD_TAG_GROUP.",
+      "statement": "The Terraform v2 access rule validates a condition's object_type against 21 values (19 up to v4.4.14): APP, APP_GROUP, LOCATION, IDP, SAML, SCIM, SCIM_GROUP, CLIENT_TYPE, POSTURE, TRUSTED_NETWORK, BRANCH_CONNECTOR_GROUP, EDGE_CONNECTOR_GROUP, MACHINE_GRP, COUNTRY_CODE, PLATFORM, RISK_FACTOR_TYPE, CHROME_ENTERPRISE, CHROME_POSTURE_PROFILE, WORKLOAD_TAG_GROUP, ENTITY_TAG_GRP and ENTITY_TAG_VAL; v4.4.15 added the last two.",
       "tier": "A",
       "evidence": [
         {
@@ -326,9 +326,30 @@
             "ValidateFunc: validation.StringInSlice([]string{ \"APP\", \"APP_GROUP\", \"LOCATION\", \"IDP\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"CLIENT_TYPE\", \"POSTURE\", \"TRUSTED_NETWORK\",",
             "\"TRUSTED_NETWORK\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"MACHINE_GRP\", \"COUNTRY_CODE\", \"PLATFORM\", \"RISK_FACTOR_TYPE\", \"CHROME_ENTERPRISE\", \"CHROME_POSTURE_PROFILE\", \"WORKLOAD_TAG_GROUP\", }, false),"
           ],
+          "after": "Description: \"  This is for specifying the policy critiera.\",",
+          "at": [
+            "v4.4.14"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "ValidateFunc: validation.StringInSlice([]string{ \"APP\", \"APP_GROUP\", \"LOCATION\", \"IDP\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"CLIENT_TYPE\", \"POSTURE\", \"TRUSTED_NETWORK\",",
+            "\"TRUSTED_NETWORK\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"MACHINE_GRP\", \"COUNTRY_CODE\", \"PLATFORM\", \"RISK_FACTOR_TYPE\", \"CHROME_ENTERPRISE\", \"CHROME_POSTURE_PROFILE\", \"WORKLOAD_TAG_GROUP\", \"ENTITY_TAG_GRP\", \"ENTITY_TAG_VAL\", }, false),"
+          ],
           "after": "Description: \"  This is for specifying the policy critiera.\","
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the `conditions` object types `ENTITY_TAG_GRP` and `ENTITY_TAG_VAL` to the resources `zpa_policy_access_rule` and `zpa_policy_access_rule_v2`."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
-      ]
+      ],
+      "conditions": "Count: the validator list holds 21 strings at v4.4.15 and 19 at v4.4.14."
     }
   },
   "gaps": {

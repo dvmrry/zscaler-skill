@@ -60,7 +60,7 @@
     },
     {
       "label": "Deletes.",
-      "text": "Segment group, server group and connector group cleanups are in [[zpa.terraform.delete-paths]]. {{main-delete-v1-cleanup-ignores-errors}} {{other-segment-deletes-skip-policy-detach}} {{delete-can-leave-policy-references}} Whether the v1 policy listing returns rules written through the v2 endpoints is open {{gap:api-v1-listing-covers-v2-rules}}. Operand rewriting by the v1 cleanup is covered in [[zpa.terraform.policy-rule-writes]]."
+      "text": "Segment group, server group and connector group cleanups are in [[zpa.terraform.delete-paths]]. {{main-delete-v1-cleanup-ignores-errors}} {{detach-drops-emptied-conditions-4-4-15}} {{other-segment-deletes-skip-policy-detach}} {{delete-can-leave-policy-references}} Whether the v1 policy listing returns rules written through the v2 endpoints is open {{gap:api-v1-listing-covers-v2-rules}}. Operand rewriting by the v1 cleanup is covered in [[zpa.terraform.policy-rule-writes]]."
     },
     {
       "label": "Inspection profile and custom control associations.",
@@ -835,6 +835,49 @@
         {
           "status": "unfiled",
           "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "detach-drops-emptied-conditions-4-4-15": {
+      "statement": "Up to v4.4.14 the main application segment's policy cleanup set each condition's operands to the ones left after removing the segment (`rule.Conditions[i].Operands = operands`), so a condition could be left with no operands, and the v4.4.15 changelog says deleting a segment no longer fails in that case. From v4.4.15 the cleanup skips a condition left with no operands and sends the remaining conditions.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.14"
+          ],
+          "quotes": [
+            "rule.Conditions[i].Operands = operands"
+          ],
+          "after": "func detachAppsFromAllPolicyRules("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "if len(operands) == 0 && len(condition.Operands) > 0 { continue }",
+            "rule.Conditions = conditions"
+          ],
+          "after": "func detachAppsFromAllPolicyRules("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_application_segment`: deleting a segment no longer fails when removing it from a policy rule leaves a condition with no operands; that condition is now removed."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },

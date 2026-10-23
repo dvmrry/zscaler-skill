@@ -42,7 +42,7 @@
     },
     {
       "label": "Rule types.",
-      "text": "{{timeout-v1-seconds-v2-strings}} {{inspection-profile-required-for-inspect}} {{redirection-client-types}} {{credential-rule-console-first}} {{capabilities-conditions-limited}}"
+      "text": "{{timeout-v1-seconds-v2-strings}} {{inspection-profile-required-for-inspect}} {{redirection-client-types}} {{redirection-object-types-4-4-15}} {{credential-rule-console-first}} {{capabilities-conditions-limited}}"
     },
     {
       "label": "Provider changes by version.",
@@ -477,9 +477,9 @@
       ]
     },
     "rule-type-object-types": {
-      "statement": "The rule-type docs list these operand object types: portal access rules PRIVILEGE_PORTAL, SCIM_GROUP, SCIM, SAML and COUNTRY_CODE; browser protection rules APP, APP_GROUP, USER_PORTAL, CLIENT_TYPE, SCIM_GROUP, SCIM and SAML; redirection rules CLIENT_TYPE and COUNTRY_CODE; and the v2 isolation rule APP, APP_GROUP, CLIENT_TYPE, EDGE_CONNECTOR_GROUP, MACHINE_GRP, PLATFORM, POSTURE, TRUSTED_NETWORK, SCIM_GROUP, SCIM, SAML, CHROME_ENTERPRISE and CHROME_POSTURE_PROFILE.",
+      "statement": "The rule-type docs list these operand object types: portal access rules PRIVILEGE_PORTAL, SCIM_GROUP, SCIM, SAML and COUNTRY_CODE; browser protection rules APP, APP_GROUP, USER_PORTAL, CLIENT_TYPE, SCIM_GROUP, SCIM and SAML; redirection rules CLIENT_TYPE, IDP, SAML, SCIM, SCIM_GROUP and COUNTRY_CODE; and the v2 isolation rule APP, APP_GROUP, CLIENT_TYPE, EDGE_CONNECTOR_GROUP, MACHINE_GRP, PLATFORM, POSTURE, TRUSTED_NETWORK, SCIM_GROUP, SCIM, SAML, CHROME_ENTERPRISE and CHROME_POSTURE_PROFILE.",
       "tier": "A",
-      "conditions": "Corrected after verification: the v2 isolation doc lists 13 object types, not only the two Chrome types, and the browser protection doc also lists SAML, SCIM and SCIM_GROUP; the word \"narrow\" was dropped.",
+      "conditions": "Corrected after verification: the v2 isolation doc lists 13 object types, not only the two Chrome types, and the browser protection doc also lists SAML, SCIM and SCIM_GROUP; the word \"narrow\" was dropped. Re-quoted for v4.4.15, whose redirection rule doc lists IDP, SAML, SCIM and SCIM_GROUP as well; up to v4.4.14 it listed CLIENT_TYPE and COUNTRY_CODE.",
       "evidence": [
         {
           "source": "tf-zpa",
@@ -508,7 +508,7 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_redirection_rule.md",
           "quotes": [
-            "Supported values: `CLIENT_TYPE`, `COUNTRY_CODE`."
+            "Supported values: `CLIENT_TYPE`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `COUNTRY_CODE`."
           ]
         },
         {
@@ -536,9 +536,49 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_redirection_rule.md",
           "quotes": [
-            "The below options are the only ones supported in a timeout policy rule. - ``zpn_client_type_machine_tunnel`` - ``zpn_client_type_edge_connector`` - ``zpn_client_type_zapp`` - ``zpn_client_type_zapp_partner`` - ``zpn_client_type_branch_connector`` - `COUNTRY_CODE` (String)"
+            "The below options are the only ones supported in a redirection policy rule. - ``zpn_client_type_machine_tunnel`` - ``zpn_client_type_edge_connector`` - ``zpn_client_type_zapp`` - ``zpn_client_type_zapp_partner`` - ``zpn_client_type_branch_connector`` - `COUNTRY_CODE` (String)"
           ],
           "after": "`CLIENT_TYPE` (String)"
+        }
+      ],
+      "conditions": "Re-quoted for v4.4.15, whose doc calls the list the options supported in a redirection policy rule; up to v4.4.14 the same list said timeout policy rule."
+    },
+    "redirection-object-types-4-4-15": {
+      "statement": "The redirection rule resource's conditions schema accepts the operand object types CLIENT_TYPE, IDP, SAML, SCIM, SCIM_GROUP and COUNTRY_CODE. Up to v4.4.14 it accepted only CLIENT_TYPE; v4.4.15 added IDP, SAML, SCIM, SCIM_GROUP and COUNTRY_CODE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "at": [
+            "v4.4.14"
+          ],
+          "quotes": [
+            "\"CLIENT_TYPE\", }),"
+          ],
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "quotes": [
+            "\"CLIENT_TYPE\", \"IDP\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"COUNTRY_CODE\", }),"
+          ],
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added new `conditions` options `IDP`, `SAML`, `SCIM_GROUP`, `SCIM`, `COUNTRY_CODE`, within the resource `zpa_policy_redirection_rule`"
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Added in provider v4.4.15 (PR 697)."
         }
       ]
     },

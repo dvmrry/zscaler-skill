@@ -78,7 +78,7 @@
       ]
     },
     {
-      "do": "Whether the remote schedule setting is read directly after create, import or destroy, since an empty resource ID is the first symptom of the create path.",
+      "do": "Whether the remote schedule setting is read directly after create, import or destroy, since on provider v4.4.14 or older an empty resource ID is the first symptom of the create path.",
       "uses": [
         "schedule-create-discards-server-id",
         "schedule-create-empty-id",
@@ -102,7 +102,7 @@
   ],
   "claims": {
     "schedule-create-discards-server-id": {
-      "statement": "Creating the Service Edge assistant schedule discards the object the SDK returns from the POST, then stores the ID of the request as the resource ID. The request ID is read from the resource's own computed `id`. Only the already-exists branch sets an ID taken from the server, by reading the singleton schedule.",
+      "statement": "Up to v4.4.14, creating the Service Edge assistant schedule discarded the object the SDK returns from the POST, then stored the ID of the request as the resource ID. The request ID is read from the resource's own computed `id`. Only the already-exists branch set an ID taken from the server, by reading the singleton schedule. v4.4.15 fixes this for the Service Edge and the App Connector assistant schedules: create stores the ID of the schedule the POST returned (`created.ID`).",
       "tier": "A",
       "evidence": [
         {
@@ -110,7 +110,7 @@
           "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
             "_, _, err = serviceedgeschedule.CreateSchedule(ctx, service, req)",
@@ -131,22 +131,59 @@
           "quotes": [
             "func CreateSchedule(ctx context.Context, service *zscaler.Service, assistantSchedule AssistantSchedule) (*AssistantSchedule, *http.Response, error) {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_assistant_schedule.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.14"
+          ],
+          "quotes": [
+            "_, _, err = appconnectorschedule.CreateSchedule(ctx, service, req)",
+            "d.SetId(req.ID)",
+            "ID:                d.Get(\"id\").(string),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_service_edge_assistant_schedule.go",
+          "quotes": [
+            "created, _, err := serviceedgeschedule.CreateSchedule(ctx, service, req)",
+            "d.SetId(created.ID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_app_connector_assistant_schedule.go",
+          "quotes": [
+            "created, _, err := appconnectorschedule.CreateSchedule(ctx, service, req)",
+            "d.SetId(created.ID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_app_connector_assistant_schedule` and `zpa_service_edge_assistant_schedule`: create now stores the ID of the new schedule."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },
     "schedule-create-empty-id": {
-      "statement": "On a first create the resource's computed `id` is still empty, so the first-create path sets an empty ID, which probably makes Terraform report an inconsistent result rather than record the resource.",
+      "statement": "Up to v4.4.14, on a first create the resource's computed `id` was still empty, so the first-create path set an empty ID, which probably made Terraform report an inconsistent result rather than record the resource. v4.4.15 sets the ID the POST returned instead.",
       "tier": "B",
       "derived_from": [
         "schedule-create-discards-server-id"
       ],
-      "conditions": "Assumes Terraform plugin SDK and core behavior not shown by these sources: a computed `id` reads as empty before the first create, and a create that ends with an empty ID is reported as an inconsistent result."
+      "conditions": "Assumes Terraform plugin SDK and core behavior not shown by these sources: a computed `id` reads as empty before the first create, and a create that ends with an empty ID is reported as an inconsistent result. Rewritten for v4.4.15, which fixes the create path."
     },
     "schedule-read-never-sets-id": {
       "statement": "The schedule resource accepts any ID on import (passthrough importer), and its Read fetches the singleton schedule but never writes the singleton's ID back. Update then builds the PUT path from `d.Id()`.",
@@ -232,7 +269,7 @@
       ]
     },
     "redirection-create-skips-policy-set-lookup": {
-      "statement": "Creating a redirection rule never resolves `policy_set_id`. The schema makes it optional and computed, the create path expands it straight from the resource data, and the SDK builds the POST URL from it. The forwarding rule resource, by contrast, looks the policy set up by type when the argument is unset.",
+      "statement": "Up to v4.4.14, creating a redirection rule never resolved `policy_set_id`. The schema makes it optional and computed, the create path expanded it straight from the resource data, and the SDK builds the POST URL from it. The forwarding rule resource, by contrast, looks the policy set up by type when the argument is unset. v4.4.15 fixes the redirection rule: when `policy_set_id` is not set, create resolves the `REDIRECTION_POLICY` policy set.",
       "tier": "A",
       "evidence": [
         {
@@ -240,7 +277,7 @@
           "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
             "req, err := expandCreatePolicyRedirectionRule(d)"
@@ -252,7 +289,7 @@
           "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
             "policySetID, ok := d.Get(\"policy_set_id\").(string)",
@@ -294,12 +331,28 @@
             "policySetID = v.(string)"
           ],
           "after": "func resourcePolicyForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_redirection_rule.go",
+          "quotes": [
+            "if req.PolicySetID == \"\" {",
+            "req.PolicySetID, err = fetchPolicySetIDByType(ctx, zClient, \"REDIRECTION_POLICY\", microTenantID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_policy_redirection_rule`: when `policy_set_id` is not set, create now resolves the redirection policy set instead of posting the rule without one."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },
@@ -825,7 +878,7 @@
       ]
     },
     "cloud-config-read-error-is-success": {
-      "statement": "The ZIA cloud config Read returns success on any error from the SDK call, without setting a diagnostic or clearing the ID. Create and update both finish by calling this Read, so a failure to read back what was just written also looks like success.",
+      "statement": "Up to v4.4.14, the ZIA cloud config Read returned success on any error from the SDK call, without setting a diagnostic or clearing the ID. Create finishes by calling this Read, so a failure to read back what was just written also looked like success. v4.4.15 fixes this: a not-found error removes the config from state, and any other error is returned as a diagnostic.",
       "tier": "A",
       "evidence": [
         {
@@ -833,13 +886,22 @@
           "path": "zpa/resource_zpa_cloud_config.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
-            "resp, _, err := custom_config_controller.GetZIACloudConfig(ctx, service)\n\tif err != nil {\n\t\treturn nil\n\t}",
-            "return resourceZiaCloudConfigRead(ctx, d, meta)"
+            "resp, _, err := custom_config_controller.GetZIACloudConfig(ctx, service)\n\tif err != nil {\n\t\treturn nil\n\t}"
           ],
           "after": "func resourceZiaCloudConfigRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_cloud_config.go",
+          "quotes": [
+            "if errResp, ok := err.(*errorx.ErrorResponse); ok && errResp.IsObjectNotFound() {",
+            "d.SetId(\"\")",
+            "return diag.FromErr(err)"
+          ],
+          "after": "resp, _, err := custom_config_controller.GetZIACloudConfig(ctx, service)"
         },
         {
           "source": "tf-zpa",
@@ -852,12 +914,20 @@
           "quotes": [
             "return resourceZiaCloudConfigRead(ctx, d, meta)"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_cloud_config`: read errors are now reported instead of ignored, and a config deleted outside Terraform is removed from state."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },

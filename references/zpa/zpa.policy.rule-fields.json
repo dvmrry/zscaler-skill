@@ -126,16 +126,43 @@
       ]
     },
     "v2-timeout-not-force-new": {
-      "statement": "The v2 timeout rule resource declares `reauth_timeout` and `reauth_idle_timeout` without ForceNew.",
+      "statement": "The v2 timeout rule resource declares `reauth_timeout` and `reauth_idle_timeout` without ForceNew. From v4.4.15 both carry the `DiffSuppressFunc` `suppressEquivalentTimeout`, which hides a difference between two timeouts of the same duration (for example `Never` and `never`, or `60 Minutes` and `1 Hour`); up to v4.4.14 they had no diff suppression.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "at": [
+            "v4.4.14"
+          ],
           "quotes": [
             "\"reauth_idle_timeout\": { Type: schema.TypeString, Optional: true, },",
             "\"reauth_timeout\": { Type: schema.TypeString, Optional: true, },"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_timeout_rule_v2.go",
+          "quotes": [
+            "\"reauth_idle_timeout\": { Type: schema.TypeString, Optional: true, DiffSuppressFunc: suppressEquivalentTimeout, },",
+            "\"reauth_timeout\": { Type: schema.TypeString, Optional: true, DiffSuppressFunc: suppressEquivalentTimeout, },"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/utils.go",
+          "quotes": [
+            "// suppressEquivalentTimeout ignores differences between timeouts of the same",
+            "// duration, e.g. \"Never\" and \"never\", or \"60 Minutes\" and the \"1 Hour\" read back."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_policy_timeout_rule_v2`: equivalent timeouts (such as `Never` and `never`, or `60 Minutes` and `1 Hour`) no longer show as a change in every plan."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ]
     },

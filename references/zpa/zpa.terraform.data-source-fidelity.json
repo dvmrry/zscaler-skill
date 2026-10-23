@@ -102,7 +102,7 @@
       ]
     },
     {
-      "do": "Whether `zpn_auth_log` on `zpa_lss_config_status_codes` is used as the auth log, since it carries the AST mapping rather than the ordinary one.",
+      "do": "Whether `zpn_auth_log` on `zpa_lss_config_status_codes` is used as the auth log, since on provider v4.4.14 or older it carries the AST mapping rather than the ordinary one.",
       "uses": [
         "lss-status-codes-auth-log-mapped-from-ast"
       ]
@@ -110,7 +110,7 @@
   ],
   "claims": {
     "policy-type-flattener-emits-undeclared-keys": {
-      "statement": "The `zpa_policy_type` flattener puts keys into every rule map (`microtenant_id`, `microtenant_name`, `zpn_isolation_profile_id`, `zpn_inspection_profile_name`), and into every condition and operand map (`microtenant_id`), that the nested `rules` schema does not declare. The read checks the error of `d.Set(\"rules\", ...)`, so a policy set that contains a rule is expected to return a diagnostic instead of state.",
+      "statement": "Up to v4.4.14, the `zpa_policy_type` flattener put keys into every rule map (`microtenant_id`, `microtenant_name`, `zpn_isolation_profile_id`, `zpn_inspection_profile_name`), and into every condition and operand map (`microtenant_id`), that the nested `rules` schema did not declare. The read checks the error of `d.Set(\"rules\", ...)`, so a policy set that contained a rule was expected to return a diagnostic instead of state. v4.4.15 declares all of those keys in the schema, and its changelog says the data source no longer fails when the policy set has rules.",
       "tier": "B",
       "evidence": [
         {
@@ -118,7 +118,7 @@
           "path": "zpa/data_source_zpa_policy_type.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "after": "func flattenPolicySetRules(policySetRules *policysetcontroller.PolicySet) []interface{} {",
           "quotes": [
@@ -132,7 +132,7 @@
           "path": "zpa/data_source_zpa_policy_type.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "after": "func flattenConditionOperands(",
           "quotes": [
@@ -144,26 +144,61 @@
           "path": "zpa/data_source_zpa_policy_type.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
             "if err := d.Set(\"rules\", flattenPolicySetRules(resp)); err != nil {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_policy_type.go",
+          "quotes": [
+            "\"microtenant_id\": {",
+            "\"microtenant_name\": {",
+            "\"zpn_isolation_profile_id\": {",
+            "\"zpn_inspection_profile_name\": {"
+          ],
+          "after": "\"rules\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_policy_type.go",
+          "quotes": [
+            "\"microtenant_id\": {"
+          ],
+          "after": "\"conditions\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_policy_type.go",
+          "quotes": [
+            "\"microtenant_id\": {"
+          ],
+          "after": "\"operands\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_policy_type` data source: no longer fails when the policy set has rules."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ],
-      "conditions": "Depends on two things not quoted here. (1) The schema search: at v4.4.10 and HEAD, the nested `rules` schema in data_source_zpa_policy_type.go (read in full) declares no `microtenant_id`, `microtenant_name`, `zpn_isolation_profile_id` or `zpn_inspection_profile_name` key, and its conditions and operands schemas declare no `microtenant_id`; those are absences. (2) Terraform plugin SDK v2 (v2.40.1 in go.mod) rejecting a nested map key that is not in the schema, which is not a registered source; see gap plugin-sdk-set-unknown-key. If the SDK ignores unknown keys, the read succeeds and only the fields in claim fields-declared-or-in-sdk-but-not-set are lost.",
+      "conditions": "Depends on two things not quoted here. (1) The schema search at v4.4.10 and v4.4.14: the nested `rules` schema in data_source_zpa_policy_type.go (read in full) declared no `microtenant_id`, `microtenant_name`, `zpn_isolation_profile_id` or `zpn_inspection_profile_name` key, and its conditions and operands schemas declared no `microtenant_id`; those are absences. (2) Terraform plugin SDK v2 (v2.40.1 in go.mod) rejecting a nested map key that is not in the schema, which is not a registered source; see gap plugin-sdk-set-unknown-key. If the SDK ignores unknown keys, the read succeeded and only the fields in claim fields-declared-or-in-sdk-but-not-set were lost. The v4.4.15 changelog bullet is consistent with the first reading. Version-scoped: the keys are declared at v4.4.15.",
       "gaps": [
         "plugin-sdk-set-unknown-key"
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },
     "lss-name-selector-not-top-level": {
-      "statement": "The LSS config data source read looks up by name through `d.Get(\"name\")` and `GetByName`, but the schema's only top-level selector is `id`: `name` is declared only inside the nested `config`, `policy_rule` and operand blocks. A configuration that sets `name` at the top level, as the provider's documentation example does, is not a valid argument, so only the ID path is reachable. A configuration that sets a top-level `name`, as the documentation's example does, fails validation at plan time.",
+      "statement": "Up to v4.4.14, the LSS config data source read looked up by name through `d.Get(\"name\")` and `GetByName`, but the schema's only top-level selector was `id`: `name` was declared only inside the nested `config`, `policy_rule` and operand blocks. A configuration that set `name` at the top level, as the provider's documentation example does, was not a valid argument, so only the ID path was reachable and the plan failed validation. v4.4.15 adds an optional, computed top-level `name` argument.",
       "tier": "B",
       "evidence": [
         {
@@ -178,13 +213,29 @@
             "name, ok := d.Get(\"name\").(string)",
             "res, _, err := lssconfigcontroller.GetByName(ctx, service, name)"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "quotes": [
+            "\"name\": { Type: schema.TypeString, Optional: true, Computed: true, Description: \"The name of the LSS configuration (config.0.name).\","
+          ],
+          "after": "Type: schema.TypeString, Optional: true, },"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_lss_config_controller` data source: added the `name` argument used by the documented lookup by name."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ],
-      "conditions": "Absence claim. At v4.4.10 and HEAD, in data_source_zpa_lss_config_controller.go, the top-level keys of the data source schema are `id`, `config`, `connector_groups` and `policy_rule`; the three declarations of `\"name\"` are nested (inside `config`, the policy rule's operands, and the policy rule). That Terraform rejects an undeclared argument at validation time is Terraform core behavior, not shown by this code. The documentation example was not re-read.",
+      "conditions": "Absence claim for v4.4.14. At v4.4.10 and v4.4.14, in data_source_zpa_lss_config_controller.go, the top-level keys of the data source schema were `id`, `config`, `connector_groups` and `policy_rule`; the three declarations of `\"name\"` were nested (inside `config`, the policy rule's operands, and the policy rule). That Terraform rejects an undeclared argument at validation time is Terraform core behavior, not shown by this code. The documentation example was not re-read. Version-scoped: v4.4.15 declares the top-level argument.",
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },
@@ -755,7 +806,7 @@
       ]
     },
     "lss-status-codes-auth-log-mapped-from-ast": {
-      "statement": "The LSS status-codes data source sets `zpn_auth_log` from `resp.ZPNAstAuthLog`, the same value it then sets `zpn_ast_auth_log` from. The SDK keeps a separate `ZPNAuthLog` field, so the ordinary auth-log mapping is never returned and the AST mapping is returned twice.",
+      "statement": "Up to v4.4.14, the LSS status-codes data source set `zpn_auth_log` from `resp.ZPNAstAuthLog`, the same value it then set `zpn_ast_auth_log` from. The SDK keeps a separate `ZPNAuthLog` field, so the ordinary auth-log mapping was never returned and the AST mapping was returned twice. v4.4.15 sets `zpn_auth_log` from `resp.ZPNAuthLog`.",
       "tier": "A",
       "evidence": [
         {
@@ -763,7 +814,7 @@
           "path": "zpa/data_source_zpa_lss_config_status_codes.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
             "_ = d.Set(\"zpn_auth_log\", toMapString(resp.ZPNAstAuthLog))",
@@ -781,17 +832,33 @@
           "quotes": [
             "ZPNAuthLog    map[string]interface{}"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_status_codes.go",
+          "quotes": [
+            "_ = d.Set(\"zpn_auth_log\", toMapString(resp.ZPNAuthLog))",
+            "_ = d.Set(\"zpn_ast_auth_log\", toMapString(resp.ZPNAstAuthLog))"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_lss_config_status_codes` data source: `zpn_auth_log` now returns the user authentication status codes."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },
     "microtenant-user-flattener-keys-mismatch-schema": {
-      "statement": "The microtenant data source's user flattener writes keys and types that do not match its own schema: one key is `\"operation_type\"` followed by a tab character, the modification user is written as `modified_by` where the nested schema declares `modifiedby`, and `phone_number` and `pin_session` (and `role_id`) are declared with types that differ from the SDK's string and bool fields.",
+      "statement": "Up to v4.4.14, the microtenant data source's user flattener wrote keys and types that did not match its own schema: one key was `\"operation_type\"` followed by a tab character, the modification user was written as `modified_by` where the nested schema declared `modifiedby`, and `phone_number` and `pin_session` (and `role_id`) were declared with types that differed from the SDK's string and bool fields. v4.4.15 fixes the key, adds `modified_by` to the nested schema and declares `phone_number` as a string, `pin_session` as a bool and `role_id` as a string.",
       "tier": "A",
       "evidence": [
         {
@@ -799,7 +866,7 @@
           "path": "zpa/data_source_zpa_microtenant_controller.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "after": "func flattenMicroTenantUserResource(",
           "quotes": [
@@ -812,7 +879,7 @@
           "path": "zpa/data_source_zpa_microtenant_controller.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
             "\"modifiedby\": {",
@@ -834,17 +901,51 @@
             "PinSession         bool     `json:\"pinSession,omitempty\"`",
             "RoleID string `json:\"roleId,omitempty\"`"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "quotes": [
+            "result[0][\"operation_type\"] = userResource.OperationType",
+            "result[0][\"modified_by\"] = userResource.ModifiedBy"
+          ],
+          "after": "func flattenMicroTenantUserResource("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "quotes": [
+            "\"modified_by\": {"
+          ],
+          "after": "\"modifiedby\": {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "quotes": [
+            "\"phone_number\": { Type: schema.TypeString,",
+            "\"pin_session\": { Type: schema.TypeBool,",
+            "\"role_id\": { Type: schema.TypeString,"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_microtenant_controller` data source: the `user` block is now exported."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         }
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 16 (ZPA data sources) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },
     "microtenant-user-set-error-discarded": {
-      "statement": "The microtenant data source discards the result of setting the `user` block (`_ = d.Set(\"user\", ...)`), so the key and type mismatches in the user flattener cannot surface as an error. A rejected block would leave the read successful and `user` empty or partial.",
+      "statement": "The microtenant data source discards the result of setting the `user` block (`_ = d.Set(\"user\", ...)`). Up to v4.4.14 that meant the key and type mismatches in the user flattener could not surface as an error, and a rejected block left the read successful and `user` empty or partial; v4.4.15 fixes those mismatches, but a block rejected for another reason would still go unreported.",
       "tier": "B",
       "evidence": [
         {
@@ -969,7 +1070,7 @@
         "source-read"
       ],
       "blocks": "saying whether `zpa_policy_type` and the microtenant user block fail, or return partial state, on ordinary data",
-      "detail": "The provider pins terraform-plugin-sdk/v2 v2.40.1 (go.mod at v4.4.10), which is not a registered source. Read its MapFieldWriter for a nested list-of-object write, or run a data source test that sets a rule map with an extra key and check the returned error and resulting state."
+      "detail": "The provider pins terraform-plugin-sdk/v2 v2.40.1 (go.mod at v4.4.10), which is not a registered source. Read its MapFieldWriter for a nested list-of-object write, or run a data source test that sets a rule map with an extra key and check the returned error and resulting state. As of provider v4.4.15 the two known cases (the zpa_policy_type rules and the microtenant user block) declare the keys their flatteners write; the changelog says the zpa_policy_type data source no longer fails when the policy set has rules, which is consistent with the SDK rejecting undeclared keys but does not name the cause."
     },
     "api-omits-nested-objects": {
       "kind": "semantic",

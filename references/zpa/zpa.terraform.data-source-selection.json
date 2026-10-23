@@ -309,7 +309,7 @@
       ]
     },
     "by-type-takes-first-element": {
-      "statement": "The application-segment-by-type data source passes the `name` as a search term to the SDK, which returns every segment of that type matching the search, and then uses the first element of the list. The SDK sends the name both as a search term and as a `name+EQ+` filter, so whether non-exact matches come back depends on the API; the provider does not check that the result is unique. With no `name`, it returns the first segment of the type.",
+      "statement": "The application-segment-by-type data source passes the `name` as a search term to the SDK, which returns every segment of that type matching the search. Up to v4.4.14 it used the first element of the list. From v4.4.15 it prefers the segment whose name equals the given name, ignoring case, and falls back to the first element when none does. The SDK sends the name both as a search term and as a `name+EQ+` filter. With no `name`, it returns the first segment of the type.",
       "tier": "A",
       "evidence": [
         {
@@ -317,14 +317,33 @@
           "path": "zpa/data_source_zpa_application_segment_by_type.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.14"
           ],
           "quotes": [
             "resp, _, err := applicationsegmentbytype.GetByApplicationType(ctx, service, name, applicationType, true)",
             "// Assuming we are only interested in the first result for simplicity",
+            "name := d.Get(\"name\").(string)",
+            "appSegment := resp[0]"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_application_segment_by_type.go",
+          "quotes": [
+            "resp, _, err := applicationsegmentbytype.GetByApplicationType(ctx, service, name, applicationType, true)",
             "appSegment := resp[0]",
+            "if name != \"\" && strings.EqualFold(candidate.Name, name) {",
+            "appSegment = candidate",
             "name := d.Get(\"name\").(string)"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zpa_application_segment_by_type` data source: returns the segment with the exact name instead of the first search result."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
         },
         {
           "source": "sdk-go",
@@ -378,8 +397,8 @@
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Partly fixed in provider v4.4.15 (PR 698): an exact-name match is preferred, the first result is still the fallback."
         }
       ]
     },
@@ -411,7 +430,7 @@
       ]
     },
     "by-type-result-depends-on-api-order": {
-      "statement": "Which segment the by-type data source returns for a non-unique or partial name, or for no name, depends on how the ZPA API matches the search term and orders its results, which the client does not control. A multi-word name whose search fails is retried with its first two words, which widens the match further.",
+      "statement": "Which segment the by-type data source returns for a name that no segment equals (ignoring case), or for no name, depends on how the ZPA API matches the search term and orders its results, which the client does not control. A multi-word name whose search fails is retried with its first two words, which widens the match further.",
       "tier": "C",
       "derived_from": [
         "by-type-takes-first-element"

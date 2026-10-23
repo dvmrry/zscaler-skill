@@ -54,7 +54,7 @@
     },
     {
       "label": "Tags.",
-      "text": "{{tags-early-access-key-import}} {{tags-on-rules-and-segments-request}} Whether access rules got them too is open {{gap:tags-on-access-rules}}. The policy rule validators accept no object type for zpa_tag_group IDs; whether the API does is open {{gap:tag-group-in-policy-conditions}}."
+      "text": "{{tags-early-access-key-import}} {{tags-on-rules-and-segments-request}} {{app-segment-tags-4-4-15}} {{access-rule-entity-tag-types-4-4-15}} The policy rule validators accept no object type that the sources tie to zpa_tag_group IDs; whether the API accepts them is open {{gap:tag-group-in-policy-conditions}}."
     },
     {
       "label": "ZIA link and private cloud.",
@@ -768,6 +768,73 @@
           }
         }
       ]
+    },
+    "app-segment-tags-4-4-15": {
+      "statement": "Provider v4.4.15 added a `tags` argument to the `zpa_application_segment` resource and data source. Each `tags` block pairs a `tag_key_id` with a `tag_value_id`, so one block attaches one tag value of a tag key to the segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the `tags` attribute to the resource and data source `zpa_application_segment`. Each `tags` block associates a tag value (`tag_value_id`) of a tag key (`tag_key_id`) with the application segment"
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "quotes": [
+            "\"tags\": { Type: schema.TypeSet, Optional: true, Description: \"Tags associated with the application segment. Each tag is a tag value of a tag key.\",",
+            "\"tag_key_id\": {",
+            "\"tag_value_id\": {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment.md",
+          "quotes": [
+            "- `tags` (Block Set) - Tags associated with the application segment. Each block is one tag value of a tag key (see `zpa_tag_key`)."
+          ]
+        }
+      ]
+    },
+    "access-rule-entity-tag-types-4-4-15": {
+      "statement": "Provider v4.4.15 added the policy condition object types `ENTITY_TAG_GRP` and `ENTITY_TAG_VAL` to the `zpa_policy_access_rule` and `zpa_policy_access_rule_v2` resources, whose object_type validators list them after `WORKLOAD_TAG_GROUP`; the same release added the `tags` attribute to `zpa_application_segment`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the `conditions` object types `ENTITY_TAG_GRP` and `ENTITY_TAG_VAL` to the resources `zpa_policy_access_rule` and `zpa_policy_access_rule_v2`."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "quotes": [
+            "\"WORKLOAD_TAG_GROUP\", \"ENTITY_TAG_GRP\", \"ENTITY_TAG_VAL\", }),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "quotes": [
+            "\"WORKLOAD_TAG_GROUP\", \"ENTITY_TAG_GRP\", \"ENTITY_TAG_VAL\", }, false),"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added the `tags` attribute to the resource and data source `zpa_application_segment`."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        }
+      ],
+      "conditions": "Absence claim for the `tags` argument. Search: `git -C vendor/terraform-provider-zpa grep -n 'tags' v4.4.15 -- zpa/resource_zpa_policy_access_rule.go zpa/resource_zpa_policy_access_rule_v2.go` returns nothing. The changelog and the code do not say which objects' IDs the two new types carry; see gap tag-group-in-policy-conditions."
     }
   },
   "gaps": {
@@ -844,7 +911,7 @@
         "lab-test",
         "support-ticket"
       ],
-      "detail": "Unverified legacy statement: the legacy reference says tags and tag groups are Early Access and it is unconfirmed whether zpa_tag_group IDs can be used as an object_type in policy conditions. The v1 and v2 access rule object_type validators accept WORKLOAD_TAG_GROUP, and the zpa_workload_tag_group data source doc says it is for that object_type. A workload tag group is a distinct object: the Go SDK reads it from /workloadTagGroup/summary, while zpa_tag_group uses /tagGroup. No validator or provider doc names an object type for zpa_tag_group IDs. Provider side answered: the 16 object_type validators (six v1 lists passed to GetPolicyConditionsSchema, ten inline in the v2, capabilities, credential, portal and browser protection rules) hold no tag group type besides WORKLOAD_TAG_GROUP, and each is a StringInSlice ValidateFunc, so Terraform rejects any other object_type before calling the API. Still open: whether the API accepts zpa_tag_group IDs under some object type.",
+      "detail": "Unverified legacy statement: the legacy reference says tags and tag groups are Early Access and it is unconfirmed whether zpa_tag_group IDs can be used as an object_type in policy conditions. The v1 and v2 access rule object_type validators accept WORKLOAD_TAG_GROUP, and the zpa_workload_tag_group data source doc says it is for that object_type. A workload tag group is a distinct object: the Go SDK reads it from /workloadTagGroup/summary, while zpa_tag_group uses /tagGroup. No validator or provider doc names an object type for zpa_tag_group IDs. Provider side answered: up to v4.4.14 the 16 object_type validators (six v1 lists passed to GetPolicyConditionsSchema, ten inline in the v2, capabilities, credential, portal and browser protection rules) held no tag group type besides WORKLOAD_TAG_GROUP, and each is a StringInSlice ValidateFunc, so Terraform rejects any other object_type before calling the API. v4.4.15 adds ENTITY_TAG_GRP and ENTITY_TAG_VAL to the v1 and v2 access rule validators (claim access-rule-entity-tag-types-4-4-15), but no changelog entry or doc says which objects' IDs they take. Still open: whether the API accepts zpa_tag_group IDs under some object type, and whether ENTITY_TAG_GRP is that type.",
       "evidence": [
         {
           "source": "tf-zpa",
@@ -903,11 +970,12 @@
     "tags-on-access-rules": {
       "kind": "semantic",
       "title": "Whether v4.4.15 added tags to access policy rules as well as application segments",
-      "status": "open",
-      "detail": "After #696 closed, its reporter asked whether tags were added to access policies too, seeing them documented only for application segments. The vendored provider is pinned at v4.4.14, before the release the reply names.",
+      "status": "resolved",
+      "detail": "After #696 closed, its reporter asked whether tags were added to access policies too, seeing them documented only for application segments.",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "v4.4.15 added `tags` to zpa_application_segment only (claim app-segment-tags-4-4-15); the access rule resources got the condition object types ENTITY_TAG_GRP and ENTITY_TAG_VAL instead (claim access-rule-entity-tag-types-4-4-15)."
     }
   },
   "divergences": {

@@ -41,7 +41,7 @@
     },
     {
       "label": "Read-back converter.",
-      "text": "{{v2-conversion-drops-idp-and-workload-tag}} {{v2-read-state-comes-from-converter}} {{cleanup-rewrites-rule-from-converter}} {{converter-callers}} {{idp-condition-lost-from-state-and-cleanup-writes}} How ZPA represents identity provider and workload tag operands on a read is open {{gap:api-idp-operand-shape}}."
+      "text": "{{v2-conversion-drops-idp-and-workload-tag}} {{v2-conversion-values-list-4-4-15}} {{v2-read-state-comes-from-converter}} {{cleanup-rewrites-rule-from-converter}} {{converter-callers}} {{idp-condition-lost-from-state-and-cleanup-writes}} How ZPA represents identity provider and workload tag operands on a read is open {{gap:api-idp-operand-shape}}."
     },
     {
       "label": "Import and schema.",
@@ -390,6 +390,47 @@
         {
           "status": "unfiled",
           "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "v2-conversion-values-list-4-4-15": {
+      "statement": "In `ConvertV1ResponseToV2Request` the converter up to v4.4.14 appended only an operand's `RHS`, so an operand that carried a list of values lost them when the rule was converted; v4.4.15 appends all of the operand's `Values` when it has any and falls back to `RHS` otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.14"
+          ],
+          "quotes": [
+            "operandMap[operand.ObjectType] = append(operandMap[operand.ObjectType], operand.RHS)"
+          ],
+          "after": "func ConvertV1ResponseToV2Request("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "if len(operand.Values) > 0 {",
+            "operandMap[operand.ObjectType] = append(operandMap[operand.ObjectType], operand.Values...)",
+            "} else if operand.RHS != \"\" {"
+          ],
+          "after": "func ConvertV1ResponseToV2Request("
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "v2 policy rule resources, and resources that remove objects from policy rules: operands returned with a list of values no longer lose those values when the rule is updated."
+          ],
+          "after": "## 4.4.15 (October 19, 2026)"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.15 (PR 698)."
         }
       ]
     },
