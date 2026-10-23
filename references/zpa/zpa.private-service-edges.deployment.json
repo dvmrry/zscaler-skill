@@ -39,7 +39,7 @@
     },
     {
       "label": "Platforms.",
-      "text": "{{supported-platforms}} {{stig-images}} {{host-os-enterprise-linux}} [[zpa.private-service-edges.what-it-is:zpa-appliance]] Image and RPM releases are not quotable {{gap:release-images}}. The reference Terraform modules are in [[zpa.private-service-edges.reference-modules]]."
+      "text": "{{supported-platforms}} {{stig-images}} {{host-os-enterprise-linux}} [[zpa.private-service-edges.what-it-is:zpa-appliance]] {{images-july23}} The August RPM release is not in the current capture {{gap:release-images}}. The reference Terraform modules are in [[zpa.private-service-edges.reference-modules]]."
     },
     {
       "label": "Sizing and limits.",
@@ -344,6 +344,33 @@
           ]
         }
       ]
+    },
+    "images-july23": {
+      "statement": "The July 23, 2026 release summary lists an updated Docker image for Private Service Edge, and updated Red Hat Enterprise Linux 9 Private Service Edge images for AWS, GCP, Microsoft Azure, Nutanix AHV and VMware that include a 4 GB boot partition, which exceeds Red Hat's recommendations to help support seamless OS updates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-release-upgrade-summary-2026-july.json",
+          "quotes": [
+            "July 23, 2026",
+            "An updated Docker image is available for Private Service Edge for Private Access (ZPA)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-release-upgrade-summary-2026-july.json",
+          "after": "Updated Images for App Connector, Private Service Edge, Private Cloud Controller, and Network Connector",
+          "quotes": [
+            "Amazon Web Services (AWS)",
+            "Google Cloud Platform (GCP)",
+            "Microsoft Azure",
+            "Nutanix AHV for App Connector and Private Service Edge",
+            "VMware for App Connector, Private Service Edge, and Private Cloud Controller",
+            "These image updates include a 4 GB boot partition that exceeds Red Hat's recommendations to help support seamless OS updates."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -377,11 +404,11 @@
     "release-images": {
       "kind": "semantic",
       "title": "Image and RPM distribution in the 2026 release summary",
-      "status": "open",
+      "status": "partial",
       "former_ids": [
         "zpa-49"
       ],
-      "detail": "Unverified legacy statement: the July 23 release supplies an updated PSE Docker image, updated RHEL 9 images for AWS, GCP and Azure, and updated PSE images for Nutanix AHV and VMware with a 4 GB boot partition, and the August 4 Manager version 26.56.1 provides PSE RPM packages for RHEL 8.x and 9.x from the Zscaler repository. The captured release summary (zpa-release-upgrade-summary-2026-july.md) contains no release entries, so none of this can be quoted; it also does not show whether Hyper-V or KVM images exist, the image format on each platform, or Marketplace distribution. Resolve by recapturing the release summary.",
+      "detail": "The July 23 entries are now sourced (claim images-july23). Unverified legacy statement still open: the August 4 Manager version 26.56.1 provides PSE RPM packages for RHEL 8.x and 9.x from the Zscaler repository; the captured release summary has no August 4 entry. The summary also does not show whether Hyper-V or KVM images exist, the image format on each platform, or Marketplace distribution.",
       "blocks": "telling a customer which image a release shipped",
       "resolves_with": [
         "source-read"

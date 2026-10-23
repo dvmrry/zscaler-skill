@@ -54,7 +54,7 @@
     },
     {
       "label": "Forward methods.",
-      "text": "Which forward-method values each source accepts, and which token the console's Local method is sent as, are in [[cloud-connector.forwarding.methods:contract-enums]] and [[cloud-connector.forwarding.methods:local-switch-token]]. Whether the API accepts LOCAL_SWITCH as the Local method is open {{gap:local-switch-wire-value}}."
+      "text": "Which forward-method values each source accepts, and which token the console's Local method is sent as, are in [[cloud-connector.forwarding.methods:contract-enums]] and [[cloud-connector.forwarding.methods:local-switch-token]]. {{contract-self-filter-lists-local-switch}} Whether the API accepts LOCAL_SWITCH as the Local method on a write is still open {{gap:local-switch-wire-value}}."
     },
     {
       "label": "Attributes per method.",
@@ -337,6 +337,59 @@
           ]
         }
       ]
+    },
+    "contract-self-filter-lists-local-switch": {
+      "statement": "The API contract's `GET /ecRules/self` operation lists `LOCAL_SWITCH` among the values of its `ruleForwardMethod` query parameter, while the same parameter on `GET /ecRules/ecRdr` does not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1self/get/parameters/[name=ruleForwardMethod]",
+          "expect": {
+            "name": "ruleForwardMethod",
+            "schema": {
+              "enum": [
+                "INVALID",
+                "DIRECT",
+                "PROXYCHAIN",
+                "ZIA",
+                "ZPA",
+                "ECZPA",
+                "ECSELF",
+                "DROP",
+                "ENATDEDIP",
+                "GEOIP",
+                "LOCAL_SWITCH"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecRules~1ecRdr/get/parameters/[name=ruleForwardMethod]",
+          "expect": {
+            "name": "ruleForwardMethod",
+            "schema": {
+              "enum": [
+                "INVALID",
+                "DIRECT",
+                "PROXYCHAIN",
+                "ZIA",
+                "ZPA",
+                "ECZPA",
+                "ECSELF",
+                "DROP",
+                "ENATDEDIP",
+                "GEOIP"
+              ],
+              "type": "string"
+            }
+          }
+        }
+      ]
     }
   },
   "divergences": {
@@ -393,7 +446,7 @@
   "gaps": {
     "local-switch-wire-value": {
       "kind": "semantic",
-      "status": "open",
+      "status": "partial",
       "title": "Whether LOCAL_SWITCH is the API value of the console's Local forwarding method",
       "former_ids": [
         "cloud-connector-17"
@@ -403,7 +456,7 @@
         "lab-test",
         "source-read"
       ],
-      "detail": "Unverified legacy statement: \"Whether 'local switch' / 'Local' is a real portal-only or hardware-gateway (Branch Connector) behavior the Go enum simply does not model, or an erroneous notion that propagated through docs, is unresolved.\" The console help documents a Local method for Cloud Connector and Zero Trust Gateways. Resolves by creating a rule with forward_method LOCAL_SWITCH and reading it back, or by a contract revision that lists the value."
+      "detail": "The contract's `/ecRules/self` list filter names `LOCAL_SWITCH` (claim contract-self-filter-lists-local-switch), but the forwarding rule request and read enums on `/ecRules/ecRdr` do not, and no source says whether a write with `LOCAL_SWITCH` is accepted as the console's Local method, or whether the Go enum's `ECSELF` is the same method. Resolves by creating a rule with forward_method LOCAL_SWITCH and reading it back."
     },
     "zpa-segment-id-equivalence": {
       "kind": "semantic",

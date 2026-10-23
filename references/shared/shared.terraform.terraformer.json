@@ -17,42 +17,120 @@
   ],
   "prose": [
     {
-      "text": "{{shared.terraform:terraformer-offered|ref}} Zscaler-Terraformer is a separate tool from the providers; its repository is vendored here but is not a registered source, so what is known about its output is recorded as open questions."
+      "text": "{{shared.terraform:terraformer-offered|ref}} Zscaler-Terraformer is a separate tool from the providers. {{not-perfect}}"
     },
     {
-      "text": "Whether its generated HCL can be applied without repair is open {{gap:generated-hcl-review}}; which ZTC resources it covers is a separate open question in [[cloud-connector.terraform.coverage:terraformer-ztc-inventory]]. Whether the DLP rule excluded users and groups fix holds, and whether name lookups stay correct when IDs collide, are open {{gap:dlp-excluded-names}} and {{gap:name-registry-collisions}}."
+      "text": "Which ZTC resources it covers is a separate open question in [[cloud-connector.terraform.coverage:terraformer-ztc-inventory]]. Whether the DLP rule excluded users and groups fix holds, and whether name lookups stay correct when IDs collide, are open {{gap:dlp-excluded-names}} and {{gap:name-registry-collisions}}."
+    },
+    {
+      "text": "The DLP rule excluded users and groups question: {{excluded-names-fix}}"
+    },
+    {
+      "text": "Name lookups for generated data sources: {{typed-name-registry}}"
     }
   ],
   "gaps": {
     "generated-hcl-review": {
       "kind": "semantic",
       "title": "Whether Terraformer output needs manual repair before apply",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: Terraformer \"converts existing ZIA, ZPA, and a bounded ZTC resource set into Terraform HCL and import commands\", and \"its own documentation warns that generated HCL is not guaranteed to be perfect and may need manual repair\"; \"check --supported-resources=<product> before assuming a provider resource is covered\" (vendor/zscaler-terraformer/README.md). The Terraformer repository is vendored but not a registered source.",
       "blocks": "onboarding an existing tenant into Terraform with Terraformer",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "The README says the output is not guaranteed and may need manual edits (claim not-perfect); the legacy statement holds."
     },
     "dlp-excluded-names": {
       "kind": "semantic",
       "title": "Terraformer v2.1.22 DLP excluded_users and excluded_groups mapping",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: \"Terraformer v2.1.22 fixes the prior ZIA DLP nested-attribute spelling/HCL-shape defect: its mapping and special-block list now use excluded_users and excluded_groups, matching the current ZIA provider schema\" (vendor/zscaler-terraformer CHANGELOG and terraformutils). Terraformer is not a registered source.",
       "blocks": "trusting generated zia_dlp_web_rules blocks",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "Source-supported: the changelog lists the fix (claim excluded-names-fix) and the code and provider use the same attribute names; the legacy line's 'HCL-shape' wording is not claimed."
     },
     "name-registry-collisions": {
       "kind": "semantic",
       "title": "Terraformer name lookups when users and groups share an ID",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"RegisterNestedIDNames() builds its lookup from snake-case mapping names such as excluded_users and excluded_groups, while HCL generation reads the lower-camel API keys excludedUsers and excludedGroups ... duplicate names can still generate multiple by-name lookups, and a numeric ID reused by a user and group can leak one type's name into the other. The final replacement pass is also keyed by ID alone, so one of two type-specific references sharing an ID can remain raw.\" Inspect generated resource blocks and datasource.tf before applying. Terraformer is not a registered source.",
+      "status": "partial",
+      "detail": "The current Terraformer code scopes its ID-to-name registry by data source type and falls back to the ID for ambiguous names (claim typed-name-registry), so the legacy description of a type-agnostic lookup no longer holds. Still open: whether the final reference-replacement pass is keyed by ID alone, so that one of two type-specific references sharing an ID can remain raw.",
       "blocks": "trusting by-name references in generated HCL",
       "resolves_with": [
         "source-read",
         "code-read"
+      ]
+    }
+  },
+  "claims": {
+    "excluded-names-fix": {
+      "statement": "Zscaler-Terraformer 2.1.22 lists a fix for a misspelled `excluded_users` attribute on ZIA `zia_dlp_web_rules`, its nested-block list names `excluded_groups` and `excluded_users`, and the ZIA provider's DLP web rule schema defines `excluded_users` and `excluded_groups`.",
+      "evidence": [
+        {
+          "source": "zscaler-terraformer",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 2.1.22 (August, 12 2026)",
+            "Fixed attribute `excluded_users` mispell on ZIA `zia_dlp_web_rules`"
+          ]
+        },
+        {
+          "source": "zscaler-terraformer",
+          "path": "terraformutils/nesting/nesting.go",
+          "quotes": [
+            "\"excluded_groups\",",
+            "\"excluded_users\","
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "quotes": [
+            "\"excluded_users\":           setIDsSchemaTypeCustom(intPtr(256), \"The Name-ID pairs of users which the DLP policy rule must exclude\")",
+            "\"excluded_groups\":          setIDsSchemaTypeCustom(intPtr(256), \"The Name-ID pairs of groups which the DLP policy rule must exclude\")"
+          ]
+        }
+      ],
+      "tier": "A"
+    },
+    "typed-name-registry": {
+      "statement": "Zscaler-Terraformer registers ID-to-name pairs scoped to a data source type, queries a data source by name only when exactly one ID of that type has the name, and otherwise falls back to the ID.",
+      "evidence": [
+        {
+          "source": "zscaler-terraformer",
+          "path": "terraformutils/helpers/helpers.go",
+          "quotes": [
+            "typedIDNames = make(map[string]string) // \"type|id\" -> \"name\"",
+            "typedNameIDs tracks which distinct IDs carry a given name within a data",
+            "queried by name when exactly one ID of that type has it."
+          ]
+        },
+        {
+          "source": "zscaler-terraformer",
+          "path": "terraformutils/helpers/datasource_processor.go",
+          "quotes": [
+            "otherwise fall back to the ID so the lookup still resolves correctly."
+          ]
+        }
+      ],
+      "tier": "A"
+    },
+    "not-perfect": {
+      "statement": "Terraformer's README says the tool is not meant to be 100% perfect: some provider resources may not be supported (use `terraform import` for those), many configuration drifts can be resolved by manually editing the generated HCL, and hard-coded IDs remain in the output where no reference is available yet; `--supported-resources` lists what it covers per product.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-terraformer",
+          "path": "README.md",
+          "quotes": [
+            "The tool is **not meant to be 100% perfect**. Some provider resources may not be immediately supported - use `terraform import` directly for these cases.",
+            "Many drift issues can be resolved by manually editing the generated HCL code.",
+            "In these cases, the original hard-coded IDs will remain in the generated HCL files.",
+            "--supported-resources string          List supported resources for ZPA or ZIA"
+          ]
+        }
       ]
     }
   }

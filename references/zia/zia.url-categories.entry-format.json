@@ -35,7 +35,7 @@
       "text": "{{keywords-whole-uri}}"
     },
     {
-      "text": "{{regex-patterns}} {{regex-patterns-in-tenant-data}} {{category-type-filter}} The `type` filter rests on SDK and MCP behavior, not the captured contract {{divergence:type-filter-parameter}}. Which field a TLD category takes its entries in is open {{gap:tld-category-entries}}."
+      "text": "{{regex-patterns}} {{regex-patterns-in-tenant-data}} {{category-type-filter}} The `type` filter rests on SDK and MCP behavior, not the captured contract {{divergence:type-filter-parameter}}. {{tld-category-urls-field}} (see [[zia.url-categories.entry-format:tld-category-entries]])."
     },
     {
       "text": "{{category-quotas}} How entries match requests once accepted is in [[zia.url-categories.entry-matching]]."
@@ -337,13 +337,28 @@
           ]
         }
       ]
+    },
+    "tld-category-urls-field": {
+      "statement": "The Python SDK creates a custom TLD category with type TLD_CATEGORY and supplies its entries, written in the format '.tld', in the `urls` list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/url_categories.py",
+          "quotes": [
+            "A list of TLDs in the format '.tld'.",
+            "\"type\": \"TLD_CATEGORY\",",
+            "\"urls\": tlds,"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "tld-category-entries": {
       "kind": "semantic",
       "title": "Which field holds TLD entries in a TLD_CATEGORY custom category",
-      "status": "open",
+      "status": "resolved",
       "resolves_with": [
         "source-read",
         "lab-test"
@@ -352,7 +367,8 @@
         "zia/url-categories#type",
         "zia/url-categories#dbCategorizedUrls"
       ],
-      "detail": "The retired wildcard doc said to put TLD entries in `dbCategorizedUrls` on a `TLD_CATEGORY` category, but its citation only showed that the fields exist, and the Go SDK documents `dbCategorizedUrls` as the retain-parent URL list. Regular entries reject bare TLDs (claim no-tld-only); how TLD categories take their entries is unverified. Upstream terraform-provider-zia#497 (closed in v4.6.4) concerned importing this category type."
+      "detail": "The retired wildcard doc said to put TLD entries in `dbCategorizedUrls` on a `TLD_CATEGORY` category, but its citation only showed that the fields exist, and the Go SDK documents `dbCategorizedUrls` as the retain-parent URL list. Regular entries reject bare TLDs (claim no-tld-only); how TLD categories take their entries is unverified. Upstream terraform-provider-zia#497 (closed in v4.6.4) concerned importing this category type.",
+      "resolution": "Resolved: the Python SDK's TLD category helper sends the TLDs in the category's urls list (claim tld-category-urls-field); the retired wildcard doc's dbCategorizedUrls placement is not what the SDK does."
     }
   },
   "divergences": {

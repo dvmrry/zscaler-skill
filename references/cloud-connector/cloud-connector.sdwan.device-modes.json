@@ -43,7 +43,7 @@
     },
     {
       "label": "Models.",
-      "text": "The captured pages do not list device models or throughput {{gap:device-models}}."
+      "text": "{{hardware-model-names}} The Understanding and Deploying pages list no throughput specs or form factors {{gap:device-models}}."
     }
   ],
   "checks": [
@@ -185,6 +185,33 @@
           ]
         }
       ]
+    },
+    "hardware-model-names": {
+      "statement": "The Branch Connector details help names the hardware models ZT400, ZT600 and ZT800 (the management interface is fixed by the model: GE1 for ZT400 and ZT600, GE3 for ZT800), and the API contract's `modelType` enumerates `ZT600`, `ZT800` and `ZT400` for a connector VM's hardware information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-analyzing-branch-connector-details.json",
+          "quotes": [
+            "GE1 is set for ZT400 and ZT600. GE3 is set for ZT800."
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ecgroup~1{id}/get/responses/default/content/application~1json/schema/properties/ecVMs/items/properties/hardwareInfo/properties/modelType",
+          "expect": {
+            "description": "The model type of the VM hardware configuration.",
+            "enum": [
+              "ZT600",
+              "ZT800",
+              "ZT400"
+            ],
+            "type": "string"
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -201,9 +228,9 @@
     },
     "device-models": {
       "kind": "data",
-      "title": "Zero Trust SD-WAN device models and throughput",
-      "status": "open",
-      "detail": "Unverified legacy statement: Zscaler references plug-and-play devices but the captured pages do not enumerate hardware models, throughput specs or form factors. The Understanding and Deploying Zero Trust SD-WAN Devices pages do not list them either.",
+      "title": "Zero Trust SD-WAN device throughput and form factors",
+      "status": "partial",
+      "detail": "The model names are held in claim hardware-model-names. No captured source gives throughput specs or form factors for those models, and the Understanding and Deploying Zero Trust SD-WAN Devices pages list neither.",
       "blocks": "Sizing a branch site.",
       "resolves_with": [
         "source-read"

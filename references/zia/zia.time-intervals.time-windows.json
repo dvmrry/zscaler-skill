@@ -37,7 +37,7 @@
     },
     {
       "label": "Terraform.",
-      "text": "{{tf-data-source}} The docs give other types for its outputs {{divergence:tf-data-source-types}}. {{no-managed-resource}} Whether that is intentional is open {{gap:terraform-resource-intent}}. Whether the catalog's predefined names also exist among intervals is open {{gap:predefined-intervals}}. Which of the two objects a given rule's `timeWindows` entry accepts is open {{gap:rule-field-references}}; see [[zia.time-intervals.rule-usage]]."
+      "text": "{{tf-data-source}} The docs give other types for its outputs {{divergence:tf-data-source-types}}. {{no-managed-resource}} Whether that is intentional is open {{gap:terraform-resource-intent}}. Whether the catalog's predefined names also exist among intervals is open {{gap:predefined-intervals}}. The Terraform examples for five rule types take the ID from the time window catalog {{tf-examples-use-time-window-catalog}} Which of the two objects the other rule types' `timeWindows` entry accepts is open {{gap:rule-field-references}}; see [[zia.time-intervals.rule-usage]]."
     }
   ],
   "checks": [
@@ -235,6 +235,47 @@
         "tf-data-source"
       ],
       "conditions": "Absence: the provider docs directories at the pin contain no time interval resource or data source page."
+    },
+    "tf-examples-use-time-window-catalog": {
+      "statement": "In the Terraform provider's examples, the Firewall Filtering, Firewall DNS, Firewall IPS, Forwarding Control and Traffic Capture rules fill their time windows with the id of the `zia_firewall_filtering_time_window` data source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_filtering_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_dns_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_firewall_ips_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_forwarding_control_rule.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_traffic_capture_rules.md",
+          "quotes": [
+            "id = [data.zia_firewall_filtering_time_window.work_hours.id]"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -276,8 +317,8 @@
     "rule-field-references": {
       "kind": "semantic",
       "title": "Which object a rule's timeWindows entry references: an interval or a window",
-      "status": "open",
-      "detail": "Unverified legacy statement: the shared `timeWindows` field \"accepts a list of {id, name} references to either Time Interval or Firewall Time Window objects depending on the rule type\". The API describes the field only as time intervals or windows in which the rule applies. Which catalog supplies the ID for each rule type is not stated.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: the shared `timeWindows` field \"accepts a list of {id, name} references to either Time Interval or Firewall Time Window objects depending on the rule type\". The Terraform examples show which catalog five rule types use (claim tf-examples-use-time-window-catalog); for URL Filtering, SSL Inspection, Cloud App Control, DLP, File Type Control, Bandwidth Control and the other rule types no source says which catalog supplies the ID.",
       "resolves_with": [
         "lab-test",
         "source-read"

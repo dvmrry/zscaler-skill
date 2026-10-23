@@ -47,6 +47,9 @@
     },
     {
       "text": "Whether the Cloud & Branch Connector maintenance 403 carries the same header and code is not shown {{gap:cbc-readonly-body}}."
+    },
+    {
+      "text": "One status-to-code pairing is documented in the SDK: {{sdk-400-invalid-input}}"
     }
   ],
   "checks": [
@@ -256,6 +259,19 @@
           ]
         }
       ]
+    },
+    "sdk-400-invalid-input": {
+      "statement": "The Go SDK documents that an invalid ZIA IPS signature rule returns HTTP 400 with a standard error envelope carrying INVALID_INPUT_ARGUMENT.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+          "quotes": [
+            "returns HTTP 400 with a standard error envelope (INVALID_INPUT_ARGUMENT and"
+          ]
+        }
+      ],
+      "tier": "A"
     }
   },
   "gaps": {
@@ -273,8 +289,8 @@
     "status-400-codes": {
       "kind": "semantic",
       "title": "Which HTTP status carries DUPLICATE_ITEM and INVALID_INPUT_ARGUMENT",
-      "status": "open",
-      "detail": "Unverified legacy statement: 'INVALID_INPUT_ARGUMENT and DUPLICATE_ITEM are returned as HTTP 400 errors.' The ZIA contract lists both among its error-code values, but no captured source ties either to a status code.",
+      "status": "partial",
+      "detail": "The Go SDK documents that an invalid IPS signature rule returns HTTP 400 with INVALID_INPUT_ARGUMENT (claim sdk-400-invalid-input). Still open: whether INVALID_INPUT_ARGUMENT is returned as 400 on other endpoints, and which status code carries DUPLICATE_ITEM; the ZIA contract lists both among its error-code values without tying either to a status.",
       "resolves_with": [
         "source-read"
       ]

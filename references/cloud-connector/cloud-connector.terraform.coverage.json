@@ -34,7 +34,7 @@
     },
     {
       "label": "Importing existing objects.",
-      "text": "{{import-id-or-name}} {{importer-guide-ztc-list}} {{importer-limitations}} The legacy doc's count of Terraformer-supported ZTC resources rests on a source this repository does not register {{gap:terraformer-ztc-inventory}}."
+      "text": "{{import-id-or-name}} {{importer-guide-ztc-list}} {{importer-limitations}} {{terraformer-ztc-list}}"
     }
   ],
   "checks": [
@@ -126,12 +126,37 @@
           ]
         }
       ]
+    },
+    "terraformer-ztc-list": {
+      "statement": "The vendored zscaler-terraformer lists ZTC resources as generate- and import-supported, including `ztc_dns_forwarding_gateway` and `ztc_account_groups`, and its README says any resource not listed is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-terraformer",
+          "path": "README.md",
+          "after": "## ZTC Supported Resources",
+          "quotes": [
+            "Any resources not listed are currently not supported.",
+            "[ztc_dns_forwarding_gateway](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_dns_forwarding_gateway) | Gateway Management | ✅ | ✅ |",
+            "[ztc_account_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_account_groups) | Account Management | ✅ | ✅ |"
+          ]
+        },
+        {
+          "source": "zscaler-terraformer",
+          "path": "cmd/root.go",
+          "quotes": [
+            "\"ztc_ip_destination_groups\",",
+            "\"ztc_dns_forwarding_gateway\",",
+            "\"ztc_account_groups\","
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "terraformer-ztc-inventory": {
       "kind": "data",
-      "status": "open",
+      "status": "resolved",
       "title": "Which ZTC resources the current zscaler-terraformer release supports",
       "blocks": "Whether a brownfield ZTC import can use zscaler-terraformer for a given resource or needs terraform import.",
       "resolves_with": [
@@ -140,7 +165,8 @@
       "detail": "Unverified legacy statement: \"Zscaler-Terraformer v2.1.21 supports generate/import for 14 of the provider's 16 managed resources ... ztc_activation_status and ztc_dns_gateway are absent\", citing the zscaler-terraformer README and cmd/root.go, which are vendored but not registered sources; the legacy doc also cited a Terraform Skills brownfield table saying ZTC has no Terraformer support. The provider's own importer guide lists nine. Resolves by registering the zscaler-terraformer source and reading its ZTC inventory, or by running zscaler-terraformer --supported-resources=\"ztc\".",
       "resolvable_by": [
         "operator"
-      ]
+      ],
+      "resolution": "Claim terraformer-ztc-list: the vendored zscaler-terraformer README and cmd/root.go list more ZTC resources than the provider's importer guide (14 in README.md and cmd/root.go; ztc_activation_status and ztc_dns_gateway, two of the provider's 16 resources, are not among them), which agrees with the legacy count. The README table is dated December 1, 2025; the legacy statement's release number (v2.1.21) was not re-checked."
     }
   }
 }

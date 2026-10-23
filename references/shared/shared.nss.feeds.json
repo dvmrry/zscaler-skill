@@ -58,13 +58,13 @@
       "text": "{{feed-kinds}} {{feed-columns}} {{feed-log-types}} {{alert-feed}}"
     },
     {
-      "text": "The 3rd-Party App Governance and Posture Management feeds were announced with a subscription requirement and API log-type values that the current captures no longer show {{gap:new-log-types}}."
+      "text": "{{sspm-log-types}} The Automate nssLogType enum snapshot does not list these values ([[shared.nss.feeds:new-log-types]])."
     },
     {
       "heading": "Filters"
     },
     {
-      "text": "{{filter-caps}} {{filtered-not-sent}} How several values and several filter fields combine is not stated {{gap:filter-logic}}. Whether feed filters offer Select All and Hide Deleted is unconfirmed {{gap:filter-select-all-hide-deleted}}."
+      "text": "{{filter-caps}} {{filtered-not-sent}} How several values and several filter fields combine is not stated {{gap:filter-logic}}. {{select-all-hide-deleted}} ([[shared.nss.feeds:filter-select-all-hide-deleted]])"
     },
     {
       "heading": "Output format"
@@ -279,6 +279,34 @@
           ]
         }
       ]
+    },
+    "sspm-log-types": {
+      "statement": "The July ZIA release summary says NSS and Cloud NSS feeds can be configured for 3rd-Party App Governance and Posture Management logs, that access to these log types requires a subscription to Advanced SaaS Security Posture Management (SSPM), and that POSTURE_CONTROL and APP_GOVERNANCE were added to the nssLogType field of the ZmanageNssFeed model.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-release-upgrade-summary-2026-july.json",
+          "quotes": [
+            "You can configure NSS and Cloud NSS feeds for both log types to stream their respective data",
+            "Access to these log types requires a subscription to Advanced SaaS Security Posture Management (SSPM).",
+            "Two new enum values, POSTURE_CONTROL and APP_GOVERNANCE are added to the nssLogType field in the ZmanageNssFeed model referenced by the /nssFeeds APIs"
+          ]
+        }
+      ]
+    },
+    "select-all-hide-deleted": {
+      "statement": "The July ZIA release summary says the Select All and Hide Deleted options were added to the Users, Departments and Locations filters in TCP NSS, MCAS NSS, HTTP NSS and Cloud NSS feeds, for the listed log types as applicable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-release-upgrade-summary-2026-july.json",
+          "quotes": [
+            "The Select All and Hide Deleted options are added to the Users, Departments, and Locations filters in TCP NSS, MCAS NSS, HTTP NSS, and Cloud NSS feeds for the following log types, as applicable:"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -296,22 +324,24 @@
     "new-log-types": {
       "kind": "semantic",
       "title": "Subscription and API values for the 3rd-Party App Governance and Posture Management feeds",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: the July 2026 ZIA release summary \"adds NSS and Cloud NSS feed support for 3rd-Party App Governance and Posture Management logs and states that both log types require an Advanced SaaS Security Posture Management subscription\", and \"for the Cloud NSS /nssFeeds model, Help names new nssLogType values POSTURE_CONTROL and APP_GOVERNANCE\". The feed articles for both log types are now listed, but the current capture of the release summary holds only its introduction, and the Automate nssLogType enum has no value for either log type.",
       "blocks": "configuring either feed through the API, and saying which subscription it needs",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "The release summary capture now holds the full entry (claim sspm-log-types); the Automate nssLogType enum snapshot still lacks the two values."
     },
     "filter-select-all-hide-deleted": {
       "kind": "semantic",
       "title": "Select All and Hide Deleted in feed filters",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: the July 2026 ZIA release summary added Select All and Hide Deleted to the Users, Departments and Locations filters on the Web, Firewall, DNS, Tunnel, SaaS Security, Endpoint DLP and Email DLP Insights pages and on applicable NSS feed filters, as an Admin Console and feed-configuration change that does not state any change to log schemas or API filter parameters. The current capture of the release summary holds only its introduction, and no captured NSS feed article mentions either option.",
       "blocks": "saying whether a feed filter can exclude deleted users, departments or locations, and whether the API exposes it",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "The release summary lists the options for NSS and Cloud NSS feed filters (claim select-all-hide-deleted); it states no schema or API filter-parameter change for them."
     }
   }
 }

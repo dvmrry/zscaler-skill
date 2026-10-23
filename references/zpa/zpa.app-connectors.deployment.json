@@ -59,7 +59,7 @@
     },
     {
       "label": "Reference Terraform modules and July 2026 remote settings.",
-      "text": "{{module-rhel9}} {{module-aws-example-types}} {{module-azure-example-types}} {{module-aws-defaults}} {{module-azure-defaults}} {{module-network-defaults}} {{module-aws-hardening}} {{module-azure-hardening}} {{asg-no-instance-refresh}} What an apply does to running ASG instances comes from an upstream issue and is open {{gap:aws-asg-instance-refresh}}. The July 2026 remote network commands are likewise unsupported by the capture {{gap:remote-network-settings-july}}."
+      "text": "{{module-rhel9}} {{module-aws-example-types}} {{module-azure-example-types}} {{module-aws-defaults}} {{module-azure-defaults}} {{module-network-defaults}} {{module-aws-hardening}} {{module-azure-hardening}} {{asg-no-instance-refresh}} What an apply does to running ASG instances comes from an upstream issue and is open {{gap:aws-asg-instance-refresh}}. The July 13, 2026 release added remote network commands: {{get-network-interfaces-july13}} {{network-settings-july13}}"
     },
     {
       "text": "Enrollment and group membership are in [[zpa.app-connectors.enrollment]] and [[zpa.app-connectors.connector-groups]]; how a session picks a connector is in [[zpa.app-connectors.selection]]."
@@ -920,6 +920,34 @@
         "zpa/app-connector-groups"
       ],
       "conditions": "The table gives no scope (tenant, organization or group) for these limits; they are read as tenant-wide limits alongside tenant-limit-100. They are not per-group maximums."
+    },
+    "get-network-interfaces-july13": {
+      "statement": "The July 13, 2026 release summary lists support for a Get Network Interfaces command that collects a list of the network interfaces an App Connector uses, to help with remote troubleshooting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-release-upgrade-summary-2026-july.json",
+          "quotes": [
+            "July 13, 2026",
+            "Private Access (ZPA) supports the Get Network Interfaces command to collect a list of network interfaces used by an App Connector to help with remote troubleshooting."
+          ]
+        }
+      ]
+    },
+    "network-settings-july13": {
+      "statement": "The July 13, 2026 release summary lists network settings for App Connectors that can run remote commands to enable SSH on the OS and update software interface settings across Private Access virtual machines such as AWS, Azure, and GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-release-upgrade-summary-2026-july.json",
+          "quotes": [
+            "July 13, 2026",
+            "You can configure settings to perform remote commands that enable SSH on the OS, and also update software interface settings across Private Access (ZPA) virtual machines, such as AWS, Azure, and GCP."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -968,11 +996,12 @@
     "remote-network-settings-july": {
       "kind": "semantic",
       "title": "July 2026 remote App Connector network commands",
-      "status": "open",
+      "status": "resolved",
       "detail": "Unverified legacy statement: \"The July 13, 2026 release added a Get Network Interfaces command that collects the network-interface inventory used by an App Connector. The same release introduced limited-availability remote App Connector network settings that can enable SSH on the operating system and update software-interface settings on ZPA virtual machines in AWS, Azure, and GCP.\" The captured release summary (zpa-release-upgrade-summary-2026-july.md) now holds only an introduction, so the entries the legacy doc cited are not present to quote. Resolving needs a capture of the July 2026 release entries.",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "Both entries are in the release summary (claims get-network-interfaces-july13, network-settings-july13). The legacy statement called the network settings limited availability; the summary files that entry under Feature Available."
     }
   }
 }

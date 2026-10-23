@@ -55,6 +55,12 @@
     {
       "label": "Postman and Ansible.",
       "text": "{{postman-requests}} {{ansible-coverage}}"
+    },
+    {
+      "text": "The provider documentation lists the copy-paste and upload-download values: {{tf-control-values}}"
+    },
+    {
+      "text": "What the provider documents for individual fields: {{tf-field-descriptions}}"
     }
   ],
   "checks": [
@@ -215,6 +221,39 @@
           ]
         }
       ]
+    },
+    "tf-control-values": {
+      "statement": "The Terraform provider's documentation for the Private Access CBI profile lists the supported `copy_paste` values as `none` or `all`, and the supported `upload_download` values as `none`, `all` or `upstream`.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_cloud_browser_isolation_external_profile.md",
+          "quotes": [
+            "`copy_paste:` - (Optional) Enable or disable copy & paste for local computer to isolation. Supported values are: `none` or `all`",
+            "`upload_download` - (Optional) Enable or disable file transfer from local computer to isolation. Supported values are: `none`, `all`, `upstream`"
+          ]
+        }
+      ],
+      "tier": "A"
+    },
+    "tf-field-descriptions": {
+      "statement": "The Terraform provider's documentation for the Private Access CBI profile describes `allow_printing` as letting the user print pages rendered in the isolation browser, `restrict_keystrokes` as preventing keyboard and text input to isolated pages, `document_viewer` as viewing Microsoft Office files in isolation, `session_persistence` as saving user cookies between sessions, `watermark` as a custom watermark on isolated pages, `deep_link` as applications allowed to launch outside the isolation session, and `debug_mode` as allowing isolation sessions to start in debug mode.",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_cloud_browser_isolation_external_profile.md",
+          "quotes": [
+            "`allow_printing` - (Optional) Enables the user to print web pages and documents rendered within the isolation browser.",
+            "`restrict_keystrokes:` - (Optional) Prevents keyboard and text input to isolated web pages.",
+            "`document_viewer:` - (Optional) Enable or disable to view Microsoft Office files in isolation.",
+            "`session_persistence:` - (Optional) Save user cookies between sessions.",
+            "`watermark:` - (Optional) Enable to display a custom watermark on isolated web pages.",
+            "`deep_link:` - (Optional) Enter applications that are allowed to launch outside of the Isolation session",
+            "`debug_mode`- (Optional) Enable to allow starting isolation sessions in debug mode to collect troubleshooting information."
+          ]
+        }
+      ],
+      "tier": "A"
     }
   },
   "gaps": {
@@ -237,9 +276,9 @@
     },
     "feature-field-mapping": {
       "kind": "semantic",
-      "status": "open",
+      "status": "partial",
       "title": "Which Private Access CBI profile field carries each console setting",
-      "detail": "Unverified legacy statement: userExperience.zgpu is GPU acceleration (Turbo Mode), securityControls.copyPaste the copy and paste control, securityControls.uploadDownload file transfer, allowPrinting print, restrictKeystrokes keystroke restriction, regionIds (create) or regions (update) region selection, userExperience.sessionPersistence persistence across browser restarts, userExperience.forwardToZia.pacFileUrl the PAC file, securityControls.watermark watermarking, documentViewer office file viewing, localRender local rendering, translate translation, browserInBrowser browser-in-browser, persistIsolationBar the isolation bar, securityControls.deepLink deep linking with URI schemes such as mailto: and ms-teams:, and debugMode debug mode. The SDK structs and the contract carry the field names but no source ties them to the console settings.",
+      "detail": "The Terraform provider documentation describes several Private Access profile fields in plain words (claim tf-field-descriptions), which ties them to settings. Still open: what `zgpu`, `translate` and `persistIsolationBar` do, how the region fields map to the console's Region Selection, and whether the documented `session_persistence` (user cookies saved between sessions) is the console's persistence across browser restarts.",
       "blocks": "translating a console profile setting into an API or Terraform field",
       "resolves_with": [
         "source-read",
@@ -248,7 +287,7 @@
     },
     "control-value-sets": {
       "kind": "semantic",
-      "status": "partial",
+      "status": "resolved",
       "former_ids": [
         "zbi-04"
       ],
@@ -261,7 +300,8 @@
       "resolves_with": [
         "source-read",
         "lab-test"
-      ]
+      ],
+      "resolution": "The Terraform provider documentation enumerates the values (claim tf-control-values); the contract examples and Go struct typing are unchanged."
     }
   }
 }

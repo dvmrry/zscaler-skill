@@ -33,7 +33,7 @@
     },
     {
       "label": "Anomaly detection.",
-      "text": "{{geofence-detection}} {{location-groups}} Other anomaly types are open {{gap:non-geofence-anomalies}}."
+      "text": "{{geofence-detection}} {{location-groups}} {{api-policy-type-geofence-only}} Whether the console offers other anomaly types is open {{gap:non-geofence-anomalies}}."
     },
     {
       "label": "Audit logs.",
@@ -160,6 +160,39 @@
           ]
         }
       ]
+    },
+    "api-policy-type-geofence-only": {
+      "statement": "The API contract's operation to create an anomaly policy takes a `policyType` whose only value is `geoFencing`, and the policy list filter has the same single value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy/post/requestBody/content/application~1json/schema/properties/policyType",
+          "expect": {
+            "enum": [
+              "geoFencing"
+            ],
+            "title": "AnomalyPolicyTypeEnum",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy/get/parameters/[name=policyType]",
+          "expect": {
+            "name": "policyType",
+            "schema": {
+              "enum": [
+                "geoFencing"
+              ],
+              "title": "AnomalyPolicyTypeEnum",
+              "type": "string"
+            }
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -179,8 +212,8 @@
     "non-geofence-anomalies": {
       "kind": "semantic",
       "title": "Anomaly types other than geofence",
-      "status": "open",
-      "detail": "Unverified legacy statement: the captured anomaly article is geofence-oriented and does not document non-geofence anomaly types. It names metadata and network usage patterns as inputs but describes only geofence violations.",
+      "status": "partial",
+      "detail": "The captured anomaly article describes only geofence violations, and the API accepts only the `geoFencing` policy type (claim api-policy-type-geofence-only). Whether the console offers, or a later release adds, other anomaly types such as usage-based ones is not stated.",
       "blocks": "answering whether usage spikes or other behavior raise Cellular anomalies",
       "resolves_with": [
         "source-read"
