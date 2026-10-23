@@ -55,7 +55,7 @@
   ],
   "claims": {
     "zpa-delay": {
-      "statement": "When a forwarding rule's planned method is ZPA, the provider sleeps 60 seconds before creating or updating it. The provider's documentation gives the reason as letting ZIA and ZPA synchronize and replicate resource IDs.",
+      "statement": "When a forwarding rule's planned method is ZPA, the provider sleeps 60 seconds before creating it. Up to v4.8.13 its update path also slept 60 seconds before invoking Update; from v4.8.14 the update sleeps 60 seconds, once, inside the step that writes the rule, and an update in which only `order` changed returns without writing, so it does not sleep. The provider's documentation gives the reason as letting ZIA and ZPA synchronize and replicate resource IDs.",
       "tier": "A",
       "evidence": [
         {
@@ -63,6 +63,10 @@
           "path": "zia/resource_zia_forwarding_control_rule.go",
           "quotes": [
             "// Sleep for 60 seconds before invoking Create"
+          ],
+          "at": [
+            "v4.8.14",
+            "v4.8.13"
           ]
         },
         {
@@ -70,6 +74,31 @@
           "path": "zia/resource_zia_forwarding_control_rule.go",
           "quotes": [
             "// Sleep for 60 seconds before invoking Update"
+          ],
+          "at": [
+            "v4.8.13"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "func(pos OrderRule) error { req.Order, req.Rank = pos.Order, pos.Rank if forwardMethod == \"ZPA\" && !waitedForZPA { // Sleep for 60 seconds before invoking Update time.Sleep(60 * time.Second) waitedForZPA = true }"
+          ],
+          "after": "func resourceForwardingControlRuleUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly }",
+            "case ruleUpdateOrderOnly: log.Printf(\"[INFO] rule %s: only the order changed; leaving the move to the reorder engine\", d.Id()) return nil"
+          ],
+          "at": [
+            "v4.8.14"
           ]
         },
         {
@@ -107,7 +136,10 @@
             "for i := 0; i < 3; i++ {",
             "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying"
           ],
-          "after": "func resourceForwardingControlRuleUpdate("
+          "after": "func resourceForwardingControlRuleUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
         },
         {
           "source": "tf-zia",
@@ -140,7 +172,11 @@
             "if forwardMethod == \"ZPA\" { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 400 && strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\") {",
             "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying continue } } return diag.FromErr(err) }"
           ],
-          "after": "func resourceForwardingControlRuleCreate("
+          "after": "func resourceForwardingControlRuleCreate(",
+          "at": [
+            "v4.8.14",
+            "v4.8.13"
+          ]
         },
         {
           "source": "tf-zia",
@@ -150,7 +186,23 @@
             "if forwardMethod == \"ZPA\" { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 400 && strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\") {",
             "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying continue } } return diag.FromErr(err) }"
           ],
-          "after": "func resourceForwardingControlRuleUpdate("
+          "after": "func resourceForwardingControlRuleUpdate(",
+          "at": [
+            "v4.8.13"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_forwarding_control_rule.go",
+          "quotes": [
+            "if forwardMethod == \"ZPA\" && !waitedForZPA { // Sleep for 60 seconds before invoking Update time.Sleep(60 * time.Second) waitedForZPA = true }",
+            "if forwardMethod == \"ZPA\" { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 400 && strings.Contains(respErr.Message, \"is no longer an active Source IP Anchored App Segment\") {",
+            "time.Sleep(30 * time.Second) // Wait for 30 seconds before retrying continue } } return err } return err"
+          ],
+          "after": "func resourceForwardingControlRuleUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
         }
       ]
     },

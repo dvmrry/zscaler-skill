@@ -79,8 +79,11 @@ def test_every_vendored_zscaler_repo_has_an_explicit_issue_watch_disposition() -
 
 def test_intentionally_issue_disabled_repos_are_classified_not_watched() -> None:
     assert set(ISSUES_DISABLED_REPOS) == {
+        "zscaler/cloud-native-aws-cloud-connector-deploy",
         "zscaler/terraform-aws-cloud-connector-modules",
         "zscaler/terraform-azurerm-cloud-connector-modules",
+        "zscaler/zscaler-sdk-android",
+        "zscaler/zscaler-sdk-ios",
     }
     for metadata in ISSUES_DISABLED_REPOS.values():
         assert metadata["reason"]

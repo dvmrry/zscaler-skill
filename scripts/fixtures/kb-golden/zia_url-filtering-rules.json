@@ -490,7 +490,7 @@
       "claims": [
         {
           "id": "zia.terraform.rule-order:update-parks-every-update",
-          "statement": "Every URL Filtering rule update, whatever field changed, is first sent with rank 7 at the order of the last rule (sorted by rank, then order), and only afterwards moved back to its declared order by the reorder worker. The rule is written at that order, not after it.",
+          "statement": "Up to v4.8.13 every URL Filtering rule update, whatever field changed, was first sent with rank 7 at the order of the last rule (sorted by rank, then order), and only afterwards moved back to its declared order by the reorder worker; the rule was written at that order, not after it. From v4.8.14 an update that changes only `order` writes nothing, an update that changes other attributes but not `rank` is written at the rule's current position, and only an update that changes `rank` is written at the end of the list with rank 7; the declared position is then handed to the reorder engine.",
           "tier": "A",
           "confidence": "high",
           "binds": [

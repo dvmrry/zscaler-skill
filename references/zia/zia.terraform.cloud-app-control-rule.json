@@ -305,7 +305,7 @@
       "kind": "semantic",
       "title": "Whether changing a Cloud App Control rule's type forces a new rule",
       "status": "partial",
-      "detail": "Unverified legacy statement: The earlier reference said the rule type is part of the resource identity, so it cannot be changed without recreating the rule; the provider schema shows type as optional without ForceNew, and the import and lookup paths are keyed by rule type, but no vendored source states what an update to type does. Provider side answered: type has no ForceNew and the resource's CustomizeDiff does not touch it, so Terraform plans an in-place update, not a replacement. Update reads the new type, looks the rule ID up under it (clearing the resource ID and returning without error if that lookup is not found), then sends the update under the new type. Still open: what the API does with a rule ID under a different type.",
+      "detail": "Unverified legacy statement: The earlier reference said the rule type is part of the resource identity, so it cannot be changed without recreating the rule; the provider schema shows type as optional without ForceNew, and the import and lookup paths are keyed by rule type, but no vendored source states what an update to type does. Provider side answered: type has no ForceNew and the resource's CustomizeDiff does not touch it, so Terraform plans an in-place update, not a replacement. Update (checked at v4.8.13 and v4.8.14) reads the new type, looks the rule ID up under it (clearing the resource ID and returning without error if that lookup is not found), then sends the update under the new type. Still open: what the API does with a rule ID under a different type.",
       "evidence": [
         {
           "source": "tf-zia",
@@ -322,6 +322,22 @@
             "ruleType, ok := d.Get(\"type\").(string)",
             "if _, err := cloudappcontrol.GetByRuleID(ctx, service, ruleType, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil",
             "_, err = cloudappcontrol.Update(ctx, service, ruleType, id, &req)"
+          ],
+          "at": [
+            "v4.8.13"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "ruleType, ok := d.Get(\"type\").(string)",
+            "if existing, err := cloudappcontrol.GetByRuleID(ctx, service, ruleType, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil",
+            "_, err := cloudappcontrol.Update(ctx, service, ruleType, id, &req)"
+          ],
+          "after": "func resourceCloudAppControlRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "at": [
+            "v4.8.14"
           ]
         }
       ],

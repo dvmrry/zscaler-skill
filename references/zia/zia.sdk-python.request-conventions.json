@@ -276,7 +276,7 @@
       ]
     },
     "bulk-delete-limit": {
-      "statement": "The Python `bulk_delete_locations` and `bulk_delete_vpn_credentials` calls refuse a list of more than 100 IDs by returning a ValueError in the error slot instead of sending part of it.",
+      "statement": "The Python `bulk_delete_locations` and `bulk_delete_vpn_credentials` calls refuse a list of more than 100 IDs by returning a ValueError in the error slot instead of sending part of it. Up to v1.11.2 that slot was the second element of a 2-tuple; from v1.11.3 it is the third element of the (result, response, error) tuple.",
       "tier": "A",
       "evidence": [
         {
@@ -286,6 +286,9 @@
             "def bulk_delete_locations(self, location_ids: List[int]) -> APIResult[None]:",
             "Maximum 100 location IDs allowed per bulk delete request",
             "if len(location_ids) > 100: return (None, ValueError(\"Maximum 100 location IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.11.2"
           ]
         },
         {
@@ -295,7 +298,51 @@
             "def bulk_delete_vpn_credentials(self, credential_ids: list) -> APIResult[dict]:",
             "Maximum 100 credential IDs allowed per bulk delete request",
             "if len(credential_ids) > 100: return (None, ValueError(\"Maximum 100 credential IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.11.2"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/locations.py",
+          "quotes": [
+            "def bulk_delete_locations(self, location_ids: List[int]) -> APIResult[None]:",
+            "Maximum 100 location IDs allowed per bulk delete request",
+            "if len(location_ids) > 100: return (None, None, ValueError(\"Maximum 100 location IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.11.3"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/traffic_vpn_credentials.py",
+          "quotes": [
+            "def bulk_delete_vpn_credentials(self, credential_ids: list) -> APIResult[dict]:",
+            "Maximum 100 credential IDs allowed per bulk delete request",
+            "if len(credential_ids) > 100: return (None, None, ValueError(\"Maximum 100 credential IDs allowed per bulk delete request\"))"
+          ],
+          "at": [
+            "v1.11.3"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZIA `bulk_delete_locations`, `bulk_delete_vpn_credentials`, `outbound_email_dlp_rules.get_actions`, `policy_export` and ZPA `get_microtenant_summary` plus seven ZPA `delete_*` functions to always return the documented `(result, response, error)` tuple."
+          ],
+          "after": "## 1.11.3 (October 13 2026)",
+          "at": [
+            "v1.11.3"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in Python SDK v1.11.3 (PR 602, issue 598): the function returns the documented (result, response, error) tuple."
         }
       ]
     },

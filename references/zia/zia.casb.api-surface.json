@@ -723,16 +723,46 @@
       ]
     },
     "terraform-import-and-target": {
-      "statement": "A CASB rule imports with `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID, and a custom rule is removed by pointing Terraform's `-target` flag at it.",
+      "statement": "A CASB rule imports with `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID. Up to v4.8.13 the resource page said a custom rule is removed by pointing Terraform's `-target` flag at it; the v4.8.14 changelog says deleting the rule with `-target` first is no longer needed.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/resources/zia_casb_dlp_rules.md",
           "quotes": [
-            "can be imported by using `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID.",
-            "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
+            "can be imported by using `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID."
+          ],
+          "at": [
+            "v4.8.14",
+            "v4.8.13"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
+            "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
+          ],
+          "at": [
+            "v4.8.13"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "deleting the rule with `-target` first is no longer needed"
+          ],
+          "after": "## 4.8.14 (October 21, 2026)",
+          "at": [
+            "v4.8.14"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "The `-target` delete workaround is no longer needed from provider v4.8.14 (PR 614)."
         }
       ]
     }

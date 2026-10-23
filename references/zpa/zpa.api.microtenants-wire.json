@@ -194,7 +194,7 @@
       "conditions": "No other criteriaAttribute value appears in the SDK sources read; whether the API accepts others is not shown, and neither SDK enforces a list."
     },
     "summary-bare-array": {
-      "statement": "GET /microtenants/summary returns a bare array of id and name objects rather than the usual wrapper with a list; the Python SDK returns an empty list when the body is not a list.",
+      "statement": "GET /microtenants/summary returns a bare array of id and name objects rather than the usual wrapper with a list; the Python SDK returns an empty list when the body is not a list. From v1.11.3 it returns that list as the first element of a (result, response, error) tuple; up to v1.11.2 it returned a 2-tuple.",
       "tier": "A",
       "evidence": [
         {
@@ -243,6 +243,30 @@
           "path": "zscaler/zpa/microtenants.py",
           "quotes": [
             "microtenant_list = [] response_body = response.get_body() if isinstance(response_body, list): for item in response_body: microtenant_list.append(Microtenant(item)) return (microtenant_list, None)"
+          ],
+          "at": [
+            "v1.11.2"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/microtenants.py",
+          "quotes": [
+            "body = response.get_body() result = [Microtenant(self.form_response_body(item)) for item in body] if isinstance(body, list) else [] except Exception as error: return (None, response, error) return (result, response, None)"
+          ],
+          "at": [
+            "v1.11.3"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZIA `bulk_delete_locations`, `bulk_delete_vpn_credentials`, `outbound_email_dlp_rules.get_actions`, `policy_export` and ZPA `get_microtenant_summary` plus seven ZPA `delete_*` functions to always return the documented `(result, response, error)` tuple."
+          ],
+          "after": "## 1.11.3 (October 13 2026)",
+          "at": [
+            "v1.11.3"
           ]
         }
       ]

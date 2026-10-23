@@ -172,7 +172,7 @@
       ]
     },
     "order-contract": {
-      "statement": "Terraform documents `order` for CASB rules as a positive whole number starting at 1 with no gaps; zero and negative values are rejected, and after deleting a rule the remaining orders must be re-adjusted so the API honours the order.",
+      "statement": "Terraform documents `order` for CASB rules as a positive whole number starting at 1 with no gaps; zero and negative values are rejected. Up to v4.8.13 the page said that after deleting a rule the remaining orders must be re-adjusted so the API honours the order; from v4.8.14 it says to renumber the remaining rules so the orders stay contiguous, and that the deletion and the renumbering can be applied together in one `terraform apply`.",
       "tier": "A",
       "binds": [
         "zia/casb-dlp-rules#order"
@@ -182,8 +182,22 @@
           "source": "tf-zia",
           "path": "docs/resources/zia_casb_dlp_rules.md",
           "quotes": [
+            "Rule orders must always be contiguous (no gaps). When you delete a rule, renumber the remaining rules so the orders stay contiguous. From v4.8.14, the deletion and the renumbering can be applied together in one `terraform apply`.",
+            "The `order` attribute must always be a positive whole number starting at 1. Negative numbers and zero are **not supported** and will result in an error."
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
             "Rule orders must always be contiguous (no gaps). Deleting a rule must be followed by order number re-adjustment of the remaining rules to ensure the API honours the required order.",
             "The `order` attribute must always be a positive whole number starting at 1. Negative numbers and zero are **not supported** and will result in an error."
+          ],
+          "at": [
+            "v4.8.13"
           ]
         }
       ]

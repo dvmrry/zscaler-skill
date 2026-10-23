@@ -78,7 +78,7 @@
       ]
     },
     "order-contiguous": {
-      "statement": "The provider documents that rule orders must be contiguous with no gaps, and that deleting a rule must be followed by renumbering the remaining rules so the API honours the order.",
+      "statement": "The provider documents that rule orders must be contiguous with no gaps. Up to v4.8.13 its page said deleting a rule must be followed by renumbering the remaining rules so the API honours the order; from v4.8.14 it says to renumber the remaining rules so the orders stay contiguous, and that the deletion and the renumbering can be applied together in one `terraform apply`.",
       "tier": "A",
       "evidence": [
         {
@@ -86,22 +86,67 @@
           "path": "docs/resources/zia_url_filtering_rules.md",
           "quotes": [
             "Rule orders must always be contiguous (no gaps).",
+            "When you delete a rule, renumber the remaining rules so the orders stay contiguous.",
+            "the deletion and the renumbering can be applied together in one `terraform apply`"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_rules.md",
+          "quotes": [
+            "Rule orders must always be contiguous (no gaps).",
             "Deleting a rule must be followed by order number re-adjustment of the remaining rules to ensure the API honours the required order."
+          ],
+          "at": [
+            "v4.8.13"
           ]
         }
       ]
     },
     "predefined-reorder-not-destroy": {
-      "statement": "Predefined rules can be managed through the provider for reordering, but destroy is not supported for them and not every attribute of a custom rule applies; to delete a custom rule the documentation says to use `-target`.",
+      "statement": "Predefined rules can be managed through the provider for reordering, but destroy is not supported for them and not every attribute of a custom rule applies. Up to v4.8.13 the rule page also said to delete a custom rule with `-target`; the v4.8.14 changelog says deleting the rule with `-target` first is no longer needed.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/resources/zia_url_filtering_rules.md",
           "quotes": [
-            "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules, and not all attributes available on custom rules apply to them.",
-            "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
+            "Predefined rules can be managed via the Terraform provider for reordering purposes; however, `destroy` operations are not supported for predefined rules, and not all attributes available on custom rules apply to them."
+          ],
+          "at": [
+            "v4.8.14",
+            "v4.8.13"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_url_filtering_rules.md",
+          "quotes": [
+            "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
+          ],
+          "at": [
+            "v4.8.13"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "deleting the rule with `-target` first is no longer needed"
+          ],
+          "after": "## 4.8.14 (October 21, 2026)",
+          "at": [
+            "v4.8.14"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "The `-target` delete workaround is no longer needed from provider v4.8.14 (PR 614)."
         }
       ]
     },

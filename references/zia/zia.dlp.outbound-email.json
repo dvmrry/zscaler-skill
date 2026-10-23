@@ -59,7 +59,7 @@
       ]
     },
     "python-endpoint": {
-      "statement": "The Python SDK's `get_actions` calls `/emailDlpRules/actions` and returns the CSV mapping of supported outbound email DLP rule actions as bytes.",
+      "statement": "The Python SDK's `get_actions` calls `/emailDlpRules/actions` and returns the CSV mapping of supported outbound email DLP rule actions as bytes. Up to v1.11.2 it returned them in a 2-tuple with the error; from v1.11.3 it returns the (content, response, error) tuple.",
       "tier": "A",
       "evidence": [
         {
@@ -70,7 +70,41 @@
             "/emailDlpRules/actions",
             "tuple: A 2-tuple of (the CSV mapping of supported outbound email DLP rule actions as bytes, error)."
           ],
-          "after": "def get_actions(self, query_params: Optional[dict] = None, output_file: str = None) -> APIResult[bytes]:"
+          "after": "def get_actions(self, query_params: Optional[dict] = None, output_file: str = None) -> APIResult[bytes]:",
+          "at": [
+            "v1.11.2"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/outbound_email_dlp_rules.py",
+          "quotes": [
+            "The response body is a CSV file.",
+            "/emailDlpRules/actions",
+            "A tuple containing (CSV mapping of supported actions as bytes, Response, error)",
+            "return (content, response, None)"
+          ],
+          "after": "def get_actions(self, query_params: Optional[dict] = None, output_file: str = None) -> APIResult[bytes]:",
+          "at": [
+            "v1.11.3"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed ZIA `bulk_delete_locations`, `bulk_delete_vpn_credentials`, `outbound_email_dlp_rules.get_actions`, `policy_export` and ZPA `get_microtenant_summary` plus seven ZPA `delete_*` functions to always return the documented `(result, response, error)` tuple."
+          ],
+          "after": "## 1.11.3 (October 13 2026)",
+          "at": [
+            "v1.11.3"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "fixed",
+          "note": "Fixed in Python SDK v1.11.3 (PR 602, issue 598): the function returns the documented (result, response, error) tuple."
         }
       ]
     },

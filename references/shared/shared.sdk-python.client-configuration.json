@@ -31,6 +31,10 @@
     {
       "label": "Settings.",
       "text": "{{env-key-format}} {{request-timeout}} Retry settings are in [[shared.sdk-python.retries]]."
+    },
+    {
+      "label": "TLS settings.",
+      "text": "{{tls-settings-constructor-only}}"
     }
   ],
   "claims": {
@@ -143,6 +147,42 @@
           "path": "zscaler/request_executor.py",
           "quotes": [
             "self._request_timeout = config[\"client\"].get(\"requestTimeout\", 240)"
+          ]
+        }
+      ]
+    },
+    "tls-settings-constructor-only": {
+      "statement": "From v1.11.3 the Python SDK honors TLS verification settings (`sslContext`) only when they are passed to the client constructor: an `sslContext` in a `zscaler.yaml` is dropped with a warning, a client built with `sslContext=False` logs a warning that certificate verification is disabled, and applying a `zscaler.yaml` from the current working directory also logs a warning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/config/config_setter.py",
+          "at": [
+            "v1.11.3"
+          ],
+          "quotes": [
+            "# TLS verification settings are only honored when passed to the client constructor.",
+            "logger.warning(f\"Ignoring 'sslContext' in {path}; TLS settings must be passed to the client constructor.\")",
+            "logger.warning( f\"Applying zscaler.yaml from the current working directory ({_LOCAL_YAML_PATH}). \" \"Only run the SDK from directories whose configuration files you trust.\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_http_client.py",
+          "at": [
+            "v1.11.3"
+          ],
+          "quotes": [
+            "logger.warning(\"TLS certificate verification is disabled (sslContext=False). Do not use this outside of testing.\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "after": "## 1.11.3 (October 13 2026)",
+          "quotes": [
+            "TLS verification (`sslContext`) is now only honored when passed to the client constructor; it is ignored in `zscaler.yaml` files."
           ]
         }
       ]

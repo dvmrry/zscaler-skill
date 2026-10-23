@@ -285,7 +285,7 @@
           ],
           "quotes": [
             "req := expandDlpWebRules(d)",
-            "isSubRule := req.ParentRule != 0 for { dlpWebRulesLock.Lock() if isSubRule { if dlpWebSubRulesStartingOrder[req.ParentRule] == 0 {",
+            "isSubRule := req.ParentRule != 0",
             "if dlpWebStartingOrder == 0 { list, _ := dlp_web_rules.GetAll(ctx, service)",
             "resp, err := dlp_web_rules.Create(ctx, service, &req)",
             "if diags := resourceDlpWebRulesRead(ctx, d, meta); diags.HasError() {",
@@ -379,7 +379,7 @@
       ]
     },
     "create-order-from-ignored-list-error-sites": {
-      "statement": "Create paths discard the list error the same way in URL filtering, file type control, firewall DNS, firewall IPS, firewall filtering, forwarding control, NAT control, sandbox, SSL inspection, traffic capture, DLP web, endpoint DLP and outbound email DLP (via GetAll), and in CASB DLP, CASB malware and cloud app control (via GetByRuleType).",
+      "statement": "Create paths discard the list error the same way in file type control, firewall DNS, firewall IPS, firewall filtering, forwarding control, NAT control, sandbox, SSL inspection, traffic capture, DLP web, endpoint DLP and outbound email DLP (via GetAll), and in CASB DLP, CASB malware and cloud app control (via GetByRuleType). URL filtering did so up to v4.8.13; from v4.8.14 its create gets the starting order through `urlFilteringEndPosition`, which returns the list error.",
       "tier": "B",
       "derived_from": [
         "create-order-from-ignored-list-error"
@@ -390,14 +390,27 @@
           "path": "zia/resource_zia_cloud_app_control_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13",
+            "v4.8.14"
           ],
           "quotes": [
             "rules, _ := cloudappcontrol.GetByRuleType(ctx, service, req.Type)"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "end, err := urlFilteringEndPosition(ctx, service) if err != nil { return OrderRule{}, err }",
+            "return OrderRule{}, fmt.Errorf(\"error getting all url filtering rules: %w\", err)"
+          ],
+          "after": "func resourceURLFilteringRulesCreate(",
+          "at": [
+            "v4.8.14"
+          ]
         }
       ],
-      "conditions": "Found by `git grep -nE ', _ :?= \\w+\\.GetAll\\(ctx'` and the `rules, _ := ...GetByRuleType(` variants over zia/resource_zia_*.go at tf-zia v4.8.3 and HEAD: 14 GetAll sites and 3 GetByRuleType sites, the same files at both refs. Where the first position is later corrected depends on the reorder worker (see zia.terraform.rule-order).",
+      "conditions": "Found by `git grep -nE ', _ :?= \\w+\\.GetAll\\(ctx'` and the `rules, _ := ...GetByRuleType(` variants over zia/resource_zia_*.go at tf-zia v4.8.3 and HEAD: 14 GetAll sites and 3 GetByRuleType sites, the same files at both refs; at v4.8.13 the same grep still finds 14 GetAll sites including URL filtering, and at v4.8.14 it finds 13 because URL filtering no longer matches. Where the first position is later corrected depends on the reorder worker (see zia.terraform.rule-order).",
       "upstream": [
         {
           "status": "unfiled",
@@ -406,7 +419,7 @@
       ]
     },
     "sandbox-update-index-after-logged-error": {
-      "statement": "Before v4.8.11, sandbox rule update logged a failed list of existing rules, removed the default rule from whatever came back, sorted, and read the last element with no length check, so an empty result (a failed list) panicked with an index out of range instead of returning an error. v4.8.11 returns the list error before the filter and the index (#610); the index itself still has no length check.",
+      "statement": "Before v4.8.11, sandbox rule update logged a failed list of existing rules, removed the default rule from whatever came back, sorted, and read the last element with no length check, so an empty result (a failed list) panicked with an index out of range instead of returning an error. v4.8.11 returns the list error before the filter and the index (#610); at v4.8.13 the index itself still has no length check. v4.8.14 replaces the index: after the default rule is filtered out, the end of the list comes from `endOfList`, which starts at order 1, and the list is read only when `rank` changed.",
       "tier": "A",
       "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"Sandbox rule update logs a failed list of existing rules, removes the default rule from whatever came back, sorts, and reads the last element with no length check. An empty result (a failed list) panics with an index out of range instead of returning an error.\"",
       "evidence": [
@@ -438,7 +451,7 @@
           "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)",
           "at": [
             "v4.8.11",
-            "HEAD"
+            "v4.8.13"
           ]
         },
         {
@@ -448,6 +461,30 @@
             "## 4.8.11 (October 8, 2026)",
             "[PR #610](https://github.com/zscaler/terraform-provider-zia/pull/610) - Fixed a provider crash when updating rule-based resources (`zia_firewall_filtering_rule`,",
             "`zia_sandbox_rules`, `zia_forwarding_control_rule`, `zia_traffic_capture_rules`, `zia_cloud_app_control_rule`) if the list of existing rules could not be retrieved. The API error is now reported instead."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "quotes": [
+            "return OrderRule{}, fmt.Errorf(\"error getting all sandbox rules: %w\", err)",
+            "rules = filterOutDefaultRule(rules)",
+            "return endOfList(orders), nil"
+          ],
+          "after": "func resourceSandboxRulesUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "last := 1 for _, o := range orders { if o > last { last = o } } return OrderRule{Order: last, Rank: 7}",
+            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly } if !d.HasChange(\"rank\") { return ruleUpdateInPlace } return ruleUpdateMoveToEnd"
+          ],
+          "at": [
+            "v4.8.14"
           ]
         }
       ],
@@ -459,7 +496,7 @@
       ]
     },
     "update-index-panic-sites": {
-      "statement": "Before v4.8.11 the same log-then-index-last-element update code was in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. v4.8.11 makes all of them return the list error before the index (#610). Endpoint DLP update has a `len(existingRules) > 0` guard and does not share the index panic; at the pin its list error is still only logged.",
+      "statement": "Before v4.8.11 the same log-then-index-last-element update code was in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. v4.8.11 makes all of them return the list error before the index (#610). Endpoint DLP update has a `len(existingRules) > 0` guard and does not share the index panic; at v4.8.13 its list error is still only logged. v4.8.14 removes the index from all of these: the end of the list comes from `endOfList`, which starts at order 1, and a list error is returned.",
       "tier": "B",
       "derived_from": [
         "zia.terraform.rule-order:list-error-then-panic",
@@ -486,7 +523,11 @@
             "return diag.FromErr(fmt.Errorf(\"error getting all firewall dns rules: %w\", err))",
             "nextAvailableOrder := existingRules[len(existingRules)-1].Order"
           ],
-          "after": "func resourceFirewallDNSRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+          "after": "func resourceFirewallDNSRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "at": [
+            "v4.8.11",
+            "v4.8.13"
+          ]
         },
         {
           "source": "tf-zia",
@@ -494,22 +535,59 @@
           "quotes": [
             "log.Printf(\"[ERROR] error getting all endpoint dlp rules: %v\", err)"
           ],
-          "after": "existingRules, err := endpoint_dlp_rules.GetAll(ctx, service)"
+          "after": "existingRules, err := endpoint_dlp_rules.GetAll(ctx, service)",
+          "at": [
+            "v4.8.13"
+          ]
         },
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_endpoint_dlp_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "quotes": [
             "if len(existingRules) > 0 {"
           ],
           "after": "existingRules, err := endpoint_dlp_rules.GetAll(ctx, service)"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "quotes": [
+            "return OrderRule{}, fmt.Errorf(\"error getting all firewall dns rules: %w\", err)",
+            "return endOfList(orders), nil"
+          ],
+          "after": "func resourceFirewallDNSRulesUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_rules.go",
+          "quotes": [
+            "return OrderRule{}, fmt.Errorf(\"error getting all endpoint dlp rules: %w\", err)",
+            "return OrderRule{Order: endOfList(orders).Order, Rank: intendedRank}, nil"
+          ],
+          "after": "func resourceEndpointDLPRulesUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "last := 1 for _, o := range orders { if o > last { last = o } } return OrderRule{Order: last, Rank: 7}"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
         }
       ],
-      "conditions": "Found by `grep -n 'existingRules\\[len(existingRules)-1\\]' zia/resource_zia_*.go` at tf-zia v4.8.3 and HEAD: eleven matches (ten unguarded plus endpoint DLP, whose index sits inside the length guard). For the ten unguarded ones I confirmed the preceding GetAll error branch only calls log.Printf. At HEAD cloud app control's index sits at a different line but is unchanged in shape. At v4.8.13 `grep -n -A2 'existingRules, err := '` over the ten files shows every GetAll error branch returning `diag.FromErr`, all from commit e7aacee (first tag v4.8.11). Changed upstream in v4.8.11 (checked 2026-10-18): previously \"The same log-then-index-last-element update code is in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. Endpoint DLP update has a `len(existingRules) > 0` guard and does not share it.\"",
+      "conditions": "Found by `grep -n 'existingRules\\[len(existingRules)-1\\]' zia/resource_zia_*.go` at tf-zia v4.8.3 and HEAD: eleven matches (ten unguarded plus endpoint DLP, whose index sits inside the length guard). For the ten unguarded ones I confirmed the preceding GetAll error branch only calls log.Printf. At HEAD cloud app control's index sits at a different line but is unchanged in shape. At v4.8.13 `grep -n -A2 'existingRules, err := '` over the ten files shows every GetAll error branch returning `diag.FromErr`, all from commit e7aacee (first tag v4.8.11). Changed upstream in v4.8.11 (checked 2026-10-18): previously \"The same log-then-index-last-element update code is in eight more rule resources besides URL Filtering and the sandbox rules above: cloud app control, file type control, firewall filtering, firewall DNS, firewall IPS, forwarding control, SSL inspection and traffic capture. Endpoint DLP update has a `len(existingRules) > 0` guard and does not share it.\" At v4.8.14 the same grep returns no match in zia/ and every update goes through updateOrderedRule, so the Tier B extension to the other files rests on that grep.",
       "upstream": [
         {
           "status": "unfiled",
@@ -656,7 +734,7 @@
       ]
     },
     "update-parks-at-last-rule-order": {
-      "statement": "In the sandbox rules and firewall DNS rules update paths, the order of the last rule in the sorted list of existing rules is taken as `nextAvailableOrder`, and the rule is then updated with rank 7 and that order, so it is parked at the end of the policy before the reorder helper is called.",
+      "statement": "Up to v4.8.13, in the sandbox rules and firewall DNS rules update paths, the order of the last rule in the sorted list of existing rules was taken as `nextAvailableOrder`, and the rule was then updated with rank 7 and that order, so it was parked at the end of the policy before the reorder helper was called. From v4.8.14 neither update does this on every update: each takes the end of the list from `endOfList` and writes there with rank 7 only when `rank` changed.",
       "tier": "A",
       "evidence": [
         {
@@ -664,7 +742,7 @@
           "path": "zia/resource_zia_sandbox_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "quotes": [
             "req.Rank = 7",
@@ -679,7 +757,7 @@
           "path": "zia/resource_zia_firewall_dns_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "quotes": [
             "req.Rank = 7",
@@ -694,7 +772,7 @@
           "path": "zia/resource_zia_sandbox_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "after": "existingRules, err := sandbox_rules.GetAll(ctx, service)",
           "quotes": [
@@ -706,11 +784,48 @@
           "path": "zia/resource_zia_firewall_dns_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "after": "existingRules, err := firewalldnscontrolpolicies.GetAll(ctx, service)",
           "quotes": [
             "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "quotes": [
+            "if err := updateOrderedRule(d, known,",
+            "return endOfList(orders), nil"
+          ],
+          "after": "func resourceSandboxRulesUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_dns_rules.go",
+          "quotes": [
+            "if err := updateOrderedRule(d, known,",
+            "return endOfList(orders), nil"
+          ],
+          "after": "func resourceFirewallDNSRulesUpdate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly } if !d.HasChange(\"rank\") { return ruleUpdateInPlace } return ruleUpdateMoveToEnd",
+            "case ruleUpdateOrderOnly: log.Printf(\"[INFO] rule %s: only the order changed; leaving the move to the reorder engine\", d.Id()) return nil",
+            "case ruleUpdateMoveToEnd: return writeAtFreshPosition(func(bool) (OrderRule, error) { return end() }, write)",
+            "last := 1 for _, o := range orders { if o > last { last = o } } return OrderRule{Order: last, Rank: 7}"
+          ],
+          "at": [
+            "v4.8.14"
           ]
         }
       ]
@@ -725,13 +840,13 @@
       "conditions": "Assumes the empty body arrives with a success status such as 204, which is the case the helper treats as a nil result with a nil error; whether any ZIA update endpoint answers that way is open (gap zia.sdk-go.write-encoding:rule-update-empty-body)."
     },
     "update-parks-sites": {
-      "statement": "The same park-at-the-end sequence (`nextAvailableOrder` from the last element, rank 7, that order) follows the same index in the other rule resources listed under the index-panic claim.",
+      "statement": "Up to v4.8.13 the same park-at-the-end sequence (`nextAvailableOrder` from the last element, rank 7, that order) followed the same index in the other rule resources listed under the index-panic claim. From v4.8.14 none of them has it: they take the end of the list from `endOfList`, and only when `rank` changed.",
       "tier": "B",
       "derived_from": [
         "update-parks-at-last-rule-order",
         "update-index-panic-sites"
       ],
-      "conditions": "Found by a pattern search over the provider's rule resource files at the pinned ref (each has `req.Rank = 7` and `req.Order = nextAvailableOrder` after the index); not quoted."
+      "conditions": "Found by a pattern search over the provider's rule resource files at the pinned ref (each has `req.Rank = 7` and `req.Order = nextAvailableOrder` after the index); not quoted. At v4.8.14 `git grep -n 'nextAvailableOrder\\|existingRules\\[len' zia/` returns no match, and `updateOrderedRule(` is called from 18 rule resource files."
     }
   },
   "gaps": {

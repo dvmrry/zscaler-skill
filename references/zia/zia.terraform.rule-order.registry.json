@@ -640,7 +640,7 @@
       ]
     },
     "casb-rules-one-key-for-all-types": {
-      "statement": "SaaS Security DLP and malware rules still use one registry key and one starting-order scalar each (`casb_dlp_rules`, `casb_malware_rules`), while their callbacks and the SDK list and get functions are scoped by a `ruleType` query parameter taken from the registering rule. Not fixed at the pin.",
+      "statement": "SaaS Security DLP and malware rules still use one registry key and one starting-order scalar each (`casb_dlp_rules`, `casb_malware_rules`), while their callbacks and the SDK list and get functions are scoped by a `ruleType` query parameter taken from the registering rule. Not fixed at v4.8.14, the pin.",
       "tier": "A",
       "evidence": [
         {
@@ -671,7 +671,7 @@
           "path": "zia/resource_zia_casb_dlp_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "quotes": [
             "reorderWithBeforeReorder(OrderRule{Order: req.Order, Rank: req.Rank}, req.ID, \"casb_dlp_rules\",",
@@ -728,11 +728,33 @@
           "path": "zia/resource_zia_casb_malware_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "quotes": [
             "reorder(OrderRule{Order: order, Rank: 0}, resp.ID, \"casb_malware_rules\", func() (map[int]OrderRule, error) {",
             "reorder(OrderRule{Order: req.Order, Rank: 0}, req.ID, \"casb_malware_rules\", func() (map[int]OrderRule, error) {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "quotes": [
+            "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, \"casb_dlp_rules\",",
+            "markOrderRuleAsDone(resp.ID, \"casb_dlp_rules\")"
+          ],
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_malware_rules.go",
+          "quotes": [
+            "reorder(OrderRule{Order: order, Rank: 0}, resp.ID, \"casb_malware_rules\", func() (map[int]OrderRule, error) {",
+            "reorder(OrderRule{Order: intendedOrder, Rank: 0}, req.ID, \"casb_malware_rules\", func() (map[int]OrderRule, error) {"
+          ],
+          "at": [
+            "v4.8.14"
           ]
         }
       ],
@@ -764,7 +786,7 @@
       ]
     },
     "starting-order-state-read-outside-lock": {
-      "statement": "The parent-keyed starting-order maps are written under a mutex but read after it is released, for the create's `req.Order`: DLP web sub-rules, outbound email DLP sub-rules and endpoint DLP sub-rules at both refs, and the per-type cloud app control seed at v4.8.7 and the pin. A create for one parent can read the map while a create for another parent writes it.",
+      "statement": "In the DLP web, outbound email DLP and endpoint DLP sub-rule creates, the parent-keyed starting-order map is written while the rule lock is held and read into the create's `req.Order` after the lock is released; the per-type cloud app control seed follows the same pattern.",
       "tier": "A",
       "evidence": [
         {
@@ -809,7 +831,8 @@
             "endpointDlpSubRulesStartingOrder[parentID] = sr.Order",
             "endpointDlpSubRulesLock.Unlock()",
             "req.Order = endpointDlpSubRulesStartingOrder[parentID]"
-          ]
+          ],
+          "after": "func resourceEndpointDLPSubRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
         {
           "source": "tf-zia",
@@ -835,7 +858,7 @@
       ]
     },
     "staging-order-is-occupied-maximum": {
-      "statement": "NAT control and URL filtering create seed the staging order with the highest order already in the policy and post the rule at that order, not one past it.",
+      "statement": "NAT control and URL filtering create seed the staging order with the highest order already in the policy and post the rule at that order, not one past it. In URL filtering at v4.8.14 the seed is the order `endOfList` returns for the listed rules: the largest order, or 1 for an empty list.",
       "tier": "A",
       "evidence": [
         {
@@ -856,12 +879,35 @@
           "path": "zia/resource_zia_url_filtering_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.13"
           ],
           "after": "func resourceURLFilteringRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "list, _ := urlfilteringpolicies.GetAll(ctx, service) for _, r := range list { if r.Order > urlFilteringStartingOrder { urlFilteringStartingOrder = r.Order }",
             "req.Order = urlFilteringStartingOrder"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "quotes": [
+            "urlFilteringStartingOrder = end.Order",
+            "req.Order = pos.Order var err error resp, err = urlfilteringpolicies.Create(ctx, service, &req)",
+            "return endOfList(orders), nil"
+          ],
+          "after": "func resourceURLFilteringRulesCreate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "last := 1 for _, o := range orders { if o > last { last = o } } return OrderRule{Order: last, Rank: 7}"
+          ],
+          "at": [
+            "v4.8.14"
           ]
         }
       ],
@@ -873,7 +919,7 @@
       ]
     },
     "staging-order-never-reserved": {
-      "statement": "The staging seed is a package-level scalar set once per provider process and never changed by a create. Every later create of that resource in the process posts the same order; no resource reserves the next slot. Firewall filtering and traffic capture add one when they first compute the seed, and also never advance it.",
+      "statement": "Up to v4.8.13 the staging seed was a package-level scalar set once per provider process and never changed by a create. Every later create of that resource in the process posted the same order; no resource reserves the next slot. Firewall filtering and traffic capture add one when they first compute the seed, and also never advance it. From v4.8.14 that still holds for a create the API accepts; in firewall filtering, a create the API rejects with `not allowed at order` clears the scalar and reads it again before retrying, at most three times.",
       "tier": "B",
       "derived_from": [
         "staging-order-is-occupied-maximum"
@@ -891,12 +937,36 @@
           "path": "zia/resource_zia_firewall_filtering_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func resourceFirewallFilteringRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "firewallFilteringStartingOrder++",
             "req.Order = firewallFilteringStartingOrder"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "if refresh { firewallFilteringStartingOrder = 0 }",
+            "for retries := 0; isStaleOrderError(err) && retries < maxStaleOrderRetries; retries++ {",
+            "req.Order = startingOrder(true)"
+          ],
+          "after": "func resourceFirewallFilteringRulesCreate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "const maxStaleOrderRetries = 3",
+            "var staleOrderPattern = regexp.MustCompile(`not allowed at order [0-9]+`)"
+          ],
+          "at": [
+            "v4.8.14"
           ]
         }
       ]
@@ -920,7 +990,7 @@
       ]
     },
     "create-retry-loses-declared-order": {
-      "statement": "In bandwidth control create the intended order is read from the request inside the retry loop, after the previous pass already replaced `req.Order` with the staging value. After an `INVALID_INPUT_ARGUMENT` retry, the order handed to the reorder engine is the staging order, not the one in the configuration. Cloud app control does the same for both order and rank: after the first pass `req.Rank` is 7, so the retry records 7 as the intended rank. For cloud app control the rank is lost only when the declared rank is below 7.",
+      "statement": "In bandwidth control create the intended order is read from the request inside the retry loop, after the previous pass already replaced `req.Order` with the staging value. After an `INVALID_INPUT_ARGUMENT` retry, the order handed to the reorder engine is the staging order, not the one in the configuration. Cloud app control does the same for both order and rank: after the first pass `req.Rank` is 7, so the retry records 7 as the intended rank. For cloud app control the rank is lost only when the declared rank is below 7. From v4.8.14 a rejection of the staging order as `not allowed at order` is handled before that retry: bandwidth control and cloud app control clear the cached staging order and restore the intended order (and, for cloud app control, rank) before continuing, at most three times, so the intended values survive that retry.",
       "tier": "A",
       "evidence": [
         {
@@ -954,6 +1024,43 @@
             "if strings.Contains(err.Error(), \"INVALID_INPUT_ARGUMENT\") {",
             "time.Sleep(10 * time.Second) // Wait before retrying continue",
             "OrderRule{Order: intendedOrder, Rank: intendedRank},"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_control_rules.go",
+          "quotes": [
+            "if isStaleOrderError(err) && staleOrderRetries < maxStaleOrderRetries {",
+            "bandwidthControlStartingOrder = 0",
+            "req.Order = order continue }"
+          ],
+          "after": "func resourceBandwdithControlRulesCreate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "quotes": [
+            "if isStaleOrderError(err) && staleOrderRetries < maxStaleOrderRetries {",
+            "cloudAppRuleStartingOrder[req.Type] = 0",
+            "req.Order, req.Rank = intendedOrder, intendedRank continue }"
+          ],
+          "after": "func resourceCloudAppControlRulesCreate(",
+          "at": [
+            "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "quotes": [
+            "const maxStaleOrderRetries = 3",
+            "var staleOrderPattern = regexp.MustCompile(`not allowed at order [0-9]+`)"
+          ],
+          "at": [
+            "v4.8.14"
           ]
         }
       ],
