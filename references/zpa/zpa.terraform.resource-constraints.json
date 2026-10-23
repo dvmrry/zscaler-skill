@@ -54,7 +54,7 @@
     },
     {
       "label": "Tags.",
-      "text": "{{tags-early-access-key-import}} The policy rule validators accept no object type for zpa_tag_group IDs; whether the API does is open {{gap:tag-group-in-policy-conditions}}."
+      "text": "{{tags-early-access-key-import}} {{tags-on-rules-and-segments-request}} Whether access rules got them too is open {{gap:tags-on-access-rules}}. The policy rule validators accept no object type for zpa_tag_group IDs; whether the API does is open {{gap:tag-group-in-policy-conditions}}."
     },
     {
       "label": "ZIA link and private cloud.",
@@ -736,6 +736,38 @@
           ]
         }
       ]
+    },
+    "tags-on-rules-and-segments-request": {
+      "statement": "Provider issue #696 asked for tags on `zpa_policy_access_rule_v2` and `zpa_application_segment`, which until then could only be applied with an API call after Terraform; it was closed as completed on 2026-10-22 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v4.4.15.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-696.json",
+          "quotes": [
+            "Currently there already exists support for creating tag namespaces, keys, and groups, but no way (at least from what I can find) to apply to IaC segments and policies without a post-tf API call.",
+            "- zpa_policy_access_rule_v2",
+            "- zpa_application_segment"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-696.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-22) Upgrade to v4.4.15. Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-696.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-22"
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -867,6 +899,15 @@
         "lab-test"
       ],
       "detail": "Unverified legacy statement: the legacy reference says setting default_action_value when default_action is not REDIRECT produces an API validation error. The doc and the provider code say only that the value is the redirect URL, and the provider sends it as given."
+    },
+    "tags-on-access-rules": {
+      "kind": "semantic",
+      "title": "Whether v4.4.15 added tags to access policy rules as well as application segments",
+      "status": "open",
+      "detail": "After #696 closed, its reporter asked whether tags were added to access policies too, seeing them documented only for application segments. The vendored provider is pinned at v4.4.14, before the release the reply names.",
+      "resolves_with": [
+        "source-read"
+      ]
     }
   },
   "divergences": {

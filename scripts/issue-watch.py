@@ -46,8 +46,9 @@ Authentication:
 Manual review workflow:
     1. Run script (or let CI run it).
     2. Open <runtime-data-mount>/logs/issues-new.md (local) or the sticky issue (CI).
-    3. For each surfaced issue: source-check it and add a claim, divergence or gap to the
-       subject it touches (docs/maintenance.md, Contributing), or skip if not behavioral.
+    3. For each surfaced issue that bears on documented behavior: capture it with
+       scripts/issue_capture.py and cite it from a claim or gap on the subject it touches
+       (docs/maintenance.md, Contributing); skip the rest.
     4. Comment on the sticky issue (if used) to record the triage decision.
 """
 
@@ -373,8 +374,9 @@ def render_digest(
         "Triage workflow:",
         "",
         "1. Each issue below is a candidate. Read the title; click through if it looks behavioral.",
-        "2. Issues that touch documented skill behavior → source-check, then add a claim, divergence "
-        "or gap to the subject (docs/maintenance.md, Contributing).",
+        "2. Issues that touch documented skill behavior → capture the issue "
+        "(`python3 scripts/issue_capture.py capture <url>`) and cite it from a claim or gap on the subject, "
+        "with a pointer to its state (docs/maintenance.md, Contributing).",
         "3. Issues that look like TF schema drift or SDK enum changes → re-run "
         "`scripts/find-asymmetries.py`.",
         "4. Issues that don't bear on the skill → skip.",

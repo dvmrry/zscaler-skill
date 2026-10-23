@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "Support Tag groups, namespaces, and keys in zpa_policy_access_rule_v2 and zpa_application_segment",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zpa/issues/696",
+    "repo": "zscaler/terraform-provider-zpa",
+    "number": 696,
+    "state": "closed",
+    "created_at": "2026-10-14",
+    "updated_at": "2026-10-22",
+    "labels": [
+      "type/enhancement"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-22",
+    "updated": "2026-10-22",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "Support Tag groups, namespaces, and keys in zpa_policy_access_rule_v2 and zpa_application_segment",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 1
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Description",
+      "level": 2
+    },
+    {
+      "text": "This feature would add support for the new Early Access ZPA Tags feature in tagging Access Policies (as targets) and Application Segments. Currently there already exists support for creating tag namespaces, keys, and groups, but no way (at least from what I can find) to apply to IaC segments and policies without a post-tf API call."
+    },
+    {
+      "text": "Happy to think about other spots where tags are as well, these are just the main two use cases my team has."
+    },
+    {
+      "heading": "New or Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "zpa_policy_access_rule_v2",
+      "depth": 0
+    },
+    {
+      "item": "zpa_application_segment",
+      "depth": 0
+    },
+    {
+      "heading": "Potential Terraform Configuration",
+      "level": 3
+    },
+    {
+      "text": "Sample Application Segment Potential Configuration"
+    },
+    {
+      "code": "resource \"zpa_application_segment\" \"this\" {\n  name              = \"Example\"\n  description       = \"Example\"\n  enabled           = true\n  health_reporting  = \"ON_ACCESS\"\n  bypass_type       = \"NEVER\"\n  is_cname_enabled  = true\n  tcp_port_range = [\n    {\n    from = \"8080\"\n    to = \"8080\"\n    }\n  ]\n  udp_port_range = [\n    {\n    from = \"8080\"\n    to = \"8080\"\n    }\n  ]\n  domain_names = [\"example.com\"]\n  tags = [\n    {\n      key = zpa_tag_key.this.id,\n      value = zpa_tag_key.this.values[\"example_value\"].id  # or something similar, assuming an output\n    }\n  ]\n}"
+    },
+    {
+      "text": "Sample Access Policy Potential Configuration"
+    },
+    {
+      "code": "resource \"zpa_segment_group\" \"this\" {\n   name = \"Example\"\n   description = \"Example\"\n   enabled = true\n }\n\n# Create Policy Access Rule V2\nresource \"zpa_policy_access_rule_v2\" \"this\" {\n  name          = \"Example\"\n  description   = \"Example\"\n  action        = \"ALLOW\"\n\n  conditions {\n    operands {\n      object_type = \"ENTITY_TAG_GRP\"\n      values      = [zpa_tag_group.this.id]\n    }\n  }\n}"
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "text": "N/A at this time."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-22)",
+      "level": 2
+    },
+    {
+      "text": "Upgrade to v4.4.15."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-10-22)",
+      "level": 2
+    },
+    {
+      "text": "> 7\\. Upgrade to v4.4.15. >         Zscaler DevRel"
+    },
+    {
+      "text": "Thank you so much @(user)!"
+    },
+    {
+      "heading": "Comment (NONE, 2026-10-22)",
+      "level": 2
+    },
+    {
+      "text": "@(user) was this added into Access Policies as well? I do see the docs for App segments, but not for access rules, i could just be blind though"
+    }
+  ]
+}

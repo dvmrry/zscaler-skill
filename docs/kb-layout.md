@@ -13,6 +13,7 @@ Read it through `node scripts/kb.mjs resolve`; the model is
 | `references/_meta/products.json` | product IDs, names and aliases | people |
 | `references/_meta/sources.json` | every citable source: submodules, help captures, static files, with rank | people |
 | `references/_meta/capture-manifest.json` | the hash of each cited capture | `kb.mjs manifest` |
+| `vendor/github-issues/` | captured vendor GitHub issues and pull requests, cited like help pages | `scripts/issue_capture.py` |
 | `references/_meta/static-captures.json` | captures that are not help articles (PDFs, notes) | people |
 | `references/_meta/verified.json` | per-source citation counts at the current pins | `kb.mjs verified` |
 | `references/_meta/types/` | tenant object types bound to zscalerctl and IaC | `kb.mjs import-types` |

@@ -48,6 +48,9 @@ Keep scratch output outside the checkout (`$TMP` below).
    every capture, rewrites the ones whose page revision moved, and reports them (exit 1 means drift). After a
    change to the renderer itself, use `help_capture.py rerender` instead: it re-renders captures still at
    their captured revision and reports any whose revision moved.
+1a. **Issues.** `python3 scripts/issue_capture.py check --replace --json > $TMP/issues.json` refetches the
+   captured GitHub issues; a changed state (an issue closed, a pull request merged) marks every line of it
+   changed, and `node scripts/kb-drift.mjs $TMP/issues.json` lists the claims citing it.
 2. **Spacing-only breaks.** `node scripts/kb.mjs requote --write` re-quotes every capture quote or `after`
    anchor that a re-render broke only by whitespace (one span equal to it up to spacing); without `--write`
    it lists them. A reworded or ambiguous quote is left for step 3.
@@ -196,6 +199,10 @@ resolve a capture commit that existed only on the discarded branch.
 - What a team has observed but no public source states (an incident finding, a support answer) is company
   knowledge: it goes in the overlay as a record ([`data-contract/knowledge.md`](data-contract/knowledge.md)),
   never into the public graph.
+- A vendor GitHub issue that bears on documented behavior (a known defect, a request answered with a
+  release) is captured with `python3 scripts/issue_capture.py capture <url>` and cited like a help page:
+  quote what it reports, and pin the state the claim rests on with a pointer to `/source` and `expect`
+  (`{"state": "open"}`). The weekly issue-watch digest lists the candidates; capture only what you cite.
 - Moving a claim between subjects renames it: use `node scripts/kb.mjs move-claim <from> <to> [--merge]`,
   which rewrites every reference.
 

@@ -733,14 +733,14 @@ export function updateManifest(g) {
     const doc = file.endsWith(".json") ? readJson(full) : null;
     const head = doc ? "" : fs.readFileSync(full, "utf8").slice(0, 600);
     const url =
-      (doc?.kind === "help-article" ? doc.source.url : null) ||
+      (doc?.kind === "help-article" || doc?.kind === "github-issue" ? doc.source.url : null) ||
       head.match(/^URL:\s*(\S+)/m)?.[1] ||
       head.match(/^\*{0,2}Source:\*{0,2}\s*(https?:\/\/\S+)/m)?.[1] ||
       prev?.captured_from ||
       null;
     if (prev?.sha256 === sha && prev.captured_from === url) continue;
     const captured =
-      (doc?.kind === "help-article" ? doc.captured_at : null) ||
+      (doc?.kind === "help-article" || doc?.kind === "github-issue" ? doc.captured_at : null) ||
       head.match(/Captured:\*{0,2}\s*(\d{4}-\d{2}-\d{2})/)?.[1] ||
       gitDate(g.root, file);
     // The material date survives a refresh; a first-seen date moves to today when the content changed.

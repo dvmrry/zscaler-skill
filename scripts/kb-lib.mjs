@@ -213,7 +213,7 @@ function anchorTextOf(text, ev) {
   if (text === null || ev.pointer !== undefined || !text.startsWith("{")) return text;
   let doc;
   try { doc = JSON.parse(text); } catch { return text; }
-  return doc?.kind === "help-article" || doc?.kind === "automate-doc" ? captureText(doc.blocks) : text;
+  return doc?.kind === "help-article" || doc?.kind === "automate-doc" || doc?.kind === "github-issue" ? captureText(doc.blocks) : text;
 }
 
 /** A help capture's anchoring text; must equal `text_of` in scripts/help_capture.py (a test pins the two). */
@@ -676,6 +676,7 @@ function checkProse(g, node, err, warnings) {
 }
 
 const HELP_ROOT = "vendor/zscaler-help";
+const ISSUE_ROOT = "vendor/github-issues";
 export const HELP_KINDS = new Set(["help-article", "help-api-spec", "help-index", "automate-doc"]);
 
 /** A help capture written by scripts/help_capture.py, or null for any other file. */
@@ -725,6 +726,19 @@ function checkCaptureInventory(g, err, warnings, cited) {
     // A replacement is a capture here, or another vendored file named by its repo path (an OpenAPI contract).
     const exists = r.replaced_by.startsWith("vendor/") ? fs.existsSync(path.join(g.root, r.replaced_by)) : seen.has(r.replaced_by);
     if (!exists) err(reg, `${name} is retired for ${r.replaced_by}, which does not exist`);
+  }
+  // Every file under vendor/github-issues is a capture scripts/issue_capture.py wrote, one per issue.
+  if (fs.existsSync(path.join(g.root, ISSUE_ROOT))) {
+    const byIssue = new Map();
+    for (const name of fs.readdirSync(path.join(g.root, ISSUE_ROOT))) {
+      const rel = `${ISSUE_ROOT}/${name}`;
+      let doc = null;
+      try { doc = JSON.parse(fs.readFileSync(path.join(g.root, rel), "utf8")); } catch { /* reported below */ }
+      if (doc?.kind !== "github-issue") { err(rel, "not written by scripts/issue_capture.py; capture the issue with the tool"); continue; }
+      const url = doc.source?.url;
+      if (byIssue.has(url)) err(rel, `captures the same issue as ${byIssue.get(url)} (${url}); keep one`);
+      else byIssue.set(url, name);
+    }
   }
   for (const file of cited) {
     const entry = listed[file.slice(HELP_ROOT.length + 1)];

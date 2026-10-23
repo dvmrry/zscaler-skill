@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // kb-drift.mjs — turn a help-capture drift report into the review a CI pull request needs.
 //
-// Input: the JSON that `python3 scripts/help_capture.py check --replace --json` prints, run after the
-// drifted captures were rewritten. For every evidence entry that cites a changed page it says which of
+// Input: the JSON that `python3 scripts/help_capture.py check --replace --json` (or issue_capture.py, whose
+// report names its source) prints, run after the drifted captures were rewritten. For every evidence entry that cites a changed page it says which of
 // three things is true, so a reviewer reads only what can have changed meaning:
 //   broken     the quote or pointer no longer anchors: run `kb.mjs requote --write` first, then re-anchor
 //              what is left by hand (docs/maintenance.md, "Knowledge-graph refresh loop")
@@ -94,7 +94,7 @@ export function driftReview(g, report) {
   const pages = new Map(report.pages.map((p) => [p.file, { ...p, evidence: [] }]));
   const cache = new Map();
   for (const { node, ev, where } of allEvidence(g)) {
-    if (ev.source !== "zscaler-help") continue;
+    if (ev.source !== (report.source || "zscaler-help")) continue;
     const page = pages.get(ev.path);
     if (!page) continue;
     const item = { subject: node.id, where };

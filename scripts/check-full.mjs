@@ -12,6 +12,7 @@ let runTemp = { env: {} };
 const referenceFreshnessBase = process.env.REFERENCE_FRESHNESS_BASE || "origin/main";
 const PYTEST_FILES = [
   "scripts/test_help_capture.py",
+  "scripts/test_issue_capture.py",
   "scripts/test_capture_paths.py",
   "scripts/test_automate_pages.py",
   "scripts/test_check_vendor_drift.py",
