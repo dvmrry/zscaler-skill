@@ -56,7 +56,11 @@ Keep scratch output outside the checkout (`$TMP` below).
    `in-change` (it still anchors, on or next to a changed line: read the change against the claim) and
    `untouched`. Gone and maintenance pages are listed with the claims that cite them.
 4. **Submodule bumps.** A pin bump re-anchors every quote into that submodule at the new pin; a quote that
-   breaks there is a real source change, never a spacing one, so it goes through review, not `requote`.
+   breaks there is a real source change, never a spacing one, so it goes through review, not `requote`. A
+   quote can also keep anchoring while the code beside it changes what the claim says (a field added to a
+   request body the claim says holds only three). `node scripts/kb-drift.mjs --pins <base-ref>` diffs every
+   moved pin and sorts the evidence citing changed files into the same `broken`, `in-change` and `untouched`;
+   read every `in-change` entry against its claim.
 5. **Generated layers.** `node scripts/gen-surfaces.mjs <product>` after a spec capture or an SDK or
    provider pin changes, and `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes;
    both take `--check`.
