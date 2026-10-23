@@ -48,7 +48,7 @@
     },
     {
       "label": "The request to AI Guard.",
-      "text": "{{scan-body}} The notes' account of the API's fields differs from the SDK {{divergence:api-fields}}."
+      "text": "{{scan-body}} {{user-identity}} The notes' account of the API's fields differs from the SDK {{divergence:api-fields}}."
     },
     {
       "label": "Verdicts and failures.",
@@ -123,7 +123,7 @@
       ]
     },
     "config-vars": {
-      "statement": "Flow variables set before the callout configure it: `aiguardCloud` (default `us1`) or a full-host `aiguardEndpoint`, `aiguardPolicyId` (else the KVM's `aiguard_policy_id`), `failOpen` (default false), `blockStatus` (default `native`), `appName` (default `Gateway`), `scanTools` (default true), `failClosedOnUnknown` (default false) and `forceAgentHarness` (default false).",
+      "statement": "Flow variables set before the callout configure it: `aiguardCloud` (default `us1`) or a full-host `aiguardEndpoint`, `aiguardPolicyId` (else the KVM's `aiguard_policy_id`), `failOpen` (default false), `blockStatus` (default `native`), `appName` (default `Gateway`), `scanTools` (default true), `failClosedOnUnknown` (default false) `forceAgentHarness` (default false) and `aiguardUser` (default empty).",
       "tier": "A",
       "evidence": [
         {
@@ -147,6 +147,13 @@
           "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/KVM-GetAIGuardConfig.xml",
           "quotes": [
             "<Key><Parameter>aiguard_policy_id</Parameter></Key>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "context.setVariable('aiguard.cfg.user', cfg('aiguardUser', ''));"
           ]
         }
       ]
@@ -630,6 +637,30 @@
           "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/RF-ConfigError.xml",
           "quotes": [
             "<StatusCode>500</StatusCode>"
+          ]
+        }
+      ]
+    },
+    "user-identity": {
+      "statement": "When `aiguardUser` is set, the scan body also carries it as `user`, so the detection is attributed to that person on the AI Guard dashboard; the flow's comments say the proxy should set it from the identity its own authentication established, such as a verified JWT claim, because a client-supplied header can name anyone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/build-aiguard-scan-body.js",
+          "quotes": [
+            "var user = context.getVariable('aiguard.cfg.user');",
+            "body.user = String(user);"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
+          "quotes": [
+            "Sent with the scan as `user`, so detections are attributed to a person on the",
+            "sets aiguardUser from the identity its own auth established, such as a",
+            "verified JWT claim. A client-supplied header is a weaker source, since a",
+            "caller can put any name in it."
           ]
         }
       ]

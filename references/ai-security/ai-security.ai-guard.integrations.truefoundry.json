@@ -33,7 +33,7 @@
     },
     {
       "label": "User attribution.",
-      "text": "{{user-forwarding}} {{identity-logged}} The SDK parameter it relies on is [[ai-security.ai-guard.runtime-api:resolve-user-headers]]."
+      "text": "{{user-forwarding}} {{conversation-id}} {{identity-logged}} The SDK parameter it relies on is [[ai-security.ai-guard.runtime-api:resolve-user-headers]]."
     }
   ],
   "checks": [
@@ -53,7 +53,7 @@
   ],
   "claims": {
     "endpoints": {
-      "statement": "The server exposes `POST /input-scan`, which scans the last user message (text parts joined) with direction IN, `POST /output-scan`, which scans the first choice's message content with direction OUT, and `GET /health`; each scan uses the SDK's `LegacyZGuardClientHelper` `resolve_and_execute_policy` with a fresh uuid4 transaction ID and the cloud from `AIGUARD_CLOUD` (default us1).",
+      "statement": "The server exposes `POST /input-scan`, which scans the last user message with direction IN, `POST /output-scan`, which scans the assistant's reply with direction OUT, and `GET /health`. It reads both OpenAI request shapes: Chat Completions (`messages`, text parts; the first choice's message content) and Responses (`input`, `input_text` parts; the `output` item of type message and role assistant, `output_text` parts). Each scan uses the SDK's `LegacyZGuardClientHelper` `resolve_and_execute_policy` with a fresh uuid4 transaction ID and the cloud from `AIGUARD_CLOUD` (default us1).",
       "tier": "A",
       "evidence": [
         {
@@ -63,8 +63,8 @@
             "@app.post(\"/input-scan\")",
             "@app.post(\"/output-scan\")",
             "@app.get(\"/health\")",
-            "result = _scan(content, \"IN\", txn_id, user=_extract_user(request.context))",
-            "result = _scan(content, \"OUT\", txn_id, user=_extract_user(request.context))",
+            "result = _scan( content, \"IN\", txn_id, user=_extract_user(request.context),",
+            "result = _scan( content, \"OUT\", txn_id, user=_extract_user(request.context),",
             "return choices[0].get(\"message\", {}).get(\"content\", \"\")",
             "CLOUD = os.environ.get(\"AIGUARD_CLOUD\", \"us1\")"
           ]
@@ -99,6 +99,17 @@
             "txn_id = str(uuid.uuid4())"
           ],
           "after": "def output_scan(request: OutputGuardrailRequest):"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "turns = request_body[\"input\"]",
+            "text_part_type = \"input_text\"",
+            "turns = request_body[\"messages\"]",
+            "if item.get(\"type\") == \"message\" and item.get(\"role\") == \"assistant\":",
+            "if isinstance(p, dict) and p.get(\"type\") == \"output_text\""
+          ]
         }
       ]
     },
@@ -175,8 +186,8 @@
           "source": "zguard-integrations",
           "path": "TrueFoundry/examples/main.py",
           "quotes": [
-            "result = _scan(content, \"IN\", txn_id, user=_extract_user(request.context))",
-            "result = _scan(content, \"OUT\", txn_id, user=_extract_user(request.context))"
+            "result = _scan( content, \"IN\", txn_id, user=_extract_user(request.context),",
+            "result = _scan( content, \"OUT\", txn_id, user=_extract_user(request.context),"
           ]
         }
       ]
@@ -191,7 +202,7 @@
       "conditions": "Rests on FastAPI answering an unhandled exception with HTTP 500 and on the server's own note about how TrueFoundry treats non-2xx responses; TrueFoundry's documentation is not a registered source."
     },
     "user-forwarding": {
-      "statement": "The server passes an end-user identity as `user` to `resolve_and_execute_policy`, taking the first non-empty of the TrueFoundry context's `user.email`, `metadata.user_email`, `user.subjectSlug`, `user.userName`, `user.metadata.displayName`, `user.subjectDisplayName` and `user.subjectId`, and requires `zscaler-sdk-python>=1.10.0`.",
+      "statement": "The server passes an end-user identity as `user` to `resolve_and_execute_policy`, taking the first non-empty of the TrueFoundry context's `user.email`, `metadata.user_email`, `user.subjectSlug`, `user.userName`, `user.metadata.displayName`, `user.subjectDisplayName` and `user.subjectId`, and requires `zscaler-sdk-python>=1.11.0`.",
       "tier": "A",
       "evidence": [
         {
@@ -208,15 +219,16 @@
             "user=user,",
             "for source, value in candidates:",
             "return value",
-            "def _scan(content: str, direction: str, transaction_id: str, user: Optional[str] = None):",
-            "result = _scan(content, \"IN\", txn_id, user=_extract_user(request.context))"
-          ]
+            "def _scan( content: str, direction: str, transaction_id: str, user: Optional[str] = None,",
+            "result = _scan( content, \"IN\", txn_id, user=_extract_user(request.context),"
+          ],
+          "after": "def _extract_user("
         },
         {
           "source": "zguard-integrations",
           "path": "TrueFoundry/examples/requirements.txt",
           "quotes": [
-            "zscaler-sdk-python>=1.10.0"
+            "zscaler-sdk-python>=1.11.0"
           ]
         },
         {
@@ -242,6 +254,25 @@
             "# Log every candidate, not just the winner",
             "A human subject (``subjectType: \"user\"``)\n    carries ``email``, and its ``subjectSlug`` is that same email.",
             "# A human subject carries its email directly."
+          ]
+        }
+      ]
+    },
+    "conversation-id": {
+      "statement": "Each scan also forwards a conversation ID as a request header, `AIGUARD_CONVERSATION_ID_HEADER` (default `X-Conversation-Id`), when the TrueFoundry context carries one: the key named by `AIGUARD_CONVERSATION_ID_METADATA_KEY`, then `conversation_id`, `chat_id` and `session_id`, in request metadata before the user's metadata. The code's comment says AI Guard records it only if the tenant lists that header in `headerNames` and names it in `conversationIdHeaderName`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zguard-integrations",
+          "path": "TrueFoundry/examples/main.py",
+          "quotes": [
+            "CONVERSATION_ID_HEADER = os.environ.get(\"AIGUARD_CONVERSATION_ID_HEADER\", \"X-Conversation-Id\")",
+            "CONVERSATION_ID_METADATA_KEY = os.environ.get(\"AIGUARD_CONVERSATION_ID_METADATA_KEY\", \"\")",
+            "CONVERSATION_ID_METADATA_FALLBACKS = (\"conversation_id\", \"chat_id\", \"session_id\")",
+            "# The conversation ID travels as a custom request header. AI Guard only records it # if the tenant lists this header in `headerNames` and names it in # `conversationIdHeaderName`, so the name has to match that tenant's config.",
+            "candidates = [(f\"metadata.{k}\", request_metadata.get(k)) for k in keys]",
+            "candidates += [(f\"user.metadata.{k}\", subject_metadata.get(k)) for k in keys]",
+            "headers = {CONVERSATION_ID_HEADER: conversation_id} if conversation_id else None"
           ]
         }
       ]

@@ -287,7 +287,7 @@
       ]
     },
     "scan-body": {
-      "statement": "The scan request body holds only `content`, `direction` and, when a policy ID is set in the KVM, `policyId`; the session ID the script reads from `X-Session-ID` is stored in a flow variable and not sent.",
+      "statement": "The scan request body holds `content`, `direction`, `policyId` when a policy ID is set in the KVM, and `user` when the `aiguardUser` flow variable is set (on both the prompt and the response scan); the session ID the script reads from `X-Session-ID` is stored in a flow variable and not sent.",
       "tier": "A",
       "evidence": [
         {
@@ -315,6 +315,22 @@
           "path": "Google/apigee/apiproxy/policies/AM-AIGuardRequest.xml",
           "quotes": [
             "<Payload contentType=\"application/json\">{aiguard.request.payload}</Payload>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
+          "quotes": [
+            "var user = context.getVariable('aiguardUser') || '';",
+            "payload.user = String(user);"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/resources/jsc/scan-response.js",
+          "quotes": [
+            "var user = context.getVariable('aiguardUser') || '';",
+            "payload.user = String(user);"
           ]
         }
       ]
