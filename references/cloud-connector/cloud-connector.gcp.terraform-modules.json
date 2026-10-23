@@ -325,7 +325,7 @@
       ]
     },
     "ilb-userdata-defect-code": {
-      "statement": "In `base_cc_ilb` and `cc_ilb`, the default (Secret Manager) user data puts `\"gcp_service_account\": ...` with no trailing comma directly before `\"fips_enabled\": ...,`, which itself ends with a comma before the closing brace.",
+      "statement": "In `base_cc_ilb` and `cc_ilb`, the default (Secret Manager) user data at the earlier pin put `\"gcp_service_account\": ...` with no trailing comma directly before `\"fips_enabled\": ...,`, which itself ended with a comma before the closing brace; at the current pin `fips_enabled` comes before `gcp_service_account` in both, so the last entry carries no comma.",
       "tier": "A",
       "evidence": [
         {
@@ -335,6 +335,9 @@
             "# Populate potential local map with default GCP Secret Manager",
             "\"secret_name\": \"${var.secret_name}\"",
             "\"gcp_service_account\": \"${module.iam_service_account.service_account}\" \"fips_enabled\": \"${var.fips_enabled}\", } USERDATA"
+          ],
+          "at": [
+            "e54dbcac71c0779a49999cd11c279ee78ba31c97"
           ]
         },
         {
@@ -344,12 +347,33 @@
             "# Populate potential local map with default GCP Secret Manager",
             "\"secret_name\": \"${var.secret_name}\"",
             "\"gcp_service_account\": \"${module.iam_service_account.service_account}\" \"fips_enabled\": \"${var.fips_enabled}\", } USERDATA"
+          ],
+          "at": [
+            "e54dbcac71c0779a49999cd11c279ee78ba31c97"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/base_cc_ilb/main.tf",
+          "after": "# Populate potential local map with default GCP Secret Manager",
+          "quotes": [
+            "\"fips_enabled\": \"${var.fips_enabled}\",",
+            "\"gcp_service_account\": \"${module.iam_service_account.service_account}\" } USERDATA"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "examples/cc_ilb/main.tf",
+          "after": "# Populate potential local map with default GCP Secret Manager",
+          "quotes": [
+            "\"fips_enabled\": \"${var.fips_enabled}\",",
+            "\"gcp_service_account\": \"${module.iam_service_account.service_account}\" } USERDATA"
           ]
         }
       ]
     },
     "ilb-userdata-invalid": {
-      "statement": "With the default `hcp_vault_enabled = false`, those two roots therefore render user data that is not valid JSON (a missing comma and a trailing comma), and `terraform validate` does not parse heredoc content, so it does not catch it. This is an example defect, not a service FIPS or JSON behavior.",
+      "statement": "With the default `hcp_vault_enabled = false`, those two roots therefore rendered user data that was not valid JSON (a missing comma and a trailing comma) at the earlier pin, and `terraform validate` does not parse heredoc content, so it did not catch it. This was an example defect, not a service FIPS or JSON behavior.",
       "tier": "B",
       "conditions": "JSON grammar applied to the quoted heredoc; Terraform's treatment of heredocs as opaque strings is not quoted from a registered source.",
       "derived_from": [

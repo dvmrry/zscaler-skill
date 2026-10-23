@@ -85,12 +85,11 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
 
 - Renovate watches git submodules, normally groups them as `Zscaler upstream
   submodules`, labels the PR `upstream-bump`, and runs before 9am UTC Monday.
-  Four compatibility-sensitive roots — the AWS, Azure, and GCP Cloud Connector
-  modules plus `terraform-provider-zia` — are excluded from that group and
-  require Dependency Dashboard approval before Renovate opens separate PRs.
-  Approve a Cloud Connector module only after checking its Terraform syntax
-  against the documented floor; approve the ZIA provider only at an exact
-  released tag.
+  `terraform-provider-zia` is excluded from that group and needs Dependency
+  Dashboard approval before Renovate opens its own PR: approve it only at an
+  exact released tag, so claims cite a version that shipped. Nothing here runs
+  the vendored modules or providers; a bump of any of them is reviewed with
+  `node scripts/kb-drift.mjs --pins <base-ref>` like any other source.
 - A bump PR that changes `vendor/**` or `.gitmodules` triggers the hygiene
   workflow. The non-advisory hygiene checks fail the job on real errors; vendor
   family coverage and vendor drift are advisory so expected upstream movement is

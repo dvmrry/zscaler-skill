@@ -166,16 +166,17 @@
       ]
     },
     "module-instance-types": {
-      "statement": "The reference CCVM module defaults `ccvm_instance_type` to m6i.large and its validation accepts only t3.medium, m5n.large, c5a.large, m6i.large, c6i.large, c6in.large, m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
+      "statement": "The reference CCVM module defaults `ccvm_instance_type` to m6i.large and its validation accepts only t3.medium, m5n.large, c5a.large, m6i.large, c6i.large, c6in.large, m7i.large, m7i-flex.large, m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
       "tier": "A",
       "evidence": [
         {
           "source": "tfmod-aws-cloud-connector",
           "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
           "quotes": [
-            "default = \"m6i.large\"",
+            "default     = \"m6i.large\"",
             "var.ccvm_instance_type == \"t3.medium\" || var.ccvm_instance_type == \"m5n.large\" || var.ccvm_instance_type == \"c5a.large\" || var.ccvm_instance_type == \"m6i.large\" || var.ccvm_instance_type == \"c6i.large\" ||",
-            "var.ccvm_instance_type == \"c6in.large\" || var.ccvm_instance_type == \"m5n.4xlarge\" || var.ccvm_instance_type == \"m6i.4xlarge\" || var.ccvm_instance_type == \"c6i.4xlarge\" || var.ccvm_instance_type == \"c6in.4xlarge\"",
+            "var.ccvm_instance_type == \"c6in.large\" || var.ccvm_instance_type == \"m7i.large\" || var.ccvm_instance_type == \"m7i-flex.large\" || var.ccvm_instance_type == \"m5n.4xlarge\"",
+            "var.ccvm_instance_type == \"m6i.4xlarge\" || var.ccvm_instance_type == \"c6i.4xlarge\" || var.ccvm_instance_type == \"c6in.4xlarge\"",
             "Input ccvm_instance_type must be set to an approved vm instance type."
           ]
         }
@@ -263,7 +264,7 @@
   },
   "divergences": {
     "small-instance-list": {
-      "summary": "Which EC2 types a Small Cloud Connector may use: the deployment guide lists four, the reference Terraform module accepts ten.",
+      "summary": "Which EC2 types a Small Cloud Connector may use: the deployment guide lists four, the reference Terraform module accepts twelve and the CloudFormation templates ten.",
       "positions": [
         {
           "says": "Small VMs require m5n.large, c5a.large, m6i.large or c6i.large.",
@@ -276,17 +277,17 @@
           }
         },
         {
-          "says": "The small size also accepts t3.medium, c6in.large and the 4xlarge types m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
+          "says": "The small size also accepts t3.medium, c6in.large, m7i.large, m7i-flex.large and the 4xlarge types m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
           "evidence": {
             "source": "tfmod-aws-cloud-connector",
             "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
             "quotes": [
-              "small_cc_instance = [\"t3.medium\", \"m5n.large\", \"c5a.large\", \"m6i.large\", \"c6i.large\", \"c6in.large\", \"m5n.4xlarge\", \"m6i.4xlarge\", \"c6i.4xlarge\", \"c6in.4xlarge\"]"
+              "small_cc_instance  = [\"t3.medium\", \"m5n.large\", \"c5a.large\", \"m6i.large\", \"c6i.large\", \"c6in.large\", \"m7i.large\", \"m7i-flex.large\", \"m5n.4xlarge\", \"m6i.4xlarge\", \"c6i.4xlarge\", \"c6in.4xlarge\"]"
             ]
           }
         },
         {
-          "says": "The CloudFormation templates accept the same ten types as the Terraform module, including t3.medium and c6in.large.",
+          "says": "The CloudFormation templates accept ten types, including t3.medium and c6in.large but not the m7i types.",
           "evidence": {
             "source": "cft-aws-cloud-connector",
             "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
@@ -297,7 +298,7 @@
           }
         }
       ],
-      "impact": "A module deployment can pass validation on a type the guide does not list (t3.medium, c6in.large), and the guide says Zscaler cannot guarantee unsupported instances work."
+      "impact": "A module deployment can pass validation on a type the guide does not list (t3.medium, c6in.large, the m7i types), and the guide says Zscaler cannot guarantee unsupported instances work."
     }
   }
 }

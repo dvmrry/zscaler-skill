@@ -97,6 +97,10 @@
     },
     {
       "text": "{{legacy-vm-nva-tag}} {{legacy-vm-nva-help}}"
+    },
+    {
+      "label": "Bastion public IP.",
+      "text": "{{bastion-ip-standard-sku}}"
     }
   ],
   "checks": [
@@ -637,6 +641,20 @@
           "quotes": [
             "to deploy your Cloud Connector in a new or existing VNet and load balance traffic across multiple Cloud Connectors.",
             "Optional Azure Private DNS Resolver resource creation per variable zpa_enabled."
+          ]
+        }
+      ]
+    },
+    "bastion-ip-standard-sku": {
+      "statement": "The bastion module's public IP is `Static` with `sku` set to `Standard`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-bastion-azure/main.tf",
+          "quotes": [
+            "name                    = \"${var.name_prefix}-bastion-public-ip-${var.resource_tag}\"",
+            "allocation_method       = \"Static\" sku                     = \"Standard\""
           ]
         }
       ]
