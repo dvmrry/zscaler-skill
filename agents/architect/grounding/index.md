@@ -13,7 +13,7 @@ sources:
   - "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-areas"
   - "https://cloud.google.com/architecture/framework"
   - "kb:shared.cloud-architecture"
-  - "references/_meta/primer/networking-basics.md"
+  - "docs/primer/networking-basics.md"
   - "kb:cloud-connector.overview"
   - "kb:cloud-connector.aws"
   - "kb:cloud-connector.azure"
@@ -59,7 +59,7 @@ When instructions are ambiguous, bias toward:
 ## Always load for architecture review
 
 - [`shared.cloud-architecture`](kb:shared.cloud-architecture) - shared cloud placement and dependency concepts
-- [`references/_meta/primer/networking-basics.md`](../../../references/_meta/primer/networking-basics.md) - routing, DNS, private connectivity, and load-balancing vocabulary
+- [`docs/primer/networking-basics.md`](../../../docs/primer/networking-basics.md) - routing, DNS, private connectivity, and load-balancing vocabulary
 
 ## Load when scope names Cloud Connector
 

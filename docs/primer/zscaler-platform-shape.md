@@ -198,7 +198,7 @@ For depth on any single product, descend into its `references/<product>/` direct
 ## Cross-links
 
 - Single-page portfolio index: [`portfolio.overview`](kb:portfolio.overview)
-- Routing for any question: [`../../../SKILL.md`](../../../SKILL.md)
+- Routing for any question: [`../../../SKILL.md`](../../SKILL.md)
 - Cross-product integration catalog: [`shared.integrations`](kb:shared.integrations)
 - Cloud architecture detail: [`shared.cloud-architecture`](kb:shared.cloud-architecture)
 - Other primers in this directory:

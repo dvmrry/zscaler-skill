@@ -259,17 +259,19 @@
 
   const candidates = [];
   let displayPath;
+  // The primer moved from references/_meta/primer/ to docs/primer/; its old source URLs still resolve.
+  const fileOf = (p) => (p.startsWith('_meta/primer') ? `docs/${p.slice('_meta/'.length)}` : `references/${p}`);
 
   if (!rawParam) {
-    candidates.push(`${RAW}/references/_meta/primer/index.md`);
-    displayPath = 'references/_meta/primer/index.md';
+    candidates.push(`${RAW}/docs/primer/index.md`);
+    displayPath = 'docs/primer/index.md';
   } else if (rawParam.endsWith('.md')) {
-    candidates.push(`${RAW}/references/${rawParam}`);
-    displayPath = `references/${rawParam}`;
+    candidates.push(`${RAW}/${fileOf(rawParam)}`);
+    displayPath = fileOf(rawParam);
   } else {
-    candidates.push(`${RAW}/references/${rawParam}.md`);
-    candidates.push(`${RAW}/references/${rawParam}/index.md`);
-    displayPath = `references/${rawParam}.md`;
+    candidates.push(`${RAW}/${fileOf(rawParam)}.md`);
+    candidates.push(`${RAW}/${fileOf(rawParam)}/index.md`);
+    displayPath = `${fileOf(rawParam)}.md`;
   }
 
   document.getElementById('banner-path').textContent = displayPath;

@@ -52,7 +52,7 @@ Failure on any of those four → eval fails.
 When a reference doc is materially updated, the corresponding eval (if one exists) should be re-run to confirm behavior didn't drift. New high-confidence ref content without a matching eval is a coverage gap — see `IMPROVEMENTS.md` "Eval coverage as a freshness signal."
 
 The auditor has an additional diff-readiness regression contract in
-[`auditor-diff-readiness.json`](./auditor-diff-readiness.json). Its inert
+[`auditor-diff-readiness.json`](../references/_meta/evals/auditor-diff-readiness.json). Its inert
 candidate/remediation pairs capture release-workflow and provenance-parser
 failure modes from PR #214. `scripts/auditor-diff-readiness-evals.test.mjs`
 guards the fixture contract in CI, while
@@ -67,7 +67,7 @@ See `evals.json` § `schema_notes` for field-level documentation.
 
 ## Cross-links
 
-- [`scripts/run-evals.py`](../../../scripts/run-evals.py) — the runner
-- [`scripts/check-hygiene.py`](../../../scripts/check-hygiene.py) — validates `must_cite_files` paths
-- [`scripts/auditor-diff-readiness-evals.test.mjs`](../../../scripts/auditor-diff-readiness-evals.test.mjs) — validates the auditor diff fixture contract
-- [`../../../IMPROVEMENTS.md`](../../../IMPROVEMENTS.md) — eval-coverage and runner improvements
+- [`scripts/run-evals.py`](../scripts/run-evals.py) — the runner
+- [`scripts/check-hygiene.py`](../scripts/check-hygiene.py) — validates `must_cite_files` paths
+- [`scripts/auditor-diff-readiness-evals.test.mjs`](../scripts/auditor-diff-readiness-evals.test.mjs) — validates the auditor diff fixture contract
+- [`../../../IMPROVEMENTS.md`](../IMPROVEMENTS.md) — eval-coverage and runner improvements
