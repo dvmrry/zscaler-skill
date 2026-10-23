@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.shared-objects",
+  "title": "Objects ZIA and Cloud & Branch Connector share: IP groups and network services",
+  "aliases": [
+    "shared objects",
+    "zia and ztc shared objects",
+    "ip source groups shared with zia",
+    "backfill from zia",
+    "creatorContext",
+    "objects created in zia appear in cloud connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.source-ip-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.locations-wire"
+    }
+  ],
+  "binds": [
+    "ztw/ip-source-groups",
+    "zia/ip-source-groups",
+    "ztw/ip-destination-groups",
+    "zia/ip-destination-groups",
+    "ztw/network-services",
+    "zia/network-services",
+    "ztw/network-service-groups",
+    "zia/network-service-groups",
+    "ztw/ip-groups"
+  ],
+  "prose": [
+    {
+      "text": "Some Cloud & Branch Connector objects are not separate from ZIA's. {{creator-context}} {{zia-created-listed}}"
+    },
+    {
+      "label": "Which pairs.",
+      "text": "The marker sits on the four kinds that have a ZIA counterpart of the same name, plus IP pool groups, which have none: {{twin-types}} Whether a pair is one record seen from both products, so that an edit or delete in one shows in the other, is open {{gap:same-record}}. Writing a ZIA-origin group through the Cloud Connector API is in [[cloud-connector.source-ip-groups:zia-origin-editability]]."
+    },
+    {
+      "label": "Pairs without the marker.",
+      "text": "Locations and workload groups also exist in both products under the same names, but nothing public marks them as shared {{gap:unmarked-twins}}."
+    }
+  ],
+  "claims": {
+    "creator-context": {
+      "statement": "The Cloud & Branch Connector API gives source IP groups, destination IP groups, IP pool groups, network services and network service groups a `creatorContext` of ZIA or EC: the product the object was created in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipSourceGroups/post/requestBody/content/application~1json/schema/properties/creatorContext",
+          "expect": {
+            "enum": [
+              "ZIA",
+              "EC"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipDestinationGroups/post/requestBody/content/application~1json/schema/properties/creatorContext",
+          "expect": {
+            "enum": [
+              "ZIA",
+              "EC"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1ipGroups/post/requestBody/content/application~1json/schema/properties/creatorContext",
+          "expect": {
+            "enum": [
+              "ZIA",
+              "EC"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1networkServices/post/requestBody/content/application~1json/schema/properties/creatorContext",
+          "expect": {
+            "enum": [
+              "ZIA",
+              "EC"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths/~1networkServiceGroups/post/requestBody/content/application~1json/schema/properties/creatorContext",
+          "expect": {
+            "enum": [
+              "ZIA",
+              "EC"
+            ]
+          }
+        }
+      ]
+    },
+    "zia-created-listed": {
+      "statement": "So the Cloud & Branch Connector lists of those objects can hold objects created in ZIA, not only its own.",
+      "tier": "B",
+      "conditions": "A ZIA value in creatorContext is meaningful only for an object created in ZIA that the Cloud & Branch Connector API returns; no source states the sync directly.",
+      "derived_from": [
+        "creator-context"
+      ]
+    },
+    "twin-types": {
+      "statement": "Source IP groups, destination IP groups, network services and network service groups are object types of both the ZIA and the Cloud & Branch Connector APIs.",
+      "tier": "B",
+      "conditions": "Read from the zscalerctl catalogue, which has both types of each name, and the creatorContext marker; the field-for-field match of each pair is not checked.",
+      "binds": [
+        "ztw/ip-source-groups",
+        "zia/ip-source-groups",
+        "ztw/ip-destination-groups",
+        "zia/ip-destination-groups",
+        "ztw/network-services",
+        "zia/network-services",
+        "ztw/network-service-groups",
+        "zia/network-service-groups"
+      ],
+      "derived_from": [
+        "creator-context"
+      ]
+    }
+  },
+  "gaps": {
+    "same-record": {
+      "kind": "semantic",
+      "title": "Whether a shared pair is one record in both products",
+      "status": "open",
+      "about": [
+        "ztw/ip-source-groups",
+        "zia/ip-source-groups",
+        "ztw/ip-destination-groups",
+        "zia/ip-destination-groups",
+        "ztw/network-services",
+        "zia/network-services",
+        "ztw/network-service-groups",
+        "zia/network-service-groups"
+      ],
+      "detail": "Whether a ZIA-created group has the same ID in both APIs, and whether an edit or delete in one product shows in the other, is not stated by any captured source.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    },
+    "unmarked-twins": {
+      "kind": "semantic",
+      "title": "Whether locations and workload groups are shared between ZIA and Cloud & Branch Connector",
+      "status": "open",
+      "about": [
+        "ztw/locations",
+        "zia/locations",
+        "ztw/workload-groups",
+        "zia/workload-groups"
+      ],
+      "detail": "Both products have locations and workload groups, and the Cloud & Branch Connector contract gives them no creatorContext; whether an object created in one appears in the other is not stated by any captured source.",
+      "resolves_with": [
+        "lab-test",
+        "operator-experience"
+      ]
+    }
+  }
+}
