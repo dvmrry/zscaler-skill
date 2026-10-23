@@ -28,6 +28,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.gwlb"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -57,6 +61,10 @@
     {
       "label": "Seeing it in the Admin Console.",
       "text": "{{console-mapping}}"
+    },
+    {
+      "label": "CloudFormation template.",
+      "text": "{{cfn-asg-sizes}} {{cfn-zonal-default}} {{cfn-group-sizing}} The Terraform module defaults the other way {{divergence:zonal-template-default}}. The template files and parameters are in [[cloud-connector.aws.cloudformation]]."
     }
   ],
   "checks": [
@@ -86,6 +94,14 @@
       "do": "Whether the Cloud Connector group shows Auto Scaling true in the Admin Console and its VMs match the group's instance IDs.",
       "uses": [
         "console-mapping"
+      ]
+    },
+    {
+      "do": "Whether the stack came from CloudFormation or Terraform before reading min and max as per-zone or per-deployment capacity.",
+      "uses": [
+        "cfn-zonal-default",
+        "cfn-group-sizing",
+        "zonal-template-default"
       ]
     }
   ],
@@ -362,6 +378,54 @@
           ]
         }
       ]
+    },
+    "cfn-asg-sizes": {
+      "statement": "The CloudFormation autoscaling template defaults AsgMinSize to 2 and AsgMaxSize to 4, limits both to 1 through 10, and defaults the CPU target tracking value to 80 on smedge_cpu_utilization in the Zscaler/CloudConnectors namespace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "AsgMinSize: Type: Number MinValue: 1 MaxValue: 10",
+            "Minimum number of Cloud Connectors to maintain in Autoscaling group Default: 2",
+            "AsgMaxSize: Type: Number MinValue: 1 MaxValue: 10",
+            "Maximum number of Cloud Connectors to maintain in Autoscaling group Default: 4",
+            "at/under this number Default: 80",
+            "MetricName: 'smedge_cpu_utilization' Namespace: 'Zscaler/CloudConnectors'"
+          ]
+        }
+      ]
+    },
+    "cfn-zonal-default": {
+      "statement": "The CloudFormation autoscaling template creates one Auto Scaling group per availability zone by default (AsgZonalEnabled true), and a single group spanning all selected zones when it is false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "AsgZonalEnabled: Type: String Description: \"Select \\\"true\\\" to create one ASG per AZ (default), else \\\"false\\\" to create a single ASG spanning all selected AZs\" Default: true"
+          ]
+        }
+      ]
+    },
+    "cfn-group-sizing": {
+      "statement": "The macro copies the autoscaling group, its scaling policy and its warm pool once per availability zone, giving each group the subnets of its zone, or creates one group over all Cloud Connector subnets when AsgZonalEnabled is false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "asg_resource = copy.deepcopy(CcAutoScalingGroupTemplate) asg_policy_resource = copy.deepcopy(CcAsgAutoScalingPolicyTemplate)",
+            "asg_resource[\"Properties\"][\"VPCZoneIdentifier\"] = list(set(subnets))",
+            "subnetsForAz = {'AllAZs': uniqueCcSubnetIds} else: # One ASG per AZ subnetsForAz = subnetsByAz",
+            "asg_warmpool_resource = copy.deepcopy(CcAsgWarmPoolTemplate)",
+            "if parameters.get(\"AsgZonalEnabled\") == \"false\": # One ASG for all AZs subnetsForAz = {'AllAZs': uniqueCcSubnetIds}"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -387,9 +451,45 @@
               "#Restrict cloudwatch metrics posting only to fixed Zscaler/CloudConnectors namespace"
             ]
           }
+        },
+        {
+          "says": "The CloudFormation scaling policy reads the metric smedge_cpu_utilization in the namespace Zscaler/CloudConnectors.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+            "quotes": [
+              "MetricName: 'smedge_cpu_utilization' Namespace: 'Zscaler/CloudConnectors'"
+            ]
+          }
         }
       ],
       "impact": "A CloudWatch query, alarm or IAM condition written from the Help spelling would not match the namespace the working reference deployment uses; the module's spelling is the one its policy and IAM depend on."
+    },
+    "zonal-template-default": {
+      "summary": "Whether autoscaling creates one group per availability zone by default: the CloudFormation template does, the reference Terraform module creates a single group.",
+      "positions": [
+        {
+          "says": "The reference ASG module creates one group spanning all subnets by default.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-asg-aws/variables.tf",
+            "quotes": [
+              "By default, Terraform will create a single Auto Scaling Group containing multiple subnets/availability zones. Set to true if you would rather create one Auto Scaling Group per subnet/availability zone (var.az_count)\" default = false"
+            ]
+          }
+        },
+        {
+          "says": "The CloudFormation template creates one group per availability zone by default.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+            "quotes": [
+              "AsgZonalEnabled: Type: String Description: \"Select \\\"true\\\" to create one ASG per AZ (default), else \\\"false\\\" to create a single ASG spanning all selected AZs\" Default: true"
+            ]
+          }
+        }
+      ],
+      "impact": "Because each per-zone group is a copy of the same definition, the minimum and maximum size are likely per-zone in a default CloudFormation stack and whole-deployment in a default Terraform one; read the group count before sizing."
     }
   },
   "gaps": {
@@ -397,7 +497,7 @@
       "kind": "semantic",
       "title": "Whether the 16-per-group limit applies to AWS groups and how it is enforced",
       "status": "open",
-      "detail": "GCP autoscaling Help says an instance group's maximum cannot exceed the Cloud Connector group limit of 16 VMs per group (held as cloud-connector.gcp.mig-autoscaling:help-group-size), and the AWS ASG module's validation error calls 16 a hard limit per group, while the AWS examples and zsec stop at 10. No AWS source states the limit, and no source shows how the service enforces it; the enforcement question is shared with cloud-connector.gcp.mig-autoscaling:group-limit-enforcement. Separately, Help says Private Access enrollment fails beyond 100 Cloud Connectors in a group in the same VPC or availability zone. Unverified legacy statement: the 1 to 10 wrapper and helper checks are tooling behavior, not an independent Cloud Connector runtime limit.",
+      "detail": "GCP autoscaling Help says an instance group's maximum cannot exceed the Cloud Connector group limit of 16 VMs per group (held as cloud-connector.gcp.mig-autoscaling:help-group-size), and the AWS ASG module's validation error calls 16 a hard limit per group, while the AWS examples and zsec stop at 10. No AWS source states the limit, and no source shows how the service enforces it; the enforcement question is shared with cloud-connector.gcp.mig-autoscaling:group-limit-enforcement. Separately, Help says Private Access enrollment fails beyond 100 Cloud Connectors in a group in the same VPC or availability zone. Unverified legacy statement: the 1 to 10 wrapper and helper checks are tooling behavior, not an independent Cloud Connector runtime limit. The CloudFormation autoscaling template also limits AsgMinSize and AsgMaxSize to 1 through 10 without stating a service limit.",
       "blocks": "sizing an autoscaling group above 10 Cloud Connectors",
       "resolves_with": [
         "source-read",

@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.privileged-desktops",
+  "title": "PRA Privileged Desktops: AWS IAM policy and cross-account role templates",
+  "aliases": [
+    "privileged desktops",
+    "pra privileged desktop",
+    "zpa-privileged-desktops",
+    "DJB-Cross-Account-Role",
+    "disposable jump box",
+    "ZPA-PRA-Cross-Account-Policy",
+    "pra aws cloudformation",
+    "pra cross account role"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "zpa.pra"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.credentials"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Privileged Desktops is a PRA feature whose AWS side is prepared with two CloudFormation templates from the zscaler/zpa-privileged-desktops repository. The user-facing feature is not described by a captured help page {{gap:desktop-feature}}; see [[zpa.pra]] for PRA itself."
+    },
+    {
+      "label": "Purpose.",
+      "text": "{{repo-purpose}} {{two-steps}} {{policy-purpose}}"
+    },
+    {
+      "label": "Step 1, the policy.",
+      "text": "{{policy-parameters}} {{network-scope}} {{instance-scope}} {{untagged-scope}}"
+    },
+    {
+      "label": "Step 2, the role.",
+      "text": "{{role-parameters}} {{role-name-fixed}} {{trust-policy}} {{policy-then-role}} Which principals to trust and how the role is registered are open {{gap:principal-and-registration}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before creating the stacks, which account and region the policy targets, since the policy name carries the region.",
+      "uses": [
+        "policy-parameters"
+      ]
+    },
+    {
+      "do": "Whether the permissions requested match what the security team will accept: tag-scoped for network and instances, unscoped for describe, key pair and stack actions.",
+      "uses": [
+        "network-scope",
+        "instance-scope",
+        "untagged-scope"
+      ]
+    },
+    {
+      "do": "Whether the trust policy needs an external ID or other condition, which the template leaves empty.",
+      "uses": [
+        "trust-policy",
+        "principal-and-registration"
+      ]
+    }
+  ],
+  "claims": {
+    "repo-purpose": {
+      "statement": "The zscaler/zpa-privileged-desktops repository is described as the repo for the Privileged Desktop feature of Privileged Remote Access (PRA), holding CloudFormation templates that establish the trust relationship and IAM role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "README.md",
+          "quotes": [
+            "Repo for the Privileged Desktop feature of Privileged Remote Access (PRA). Cloud Formation Templates to establish trust relationships and IAM role."
+          ]
+        }
+      ]
+    },
+    "two-steps": {
+      "statement": "The repository has two CloudFormation templates: permissions_policy_step_1.yml creates a customer-managed IAM policy and create_iam_role_and_trust_step_2.yml creates a cross-account role with a trust policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "This template creates a customer-managed IAM policy for ZPA Privileged Remote Access (PRA)",
+            "AWS::IAM::ManagedPolicy"
+          ]
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "create_iam_role_and_trust_step_2.yml",
+          "quotes": [
+            "This template creates the DJB-Cross-Account-Role with a trust policy",
+            "AWS::IAM::Role"
+          ]
+        }
+      ]
+    },
+    "policy-purpose": {
+      "statement": "The step 1 policy is described as a customer-managed IAM policy for ZPA Privileged Remote Access (PRA) that grants the necessary permissions for creating and managing disposable jump boxes and other resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "This template creates a customer-managed IAM policy for ZPA Privileged Remote Access (PRA) to grant the necessary permissions for creating and managing disposable jump boxes and other resources."
+          ]
+        }
+      ]
+    },
+    "policy-parameters": {
+      "statement": "The step 1 template takes TargetAccountId (the AWS account where resources will be managed) and TargetRegion (the AWS Region) as parameters, and names the policy ZPA-PRA-Cross-Account-Policy-<TargetRegion>, so the policy is region-specific; it outputs PolicyArn.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "The AWS Account ID where the resources will be managed.",
+            "The AWS Region where the resources will be managed.",
+            "ManagedPolicyName: !Sub \"ZPA-PRA-Cross-Account-Policy-${TargetRegion}\"",
+            "Value: !Ref PrivilegedDesktopsIAMPolicy",
+            "The ARN of the created IAM policy."
+          ]
+        }
+      ]
+    },
+    "role-parameters": {
+      "statement": "The step 2 template takes TrustedPrincipals, a comma-separated list of AWS principal ARNs allowed to assume the role, and ManagedPolicyArnsList, a comma-separated list of managed policy ARNs to attach, and outputs RoleArn and RoleId.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "create_iam_role_and_trust_step_2.yml",
+          "quotes": [
+            "A comma-separated list of AWS principal ARNs that are allowed to assume this role.",
+            "A comma-separated list of managed policy ARNs to attach to the role.",
+            "The ARN of the created DJB-Cross-Account-Role.",
+            "The stable and unique ID of the created role."
+          ]
+        }
+      ]
+    },
+    "role-name-fixed": {
+      "statement": "The role is named DJB-Cross-Account-Role in the step 2 template, and the step 1 policy grants iam:GetRole and iam:ListAttachedRolePolicies on the role of that name in the target account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "create_iam_role_and_trust_step_2.yml",
+          "quotes": [
+            "RoleName: \"DJB-Cross-Account-Role\""
+          ]
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"iam:GetRole\"",
+            "- \"iam:ListAttachedRolePolicies\"",
+            "role/DJB-Cross-Account-Role"
+          ]
+        }
+      ]
+    },
+    "trust-policy": {
+      "statement": "The role's trust policy allows the TrustedPrincipals to call sts:AssumeRole with an empty Condition ({}), so the template adds no further condition such as an external ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "create_iam_role_and_trust_step_2.yml",
+          "quotes": [
+            "Principal: AWS: !Ref TrustedPrincipals",
+            "- sts:AssumeRole",
+            "Condition: {}"
+          ]
+        }
+      ]
+    },
+    "network-scope": {
+      "statement": "The step 1 policy lets PRA create a VPC, subnets, route tables, an internet gateway and security groups only when the Name tag in the request matches *ZPA-PRA*, and delete a VPC or an internet gateway only when its Name tag matches *ZPA-PRA*.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"ec2:CreateVpc\"",
+            "\"aws:RequestTag/Name\": \"*ZPA-PRA*\""
+          ],
+          "after": "Sid: \"Statement11\""
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"ec2:CreateSubnet\"",
+            "\"aws:RequestTag/Name\": \"*ZPA-PRA*\""
+          ],
+          "after": "Sid: \"Statement12\""
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"ec2:CreateRouteTable\"",
+            "\"aws:RequestTag/Name\": \"*ZPA-PRA*\""
+          ],
+          "after": "Sid: \"Statement13\""
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"ec2:CreateInternetGateway\"",
+            "\"aws:RequestTag/Name\": \"*ZPA-PRA*\""
+          ],
+          "after": "Sid: \"Statement14\""
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"ec2:CreateSecurityGroup\"",
+            "\"aws:RequestTag/Name\": \"*ZPA-PRA*\""
+          ],
+          "after": "Sid: \"Statement15\""
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"ec2:DeleteVpc\"",
+            "\"ec2:ResourceTag/Name\": \"*ZPA-PRA*\""
+          ],
+          "after": "Sid: \"Statement23\""
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "- \"ec2:DeleteInternetGateway\"",
+            "\"ec2:ResourceTag/Name\": \"*ZPA-PRA*\""
+          ],
+          "after": "Sid: \"Statement25\""
+        }
+      ]
+    },
+    "instance-scope": {
+      "statement": "The step 1 policy allows ec2:RunInstances for instances only with a Name tag that starts with ZPA-PRA, and allows ec2:ModifyInstanceAttribute and ec2:TerminateInstances only on instances whose Name tag starts with ZPA-PRA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "Sid: \"RunInstancesWithTagRestrictions\"",
+            "\"aws:RequestTag/Name\": \"ZPA-PRA*\"",
+            "Sid: \"AllowInstanceActionsTagBased\"",
+            "- \"ec2:ModifyInstanceAttribute\"",
+            "- \"ec2:TerminateInstances\"",
+            "\"ec2:ResourceTag/Name\": \"ZPA-PRA*\""
+          ]
+        }
+      ]
+    },
+    "untagged-scope": {
+      "statement": "The step 1 policy grants a set of EC2 describe actions plus ec2:CreateTags, ec2:CreateKeyPair and cloudformation:DescribeStacks on Resource \"*\", and cloudformation:CreateStack, cloudformation:DeleteStack and cloudformation:DescribeStackEvents on any stack in the target account and region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "Sid: \"Statement4\"",
+            "- \"ec2:DescribeVpcs\"",
+            "- \"ec2:DescribeInstances\"",
+            "- \"ec2:CreateTags\"",
+            "- \"ec2:CreateKeyPair\"",
+            "- \"cloudformation:DescribeStacks\"",
+            "Resource: \"*\"",
+            "Sid: \"Statement5\"",
+            "- \"cloudformation:CreateStack\"",
+            "- \"cloudformation:DeleteStack\"",
+            "- \"cloudformation:DescribeStackEvents\"",
+            "arn:aws:cloudformation:${TargetRegion}:${TargetAccountId}:stack/*"
+          ]
+        }
+      ]
+    },
+    "policy-then-role": {
+      "statement": "The step 1 PolicyArn output is the managed policy to supply to the step 2 ManagedPolicyArnsList parameter.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "permissions_policy_step_1.yml",
+          "quotes": [
+            "Value: !Ref PrivilegedDesktopsIAMPolicy",
+            "The ARN of the created IAM policy."
+          ]
+        },
+        {
+          "source": "zpa-privileged-desktops",
+          "path": "create_iam_role_and_trust_step_2.yml",
+          "quotes": [
+            "A comma-separated list of managed policy ARNs to attach to the role."
+          ]
+        }
+      ],
+      "conditions": "Assumes the ZPA-PRA-Cross-Account-Policy created by step 1 is the managed policy intended for the role; the repository README does not state the wiring."
+    }
+  },
+  "gaps": {
+    "principal-and-registration": {
+      "kind": "semantic",
+      "title": "Which principal to trust and how PRA is told about the role",
+      "status": "open",
+      "detail": "The repository does not say which AWS principal ARNs a customer should list in TrustedPrincipals, whether an external ID is expected, or where the resulting RoleArn is entered in the ZPA Admin Portal or API.",
+      "blocks": "setting up a Privileged Desktops AWS account",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "desktop-feature": {
+      "kind": "semantic",
+      "title": "What Privileged Desktops provisions and its limits",
+      "status": "open",
+      "detail": "No captured Zscaler help page describes the Privileged Desktops feature. The templates show the AWS resources PRA may create (VPC, subnets, internet gateway, security groups, instances, CloudFormation stacks), but the user-facing behavior, licensing, supported regions and session lifecycle are not documented in the repository.",
+      "blocks": "explaining the feature to an operator",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

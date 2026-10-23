@@ -19,6 +19,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.autoscaling.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -36,6 +40,10 @@
     {
       "label": "Warm pool.",
       "text": "{{warm-pool}} {{warm-pool-state}} {{warm-pool-sizing}} {{reuse-policy}} {{warm-lifecycle}} {{module-warm-pool}}"
+    },
+    {
+      "label": "CloudFormation template.",
+      "text": "{{cfn-hooks}} {{cfn-warm-pool}} The Terraform module defaults the warm pool the other way {{divergence:warm-pool-template-default}}."
     }
   ],
   "checks": [
@@ -249,6 +257,69 @@
           ]
         }
       ]
+    },
+    "cfn-hooks": {
+      "statement": "The CloudFormation autoscaling template's launch hook defaults to ABANDON with a heartbeat timeout of 1800 seconds and its termination hook to CONTINUE with 900 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "DefaultResult: \"ABANDON\" HeartbeatTimeout: 1800 LifecycleHookName: !Sub '${AWS::StackName}-CcAutoScalingGroupInitialLifecycleHookForLaunch' LifecycleTransition: \"autoscaling:EC2_INSTANCE_LAUNCHING\"",
+            "DefaultResult: \"CONTINUE\" HeartbeatTimeout: 900 LifecycleHookName: !Sub '${AWS::StackName}-CcAutoScalingGroupInitialLifecycleHookForTerminate' LifecycleTransition: \"autoscaling:EC2_INSTANCE_TERMINATING\""
+          ]
+        }
+      ]
+    },
+    "cfn-warm-pool": {
+      "statement": "The CloudFormation autoscaling template enables the warm pool by default, with state Stopped (Stopped or Running allowed), minimum size 0, MaxGroupPreparedCapacity -1 and reuse on scale-in false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "AsgWarmPoolEnabled: Type: String Description: \"Select \\\"true\\\" to enable Auto Scaling Group warm pool (default), else \\\"false\\\"\" Default: true",
+            "Default: \"Stopped\" AllowedValues: - \"Stopped\" - \"Running\"",
+            "Select \\\"true\\\" to enable Auto Scaling Group reuse instance on scale-in, else \\\"false\\\" (default)",
+            "AsgWarmPoolMaxGroupPreparedCapacity: Type: Number MinValue: -1 MaxValue: 10 ConstraintDescription: >- Healthy Threshold: Minimum -1 and maximum 10 Default: -1",
+            "AsgWarmPoolMinSize: Type: Number MinValue: 0 MaxValue: 10 ConstraintDescription: >- Healthy Threshold: Minimum 0 and maximum 10 Default: 0"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "warm-pool-template-default": {
+      "summary": "Whether the autoscaling warm pool is on by default: the CloudFormation template enables it, the reference Terraform module does not.",
+      "positions": [
+        {
+          "says": "The reference ASG module leaves the warm pool off unless warm_pool_enabled is set.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-asg-aws/main.tf",
+            "quotes": [
+              "for_each = var.warm_pool_enabled == true ? [var.warm_pool_enabled] : []"
+            ]
+          }
+        },
+        {
+          "says": "The CloudFormation template enables the warm pool by default.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+            "quotes": [
+              "AsgWarmPoolEnabled: Type: String Description: \"Select \\\"true\\\" to enable Auto Scaling Group warm pool (default), else \\\"false\\\"\" Default: true",
+              "Default: \"Stopped\" AllowedValues: - \"Stopped\" - \"Running\"",
+              "ConstraintDescription: >- Healthy Threshold: Minimum 0 and maximum 10 Default: 0",
+              "ConstraintDescription: >- Healthy Threshold: Minimum -1 and maximum 10 Default: -1",
+              "Select \\\"true\\\" to enable Auto Scaling Group reuse instance on scale-in, else \\\"false\\\" (default)"
+            ]
+          }
+        }
+      ],
+      "impact": "A default CloudFormation stack keeps pre-initialized Stopped instances that a default Terraform deployment does not have, which changes scale-out latency, cost and the inactive VMs shown in the Admin Console."
     }
   }
 }

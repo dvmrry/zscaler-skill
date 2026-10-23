@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.sdk-integration",
+  "title": "Adding the ZSDK to an app: Android and iOS packages, prerequisites and sample apps",
+  "aliases": [
+    "zsdk android gradle",
+    "zsdk ios swift package",
+    "zsdk cocoapods",
+    "zscaler-sdk-android",
+    "zscaler-sdk-ios",
+    "zsdk sample app",
+    "zsdk github packages",
+    "zscalersdk-android",
+    "ZscalerSDK.xcframework",
+    "zsdk minimum ios version"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.developer-api"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.error-codes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The vendor publishes one public repository per platform. Each holds the install instructions and a sample app; the Android repository publishes the library as a package, and the iOS repository holds the binary itself. The API and the registration steps are in [[shared.zsdk.developer-api]] and [[shared.zsdk.configuration]]."
+    },
+    {
+      "heading": "Android"
+    },
+    {
+      "text": "{{android-package}} {{android-registry-credentials}} {{android-sample-baseline}} {{gap:android-sdk-requirements}}"
+    },
+    {
+      "heading": "iOS"
+    },
+    {
+      "text": "{{ios-install-paths}} {{ios-minimum-version}} {{ios-prebuilt-binary}} {{gap:ios-manual-framework-name}}"
+    },
+    {
+      "heading": "Sample apps"
+    },
+    {
+      "text": "{{sample-app-credentials}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the build can reach the GitHub Packages repository: a GitHub username and access token present as gpr.user and gpr.key or as the environment variables.",
+      "uses": [
+        "android-registry-credentials",
+        "android-package"
+      ]
+    },
+    {
+      "do": "That the iOS deployment target is 15.0 or later before adding the package.",
+      "uses": [
+        "ios-minimum-version"
+      ]
+    },
+    {
+      "do": "Which integration route the iOS app uses (SwiftPM, CocoaPods or manual), and for manual that the framework is set to Embed & Sign.",
+      "uses": [
+        "ios-install-paths",
+        "ios-prebuilt-binary"
+      ]
+    }
+  ],
+  "claims": {
+    "android-package": {
+      "statement": "The Android SDK is a Gradle dependency, `com.zscaler.sdk:zscalersdk-android:latest.release`, resolved from the GitHub Packages Maven repository `https://maven.pkg.github.com/zscaler/zscaler-sdk-android`, and the sample app builds against the floating `latest.release` version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "README.md",
+          "quotes": [
+            "url = uri(\"https://maven.pkg.github.com/zscaler/zscaler-sdk-android\")",
+            "implementation(\"com.zscaler.sdk:zscalersdk-android:latest.release\")"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/README.md",
+          "quotes": [
+            "The sample app uses the latest version of the Zscaler SDK (latest.release). Update manually in build.gradle if required."
+          ]
+        }
+      ]
+    },
+    "android-registry-credentials": {
+      "statement": "Fetching the Android SDK requires a GitHub username and access token: the README has gpr.user and gpr.key set in the global gradle.properties file at ~/.gradle/gradle.properties and falls back to the GITHUB_USERNAME and GITHUB_TOKEN environment variables, while the sample app reads those environment variables first and the gradle properties second.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "README.md",
+          "quotes": [
+            "Make sure gpr.user and gpr.key are set to your github username and access token in global gradle.properties file at ~/.gradle/gradle.properties",
+            "username = settings.extra.get(\"gpr.user\") as String ?: System.getenv(\"GITHUB_USERNAME\")",
+            "password = settings.extra.get(\"gpr.key\") as String ?: System.getenv(\"GITHUB_TOKEN\")"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/settings.gradle.kts",
+          "quotes": [
+            "username = System.getenv(\"GITHUB_USERNAME\") ?: providers.gradleProperty(\"gpr.user\").getOrNull()",
+            "password = System.getenv(\"GITHUB_TOKEN\") ?: providers.gradleProperty(\"gpr.key\").getOrNull()"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/README.md",
+          "quotes": [
+            "GitHub Personal Access Token**: Required for downloading the SDK."
+          ]
+        }
+      ]
+    },
+    "android-sample-baseline": {
+      "statement": "The Android sample app is built with compileSdk 35, minSdk 28, targetSdk 35, the ABI filters armeabi-v7a and arm64-v8a (x86 and x86_64 excluded) and Gradle 8.10.2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/build.gradle.kts",
+          "quotes": [
+            "compileSdk = 35",
+            "minSdk = 28",
+            "targetSdk = 35",
+            "abiFilters += mutableSetOf<String>(\"armeabi-v7a\" , \"arm64-v8a\") // Exclude x86 and x86_64"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/gradle/wrapper/gradle-wrapper.properties",
+          "quotes": [
+            "gradle-8.10.2-bin.zip"
+          ]
+        }
+      ]
+    },
+    "ios-install-paths": {
+      "statement": "The iOS SDK supports Swift Package Manager, CocoaPods and manual integration; manual integration adds the xcframework under Frameworks, Libraries, and Embedded Content with the embed option set to Embed & Sign.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "README.md",
+          "quotes": [
+            "ZscalerSDK iOS supports Swift Package Manager, Cocoapods, and manual integration.",
+            "pod 'ZscalerSDK', :git => 'https://github.com/zscaler/zscaler-sdk-ios'",
+            "In Frameworks, Libraries, and Embedded Content add `ZscalerSDK.xcframework`.",
+            "Change the \"embed\" option to \"Embed & Sign\"."
+          ]
+        }
+      ]
+    },
+    "ios-minimum-version": {
+      "statement": "The iOS package declares iOS 15 as its minimum platform in both Package.swift and the podspec, and Package.swift needs swift-tools-version 5.9.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Package.swift",
+          "quotes": [
+            ".iOS(.v15)",
+            "// swift-tools-version: 5.9"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "ZscalerSDK.podspec",
+          "quotes": [
+            "s.platform            = :ios, '15.0'"
+          ]
+        }
+      ]
+    },
+    "ios-prebuilt-binary": {
+      "statement": "The iOS SDK ships as a prebuilt binary, Zscaler.xcframework, which SwiftPM wraps as a binaryTarget and the podspec lists under vendored_frameworks; the podspec is version 5.0.0 with a Commercial licence type, and the xcframework carries an ios-arm64 device slice and an ios-arm64_x86_64-simulator slice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Package.swift",
+          "quotes": [
+            ".binaryTarget(",
+            "path: \"Zscaler.xcframework\""
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "ZscalerSDK.podspec",
+          "quotes": [
+            "s.version             = '5.0.0'",
+            "s.license             = { :type => 'Commercial' }",
+            "s.vendored_frameworks = ['Zscaler.xcframework']"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/Info.plist",
+          "quotes": [
+            "<string>ios-arm64</string>",
+            "<string>ios-arm64_x86_64-simulator</string>"
+          ]
+        }
+      ]
+    },
+    "sample-app-credentials": {
+      "statement": "Both sample apps need an App key and an Access Token entered, and the iOS sample builds through CocoaPods (platform iOS 15.0, with ZscalerSDK taken from the local repository path).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Samples/ZscalerSDKSampleApp/README.md",
+          "quotes": [
+            "Ensure all required configurations (credentials - App key and Access Token) are added to the app while testing.",
+            "**CocoaPods**"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "Samples/ZscalerSDKSampleApp/Podfile",
+          "quotes": [
+            "platform :ios, '15.0'",
+            "pod 'ZscalerSDK', :path => '../../'"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/README.md",
+          "quotes": [
+            "Make sure to add the App Key and Access Token."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "android-sdk-requirements": {
+      "kind": "semantic",
+      "title": "Minimum Android version and ABIs the Android SDK itself supports",
+      "status": "open",
+      "detail": "The Android repository ships only the README and a sample app; minSdk 28 and the armeabi-v7a and arm64-v8a ABI filters are settings of the sample app. Nothing in the repository states what the SDK library requires.",
+      "blocks": "answering whether an app with a lower minSdk or x86 builds can adopt the SDK",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "ios-manual-framework-name": {
+      "kind": "semantic",
+      "title": "Which xcframework name the manual iOS integration expects",
+      "status": "open",
+      "detail": "The README's manual steps name ZscalerSDK.xcframework and a downloadable release zip, while the repository itself ships Zscaler.xcframework (referenced by Package.swift and the podspec). The repository has no release artifact to compare.",
+      "blocks": "following the manual integration steps literally",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

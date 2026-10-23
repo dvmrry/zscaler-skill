@@ -23,6 +23,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.provisioning"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -44,6 +48,10 @@
     {
       "label": "Interfaces.",
       "text": "The number of network interfaces follows the size: [[cloud-connector.aws.interfaces]]."
+    },
+    {
+      "label": "CloudFormation templates.",
+      "text": "{{cfn-instance-types}} {{cfn-instance-history}}"
     }
   ],
   "checks": [
@@ -211,6 +219,46 @@
         "module-size-pairing"
       ],
       "conditions": "Follows from the pairing check being a count on the resources plus an echo in a null_resource provisioner rather than a variable validation; Terraform semantics, not stated by the module."
+    },
+    "cfn-instance-types": {
+      "statement": "The CloudFormation templates default the EC2 instance type to m6i.large and accept t3.medium, c5a.large, m5n.large, m6i.large, c6i.large, c6in.large, m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge; template rules require one of m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge for the medium and large sizes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge Default: m6i.large",
+            "For medium CCInstanceType, the Instance type must be one of m5n.4xlarge, m6i.4xlarge, c6i.4xlarge, c6in.4xlarge",
+            "largeCCInstanceType: RuleCondition: !Equals - !Ref CCInstanceType - large Assertions: - Assert: 'Fn::Contains': - - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Default: \"m6i.large\" AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge"
+          ]
+        }
+      ]
+    },
+    "cfn-instance-history": {
+      "statement": "The changelog records that version 1.0.0 made m6i.large the default for small and m6i.4xlarge for medium and large, added the m5n, m6i and c6i families and removed the m5 family, 1.3.1 added c6in, and 1.3.2 removed t3a.medium and c4.4xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## [1.0.0] - 2023-10-19",
+            "## 1.3.1 - 2024-05-13",
+            "## 1.3.2 - 2024-08-26",
+            "- new default/recommend EC2 type for small CCs: m6i.large; medium/large: m6i.4xlarge - add: m5n, m6i, and c6i family support - remove: m5 family support",
+            "* feat: add c6in family as supported EC2 instance type",
+            "* refactor: CC VM EC2 instance type constraint cleanup (removal of t3a.medium and c4.4xlarge)"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -234,6 +282,17 @@
             "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
             "quotes": [
               "small_cc_instance = [\"t3.medium\", \"m5n.large\", \"c5a.large\", \"m6i.large\", \"c6i.large\", \"c6in.large\", \"m5n.4xlarge\", \"m6i.4xlarge\", \"c6i.4xlarge\", \"c6in.4xlarge\"]"
+            ]
+          }
+        },
+        {
+          "says": "The CloudFormation templates accept the same ten types as the Terraform module, including t3.medium and c6in.large.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+            "quotes": [
+              "AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge Default: m6i.large",
+              "For medium CCInstanceType, the Instance type must be one of m5n.4xlarge, m6i.4xlarge, c6i.4xlarge, c6in.4xlarge"
             ]
           }
         }

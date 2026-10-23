@@ -1,0 +1,661 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.reference-modules",
+  "title": "Reference Terraform modules for Virtual Service Edges on AWS and Azure",
+  "aliases": [
+    "terraform aws vzen module",
+    "terraform azure vzen module",
+    "vzen terraform",
+    "vse terraform",
+    "vzen_vm_instance_type",
+    "vzen_vm_size",
+    "vzen gwlb",
+    "vse gwlb",
+    "vse azure load balancer",
+    "module defaults virtual service edge",
+    "vzen_count"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.network-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Zscaler publishes Terraform modules that build Virtual Service Edge (VZEN) VMs and their cloud networking on AWS and Azure. The module code is the source here; the product's own sizing and platform rules are in [[zia.virtual-service-edge.platforms]] and [[zia.virtual-service-edge.sizing]]."
+    },
+    {
+      "label": "AWS prerequisites.",
+      "text": "{{aws-prereqs}} {{aws-recommended-gwlb}}"
+    },
+    {
+      "label": "AWS VM.",
+      "text": "{{aws-instance-type}} {{aws-vm-defaults}} {{aws-two-nics}} The accepted types are documented more narrowly than they are validated {{divergence:aws-type-list}}."
+    },
+    {
+      "label": "AWS network and access.",
+      "text": "{{aws-sg}} {{aws-iam}}"
+    },
+    {
+      "label": "AWS GWLB.",
+      "text": "{{aws-gwlb-target}} {{aws-gwlb-health}} {{aws-gwlb-endpoints}}"
+    },
+    {
+      "label": "AWS image, zones, brownfield.",
+      "text": "{{aws-ami}} {{aws-az-spread}} {{aws-brownfield}} {{aws-key-local}}"
+    },
+    {
+      "label": "Azure prerequisites.",
+      "text": "{{azure-prereqs}} {{azure-recommended-lb}}"
+    },
+    {
+      "label": "Azure VM.",
+      "text": "{{azure-vm-size}} {{azure-image}} {{azure-count}} {{azure-nics}} {{azure-zones}}"
+    },
+    {
+      "label": "Azure load balancer and NSGs.",
+      "text": "{{azure-lb}} {{azure-lb-probe}} {{azure-nsg}}"
+    },
+    {
+      "label": "Against the help pages.",
+      "text": "The modules build two interfaces per VM where the cluster article describes three {{divergence:nic-count}}. Their health probes are the cloud load balancers' own TCP probes, not the ICMP and HTTP probes of the bundled load balancer ([[zia.virtual-service-edge.load-balancing]]). How a built VM is enrolled is not in the modules {{gap:provisioning-handoff}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which instance type or VM size the module deploys; the AWS and Azure defaults and allow-lists differ.",
+      "uses": [
+        "aws-instance-type",
+        "azure-vm-size",
+        "aws-type-list"
+      ]
+    },
+    {
+      "do": "How the GWLB or Azure load balancer decides a VZEN is healthy, and on which port.",
+      "uses": [
+        "aws-gwlb-health",
+        "azure-lb-probe"
+      ]
+    },
+    {
+      "do": "Who can reach the management interface by default.",
+      "uses": [
+        "aws-sg",
+        "azure-nsg"
+      ]
+    },
+    {
+      "do": "Whether the built VM matches the interface count the help describes.",
+      "uses": [
+        "aws-two-nics",
+        "azure-nics",
+        "nic-count"
+      ]
+    }
+  ],
+  "claims": {
+    "aws-prereqs": {
+      "statement": "The AWS VZEN modules require Terraform 1.5.0 or later, an AWS account with Administrator Access, acceptance of the Zscaler VZEN image terms in AWS Marketplace, and a Zscaler VZEN SKUs subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "README.md",
+          "quotes": [
+            "The AWS Terraform scripts require Terraform >= 1.5.0.",
+            "A valid AWS account with Administrator Access to deploy required resources",
+            "Subscribe and accept the terms of using Zscaler VZEN image at",
+            "Must have Zscaler VZEN SKUs Subscription",
+            "Subscribe and accept the terms of using Zscaler VZEN image at [this link](https://aws.amazon.com/marketplace/pp/prodview-ex2z2yzqrdsb6)"
+          ]
+        }
+      ]
+    },
+    "aws-recommended-gwlb": {
+      "statement": "The AWS modules ship two starter templates, standalone and with a Gateway Load Balancer (GWLB); Zscaler's stated recommended deployment method is GWLB, which distributes traffic across multiple VZENs and achieves high availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "README.md",
+          "quotes": [
+            "Use the [**Starter Deployment Template**](examples/vzen_standalone/) to deploy your Virtual Service Edge (VZEN) in a new VPC.",
+            "Zscaler\\'s recommended deployment method is Gateway Load Balancer (GWLB). GWLB distributes traffic across multiple VZENs and achieves high availability."
+          ]
+        }
+      ]
+    },
+    "aws-instance-type": {
+      "statement": "The AWS VZEN VM module defaults to r7i.2xlarge and validates the type against m5.2xlarge, m6i.2xlarge, m7i.2xlarge, m8i.2xlarge, r5.2xlarge, r6i.2xlarge, r7i.2xlarge and r8i.2xlarge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-vm-aws/variables.tf",
+          "quotes": [
+            "default     = \"r7i.2xlarge\"",
+            "var.vzen_vm_instance_type == \"m5.2xlarge\" ||\n      var.vzen_vm_instance_type == \"m6i.2xlarge\" ||\n      var.vzen_vm_instance_type == \"m7i.2xlarge\" ||\n      var.vzen_vm_instance_type == \"m8i.2xlarge\" ||",
+            "var.vzen_vm_instance_type == \"r5.2xlarge\" ||\n      var.vzen_vm_instance_type == \"r6i.2xlarge\" ||\n      var.vzen_vm_instance_type == \"r7i.2xlarge\" ||\n      var.vzen_vm_instance_type == \"r8i.2xlarge\""
+          ]
+        }
+      ]
+    },
+    "aws-vm-defaults": {
+      "statement": "The AWS VZEN VM module creates 2 appliances by default, each with a 501 GB gp3 root volume at 3000 IOPS, EBS optimization on, and instance metadata tokens required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-vm-aws/variables.tf",
+          "quotes": [
+            "description = \"Default number of VZEN appliances to create\"\n  default     = 2"
+          ]
+        },
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-vm-aws/main.tf",
+          "quotes": [
+            "ebs_optimized        = true",
+            "http_tokens            = \"required\"",
+            "volume_type           = \"gp3\"",
+            "volume_size           = 501",
+            "iops                  = 3000"
+          ]
+        }
+      ]
+    },
+    "aws-two-nics": {
+      "statement": "Each AWS VZEN VM is built with a management interface (primary, attached first) and a service interface attached afterwards at device index 1, and each interface gets its own Elastic IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-vm-aws/main.tf",
+          "quotes": [
+            "description       = \"vzen management interface\"",
+            "description       = \"vzen service interface\"",
+            "device_index         = 1",
+            "resource \"aws_eip\" \"eip_management_interface\" {",
+            "resource \"aws_eip\" \"eip_service_interface\" {",
+            "primary_network_interface {"
+          ]
+        }
+      ]
+    },
+    "aws-sg": {
+      "statement": "The AWS security-group module gives the management group an SSH (port 22) ingress rule from vzen_mgmt_sg_allowed_ssh_ips, whose default is 10.1.0.0/16, an outbound-all rule on both groups, and an ingress rule on the service group permitting all traffic from the VPC CIDR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-sg-aws/main.tf",
+          "quotes": [
+            "from_port         = 22",
+            "description       = \"Recommended: SSH to VZEN management\"",
+            "resource \"aws_vpc_security_group_egress_rule\" \"egress_vzen_management\" {\n  count             = var.byo_security_group == false ? var.sg_count : 0\n  description       = \"Required: VZEN outbound ALL\"",
+            "resource \"aws_vpc_security_group_egress_rule\" \"egress_vzen_service\" {\n  count             = var.byo_security_group == false ? var.sg_count : 0\n  description       = \"Required: VZEN outbound ALL\"",
+            "description       = \"Optional: Permit All Intra-VPC Traffic / Ensure VZEN Service Interfaces are able to communicate with each other freely\"",
+            "cidr_blocks       = var.vzen_mgmt_sg_allowed_ssh_ips"
+          ]
+        },
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-sg-aws/variables.tf",
+          "quotes": [
+            "default     = [\"10.1.0.0/16\"]"
+          ]
+        }
+      ]
+    },
+    "aws-iam": {
+      "statement": "The AWS IAM module creates an EC2-assumable role and instance profile and attaches a policy whose description says it lets VZENs register to SSM Manager for Console Connect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-iam-aws/main.tf",
+          "quotes": [
+            "identifiers = [\"ec2.amazonaws.com\"]",
+            "description = \"Policy which permits VZENs to register to SSM Manager for Console Connect functionality\"",
+            "resource \"aws_iam_instance_profile\" \"vzen_host_profile\" {",
+            "resource \"aws_iam_role_policy_attachment\" \"vzen_session_manager_attachment\" {",
+            "resource \"aws_iam_role\" \"vzen_node_iam_role\" {"
+          ]
+        }
+      ]
+    },
+    "aws-gwlb-target": {
+      "statement": "The AWS GWLB module forwards over GENEVE on port 6081 to IP-type targets, registering each VZEN forwarding service IP as a target.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-gwlb-aws/main.tf",
+          "quotes": [
+            "port                 = 6081",
+            "protocol             = \"GENEVE\"",
+            "target_type          = \"ip\"",
+            "# Register all VZEN Forwarding Service Interface IPs as targets to gwlb"
+          ]
+        }
+      ]
+    },
+    "aws-gwlb-health": {
+      "statement": "The GWLB target group health check is a TCP probe on http_probe_port (default 50000; must be 80 or 1024-65535) every 10 seconds with a 5 second timeout, 5 successes to become healthy and 2 failures to become unhealthy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-gwlb-aws/main.tf",
+          "quotes": [
+            "protocol            = \"TCP\"",
+            "timeout             = 5"
+          ]
+        },
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-gwlb-aws/variables.tf",
+          "quotes": [
+            "description = \"Port number for VZEN cloud init to enable listener port for HTTP probe from GWLB Target Group\"\n  default     = 50000",
+            "tonumber(var.http_probe_port) == 80 ||\n      (tonumber(var.http_probe_port) >= 1024 && tonumber(var.http_probe_port) <= 65535)",
+            "default     = 10",
+            "description = \"The number of successful health checks required before an unhealthy target becomes healthy. Minimum 2 and maximum 10\"\n  default     = 5",
+            "description = \"The number of unsuccessful health checks required before an healthy target becomes unhealthy. Minimum 2 and maximum 10\"\n  default     = 2",
+            "description = \"Interval for GWLB target group health check probing, in seconds, of VZEN targets. Minimum 5 and maximum 300 seconds\"\n  default     = 10"
+          ]
+        }
+      ]
+    },
+    "aws-gwlb-endpoints": {
+      "statement": "The AWS example creates one GWLB endpoint per VZEN subnet through a VPC endpoint service, and the service does not require manual acceptance by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "examples/vzen_with_gwlb/main.tf",
+          "quotes": [
+            "# 8. Create a VPC Endpoint Service associated with GWLB and 1x GWLB Endpoint",
+            "per VZEN subnet/availability zone."
+          ]
+        },
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-gwlbendpoint-aws/variables.tf",
+          "quotes": [
+            "description = \"Whether to require manual acceptance of any VPC Endpoint registration attempts to the Endpoint Service or not. Default is false\"\n  default     = false"
+          ]
+        }
+      ]
+    },
+    "aws-ami": {
+      "statement": "The AWS example locates the VZEN image as the most recent AWS Marketplace AMI with a fixed product code, unless set_your_own_ami_id overrides it; for the China regions cn-north-1 and cn-northwest-1 the product code is the placeholder china-vse-product-code-goes-here.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "examples/vzen_with_gwlb/main.tf",
+          "quotes": [
+            "most_recent = true",
+            "owners = [\"aws-marketplace\"]",
+            "var.set_your_own_ami_id == \"\" ? data.aws_ami.vzen_ami.id : var.set_your_own_ami_id",
+            "var.aws_region == \"cn-north-1\" || var.aws_region == \"cn-northwest-1\" ? [\"china-vse-product-code-goes-here\"]",
+            "name   = \"product-code\"",
+            "[\"7mzoi13353qz115eaksatb0yp\"]"
+          ]
+        }
+      ]
+    },
+    "aws-az-spread": {
+      "statement": "The AWS example takes az_count from 1 to 3 (default 1) and spreads the VZEN VMs across the zones: vzen_count 4 with az_count 2 yields two VZENs in each of two zones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "examples/vzen_with_gwlb/main.tf",
+          "quotes": [
+            "designated availability zones per az_count. E.g. vzen_count set to 4 and",
+            "az_count set to 2 will create 2x VZENs in AZ1 and 2x VZENs in AZ2"
+          ]
+        },
+        {
+          "source": "tfmod-aws-vse",
+          "path": "examples/vzen_with_gwlb/variables.tf",
+          "quotes": [
+            "(var.az_count >= 1 && var.az_count <= 3)",
+            "default     = 1\n  validation {\n    condition = (\n      (var.az_count"
+          ]
+        }
+      ]
+    },
+    "aws-brownfield": {
+      "statement": "Brownfield mode on AWS needs byo_vpc_id, byo_igw_id and byo_subnet_ids together: the template asks for the Internet Gateway attached to a supplied VPC, and subnets as one per Availability Zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "examples/vzen_with_gwlb/terraform.tfvars",
+          "quotes": [
+            "## If this is set to true, you must input byo_vpc_id, byo_igw_id and byo_subnet_ids.",
+            "## You must also provide the Internet Gateway attached to it in the variable \"byo_igw_id\" below.",
+            "## Subnet IDs must be added as a list. Provide only one subnet per Availability Zone in a VPC."
+          ]
+        }
+      ]
+    },
+    "aws-key-local": {
+      "statement": "The AWS example generates an SSH key pair and writes the private key to a local .pem file with permissions 0600.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-aws-vse",
+          "path": "examples/vzen_with_gwlb/main.tf",
+          "quotes": [
+            "resource \"tls_private_key\" \"key\" {",
+            "resource \"local_file\" \"private_key\" {",
+            "file_permission = \"0600\"",
+            "file_name         = \"./${local.key_suffix}.pem\"",
+            "resource \"aws_key_pair\" \"deployer\" {"
+          ]
+        }
+      ]
+    },
+    "azure-prereqs": {
+      "statement": "The Azure VZEN modules need an Azure subscription ID, a service principal (client ID, tenant ID and client secret) and a Zscaler VZEN SKUs subscription; the README gives azurerm as v3.116.x with a minimum of 3.108.x.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "README.md",
+          "quotes": [
+            "1. Azure Subscription Id",
+            "2. Have/Create a Service Principal.",
+            "Must have Zscaler VZEN SKUs Subscription.",
+            "provider registry.terraform.io/hashicorp/azurerm v3.116.x (minimum 3.108.x)",
+            "Application (client) ID",
+            "Directory (tenant) ID",
+            "Client Secret Value"
+          ]
+        }
+      ]
+    },
+    "azure-recommended-lb": {
+      "statement": "The Azure modules ship two examples, with and without an Azure Load Balancer; Zscaler's stated recommended deployment method is Azure Load Balancer, which distributes traffic across multiple VZENs and achieves high availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "README.md",
+          "quotes": [
+            "Zscaler's recommended deployment method is Azure Load Balancer. Azure Load Balancer distributes traffic across multiple VZENs and achieves high availability.",
+            "Use the [**Custom Deployment template without Azure Load Balancer**](examples/vzen_standalone)"
+          ]
+        }
+      ]
+    },
+    "azure-vm-size": {
+      "statement": "The Azure VZEN VM module defaults to Standard_E8-4ads_v5 and validates the size against Standard_E8-4ads_v5 and Standard_E8-4as_v4.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-vm-azure/variables.tf",
+          "quotes": [
+            "default     = \"Standard_E8-4ads_v5\"",
+            "var.vzen_vm_size == \"Standard_E8-4ads_v5\" ||\n      var.vzen_vm_size == \"Standard_E8-4as_v4\""
+          ]
+        }
+      ]
+    },
+    "azure-image": {
+      "statement": "The Azure VZEN VM module deploys the Marketplace image from publisher zscaler1579058425289, offer zscaler-zia-vse and sku preview-zia-vse at version latest, unless vzen_source_image_id points at a custom image in the subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-vm-azure/variables.tf",
+          "quotes": [
+            "default     = \"zscaler1579058425289\"",
+            "default     = \"zscaler-zia-vse\"",
+            "default     = \"preview-zia-vse\"",
+            "default     = \"latest\"",
+            "description = \"Custom VZEN Source Image ID. Set this value to the path of a local subscription Microsoft.Compute image to override the VZEN deployment instead of using the marketplace publisher\""
+          ]
+        }
+      ]
+    },
+    "azure-count": {
+      "statement": "The Azure VZEN VM module accepts 1 to 250 VZENs, a validation that assumes a /24 subnet; the module default is 1 while the example tfvars comment says the default will be 2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-vm-azure/variables.tf",
+          "quotes": [
+            "description = \"The number of VZENs to deploy.  Validation assumes max for /24 subnet but could be smaller or larger as long as subnet can accommodate\"",
+            "error_message = \"Input vzen_count must be a whole number between 1 and 250.\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "examples/vzen_with_azure_lb/terraform.tfvars",
+          "quotes": [
+            "# please enter the No.of VZEN(s) you want to deploy, Default will be 2"
+          ]
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-vm-azure/variables.tf",
+          "quotes": [
+            "default     = 1"
+          ],
+          "after": "The number of VZENs to deploy."
+        }
+      ]
+    },
+    "azure-nics": {
+      "statement": "Each Azure VZEN VM is built with a management NIC (primary, with a public IP) and a service NIC with IP forwarding enabled, and an administrator user zsroot that accepts SSH keys only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-vm-azure/main.tf",
+          "quotes": [
+            "ip_forwarding_enabled          = true",
+            "admin_username = \"zsroot\"",
+            "disable_password_authentication = true",
+            "primary                       = true",
+            "public_ip_address_id          = element(var.management_public_ip, count.index)",
+            "resource \"azurerm_network_interface\" \"vzen_mgmt_nic\" {",
+            "resource \"azurerm_network_interface\" \"vzen_service_nic\" {"
+          ]
+        }
+      ]
+    },
+    "azure-zones": {
+      "statement": "With zones_enabled false (the default) the Azure module places the VMs in an availability set with 2 fault domains, or 3 in a listed set of regions; explicit zones apply only when zones_enabled is true and the region is in the module's supported-region list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-vm-azure/variables.tf",
+          "quotes": [
+            "contains(local.az_supported_regions, var.resource_location) && var.zones_enabled == true",
+            "contains(local.max_fd_supported_regions, var.resource_location) && var.zones_enabled == false",
+            "description = \"Determine whether to provision VZEN VMs explicitly in defined zones (if supported by the Azure region provided in the location variable). If left false, Azure will automatically choose a zone and module will create an availability set resource instead for VM fault tolerance\"\n  default     = false",
+            "max_fd_supported_regions = [\"eastus\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-vm-azure/main.tf",
+          "quotes": [
+            "platform_fault_domain_count = local.max_fd_supported == true ? 3 : 2",
+            "name                        = \"vzen-availability-set-${var.resource_location}-${var.resource_tag}\""
+          ]
+        }
+      ]
+    },
+    "azure-lb": {
+      "statement": "The Azure LB module creates a Standard SKU load balancer with a rule forwarding TCP 80 to TCP 80 on the backend pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-lb-azure/main.tf",
+          "quotes": [
+            "sku                 = \"Standard\"",
+            "frontend_port                  = 80",
+            "backend_port                   = 80",
+            "resource \"azurerm_lb_rule\" \"vzen_lb_rule\" {",
+            "protocol                       = \"Tcp\"\n  frontend_port                  = 80\n  backend_port                   = 80",
+            "backend_address_pool_ids       = [azurerm_lb_backend_address_pool.vzen_lb_backend_pool.id]"
+          ]
+        }
+      ]
+    },
+    "azure-lb-probe": {
+      "statement": "The Azure LB health probe is TCP on lb_health_port (default 80, allowed 80-65535) every 15 seconds (minimum 5), with probe_threshold 2 and number_of_probes 1 by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-lb-azure/main.tf",
+          "quotes": [
+            "protocol            = \"Tcp\"\n  port                = var.lb_health_port"
+          ]
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-lb-azure/variables.tf",
+          "quotes": [
+            "default     = 15",
+            "var.health_check_interval > 4",
+            "default     = 2",
+            "description = \"The number of probes where if no response, will result in stopping further traffic from being delivered to the endpoint. This values allows endpoints to be taken out of rotation faster or slower than the typical times used in Azure\"\n  default     = 1",
+            "default     = 80",
+            "(tonumber(var.lb_health_port) >= 80 && tonumber(var.lb_health_port) <= 65535)"
+          ]
+        }
+      ]
+    },
+    "azure-nsg": {
+      "statement": "By default the Azure NSG module allows SSH (port 22) and ICMP to the management interface only from the VirtualNetwork source, adds SSH from listed addresses only when allow_ssh_from_existing_ips is set, and allows all VirtualNetwork traffic to the service interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-nsg-azure/main.tf",
+          "quotes": [
+            "name                       = \"SSH_VNET\"\n    priority                   = 100\n    direction                  = \"Inbound\"\n    access                     = \"Allow\"\n    protocol                   = \"Tcp\"\n    source_port_range          = \"*\"\n    destination_port_range     = \"22\"",
+            "name                       = \"ICMP_VNET\"",
+            "name                       = \"ALL_VNET\"",
+            "for_each = var.allow_ssh_from_existing_ips ? var.allowed_ips_for_ssh : []"
+          ]
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "examples/vzen_standalone/README.md",
+          "quotes": [
+            "**Note:** By default SSH to the VZEN(s) is allowed from VNET only"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "nic-count": {
+      "summary": "How many network interfaces a Virtual Service Edge VM has.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Network Interfaces: 3 interfaces (one for Management, one for the Virtual Service Edge, and one for the LB). These interfaces should be on the same VLAN."
+            ]
+          },
+          "says": "The cluster article lists 3 interfaces: management, the Virtual Service Edge and the load balancer."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-aws-vse",
+            "path": "modules/terraform-zsvzen-vm-aws/main.tf",
+            "quotes": [
+              "description       = \"vzen management interface\"",
+              "description       = \"vzen service interface\""
+            ]
+          },
+          "says": "The AWS module builds two interfaces per VM, a management interface and a service interface."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-azure-vse",
+            "path": "modules/terraform-vzen-vm-azure/main.tf",
+            "quotes": [
+              "azurerm_network_interface.vzen_mgmt_nic[count.index].id,",
+              "azurerm_network_interface.vzen_service_nic[count.index].id,",
+              "# This interface becomes LB0 interface for Medium/Large VZEN sizes"
+            ]
+          },
+          "says": "The Azure module attaches a management NIC and a service NIC; its comment says the service interface becomes the LB0 interface for Medium and Large VZEN sizes."
+        }
+      ],
+      "impact": "A cloud VM built from these modules has two interfaces, not the three the cluster article describes; the cloud load balancer takes the load balancer role. Do not count a missing third interface as a build error, and note that the Azure comment implies size variants the sizing page does not describe."
+    },
+    "aws-type-list": {
+      "summary": "Which AWS instance types the VZEN module accepts.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tfmod-aws-vse",
+            "path": "modules/terraform-zsvzen-vm-aws/variables.tf",
+            "quotes": [
+              "var.vzen_vm_instance_type == \"m5.2xlarge\" ||"
+            ]
+          },
+          "says": "The validation accepts m5, m6i, m7i and m8i 2xlarge types as well as the r-family types."
+        },
+        {
+          "evidence": {
+            "source": "tfmod-aws-vse",
+            "path": "examples/vzen_with_gwlb/terraform.tfvars",
+            "quotes": [
+              "## Allowed Types (64G Variants): \"r5.2xlarge\", \"r6i.2xlarge\", \"r7i.2xlarge\", \"r8i.2xlarge\""
+            ]
+          },
+          "says": "The example tfvars comment lists only the four r-family types and labels them the 64G variants."
+        }
+      ],
+      "impact": "The code accepts more types than the example documents as allowed; the comment suggests the m-family types are not the 64 GB variants, so check the memory of the type before choosing one that the validation merely permits."
+    }
+  },
+  "gaps": {
+    "provisioning-handoff": {
+      "kind": "semantic",
+      "title": "How a module-built VM gets its provisioning data",
+      "status": "open",
+      "detail": "The modules create the VM, its interfaces, security groups and load balancer, but the quoted code passes no provisioning key, cloud name or cloud-init data to the VM, and the Azure VM module's README lists a required user_data input that its variables file does not declare. How a module-built VM is enrolled in the Admin Console is not established by these sources.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -23,6 +23,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.autoscaling.health"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -40,6 +44,10 @@
     {
       "label": "Deployer.",
       "text": "{{deployer-aws-admin}} {{deployer-cloudformation}} {{deployer-terraform}}"
+    },
+    {
+      "label": "CloudFormation templates.",
+      "text": "{{cfn-simple-role}} {{cfn-asg-profile}} {{cfn-asg-role-actions}} {{cfn-secret-scope}} {{cfn-tags-policy}} The module and the templates default the tag policy differently {{divergence:cloud-tags-default}}. The Pre-Deployment macro runs with its own role: {{cfn-macro-role}} The template mechanics are in [[cloud-connector.aws.cloudformation]]."
     }
   ],
   "checks": [
@@ -61,6 +69,13 @@
       "uses": [
         "cc-tags",
         "cloud-connector.aws.cloudformation:standard-defaults"
+      ]
+    },
+    {
+      "do": "For an autoscaling CloudFormation stack with a supplied instance profile, whether that profile carries the CloudWatch metrics and lifecycle-action permissions, since the template creates those policies only for its own role.",
+      "uses": [
+        "cfn-asg-profile",
+        "cfn-asg-role-actions"
       ]
     }
   ],
@@ -236,6 +251,148 @@
           ]
         }
       ]
+    },
+    "cfn-simple-role": {
+      "statement": "The Starter template's instance role is assumable by EC2 and carries managed policies for Secrets Manager read, Systems Manager control channels and, when enabled, workload tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Instance IAM Role",
+            "ManagedPolicyArns: - !Ref CcGetSecretsPolicy - !Ref CcSsmControlPolicy - !If [CreateCloudTagsIAM, !Ref CcCloudTagsPolicy, !Ref AWS::NoValue]",
+            "Principal: Service: - ec2.amazonaws.com Action: - 'sts:AssumeRole'",
+            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3"
+          ]
+        }
+      ]
+    },
+    "cfn-asg-profile": {
+      "statement": "The autoscaling template creates its IAM role and instance profile, together with the CloudWatch metrics and autoscaling lifecycle policies, only when the instance-profile parameter is left empty; otherwise it uses the instance profile ARN supplied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "ZscalerCcInstanceProfile: Description: \"[Optional] Leave blank/empty to create a new IAM Role/Instance Profile\"",
+            "CcCloudwatchMetricsPolicy: Type: AWS::IAM::ManagedPolicy Condition: CreateIamAndInstanceProfile",
+            "CcAutoScalingLifecycleActionsPolicy: Type: AWS::IAM::ManagedPolicy Condition: CreateIamAndInstanceProfile",
+            "CcIamRole: Condition: CreateIamAndInstanceProfile",
+            "IamInstanceProfile: !If - CreateIamAndInstanceProfile - Arn: !GetAtt [ CcInstanceProfile, Arn ] - Arn: !Ref ZscalerCcInstanceProfile"
+          ]
+        }
+      ]
+    },
+    "cfn-asg-role-actions": {
+      "statement": "The role the autoscaling template creates attaches Secrets Manager read, SSM control, CloudWatch metrics (cloudwatch:GetMetricStatistics, ListMetrics, PutMetricData and ec2:DescribeTags) and autoscaling lifecycle policies (CompleteLifecycleAction, RecordLifecycleActionHeartbeat and SetInstanceHealth among them), plus the workload-tag policy when enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "ManagedPolicyArns: - !Ref CcGetSecretsPolicy - !Ref CcSsmControlPolicy - !Ref CcCloudwatchMetricsPolicy - !Ref CcAutoScalingLifecycleActionsPolicy - !If [CreateCloudTagsIAM, !Ref CcCloudTagsPolicy, !Ref AWS::NoValue]",
+            "'cloudwatch:GetMetricStatistics' - 'cloudwatch:ListMetrics' - 'cloudwatch:PutMetricData' - 'ec2:DescribeTags'",
+            "'autoscaling:DescribeAutoScalingInstances' - 'autoscaling:CompleteLifecycleAction' - 'autoscaling:RecordLifecycleActionHeartbeat' - 'autoscaling:SetInstanceHealth' - 'ec2:DescribeInstanceStatus'"
+          ]
+        }
+      ]
+    },
+    "cfn-secret-scope": {
+      "statement": "The macro rewrites the Secrets Manager read policy so GetSecretValue applies to the ARN of the named secret, and in the autoscaling template does the same for the Lambda's policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "policy_doc[\"Statement\"][0][\"Resource\"] = responseData[\"SecretArn\"]"
+          ],
+          "after": "Simple Template processed successfully"
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "policy_doc_lambda[\"Statement\"][0][\"Resource\"] = responseData[\"SecretArn\"]"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Get Secrets Policy PolicyDocument: Version: 2012-10-17 Statement: - Effect: Allow Action: - 'secretsmanager:GetSecretValue'"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Get Secrets Policy For Lambda PolicyDocument: Version: 2012-10-17 Statement: - Effect: Allow Action: - 'secretsmanager:GetSecretValue'",
+            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.3"
+          ]
+        }
+      ]
+    },
+    "cfn-tags-policy": {
+      "statement": "The workload-tag policy the CloudFormation templates create, when the tag parameter is true (its default), allows sqs:DeleteMessage, ReceiveMessage, GetQueueUrl, GetQueueAttributes, SetQueueAttributes, DeleteQueue, CreateQueue and sns:Subscribe, ListSubscriptions and Unsubscribe on all resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "'sqs:DeleteMessage' - 'sqs:ReceiveMessage' - 'sqs:GetQueueUrl' - 'sqs:GetQueueAttributes' - 'sqs:SetQueueAttributes' - 'sqs:DeleteQueue' - 'sqs:CreateQueue' - 'sns:Subscribe' - 'sns:ListSubscriptions' - 'sns:Unsubscribe' Resource: - '*'",
+            "ZscalerCloudTagsEnabled: Type: String Description: \"Select \\\"true\\\" to enable Cloud Tag Collection IAM Policy (default), else \\\"false\\\"\" Default: true"
+          ]
+        }
+      ]
+    },
+    "cfn-macro-role": {
+      "statement": "The macro Lambda's execution role allows, on all resources, ec2:DescribeImages, ec2:DescribeSubnets, ec2:ReplaceRoute, secretsmanager:ListSecrets and secretsmanager:GetSecretValue, among other actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "- ec2:DescribeSubnets",
+            "- ec2:ReplaceRoute",
+            "- ec2:DescribeImages",
+            "- secretsmanager:ListSecrets - secretsmanager:GetSecretValue Resource: \"*\""
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "cloud-tags-default": {
+      "summary": "Whether the workload-tag IAM policy is created by default: the reference Terraform module leaves it off, the CloudFormation templates and Help turn it on.",
+      "positions": [
+        {
+          "says": "The reference IAM module's cloud_tags_enabled defaults to false, so the tag policy is not created unless asked for.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-iam-aws/variables.tf",
+            "quotes": [
+              "Determines whether or not to create the cc_tags_policy IAM Policy and attach it to the CC IAM Role\" default = false"
+            ]
+          }
+        },
+        {
+          "says": "The CloudFormation templates default the tag parameter to true and create the tag policy.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+            "quotes": [
+              "ZscalerCloudTagsEnabled: Type: String Description: \"Select \\\"true\\\" to enable Cloud Tag Collection IAM Policy (default), else \\\"false\\\"\" Default: true"
+            ]
+          }
+        }
+      ],
+      "impact": "A Terraform deployment has no tag-collection permissions unless cloud_tags_enabled is set, while a CloudFormation deployment has them; missing workload tags on a Terraform deployment can be this default."
     }
   }
 }

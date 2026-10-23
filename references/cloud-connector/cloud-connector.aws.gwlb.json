@@ -24,6 +24,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.security-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -49,6 +53,10 @@
     {
       "label": "Endpoint service.",
       "text": "{{endpoint-service}}"
+    },
+    {
+      "label": "CloudFormation templates.",
+      "text": "{{cfn-gwlb-addon}} {{cfn-gwlb-addon-checks}} {{cfn-gwlb-defaults}} The Terraform module differs on cross-zone {{divergence:cross-zone-template-default}}. {{cfn-asg-target-group}} {{cfn-asg-endpoint-service}} {{cfn-asg-endpoint-per-az}} The template files are described in [[cloud-connector.aws.cloudformation]]."
     }
   ],
   "checks": [
@@ -72,6 +80,13 @@
       "uses": [
         "cross-zone-default",
         "cross-zone-semantics"
+      ]
+    },
+    {
+      "do": "For a CloudFormation GWLB add-on that fails or has no targets, whether the listed instances share one instance type, one size and one VPC, and whether the probe port matches the deployment stack.",
+      "uses": [
+        "cfn-gwlb-addon",
+        "cfn-gwlb-addon-checks"
       ]
     }
   ],
@@ -283,11 +298,133 @@
           ]
         }
       ]
+    },
+    "cfn-gwlb-addon": {
+      "statement": "The CloudFormation GWLB add-on takes the EC2 instance IDs of the Cloud Connectors and the HTTP probe port, which must match the one configured in the deployment stack, and registers the instances as IP targets of a GENEVE target group on port 6081.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_gwlb.yaml",
+          "quotes": [
+            "AWS EC2 Instance IDs for Zscaler Cloud Connectors to add to the GWLB Target Group",
+            "Port: 6081 Protocol: GENEVE TargetType: ip",
+            "The HTTP Health Check Probe Port. Allowed values are [80, 1024-65535]. This MUST match what was configured in the deployment stack."
+          ]
+        }
+      ]
+    },
+    "cfn-gwlb-addon-checks": {
+      "statement": "The GWLB add-on's macro registers the primary IP of each instance's device-index-0 interface and reports a failure when the listed Cloud Connectors differ in instance type or sit in more than one VPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "# Only works for static service NIC at index 0",
+            "Targets.append({\"Id\": ip})",
+            "All Cloud Connectors should be of the same instance type. Multiple found",
+            "All Cloud Connectors should be of the same CC Instance Type. Multiple found",
+            "All Cloud Connectors should be in the same VPC, Multiple found",
+            "if len(enis) not in InstanceNumSrvcInts: InstanceNumSrvcInts.append(len(enis))"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_gwlb.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Add-on Template with Gateway Load Balancer (GWLB) v.1.3.3"
+          ]
+        }
+      ]
+    },
+    "cfn-gwlb-defaults": {
+      "statement": "Both CloudFormation GWLB templates default cross-zone load balancing to true, target failover to rebalance and flow stickiness to 5-tuple.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_gwlb.yaml",
+          "quotes": [
+            "GwlbCrossZoneLbEnabled: Type: String Description: \"Select \\\"true\\\" to enable cross-zone load balancing (default), else \\\"false\\\" to disable\" Default: true",
+            "AllowedValues: - no_rebalance - rebalance Default: rebalance",
+            "Default: \"5-tuple\" AllowedValues: - \"5-tuple\" - \"2-tuple\" - \"3-tuple\"",
+            "to enable rebalance failover on target deregistration or if target becomes unhealthy",
+            "Select 2-tuple for source_ip_dest_ip, 3-tuple for source_ip_dest_ip_proto flow stickiness"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "GwlbCrossZoneLbEnabled: Type: String Description: \"Select \\\"true\\\" to enable cross-zone load balancing (default), else \\\"false\\\"\" Default: true",
+            "AllowedValues: - no_rebalance - rebalance Default: rebalance",
+            "Default: \"5-tuple\" AllowedValues: - \"5-tuple\" - \"2-tuple\" - \"3-tuple\"",
+            "to enable rebalance failover on target deregistration or of target becomes unhealthy",
+            "Select 2-tuple for source_ip_dest_ip, 3-tuple for source_ip_dest_ip_proto flow stickiness"
+          ]
+        }
+      ]
+    },
+    "cfn-asg-target-group": {
+      "statement": "The autoscaling template's target group has target type instance on port 6081 GENEVE, probes HTTP path /?cchealth on the probe port every 10 seconds with a healthy threshold of 2 and an unhealthy threshold of 3, and has a deregistration delay of 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "HealthCheckPath: /?cchealth HealthCheckPort: !Ref ZscalerHttpProbePort HealthCheckProtocol: HTTP HealthCheckIntervalSeconds: 10 HealthyThresholdCount: 2 UnhealthyThresholdCount: 3",
+            "Port: 6081 Protocol: GENEVE TargetType: instance",
+            "- Key: deregistration_delay.timeout_seconds Value: 0"
+          ]
+        }
+      ]
+    },
+    "cfn-asg-endpoint-service": {
+      "statement": "The autoscaling template's endpoint service requires no acceptance of new endpoints by default and allows the account's root principal unless service principals are given.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "GwlbAcceptanceRequiredVpcEps: Type: String Description: \"Select \\\"true\\\" to require acceptance for new VPC Endpoints, else \\\"false\\\" (default)\" Default: false",
+            "AllowedPrincipals: !If - UseRootAsServicePrincipal - - !Join - ':' - - !Sub 'arn:${AWS::Partition}:iam:' - !Ref AWS::AccountId - 'root' - !Ref GwlbVpcEpServicePrincipals",
+            "UseRootAsServicePrincipal: !Equals - !Join [\"\", !Ref GwlbVpcEpServicePrincipals] - \"\"",
+            "Description: \"[Optional] A List of comma-separated service principal ARNs\""
+          ]
+        }
+      ]
+    },
+    "cfn-asg-endpoint-per-az": {
+      "statement": "The macro creates a VPC endpoint per availability zone from the endpoint template, each in the first subnet of its zone, and the stack outputs the endpoint IDs for use as route next hops.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "for az, subnets in subnetsByAz.items(): ep_name = f\"ZSCCVPCEP{az}\" ep_resource = copy.deepcopy(CcVpcEpTemplate) ep_resource.get(\"Properties\")[\"SubnetIds\"] = subnets[:1]",
+            "ep_output[\"Value\"] = {\"Ref\": ep_name} outputs[ep_name] = ep_output"
+          ],
+          "after": "# Vpc Ep"
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "ZscalerCcVpcEp: Description: Use this VPC Endpoint for route nexthops",
+            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.3"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
     "probe-interval-default": {
-      "summary": "The default GWLB health-check interval for Cloud Connector targets: Help says Zscaler deployment templates use 30 seconds, the reference Terraform module defaults to 10.",
+      "summary": "The default GWLB health-check interval for Cloud Connector targets: Help says Zscaler deployment templates use 30 seconds, the reference Terraform module and the CloudFormation templates use 10.",
       "positions": [
         {
           "says": "Zscaler deployment templates use a recommended default health-check interval of 30 seconds on the AWS Gateway Load Balancer.",
@@ -308,9 +445,47 @@
               "Interval for GWLB target group health check probing, in seconds, of Cloud Connector targets. Minimum 5 and maximum 300 seconds\" default = 10"
             ]
           }
+        },
+        {
+          "says": "The CloudFormation GWLB templates probe every 10 seconds, with a healthy threshold of 2 and an unhealthy threshold of 3.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_gwlb.yaml",
+            "quotes": [
+              "HealthCheckIntervalSeconds: 10 HealthyThresholdCount: 2 UnhealthyThresholdCount: 3"
+            ]
+          }
         }
       ],
       "impact": "An unhealthy target leaves rotation about three times faster with the module default than Help's 30 seconds implies; check the deployed target group rather than assuming either value."
+    },
+    "cross-zone-template-default": {
+      "summary": "Whether GWLB cross-zone load balancing is on by default: the reference Terraform module leaves it off, the CloudFormation templates turn it on.",
+      "positions": [
+        {
+          "says": "The reference GWLB module's cross_zone_lb_enabled defaults to false.",
+          "evidence": {
+            "source": "tfmod-aws-cloud-connector",
+            "path": "modules/terraform-zscc-gwlb-aws/variables.tf",
+            "quotes": [
+              "description = \"Determines whether GWLB cross zone load balancing should be enabled or not\" default = false"
+            ]
+          }
+        },
+        {
+          "says": "Both CloudFormation GWLB templates default cross-zone load balancing to true.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_gwlb.yaml",
+            "quotes": [
+              "GwlbCrossZoneLbEnabled: Type: String Description: \"Select \\\"true\\\" to enable cross-zone load balancing (default), else \\\"false\\\" to disable\" Default: true",
+              "AllowedValues: - no_rebalance - rebalance Default: rebalance",
+              "Default: \"5-tuple\" AllowedValues: - \"5-tuple\" - \"2-tuple\" - \"3-tuple\""
+            ]
+          }
+        }
+      ],
+      "impact": "The same product deployed by the two repositories spreads flows across availability zones in one and keeps them zone-local in the other; check the deployed load balancer attribute before explaining cross-zone traffic or charges."
     }
   }
 }

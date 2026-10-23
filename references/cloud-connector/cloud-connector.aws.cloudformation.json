@@ -23,19 +23,39 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.traffic-steering"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.iam"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.gwlb"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.security-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.instance-sizing"
     }
   ],
   "prose": [
     {
-      "text": "Zscaler's CloudFormation templates deploy Cloud Connector into a VPC the customer already has. The Terraform path is in [[cloud-connector.aws.reference-modules]]."
+      "text": "Zscaler's CloudFormation templates deploy Cloud Connector into a VPC the customer already has. The Terraform path is in [[cloud-connector.aws.reference-modules]]. {{template-version}} {{china-govcloud}}"
     },
     {
       "label": "Which templates, in which order.",
       "text": "{{existing-vpc}} {{template-sets}} {{template-names}} {{pre-deployment-first}}"
     },
     {
+      "label": "The macro.",
+      "text": "{{macro-transform}} {{macro-lookups}} {{asg-input-validation}}"
+    },
+    {
       "label": "Standard (no autoscaling) parameters.",
-      "text": "{{probe-port-required}} {{standard-defaults}} {{ha-addon-deprecated}}"
+      "text": "{{probe-port-required}} {{standard-defaults}} {{ha-addon-deprecated}} {{simple-defaults}} {{gwlb-addon-compat}}"
     },
     {
       "label": "Autoscaling template.",
@@ -43,7 +63,7 @@
     },
     {
       "label": "Private Access add-on.",
-      "text": "{{zpa-addon}}"
+      "text": "{{zpa-addon}} {{zpa-addon-params}} {{zpa-addon-rules}} Help and the template disagree on the inputs {{divergence:zpa-addon-inputs}}."
     },
     {
       "label": "After the stack.",
@@ -74,6 +94,19 @@
       "uses": [
         "asg-prerequisites",
         "asg-defaults"
+      ]
+    },
+    {
+      "do": "For the Private Access add-on, whether the routes from the resolver endpoint subnets to the target IPs go via Cloud Connector, and whether the inputs match the deployed template rather than Help.",
+      "uses": [
+        "zpa-addon-params",
+        "zpa-addon-inputs"
+      ]
+    },
+    {
+      "do": "Whether the GWLB add-on was layered onto an autoscaling stack, which already contains a Gateway Load Balancer.",
+      "uses": [
+        "gwlb-addon-compat"
       ]
     }
   ],
@@ -283,6 +316,235 @@
           ]
         }
       ]
+    },
+    "template-version": {
+      "statement": "The repository's CloudFormation templates are version 1.3.3, which its changelog dates 2024-08-30.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.3.3 - 2024-08-30"
+          ]
+        }
+      ]
+    },
+    "macro-transform": {
+      "statement": "The Pre-Deployment Template creates a CloudFormation macro named ZSCC-Macro, and the Starter, GWLB add-on, Private Access add-on and autoscaling templates each call it as a transform with the operation ZSCCSIMPLE, ZSCCGWLB, ZSCCZPA or ZSCCASG respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "Type: AWS::CloudFormation::Macro",
+            "Name: 'ZSCC-Macro'"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "operation : ZSCCSIMPLE"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_gwlb.yaml",
+          "quotes": [
+            "operation : ZSCCGWLB"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zpa_r53.yaml",
+          "quotes": [
+            "operation : ZSCCZPA"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "operation : ZSCCASG"
+          ]
+        }
+      ]
+    },
+    "macro-lookups": {
+      "statement": "When no AMI is given the macro finds the newest AWS Marketplace image by product code, using a separate product code in China regions, and it reads the Secrets Manager secret by name, ZS/CC/credentials unless the secret-name parameter says otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "if RegionName.startswith('cn-'):",
+            "describe_images(Owners=[\"aws-marketplace\"], Filters=filters)",
+            "key=lambda x: x.get(\"CreationDate\")",
+            "ImageId = response[-1].get(\"ImageId\")",
+            "SecretManagerSecretName = event[\"templateParameterValues\"].get(\"ZscalerSecretManagerSecretName\", \"ZS/CC/credentials\")",
+            "secret = secretsmanager_client.get_secret_value(SecretId=SecretManagerSecretName)",
+            "ImageId = event.get(\"templateParameterValues\").get(\"ZscalerOsAmi\") else: RegionName = boto3.session.Session().region_name",
+            "ImageCode = \"axnpwhsb4facossmbm1h9yad6\" else: ImageCode = event[\"fragment\"][\"Mappings\"][\"Product2Code\"][\"CloudConnector\"][\"Code\"]",
+            "filters = [{\"Name\": \"product-code\", \"Values\":[ImageCode]}]"
+          ]
+        }
+      ]
+    },
+    "china-govcloud": {
+      "statement": "AWS GovCloud (US) support arrived in template version 1.1.0, and AWS China (Beijing) and (Ningxia) support through the China Marketplace in 1.3.3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## [1.1.0] - 2023-11-1 ------------ FEATURES: * AWS GovCloud (US) support",
+            "## 1.3.3 - 2024-08-30 ------------ ENHANCEMENTS: * add support for AWS China Marketpkace deployments in the AWS China (Beijing) region and AWS China (Ningxia) region"
+          ]
+        }
+      ]
+    },
+    "gwlb-addon-compat": {
+      "statement": "The GWLB add-on template is compatible only with the Starter Deployment Template, because autoscaling deployments include the Gateway Load Balancer automatically, and Zscaler's recommended deployment method is GWLB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "README.md",
+          "quotes": [
+            "Zscaler's recommended deployment method is Gateway Load Balancer (GWLB). <b>This add-on is only compatible with Starter Deployment Template as Auto Scaling deployments include GWLB automatically.</b>"
+          ]
+        }
+      ]
+    },
+    "simple-defaults": {
+      "statement": "In the Starter template the EC2 instance type defaults to m6i.large, the size to small and the HTTP monitor probe port to 50000 (allowed values 80 and 1024 to 65535), and the instance has an EBS-optimized gp3 volume on /dev/sda1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "Default: m6i.large",
+            "CCInstanceType: AllowedValues: - small - medium - large Default: small",
+            "Allowed values are 80, 1024-65535. Defaults to 50000",
+            "EbsOptimized: \"true\"",
+            "VolumeType: \"gp3\"",
+            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3",
+            "BlockDeviceMappings: - DeviceName: \"/dev/sda1\" Ebs: VolumeType: \"gp3\""
+          ]
+        }
+      ]
+    },
+    "zpa-addon-params": {
+      "statement": "The Private Access add-on takes up to 6 resolver endpoint subnets and up to 6 target IPs, requires that the routes from those subnets to the target IPs go via Cloud Connector, and defaults the target IPs to 185.46.212.88 and 185.46.212.89.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zpa_r53.yaml",
+          "quotes": [
+            "Subnets (max 6) for the Resolver Endpoints. The routes to reach the Target IPs from these subnets must be via Zscaler Cloud Connector(s)",
+            "Target IPs (max 6) for the Resolver Endpoints to forward DNS queries. The Target IPs must be reachable via Zscaler Cloud Connector(s).",
+            "Default: 185.46.212.88 , 185.46.212.89"
+          ]
+        }
+      ]
+    },
+    "zpa-addon-rules": {
+      "statement": "The Private Access add-on creates system-type resolver rules for the Zscaler cloud domain, the Private Access cloud domain (prod.zpath.net for ZPA, zpabeta.net for ZPA-Beta), zscaler.com, freebsd.org, ntp.org and amazonaws.com, plus a forwarding rule per application domain whose resolver security group allows all protocols in and out from 0.0.0.0/0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zpa_r53.yaml",
+          "quotes": [
+            "DomainName: !Ref ZscalerCloudName Name: !Sub '${AWS::StackName}-ZSCloudRule' RuleType: SYSTEM",
+            "DomainName: !FindInMap [ZPACloudMap, !Ref ZPACloudName, domain] Name: !Sub '${AWS::StackName}-ZPACloudRule' RuleType: SYSTEM",
+            "ZPA: domain: prod.zpath.net ZPA-Beta: domain: zpabeta.net",
+            "DomainName: zscaler.com Name: !Sub '${AWS::StackName}-ZScalerComRule' RuleType: SYSTEM",
+            "DomainName: freebsd.org Name: !Sub '${AWS::StackName}-FreeBSDRule' RuleType: SYSTEM",
+            "DomainName: ntp.org Name: !Sub '${AWS::StackName}-NtpOrgCloudRule' RuleType: SYSTEM",
+            "DomainName: amazonaws.com Name: !Sub '${AWS::StackName}-AmazonAWSRule' RuleType: SYSTEM",
+            "SecurityGroupIngress: - IpProtocol: '-1' CidrIp: 0.0.0.0/0 SecurityGroupEgress: - IpProtocol: '-1' CidrIp: 0.0.0.0/0",
+            "ResolverEndpointId: !Ref AppSegmentOutboundResolver RuleType: FORWARD"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "new_rule_res[\"Properties\"][\"TargetIps\"].append({\"Ip\": targetIp, \"Port\": 53})",
+            "for i in range(len(app_domains_list)): app_domain = app_domains_list[i]",
+            "new_rule_res[\"Properties\"][\"DomainName\"] = app_domain"
+          ]
+        }
+      ]
+    },
+    "asg-input-validation": {
+      "statement": "The autoscaling template's macro checks that every Cloud Connector subnet is in the chosen VPC and in one of the chosen availability zones and that each chosen zone has a subnet, and VPC endpoint subnets, when given, override the Cloud Connector subnets with one picked per zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "Subnet {ec2_subnet.get('SubnetId')} is not part of Vpc {vpc}.",
+            "is not part of given zones {availability_zones}.",
+            "does not have any subnets specified in Vpc Endpoint Subnets if specified or in CloudConnector Subnets",
+            "override the CC Subnets. One subnet in each AZ is picked",
+            "Description: Zscaler Cloud Connector Pre-Deployment Macro Template v1.3.3"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "[Optional] A List of comma-separated VPC EP Subnets to create VPC Endpoints in (one per Az). Specifying subnets here will override Cloud-connector subnets being used for VPC Endpoints",
+            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.3"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "zpa-addon-inputs": {
+      "summary": "What the Private Access add-on takes as input: Help lists a Cloud Connector service ENI and up to 10 domain names, the template lists neither and bounds the domains by length.",
+      "positions": [
+        {
+          "says": "The add-on takes the Cloud Connector's service ENI and up to 10 domain names.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
+            "quotes": [
+              "ServiceENI ID of Zscaler CC: Enter the elastic service interface (ENI) of the Zscaler Cloud Connector instance.",
+              "You can enter up to 10 domain names."
+            ]
+          }
+        },
+        {
+          "says": "The template's parameters are the Zscaler cloud name, ZPA cloud name, VPC, resolver endpoint subnets and target IPs, plus application domain names limited to 4096 characters; it has no service ENI parameter.",
+          "evidence": {
+            "source": "cft-aws-cloud-connector",
+            "path": "cloudformation-templates/zs_cc_cf_template_zpa_r53.yaml",
+            "quotes": [
+              "Parameters: - ZscalerCloudName - ZPACloudName - VPCID - ResolverEPSubnets - TargetIPs",
+              "Comma Seperated Application Domain Names (Max 4096 characters)"
+            ]
+          }
+        }
+      ],
+      "impact": "A deployment written from Help supplies a service ENI the current template does not ask for, and a domain list is bounded by 4096 characters in the template, not by a count of 10; read the template version actually deployed."
     }
   }
 }

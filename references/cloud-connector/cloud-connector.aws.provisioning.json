@@ -29,6 +29,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -50,6 +54,10 @@
     {
       "label": "When registration fails.",
       "text": "{{wrong-url-recreate}} {{userdata-cfg-check}} Whether a regenerated URL leaves an autoscaling launch template stale is not documented {{gap:stale-url-launch-template}}. The full not-registered checklist is in [[cloud-connector.aws.troubleshooting]]."
+    },
+    {
+      "label": "CloudFormation templates.",
+      "text": "{{cfn-user-data}} {{cfn-prov-url}} {{cfn-imdsv2}} {{macro-secret-read}}"
     }
   ],
   "checks": [
@@ -81,6 +89,12 @@
         "asg-launch-template-user-data",
         "lambda-holds-url",
         "stale-url-launch-template"
+      ]
+    },
+    {
+      "do": "Whether the Secrets Manager secret named in a CloudFormation stack exists in the stack's Region before the stack is created.",
+      "uses": [
+        "macro-secret-read"
       ]
     }
   ],
@@ -317,6 +331,84 @@
           ]
         }
       ]
+    },
+    "cfn-user-data": {
+      "statement": "The CloudFormation launch user data is a [ZSCALER] section with CC_URL (the provisioning URL), SECRET_NAME and HTTP_PROBE_PORT, falling back to ZS/CC/credentials and 50000 when the secret name or probe port is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "- '[ZSCALER]' - !Join ['=', [ 'CC_URL', !Ref ZscalerCloudConnectorProvUrl]] - !Join ['=', ['SECRET_NAME', !If [SecretsManagerNameNotEmpty, !Ref ZscalerSecretManagerSecretName, 'ZS/CC/credentials']]] - !Join ['=', ['HTTP_PROBE_PORT', !If [HttpProbePortNotEmpty, !Ref HttpProbePort, '50000']]]"
+          ]
+        }
+      ]
+    },
+    "cfn-prov-url": {
+      "statement": "Both CloudFormation deployment templates reject an empty provisioning URL and accept only a URL on an admin or connector host with an api/v1/provUrl path, and the autoscaling template notes that its provisioning template needs Auto Scaling enabled in Group Information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "AllowedPattern: '(admin|connector).zs.*.net(/ec)?/w?api/v1/provUrl\\?name=[\\w-_]+'",
+            "AssertionDescription: Cloud Connector Provisioning URL cannot be empty!"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Description: \"Obtained from Cloud Connector Portal. Template requires Auto Scaling ENABLED in Group Information\"",
+            "AssertionDescription: Cloud Connector Provisioning URL cannot be empty!",
+            "AllowedPattern: '(admin|connector).zs.*.net(/ec)?/w?api/v1/provUrl\\?name=[\\w-_]+'"
+          ]
+        }
+      ]
+    },
+    "cfn-imdsv2": {
+      "statement": "Both CloudFormation launch templates require IMDSv2 (HttpTokens required) on the Cloud Connector instances, and the autoscaling launch template also enables instance metadata tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "MetadataOptions: HttpEndpoint: enabled HttpTokens: required"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "MetadataOptions: HttpEndpoint: enabled HttpTokens: required InstanceMetadataTags: enabled"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "- fix: enforce imdsv2 for cloudconnector instances"
+          ]
+        }
+      ]
+    },
+    "macro-secret-read": {
+      "statement": "The secret named in the stack is read by the macro at stack time through secretsmanager get_secret_value, so the secret has to exist in the stack's Region under that name, ZS/CC/credentials by default.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "SecretManagerSecretName = event[\"templateParameterValues\"].get(\"ZscalerSecretManagerSecretName\", \"ZS/CC/credentials\")",
+            "secret = secretsmanager_client.get_secret_value(SecretId=SecretManagerSecretName)"
+          ]
+        }
+      ],
+      "conditions": "The macro runs while CloudFormation processes the stack, so a missing secret makes that lookup fail before instances are created; the Region is the one the stack runs in because the Secrets Manager client is created without a Region argument."
     }
   },
   "gaps": {

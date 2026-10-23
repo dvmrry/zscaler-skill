@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.sentinel-module",
+  "title": "Terraform module for Cloud NSS to Microsoft Sentinel",
+  "aliases": [
+    "terraform sentinel cloud nss",
+    "zia sentinel cloud nss",
+    "sentinel data collection rule zscaler",
+    "sentinel dce",
+    "web_log_config",
+    "dns_log_config",
+    "firewall_log_config",
+    "sentinel custom table zscaler",
+    "monitoring metrics publisher zscaler"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss.delivery-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.siem-mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.cloud-nss-feeds"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{support}} {{stale}}"
+    },
+    {
+      "label": "Workspace and tables.",
+      "text": "{{workspace}} {{tables}}"
+    },
+    {
+      "label": "Ingestion path.",
+      "text": "{{dce}} {{dcr-flow}}"
+    },
+    {
+      "label": "Credentials and outputs.",
+      "text": "{{aad-app}} {{outputs}} The Cloud NSS feed's own Sentinel fields are in [[zia.api.cloud-nss-feeds]]."
+    },
+    {
+      "label": "Providers.",
+      "text": "{{provider-pins}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which tables exist and what their names are, since a name without _CL gets it appended and disabled log types create nothing.",
+      "uses": [
+        "tables"
+      ]
+    },
+    {
+      "do": "What the Cloud NSS feed needs from the module: the endpoint URL per table, the application ID, tenant ID and secret.",
+      "uses": [
+        "outputs",
+        "aad-app"
+      ]
+    }
+  ],
+  "claims": {
+    "support": {
+      "statement": "The Sentinel Cloud NSS Terraform module is community supported: Zscaler employees still support it, but Zscaler support does not, and issues go to its GitHub Issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "README.md",
+          "quotes": [
+            "This Terraform module is community supported. Although the module is still supported by Zscaler employees, it is **NOT** supported by Zscaler support.",
+            "Please open all enhancement requests and issues on [Github Issues](https://github.com/zscaler/terraform-azurerm-zia-sentinel-cloud-nss/issues) for support."
+          ]
+        }
+      ]
+    },
+    "purpose": {
+      "statement": "The module deploys the Azure side of a Zscaler Cloud NSS to Microsoft Sentinel integration: Sentinel and Log Analytics workspaces, Data Collection Endpoints, Data Collection Rules and custom tables, one table per supported log type: Web, DNS and Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "README.md",
+          "quotes": [
+            "The module contains all the necessary resources required to deploy Azure Sentinel, including Azure Sentinel workspaces, Log Analytics workspaces, Data Collection Endpoints, Data Collection Rules, and custom tables.",
+            "This template is designed to create individual custom tables for all Zscaler's supported log ingestion types: Web, DNS, and Firewall logs."
+          ]
+        }
+      ]
+    },
+    "tables": {
+      "statement": "Each of the web, firewall and DNS log tables is disabled by default, needs a non-empty table_name when enabled, and has _CL appended to its name when the name does not already end in _CL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "variables.tf",
+          "quotes": [
+            "description = \"The web logs config\"\n\n  default = {\n    enabled    = false",
+            "description = \"The firewall log config\"\n\n  default = {\n    enabled    = false",
+            "description = \"The dns log config\"\n\n  default = {\n    enabled    = false",
+            "(var.web_log_config.enabled && length(var.web_log_config.table_name) > 0) || (!var.web_log_config.enabled)",
+            "(var.firewall_log_config.enabled && length(var.firewall_log_config.table_name) > 0) || (!var.firewall_log_config.enabled)",
+            "(var.dns_log_config.enabled && length(var.dns_log_config.table_name) > 0) || (!var.dns_log_config.enabled)"
+          ]
+        },
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "locals.tf",
+          "quotes": [
+            "endswith(var.web_log_config.table_name, \"_CL\") ? var.web_log_config.table_name : \"${var.web_log_config.table_name}_CL\"",
+            "endswith(var.firewall_log_config.table_name, \"_CL\") ? var.firewall_log_config.table_name : \"${var.firewall_log_config.table_name}_CL\"",
+            "endswith(var.dns_log_config.table_name, \"_CL\") ? var.dns_log_config.table_name : \"${var.dns_log_config.table_name}_CL\""
+          ]
+        }
+      ]
+    },
+    "workspace": {
+      "statement": "The workspace SKU defaults to PerGB2018 and retention to 90 days, with retention validated between 30 and 730 days; the module enables the SecurityInsights solution on the workspace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "variables.tf",
+          "quotes": [
+            "default     = \"PerGB2018\"",
+            "var.retention_in_days >= 30 && var.retention_in_days <= 730",
+            "default     = 90"
+          ]
+        },
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "main.tf",
+          "quotes": [
+            "solution_name         = \"SecurityInsights\""
+          ]
+        }
+      ]
+    },
+    "dce": {
+      "statement": "The Data Collection Endpoint kind defaults to Windows (Linux is the only other value) and the endpoint has public network access enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "variables.tf",
+          "quotes": [
+            "default     = \"Windows\"",
+            "var.dce_kind == \"Linux\"",
+            "Possible values are Linux and Windows"
+          ]
+        },
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "azurerm-sentinel-data-collection.tf",
+          "quotes": [
+            "public_network_access_enabled = true"
+          ]
+        }
+      ]
+    },
+    "dcr-flow": {
+      "statement": "For each enabled table the Data Collection Rule declares a Custom stream and a data flow that applies a KQL transform and writes to the Microsoft-CommonSecurityLog output stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "azurerm-sentinel-data-collection.tf",
+          "quotes": [
+            "output_stream = \"Microsoft-CommonSecurityLog\"",
+            "\"Custom-${data_flow.key}\",",
+            "transform_kql = data_flow.value.kql",
+            "stream_name = \"Custom-${stream_declaration.key}\""
+          ]
+        },
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "azurerm-sentinel-data-collection.tf",
+          "quotes": [
+            "if t.enabled"
+          ],
+          "after": "dynamic \"data_flow\" {"
+        }
+      ]
+    },
+    "aad-app": {
+      "statement": "The module registers an Azure AD application with a service principal and a generated client secret, and grants it the Monitoring Metrics Publisher role scoped to the Data Collection Rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "azuread-sentinel-application.tf",
+          "quotes": [
+            "resource \"azuread_application_password\" \"this\" {",
+            "name = \"Monitoring Metrics Publisher\"",
+            "scope              = azurerm_monitor_data_collection_rule.this.id",
+            "resource \"azuread_service_principal\" \"this\" {",
+            "resource \"azurerm_role_assignment\" \"sentinel_app_role_assignment\" {"
+          ]
+        }
+      ]
+    },
+    "outputs": {
+      "statement": "The module outputs the application ID, tenant ID, a sensitive client secret, the logs ingestion endpoint, the rule's immutable ID and an endpoint URL that uses api-version 2021-11-01-preview unless api_version is changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "outputs.tf",
+          "quotes": [
+            "output \"application_id\" {",
+            "output \"tenant_id\" {",
+            "output \"immutable_id\" {",
+            "output \"logs_ingestion_endpoint\" {",
+            "sensitive   = true",
+            "endpoint_url = \"${azurerm_monitor_data_collection_endpoint.this.logs_ingestion_endpoint}/dataCollectionRules/${azurerm_monitor_data_collection_rule.this.immutable_id}/streams/Custom-${t.table_name}?api-version=${var.api_version}\"",
+            "output \"azuread_application_password\" {",
+            "The password for this application, which is generated by Azure Active Directory."
+          ]
+        },
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "variables.tf",
+          "quotes": [
+            "default     = \"2021-11-01-preview\""
+          ]
+        }
+      ]
+    },
+    "provider-pins": {
+      "statement": "The module pins azurerm to ~> 3.60.0, azuread to ~> 2.39.0 and azapi to ~> 1.7.0, and sets the azurerm provider so that resource groups are deleted even if they still contain resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "versions.tf",
+          "quotes": [
+            "version = \"~> 3.60.0\"",
+            "version = \"~> 2.39.0\"",
+            "version = \"~> 1.7.0\"",
+            "prevent_deletion_if_contains_resources = false"
+          ]
+        }
+      ]
+    },
+    "stale": {
+      "statement": "The module's changelog dates its 1.3.0 entry 2023-07-03.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-azure-sentinel-nss",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## [1.3.0](https://github.com/zscaler/terraform-azurerm-zia-sentinel-cloud-nss/compare/v1.2.0...v1.3.0) (2023-07-03)",
+            "All notable changes to this project will be documented in this file."
+          ]
+        }
+      ]
+    }
+  }
+}

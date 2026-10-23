@@ -13,7 +13,10 @@
     "hmacSecretFailed",
     "tokenExpired",
     "noZpaService",
-    "zsdk api errors"
+    "zsdk api errors",
+    "ZscalerSDKErrorDomain",
+    "ZscalerSDKErrorCode",
+    "ZscalerSDKErrorCodeMissingSubInAccessToken"
   ],
   "related": [
     {
@@ -23,6 +26,10 @@
     {
       "rel": "see-also",
       "to": "shared.zsdk.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.sdk-integration"
     }
   ],
   "prose": [
@@ -94,6 +101,12 @@
           ]
         ]
       }
+    },
+    {
+      "heading": "The iOS header"
+    },
+    {
+      "text": "{{ios-error-constants}} {{ios-oneid-constants}} Which numbers these carry is open {{gap:ios-numeric-codes}}. The header's comment on the multiple-registrations constant differs from the table {{divergence:multiple-zpa-comment}}."
     }
   ],
   "checks": [
@@ -192,6 +205,15 @@
             "| 9504 | connectionTerminatedWhileUpgrading | Connection was terminated during upgrade to the Zero Trust tunnel. The existing Prelogin tunnel is invalid and stopped. |",
             "| 9505 | tunnelUpgradeFailed | The upgrade to the Zero Trust tunnel failed. The Prelogin tunnel remains active. |"
           ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKErrorCode.h",
+          "quotes": [
+            "/// Tunnel already running",
+            "/// Connection with Broker was terminated unexpectedly while attempting to upgrade, resulting in tunnel disconnection.",
+            "/// The PreLogin tunnel remains active to ensure continued connectivity."
+          ]
         }
       ]
     },
@@ -285,6 +307,96 @@
             "| 2999 | csrfViolation | The Cross-Site Request Forgery (CSRF) violates security policies. |"
           ]
         }
+      ]
+    },
+    "ios-error-constants": {
+      "statement": "The iOS header declares the SDK error constants in the NSErrorDomain ZscalerSDKErrorDomain, an extensible NSInteger enum ZscalerSDKErrorCode: Unknown, InvalidParameter, NoNetwork, TimeOut, DnsFailure, TunnelError, PermissionDenied, TunnelAlreadyRunning, TunnelStartPendingInSDK, TunnelAuthenticationFailed, ConnectionTerminatedWhileUpgrading and TunnelUpgradeFailed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKErrorCode.h",
+          "quotes": [
+            "FOUNDATION_EXPORT NSErrorDomain const ZscalerSDKErrorDomain;",
+            "typedef NSInteger ZscalerSDKErrorCode NS_TYPED_EXTENSIBLE_ENUM;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeUnknown;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeInvalidParameter;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeNoNetwork;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeTimeOut;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeDnsFailure;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeTunnelError;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodePermissionDenied;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeTunnelAlreadyRunning;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeTunnelStartPendingInSDK;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeTunnelAuthenticationFailed;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeConnectionTerminatedWhileUpgrading;",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeTunnelUpgradeFailed;"
+          ]
+        }
+      ]
+    },
+    "ios-oneid-constants": {
+      "statement": "Under a `OneIdErrors` section the iOS header also declares constants for token claim validation (`ZscalerSDKErrorCodeTokenClaimValidationFailed`), a missing sub in the access token (`ZscalerSDKErrorCodeMissingSubInAccessToken`), client-assertion generation, SAML assertion generation, signing and serialization failures, and a missing certificate_id in the SAML config (`ZscalerSDKErrorCodeMissingCertificateIdSamlConfig`).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKErrorCode.h",
+          "quotes": [
+            "#pragma mark OneIdErrors",
+            "/// Failed to validate token claim(s)",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeTokenClaimValidationFailed;",
+            "/// Missing sub in the Access Token",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeMissingSubInAccessToken;",
+            "/// Failure generating Client Assertion",
+            "/// Failure generating SAML Assertion",
+            "/// Failure signing SAML Assertion",
+            "/// Failure serializing SAML Assertion",
+            "/// Property certificate_id is missing from saml config",
+            "ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeMissingCertificateIdSamlConfig;"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "multiple-zpa-comment": {
+      "summary": "What the iOS constant for multiple Private Access services means.",
+      "positions": [
+        {
+          "says": "The help error table says 2004 multipleZpaService means there are multiple registered Private Access services.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-understanding-zsdk-error-codes.json",
+            "quotes": [
+              "| 2004 | multipleZpaService | There are multiple, registered Private Access services."
+            ]
+          }
+        },
+        {
+          "says": "The iOS header comment on ZscalerSDKErrorCodeMultipleZpaService reads 'No ZPA Service is registered', the same text as the no-service constant.",
+          "evidence": {
+            "source": "zsdk-ios",
+            "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKErrorCode.h",
+            "quotes": [
+              "/// No ZPA Service is registered ZSDK_EXTERN ZscalerSDKErrorCode const ZscalerSDKErrorCodeMultipleZpaService;"
+            ]
+          }
+        }
+      ],
+      "impact": "The header comment looks copied from the no-service constant; read ZscalerSDKErrorCodeMultipleZpaService as the multiple-registrations error."
+    }
+  },
+  "gaps": {
+    "ios-numeric-codes": {
+      "kind": "semantic",
+      "title": "Numeric values behind the iOS error constants",
+      "status": "open",
+      "detail": "The iOS header declares error constants without numeric values, and the help table has no rows for 2014, 2017-2021 or 2025. Which numbers the SAML, client-assertion, token-claim and missing-sub constants carry, and whether the names match the help table's names one to one, is not shown in either source.",
+      "blocks": "mapping an iOS ZscalerSDKErrorCode constant to a code in the help table",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
       ]
     }
   }

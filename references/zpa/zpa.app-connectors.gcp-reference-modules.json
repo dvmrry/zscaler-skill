@@ -1,0 +1,828 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.gcp-reference-modules",
+  "title": "Reference Terraform modules for App Connectors on GCP",
+  "aliases": [
+    "terraform gcp app connector module",
+    "gcp app connector managed instance group",
+    "gcp app connector autoscaler",
+    "zsac gcp",
+    "acvm_instance_type",
+    "terraform-gcp-zpa-app-connector-modules",
+    "gcp app connector mig",
+    "module defaults app connector gcp"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.provisioning-keys"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.gcp-reference-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The GCP reference modules deploy App Connector VMs as zonal managed instance groups behind a Cloud NAT and create the ZPA App Connector Group and Provisioning Key. They are the GCP counterpart of the AWS and Azure modules described in [[zpa.app-connectors.deployment]]."
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{rhel9-since-1-1-0}} {{provider-versions}} {{gcp-prereqs}} {{oneapi-auth}} {{wrapper-auth}}"
+    },
+    {
+      "label": "Examples.",
+      "text": "{{example-types}} {{name-prefix}} {{divergence:wrapper-script-name}}"
+    },
+    {
+      "label": "VMs.",
+      "text": "{{vm-size}} {{vm-template}} {{fixed-mig-layout}} {{zones-az-count}} {{update-policy}}"
+    },
+    {
+      "label": "Image and bootstrap.",
+      "text": "{{image-pinned}} {{image-rhel9-fallback}} {{bootstrap-provision-key}} {{group-user-codes}} How the user codes are collected is open {{gap:oauth-flow-on-gcp}}; see [[zpa.app-connectors.enrollment]]."
+    },
+    {
+      "label": "Autoscaling.",
+      "text": "{{asg-defaults}} {{asg-metrics}} {{asg-health-check}} {{asg-owns-size}}"
+    },
+    {
+      "label": "ZPA objects.",
+      "text": "{{group-fixed-lookups}} {{group-defaults}} {{divergence:override-version-profile-default}} {{key-module}} {{key-max-usage}}"
+    },
+    {
+      "label": "Network.",
+      "text": "{{network-resources}} {{network-firewall}} {{bastion-open}}"
+    },
+    {
+      "label": "Teardown.",
+      "text": "{{destroy-removes-zpa}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which VM size and disk the module deploys.",
+      "uses": [
+        "vm-size",
+        "vm-template"
+      ]
+    },
+    {
+      "do": "Whether the deployment is fixed-size or autoscaling and what the min and max apply to (per zone).",
+      "uses": [
+        "fixed-mig-layout",
+        "asg-defaults",
+        "asg-owns-size"
+      ]
+    },
+    {
+      "do": "Whether the provisioning key max_usage leaves headroom for scale-out and replacement.",
+      "uses": [
+        "key-max-usage",
+        "asg-defaults"
+      ]
+    },
+    {
+      "do": "What the autohealing health check actually probes.",
+      "uses": [
+        "asg-health-check"
+      ]
+    },
+    {
+      "do": "Which version profile the module-created group ends up with.",
+      "uses": [
+        "group-fixed-lookups",
+        "override-version-profile-default"
+      ]
+    }
+  ],
+  "claims": {
+    "rhel9-since-1-1-0": {
+      "statement": "As of module version 1.1.0 the GCP App Connector module deploys all App Connectors on Red Hat Enterprise Linux 9.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "As of version 1.1.0 of this module, all App Connectors are deployed using the new [Red Hat Enterprise Linux 9]"
+          ]
+        }
+      ]
+    },
+    "provider-versions": {
+      "statement": "The README lists the Google provider v7.31.x, random v3.8.x, local v2.8.x, null v3.2.x, tls v4.2.x and the ZPA provider v4.4.x, with Terraform v1.1.9 and any Terraform version 0.13.7 generally supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "The GCP Terraform scripts leverage Terraform v1.1.9",
+            "any Terraform version 0.13.7 should be generally supported.",
+            "provider registry.terraform.io/hashicorp/google v7.31.x",
+            "provider registry.terraform.io/hashicorp/random v3.8.x",
+            "provider registry.terraform.io/hashicorp/local v2.8.x",
+            "provider registry.terraform.io/hashicorp/null v3.2.x",
+            "provider registry.terraform.io/hashicorp/tls v4.2.x",
+            "provider registry.terraform.io/zscaler/zpa v4.4.x"
+          ]
+        }
+      ]
+    },
+    "oneapi-auth": {
+      "statement": "The module authenticates the ZPA provider through OneAPI (OAuth2 via Zidentity), which the README recommends for new deployments; the provider keeps the legacy ZPA API framework for tenants not yet migrated, and OneAPI and Zidentity are not supported in the GOV and GOVUS clouds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "README.md",
+          "quotes": [
+            "authenticates against Zscaler [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi) using OAuth2 through [Zidentity](https://help.zscaler.com/zidentity/what-zidentity). OneAPI is the recommended authentication method for all new deployments.",
+            "The provider also retains backwards compatibility with the legacy ZPA API framework for organizations whose tenants have not yet been migrated to Zidentity.",
+            "**NOTE:** OneAPI and Zidentity are not supported in the `GOV` and `GOVUS` clouds. Tenants in those environments must use the legacy ZPA authentication method."
+          ]
+        }
+      ]
+    },
+    "gcp-prereqs": {
+      "statement": "The examples need a GCP project with billing enabled and the compute.googleapis.com, iam.googleapis.com and cloudresourcemanager.googleapis.com APIs enabled; authentication is Application Default Credentials (recommended) or a service account keyfile with at least roles/compute.admin and roles/iam.serviceAccountUser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "GCP project with billing enabled.",
+            "Enabled APIs: `compute.googleapis.com`, `iam.googleapis.com`, `cloudresourcemanager.googleapis.com`.",
+            "Recommended: Application Default Credentials (`gcloud auth application-default login`). Leave the `credentials` tfvar commented out.",
+            "Or: a service account JSON keyfile with at least `roles/compute.admin` and `roles/iam.serviceAccountUser`."
+          ]
+        }
+      ]
+    },
+    "example-types": {
+      "statement": "The GCP module ships four examples: base_ac and base_ac_asg (greenfield, with a Management VPC, Cloud Router, NAT and a bastion host) and ac and ac_asg (brownfield, no bastion, every network primitive reusable through byo_* variables); the base_ac and ac examples run a fixed ac_count per zone and the _asg examples add a Compute Autoscaler per zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "Fixed (`base_ac` / `ac`)** examples deploy a pinned number of App Connectors per zone (`ac_count`).",
+            "Autoscaling (`base_ac_asg` / `ac_asg`)** examples add a `google_compute_autoscaler` per zonal MIG",
+            "Every network primitive is byo_* togglable",
+            "(VPC, subnet, Cloud Router, NAT). No bastion. Use for production with a steady-state connector count.",
+            "1 new Management VPC + AC subnet + bastion subnet, 1 Cloud Router + NAT,",
+            "### Greenfield deployment types",
+            "Same network/bastion topology as base_ac",
+            "### Brownfield deployment types",
+            "Same brownfield BYO surface as ac (no bastion,",
+            "1 bastion host with auto-generated SSH key pair"
+          ]
+        }
+      ]
+    },
+    "vm-size": {
+      "statement": "The GCP App Connector VM module defaults acvm_instance_type to n2-standard-4 and validates it against n2-standard-4, n2-highcpu-4, n1-standard-4, n1-highcpu-4, n2-standard-8, n2-highcpu-8, n1-standard-8 and n1-highcpu-8.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "quotes": [
+            "default     = \"n2-standard-4\"",
+            "var.acvm_instance_type == \"n2-standard-4\" || var.acvm_instance_type == \"n2-highcpu-4\" || var.acvm_instance_type == \"n1-standard-4\" || var.acvm_instance_type == \"n1-highcpu-4\" ||",
+            "var.acvm_instance_type == \"n2-standard-8\" || var.acvm_instance_type == \"n2-highcpu-8\" || var.acvm_instance_type == \"n1-standard-8\" || var.acvm_instance_type == \"n1-highcpu-8\""
+          ]
+        }
+      ]
+    },
+    "vm-template": {
+      "statement": "Each App Connector instance template boots from a pd-balanced boot disk whose size defaults to 64 GB, with automatic_restart true and on_host_maintenance MIGRATE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/main.tf",
+          "quotes": [
+            "disk_type    = \"pd-balanced\"",
+            "disk_size_gb = var.disk_size",
+            "automatic_restart   = true",
+            "on_host_maintenance = \"MIGRATE\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "quotes": [
+            "default     = \"64\""
+          ],
+          "after": "variable \"disk_size\" {"
+        }
+      ]
+    },
+    "fixed-mig-layout": {
+      "statement": "The fixed-size module creates one zonal managed instance group per zone, each with target_size equal to ac_count (default 1), so total connectors are ac_count times the number of zones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/main.tf",
+          "quotes": [
+            "# Create Zonal Managed Instance Groups per number of zones defined",
+            "# Create X number of App Connectors in each group per ac_count variable",
+            "count   = length(var.zones)",
+            "target_size = var.ac_count"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "quotes": [
+            "default     = 1"
+          ],
+          "after": "variable \"ac_count\" {"
+        }
+      ]
+    },
+    "zones-az-count": {
+      "statement": "The examples create zonal groups in the first az_count available zones of the region (az_count defaults to 1 and is validated between 1 and 3), or in the distinct zones listed in the zones variable when it is non-empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/variables.tf",
+          "quotes": [
+            "default     = 1",
+            "(var.az_count >= 1 && var.az_count <= 3)"
+          ],
+          "after": "variable \"az_count\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/main.tf",
+          "quotes": [
+            "zones_list = length(var.zones) == 0 ? slice(data.google_compute_zones.available.names, 0, var.az_count) : distinct(var.zones)"
+          ]
+        }
+      ]
+    },
+    "update-policy": {
+      "statement": "The MIG update policy defaults to type OPPORTUNISTIC, replacement method SUBSTITUTE, maximum surge 1 and maximum unavailable 1, with minimal and most-disruptive action REPLACE; per the variable description OPPORTUNISTIC means no action is proactively executed and an update happens as part of other actions such as resizes or recreateInstances calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "quotes": [
+            "default     = \"OPPORTUNISTIC\"",
+            "OPPORTUNISTIC so that no action is proactively executed but the update will be performed as part of other actions (for example, resizes or recreateInstances calls)",
+            "default     = \"SUBSTITUTE\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "quotes": [
+            "default     = 1"
+          ],
+          "after": "variable \"update_policy_max_surge_fixed\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "quotes": [
+            "default     = 1"
+          ],
+          "after": "variable \"update_max_unavailable_fixed\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/main.tf",
+          "quotes": [
+            "minimal_action                 = \"REPLACE\"",
+            "most_disruptive_allowed_action = \"REPLACE\""
+          ]
+        }
+      ]
+    },
+    "image-pinned": {
+      "statement": "The examples look up a specific named image, zpa-connector-el9-2025-11, in the Google Marketplace project mpi-zpa-gcp-marketplace when use_zscaler_image is true (the default), although the image_name variable description says templates always pull the latest from Google Marketplace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/main.tf",
+          "quotes": [
+            "project = \"mpi-zpa-gcp-marketplace\"",
+            "name    = \"zpa-connector-el9-2025-11\"",
+            "count   = var.use_zscaler_image ? 1 : 0"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "quotes": [
+            "Ideally all VMs should be on the same Image as templates always pull the latest from Google Marketplace.",
+            "Custom image name to be used for deploying App Connector appliances."
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/variables.tf",
+          "quotes": [
+            "default     = true"
+          ],
+          "after": "variable \"use_zscaler_image\" {"
+        }
+      ]
+    },
+    "image-rhel9-fallback": {
+      "statement": "With use_zscaler_image false the examples use the latest rhel-9 family image from the rhel-cloud project and a startup script that writes the Zscaler yum repository https://yum.private.zscaler.com/yum/el9 and installs zpa-connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/main.tf",
+          "quotes": [
+            "family  = \"rhel-9\"",
+            "project = \"rhel-cloud\"",
+            "baseurl=https://yum.private.zscaler.com/yum/el9",
+            "yum install -y zpa-connector",
+            "user_data           = var.use_zscaler_image == true ? local.appuserdata : local.rhel9userdata"
+          ]
+        }
+      ]
+    },
+    "bootstrap-provision-key": {
+      "statement": "The example startup scripts stop the zpa-connector service, write the Terraform-managed provisioning key to /opt/zscaler/var/provision_key, run yum update -y, start zpa-connector, sleep 60 and restart it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "rhel9userdata = <<RHEL9USERDATA"
+        }
+      ]
+    },
+    "group-user-codes": {
+      "statement": "The GCP App Connector group module declares user_codes (default an empty list), described as OAuth2 user codes retrieved from the deployed VMs' /etc/issue for enrolling with the OAuth2 method, and passes them to the zpa_app_connector_group resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "OAuth2 user codes retrieved from deployed App Connector VMs (/etc/issue). These codes are required for enrolling App Connectors using the new OAuth2 authentication method.",
+            "default     = []"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/main.tf",
+          "quotes": [
+            "user_codes               = var.user_codes"
+          ]
+        }
+      ]
+    },
+    "group-fixed-lookups": {
+      "statement": "The group module hardcodes the enrollment certificate lookup to the name Connector and pins version_profile_id to the id of the customer version profile named Default, neither exposed as a variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/main.tf",
+          "quotes": [
+            "name = \"Connector\"",
+            "name = \"Default\"",
+            "version_profile_id       = data.zpa_customer_version_profile.default.id",
+            "certificate name is intentionally hardcoded and not exposed as a variable.",
+            "so the profile name is intentionally hardcoded and not exposed as a variable."
+          ]
+        }
+      ]
+    },
+    "group-defaults": {
+      "statement": "The GCP group module defaults upgrade_day to SUNDAY, upgrade_time_in_secs to 66600 (a string, valid from 0 to under 86400 in 15 minute intervals) and dns_query_type to IPV4_IPV6, validated against IPV4_IPV6, IPV4 and IPV6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+          "quotes": [
+            "default     = \"SUNDAY\"",
+            "default     = \"66600\"",
+            "The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals",
+            "default     = \"IPV4_IPV6\"",
+            "var.app_connector_group_dns_query_type == \"IPV4_IPV6\" || var.app_connector_group_dns_query_type == \"IPV4\" || var.app_connector_group_dns_query_type == \"IPV6\""
+          ]
+        }
+      ]
+    },
+    "key-module": {
+      "statement": "The provisioning key module hardcodes the Connector enrollment certificate, accepts only association type CONNECTOR_GRP, binds the key to the group through zcomponent_id, and with byo_provisioning_key true creates no key and only references an existing one by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zpa-provisioning-key/main.tf",
+          "quotes": [
+            "name = \"Connector\"",
+            "zcomponent_id      = var.app_connector_group_id",
+            "count              = var.byo_provisioning_key == false ? 1 : 0",
+            "# Retrieve the \"Connector\" enrollment certificate used to sign App Connector",
+            "# \"Connector\", so the certificate name is intentionally hardcoded and not"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zpa-provisioning-key/variables.tf",
+          "quotes": [
+            "var.provisioning_key_association_type == \"CONNECTOR_GRP\"",
+            "Setting this variable to true will effectively instruct this module to not create any resources and only reference data resources from values provided in byo_provisioning_key_name"
+          ]
+        }
+      ]
+    },
+    "key-max-usage": {
+      "statement": "The provisioning key max_usage defaults to 10 in the fixed examples and 100 in the autoscaling examples; each App Connector consumes one slot at enrollment and instance churn (image upgrades, scale-in and scale-out, MIG replacements) consumes more, and when the key runs out new VMs come up healthy at the OS level but show as disconnected in the ZPA portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "Each App Connector consumes one slot at enrollment time and instance churn (image upgrades, scale-in/out, MIG replacements) consumes additional slots even though the old VMs are gone.",
+            "running out causes new VMs to come up healthy at the OS level but show as disconnected in the ZPA portal.",
+            "(default `10` for fixed, `100` for ASG)"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/variables.tf",
+          "quotes": [
+            "default     = 10"
+          ],
+          "after": "variable \"provisioning_key_max_usage\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/variables.tf",
+          "quotes": [
+            "default     = 100"
+          ],
+          "after": "variable \"provisioning_key_max_usage\" {"
+        }
+      ]
+    },
+    "asg-defaults": {
+      "statement": "The autoscaling module defaults min_size to 2 and max_size to 4, both per zone, with target_cpu_util_value 50, cooldown_period 60 seconds and health_check_grace_period 300 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/variables.tf",
+          "quotes": [
+            "Minimum number of App Connectors to maintain in the autoscaling group (per zone)",
+            "Maximum number of App Connectors to maintain in the autoscaling group (per zone)",
+            "default     = 2",
+            "default     = 4"
+          ],
+          "after": "variable \"min_size\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/variables.tf",
+          "quotes": [
+            "variable \"target_cpu_util_value\" {",
+            "variable \"cooldown_period\" { type = number description = \"The number of seconds the autoscaler waits before it starts collecting information from a new instance. Prevents the autoscaler from acting on usage data while the instance is still initializing.\" default     = 60",
+            "variable \"health_check_grace_period\" { type = number description = \"Time in seconds the autohealing health check waits before checking a newly created instance. Mirrors AWS health_check_grace_period semantics.\" default     = 300"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/variables.tf",
+          "quotes": [
+            "default     = 50"
+          ],
+          "after": "variable \"target_cpu_util_value\" {"
+        }
+      ]
+    },
+    "asg-metrics": {
+      "statement": "The autoscaling module accepts target_tracking_metric ASGAverageCPUUtilization (the default and the recommended one), ASGAverageNetworkIn or ASGAverageNetworkOut; the CPU target is a percentage divided by 100 internally, and for the network metrics the same target_cpu_util_value is read as bytes per second per instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/variables.tf",
+          "quotes": [
+            "App Connector recommends ASGAverageCPUUtilization.",
+            "default     = \"ASGAverageCPUUtilization\"",
+            "var.target_tracking_metric == \"ASGAverageCPUUtilization\" || var.target_tracking_metric == \"ASGAverageNetworkIn\" || var.target_tracking_metric == \"ASGAverageNetworkOut\"",
+            "divided by 100 internally because GCP wants a 0.0-1.0 fraction",
+            "interpreted as bytes-per-second per instance"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/main.tf",
+          "quotes": [
+            "target = var.target_cpu_util_value / 100"
+          ]
+        }
+      ]
+    },
+    "asg-health-check": {
+      "statement": "Autoscaling-group autohealing uses a TCP health check on port 22 (timeout 5 seconds, interval 10 seconds, healthy threshold 2, unhealthy threshold 3) with initial_delay_sec equal to health_check_grace_period, because the module's comment says the App Connector listens on no externally-routable port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/main.tf",
+          "quotes": [
+            "The App Connector listens on no",
+            "externally-routable port (it dials out to the Zscaler cloud), so we use a",
+            "basic TCP check on the SSH port.",
+            "timeout_sec         = 5",
+            "check_interval_sec  = 10",
+            "healthy_threshold   = 2",
+            "unhealthy_threshold = 3",
+            "port = 22",
+            "initial_delay_sec = var.health_check_grace_period"
+          ]
+        }
+      ]
+    },
+    "asg-owns-size": {
+      "statement": "In the autoscaling module the autoscaler owns the group size: target_size is left unset on each MIG and ignored in lifecycle changes so Terraform does not fight the autoscaler, and one MIG plus one autoscaler is created per zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/main.tf",
+          "quotes": [
+            "target_size is intentionally left unset so the",
+            "autoscaler is the sole authority on group size.",
+            "ignore_changes = [target_size]",
+            "# Once the autoscaler attaches, target_size is owned by it.",
+            "count   = length(var.zones)"
+          ]
+        }
+      ]
+    },
+    "network-resources": {
+      "statement": "The network module creates a custom-mode VPC (auto_create_subnetworks false, routing_mode REGIONAL by default), one App Connector subnet, a Cloud Router and a Cloud NAT gateway with AUTO_ONLY address allocation for all subnetworks and ERRORS_ONLY logging; each of VPC, subnet, router and NAT can instead be referenced with byo_* variables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-network-gcp/main.tf",
+          "quotes": [
+            "auto_create_subnetworks = false",
+            "nat_ip_allocate_option             = \"AUTO_ONLY\"",
+            "source_subnetwork_ip_ranges_to_nat = \"ALL_SUBNETWORKS_ALL_IP_RANGES\"",
+            "filter = \"ERRORS_ONLY\"",
+            "# Or reference an existing VPC",
+            "# Or reference an existing subnet",
+            "# Or reference an existing router",
+            "# Or reference an existing NAT Gateway"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-network-gcp/variables.tf",
+          "quotes": [
+            "default     = \"REGIONAL\""
+          ],
+          "after": "variable \"routing_mode\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/variables.tf",
+          "quotes": [
+            "default     = \"10.0.1.0/24\""
+          ],
+          "after": "variable \"subnet_ac\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "Every network primitive is byo_* togglable",
+            "(VPC, subnet, Cloud Router, NAT). No bastion."
+          ]
+        }
+      ]
+    },
+    "network-firewall": {
+      "statement": "The module's management firewall allows tcp on allowed_ports (an empty default list means all ports) and icmp (icmpv6 in the IPv6 rule) only from allowed_ssh_from_internal_cidr, split into an IPv4 rule and an IPv6 rule because GCP firewall rules cannot mix address families; the examples set that source list to the bastion subnet CIDR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-network-gcp/main.tf",
+          "quotes": [
+            "GCP firewall rules cannot mix IPv4 and IPv6 source_ranges in a single rule",
+            "source_ranges = local.allowed_ssh_from_internal_cidr_v4",
+            "source_ranges = local.allowed_ssh_from_internal_cidr_v6",
+            "protocol = \"icmp\"",
+            "protocol = \"icmpv6\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/main.tf",
+          "quotes": [
+            "allowed_ssh_from_internal_cidr = [var.subnet_bastion]"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-network-gcp/variables.tf",
+          "quotes": [
+            "A list of ports to permit inbound to App Connector. Default empty list means to allow all."
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-network-gcp/main.tf",
+          "quotes": [
+            "protocol = \"tcp\" ports    = var.allowed_ports"
+          ],
+          "after": "resource \"google_compute_firewall\" \"ac_mgmt_v4\" {"
+        }
+      ]
+    },
+    "bastion-open": {
+      "statement": "In the greenfield examples the bastion host gets an ephemeral public IP and firewall rules allowing tcp/22 from bastion_ssh_allow_ip (IPv4 and IPv6 ranges in separate rules), which defaults to 0.0.0.0/0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac/variables.tf",
+          "quotes": [
+            "default     = [\"0.0.0.0/0\"]"
+          ],
+          "after": "variable \"bastion_ssh_allow_ip\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-bastion-gcp/main.tf",
+          "quotes": [
+            "#Ephemeral IP",
+            "Permit SSH access to bastion host from approved IPv4 source ranges",
+            "Permit SSH access to bastion host from approved IPv6 source ranges"
+          ]
+        }
+      ]
+    },
+    "name-prefix": {
+      "statement": "The examples validate name_prefix to 12 or fewer characters matching ^[a-z][a-z0-9-]+$, with default zsac.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/variables.tf",
+          "quotes": [
+            "default     = \"zsac\"",
+            "length(var.name_prefix) <= 12",
+            "can(regex(\"^[a-z][a-z0-9-]+$\", var.name_prefix))"
+          ],
+          "after": "variable \"name_prefix\" {"
+        }
+      ]
+    },
+    "destroy-removes-zpa": {
+      "statement": "Destroying an example removes the App Connectors and also the ZPA App Connector Group and Provisioning Key; access policies that reference the group must be detached first or the destroy fails on the ZPA side.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "destroy removes the App Connectors *and* the ZPA App Connector Group and Provisioning Key. If you have ZPA access policies referencing the group, detach them first or the destroy will fail on the ZPA side."
+          ]
+        }
+      ]
+    },
+    "wrapper-auth": {
+      "statement": "The examples/zsac wrapper script supports ZPA provider authentication through OneAPI/Zidentity (ZSCALER_CLIENT_ID, ZSCALER_CLIENT_SECRET, ZSCALER_VANITY_DOMAIN) or the legacy ZPA framework (ZPA_CLIENT_ID, ZPA_CLIENT_SECRET, ZPA_CUSTOMER_ID, ZPA_CLOUD with ZSCALER_USE_LEGACY_CLIENT=true), the latter for tenants still on the legacy framework or GOV/GOVUS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/zsac",
+          "quotes": [
+            "env vars: ZSCALER_CLIENT_ID, ZSCALER_CLIENT_SECRET, ZSCALER_VANITY_DOMAIN,",
+            "Legacy ZPA (for tenants still on the legacy framework, or GOV/GOVUS)",
+            "env vars: ZPA_CLIENT_ID, ZPA_CLIENT_SECRET, ZPA_CUSTOMER_ID, ZPA_CLOUD,",
+            "plus ZSCALER_USE_LEGACY_CLIENT=true"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "wrapper-script-name": {
+      "summary": "What the interactive wrapper script is called.",
+      "positions": [
+        {
+          "says": "The README calls the wrapper zsac.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-app-connector",
+            "path": "README.md",
+            "quotes": [
+              "If executing Terraform via the `zsac` wrapper bash script"
+            ]
+          }
+        },
+        {
+          "says": "The examples README documents it as zsec, with a .zsecrc cache.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-app-connector",
+            "path": "examples/README.md",
+            "quotes": [
+              "The `zsec` script is intended for first-time operators",
+              "Validates inputs and writes a .zsecrc cache for subsequent runs"
+            ]
+          }
+        },
+        {
+          "says": "The script file itself is examples/zsac, with the usage line ./zsac and a .zsacrc cache.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-app-connector",
+            "path": "examples/zsac",
+            "quotes": [
+              "# Usage: ./zsac <up|destroy>",
+              "into a `.zsacrc` env file"
+            ]
+          }
+        }
+      ],
+      "impact": "Commands copied from the examples README (./zsec up, ./zsec destroy, deleting .zsecrc) do not match the script that ships; use ./zsac and .zsacrc."
+    },
+    "override-version-profile-default": {
+      "summary": "Whether the group module overrides the version profile by default.",
+      "positions": [
+        {
+          "says": "The variable description says the default is false.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-app-connector",
+            "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+            "quotes": [
+              "Whether the default version profile of the App Connector Group is applied or overridden. Default: false"
+            ]
+          }
+        },
+        {
+          "says": "The variable default is true.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-app-connector",
+            "path": "modules/terraform-zpa-app-connector-group/variables.tf",
+            "quotes": [
+              "default     = true"
+            ],
+            "after": "variable \"app_connector_group_override_version_profile\" {"
+          }
+        }
+      ],
+      "impact": "A group created with the module defaults has override_version_profile true and a version_profile_id pinned to the profile named Default, not the false the description implies; confirm the group in the ZPA Admin Portal before assuming it follows the tenant default."
+    }
+  },
+  "gaps": {
+    "oauth-flow-on-gcp": {
+      "kind": "semantic",
+      "title": "OAuth2 user-code enrollment on GCP",
+      "status": "open",
+      "detail": "The group module accepts user_codes read from /etc/issue on the VMs, but the examples bootstrap with a provisioning key written to a file; the repository does not describe how an operator collects the user codes from MIG-managed VMs and applies them.",
+      "blocks": "advising OAuth2 user-code onboarding for GCP App Connectors",
+      "resolves_with": [
+        "code-read",
+        "lab-test"
+      ]
+    }
+  }
+}

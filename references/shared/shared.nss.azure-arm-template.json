@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.azure-arm-template",
+  "title": "Zscaler's ARM template for an NSS VM in Azure",
+  "aliases": [
+    "nss azure arm template",
+    "nss-azure-deploy",
+    "znss vhd sas token",
+    "nss vhd",
+    "deploy nss in azure",
+    "nss azure vm size",
+    "znssprod",
+    "nss azure government"
+  ],
+  "related": [
+    {
+      "rel": "depends-on",
+      "to": "shared.nss.servers"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "For VM-based NSS on Azure ([[shared.nss.servers]]), Zscaler publishes an Azure Resource Manager template. It builds the NSS VM and its networking, and leaves the NSS server record, certificate and feeds to the Admin Console ([[shared.nss.feeds]])."
+    },
+    {
+      "label": "What it builds.",
+      "text": "{{creates}} {{interfaces}}"
+    },
+    {
+      "label": "Before deploying.",
+      "text": "{{sas-token}} {{vhd-regions}}"
+    },
+    {
+      "label": "Sizing and timing.",
+      "text": "{{vm-sizes}} {{disk-copy}}"
+    },
+    {
+      "label": "Security.",
+      "text": "{{nsg-open}}"
+    },
+    {
+      "label": "Version and support.",
+      "text": "{{image-version}} {{support}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the deployed NSS VM's inbound access has been restricted from the template's open default.",
+      "uses": [
+        "nsg-open",
+        "interfaces"
+      ]
+    },
+    {
+      "do": "Which VHD region and SAS token a deployment needs, especially for Azure Government.",
+      "uses": [
+        "sas-token",
+        "vhd-regions"
+      ]
+    }
+  ],
+  "claims": {
+    "creates": {
+      "statement": "The NSS ARM template creates two network interfaces (management and service), a NAT gateway, two public IP addresses and a public IP prefix, a virtual network with two subnets, a network security group, a storage account, an automation account and one virtual machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "- 2 x VMNICs",
+            "- 1 x NAT Gateway",
+            "- 2 x Public IP Addresses",
+            "- 1 x Public IP Prefix",
+            "- 1 x VNET (Virtual Network)",
+            "- 2 x Subnets",
+            "- 1 x Network Security Group",
+            "- 1 x Storage Account",
+            "- 1 x Automation Account",
+            "- 1 x Virtual Machine",
+            "- `<vmName>-MGMT-NIC` - NSS Management Interface",
+            "- `<vmName>-SRVC-NIC` - NSS Service Interface"
+          ]
+        }
+      ]
+    },
+    "interfaces": {
+      "statement": "The NSS VM's primary interface is the management interface and carries a public IP address; the second interface is the service interface, on a private subnet behind a NAT Gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "The primary interface is used for management and carries a public IP address.",
+            "The second interface is used for service purposes, and is placed on a private subnet behind a NAT Gateway."
+          ]
+        }
+      ]
+    },
+    "nsg-open": {
+      "statement": "The template launches NSS but the operator must modify the network security group to secure inbound connections; the sshSourceAddressPrefix parameter defaults to '*', which allows SSH from any IP and is not recommended for production.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "launch NSS, but at this time, you are required to modify the Network Service Groups (NSGs) to properly secure inbound connections based on your environment"
+          ]
+        },
+        {
+          "source": "nss-azure-deploy",
+          "path": "azuredeploy.json",
+          "quotes": [
+            "Default '*' allows access from any IP (not recommended for production).",
+            "\"sshSourceAddressPrefix\": {",
+            "Source IP address or CIDR range allowed for SSH access."
+          ]
+        }
+      ]
+    },
+    "sas-token": {
+      "statement": "Deployment needs an NSS VHD SAS token for the chosen region, obtained from Zscaler Support, and each VHD region requires its own dedicated SAS token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "Contact [Zscaler Support](https://help.zscaler.com/login-tickets) to obtain the NSS VHD SAS Token for your selected region",
+            "Each region requires authentication via a dedicated SAS Token.",
+            "providing the name of the region where you want to download the VHD image from"
+          ]
+        }
+      ]
+    },
+    "vhd-regions": {
+      "statement": "The VHD source region is selectable: znssprod (US Commercial), znssprodeu (Europe) and znssprodau (Australia) for commercial Azure, and zsgovnsstexas, zsgovnssarizona, zsgovnssiowa and zsgovnssvirginia for Azure Government; a government region in a commercial account is not supported and fails the deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "| `znssprod` | US Commercial |",
+            "| `znssprodeu` | Europe |",
+            "| `znssprodau` | Australia |",
+            "| `zsgovnsstexas` | US Gov Texas |",
+            "| `zsgovnssarizona` | US Gov Arizona |",
+            "| `zsgovnssiowa` | US Gov Iowa |",
+            "| `zsgovnssvirginia` | US Gov Virginia |",
+            "Choosing a government region for deployment in a commercial Azure account is not supported and will cause the template deployment to fail."
+          ]
+        }
+      ]
+    },
+    "vm-sizes": {
+      "statement": "The template's allowed VM sizes are Standard_D2_v4 (default, 2 vCPUs and 8 GB), Standard_D4_v4 (4 vCPUs, 16 GB), Standard_D8_v4 (8 vCPUs, 32 GB) and Standard_D16_v4 (16 vCPUs, 64 GB).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "| `Standard_D2_v4` (default) | 2 | 8 GB |",
+            "| `Standard_D4_v4` | 4 | 16 GB |",
+            "| `Standard_D8_v4` | 8 | 32 GB |",
+            "| `Standard_D16_v4` | 16 | 64 GB |"
+          ]
+        },
+        {
+          "source": "nss-azure-deploy",
+          "path": "azuredeploy.json",
+          "quotes": [
+            "\"allowedValues\": [\n        \"Standard_D2_v4\",\n        \"Standard_D4_v4\",\n        \"Standard_D8_v4\",\n        \"Standard_D16_v4\""
+          ]
+        }
+      ]
+    },
+    "disk-copy": {
+      "statement": "The template uses an Azure automation account runbook to copy the new NSS OS disk into the new or existing storage account, which takes about 20 to 30 minutes because the VHD is about 500 GB or more; the deployment must not be cancelled once started.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "The template uses an Azure automation account runbook to make a copy of the new NSS OS Disk, and stores it in the newly created or existing storage account.",
+            "The template takes about 20-30 minutes to deploy due to the VHD image size (~500GB+). Do not cancel the deployment once started."
+          ]
+        }
+      ]
+    },
+    "image-version": {
+      "statement": "Release 1.0.5 of the template (December 3, 2025) was updated to support NSS VHD image 5.2.0, and the template's source VHD file name is znss_5_2_osdisk.vhd.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.0.5 (December, 3 2025)",
+            "Updated template to support latest NSS VHD image 5.2.0"
+          ]
+        },
+        {
+          "source": "nss-azure-deploy",
+          "path": "azuredeploy.json",
+          "quotes": [
+            "\"default_image_name\": \"znss_5_2_osdisk.vhd\""
+          ]
+        }
+      ]
+    },
+    "support": {
+      "statement": "Support for the ARM template is exclusively through GitHub issue tracking on its repository.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "README.md",
+          "quotes": [
+            "Support for this ARM template is made available exclusively through Github repo issue tracking."
+          ]
+        }
+      ]
+    }
+  }
+}

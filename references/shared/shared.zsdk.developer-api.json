@@ -16,7 +16,12 @@
     "zsdk suspend resume",
     "ZSCALERSDK_TUNNEL_AUTHENTICATION_REQUIRED",
     "ZscalerSDKTunnelResourceBlocked",
-    "failIfDeviceCompromised"
+    "failIfDeviceCompromised",
+    "ZscalerSDKConfiguration",
+    "ZscalerSDKProxyInfo",
+    "ZscalerSDKNotificationEnum",
+    "ZSCALER_RECEIVER_ID",
+    "ZscalerSDKProxyStartFailed"
   ],
   "related": [
     {
@@ -30,6 +35,10 @@
     {
       "rel": "see-also",
       "to": "shared.zsdk.architecture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.sdk-integration"
     }
   ],
   "prose": [
@@ -46,19 +55,19 @@
       "heading": "Configuration and lifecycle"
     },
     {
-      "text": "{{configuration-properties}} {{suspend-resume}} {{maintenance}}"
+      "text": "{{configuration-properties}} {{suspend-resume}} {{maintenance}} {{android-lifecycle-hooks}} {{android-config-constructor}} {{android-init-errors}} {{android-webview-manual-proxy}} {{ios-header-types}}"
     },
     {
       "heading": "Notifications"
     },
     {
-      "text": "{{notifications-state}} {{notifications-action}}"
+      "text": "{{notifications-state}} {{notifications-action}} {{ios-notification-names}} {{ios-proxy-start-failed}} {{android-notification-broadcast}}"
     },
     {
       "heading": "Vendor best practices"
     },
     {
-      "text": "{{best-practices}} Error codes raised through `ZscalerError` and `ZscalerSDKException` are listed in [[shared.zsdk.error-codes]]."
+      "text": "{{best-practices}} Error codes raised through `ZscalerError` and `ZscalerSDKException` are listed in [[shared.zsdk.error-codes]]. The repositories that carry the SDK are covered in [[shared.zsdk.sdk-integration]]. The help page and the code disagree on two class names {{divergence:class-names}}."
     }
   ],
   "checks": [
@@ -79,6 +88,12 @@
       "do": "Whether the app calls suspend and resume at the platform-specific points.",
       "uses": [
         "suspend-resume"
+      ]
+    },
+    {
+      "do": "Whether an Android WebView is given the proxy after the tunnel starts, and that its success listener fires before the first page load.",
+      "uses": [
+        "android-webview-manual-proxy"
       ]
     }
   ],
@@ -248,6 +263,254 @@
           ]
         }
       ]
+    },
+    "ios-header-types": {
+      "statement": "The iOS public headers declare ZscalerSDKProxyInfo (proxyHost, proxyPort and optional username and password, built with initWithHost:port:username:password:), ZscalerSDKTunnelStatus (a tunnelConnectionState string and a tunnelType) and the tunnel types ZscalerSDKTunnelTypeUnknown, ZscalerSDKTunnelTypePreLogin and ZscalerSDKTunnelTypeZeroTrust.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKProxyInfo.h",
+          "quotes": [
+            "- (instancetype)initWithHost:(NSString*)host port:(NSInteger)port username:(nullable NSString*)username password:(nullable NSString*)password NS_DESIGNATED_INITIALIZER;",
+            "@property (nonatomic, readonly) NSString *proxyHost;",
+            "@property (nonatomic, readonly) NSInteger proxyPort;",
+            "@property (nonatomic, readonly, nullable) NSString* username;",
+            "@property (nonatomic, readonly, nullable) NSString* password;"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKTunnelStatus.h",
+          "quotes": [
+            "@property (nonatomic, strong, readonly) NSString* tunnelConnectionState;",
+            "@property (nonatomic, readonly) ZscalerSDKTunnelType tunnelType;"
+          ]
+        },
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKTunnelType.h",
+          "quotes": [
+            "ZSDK_EXTERN ZscalerSDKTunnelType const ZscalerSDKTunnelTypeUnknown;",
+            "ZSDK_EXTERN ZscalerSDKTunnelType const ZscalerSDKTunnelTypePreLogin;",
+            "ZSDK_EXTERN ZscalerSDKTunnelType const ZscalerSDKTunnelTypeZeroTrust;"
+          ]
+        }
+      ]
+    },
+    "ios-notification-names": {
+      "statement": "The iOS headers declare the notification names ZscalerSDKTunnelDisconnected, ZscalerSDKTunnelConnected, ZscalerSDKTunnelReconnecting, ZscalerSDKTunnelAuthenticationRequired, ZscalerSDKTunnelResourceBlocked and ZscalerSDKProxyStartFailed, with the userInfo keys ZscalerSDKNotificationNameUserInfoKey and ZscalerSDKNotificationMessageUserInfoKey.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKNotification.h",
+          "quotes": [
+            "ZSDK_EXTERN NSString const * ZscalerSDKNotificationNameUserInfoKey;",
+            "ZSDK_EXTERN NSString const * ZscalerSDKNotificationMessageUserInfoKey;",
+            "ZSDK_EXTERN NSNotificationName const ZscalerSDKTunnelDisconnected;",
+            "ZSDK_EXTERN NSNotificationName const ZscalerSDKTunnelConnected;",
+            "ZSDK_EXTERN NSNotificationName const ZscalerSDKTunnelReconnecting;",
+            "ZSDK_EXTERN NSNotificationName const ZscalerSDKTunnelAuthenticationRequired;",
+            "ZSDK_EXTERN NSNotificationName const ZscalerSDKTunnelResourceBlocked;",
+            "ZSDK_EXTERN NSNotificationName const ZscalerSDKProxyStartFailed;"
+          ]
+        }
+      ]
+    },
+    "ios-proxy-start-failed": {
+      "statement": "The iOS header says ZscalerSDKProxyStartFailed means ZSDK failed to set up its proxy and requests using the proxy will fail; recovery is either to wait and try to restart the tunnel, or to call resetProxyPortAndRequireSessionRecreation() and then invalidate and recreate all ZSDK-configured sessions, which with automatic configuration means all URLSessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-ios",
+          "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKNotification.h",
+          "quotes": [
+            "/// Indicates that ZscalerSDK has failed to set up it’s proxy. Requests using the proxy will fail.",
+            "///     Wait and try to restart the ZscalerSDK tunnel.",
+            "///     Call ZscalerSDK.resetProxyPortAndRequireSessionRecreation(), then invalidate and recreate all your ZscalerSDK-configured sessions.",
+            "///     If using automatic configuration, invalidate and recreate <em>all</em> URLSessions."
+          ]
+        }
+      ]
+    },
+    "android-notification-broadcast": {
+      "statement": "In the Android sample app, notifications arrive as broadcasts: the app registers a receiver for the `ZscalerSDK.ZSCALER_RECEIVER_ID` action as not exported, reads the integer extra `ZscalerSDK.NOTIFICATION_CODE`, which it uses as an index into `ZscalerSDKNotificationEnum.values()`, and the string extra `ZscalerSDK.NOTIFICATION_MESSAGE`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/ui/screens/TunnelScreen.kt",
+          "quotes": [
+            "val notificationCode = intent?.getIntExtra(ZscalerSDK.NOTIFICATION_CODE, -1)",
+            "val notificationMessage = intent?.getStringExtra(ZscalerSDK.NOTIFICATION_MESSAGE)",
+            "val enumNotification = ZscalerSDKNotificationEnum.values()[notificationCode]",
+            "val filter = IntentFilter(ZscalerSDK.ZSCALER_RECEIVER_ID)",
+            "ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)"
+          ]
+        }
+      ]
+    },
+    "android-lifecycle-hooks": {
+      "statement": "The Android sample app registers a process lifecycle observer in Application.onCreate that calls `ZscalerSDK.resume()` on ON_START, as soon as the app comes to the foreground or network requests are going to be resumed, whichever is earlier, and `ZscalerSDK.suspend()` on ON_STOP, when the app goes to the background or ongoing network requests are finished, whichever is later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/lifecycle/AppLifecycleObserver.kt",
+          "quotes": [
+            "// Call this as soon as app comes to foreground or network requests are going to be resumed, whichever is earlier.",
+            "ZscalerSDK.resume()",
+            "// Call this when app goes to background or when ongoing network requests are finished, whichever is later.",
+            "ZscalerSDK.suspend()",
+            "@OnLifecycleEvent(Lifecycle.Event.ON_START)",
+            "@OnLifecycleEvent(Lifecycle.Event.ON_STOP)"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/lifecycle/MainApplication.kt",
+          "quotes": [
+            "ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())",
+            "class MainApplication : Application() {",
+            "override fun onCreate() {"
+          ]
+        }
+      ]
+    },
+    "android-init-errors": {
+      "statement": "The Android sample app calls `ZscalerSDK.init(application, ...)` in MainActivity.onCreate inside a try block that catches ZscalerSDKException and abandons startup on failure, can change settings afterwards with `ZscalerSDK.setConfiguration(...)`, and reads the numeric error from the exception's errorCode property.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/view/MainActivity.kt",
+          "quotes": [
+            "ZscalerSDK.init(application, ZscalerSDKSetting.defaultZscalerSDKConfiguration())",
+            "} catch (e: ZscalerSDKException) {",
+            "class MainActivity : ComponentActivity() {",
+            "override fun onCreate(savedInstanceState: Bundle?) {",
+            "Log.e(TAG, \"Got exception while initializing ZscalerSDK = $e\")\n            return"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/viewmodel/SettingsViewModel.kt",
+          "quotes": [
+            "ZscalerSDK.setConfiguration(ZscalerSDKSetting.getZscalerSDKConfiguration())"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/viewmodel/TunnelViewModel.kt",
+          "quotes": [
+            "is ZscalerSDKException -> e.errorCode"
+          ],
+          "after": "startPreLoginTunnel() failed with exception"
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/viewmodel/TunnelViewModel.kt",
+          "quotes": [
+            "onErrorOccurred: (errorCode: Int) -> Unit"
+          ],
+          "after": "fun startPreLoginTunnel("
+        }
+      ]
+    },
+    "android-config-constructor": {
+      "statement": "The Android ZscalerSDKConfiguration is built with the named arguments useProxyAuthentication, failIfDeviceCompromised, blockZPAConnectionsOnTunnelFailure, enableDebugLogsInConsole and logLevel (a ZscalerSDKConfiguration.LogLevel); the sample app's defaults set failIfDeviceCompromised and enableDebugLogsInConsole to true and the log level to debug.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/configuration/ZscalerSDKConfig.kt",
+          "quotes": [
+            "useProxyAuthentication = zscalerSDKConfigurationMap.getOrDefault(",
+            "failIfDeviceCompromised = zscalerSDKConfigurationMap.getOrDefault(",
+            "blockZPAConnectionsOnTunnelFailure = zscalerSDKConfigurationMap.getOrDefault(",
+            "enableDebugLogsInConsole = zscalerSDKConfigurationMap.getOrDefault(",
+            "logLevel = logLevel",
+            "var logLevel: ZscalerSDKConfiguration.LogLevel = ZscalerSDKConfiguration.LogLevel.debug"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/configuration/ZscalerSDKConfig.kt",
+          "quotes": [
+            "failIfDeviceCompromised = true,",
+            "enableDebugLogsInConsole = true,",
+            "logLevel = ZscalerSDKConfiguration.LogLevel.debug"
+          ],
+          "after": "fun defaultZscalerSDKConfiguration()"
+        }
+      ]
+    },
+    "android-webview-manual-proxy": {
+      "statement": "In the Android sample app's manual mode, the app must call its WebView proxy setup after starting either tunnel so WebView traffic goes over the tunnel: it applies the host and port from ZscalerSDKProxyInfo through the androidx.webkit ProxyController (feature PROXY_OVERRIDE), and the code comment says WebView connections are not guaranteed to use the new proxy immediately, so wait for the success listener before loading a page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/util/ProxyUtility.kt",
+          "quotes": [
+            "* After starting either tunnel, this needs to be called for setting the web view proxy settings to route network traffic over the tunnel",
+            "* Note that as per android official docs, web view network connections are not guaranteed to",
+            "* immediately use the new proxy setting; wait for the success listener before loading a page.",
+            ".addProxyRule(\"${proxyInfo.proxyHost}:${proxyInfo.proxyPort}\")",
+            "* Set the web view proxy settings in manual mode",
+            "fun setWebViewProxy(proxyInfo: ZscalerSDKProxyInfo) {",
+            "ProxyController.getInstance().setProxyOverride(proxyConfig,"
+          ]
+        },
+        {
+          "source": "zsdk-android",
+          "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/util/ProxyUtility.kt",
+          "quotes": [
+            "WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)"
+          ],
+          "after": "fun setWebViewProxy"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "class-names": {
+      "summary": "Whether the proxy and configuration classes are named ZscalerProxyInfo and ZscalerConfiguration.",
+      "positions": [
+        {
+          "says": "The developer reference names the classes ZscalerConfiguration and ZscalerProxyInfo.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-developer-reference.json",
+            "quotes": [
+              "ZscalerConfiguration is a configuration object with the following configurable ZSDK properties:",
+              "You can call on the following proxy configuration details from the ZscalerProxyInfo class:"
+            ]
+          }
+        },
+        {
+          "says": "The Android sample code imports ZscalerSDKConfiguration and ZscalerSDKProxyInfo.",
+          "evidence": {
+            "source": "zsdk-android",
+            "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/configuration/ZscalerSDKConfig.kt",
+            "quotes": [
+              "import com.zscaler.sdk.android.configuration.ZscalerSDKConfiguration"
+            ]
+          }
+        },
+        {
+          "says": "The iOS header declares ZscalerSDKProxyInfo.",
+          "evidence": {
+            "source": "zsdk-ios",
+            "path": "Zscaler.xcframework/ios-arm64/Zscaler.framework/Headers/ZscalerSDKProxyInfo.h",
+            "quotes": [
+              "@interface ZscalerSDKProxyInfo: NSObject"
+            ]
+          }
+        }
+      ],
+      "impact": "A search for the help page's class names finds nothing in app code; the type names to look for are ZscalerSDKConfiguration and ZscalerSDKProxyInfo."
     }
   }
 }

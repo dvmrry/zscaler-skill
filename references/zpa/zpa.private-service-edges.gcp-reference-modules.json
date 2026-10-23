@@ -1,0 +1,726 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.gcp-reference-modules",
+  "title": "Reference Terraform modules for Private Service Edges on GCP",
+  "aliases": [
+    "terraform gcp private service edge module",
+    "gcp private service edge managed instance group",
+    "zspse gcp",
+    "psevm_instance_type gcp",
+    "terraform-gcp-zpa-private-service-edge-modules",
+    "gcp pse mig",
+    "module defaults private service edge gcp"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.reference-modules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.terraform"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.gcp-reference-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The GCP reference modules deploy Private Service Edge VMs as zonal managed instance groups behind a Cloud NAT and create the ZPA Service Edge Group and Provisioning Key. They are the GCP counterpart of the AWS and Azure modules in [[zpa.private-service-edges.reference-modules]], and the App Connector equivalent is [[zpa.app-connectors.gcp-reference-modules]]."
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{rhel9-since-1-0-0}} {{provider-versions}} {{api-keys}}"
+    },
+    {
+      "label": "Examples.",
+      "text": "{{example-types}} {{name-prefix}} {{divergence:wrapper-deployment-types}}"
+    },
+    {
+      "label": "VMs.",
+      "text": "{{vm-size}} {{vm-template}} {{mig-layout}} {{zones-az-count}} {{update-policy}}"
+    },
+    {
+      "label": "Image and bootstrap.",
+      "text": "{{image-pinned}} {{image-rhel9-fallback}} {{bootstrap-key-paths}} {{rhel9-installs-aws-cli}} Enrollment uses a provisioning key here; see [[zpa.private-service-edges.enrollment]] for the other methods."
+    },
+    {
+      "label": "ZPA objects.",
+      "text": "{{key-module}} {{key-max-usage}} {{group-defaults}} {{divergence:override-version-profile-default}} {{trusted-network}}"
+    },
+    {
+      "label": "Network.",
+      "text": "{{network-resources}} {{network-firewall}} {{gap:client-inbound}} {{bastion-open}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which VM size and disk the module deploys.",
+      "uses": [
+        "vm-size",
+        "vm-template"
+      ]
+    },
+    {
+      "do": "How many Service Edges the example creates (pse_count per zone) and whether the zones come from az_count or zones.",
+      "uses": [
+        "mig-layout",
+        "zones-az-count"
+      ]
+    },
+    {
+      "do": "Which version profile the module-created group ends up with.",
+      "uses": [
+        "group-defaults",
+        "override-version-profile-default"
+      ]
+    },
+    {
+      "do": "Whether the wrapper script can run the example the operator picked.",
+      "uses": [
+        "wrapper-deployment-types"
+      ]
+    },
+    {
+      "do": "Whether the firewall opens the ports user traffic needs.",
+      "uses": [
+        "network-firewall",
+        "client-inbound"
+      ]
+    }
+  ],
+  "claims": {
+    "rhel9-since-1-0-0": {
+      "statement": "As of module version 1.0.0 the GCP Private Service Edge module deploys all Service Edges on Red Hat Enterprise Linux 9; 1.0.0 (2024-09-30) is the initial release in the changelog.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "README.md",
+          "quotes": [
+            "As of version 1.0.0 of this module, all Service Edges are deployed using the new [Red Hat Enterprise Linux 9]"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.0.0 (2024-09-30)",
+            "Initial GCP ZPA Private Service Edge Terraform module"
+          ]
+        }
+      ]
+    },
+    "provider-versions": {
+      "statement": "The README lists the Google provider v6.4.x, random v3.6.x, local v2.5.x, null v3.2.x, tls v4.0.x and the ZPA provider v3.33.x, with Terraform v1.1.9 and any Terraform version 0.13.7 generally supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "README.md",
+          "quotes": [
+            "The GCP Terraform scripts leverage Terraform v1.1.9",
+            "any Terraform version 0.13.7 should be generally supported.",
+            "provider registry.terraform.io/hashicorp/google v6.4.x",
+            "provider registry.terraform.io/hashicorp/random v3.6.x",
+            "provider registry.terraform.io/hashicorp/local v2.5.x",
+            "provider registry.terraform.io/hashicorp/null v3.2.x",
+            "provider registry.terraform.io/providers/hashicorp/tls v4.0.x",
+            "provider registry.terraform.io/providers/zscaler/zpa v3.33.x"
+          ]
+        }
+      ]
+    },
+    "api-keys": {
+      "statement": "The README requires a ZPA subscription with portal access and ZPA API keys (Client ID, Client Secret and Customer ID), and an existing Service Edge Group and Provisioning Key is optional; the GCP requirements are an account with Administrator Access, a service account keyfile and a region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "README.md",
+          "quotes": [
+            "A valid Zscaler Private Access subscription and portal access",
+            "Zscaler ZPA API Keys.",
+            "- Client ID",
+            "- Client Secret",
+            "- Customer ID",
+            "(Optional) An existing Service Edge Group and Provisioning Key.",
+            "A valid GCP account with Administrator Access to deploy required resources",
+            "GCP service account keyfile",
+            "GCP Region (E.g. us-central1)"
+          ]
+        }
+      ]
+    },
+    "example-types": {
+      "statement": "The GCP Private Service Edge module's README, for deploying a Service Edge cluster, describes a greenfield deployment type under the label base_ac (a new management VPC with a management and a bastion subnet, a Cloud Router and NAT gateway, and a bastion host), with one Service Edge instance template across zonal managed instance groups, and a brownfield type whose network resources have conditional byo variables; the zspse wrapper prompts for the types as base_pse and pse.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/README.md",
+          "quotes": [
+            "base_ac: Creates 1 new \"Management\" VPC with 1 AC-Mgmt subnet and 1 bastion subnet; 1 Cloud Router + NAT Gateway; 1 Bastion Host assigned a dynamic public IP",
+            "All network infrastructure resource have conditional \"byo\" variables, that can be inputted if they already exist (like VPC, subnet, Cloud Router, and Cloud NAT)"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/README.md",
+          "quotes": [
+            "1 Service Edge compute instance template + option to deploy multiple Service Edges across multiple zonal managed instance groups"
+          ],
+          "after": "Deployment Type: (base_ac):"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/README.md",
+          "quotes": [
+            "Terraform configurations and modules for deploying Zscaler Service Edge Cluster in GCP.",
+            "**Greenfield Deployment Types:**",
+            "**Brownfield Deployment Types**"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/zspse",
+          "quotes": [
+            "read -r -p \"Deployment Type: ( base_pse ): \" dtype",
+            "read -r -p \"Deployment Type: ( pse ) : \" dtype"
+          ]
+        }
+      ]
+    },
+    "vm-size": {
+      "statement": "The GCP Private Service Edge VM module defaults psevm_instance_type to n2-standard-4 and validates it against n2-standard-4, n2-highcpu-4, n1-standard-4, n1-highcpu-4, n2-standard-8, n2-highcpu-8, n1-standard-8 and n1-highcpu-8.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/variables.tf",
+          "quotes": [
+            "default     = \"n2-standard-4\"",
+            "var.psevm_instance_type == \"n2-standard-4\" || var.psevm_instance_type == \"n2-highcpu-4\" || var.psevm_instance_type == \"n1-standard-4\" || var.psevm_instance_type == \"n1-highcpu-4\" ||",
+            "var.psevm_instance_type == \"n2-standard-8\" || var.psevm_instance_type == \"n2-highcpu-8\" || var.psevm_instance_type == \"n1-standard-8\" || var.psevm_instance_type == \"n1-highcpu-8\""
+          ]
+        }
+      ]
+    },
+    "vm-template": {
+      "statement": "Each Private Service Edge instance template boots from a pd-balanced boot disk whose size defaults to 64 GB, with automatic_restart true and on_host_maintenance MIGRATE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/main.tf",
+          "quotes": [
+            "disk_type    = \"pd-balanced\"",
+            "disk_size_gb = var.disk_size",
+            "automatic_restart   = true",
+            "on_host_maintenance = \"MIGRATE\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/variables.tf",
+          "quotes": [
+            "The size of the image in gigabytes.",
+            "default     = \"64\""
+          ],
+          "after": "variable \"disk_size\" {"
+        }
+      ]
+    },
+    "mig-layout": {
+      "statement": "The VM module creates one zonal managed instance group per zone, each with target_size equal to pse_count (default 1), so total Service Edges are pse_count times the number of zones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/main.tf",
+          "quotes": [
+            "# Create Zonal Managed Instance Groups per number of zones defined",
+            "# Create X number of Service Edges in each group per pse_count variable",
+            "count   = length(var.zones)",
+            "target_size = var.pse_count"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/variables.tf",
+          "quotes": [
+            "default     = 1"
+          ],
+          "after": "variable \"pse_count\" {"
+        }
+      ]
+    },
+    "zones-az-count": {
+      "statement": "The examples create zonal groups in the first az_count available zones of the region (az_count defaults to 1 and is validated between 1 and 3), or in the distinct zones listed in the zones variable when it is non-empty, in which case the example's tfvars comment says az_count is ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/variables.tf",
+          "quotes": [
+            "default     = 1",
+            "(var.az_count >= 1 && var.az_count <= 3)"
+          ],
+          "after": "variable \"az_count\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/main.tf",
+          "quotes": [
+            "zones_list = length(var.zones) == 0 ? slice(data.google_compute_zones.available.names, 0, var.az_count) : distinct(var.zones)"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/terraform.tfvars",
+          "quotes": [
+            "By setting zone names here, Terraform will ignore any value set for variable az_count."
+          ]
+        }
+      ]
+    },
+    "update-policy": {
+      "statement": "The MIG update policy defaults to type OPPORTUNISTIC, replacement method SUBSTITUTE, maximum surge 1 and maximum unavailable 1, with minimal and most-disruptive action REPLACE; per the variable description OPPORTUNISTIC means no action is proactively executed and an update happens as part of other actions such as resizes or recreateInstances calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/variables.tf",
+          "quotes": [
+            "default     = \"OPPORTUNISTIC\"",
+            "OPPORTUNISTIC so that no action is proactively executed but the update will be performed as part of other actions (for example, resizes or recreateInstances calls)",
+            "default     = \"SUBSTITUTE\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/variables.tf",
+          "quotes": [
+            "default     = 1"
+          ],
+          "after": "variable \"update_policy_max_surge_fixed\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/variables.tf",
+          "quotes": [
+            "default     = 1"
+          ],
+          "after": "variable \"update_max_unavailable_fixed\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/main.tf",
+          "quotes": [
+            "minimal_action                 = \"REPLACE\"",
+            "most_disruptive_allowed_action = \"REPLACE\""
+          ]
+        }
+      ]
+    },
+    "image-pinned": {
+      "statement": "The examples look up a specific named image, zpa-service-edge-el9-2024-08, in the Google Marketplace project mpi-zpa-gcp-marketplace when use_zscaler_image is true (the default), although a variable description in the same module says templates always pull the latest from Google Marketplace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/main.tf",
+          "quotes": [
+            "project = \"mpi-zpa-gcp-marketplace\"",
+            "name    = \"zpa-service-edge-el9-2024-08\"",
+            "count   = var.use_zscaler_image ? 1 : 0"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-vm-gcp/variables.tf",
+          "quotes": [
+            "Ideally all VMs should be on the same Image as templates always pull the latest from Google Marketplace.",
+            "Custom image name to be used for deploying Service Edge appliances."
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/variables.tf",
+          "quotes": [
+            "default     = true"
+          ],
+          "after": "variable \"use_zscaler_image\" {"
+        }
+      ]
+    },
+    "image-rhel9-fallback": {
+      "statement": "With use_zscaler_image false the examples use the latest rhel-9 family image from the rhel-cloud project and a startup script that writes the Zscaler yum repository https://yum.private.zscaler.com/yum/el9 and installs zpa-service-edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/main.tf",
+          "quotes": [
+            "family  = \"rhel-9\"",
+            "project = \"rhel-cloud\"",
+            "baseurl=https://yum.private.zscaler.com/yum/el9",
+            "yum install zpa-service-edge -y"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/main.tf",
+          "quotes": [
+            "image_selected = try(data.google_compute_image.service_edge[0].self_link, data.google_compute_image.rhel_9_latest[0].self_link)",
+            "user_data            = var.use_zscaler_image == true ? local.pseuserdata : local.rhel9userdata"
+          ]
+        }
+      ]
+    },
+    "bootstrap-key-paths": {
+      "statement": "The two startup scripts write the provisioning key to different files: /opt/zscaler/var/service-edge/provision_key for the Zscaler image and /opt/zscaler/var/provision_key for the RHEL 9 fallback image; both stop zpa-service-edge, run yum update -y, start the service, sleep 60 and restart it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/main.tf",
+          "quotes": [
+            "systemctl stop zpa-service-edge",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/service-edge/provision_key",
+            "yum update -y",
+            "systemctl start zpa-service-edge",
+            "sleep 60",
+            "systemctl stop zpa-service-edge systemctl start zpa-service-edge"
+          ],
+          "after": "pseuserdata = <<PSEUSERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/main.tf",
+          "quotes": [
+            "systemctl stop zpa-service-edge",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "systemctl start zpa-service-edge",
+            "sleep 60",
+            "systemctl stop zpa-service-edge systemctl start zpa-service-edge"
+          ],
+          "after": "rhel9userdata = <<RHEL9USERDATA"
+        }
+      ]
+    },
+    "rhel9-installs-aws-cli": {
+      "statement": "The RHEL 9 startup script (rhel9userdata) downloads and installs AWS CLI v2 from awscli.amazonaws.com before installing the Service Edge packages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/main.tf",
+          "quotes": [
+            "rhel9userdata = <<RHEL9USERDATA",
+            "# Download and install AWS CLI v2",
+            "curl \"https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\" -o \"awscliv2.zip\"",
+            "# Install Service Edge packages"
+          ]
+        }
+      ]
+    },
+    "key-module": {
+      "statement": "The provisioning key module hardcodes the enrollment certificate name Service Edge (validated to that value), accepts only association type SERVICE_EDGE_GRP, binds the key to the group through zcomponent_id, and with byo_provisioning_key true creates no key and only references an existing one by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zpa-provisioning-key/variables.tf",
+          "quotes": [
+            "var.enrollment_cert == \"Service Edge\"",
+            "var.provisioning_key_association_type == \"SERVICE_EDGE_GRP\"",
+            "Setting this variable to true will effectively instruct this module to not create any resources and only reference data resources from values provided in byo_provisioning_key_name"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zpa-provisioning-key/main.tf",
+          "quotes": [
+            "zcomponent_id      = var.pse_group_id",
+            "count              = var.byo_provisioning_key == false ? 1 : 0"
+          ]
+        }
+      ]
+    },
+    "key-max-usage": {
+      "statement": "The example provisioning_key_max_usage defaults to 10.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/variables.tf",
+          "quotes": [
+            "default     = 10"
+          ],
+          "after": "variable \"provisioning_key_max_usage\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zpa-provisioning-key/variables.tf",
+          "quotes": [
+            "The maximum number of instances where this provisioning key can be used for enrolling"
+          ]
+        }
+      ]
+    },
+    "group-defaults": {
+      "statement": "The GCP Private Service Edge group wrapper defaults pse_group_enabled to true, pse_is_public to false, pse_group_upgrade_day to SUNDAY, pse_group_upgrade_time_in_secs to \"66600\" (valid from 0 to under 86400 in 15 minute intervals) and pse_group_version_profile_id to \"2\"; its code comments name 0 Default, 1 Previous Default and 2 New Release.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zpa-service-edge-group/variables.tf",
+          "quotes": [
+            "default     = \"SUNDAY\"",
+            "default     = \"66600\"",
+            "The integer should be greater than or equal to 0 and less than 86400, in 15 minute intervals",
+            "#Default = 0",
+            "#Previous Default = 1",
+            "#New Release = 2",
+            "default     = \"2\""
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zpa-service-edge-group/variables.tf",
+          "quotes": [
+            "variable \"pse_group_enabled\" { type = bool description = \"Whether this Private Service Edge Group is enabled or not\" default     = true",
+            "variable \"pse_is_public\" { type = bool description = \"(Optional) Enable or disable public access for the Service Edge Group. Default value is false\" default     = false"
+          ]
+        }
+      ]
+    },
+    "trusted-network": {
+      "statement": "The group wrapper attaches a ZPA trusted network only when zpa_trusted_network_name is non-empty, looking it up by name; the variable description says the cloud name must be appended to the trusted network name, as in \"Corporate-Network (zscalertwo.net)\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zpa-service-edge-group/main.tf",
+          "quotes": [
+            "for_each = var.zpa_trusted_network_name != \"\" ? [var.zpa_trusted_network_name] : []",
+            "name  = var.zpa_trusted_network_name"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zpa-service-edge-group/variables.tf",
+          "quotes": [
+            "it is required to append the cloud name to the name of the trusted network",
+            "a valid example name + cloud >> \"Corporate-Network (zscalertwo.net)\""
+          ]
+        }
+      ]
+    },
+    "network-resources": {
+      "statement": "The network module creates a custom-mode VPC (auto_create_subnetworks false, routing_mode REGIONAL by default), one Private Service Edge subnet, a Cloud Router and a Cloud NAT gateway with AUTO_ONLY address allocation for all subnetworks and ERRORS_ONLY logging; each of VPC, subnet, router and NAT can instead be referenced with byo_* variables.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-network-gcp/main.tf",
+          "quotes": [
+            "auto_create_subnetworks = false",
+            "nat_ip_allocate_option             = \"AUTO_ONLY\"",
+            "source_subnetwork_ip_ranges_to_nat = \"ALL_SUBNETWORKS_ALL_IP_RANGES\"",
+            "filter = \"ERRORS_ONLY\"",
+            "# Or reference an existing VPC",
+            "# Or reference an existing subnet",
+            "# Or reference an existing router",
+            "# Or reference an existing NAT Gateway"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-network-gcp/variables.tf",
+          "quotes": [
+            "default     = \"REGIONAL\""
+          ],
+          "after": "variable \"routing_mode\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-network-gcp/variables.tf",
+          "quotes": [
+            "default     = \"10.0.1.0/24\""
+          ],
+          "after": "variable \"subnet_pse\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/README.md",
+          "quotes": [
+            "All network infrastructure resource have conditional \"byo\" variables, that can be inputted if they already exist (like VPC, subnet, Cloud Router, and Cloud NAT)"
+          ]
+        }
+      ]
+    },
+    "network-firewall": {
+      "statement": "The module's firewall rule allows icmp and tcp on allowed_ports (an empty default list means all ports) from allowed_ssh_from_internal_cidr, and the examples set that source list to the bastion subnet CIDR (subnet_bastion).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-network-gcp/main.tf",
+          "quotes": [
+            "protocol = \"tcp\"",
+            "ports    = var.allowed_ports",
+            "protocol = \"icmp\"",
+            "source_ranges = var.allowed_ssh_from_internal_cidr"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-network-gcp/variables.tf",
+          "quotes": [
+            "A list of ports to permit inbound to Service Edge. Default empty list means to allow all."
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/main.tf",
+          "quotes": [
+            "allowed_ssh_from_internal_cidr = [var.subnet_bastion]"
+          ]
+        }
+      ]
+    },
+    "bastion-open": {
+      "statement": "In the greenfield example the bastion host gets an ephemeral public IP and a firewall rule allowing tcp/22 from bastion_ssh_allow_ip, which defaults to 0.0.0.0/0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/variables.tf",
+          "quotes": [
+            "default     = [\"0.0.0.0/0\"]"
+          ],
+          "after": "variable \"bastion_ssh_allow_ip\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "modules/terraform-zspse-bastion-gcp/main.tf",
+          "quotes": [
+            "#Ephemeral IP",
+            "ports    = [\"22\"]",
+            "source_ranges           = var.bastion_ssh_allow_ip"
+          ]
+        }
+      ]
+    },
+    "name-prefix": {
+      "statement": "The examples validate name_prefix to 12 or fewer characters matching ^[a-z][a-z0-9-]+$, with default zspse.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/variables.tf",
+          "quotes": [
+            "default     = \"zspse\"",
+            "length(var.name_prefix) <= 12",
+            "can(regex(\"^[a-z][a-z0-9-]+$\", var.name_prefix))"
+          ],
+          "after": "variable \"name_prefix\" {"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "override-version-profile-default": {
+      "summary": "Whether the group wrapper overrides the version profile by default.",
+      "positions": [
+        {
+          "says": "The variable description says the default is false.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-service-edge",
+            "path": "modules/terraform-zpa-service-edge-group/variables.tf",
+            "quotes": [
+              "Whether the default version profile of the Private Service Edge Group is applied or overridden. Default: false"
+            ]
+          }
+        },
+        {
+          "says": "The variable default is true.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-service-edge",
+            "path": "modules/terraform-zpa-service-edge-group/variables.tf",
+            "quotes": [
+              "default     = true"
+            ],
+            "after": "variable \"pse_group_override_version_profile\" {"
+          }
+        }
+      ],
+      "impact": "A group created with the module defaults has override_version_profile true with version_profile_id \"2\" (New Release), not the false the description implies; confirm the group in the ZPA Admin Portal before assuming it follows the tenant default."
+    },
+    "wrapper-deployment-types": {
+      "summary": "Which deployment type names the zspse wrapper accepts.",
+      "positions": [
+        {
+          "says": "The examples README and the example directories name the deployment types base_pse and pse.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-service-edge",
+            "path": "examples/zspse",
+            "quotes": [
+              "read -r -p \"Deployment Type: ( base_pse ): \" dtype",
+              "read -r -p \"Deployment Type: ( pse ) : \" dtype"
+            ]
+          }
+        },
+        {
+          "says": "The same script accepts only base_ac for greenfield and ac for brownfield, and runs terraform with -chdir set to that name.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-service-edge",
+            "path": "examples/zspse",
+            "quotes": [
+              "base_ac)",
+              "TF_DATA_DIR=./.terraform ./$dir/terraform -chdir=\"$dtype\" init"
+            ],
+            "after": "read -r -p \"Deployment Type: ( base_pse ): \" dtype"
+          }
+        },
+        {
+          "says": "The examples README describes the deployment as base_ac and ac.",
+          "evidence": {
+            "source": "tfmod-gcp-zpa-service-edge",
+            "path": "examples/README.md",
+            "quotes": [
+              "Deployment Type: (base_ac):",
+              "Deployment Type: (ac):"
+            ]
+          }
+        }
+      ],
+      "impact": "Following the wrapper prompt for a base_pse or pse deployment is rejected by its case statement, and a dtype it does accept (base_ac, ac) names a directory this repository does not contain; set dtype to base_pse or pse in the environment (the script then skips that validation) or run Terraform directly in the example directory."
+    }
+  },
+  "gaps": {
+    "client-inbound": {
+      "kind": "semantic",
+      "title": "Client-facing inbound rules for Private Service Edges on GCP",
+      "status": "open",
+      "detail": "The module creates one firewall rule whose sources are allowed_ssh_from_internal_cidr, set by the examples to the bastion subnet. The repository does not say which inbound ports and sources the Private Service Edge needs for user traffic or how to open them in this module.",
+      "blocks": "firewall guidance for Private Service Edges on GCP",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -23,6 +23,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.iam"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -48,6 +52,10 @@
     {
       "label": "Manual actions.",
       "text": "{{console-actions}}"
+    },
+    {
+      "label": "CloudFormation template.",
+      "text": "{{cfn-asg-health}} {{cfn-lambda-config}} {{cfn-lambda-health-env}} {{cfn-lambda-triggers}}"
     }
   ],
   "checks": [
@@ -274,6 +282,76 @@
           "quotes": [
             "If someone manually terminates a VM that is part of an autoscaling group from the Amazon EC2 Console, the VM is likewise replaced.",
             "stopping or rebooting a VM that is part of an ASG from the Amazon E2 Console could cause the VM to be terminated."
+          ]
+        }
+      ]
+    },
+    "cfn-asg-health": {
+      "statement": "The CloudFormation autoscaling group uses EC2 health checks with a grace period of 900 seconds, which the changelog says was set to prevent instance termination when an instance moves to InService.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "HealthCheckGracePeriod: 900 HealthCheckType: EC2"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "feat: change HeathCheckGracePeriod default to 900 seconds to prevent instance termination in Auto Scaling Group when moved to InService"
+          ]
+        }
+      ]
+    },
+    "cfn-lambda-config": {
+      "statement": "The CloudFormation template's Lambda uses the handler zscaler_cc_lambda_service.lambda_handler on arm64 with 256 MB and a 180-second timeout, takes its code from the S3 bucket and key parameters, runs python3.12 (python3.11 in the aws-us-gov and aws-cn partitions) and logs to a CloudWatch group retained 3 days by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Handler: zscaler_cc_lambda_service.lambda_handler",
+            "Timeout: 180 # executes for max 180 seconds MemorySize: 256 Architectures: ['arm64']",
+            "Code: S3Bucket: !Ref AsgS3BucketName S3Key: !Ref AsgS3Key",
+            "aws: Runtime: python3.12 aws-us-gov: Runtime: python3.11 aws-cn: Runtime: python3.11",
+            "3288, and 3653. Default: 3",
+            "LogGroup: !Ref CcCloudwatchLogGroupForLambda",
+            "RetentionInDays: !Ref AsgLogGroupRetentionInDays"
+          ]
+        }
+      ]
+    },
+    "cfn-lambda-health-env": {
+      "statement": "The template sets the Lambda's health environment to HC_DATA_POINTS 10, HC_UNHEALTHY_THRESHOLD 7, HC_UNHEALTHY_CONTIGUOUS_DP 5 and MISSING_DATAPOINTS_UNHEALTHY true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "HC_DATA_POINTS: '10' # most recent datapoints to evaluate HC_UNHEALTHY_THRESHOLD: '7' # unhealthy datapoints threshold HC_UNHEALTHY_CONTIGUOUS_DP: '5' # continuous unhealthy datapoint counts MISSING_DATAPOINTS_UNHEALTHY: true # treat missing datapoints as unhealthy"
+          ]
+        }
+      ]
+    },
+    "cfn-lambda-triggers": {
+      "statement": "The template invokes the Lambda from three EventBridge rules: the EC2 instance-terminate lifecycle action of the group, any EC2 instance state change to terminated (the pattern has no group filter), and a rate(1 minute) schedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "\"source\": [\"aws.autoscaling\"], \"detail-type\": [\"EC2 Instance-terminate Lifecycle Action\"]",
+            "\"source\": [\"aws.ec2\"], \"detail-type\": [\"EC2 Instance State-change Notification\"], \"detail\": { \"state\": [\"terminated\"] }",
+            "ScheduleExpression: \"rate(1 minute)\"",
+            "\"AutoScalingGroupName\": \"{json_dump_asg_names}\" } } State: \"ENABLED\" Targets: - Arn: Fn::GetAtt: - CcAsgLambdaFunction",
+            "\"state\": [\"terminated\"] } } State: \"ENABLED\" Targets: - Arn: Fn::GetAtt: - CcAsgLambdaFunction",
+            "ScheduleExpression: \"rate(1 minute)\" State: \"ENABLED\" Targets: - Arn: Fn::GetAtt: - CcAsgLambdaFunction"
           ]
         }
       ]

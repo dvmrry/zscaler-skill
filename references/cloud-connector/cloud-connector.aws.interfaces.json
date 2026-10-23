@@ -27,6 +27,10 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.aws.gwlb"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.cloudformation"
     }
   ],
   "prose": [
@@ -48,6 +52,10 @@
     {
       "label": "Subnets.",
       "text": "{{mgmt-same-subnet}} Routing workload traffic to the service interface is in [[cloud-connector.aws.traffic-steering]]."
+    },
+    {
+      "label": "CloudFormation templates.",
+      "text": "{{cfn-interface-order}} {{cfn-source-dest}} {{cfn-size-interfaces}}"
     }
   ],
   "checks": [
@@ -300,14 +308,78 @@
           ]
         }
       ]
+    },
+    "cfn-interface-order": {
+      "statement": "In the CloudFormation templates the service interface is device index 0 and the management interface is device index 1, and the changelog dates this swap to version 1.0.0 for Cloud Connector AMIs after ZS6.1.25.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "NetworkInterfaceId: !Ref 'ServiceXface' DeviceIndex: '0'",
+            "NetworkInterfaceId: Ref: MgmtXface DeviceIndex: 1"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Description: Interface for service traffic DeviceIndex: 0",
+            "Description: Interface for mgmt traffic DeviceIndex: 1"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## [1.0.0] - 2023-10-19",
+            "Zscaler Cloud Connector AMI version > ZS6.1.25.0 support for default interface swap of both autoscaling and non-autoscaling deployments. Service interface is now ENA0 and Management interface is now ENA1."
+          ]
+        }
+      ]
+    },
+    "cfn-source-dest": {
+      "statement": "The Starter template sets source/destination check false on the forwarding service interface and true on the management interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "Description: Interface for management traffic GroupSet: - !Ref MgmtSecurityGroup SourceDestCheck: 'true'",
+            "Description: Nexthop interface for traffic forwarding GroupSet: - !Ref ServiceSecurityGroup SourceDestCheck: 'false'",
+            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3"
+          ]
+        }
+      ]
+    },
+    "cfn-size-interfaces": {
+      "statement": "The template's CreateCCMediumServiceXfaces condition holds for the medium and large sizes and CreateCCLargeServiceXfaces gates the interface at device index 5; the interface descriptions name index 4 as the internal LB VIP interface on medium and index 5 on large.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "CreateCCMediumServiceXfaces: !Or - !Equals [!Ref CCInstanceType, \"medium\"] - !Equals [!Ref CCInstanceType, \"large\"]",
+            "Description: !If - CreateCCLargeServiceXfaces - !Join [' ', ['Interface for service 3 traffic for CC', !Ref CCInstanceType, 'Instance Type']] - 'Interface for internal lb vip'",
+            "NetworkInterfaceId: Ref: ServiceXface2 DeviceIndex: 2",
+            "NetworkInterfaceId: Ref: ServiceXface3 DeviceIndex: 3",
+            "NetworkInterfaceId: Ref: ServiceXface4 DeviceIndex: 4",
+            "NetworkInterfaceId: Ref: ServiceXface5 DeviceIndex: 5",
+            "ServiceXface5: Condition: CreateCCLargeServiceXfaces Type: 'AWS::EC2::NetworkInterface' Properties: SubnetId: !Ref CCSubnetID Description: !Join - \" \" - - Interface for internal LB VIP"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "lb-interface-role": {
       "kind": "semantic",
       "title": "Which interface is the load-balancer interface on medium and large Cloud Connectors",
-      "status": "open",
-      "detail": "The CCVM module's comment on device index 0 says that interface \"becomes the Load Balancer VIP interface for medium and large CC instances\", while the resource descriptions call index 4 \"cc lb interface\" on medium and index 5 \"cc lb interface\" on large. Unverified legacy statement: index 4 is the dedicated LB interface on medium and index 5 on large. Medium and large are deprecated sizes. Resolve from a vendor source that states the AMI's interface roles.",
+      "status": "partial",
+      "detail": "The CCVM module's comment on device index 0 says that interface \"becomes the Load Balancer VIP interface for medium and large CC instances\", while the resource descriptions call index 4 \"cc lb interface\" on medium and index 5 \"cc lb interface\" on large. Unverified legacy statement: index 4 is the dedicated LB interface on medium and index 5 on large. Medium and large are deprecated sizes. Resolve from a vendor source that states the AMI's interface roles. The CloudFormation Starter template describes the index 4 interface as the internal LB VIP on medium and the index 5 interface as the internal LB VIP on large, matching the module's resource descriptions; it does not describe the index 0 interface's role.",
       "blocks": "troubleshooting load-balancer reachability on a medium or large instance",
       "resolves_with": [
         "source-read",

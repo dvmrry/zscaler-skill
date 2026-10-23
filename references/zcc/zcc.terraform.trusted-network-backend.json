@@ -96,7 +96,7 @@
   ],
   "claims": {
     "probe-unavailable-statuses": {
-      "statement": "The provider treats a failed probe of the v2 list as 'v2 not served' when the error is a not-found (including a parsed `resource.not.found`) or carries status 400, 403, 404, 405 or 501, and then uses the v1 backend; its unit test asserts this for 400 and 403 among others.",
+      "statement": "The provider treats a failed probe of the v2 list as 'v2 not served' when the error is a not-found (including a parsed `resource.not.found`) or carries status Bad Request, Forbidden, Not Found, Method Not Allowed or 501, and then uses the v1 backend; its unit test asserts this for Bad Request and Forbidden among others.",
       "tier": "A",
       "evidence": [
         {
@@ -109,7 +109,8 @@
             "if errors.As(err, &respErr) && v2EndpointUnavailable(respErr) { return false, nil }",
             "if available { backend = &v2Backend{svc: svc} } else { backend = &v1Backend{svc: svc} }",
             "trusted-network operation probes the v2 list endpoint once and caches",
-            "const v2Endpoint = \"/zcc/papi/public/v2/trusted-networks\""
+            "const v2Endpoint = \"/zcc/papi/public/v2/trusted-networks\"",
+            "4xx / 501 statuses mean the tenant does not (yet) serve v2"
           ]
         },
         {

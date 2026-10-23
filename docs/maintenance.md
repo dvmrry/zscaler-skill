@@ -194,6 +194,11 @@ resolve a capture commit that existed only on the discarded branch.
   `references/_meta/schema/` (the model is
   `docs/superpowers/specs/2026-10-17-kb-graph-model-design.md`). A Tier A claim quotes its source; a Tier B
   claim states its `conditions`. `node scripts/kb.mjs validate` anchors every quote and pointer.
+- Every part of a Tier A statement must be readable in its quotes. The claim audit rejects most often:
+  an absence ("the module creates no X") with no line saying so; a count or list the quotes do not contain;
+  "create and update" where only create is quoted; a comparison with another claim; a version shown only by
+  `HEAD` (pin evidence `at` the release tag when the version matters); and a template or module named in the
+  statement ("the Starter template's role") when no quoted line names it, since the file path alone does not.
 - What no source settles is a gap, not a hedge in prose. Resolving one: set `status: resolved` and write a
   `resolution` that names the claim that settles it; keep its `former_ids`, so old IDs still resolve.
 - What a team has observed but no public source states (an incident finding, a support answer) is company
