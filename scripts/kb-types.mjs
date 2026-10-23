@@ -68,26 +68,39 @@ const TF_JOIN = {
     "zcc/devices": "devices enroll themselves; zcc_device_cleanup sets the cleanup policy",
   },
   pick: {
+    "zcc/trusted-networks": "zcc_trusted_network", // zscalerctl reads trusted_network, the provider trusted_network_v2
+    "zia/sublocations": "zia_location_management", // a sublocation is a location with parent_id set
     "zia/url-allow-list": "zia_security_settings",
     "zia/url-deny-list": "zia_security_settings",
     "zpa/app-servers": "zpa_application_server",
     "zpa/application-segments": "zpa_application_segment",
     "zpa/user-portals": "zpa_user_portal_controller",
   },
+  // Data sources: the same rule, joined separately (a read-only object often has only a data source).
+  pick_data_source: {
+    "zcc/devices": "zcc_devices",
+    "zcc/trusted-networks": "zcc_trusted_network",
+    "zia/devices": "zia_devices",
+    "zia/locations-lite": "zia_location_lite",
+  },
+  exclude_data_source: {
+    "zia/eusa-status": "zia_activation_status reads activation state, not EUSA acceptance",
+  },
 };
 
-function surfaceResources(root, product) {
+function surfaceTerraform(root, product) {
   const file = path.join(root, META, "surfaces", `${product}.json`);
-  if (!fs.existsSync(file)) return [];
-  return Object.values(readJson(file).terraform || {}).filter((r) => r.kind === "resource");
+  return fs.existsSync(file) ? Object.values(readJson(file).terraform || {}) : [];
 }
 
 const tokens = (s) => new Set(s.split(/[-_]/).filter(Boolean).map((w) => (w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w)));
 
-/** The provider resource a type joins to by SDK package, or undefined. */
-export function joinTerraform(id, sdkGo, resources) {
-  if (TF_JOIN.pick[id]) return TF_JOIN.pick[id];
-  if (TF_JOIN.exclude[id]) return undefined;
+/** The provider resource (or, with kind "data-source", data source) a type joins to by SDK package, or undefined. */
+export function joinTerraform(id, sdkGo, entries, kind = "resource") {
+  const pick = kind === "resource" ? TF_JOIN.pick : TF_JOIN.pick_data_source;
+  if (pick[id]) return pick[id];
+  if ((kind === "resource" ? TF_JOIN.exclude : TF_JOIN.exclude_data_source)[id]) return undefined;
+  const resources = entries.filter((r) => (r.kind || "resource") === kind);
   const pkgs = new Set((sdkGo || []).map((p) => p.split("/").slice(1).join("/")));
   const want = tokens(id.split("/")[1]);
   const overlap = (r) => [...tokens(r.name.split("_").slice(1).join("_"))].filter((w) => want.has(w)).length;
@@ -200,11 +213,14 @@ export function importTypes(root) {
         t.fields[fpath] = { ...t.fields[fpath], terraform: { status: "adoption-omitted", source: "infrawright pack.json drift_policy", reason: omit.reason } };
       }
     } else {
-      if (!surfaces.has(r.product)) surfaces.set(r.product, surfaceResources(root, r.product));
+      if (!surfaces.has(r.product)) surfaces.set(r.product, surfaceTerraform(root, r.product));
       const joined = joinTerraform(id, r.sdk_go, surfaces.get(r.product));
       if (joined) t.names.terraform = joined;
       else unmatched.push(id);
     }
+    if (!surfaces.has(r.product)) surfaces.set(r.product, surfaceTerraform(root, r.product));
+    const dataSource = joinTerraform(id, r.sdk_go, surfaces.get(r.product), "data-source");
+    if (dataSource) t.names.terraform_data_source = dataSource;
     if (!byScope.has(r.product)) byScope.set(r.product, {});
     byScope.get(r.product)[id] = t;
   }

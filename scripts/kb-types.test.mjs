@@ -22,9 +22,13 @@ test("a type joins the one provider resource that shares its SDK package and a n
   ];
   assert.equal(joinTerraform("zia/locations", ["zia/location/locationmanagement"], resources), "zia_location_management");
   // Sharing the package without a shared word is not a join.
-  assert.equal(joinTerraform("zia/sublocations", ["zia/location/locationmanagement"], resources), undefined);
+  assert.equal(joinTerraform("zia/static-ips", ["zia/location/locationmanagement"], resources), undefined);
   // A reviewed exclusion wins over a package and word match.
   assert.equal(joinTerraform("zia/eusa-status", ["zia/activation"], resources), undefined);
   // A reviewed pick wins when several resources fit.
   assert.equal(joinTerraform("zpa/application-segments", [], []), "zpa_application_segment");
+  // Data sources join separately, with their own reviewed table.
+  const ds = [{ name: "zia_location_management", kind: "data-source", sdk_go: ["location/locationmanagement"] }];
+  assert.equal(joinTerraform("zia/locations", ["zia/location/locationmanagement"], [...resources, ...ds], "data-source"), "zia_location_management");
+  assert.equal(joinTerraform("zia/locations", ["zia/location/locationmanagement"], ds), undefined, "a data source is not a resource");
 });
