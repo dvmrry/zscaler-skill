@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "[ISSUE] ZPA update_isolation_rule / update_isolation_rule_v2 raise AttributeError on a partial update (unguarded action.upper())",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-sdk-python/issues/574",
+    "repo": "zscaler/zscaler-sdk-python",
+    "number": 574,
+    "state": "closed",
+    "created_at": "2026-09-08",
+    "updated_at": "2026-10-06",
+    "labels": [
+      "documentation"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-06",
+    "updated": "2026-10-06",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "[ISSUE] ZPA update_isolation_rule / update_isolation_rule_v2 raise AttributeError on a partial update (unguarded action.upper())",
+      "level": 1
+    },
+    {
+      "text": "**Description**"
+    },
+    {
+      "text": "`PolicySetControllerAPI.update_isolation_rule` and `update_isolation_rule_v2` both declare `action: str = None`, but build their payload with an unguarded `action.upper()` (`zscaler/zpa/policies.py:1308` and `:2523` on master `e7f5f7e`). Omitting `action` — as you would for a partial update — raises before any request is made, so those two methods cannot do a partial update at all."
+    },
+    {
+      "text": "Sibling update methods in the same file already guard this, e.g. `update_access_rule` (`policies.py:695`) uses `\"action\": action.upper() if action else None`, so this looks like an oversight rather than intent."
+    },
+    {
+      "text": "**Reproduction**"
+    },
+    {
+      "text": "No credentials needed — the request executor is mocked, so the failure happens while building the payload:"
+    },
+    {
+      "code": "from unittest.mock import Mock\nfrom zscaler.zpa.policies import PolicySetControllerAPI\n\npolicy_set = Mock()\npolicy_set.get_body.return_value = {\"id\": \"<id>\"}\n\nexecutor = Mock()\nexecutor.create_request.return_value = ({}, None)\nexecutor.execute.side_effect = [(policy_set, None), (None, None)]\n\napi = PolicySetControllerAPI(executor, {\"client\": {\"customerId\": \"<id>\"}})\n\n# Partial update: change only the description, leave action untouched.\napi.update_isolation_rule_v2(rule_id=\"<id>\", description=\"partial update\")"
+    },
+    {
+      "text": "The equivalent real call is `client.zpa.policies.update_isolation_rule_v2(rule_id=\"<id>\", description=\"partial update\")`. `update_isolation_rule` (v1) fails the same way."
+    },
+    {
+      "text": "**Expected behavior**"
+    },
+    {
+      "text": "The update request is sent with the fields that were supplied, the same as `update_access_rule_v2` / `update_client_forwarding_rule_v2` already do when `action` is omitted."
+    },
+    {
+      "text": "**Actual behavior**"
+    },
+    {
+      "code": "  File \".../zscaler/zpa/policies.py\", line 2523, in update_isolation_rule_v2\n    \"action\": action.upper(),\n              ^^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'upper'"
+    },
+    {
+      "text": "**Other Information**"
+    },
+    {
+      "item": "SDK version: 1.9.44 (master `e7f5f7e`)",
+      "depth": 0
+    },
+    {
+      "item": "Python 3.12",
+      "depth": 0
+    },
+    {
+      "item": "A PR is attached: it applies the existing `action.upper() if action else None` guard to both",
+      "depth": 0
+    },
+    {
+      "text": "sites and adds a unit test covering the partial-update path."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-06)",
+      "level": 2
+    },
+    {
+      "text": "Fixed in #595 (release 1.11.1): update_isolation_rule and update_isolation_rule_v2 now use the same action.upper() if action else None guard as the other update methods, so omitting action no longer raises AttributeError. Note that ZPA rule updates are full replacements, so fields you omit are still sent as empty values; pass the rule's current values for anything you want to keep."
+    },
+    {
+      "text": "We don't accept external pull requests, so #576 is being closed in favor of #595. Bug reports like this one are always welcome as issues."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

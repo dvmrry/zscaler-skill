@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "zia.ansible.url-categories",
+  "title": "How the ZIA Ansible collection updates a custom URL category",
+  "aliases": [
+    "zia_url_categories ansible",
+    "ansible REMOVE_FROM_LIST 400",
+    "ziacloud ansible url category remove urls fails",
+    "Request body is invalid url category ansible"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.url-categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This covers the `zia_url_categories` module of the ZIA Ansible collection. The Terraform provider's equivalent path is in [[zia.terraform.url-categories]]."
+    },
+    {
+      "label": "Update path.",
+      "text": "{{incremental-diff}} {{remove-payload-shape}}"
+    },
+    {
+      "label": "Reported failure.",
+      "text": "{{issue-134-remove-rejected}} Why the service rejects the body is open {{gap:issue-134-cause}}."
+    }
+  ],
+  "claims": {
+    "incremental-diff": {
+      "statement": "On update, the module compares the current and desired `urls` and `db_categorized_urls` lists and, when either list has additions or removals, sends the removals as a REMOVE_FROM_LIST call and the additions as an ADD_TO_LIST call instead of replacing the category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_url_categories.py",
+          "quotes": [
+            "# Use incremental updates: ADD_TO_LIST and/or REMOVE_FROM_LIST",
+            "urls_to_add, urls_to_remove = _url_list_diff(current_urls, desired_urls)",
+            "db_to_add, db_to_remove = _url_list_diff(current_db_urls, desired_db_urls)",
+            "desired_db_urls = desired_pre.get(\"db_categorized_urls\") or []"
+          ]
+        }
+      ]
+    },
+    "remove-payload-shape": {
+      "statement": "The REMOVE_FROM_LIST payload is a copy of the module's whole desired category in which `urls` and `db_categorized_urls` hold only the entries to remove, or are dropped when there are none to remove, so the other category fields travel with the call.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "ansible-zia",
+          "path": "plugins/modules/zia_url_categories.py",
+          "quotes": [
+            "remove_payload = updated_data.copy()",
+            "remove_payload[\"urls\"] = urls_to_remove",
+            "remove_payload.pop(\"urls\", None)",
+            "result, _unused, error = client.url_categories.update_url_category(category_id=cat_id, action=\"REMOVE_FROM_LIST\", **remove_payload)",
+            "remove_payload[\"db_categorized_urls\"] = db_to_remove",
+            "remove_payload.pop(\"db_categorized_urls\", None)",
+            "Terraform pattern: send full desired category structure for other attrs,",
+            "but URL lists contain ONLY the items to add/remove (not the full list)"
+          ]
+        }
+      ]
+    },
+    "issue-134-remove-rejected": {
+      "statement": "Collection issue #134, still open, reports that from collection 2.1.0 a `zia_url_categories` task with `state: present` that has to remove URLs fails because the REMOVE_FROM_LIST call returns HTTP 400 `Request body is invalid.`, leaving the stale URLs on the category. The reporter says the same pattern worked before the incremental-update change and names pinning the collection below 2.1.0 as a workaround.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "ziacloud-ansible-134.json",
+          "quotes": [
+            "Starting in collection **2.1.0** (PR [#108](https://github.com/zscaler/ziacloud-ansible/pull/108)), updates use incremental `REMOVE_FROM_LIST` / `ADD_TO_LIST` instead of a full category replace.",
+            "The `REMOVE_FROM_LIST` call returns HTTP 400 (`Request body is invalid.`), so URLs are not removed from Zscaler and the Ansible task fails.",
+            "Workarounds today: pin `zscaler.ziacloud` to **&lt; 2.1.0**",
+            "Updating an existing ZIA custom URL category with `zscaler.ziacloud.zia_url_categories` (`state: present`) fails when the module needs to remove URLs.",
+            "The same playbook pattern worked before the incremental-update change"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "ziacloud-ansible-134.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "issue-134-cause": {
+      "kind": "semantic",
+      "title": "Why the ZIA API rejects the module's REMOVE_FROM_LIST body",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that a REMOVE_FROM_LIST body carrying the other category fields, or a large removal, is accepted",
+      "detail": "The reporter suspects the extra category fields in the payload, list parameters left unset being treated as empty desired lists, or very large removal batches; none is confirmed and no maintainer reply is captured. Send REMOVE_FROM_LIST once with the module's full payload and once with only the entries to remove, and once with a large list."
+    }
+  }
+}

@@ -15,8 +15,6 @@
     <span style="color: var(--ink);">ZTW</span>
   </span>
   <span class="right">
-    <span><strong>Tier</strong>Doc + SDK + TF</span>
-    <span><strong>Confidence</strong>High</span>
     <span><strong>Verified</strong>2026-04-26</span>
   </span>
 </div>
@@ -66,7 +64,7 @@
     <ul>
       <li><a href="#anatomy">Field anatomy</a></li>
       <li><a href="#triage">Triage table</a></li>
-      <li><a href="#clarifications">Open clarifications</a></li>
+      <li><a href="#clarifications">Open gaps</a></li>
     </ul>
   </nav>
 
@@ -79,9 +77,8 @@
       <dl class="frontmatter">
         <dt>Product</dt><dd><code>ztw</code> (Go SDK) · <code>ztc</code> (Terraform) · <code>cbc</code> (help URL path)</dd>
         <dt>Topics</dt><dd>cc-groups · forwarding-rules · aws-gwlb · azure-vmss · dns-gateways · upgrade-cadence · workload-discovery</dd>
-        <dt>Source tier</dt><dd>Help-doc verified, Go SDK + Terraform provider cross-referenced</dd>
         <dt>Read first</dt><dd><a href="../zia/guide.html" style="color: var(--accent-ink);">ZIA Reference</a> &nbsp;&mdash; URL filtering and location model underpin Cloud Connector policy</dd>
-        <dt>Read after</dt><dd><code>references/cloud-connector/overview.md</code> · <code>references/cloud-connector/forwarding.md</code> · <code>references/cloud-connector/aws-deployment.md</code></dd>
+        <dt>Read after</dt><dd><code>node scripts/kb.mjs resolve cloud-connector.overview</code> · <code>cloud-connector.forwarding</code> · <code>cloud-connector.aws.autoscaling</code></dd>
       </dl>
     </header>
 
@@ -624,7 +621,7 @@
           <tbody>
             <tr><td><code>name</code></td><td>string</td><td>Display name. Used in forwarding rule criteria.</td></tr>
             <tr><td><code>description</code></td><td>string</td><td>Optional. Up to the standard field length.</td></tr>
-            <tr><td><code>group_type</code></td><td>enum</td><td><code>Cloud Connector</code> or <code>Zero Trust Gateway</code>. Exact functional distinction unconfirmed. <span class="pill warn">see cc-01</span></td></tr>
+            <tr><td><code>group_type</code></td><td>enum</td><td><code>Cloud Connector</code> or <code>Zero Trust Gateway</code>. Exact functional distinction unconfirmed. <span class="pill warn">open gap</span></td></tr>
             <tr><td><code>enabled</code></td><td>bool</td><td>Disabling stops traffic processing for all member CCs.</td></tr>
             <tr><td>Upgrade window day/time</td><td>day + time</td><td>Group-scoped; no per-CC override. Defaults to Sunday midnight local to the cloud region.</td></tr>
           </tbody>
@@ -776,69 +773,69 @@
 
     <section class="section" id="clarifications">
       <div class="section-num">§ 8 · Clarifications</div>
-      <h2>Open clarifications</h2>
-      <p class="standfirst">Unverified edge cases and open questions from the source material. Cite these IDs in answers that depend on them.</p>
+      <h2>Open gaps</h2>
+      <p class="standfirst">Unverified edge cases and open questions from the source material. Each is a gap in the knowledge graph: <code>node scripts/kb.mjs resolve "&lt;the question&gt;"</code> finds it and its current state, and its gap ID is what an answer cites.</p>
 
       <table class="tbl">
-        <thead><tr><th>ID</th><th>Question</th><th>Status</th></tr></thead>
+        <thead><tr><th></th><th>Question</th><th>Status</th></tr></thead>
         <tbody>
           <tr>
-            <td><code>cc-01</code></td>
+            <td>&mdash;</td>
             <td>Exact functional distinction between Cloud Connector and Zero Trust Gateway (ZTG) group types. Both appear in the admin console Group Type dropdown. Treat as an unresolved product-family distinction until lab-tested or documented.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-02</code></td>
+            <td>&mdash;</td>
             <td>Whether the secondary DNS resolver is tried before the failure behavior fires (SERVFAIL or forward-to-original). The help docs describe failure behavior but do not explicitly state whether secondary is attempted first.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-03</code></td>
+            <td>&mdash;</td>
             <td>Fail-open / fail-close toggle location in the admin portal. The help article confirms operators can change this configuration but does not name the path.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-04</code></td>
+            <td>&mdash;</td>
             <td>Local forwarding method full semantics — where does "local" traffic go? To an intra-CC module? To the same VPC's egress? Not described in available captures.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-05</code></td>
+            <td>&mdash;</td>
             <td>Whether <code>/cchealth</code> probe port is configurable — help article implies it is set during deployment but does not specify the configurable range.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-06</code></td>
+            <td>&mdash;</td>
             <td>Behavior when all CCs in a group are simultaneously unhealthy (e.g., during a rapid ASG replacement cycle). Whether fail-close applies at the group level or per-instance level, and the exact traffic impact window.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-07</code></td>
+            <td>&mdash;</td>
             <td>Exact GRE vs IPSec tunnel behavior from CC to ZIA Service Edges. The cloud architecture doc covers Z-Tunnel 1.0 (GRE/IPSec) and 2.0 (TLS) for ZCC; CC's tunnel type to ZTE is not separately enumerated in available captures.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-08</code></td>
+            <td>&mdash;</td>
             <td>Default zsroot password for freshly-provisioned CCs. Cloud Connector VMs on Azure/AWS may use a cloud-provider-generated credential or a Zscaler-set default. Not documented in captures — verify at first deploy.</td>
             <td><span class="pill warn">Not captured</span></td>
           </tr>
           <tr>
-            <td><code>cc-09</code></td>
+            <td>&mdash;</td>
             <td>Whether VMSS-deployed CCs (Azure Flex Orchestration) pick up weekly software upgrades the same way as static-instance CCs, or whether new VMSS instances launched from a fresh image bypass the weekly check entirely.</td>
             <td><span class="pill warn">Open</span></td>
           </tr>
           <tr>
-            <td><code>cc-10</code></td>
+            <td>&mdash;</td>
             <td>IAM policy document exact permissions for AWS workload discovery. The CloudFormation template contains the policy; captures describe the attributes Zscaler fetches but do not reproduce the policy JSON. Operators should inspect the CloudFormation template before execution.</td>
             <td><span class="pill warn">Not captured</span></td>
           </tr>
           <tr>
-            <td><code>cc-11</code></td>
+            <td>&mdash;</td>
             <td>DNS Policy rule criteria full list — the available help capture names criteria categories but does not enumerate every available field.</td>
             <td><span class="pill warn">Partial</span></td>
           </tr>
           <tr>
-            <td><code>cc-12</code></td>
+            <td>&mdash;</td>
             <td>Maximum number of traffic forwarding rules per CC Group tenant. Not captured.</td>
             <td><span class="pill warn">Not captured</span></td>
           </tr>
@@ -852,8 +849,8 @@
         <a href="../zpa/guide.html">ZPA Reference</a>
         <a href="#glance">&uarr; Top</a>
       </div>
-      <p>Reference document. Last verified 2026-04-26. Confidence: high. Source tier: doc + SDK + Terraform provider.</p>
-      <p>Cite open clarifications by ID when an answer depends on them. Lab-test before publishing answers that hinge on <code>cc-02</code> (DNS secondary failover) or <code>cc-07</code> (tunnel type).</p>
+      <p>Reference document. Last verified 2026-04-26. Claims, evidence and gaps live in the knowledge graph; read them with <code>node scripts/kb.mjs resolve</code>.</p>
+      <p>Cite open gaps (resolve the topic to get the ID) when an answer depends on them. Lab-test before publishing answers that hinge on DNS secondary failover or tunnel type.</p>
     </footer>
 
   </main>
@@ -911,7 +908,7 @@
   window.addEventListener('scroll', spy, { passive: true });
   window.addEventListener('load', spy);
 </script>
-<script src="../nav.js?v=28"></script>
+<script src="../nav.js?v=29"></script>
 
 </body>
 </html>

@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "[ISSUE] add_timeout_rule_v2 documents an `action` keyword but hard-codes the action and silently discards what the caller passed",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-sdk-python/issues/579",
+    "repo": "zscaler/zscaler-sdk-python",
+    "number": 579,
+    "state": "closed",
+    "created_at": "2026-09-08",
+    "updated_at": "2026-10-06",
+    "labels": [
+      ":bug: type/bug",
+      "documentation",
+      "⚙️ In development"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-06",
+    "updated": "2026-10-06",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "[ISSUE] add_timeout_rule_v2 documents an `action` keyword but hard-codes the action and silently discards what the caller passed",
+      "level": 1
+    },
+    {
+      "heading": "[ISSUE] add_timeout_rule_v2 documents an `action` keyword but hard-codes the action and silently discards what the caller passed",
+      "level": 1
+    },
+    {
+      "text": "**Environment**"
+    },
+    {
+      "text": "| | | |---|---| | SDK version | `zscaler-sdk-python` 1.9.44 (editable install of `master` @ `e7f5f7ef`) | | Python | 3.11.15 | | OS | macOS (arm64) | | Affected product / resource | ZPA / `policies` (`add_timeout_rule_v2`) |"
+    },
+    {
+      "text": "Found by reading the SDK source and confirmed with the offline reproduction below (a stub request executor, so no credentials and no network are involved). All identifiers used are synthetic."
+    },
+    {
+      "text": "---"
+    },
+    {
+      "heading": "Description",
+      "level": 2
+    },
+    {
+      "text": "`PolicySetControllerAPI.add_timeout_rule_v2` documents `action` as a supported keyword argument (`zscaler/zpa/policies.py:1858-1860`):"
+    },
+    {
+      "code": "Keyword Args:\n    ...\n    action (str):\n        The action for the policy. Accepted values are:\n        |  ``RE_AUTH``"
+    },
+    {
+      "text": "The signature is `add_timeout_rule_v2(self, name: str, **kwargs)` (`zscaler/zpa/policies.py:1832`), so `action=` is accepted without complaint. But the payload hard-codes it (`zscaler/zpa/policies.py:1928`):"
+    },
+    {
+      "code": "payload = {\n    \"name\": name,\n    \"description\": kwargs.get(\"description\"),\n    \"custom_msg\": kwargs.get(\"custom_msg\"),\n    \"action\": \"RE_AUTH\",              # <- caller's action is never read\n    \"conditions\": self._create_conditions_v2(kwargs.pop(\"conditions\", [])),\n    ...\n}"
+    },
+    {
+      "text": "`kwargs[\"action\"]` is never read anywhere in the method. The value is accepted, dropped, and the call returns `err = None`, so there is no signal to the caller that the argument had no effect."
+    },
+    {
+      "text": "I appreciate `RE_AUTH` may well be the only action the timeout policy accepts, in which case the resulting rule is correct — the problem is narrower than that: the SDK advertises a parameter, takes it, and silently ignores it. A caller who passes anything else (a typo, a value carried over from a shared helper that also builds access rules, a value read from a config file) gets no indication that it was thrown away."
+    },
+    {
+      "text": "Same pattern in `update_timeout_rule_v2` — documents `action` at `zscaler/zpa/policies.py:1979-1980`, hard-codes `\"action\": \"RE_AUTH\"` at `:2056`."
+    },
+    {
+      "heading": "Reproduction",
+      "level": 2
+    },
+    {
+      "text": "Fully offline — no credentials, no network."
+    },
+    {
+      "code": "import json\n\nfrom zscaler.zpa.policies import PolicySetControllerAPI\n\nCONFIG = {\"client\": {\"customerId\": \"<id>\"}}\n\n\nclass StubResponse:\n    def __init__(self, body):\n        self._body = body\n\n    def get_body(self):\n        return self._body\n\n    def get_status(self):\n        return 200\n\n\nclass StubExecutor:\n    \"\"\"Stands in for RequestExecutor: records requests, replies with canned bodies.\"\"\"\n\n    def __init__(self):\n        self.requests = []\n\n    def create_request(self, method, endpoint, body=None, headers=None, params=None,\n                       use_raw_data_for_body=False):\n        req = {\"method\": method, \"endpoint\": endpoint.strip(),\n               \"body\": {} if body is None else body, \"params\": params or {}}\n        self.requests.append(req)\n        return req, None\n\n    def execute(self, request, response_type=None, return_raw_response=False):\n        if \"policySet/policyType/\" in request[\"endpoint\"]:\n            return StubResponse({\"id\": \"<id>\", \"policyType\": \"2\"}), None\n        return StubResponse({\"id\": \"<id>\", \"name\": \"rule-a\",\n                             \"action\": \"RE_AUTH\"}), None\n\n\nex = StubExecutor()\nrule, resp, err = PolicySetControllerAPI(ex, CONFIG).add_timeout_rule_v2(\n    name=\"rule-a\",\n    action=\"isolate\",                       # accepted by **kwargs, never used\n    conditions=[(\"client_type\", [\"zpn_client_type_exporter\"])],\n)\n\npost = [r for r in ex.requests if r[\"method\"] == \"POST\"][0]\nprint(\"err =\", err)\nprint(\"caller passed action='isolate'; POST body action ->\",\n      json.dumps(post[\"body\"].get(\"action\")))\nprint(\"full POST body:\", json.dumps(post[\"body\"], indent=2, sort_keys=True))"
+    },
+    {
+      "heading": "Expected behaviour",
+      "level": 2
+    },
+    {
+      "text": "One of the two — the argument is honoured, or it is rejected. Concretely, either the value the caller passed reaches the request body, or the call fails with a clear error naming the accepted values, or `action` stops being documented and accepted at all."
+    },
+    {
+      "text": "What should not happen is a successful-looking call (`err is None`) whose documented argument was silently discarded."
+    },
+    {
+      "heading": "Actual behaviour",
+      "level": 2
+    },
+    {
+      "code": "err = None\ncaller passed action='isolate'; POST body action -> \"RE_AUTH\"\nfull POST body: {\n  \"action\": \"RE_AUTH\",\n  \"conditions\": [\n    {\n      \"operands\": [\n        {\n          \"objectType\": \"CLIENT_TYPE\",\n          \"values\": [\n            \"zpn_client_type_exporter\"\n          ]\n        }\n      ],\n      \"operator\": \"OR\"\n    }\n  ],\n  \"custom_msg\": null,\n  \"description\": null,\n  \"name\": \"rule-a\",\n  \"reauthIdleTimeout\": 600,\n  \"reauthTimeout\": 172800\n}"
+    },
+    {
+      "heading": "Root cause",
+      "level": 2
+    },
+    {
+      "text": "| Location | Code | |---|---| | `zscaler/zpa/policies.py:1832` | `def add_timeout_rule_v2(self, name: str, **kwargs)` — `action` absorbed by `**kwargs` | | `zscaler/zpa/policies.py:1858-1860` | docstring advertises `action (str)` | | `zscaler/zpa/policies.py:1928` | `\"action\": \"RE_AUTH\"` — hard-coded, `kwargs[\"action\"]` never read |"
+    },
+    {
+      "text": "Same shape in `update_timeout_rule_v2`: docstring at `zscaler/zpa/policies.py:1979-1980`, hard-coded at `zscaler/zpa/policies.py:2056`."
+    },
+    {
+      "heading": "Suggested direction",
+      "level": 2
+    },
+    {
+      "text": "I don't know whether the timeout policy will ever accept an action other than `RE_AUTH`, so I'd rather not pick for you. The options as I see them:"
+    },
+    {
+      "item": "Honour it: `\"action\": (kwargs.get(\"action\") or \"RE_AUTH\").upper()`, which matches how",
+      "depth": 0
+    },
+    {
+      "text": "`add_access_rule_v2` and the other `_v2` builders treat `action`."
+    },
+    {
+      "item": "Reject it: raise or return an error when `action` is present and not `RE_AUTH`, so a wrong",
+      "depth": 0
+    },
+    {
+      "text": "value is loud instead of silent."
+    },
+    {
+      "item": "Document it away: drop `action` from the docstring's Keyword Args and state that the action",
+      "depth": 0
+    },
+    {
+      "text": "is fixed, so callers stop passing it."
+    },
+    {
+      "text": "Happy to open a PR for whichever you'd prefer — all three are small."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-06)",
+      "level": 2
+    },
+    {
+      "text": "The timeout policy only supports RE_AUTH, so the SDK always sets it. In 1.11.1 we removed action from the add_timeout_rule_v2 / update_timeout_rule_v2 docstrings so it is no longer advertised, and corrected the documented reauth_timeout / reauth_idle_timeout argument names."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

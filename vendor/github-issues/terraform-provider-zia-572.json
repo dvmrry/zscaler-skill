@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "zia_admin_roles role_type validator rejects PUBLIC_API even though API returns it",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/572",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 572,
+    "state": "open",
+    "created_at": "2026-05-21",
+    "updated_at": "2026-06-24",
+    "labels": [],
+    "updated": "2026-06-24",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "zia_admin_roles role_type validator rejects PUBLIC_API even though API returns it",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 3
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Version",
+      "level": 3
+    },
+    {
+      "code": "Terraform v1.9.8\non darwin_arm64\n+ provider registry.terraform.io/zscaler/zia v4.7.18"
+    },
+    {
+      "heading": "Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "`zia_admin_roles`",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Configuration Files",
+      "level": 3
+    },
+    {
+      "code": "# Imported an existing API-type admin role from a OneAPI/Zidentity tenant.\n# State after import: role_type = \"PUBLIC_API\"\n\n# Attempt 1 — HCL matches state value exactly:\nresource \"zia_admin_roles\" \"api_role\" {\n  name      = \"my-api-role\"\n  rank      = 7\n  role_type = \"PUBLIC_API\"\n  feature_permissions = {\n    \"CUSTOM_URL_CAT\"        = \"READ_WRITE\"\n    \"URL_FILTERING_CONTROL\" = \"READ_WRITE\"\n  }\n}\n\n# Attempt 2 — same block but role_type field omitted entirely."
+    },
+    {
+      "heading": "Debug Output",
+      "level": 3
+    },
+    {
+      "text": "N/A — failure is at plan-time validation / pre-API-call enum check, not a runtime API error."
+    },
+    {
+      "heading": "Panic Output",
+      "level": 3
+    },
+    {
+      "text": "N/A."
+    },
+    {
+      "heading": "Expected Behavior",
+      "level": 3
+    },
+    {
+      "text": "`role_type = \"PUBLIC_API\"` should validate, plan, and apply cleanly. The ZIA API returns `PUBLIC_API` for any admin role created in the ZIA admin console using the \"API\" / \"Public API\" template, so the provider's enum validator should accept it."
+    },
+    {
+      "text": "Without this, every API role imported from an existing tenant must use `lifecycle { ignore_changes = [role_type] }` to silence the catch-22, and pure-Terraform creation of new API roles is impossible (the validator runs before the API call, so `PUBLIC_API` never reaches the tenant)."
+    },
+    {
+      "heading": "Actual Behavior",
+      "level": 3
+    },
+    {
+      "text": "**Attempt 1** — `role_type = \"PUBLIC_API\"` in HCL:"
+    },
+    {
+      "code": "Error: expected role_type to be one of [\"ORG_ADMIN\" \"EXEC_INSIGHT\" \"EXEC_INSIGHT_AND_ORG_ADMIN\" \"SDWAN\"], got PUBLIC_API\n\n  with zia_admin_roles.api_role,\n  on main.tf line N, in resource \"zia_admin_roles\" \"api_role\":\n  N:   role_type = \"PUBLIC_API\""
+    },
+    {
+      "text": "**Attempt 2** — `role_type` omitted from HCL:"
+    },
+    {
+      "code": "Error: the role_type cannot be changed once the resource is created. old=PUBLIC_API new=\n\n  with zia_admin_roles.api_role,\n  on main.tf line N, in resource \"zia_admin_roles\" \"api_role\":\n  N: resource \"zia_admin_roles\" \"api_role\" {"
+    },
+    {
+      "text": "The provider's plan-time validator enum on `role_type` does not include `PUBLIC_API`, but the resource's own update logic enforces immutability against the imported state value, producing a no-win situation."
+    },
+    {
+      "heading": "Steps to Reproduce",
+      "level": 3
+    },
+    {
+      "item": "In the ZIA admin console, create an admin role with the \"API\" / \"Public API\" template (or use an existing one — typical for `terraform-zia`-style API integration roles).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "`terraform import zia_admin_roles.api_role <ROLE_ID>`",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "`terraform state show zia_admin_roles.api_role` — confirms `role_type = \"PUBLIC_API\"`.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Write HCL with `role_type = \"PUBLIC_API\"` → `terraform plan` fails with enum validator error.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Remove `role_type` from HCL → `terraform plan` fails with `cannot be changed` error.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Only workaround: keep `role_type` omitted and add `lifecycle { ignore_changes = [role_type] }`.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "heading": "Important Factoids",
+      "level": 3
+    },
+    {
+      "item": "Tenant authenticates via OneAPI / Zidentity OAuth2 client_credentials (vanity domain → `https://api.zscaler.com`, base `https://api.zsapi.net/zia/api/v1/`).",
+      "depth": 0
+    },
+    {
+      "item": "`GET /adminRoles` returns `roleType: \"PUBLIC_API\"` for every API-only role in the tenant — confirmed against multiple roles created independently over time and by different admins, so this is not a one-off tenant artifact.",
+      "depth": 0
+    },
+    {
+      "item": "Affected our 4 existing API roles. All four imported successfully but require the `lifecycle.ignore_changes` workaround to plan.",
+      "depth": 0
+    },
+    {
+      "heading": "Suggested fix",
+      "level": 3
+    },
+    {
+      "text": "Update the validator on the `role_type` attribute in the `zia_admin_roles` schema (likely `zia/resource_zia_admin_roles.go` or equivalent) to include `PUBLIC_API` in the accepted enum, and cross-check with the ZIA REST API contract for `/adminRoles` to ensure the full list of server-supported values (e.g. there may be other valid types currently missing as well) is reflected."
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "item": "Provider docs page for `zia_admin_roles`: <https://registry.terraform.io/providers/zscaler/zia/latest/docs/resources/zia_admin_roles>",
+      "depth": 0
+    },
+    {
+      "item": "ZIA Admin Roles API reference: <https://help.zscaler.com/zia/admin-role>",
+      "depth": 0
+    }
+  ]
+}

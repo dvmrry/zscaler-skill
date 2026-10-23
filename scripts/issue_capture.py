@@ -39,6 +39,9 @@ from help_capture import changes, text_of  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "vendor" / "github-issues"
+# A long digit run is a tenant object ID a reporter pasted (ZPA and ZIA IDs run 15 to 19 digits); captures
+# keep the shape of what was said, not tenant identifiers, so it is replaced in text and code alike.
+TENANT_ID = re.compile(r"(?<![\w.])\d{12,}(?![\w.])")
 # An @mention names a person's account; captures keep the text, not the handle (code blocks are left alone).
 MENTION = re.compile(r"(?<![\w@.])@[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\b")
 URL = re.compile(r"https://github\.com/([\w.-]+)/([\w.-]+)/(issues|pull)/(\d+)/?$")
@@ -75,11 +78,12 @@ def md_blocks(body: str | None) -> list[dict]:
 
     # Issue templates leave HTML comments (`<!--- Please keep this note --->`); they are not the reporter's text.
     text = re.sub(r"<!--.*?-->", "", (body or "").replace("\r\n", "\n"), flags=re.S)
+    text = "\n".join(line if line.lstrip().startswith("```") else TENANT_ID.sub("<id>", line) for line in text.split("\n"))
     for raw in text.split("\n"):
         line = raw.rstrip()
         if code is not None:
             if line.lstrip().startswith("```"):
-                blocks.append({"code": "\n".join(code)})
+                blocks.append({"code": TENANT_ID.sub("<id>", "\n".join(code))})
                 code = None
             else:
                 code.append(line)
@@ -101,7 +105,7 @@ def md_blocks(body: str | None) -> list[dict]:
         else:
             para.append(MENTION.sub("@(user)", line.strip()))
     if code is not None:
-        blocks.append({"code": "\n".join(code)})
+        blocks.append({"code": TENANT_ID.sub("<id>", "\n".join(code))})
     flush()
     return blocks
 

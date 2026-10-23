@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "4.4.{9,10} shows changes needed chomp function not working, pre 4.4.9 wont accept window.onload function call",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/472",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 472,
+    "state": "open",
+    "created_at": "2025-09-03",
+    "updated_at": "2025-09-09",
+    "labels": [
+      ":bug: type/bug"
+    ],
+    "updated": "2025-09-09",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "4.4.{9,10} shows changes needed chomp function not working, pre 4.4.9 wont accept window.onload function call",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 3
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Version",
+      "level": 3
+    },
+    {
+      "text": "tested on terraform:"
+    },
+    {
+      "item": "1.11.4",
+      "depth": 0
+    },
+    {
+      "item": "1.12.2",
+      "depth": 0
+    },
+    {
+      "item": "1.13.1",
+      "depth": 0
+    },
+    {
+      "heading": "Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "zia_end_user_notification",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Configuration Files",
+      "level": 3
+    },
+    {
+      "text": "We have html for the global default block page which resource [zia_end_user_notification](https://registry.terraform.io/providers/zscaler/zia/latest/docs/resources/zia_end_user_notification) uses the arg `custom_text`. We have inline vars used in the html/js code to read values"
+    },
+    {
+      "text": "'provider.tf'"
+    },
+    {
+      "code": "provider \"zia\" {\n  //pass auth via env vars\n}"
+    },
+    {
+      "text": "'versions.tf'"
+    },
+    {
+      "code": "terraform {\n  required_version = \">=1.11\"\n\n  required_providers {\n    zia = {\n      source = \"zscaler/zia\"\n      version = \"4.4.8\"\n    }\n  }\n}"
+    },
+    {
+      "text": "'variables.tf'"
+    },
+    {
+      "code": "variable \"environment\" {\n}"
+    },
+    {
+      "text": "'enduser.tf'"
+    },
+    {
+      "code": "locals {\n  zia_end_user_notification = {\n    test = {\n      to_email = \"testuncatrequest@example.local\"\n      cc_email = \"\"\n      zscloud = \"zscloud.net\"\n    }\n    prod = {\n      to_email = \"uncatrequest@example.local\"\n      cc_email = \"\"\n      zscloud = \"zscalertwo.net\"\n    }\n  }\n}\n\nresource \"zia_end_user_notification\" \"this\" {\n  //notification\n  notification_type              = \"DEFAULT\"\n  display_reason                 = true\n  display_comp_name              = true\n  display_comp_logo              = true\n\n  //default global block page\n  custom_text = chomp(<<-EOT\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Selection Panel with Dropdowns and Buttons</title>\n  <style>\n  :is(h1, h2, h3, h4, h5, h6, p) {\n    text-align: center;\n  }\n  .text-red { /* matches zscaler red Sorry message and border */\n    color: #fd4239 !important;\n    font-weight: bold;\n  }\n  .hidden {\n    display: none;\n  }\n  /* Style the outer container (replacing form) */\n  .selection-panel {\n    margin: 0 auto;\n    padding: 20px;\n    display: flex;\n    flex-direction: column;\n  }\n  /* Each field wrapper for vertical stacking */\n  .form-field {\n    margin-bottom: 20px;\n  }\n  /* Labels as blocks above dropdowns */\n  label {\n    display: block;\n    margin-bottom: 8px;\n    font-weight: bold;\n  }\n  /* Set all dropdowns to the same fixed width */\n  select {\n    width: 100%;\n    padding: 10px;\n    border: 1px solid #ccc;\n    border-radius: 4px;\n    box-sizing: border-box;\n  }\n  /* Style the textarea to match the dropdowns */\n  textarea {\n    width: 100%;\n    padding: 10px;\n    border: 1px solid #ccc;\n    border-radius: 4px;\n    box-sizing: border-box;\n    resize: vertical;\n  }\n  /* center class for re-use */\n  .center {\n    display: block;\n    margin-left: auto;\n    margin-right: auto;\n    width: 50%;\n  }\n  /* Container for buttons at the bottom */\n  .button-container {\n    display: flex;\n    justify-content: space-between;\n    margin-top: auto;\n  }\n  /* Style all the buttons */\n  button {\n    padding: 10px 20px; /* Adjust padding for better fit */\n    background-color: #000000;\n    border: none;\n    border-radius: 4px;\n    /* color: #fff; */\n    cursor: pointer;\n  }\n  #submitBtn {\n    background-color: #000000;\n    color: white;\n  }\n  #submitBtn:hover {\n    background-color: #5a6268;\n  }\n  #helpBtn {\n    background-color: #000000;\n    color: white;\n  }\n  #helpBtn:hover {\n    background-color: #5a6268;\n  }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <h1>WARNING!!!</h1>\n\n\n      <div id=\"defaultBlockPageDiv\" class=\"default-content show\">\n        <h2>Access to this website is restricted</h2>\n        <h3>This website you are attempting to access contains content that is not in compliance with the company standards <a href=\"https://example.com\">End User Acceptable Use Standard</a></h2>\n      </div>\n\n\n      <div id=\"uncatMiscRequestForm\" class=\"alternative-content hidden\">\n        <h2>If you require access for business purposes, please select from the menus below and click submit. This will launch your Outlook client to send the request.</h2>\n        <br>\n        <div class=\"selection-panel\" role=\"form\">\n        <div class=\"form-field\">\n          <label for=\"justification\"><span class=\"text-red\">*</span> Choose a Justification:</label>\n          <select id=\"justification\" required>\n            <option value=\"\">Select a justification...</option>\n            <option value=\"Direct Work Requirement\">Direct Work Requirement</option>\n            <option value=\"Client/Vendor Collaboration\">Client/Vendor Collaboration</option>\n            <option value=\"Risk Assessment\">Risk Assessment</option>\n            <option value=\"Documentation Purposes\">Documentation Purposes</option>\n            <option value=\"Testing and Development\">Testing and Development</option>\n            <option value=\"Research/Market Data\">Research/Market Data</option>\n            <option value=\"New Vendor Relationship\">New Vendor Relationship</option>\n            <option value=\"Other Needs\">Other Needs (Please fill description in COMMENTS)</option>\n          </select>\n        </div>\n        <div class=\"form-field\">\n          <label for=\"zscalerUrlCategory\"><span class=\"text-red\">*</span> Zscaler URL Category:</label>\n          <select id=\"zscalerUrlCategory\" required>\n            <option value=\"\">Select a potential URL category...</option>\n            <option value=\"Business Services\">Business Services</option>\n            <option value=\"Financial Services\">Financial Services</option>\n            <option value=\"Health\">Health</option>\n            <option value=\"Legal\">Legal</option>\n            <option value=\"Shopping\">Shopping</option>\n            <option value=\"Email\">Email</option>\n            <option value=\"Instant Messaging\">Instant Messaging</option>\n            <option value=\"Social Networking\">Social Networking</option>\n            <option value=\"Web Chat\">Web Chat</option>\n            <option value=\"Educational Institutions\">Educational Institutions</option>\n            <option value=\"Educational Materials\">Educational Materials</option>\n            <option value=\"Games\">Games</option>\n            <option value=\"Music\">Music</option>\n            <option value=\"Streaming Media\">Streaming Media</option>\n            <option value=\"Sports\">Sports</option>\n            <option value=\"News\">News</option>\n            <option value=\"Blogs & Forums\">Blogs & Forums</option>\n            <option value=\"Reference\">Reference</option>\n            <option value=\"Search Engines & Portals\">Search Engines & Portals</option>\n            <option value=\"Computers & Internet\">Computers & Internet</option>\n            <option value=\"General AI and ML Applications\">General AI and ML Applications</option>\n            <option value=\"Information Technology\">Information Technology</option>\n            <option value=\"Travel\">Travel</option>\n            <option value=\"Transportation\">Transportation</option>\n            <option value=\"Personal Sites\">Personal Sites</option>\n            <option value=\"Religion\">Religion</option>\n            <option value=\"Society\">Society</option>\n            <option value=\"Miscellaneous\">Miscellaneous</option>\n          </select>\n        </div>\n\n        <div class=\"form-field\">\n          <label for=\"comments\">Additional Comments (Optional):</label>\n          <textarea id=\"comments\" name=\"comments\" maxlength=\"1024\" placeholder=\"Enter any additional justification or comments here for manager approval...\" rows=\"4\"></textarea>\n        </div>\n\n        <div class=\"button-container\">\n          <button id=\"submitBtn\" type=\"button\">Submit</button>\n          <button id=\"helpBtn\" type=\"button\">Help</button>\n        </div>\n      </div>\n  </div>\n  <div id=\"footer\">\n      <h5>Thank You For Your Cooperation</h5>\n    </div>\n\n  <script>\n    // These are the 4 categories we currently need to detect and allow requests via xsoar as of August 2025\n    const zscalerCategoriesForAutomation = [\n      'miscellaneous or unknown',\n      'newly registered and observed domains',\n      'non categorizable',\n      'other miscellaneous',\n    ]\n\n    // Function to check for target TD elements, lowercase to ensure case insensitive search\n    function checkForTargetCell() {\n      const rsnTds = document.querySelectorAll('td.eu_co.rsn');\n      const targetByContent = Array.from(rsnTds).find(td => {\n        const cellText = td.textContent.trim().toLowerCase();\n        return zscalerCategoriesForAutomation.some(targetString =>\n          cellText.includes(targetString)\n        );\n      });\n\n      // Backup method: Check for TD with specific class\n      const targetByClass = document.querySelector(`td.target-section`);\n      const targetFound = targetByContent || targetByClass;\n      if (targetFound) {\n        showUncatMiscRequestForm();\n        return true;\n      } else {\n        showDefaultBlockPage();\n        return false;\n      }\n    }\n\n    // References to the div elements\n    const defaultBlockPageDiv = document.getElementById('defaultBlockPageDiv');\n    const uncatMiscRequestForm = document.getElementById('uncatMiscRequestForm');\n\n    // Function to show default content\n    function showDefaultBlockPage() {\n      defaultBlockPageDiv.classList.remove('hidden');\n      uncatMiscRequestForm.classList.add('hidden');\n    }\n    // Function to show alternative content\n    function showUncatMiscRequestForm() {\n      defaultBlockPageDiv.classList.add('hidden');\n      uncatMiscRequestForm.classList.remove('hidden');\n    }\n\n    // Function for Submit button: Create email with form values\n    document.getElementById('submitBtn').addEventListener('click', function() {\n      const toEmail = \"${local.zia_end_user_notification[var.environment].to_email}\";\n      const ccEmail = \"\"\n      const url = window.location.origin.replace(/\\./g, '[.]');\n      const dd1 = document.getElementById('justification');\n      const dd2 = document.getElementById('zscalerUrlCategory');\n      const dd3 = document.getElementById('comments');\n      const subject = encodeURIComponent(`Site Unblock Request - $${url}`);\n\n      function updateMailtoLink() {\n        const jsonData = {\n          environment: \"${var.environment} - ${local.zia_end_user_notification[var.environment].zscloud}\",\n          url: `$${url}`,\n          timestamp: new Date().toLocaleString(),\n          useragent: navigator.userAgent,\n          justification: dd1.value,\n          zscaler_category: dd2.value,\n          comments: dd3.value.trim(),\n        };\n        let body = `%0A ------------------------------------------------------------------------------ %0A ALTERING TEXT BELOW THIS LINE WILL CANCEL REQUEST! %0A%0A $${encodeURIComponent(JSON.stringify(jsonData, null, 2))} %0A%0A  ------------------------------------------------------------------------------ %0A ALTERING TEXT ABOVE THIS LINE WILL CANCEL REQUEST! %0A `;\n        window.location.href = `mailto:$${toEmail}?cc=$${ccEmail}&subject=$${subject}&body=$${body}`;\n        let email = `mailto:$${toEmail}?cc=$${ccEmail}&subject=$${subject}&body=$${body}`;\n      }\n\n      updateMailtoLink();\n    });\n\n    // Function for HELP button: Open new window with how-to\n    document.getElementById('helpBtn').addEventListener('click', function() {\n      window.open(\"https://example.com/\", \"_blank\");\n    });\n\n  </script>\n</body>\n</html>\nEOT\n)\n\n## this needs to go before </script> above but fails via TF with API error 406\n## but able to paste into console and active fine and then page works as expected\n#   // Initialize the page using window.onload\n#   window.onload = function() {\n#     checkForTargetCell();\n#   };\n\n  //acceptable use policy\n  aup_frequency                  = \"NEVER\"\n  aup_day_offset = 0\n\n  caution_again_after            = 30\n  caution_per_domain             = true\n}"
+    },
+    {
+      "heading": "Debug Output",
+      "level": 3
+    },
+    {
+      "heading": "Panic Output",
+      "level": 3
+    },
+    {
+      "heading": "Expected Behavior",
+      "level": 3
+    },
+    {
+      "item": "terraform apply with window.onload should not throw a 406 error (issue exists on 4.4.8+)",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "terraform plan with 4.4.9/10 should show NO CHANGES instead of trying to replace all text ignoring heredoc indentation",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Actual Behavior",
+      "level": 3
+    },
+    {
+      "text": "With zia 4.4.8 when window.onload function call is made `terraform apply` fails with a 406 error from zscaler API."
+    },
+    {
+      "text": "Adding this snippet via the WEBGUI works fine and make the page function when the target cells match the 4 defined zscaler categories."
+    },
+    {
+      "text": "function call:"
+    },
+    {
+      "code": "// Initialize the page using window.onload\nwindow.onload = function() {\n  checkForTargetCell();\n};"
+    },
+    {
+      "text": "This is the error returned"
+    },
+    {
+      "code": "terraform apply -var \"environment=test\"\n...\n...\nzia_end_user_notification.this: Modifying... [id=enduser_notification]\n╷\n│ Error: Error: {\n│   \"code\": null,\n│   \"message\": \"Request Rejected\",\n│   \"url\": \"https://zsapi.zscloud.net/api/v1/eun\",\n│   \"status\": 406\n│ }\n│\n│   with zia_end_user_notification.this,\n│   on end-user-notifications.tf line 16, in resource \"zia_end_user_notification\" \"this\":\n│   16: resource \"zia_end_user_notification\" \"this\" {"
+    },
+    {
+      "text": "After upgrading to zia 4.4.9/10"
+    },
+    {
+      "text": "terraform plan/apply wants to remove ALL lines and push all back in with no indention (regardless of chomp usage) so it does not respect our heredoc properly. The inline code above ideally is going to move to a file(\"${path.module}/enduser-global-block.html\") so its easier to manage and maintain and can be parsed as native html."
+    },
+    {
+      "heading": "Steps to Reproduce",
+      "level": 3
+    },
+    {
+      "item": "`terraform apply`",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "heading": "Important Factoids",
+      "level": 3
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "heading": "Comment (MEMBER, 2025-09-03)",
+      "level": 2
+    },
+    {
+      "text": "@(user) This is an api issue and has been escalated. The API does not support JavaScript tags in the payload."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2025-09-03)",
+      "level": 2
+    },
+    {
+      "text": "@(user)  - does this need to be split into 2 distinct issues then?"
+    },
+    {
+      "item": "there's still a problem with 4.4.9/10 and not respecting heredoc format",
+      "depth": 0
+    },
+    {
+      "item": "even if we remove indentation and left justify content above then when zia 4.4.9/10 hit the terraform escape characters `$${` to pass the java vars thru - it wants to do a change and swap back to escape from native `${` result.  This doesnt seem to be a problem on 4.4.8 and lower. Something seems to not accommodate the[ tf escape chars](https://developer.hashicorp.com/terraform/language/expressions/strings) (i've only tested the `${`",
+      "depth": 1
+    },
+    {
+      "item": "as far as the API; does the WEBUI not send the input via that same API call under the hood?",
+      "depth": 0
+    },
+    {
+      "heading": "Comment (MEMBER, 2025-09-09)",
+      "level": 2
+    },
+    {
+      "text": "@(user) WebUI and API are not the same. An internal BUG issue has been raised with our engineering team and is being looked at. We'll provide an update once we hear back from them."
+    },
+    {
+      "text": "As for the heredoc indentation, the provider sets the HCL as returned by the API. If there are problem still problems please contact Zscaler support and make reference of this GitHub Issue. The heredoc is working in our dev environment as designed, despite the javascrit tag issue mentioned previously."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

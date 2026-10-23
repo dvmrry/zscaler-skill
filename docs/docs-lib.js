@@ -13,9 +13,35 @@
   const BRANCH = "main";
   const RAW = `https://raw.githubusercontent.com/${REPO}/${BRANCH}`;
   const VIEW = `https://github.com/${REPO}/blob/${BRANCH}`;
-  const TREE_API = `https://api.github.com/repos/${REPO}/git/trees/${BRANCH}?recursive=1`;
-  const TREE_CACHE_KEY = "zskill:ref-tree:v1";
-  const TREE_CACHE_TTL = 1000 * 60 * 30; // 30 min
+  const TREE = `https://github.com/${REPO}/tree/${BRANCH}`;
+
+  // The docs that exist as Markdown, the only files the site renders or links.
+  // slug: source.html?p= value (primer) or null for a GitHub link; path: repo path.
+  const DOC_GROUPS = [
+    { key: "primer", label: "Primer", docs: [
+      { label: "Index", path: "docs/primer/index.md", slug: "_meta/primer/index" },
+      { label: "Networking basics", path: "docs/primer/networking-basics.md", slug: "_meta/primer/networking-basics" },
+      { label: "Proxy vs gateway vs tunnel", path: "docs/primer/proxy-vs-gateway-vs-tunnel.md", slug: "_meta/primer/proxy-vs-gateway-vs-tunnel" },
+      { label: "Identity: SAML and OIDC", path: "docs/primer/identity-saml-oidc.md", slug: "_meta/primer/identity-saml-oidc" },
+      { label: "Zero trust", path: "docs/primer/zero-trust.md", slug: "_meta/primer/zero-trust" },
+      { label: "Zscaler platform shape", path: "docs/primer/zscaler-platform-shape.md", slug: "_meta/primer/zscaler-platform-shape" },
+    ] },
+    { key: "guides", label: "Guides", docs: [
+      { label: "Getting started", path: "docs/getting-started.md" },
+      { label: "Knowledge-graph layout", path: "docs/kb-layout.md" },
+      { label: "Maintenance", path: "docs/maintenance.md" },
+      { label: "Evals", path: "docs/evals.md" },
+      { label: "Tooling", path: "docs/tooling.md" },
+      { label: "Release", path: "docs/release.md" },
+    ] },
+    { key: "data-contract", label: "Data contract", docs: [
+      { label: "Overview", path: "docs/data-contract/README.md" },
+      { label: "Knowledge", path: "docs/data-contract/knowledge.md" },
+      { label: "Cases", path: "docs/data-contract/cases.md" },
+      { label: "IaC", path: "docs/data-contract/iac.md" },
+    ] },
+  ];
+
 
   const SAFE_SCHEMES = new Set(["http", "https", "mailto", "tel"]);
 
@@ -52,8 +78,8 @@
     return typeof ts === "number" && now - ts <= ttl;
   }
 
-  // Human-readable note for a failed tree fetch; calls out the unauthenticated
-  // rate limit (HTTP 403) explicitly so the sidebar/topics can degrade clearly.
+  // Human-readable note for a failed GitHub API request (HTTP 403/429 is the
+  // unauthenticated rate limit).
   function rateLimitMessage(status) {
     if (status === 403 || status === 429) {
       return "GitHub API rate limit reached (unauthenticated, 60/hour). Try again in a few minutes.";
@@ -61,72 +87,18 @@
     return `GitHub API request failed (HTTP ${status}).`;
   }
 
-  // ── Browser-only (localStorage / fetch) ──────────────────────────────
-
-  function readCachedTree() {
-    try {
-      const raw = localStorage.getItem(TREE_CACHE_KEY);
-      if (!raw) return null;
-      const { ts, entries } = JSON.parse(raw);
-      if (!isFreshCacheEntry(ts, Date.now(), TREE_CACHE_TTL)) return null;
-      return entries;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function cachedShas() {
-    try {
-      return JSON.parse(localStorage.getItem(`${TREE_CACHE_KEY}:shas`) || "{}");
-    } catch (_) {
-      return {};
-    }
-  }
-
-  // Fetch the reference-file tree (paths under references/, .md only). Returns a
-  // cached array when fresh. Throws an Error whose .status carries the HTTP code
-  // so callers can show rateLimitMessage().
-  async function loadTree() {
-    const cached = readCachedTree();
-    if (cached) return cached;
-    const r = await fetch(TREE_API, { headers: { Accept: "application/vnd.github+json" } });
-    if (!r.ok) {
-      const err = new Error(rateLimitMessage(r.status));
-      err.status = r.status;
-      throw err;
-    }
-    const data = await r.json();
-    const blobs = (data.tree || []).filter(
-      (e) => e.type === "blob" && e.path.startsWith("references/") && e.path.endsWith(".md"),
-    );
-    const entries = blobs.map((e) => e.path.slice("references/".length));
-    const shas = {};
-    for (const e of blobs) shas[e.path.slice("references/".length)] = e.sha;
-    try {
-      localStorage.setItem(TREE_CACHE_KEY, JSON.stringify({ ts: Date.now(), entries }));
-      localStorage.setItem(`${TREE_CACHE_KEY}:shas`, JSON.stringify(shas));
-    } catch (_) {
-      /* ignore quota */
-    }
-    return entries;
-  }
-
   return {
     REPO,
     BRANCH,
     RAW,
     VIEW,
-    TREE_API,
-    TREE_CACHE_KEY,
-    TREE_CACHE_TTL,
+    TREE,
+    DOC_GROUPS,
     safeHref,
     escapeHtml,
     prettify,
     encodePath,
     isFreshCacheEntry,
     rateLimitMessage,
-    readCachedTree,
-    cachedShas,
-    loadTree,
   };
 });

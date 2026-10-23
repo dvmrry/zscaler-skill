@@ -35,7 +35,7 @@
     },
     {
       "label": "Results are model objects.",
-      "text": "{{result-models-subclass}} {{result-model-objects}} [[shared.sdk-python.response-handling:as-dict]]"
+      "text": "{{result-models-subclass}} {{result-model-objects}} [[shared.sdk-python.response-handling:as-dict]] An update that the API answers with 204 returns an id-only placeholder {{update-placeholder-intended}}."
     },
     {
       "label": "Where errors are raised instead of returned.",
@@ -94,6 +94,40 @@
         "result-models-subclass"
       ],
       "conditions": "Holds for the models that subclass ZscalerObject; calls that return a bare dict, such as the LSS helpers, are the exception (zpa.sdk-python.lss-helpers)."
+    },
+    "update-placeholder-intended": {
+      "statement": "Python SDK issue #582 asked about the object a ZPA update returns when the API answers 204 No Content, which carries model defaults such as `enabled=True`; it was closed as completed on 2026-10-06 with a reply from a member of the repository's organization, signed Zscaler DevRel, that the placeholder is intentional, that its other attributes are model defaults and not API data, and that callers use `response.get_status()` to detect the 204 and a matching get call to read the updated resource; v1.11.1 documents this in the README.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-582.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-06) The placeholder is intentional: ZPA returns 204 No Content on updates, and since #437 the SDK returns an object carrying the id so callers don't get id=None. Its other attributes are model defaults, not API data.",
+            "Use response.get_status() to detect the 204 and call the matching get_* method to read the updated resource.",
+            "We are not changing the return value, since that would break callers that read .id from it. Zscaler DevRel",
+            "`ApplicationSegments({\"id\": segment_id})` reports `enabled=True`, because"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.11.1 (October 6 2026)",
+            "Documented the ZPA `204 No Content` update response behavior in the README."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-582.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-06"
+          }
+        }
+      ]
     }
   },
   "gaps": {}

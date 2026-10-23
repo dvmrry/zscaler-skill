@@ -24,7 +24,7 @@
     },
     {
       "label": "BRAVE.",
-      "text": "{{header-profile-accepts-brave}} {{hcl-cannot-declare-brave}} The contract and the provider disagreed on SSL Inspection up to v4.8.8 and disagree on Cloud App Control from v4.8.9 {{divergence:brave-provider-vs-contract}}. {{read-copies-user-agents}} Whether a read can fail on a BRAVE value is not established {{gap:issue-606-read-time-failure}}."
+      "text": "{{header-profile-accepts-brave}} {{hcl-cannot-declare-brave}} {{issue-606-report}} The contract and the provider disagreed on SSL Inspection up to v4.8.8 and disagree on Cloud App Control from v4.8.9 {{divergence:brave-provider-vs-contract}}. {{read-copies-user-agents}} Whether a read can fail on a BRAVE value is not established {{gap:issue-606-read-time-failure}}."
     },
     {
       "label": "Isolation.",
@@ -220,6 +220,34 @@
           "after": "// Validation for ISOLATE action"
         }
       ]
+    },
+    "issue-606-report": {
+      "statement": "Provider issue #606 reported that the ZIA API returned BRAVE in `user_agent_types` for existing rules and that `terraform plan` then failed with the validator error on a list of eight values ending in OTHER; a repository member closed it as completed on 2026-10-01 saying v4.8.9 resolved it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-606.json",
+          "quotes": [
+            "The ZIA API already returns it for existing rules",
+            "expected [{pathStepImpl:{} Name:user_agent_types}",
+            "got BRAVE",
+            "## Comment (MEMBER, 2026-10-01) @(user) Issue has been resolved in the latest version v4.8.9. Please upgrade.",
+            "`terraform plan` fails with a validation error when the ZIA API returns `BRAVE` as part",
+            "to be one of [\"OPERA\" \"FIREFOX\" \"MSIE\" \"MSEDGE\" \"CHROME\" \"SAFARI\" \"MSCHREDGE\" \"OTHER\"], got BRAVE"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-606.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-01"
+          }
+        }
+      ]
     }
   },
   "divergences": {
@@ -316,7 +344,7 @@
         "tenant-data"
       ],
       "blocks": "saying that a URL Filtering plan fails on read for rules with broad browser selections",
-      "detail": "Unverified legacy statement: upstream issue 606 reports that the API returned BRAVE for existing URL Filtering rules with broad browser selections and that the provider failed during plan. The Read path copies the API value into state and the sources here do not show a validation failure mechanism on read. Reproduce in a scratch tenant with a URL Filtering rule that selects all browsers, then plan with v4.8.8. v4.8.9 adds BRAVE to the validator (validator-omits-brave). The fixing commit's message (e8b12a9, not a citable file) says the backend now returns BRAVE for URL Filtering rules and that the validator then failed with `got BRAVE`; whether that failure happened on read, as the issue reports, is not shown."
+      "detail": "Issue 606 (issue-606-report) reports that the API returned BRAVE for existing URL Filtering rules with broad browser selections and that the provider failed during plan. The Read path copies the API value into state and the sources here do not show a validation failure mechanism on read. Reproduce in a scratch tenant with a URL Filtering rule that selects all browsers, then plan with v4.8.8. v4.8.9 adds BRAVE to the validator (validator-omits-brave). The fixing commit's message (e8b12a9, not a citable file) says the backend now returns BRAVE for URL Filtering rules and that the validator then failed with `got BRAVE`; whether that failure happened on read, as the issue reports, is not shown."
     }
   }
 }

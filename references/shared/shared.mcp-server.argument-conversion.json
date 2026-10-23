@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "id": "shared.mcp-server.argument-conversion",
+  "title": "Where the Zscaler MCP server's argument converters drop or choose silently: ZPA policy conditions and ZTW country names",
+  "aliases": [
+    "convert_v2_to_sdk_format",
+    "convert_v1_to_v2_response",
+    "validate_and_convert_country_code",
+    "mcp policy condition conversion",
+    "mcp country code fuzzy match",
+    "zpa_update_access_policy_rule conditions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.tool-inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.mcp-server.results"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The MCP server converts some caller input before it reaches the SDK. Three converters at the pinned release return a well-formed result while discarding or choosing part of the input, and each has an open upstream issue."
+    },
+    {
+      "heading": "ZPA policy conditions"
+    },
+    {
+      "text": "{{v2-dict-branch-drops-flat-operands}} {{v1-to-v2-drops-v2-operands}} Whether the maintainers consider these defects, and whether a fix is planned, is not stated {{gap:converter-fix-status}}."
+    },
+    {
+      "heading": "ZTW country names"
+    },
+    {
+      "text": "{{country-fuzzy-first-match}} Whether the helper rejects ambiguous input in a later release is open {{gap:country-ambiguity-fix}}."
+    }
+  ],
+  "claims": {
+    "v2-dict-branch-drops-flat-operands": {
+      "statement": "At the pinned release `convert_v2_to_sdk_format` enters its dict branch when every element is a dict, but reads only `cond.get(\"operands\", [])` from each; a list of flat operand dicts with no `operands` key therefore yields an empty list with no error. Issue #109 reports that a policy rule can then be created or updated with none of the conditions the caller supplied, and was open when captured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/common/zpa_helpers.py",
+          "quotes": [
+            "if isinstance(conditions, list) and all(isinstance(x, dict) for x in conditions):",
+            "operands = cond.get(\"operands\", [])",
+            "raise ValueError(f\"Unsupported conditions format: {type(conditions)}\")"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-109.json",
+          "quotes": [
+            "`convert_v2_to_sdk_format` returns an empty list for a list of operand dicts",
+            "So a caller passing operand dicts *without* an `{\"operator\", \"operands\"}` wrapper gets `[]` back with no error.",
+            "A policy-rule create or update that receives it therefore proceeds with an empty condition set"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-109.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    },
+    "v1-to-v2-drops-v2-operands": {
+      "statement": "At the pinned release `convert_v1_to_v2_response` reads only an operand's `rhs` or `lhs`, and only for object types listed in `_V1_TO_V2_VALUE_TYPES` or `_V1_TO_V2_ENTRY_TYPES`, and skips a condition that ends with no operands. Issue #110 reports that operands already in v2 shape (`values` or `entry_values`) and operands of unlisted types are dropped with no error, so a read-convert-update flow strips them before the write; it was open when captured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/common/zpa_helpers.py",
+          "quotes": [
+            "if obj_type in _V1_TO_V2_VALUE_TYPES:",
+            "elif obj_type in _V1_TO_V2_ENTRY_TYPES:",
+            "values_by_type[obj_type].append(str(rhs))",
+            "entries_by_type[obj_type].append({\"lhs\": str(lhs), \"rhs\": str(rhs)})",
+            "if not new_operands:"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-110.json",
+          "quotes": [
+            "convert_v1_to_v2_response drops existing v2 operands and silently omits unlisted object types",
+            "When given operands that are already in v2 format (`values` or `entry_values`), it extracts nothing and returns `[]`.",
+            "Operands whose object type is not in `_V1_TO_V2_VALUE_TYPES` or `_V1_TO_V2_ENTRY_TYPES` are also silently dropped, with no error or warning.",
+            "existing v2 operands or unlisted criteria are stripped before the write is submitted."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-110.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    },
+    "country-fuzzy-first-match": {
+      "statement": "`validate_and_convert_country_code` tries `alpha_2`, `alpha_3`, `name`, `common_name` and `official_name` lookups and then `pycountry.countries.search_fuzzy`, and on the fuzzy path returns the first candidate without checking how many matched. Issue #108 reports that `Korea` resolves to `COUNTRY_KP` although `KR` also matches, with no error or warning, and was open when captured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/common/ztw_helpers.py",
+          "quotes": [
+            "for getter in (\"alpha_2\", \"alpha_3\", \"name\", \"common_name\", \"official_name\"):",
+            "countries = pycountry.countries.search_fuzzy(country_input)",
+            "return f\"COUNTRY_{countries[0].alpha_2}\""
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-108.json",
+          "quotes": [
+            "`validate_and_convert_country_code()` resolves its input through a chain of exact `pycountry` getters",
+            "The clearest case is the word `Korea`, which matches both `KP` and `KR` and resolves to `KP`.",
+            "'Korea' -> COUNTRY_KP"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-108.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "converter-fix-status": {
+      "kind": "semantic",
+      "title": "Whether the ZPA condition converters will be fixed",
+      "status": "open",
+      "detail": "Issues #109 and #110 were open with no maintainer reply when captured. Whether a release preserves flat operands, v2 operands and unlisted object types, or raises instead, is not stated. Check the changelog after 0.15.4 before relying on a read-convert-update flow for policy rules.",
+      "blocks": "relying on an MCP policy-rule update to keep every condition the caller read",
+      "resolves_with": [
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-110.json",
+          "quotes": [
+            "In read-convert-update flows, where a caller reads a rule via `zpa_get_access_policy_rule` and passes the returned `conditions` into `zpa_update_access_policy_rule`"
+          ]
+        }
+      ]
+    },
+    "country-ambiguity-fix": {
+      "kind": "semantic",
+      "title": "Whether the ZTW country helper will reject ambiguous names",
+      "status": "open",
+      "detail": "Issue #108 was open with no maintainer reply when captured. Until a release changes it, a partial or ambiguous country name can persist as an unintended country; an alpha-2 code avoids the fuzzy path.",
+      "blocks": "passing free-text country names to ZTW destination-group tools",
+      "resolves_with": [
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-108.json",
+          "quotes": [
+            "An input that matches more than one country is rejected with an error naming the alternatives"
+          ]
+        }
+      ]
+    }
+  }
+}

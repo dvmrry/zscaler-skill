@@ -31,7 +31,7 @@
     },
     {
       "label": "Predefined rules.",
-      "text": "{{predefined-not-destroyable}}"
+      "text": "{{predefined-not-destroyable}} {{mcp-sharepoint-enum-report}}"
     }
   ],
   "checks": [
@@ -90,6 +90,41 @@
           ]
         }
       ]
+    },
+    "mcp-sharepoint-enum-report": {
+      "statement": "MCP server issue #56 reported that adding SharePoint Online to an SSL inspection rule returned no response because the SSL inspection API accepts only internal enum strings such as ONEDRIVE; it was closed as completed on 2026-04-28 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v0.10.5.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-56.json",
+          "quotes": [
+            "the SSL inspection API only accepts Zscaler's internal enum strings (like ONEDRIVE, ONEDRIVE_PERSONAL)",
+            "## Comment (MEMBER, 2026-04-28) Upgrade to the latest version of the mcp server v0.10.5 Zscaler DevRel",
+            "When trying to add \"Sharepoint Online\" (ID 655377) into existing SSL inspection rule, the api response is none."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 0.11.0 (May 4, 2026)",
+            "**Cloud-application name auto-resolution** for `zia_create_ssl_inspection_rule`, `zia_update_ssl_inspection_rule`",
+            "`\"Sharepoint Online\"` are silently translated to the canonical enums the API requires (`GOOGLE_DRIVE`, `ONEDRIVE`, `SHAREPOINT_ONLINE`)"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-56.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-04-28"
+          }
+        }
+      ],
+      "conditions": "The reply names v0.10.5 while the auto-resolution entry sits in the 0.11.0 section; the changelog does not tie the entry to the issue."
     }
   }
 }

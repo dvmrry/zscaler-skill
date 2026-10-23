@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "[ISSUE] ztw_helpers.validate_and_convert_country_code silently returns the first of several ambiguous fuzzy matches (\"Korea\" -> COUNTRY_KP)",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-mcp-server/issues/108",
+    "repo": "zscaler/zscaler-mcp-server",
+    "number": 108,
+    "state": "open",
+    "created_at": "2026-09-08",
+    "updated_at": "2026-09-08",
+    "labels": [],
+    "updated": "2026-09-08",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "[ISSUE] ztw_helpers.validate_and_convert_country_code silently returns the first of several ambiguous fuzzy matches (\"Korea\" -> COUNTRY_KP)",
+      "level": 1
+    },
+    {
+      "text": "**Title:** `[ISSUE] ztw_helpers.validate_and_convert_country_code silently returns the first of several ambiguous fuzzy matches (\"Korea\" -> COUNTRY_KP)`"
+    },
+    {
+      "text": "**Description**"
+    },
+    {
+      "text": "`validate_and_convert_country_code()` resolves its input through a chain of exact `pycountry` getters and then falls back to `pycountry.countries.search_fuzzy()`. When the fuzzy search returns **several** candidates, the helper takes `countries[0]` and returns it as if it were an unambiguous answer — no error, no warning, no indication that a choice was made (`src/zscaler_mcp/common/ztw_helpers.py:56-63` on master `809f68d`):"
+    },
+    {
+      "code": "    try:\n        countries = pycountry.countries.search_fuzzy(country_input)\n    except Exception:  # pragma: no cover - fuzzy search can raise on no match\n        countries = None\n    if countries:\n        return f\"COUNTRY_{countries[0].alpha_2}\"      # <-- len(countries) is never checked"
+    },
+    {
+      "text": "The five exact getters above it (`ztw_helpers.py:48-54`) are all single-answer lookups, so `countries[0]` is only ever reached on the fuzzy path — i.e. exactly the path where more than one answer is possible."
+    },
+    {
+      "text": "The clearest case is the word `Korea`, which matches both `KP` and `KR` and resolves to `KP`. Because the return value is a valid, well-formed `COUNTRY_XX` string, it carries no confidence signal: neither the caller nor a later reviewer can tell \"matched exactly\" from \"picked one of several\"."
+    },
+    {
+      "text": "This is not limited to one input. Sweeping every word of length >= 4 that appears in a `pycountry` country name, and keeping only the words that miss all five exact getters *and* yield more than one fuzzy candidate, gives **66 distinct inputs** that resolve to a silently chosen country:"
+    },
+    {
+      "text": "| input | returned | other candidates that also matched | |---|---|---| | `KOREA` | `COUNTRY_KP` | `KR` | | `VIRGIN ISLANDS` | `COUNTRY_VG` | `VI`, `US` | | `KINGDOM` | `COUNTRY_BE` | `BH`, `BT`, `DK`, … | | `HONG` | `COUNTRY_HK` | `CN`, `LA`, `TH` | | `FEDERATION` | `COUNTRY_RU` | `CH` | | `CENTRAL` | `COUNTRY_BW` | `FJ`, `GH`, `PG` | | `ISLAMIC` | `COUNTRY_AF` | `MR`, `PK`, `IR` |"
+    },
+    {
+      "text": "The docstring (`ztw_helpers.py:25-27`) documents the resolution order but not the tie-break:"
+    },
+    {
+      "code": "Resolution order (first match wins): existing ``COUNTRY_XX`` validation →\nalpha-2 → alpha-3 → name → common name → official name → fuzzy search.\nRaises ``ValueError`` if nothing matches."
+    },
+    {
+      "text": "\"first match wins\" reads as *first stage* wins, not *first of several candidates within the fuzzy stage* wins."
+    },
+    {
+      "text": "Two properties make this worth fixing rather than documenting:"
+    },
+    {
+      "item": "**The wrong answer is indistinguishable from the right one.** A well-formed `COUNTRY_XX`",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "string looks identical either way, and the only caller (`ztw_create_ip_destination_group`, via `validate_and_convert_country_codes` at `src/zscaler_mcp/tools/ztw/ip_destination_groups.py:157`) persists it and reports success. The discrepancy is visible only if someone reads the group back and re-checks each code by hand."
+    },
+    {
+      "item": "**The tie-break is not stable across versions.** `search_fuzzy()` ordering is a `pycountry`",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "implementation detail, and the declared constraint is `pycountry>=24.0.0` (`pyproject.toml:58`) — an unpinned lower bound. The same input can resolve to a different country after an unrelated dependency bump, with no change in this repository."
+    },
+    {
+      "text": "Note that `pycountry`'s exact getters are case-insensitive, so the `.strip().upper()` at `ztw_helpers.py:39` does **not** push full country names into the fuzzy path — `\"Canada\"` and `\"CANADA\"` both resolve exactly via `name`. Only genuinely partial or genuinely ambiguous input reaches the fallback, which is why the inputs that reach it are precisely the risky ones."
+    },
+    {
+      "text": "Found by reading the helper source, then reproduced locally."
+    },
+    {
+      "text": "**Reproduction**"
+    },
+    {
+      "text": "No credentials or network access needed — the helper is pure."
+    },
+    {
+      "code": "# repro.py\nimport pycountry\nfrom zscaler_mcp.common.ztw_helpers import validate_and_convert_country_code as conv\n\nfor probe in (\"Korea\", \"Virgin Islands\"):\n    candidates = [(c.alpha_2, c.name) for c in pycountry.countries.search_fuzzy(probe)]\n    print(f\"{probe!r} -> {conv(probe)}   candidates={candidates}\")"
+    },
+    {
+      "text": "**Expected behavior**"
+    },
+    {
+      "text": "An input that matches more than one country is rejected with an error naming the alternatives, so the caller can retry with an unambiguous alpha-2 code — the same contract the sibling helper `normalize_iso_country_code()` (`src/zscaler_mcp/common/zpa_helpers.py:37-51`) already enforces for App Connector / Service Edge groups."
+    },
+    {
+      "text": "**Actual behavior**"
+    },
+    {
+      "code": "$ python repro.py\n'Korea' -> COUNTRY_KP   candidates=[('KP', \"Korea, Democratic People's Republic of\"), ('KR', 'Korea, Republic of')]\n'Virgin Islands' -> COUNTRY_VG   candidates=[('VG', 'Virgin Islands, British'), ('VI', 'Virgin Islands, U.S.'), ('US', 'United States')]"
+    },
+    {
+      "text": "Both are silent picks from a multi-candidate result. `Virgin Islands` is a three-way tie that even includes an unrelated country (`US`)."
+    },
+    {
+      "text": "**Other Information**"
+    },
+    {
+      "item": "`zscaler-mcp` 0.15.4 (current `master`, `809f68d`)",
+      "depth": 0
+    },
+    {
+      "item": "`pycountry` 26.2.16 (`requirements.txt:127`); constraint is `pycountry>=24.0.0`",
+      "depth": 0
+    },
+    {
+      "item": "Python 3.12",
+      "depth": 0
+    },
+    {
+      "text": "Suggested direction — refuse to guess when the fuzzy stage is ambiguous, and name the alternatives:"
+    },
+    {
+      "code": "    try:\n        countries = pycountry.countries.search_fuzzy(country_input)\n    except Exception:  # pragma: no cover - fuzzy search can raise on no match\n        countries = None\n\n    if countries:\n        if len(countries) > 1:\n            options = \", \".join(f\"{c.alpha_2} ({c.name})\" for c in countries)\n            raise ValueError(\n                f\"Ambiguous country '{country_input}' matched {len(countries)} countries: \"\n                f\"{options}. Pass an unambiguous ISO 3166-1 alpha-2 code.\"\n            )\n        return f\"COUNTRY_{countries[0].alpha_2}\"\n\n    raise ValueError(f\"Could not find country: {country_input}\")"
+    },
+    {
+      "text": "This keeps every currently-working input working. The existing tests (`tests/test_ztw_shaping.py:21-30`) cover `\"Canada\"`, `\"US\"`, `\"COUNTRY_GB\"` and `\"Notalandia\"`, and none of them reach the changed branch: `\"Canada\"` hits the exact `name` getter, `\"US\"` hits `alpha_2`, `\"COUNTRY_GB\"` returns from the `COUNTRY_` prefix branch, and `\"Notalandia\"` makes `search_fuzzy` raise `LookupError` and falls through to the existing final `ValueError`."
+    },
+    {
+      "text": "`\"US\"` is worth calling out as evidence that the exact-getter chain is load-bearing: `search_fuzzy(\"US\")` returns 57 candidates, but `alpha_2` claims it first, so it never reaches the fallback. The change would only affect inputs that already had no single answer."
+    },
+    {
+      "text": "Two smaller alternatives if raising is too strict:"
+    },
+    {
+      "item": "Keep `countries[0]` but log a `WARNING` naming the candidates, so the choice is at least",
+      "depth": 0
+    },
+    {
+      "text": "auditable."
+    },
+    {
+      "item": "Prefer an exact case-insensitive `name` hit among the fuzzy candidates before falling back to",
+      "depth": 0
+    },
+    {
+      "text": "`[0]`, and raise only when that is still ambiguous."
+    },
+    {
+      "text": "Whichever you prefer, the property that matters is that a multi-candidate fuzzy result stops being reported as a definite answer. Happy to open a PR in any of these three shapes — the raise variant is a five-line diff plus one test."
+    }
+  ]
+}

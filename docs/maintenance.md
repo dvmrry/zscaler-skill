@@ -207,7 +207,9 @@ resolve a capture commit that existed only on the discarded branch.
 - A vendor GitHub issue that bears on documented behavior (a known defect, a request answered with a
   release) is captured with `python3 scripts/issue_capture.py capture <url>` and cited like a help page:
   quote what it reports, and pin the state the claim rests on with a pointer to `/source` and `expect`
-  (`{"state": "open"}`). The weekly issue-watch digest lists the candidates; capture only what you cite.
+  (`{"state": "open"}`). A statement about who replied needs the comment heading quoted (`## Comment
+  (MEMBER, <date>)`, which `issue_capture.py text` prints) and any signature it names. The weekly
+  issue-watch digest lists the candidates; capture only what you cite.
 - Moving a claim between subjects renames it: use `node scripts/kb.mjs move-claim <from> <to> [--merge]`,
   which rewrites every reference.
 

@@ -29,7 +29,7 @@
     },
     {
       "label": "Custom categories.",
-      "text": "{{url-order-diff-suppressed}} {{val-for-dlp-reference}} {{delete-detaches-v4-7-26}} How that detach is written: [[zia.terraform.multi-step-writes]]. The cap is documented as 48 {{tf-limit-48-custom}}, which disagrees with the help page {{divergence:custom-category-cap-48-vs-64}}. Plan time for very large categories is unmeasured {{gap:large-category-plan-time}}."
+      "text": "{{url-order-diff-suppressed}} {{issue-575-large-category-refresh}} {{val-for-dlp-reference}} {{delete-detaches-v4-7-26}} How that detach is written: [[zia.terraform.multi-step-writes]]. The cap is documented as 48 {{tf-limit-48-custom}}, which disagrees with the help page {{divergence:custom-category-cap-48-vs-64}}. Plan time for very large categories is unmeasured {{gap:large-category-plan-time}}. {{issue-615-remove-clears-other-lists}} Whether the service behaves as that report says is open {{gap:issue-615-reproduction}}."
     },
     {
       "label": "Predefined categories.",
@@ -179,6 +179,63 @@
           ]
         }
       ]
+    },
+    "issue-615-remove-clears-other-lists": {
+      "statement": "Provider issue #615, still open, reports against v4.8.13 that removing a URL from `urls` on `zia_url_categories` also removes the desired `db_categorized_urls` entries from the category in ZIA even when `db_categorized_urls` is unchanged in configuration, that planned changes to `db_categorized_urls` are then not applied, and that the next plan shows drift. The reporter's explanation is that ZIA applies the action to every list in the payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-615.json",
+          "quotes": [
+            "terraform-provider-zia: **v4.8.13**",
+            "also removes the desired `db_categorized_urls` entries from the category, even when `db_categorized_urls` is unchanged in config.",
+            "Planned changes to `db_categorized_urls` are not applied: removals never happen",
+            "The plan doesn't show any of this.",
+            "ZIA applies the action to every list in the payload, not just `urls`.",
+            "When `urls` changes on an existing `zia_url_categories` resource, Update sends only incremental",
+            "After the apply, Read refreshes state from the API, and the **next** plan shows drift."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-615.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    },
+    "issue-575-large-category-refresh": {
+      "statement": "Provider issue #575 reported that a custom URL category of about 19,000 `urls` entries took 15 to 20 minutes per plan on v4.7.18 while the same data came back from the ZIA REST endpoint in about 5 seconds. A repository member replied that v4.7.22 cut a 20,000 URL fresh create from several minutes to about 35 seconds and a refresh from many minutes to about 20 seconds. These figures are the reporter's and the vendor's.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-575.json",
+          "quotes": [
+            "`terraform plan` refresh of a single `zia_url_categories` resource holding ~19,000 entries in `urls` takes 15–20 minutes per run.",
+            "The same data via the underlying ZIA REST endpoint returns in ~5 seconds.",
+            "Fresh create: several minutes → ~35 seconds. Refresh: many minutes → ~20 seconds.",
+            "I tested v4.7.23 and looks like we're good. 17 URL cats, code over 20k lines and plan passed after 1m and 6 seconds.",
+            "+ provider registry.terraform.io/zscaler/zia v4.7.18",
+            "Please upgrade to v4.7.22 and rerun your plan.",
+            "## Comment (MEMBER, 2026-05-28) @(user) A performance fix for zia_url_categories on large URL lists shipped in v4.7.22",
+            "On our reproducer with a single custom category containing 20,000 URLs:"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-575.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-05-28"
+          }
+        }
+      ]
     }
   },
   "divergences": {
@@ -218,7 +275,17 @@
         "lab-test"
       ],
       "blocks": "saying that planning a large custom URL category is slow or fast",
-      "detail": "Unverified legacy statement: upstream issue 575 reported a roughly 20,000 URL category taking about 18 minutes during plan and refresh, and v4.7.22 introducing a `SetNew only operates on computed keys` failure that v4.7.23 fixed. Neither figure is in the vendored changelog; time a plan on a category of that size."
+      "detail": "Upstream issue 575 reports the plan time of a roughly 20,000 URL category before and after the v4.7.22 fix (issue-575-large-category-refresh); those are third-party figures. A plan time measured on a category of that size, with the vendored provider, is still open."
+    },
+    "issue-615-reproduction": {
+      "kind": "semantic",
+      "title": "Whether ZIA applies REMOVE_FROM_LIST to the other lists in the payload",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that a URL removal on a custom category keeps its db_categorized_urls entries",
+      "detail": "Issue 615 states that ZIA applies the action to every list in the payload; the vendored provider source builds the incremental payloads from the whole desired category with only `urls` replaced (custom-category-remove-then-add), so the request shape matches the report, but the service behavior was not reproduced. Remove a URL from `urls` on a category that holds `db_categorized_urls` entries and read the category back."
     }
   }
 }

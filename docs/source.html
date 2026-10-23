@@ -239,8 +239,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
-<script src="docs-lib.js?v=21"></script>
-<script src="nav.js?v=28"></script>
+<script src="docs-lib.js?v=22"></script>
+<script src="nav.js?v=29"></script>
 <script>
 (function () {
   const { RAW, VIEW, safeHref, escapeHtml, encodePath } = window.ZSkill;
@@ -293,7 +293,7 @@
     const { fm, body } = parseFrontmatter(text);
     if (fm.title) document.title = `${fm.title} — Source`;
     renderMeta(fm);
-    renderBody(body, dirOf(fetchedRel.replace(/^references\//, '')));
+    renderBody(body, dirOf(fetchedRel.replace(/^references\//, '').replace(/^docs\/primer/, '_meta/primer')));
   }).catch(err => {
     showError(`Error loading source: ${err.message}`);
   });
@@ -413,10 +413,7 @@
     if (!fm || Object.keys(fm).length === 0) { el.classList.add('hidden'); return; }
     const fields = [];
     if (fm['last-verified']) fields.push(`<strong>Verified</strong> ${escapeHtml(fm['last-verified'])}`);
-    if (fm.confidence) fields.push(`<strong>Confidence</strong> ${escapeHtml(fm.confidence)}`);
-    if (fm['source-tier']) fields.push(`<strong>Tier</strong> ${escapeHtml(fm['source-tier'])}`);
     if (fm['content-type']) fields.push(`<strong>Type</strong> ${escapeHtml(fm['content-type'])}`);
-    if (fm['author-status']) fields.push(`<strong>Status</strong> ${escapeHtml(fm['author-status'])}`);
 
     let html = '';
     if (fields.length) {

@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "zcc_list_devices dropped policy_name and other enrollment fields since v0.13.0 (regression)",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-mcp-server/issues/88",
+    "repo": "zscaler/zscaler-mcp-server",
+    "number": 88,
+    "state": "closed",
+    "created_at": "2026-07-23",
+    "updated_at": "2026-07-27",
+    "labels": [
+      "released"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-07-27",
+    "updated": "2026-07-27",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "zcc_list_devices dropped policy_name and other enrollment fields since v0.13.0 (regression)",
+      "level": 1
+    },
+    {
+      "text": "Summary"
+    },
+    {
+      "text": "Starting with v0.13.0, the zcc_list_devices tool returns only a shaped, 6-field device summary. The policy_name field — along with most other enrollment and telemetry fields — is no longer included in the response. This is a breaking change for any workflow that relied on per-device policy information, and there is currently no lternative tool that exposes it."
+    },
+    {
+      "text": "Both endpoints were verified live: on 0.12.7 the field is present, on 0.13.3 it is absent."
+    },
+    {
+      "text": "Root cause"
+    },
+    {
+      "text": "The regression was introduced in commit 4a2d83a (https://github.com/zscaler/zscaler-mcp-server/commit/4a2d83a8a3875b67d04ef1943d307e4d5bbfb5b3) (PR #82, \"agent-first shaping, Zscaler Cellular (ZCell) service, and guided prompts\"), first shipped in v0.13.0 (2026-07-10)."
+    },
+    {
+      "text": "The device record used to be returned as-is; it is now projected through a DeviceSummary model:"
+    },
+    {
+      "text": "# v0.12.7 — full SDK record, plus JMESPath support results = [d.as_dict() for d in devices] return apply_jmespath(results, query)"
+    },
+    {
+      "text": "# v0.13.0+ — projected down to a fixed summary return shape_many([d.as_dict() for d in (devices or [])], _shape_device)"
+    },
+    {
+      "text": "Full diff: https://github.com/zscaler/zscaler-mcp-server/compare/v0.12.7...v0.13.0"
+    },
+    {
+      "text": "What changed in the response"
+    },
+    {
+      "text": "Retained (v0.13.x): udid, user, machine_hostname, os_version, agent_version, registration_state"
+    },
+    {
+      "text": "Removed: policy_name, deregistration_timestamp, registration_time, keep_alive_time, last_seen_time, owner, mac_address, vpn_state, tunnel_version, and the remaining fields of the ~40-field enrollment record."
+    },
+    {
+      "text": "The query (JMESPath) parameter was also removed in the same change, so client-side projection/filtering is no longer available as a workaround."
+    },
+    {
+      "text": "Impact"
+    },
+    {
+      "item": "Per-device / per-user policy assignment can no longer be determined through the MCP server on v0.13.x.",
+      "depth": 1
+    },
+    {
+      "item": "No other tool fills the gap: zcc_list_forwarding_profiles lists tenant-wide forwarding profiles (id, name, active status) but does not map a profile to a device",
+      "depth": 1
+    },
+    {
+      "text": "or user."
+    },
+    {
+      "item": "The removal of query means callers cannot even project the fields themselves from a richer payload.",
+      "depth": 1
+    },
+    {
+      "text": "Steps to reproduce"
+    },
+    {
+      "item": "Run the server on any v0.13.x release.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Call zcc_list_devices (e.g. page_size=3).",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Observe that every device object contains only the 6 summary fields, with no policy_name.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "text": "Expected behavior"
+    },
+    {
+      "text": "One of the following:"
+    },
+    {
+      "item": "Restore the removed fields — re-include policy_name and the other enrollment/telemetry fields in the default response, or",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Provide an opt-in — e.g. a verbose/full flag on zcc_list_devices that returns the complete SDK record, and/or restore the query parameter so callers can select",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "text": "the fields they need, or"
+    },
+    {
+      "item": "Add a dedicated tool for per-device policy assignment.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "text": "Environment"
+    },
+    {
+      "item": "zscaler-mcp-server — reproduced on 0.13.3; confirmed working on 0.12.7.",
+      "depth": 1
+    },
+    {
+      "item": "Toolset: ZCC (zcc_list_devices).",
+      "depth": 1
+    },
+    {
+      "heading": "Comment (NONE, 2026-07-27)",
+      "level": 2
+    },
+    {
+      "text": ":tada: This issue has been resolved in version 0.14.0 :tada:"
+    },
+    {
+      "text": "The release is available on [PyPI](https://pypi.org/project/zscaler-mcp/) and [GitHub release](https://github.com/zscaler/zscaler-mcp-server/releases/tag/v0.14.0)"
+    },
+    {
+      "text": "> Posted by [semantic-release](https://github.com/semantic-release/semantic-release) bot"
+    }
+  ]
+}

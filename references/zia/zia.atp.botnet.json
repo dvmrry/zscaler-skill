@@ -52,7 +52,7 @@
     },
     {
       "label": "Alerting on traffic that matches nothing.",
-      "text": "{{alert-unknown-c2}}"
+      "text": "{{alert-unknown-c2}} {{issue-ansible-87-c2-flag-always-false}} Whether the API writes it today is open {{gap:c2-flag-api-write}}."
     },
     {
       "label": "DGA domains.",
@@ -251,6 +251,31 @@
       "binds": [
         "zia/advanced-threat-settings#dgaDomainsCapture"
       ]
+    },
+    "issue-ansible-87-c2-flag-always-false": {
+      "statement": "Ansible collection issue #87, still open, reports that switching `alert_for_unknown_or_suspicious_c2_traffic` in `zia_atp_settings` between `true` and `false` changes nothing in the admin portal; a repository member replied that whatever the UI holds the API always returns `alertForUnknownOrSuspiciousC2Traffic` as false and ignores an input of true, which makes Ansible see a difference on every run, and that it needs escalating to API engineering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "ziacloud-ansible-87.json",
+          "quotes": [
+            "I switch between `true` and `false` for the option `alert_for_unknown_or_suspicious_c2_traffic` but nothing changes in Experience Center.",
+            "the attribute `alertForUnknownOrSuspiciousC2Traffic` is always being returned as false, and igoring the input value i.e true",
+            "This isn't a Ansible problem directly but an API issue.",
+            "# Bug in module zia_atp_settings",
+            "## Comment (MEMBER, 2025-07-25) This will need to be escalated to API engineering for analysis."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "ziacloud-ansible-87.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -268,6 +293,16 @@
       "resolvable_by": [
         "operator"
       ]
+    },
+    "c2-flag-api-write": {
+      "kind": "semantic",
+      "title": "Whether the ATP settings API honors alertForUnknownOrSuspiciousC2Traffic on write",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that the Alert for Unknown/Suspicious C2 Traffic setting can be changed through the API",
+      "detail": "Issue 87 says the API returns false regardless of the configured value; the report dates from 2025 and no source shows a fix. Set the flag through the API, read the settings back, and compare with the console."
     }
   }
 }

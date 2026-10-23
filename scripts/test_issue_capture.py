@@ -22,6 +22,8 @@ def test_markdown_becomes_the_help_capture_block_shapes():
     ]
     assert issue_capture.md_blocks("Thanks @some-user, see a@b.c\n```\n@app.post\n```") == [
         {"text": "Thanks @(user), see a@b.c"}, {"code": "@app.post"}]
+    assert issue_capture.md_blocks("Segment 123456789012345678 fails\n```\nid = [\"123456789012345678\"]\n```") == [
+        {"text": "Segment <id> fails"}, {"code": 'id = ["<id>"]'}]
 
 
 def test_a_state_change_is_drift_on_every_line(tmp_path, monkeypatch, capsys):

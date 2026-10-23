@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "zia_url_filtering_and_cloud_app_settings bypasses legacy client for PUT and returns 401",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/598",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 598,
+    "state": "closed",
+    "created_at": "2026-08-05",
+    "updated_at": "2026-08-07",
+    "labels": [
+      ":bug: type/bug"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-08-06",
+    "updated": "2026-08-07",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "zia_url_filtering_and_cloud_app_settings bypasses legacy client for PUT and returns 401",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 3
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Version",
+      "level": 3
+    },
+    {
+      "text": "Terraform v1.15.8 provider registry.terraform.io/zscaler/zia v4.8.3"
+    },
+    {
+      "heading": "Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "zia_url_filtering_and_cloud_app_settings",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Configuration Files",
+      "level": 3
+    },
+    {
+      "code": "terraform {\n  required_providers {\n    zia = {\n      source  = \"zscaler/zia\"\n      version = \"4.8.3\"\n    }\n  }\n}\n\nprovider \"zia\" {}"
+    },
+    {
+      "code": "resource \"zia_url_filtering_and_cloud_app_settings\" \"this\" {\n  consider_embedded_sites                 = true\n  enable_block_override_for_non_auth_user = false\n  enable_chatgpt_prompt                   = true\n  enable_cipa_compliance                  = false\n  enable_dynamic_content_cat              = true\n  enable_gemini_prompt                    = false\n  enable_meta_prompt                      = true\n  enable_microsoft_copilot_prompt         = false\n  enable_msft_o365                        = true\n  enable_newly_registered_domains         = false\n  enable_office365                        = true\n  enable_per_plexity_prompt               = false\n  enable_poe_prompt                       = true\n  enable_ucaas_logmein                    = false\n  enable_ucaas_ring_central               = true\n  enable_ucaas_talkdesk                   = false\n  enable_ucaas_webex                      = true\n  enable_ucaas_zoom                       = false\n  enforce_safe_search                     = true\n}"
+    },
+    {
+      "text": "Legacy authentication is configured through these environment variables:"
+    },
+    {
+      "text": "ZSCALER_USE_LEGACY_CLIENT=true ZIA_USERNAME= ZIA_PASSWORD= ZIA_API_KEY= ZIA_CLOUD="
+    },
+    {
+      "heading": "Debug Output",
+      "level": 3
+    },
+    {
+      "text": "Can open Zscaler Support Case if this is needed."
+    },
+    {
+      "text": "The relevant sequence in the log is:"
+    },
+    {
+      "item": "GET /api/v1/advancedUrlFilterAndCloudAppSettings is successfully sent through the legacy ZIA client to https://zsapi.<cloud>.net.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The subsequent PUT is sent through the OneAPI client to https://api.zsapi.net/zia/api/v1/advancedUrlFilterAndCloudAppSettings.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "OneAPI returns HTTP 401.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Panic Output",
+      "level": 3
+    },
+    {
+      "text": "N/A"
+    },
+    {
+      "heading": "Expected Behavior",
+      "level": 3
+    },
+    {
+      "text": "When ZSCALER_USE_LEGACY_CLIENT=true, both the GET and PUT requests should be routed through the legacy ZIA client."
+    },
+    {
+      "text": "The PUT should be sent to:"
+    },
+    {
+      "text": "https://zsapi.<cloud>.net/api/v1/advancedUrlFilterAndCloudAppSettings"
+    },
+    {
+      "text": "Terraform should update the URL Filtering and Cloud App settings successfully."
+    },
+    {
+      "heading": "Actual Behavior",
+      "level": 3
+    },
+    {
+      "text": "The GET is routed correctly through the legacy client:"
+    },
+    {
+      "text": "GET https://zsapi.<cloud>.net/api/v1/advancedUrlFilterAndCloudAppSettings"
+    },
+    {
+      "text": "The resource then sends its PUT directly through OneAPI:"
+    },
+    {
+      "text": "PUT https://api.zsapi.net/zia/api/v1/advancedUrlFilterAndCloudAppSettings"
+    },
+    {
+      "text": "The request does not have valid OneAPI OAuth authorization because the provider is configured for legacy authentication. OneAPI returns:"
+    },
+    {
+      "code": "{\n  \"code\": null,\n  \"message\": \"\",\n  \"url\": \"https://api.zsapi.net/zia/api/v1/advancedUrlFilterAndCloudAppSettings\",\n  \"status\": 401\n}"
+    },
+    {
+      "text": "This appears to be caused by the resource calling service.Client.ExecuteRequest(...) directly for its full-payload PUT:"
+    },
+    {
+      "text": "https://github.com/zscaler/terraform-provider-zia/blob/v4.8.3/zia/resource_zia_url_filtering_and_cloud_app_settings.go#L299-L367"
+    },
+    {
+      "text": "The SDK's normal UpdateWithPut method checks UseLegacyClient and dispatches through LegacyClient.ZiaClient:"
+    },
+    {
+      "text": "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.44/zscaler/ziarequests.go#L82-L90"
+    },
+    {
+      "text": "Calling ExecuteRequest directly bypasses that legacy dispatch and constructs the api.zsapi.net OneAPI request."
+    },
+    {
+      "heading": "Steps to Reproduce",
+      "level": 3
+    },
+    {
+      "item": "Configure valid legacy ZIA credentials:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "export ZSCALER_USE_LEGACY_CLIENT=true export ZIA_USERNAME=\"<username>\" export ZIA_PASSWORD=\"<password>\" export ZIA_API_KEY=\"<api-key>\" export ZIA_CLOUD=\"<legacy-cloud>\""
+    },
+    {
+      "item": "Configure zia_url_filtering_and_cloud_app_settings.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "code": "   terraform init\n   terraform apply"
+    },
+    {
+      "heading": "Important Factoids",
+      "level": 3
+    },
+    {
+      "item": "The legacy credentials are valid because the GET for the same endpoint succeeds.",
+      "depth": 0
+    },
+    {
+      "item": "Other requests made through the legacy SDK methods are routed to zsapi.<cloud>.net.",
+      "depth": 0
+    },
+    {
+      "item": "Switching this resource to the corresponding data source works because it performs only the correctly routed GET.",
+      "depth": 0
+    },
+    {
+      "item": "A potential fix would be to add/use a raw JSON PUT helper that preserves the full payload while dispatching through the legacy client whenever UseLegacyClient is enabled.",
+      "depth": 0
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-08-06)",
+      "level": 2
+    },
+    {
+      "text": "@(user) We are investigating the issue in question."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-08-06)",
+      "level": 2
+    },
+    {
+      "text": "> @(user) > We are investigating the issue in question. > > Zscaler DevRel"
+    },
+    {
+      "text": "Thank you for the update!"
+    },
+    {
+      "heading": "Comment (NONE, 2026-08-06)",
+      "level": 2
+    },
+    {
+      "text": "I updated the case but the reason is the service.Client.ExecuteRequest(...) I sited in the issue."
+    },
+    {
+      "text": "https://github.com/zscaler/zscaler-sdk-go/blob/v3.8.44/zscaler/service.go#L28L35"
+    },
+    {
+      "text": "ExecuteRequest doesn't have the same legacy functions as UpdateWithPut"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-08-07)",
+      "level": 2
+    },
+    {
+      "text": "@(user) please upgrade your provider configuration to the latest minor release v4.8.5. The issue was largely due to upstream api changes."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-08-07)",
+      "level": 2
+    },
+    {
+      "text": "> [@(user)](https://github.com/marcusw0) please upgrade your provider configuration to the latest minor release v4.8.5. The issue was largely due to upstream api changes. > > Zscaler DevRel"
+    },
+    {
+      "text": "Will do. I will test in the morning and I appreciate the help."
+    }
+  ]
+}

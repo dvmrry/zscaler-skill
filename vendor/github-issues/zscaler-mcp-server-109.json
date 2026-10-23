@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "`convert_v2_to_sdk_format` returns an empty list for a list of operand dicts, so a policy rule can be created or updated with none of the conditions the caller supplied.",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-mcp-server/issues/109",
+    "repo": "zscaler/zscaler-mcp-server",
+    "number": 109,
+    "state": "open",
+    "created_at": "2026-09-08",
+    "updated_at": "2026-09-08",
+    "labels": [],
+    "updated": "2026-09-08",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "`convert_v2_to_sdk_format` returns an empty list for a list of operand dicts, so a policy rule can be created or updated with none of the conditions the caller supplied.",
+      "level": 1
+    },
+    {
+      "text": "**Version:** `master` @ `809f68d` · `src/zscaler_mcp/common/zpa_helpers.py`"
+    },
+    {
+      "heading": "What happens",
+      "level": 3
+    },
+    {
+      "text": "The function's docstring says it *\"never drops entries\"*. It does, silently, for one input shape."
+    },
+    {
+      "text": "The dict branch is entered when every element is a `dict`, but it only ever reads `cond.get(\"operands\", [])`:"
+    },
+    {
+      "code": "if isinstance(conditions, list) and all(isinstance(x, dict) for x in conditions):\n    converted = []\n    for cond in conditions:\n        operator = cond.get(\"operator\", \"OR\").upper()\n        operands = cond.get(\"operands\", [])      # <-- flat operand dicts have no \"operands\" key\n        for operand in operands:                 # <-- loop never runs\n            ...\n    return converted                             # <-- []"
+    },
+    {
+      "text": "So a caller passing operand dicts *without* an `{\"operator\", \"operands\"}` wrapper gets `[]` back with no error. The tuple branch above is skipped (the elements are dicts, not lists/tuples), and the terminal `raise ValueError(\"Unsupported conditions format: ...\")` is never reached because the `all(isinstance(x, dict))` branch already matched and returned."
+    },
+    {
+      "heading": "Reproduction",
+      "level": 3
+    },
+    {
+      "code": "from zscaler_mcp.common.zpa_helpers import convert_v2_to_sdk_format\n\nflat = [\n    {\"object_type\": \"app\",        \"values\": [\"<id>\"]},\n    {\"object_type\": \"scim_group\", \"values\": [[\"idp-1\", \"group-a\"]]},\n]\nprint(convert_v2_to_sdk_format(flat))"
+    },
+    {
+      "text": "Actual:"
+    },
+    {
+      "code": "[]"
+    },
+    {
+      "text": "Expected: either the converted conditions, or a `ValueError` naming the accepted shapes."
+    },
+    {
+      "text": "No credentials or network access needed — this is pure input conversion."
+    },
+    {
+      "heading": "Why it matters",
+      "level": 3
+    },
+    {
+      "text": "`[]` is not distinguishable downstream from \"the caller supplied no conditions\". A policy-rule create or update that receives it therefore proceeds with an empty condition set, so a rule intended to be scoped to an application and a group is written with no criteria at all, and the call reports success. On an `ALLOW` rule that is the difference between \"this group, this app\" and \"everything the policy set covers\"."
+    },
+    {
+      "text": "The shape is an easy one to arrive at: it is what you get by taking the `conditions` structure back out of a `get`/list response and passing it to an update, and it mirrors the flattened operand shape used elsewhere in the codebase."
+    },
+    {
+      "heading": "Suggested direction",
+      "level": 3
+    },
+    {
+      "text": "Two independent changes, either of which removes the silent failure:"
+    },
+    {
+      "item": "Accept the flat shape — treat a dict carrying `object_type`/`objectType` at the top level as a",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "single-operand condition, so one code path handles both shapes."
+    },
+    {
+      "item": "Never return empty for non-empty input — if `conditions` was non-empty and the result is",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "empty, raise, quoting the accepted shapes. This also covers the `if not obj_type: continue` and missing-`lhs`/`rhs` paths, which drop individual operands the same way."
+    },
+    {
+      "text": "Happy to open a PR for either or both if useful."
+    }
+  ]
+}

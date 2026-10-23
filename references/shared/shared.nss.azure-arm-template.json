@@ -36,7 +36,7 @@
     },
     {
       "label": "Before deploying.",
-      "text": "{{sas-token}} {{vhd-regions}}"
+      "text": "{{sas-token}} {{vhd-regions}} {{mgmt-ip-no-sku}} Whether it can be deployed where Basic SKU addresses are unavailable is open {{gap:mgmt-ip-basic-sku}}."
     },
     {
       "label": "Sizing and timing.",
@@ -64,6 +64,12 @@
       "uses": [
         "sas-token",
         "vhd-regions"
+      ]
+    },
+    {
+      "do": "Whether the target subscription and region allow Basic SKU public IP addresses, because the template's management IP is created without a SKU.",
+      "uses": [
+        "mgmt-ip-no-sku"
       ]
     }
   ],
@@ -230,6 +236,83 @@
           "path": "README.md",
           "quotes": [
             "Support for this ARM template is made available exclusively through Github repo issue tracking."
+          ]
+        }
+      ]
+    },
+    "mgmt-ip-no-sku": {
+      "statement": "In the template the management public IP (`<vmName>-MGMT-IP`) is declared with `publicIPAllocationMethod` `Dynamic` and no `sku`, while the service public IP (`<vmName>-SRVC-IP`) takes its `sku` from the `publicIpSku` parameter, whose default is `Standard`, and is `Static`. Issue #12 reports that selecting a Standard SKU still fails at the management IP with the Azure error that no more than 0 IPv4 Basic SKU public IP addresses can be created for the subscription in that region; it was open when captured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "nss-azure-deploy",
+          "path": "azuredeploy.json",
+          "quotes": [
+            "\"publicIPAddress1name\": \"[concat(parameters('vmName'), '-MGMT-IP')]\",",
+            "\"publicIPAddress2name\": \"[concat(parameters('vmName'), '-SRVC-IP')]\","
+          ]
+        },
+        {
+          "source": "nss-azure-deploy",
+          "path": "azuredeploy.json",
+          "after": "\"name\": \"[variables('publicIPAddress1name')]\",\n      \"location\": \"[parameters('location')]\",",
+          "quotes": [
+            "\"publicIPAllocationMethod\": \"Dynamic\""
+          ]
+        },
+        {
+          "source": "nss-azure-deploy",
+          "path": "azuredeploy.json",
+          "after": "\"name\": \"[variables('publicIPAddress2name')]\",",
+          "quotes": [
+            "\"name\": \"[parameters('publicIpSku')]\"",
+            "\"publicIPAllocationMethod\": \"Static\""
+          ]
+        },
+        {
+          "source": "nss-azure-deploy",
+          "path": "azuredeploy.json",
+          "after": "\"publicIpSku\": {",
+          "quotes": [
+            "\"defaultValue\": \"Standard\","
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "nss-azure-deploy-12.json",
+          "quotes": [
+            "\"Cannot create more than 0 IPv4 Basic SKU public IP addresses for this subscription in this region.\"",
+            "as much as we select a standard sku for public addressing we get the following error when trying to deploy the MGMT-IP"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "nss-azure-deploy-12.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "mgmt-ip-basic-sku": {
+      "kind": "semantic",
+      "title": "Whether the management public IP can be deployed in a subscription without Basic SKU quota",
+      "status": "open",
+      "detail": "Issue #12 was open with no reply when captured. The template gives the management IP no SKU, so Azure creates a Basic SKU address, and a subscription and region with a zero Basic quota fails the deployment. The reporter's belief that Basic SKU public IPs are deprecated is theirs and no captured source states it. A workaround such as adding a Standard SKU and Static allocation to that resource is untested here.",
+      "blocks": "deploying the NSS template into a subscription and region with no Basic SKU public IP quota",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "nss-azure-deploy-12.json",
+          "quotes": [
+            "As far as I know the Basic SKU has now been deprecated."
           ]
         }
       ]

@@ -41,7 +41,7 @@
     },
     {
       "label": "Failures during detach.",
-      "text": "{{get-failure-skips-update-silently}} {{reread-result-discarded}} {{five-second-sleep-per-rule}} {{sleep-adds-time-per-referencing-rule}} {{delete-follows-detach}} {{other-detach-callers-same-shape}} {{masked-read-failure-reaches-delete}}"
+      "text": "{{get-failure-skips-update-silently}} {{reread-result-discarded}} {{five-second-sleep-per-rule}} {{sleep-adds-time-per-referencing-rule}} {{delete-follows-detach}} {{other-detach-callers-same-shape}} {{masked-read-failure-reaches-delete}} {{skip-unsubscribed-rule-types}}"
     },
     {
       "text": "Related provider behavior that also reports success without confirming the result is in [[zia.terraform.rule-order]], and staged changes after a write are covered in [[zia.terraform.activation]]."
@@ -545,6 +545,32 @@
         "delete-follows-detach"
       ],
       "conditions": "Found by a pattern search over the provider's resource files at the pinned ref (each Delete returns on the helper's error, then calls the SDK delete); not quoted."
+    },
+    "skip-unsubscribed-rule-types": {
+      "statement": "From v4.8.13 the detach sweep before a delete skips a rule type whose read returns 403 (a missing subscription such as `NOT_SUBSCRIBED`, or no access for the admin role), since nothing in it can reference the object; a 403 for an ended API session (\"Resource Access Blocked\") is not skipped, and other errors still fail the delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "after": "## 4.8.13 (October 15, 2026)",
+          "quotes": [
+            "When reading a rule type returns `403` (missing subscription such as `NOT_SUBSCRIBED`, or no access for the admin role), that rule type is now skipped, since nothing in it can reference the object. Other errors still fail the delete."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/utils.go",
+          "at": [
+            "v4.8.13"
+          ],
+          "quotes": [
+            "A 403 for an ended // API session (\"Resource Access Blocked\") says nothing about the rule type and // is not skipped;",
+            "if strings.Contains(msg, \"Resource Access Blocked\") { return false }",
+            "forbidden := strings.Contains(msg, \"NOT_SUBSCRIBED\")"
+          ]
+        }
+      ]
     }
   },
   "gaps": {

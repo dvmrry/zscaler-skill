@@ -36,7 +36,7 @@
     },
     {
       "label": "Admin roles.",
-      "text": "{{role-type-values}} {{role-type-immutable}} {{sdwan-role-constraints}}"
+      "text": "{{role-type-values}} {{issue-572-validator-rejects-public-api}} Which release changed the validator is open {{gap:issue-572-open-though-validator-accepts}}. {{role-type-immutable}} {{sdwan-role-constraints}}"
     },
     {
       "label": "Rank.",
@@ -243,6 +243,32 @@
           ]
         }
       ]
+    },
+    "issue-572-validator-rejects-public-api": {
+      "statement": "Provider issue #572, still open, reports against v4.7.18 that `role_type = \"PUBLIC_API\"` on `zia_admin_roles` failed validation with an enum error listing only ORG_ADMIN, EXEC_INSIGHT, EXEC_INSIGHT_AND_ORG_ADMIN and SDWAN, and that omitting `role_type` on an imported role failed with a `cannot be changed once the resource is created` error, so the reporter's four imported API roles needed `lifecycle { ignore_changes = [role_type] }`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-572.json",
+          "quotes": [
+            "+ provider registry.terraform.io/zscaler/zia v4.7.18",
+            "Error: expected role_type to be one of [\"ORG_ADMIN\" \"EXEC_INSIGHT\" \"EXEC_INSIGHT_AND_ORG_ADMIN\" \"SDWAN\"], got PUBLIC_API",
+            "Error: the role_type cannot be changed once the resource is created. old=PUBLIC_API new=",
+            "Only workaround: keep `role_type` omitted and add `lifecycle { ignore_changes = [role_type] }`.",
+            "# zia_admin_roles role_type validator rejects PUBLIC_API even though API returns it",
+            "Affected our 4 existing API roles. All four imported successfully but require the `lifecycle.ignore_changes` workaround to plan."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-572.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -256,6 +282,16 @@
         "support-ticket",
         "tenant-data"
       ]
+    },
+    "issue-572-open-though-validator-accepts": {
+      "kind": "semantic",
+      "title": "Which release added PUBLIC_API to the role_type validator, and whether the omitted-role_type error remains",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying which provider versions accept PUBLIC_API, or that an imported API role plans cleanly",
+      "detail": "The vendored provider source lists PUBLIC_API in the `role_type` validator (role-type-values), yet issue 572 is still open and the changelog does not mention the addition, so the release that changed it and whether leaving `role_type` out of an imported PUBLIC_API role still fails are not shown. Import a PUBLIC_API role with the vendored provider version and plan with and without `role_type`."
     }
   }
 }

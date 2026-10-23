@@ -18,6 +18,9 @@ const VERSION = /\b(v?\d+\.\d+(?:\.\d+)*)\b/g;
 const NUMBER = /(?<![\w.`/-])(\d{2,}|\d{1,3}(?:,\d{3})+)(?![\w.%`/-])/g;
 const TICK = /`([^`]+)`/g;
 const ILLUSTRATION = /\bexample\.|\bsafemarch\.|=/i;
+// An absence word, then only articles, other code names and list joiners up to the name: "without `x`",
+// "has no `a` or `b`", "lacks the `c`".
+const ABSENCE = /\b(?:without|no|not|lacks?|lacking|omits?|missing|never)\b(?:\s|,|\b(?:or|and|nor|a|an|the|any)\b|`[^`]*`)*$/i;
 
 export const CHECKS = { version: "error", identifier: "error", number: "warning" };
 
@@ -53,7 +56,12 @@ export function lintClaim(claim) {
     if (missing.length) out.push({ check, level: CHECKS[check], missing: [...new Set(missing)] });
   };
   add("version", [...plain.matchAll(VERSION)].map((m) => m[1]).filter((v) => !text.includes(flat(v.replace(/^v/i, "")))));
-  const names = [...claim.statement.matchAll(TICK)].map((m) => m[1]).filter((n) => !ILLUSTRATION.test(n));
+  // A name the statement says is absent ("without `x`", "has no `x`") cannot be in the evidence; whether the
+  // absence is supported is the claim audit's call, not a string match's.
+  const names = [...claim.statement.matchAll(TICK)]
+    .filter((m) => !ABSENCE.test(claim.statement.slice(Math.max(0, m.index - 80), m.index)))
+    .map((m) => m[1])
+    .filter((n) => !ILLUSTRATION.test(n));
   add("identifier", names.filter((n) => !hasIdentifier(text, n)));
   add("number", [...plain.matchAll(NUMBER)].map((m) => m[1]).filter((n) => !text.replace(/,/g, "").includes(n.replace(/,/g, ""))));
   return out;

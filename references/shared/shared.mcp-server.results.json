@@ -34,7 +34,7 @@
       "heading": "Records"
     },
     {
-      "text": "{{no-output-schema}} {{shape-overlay}} {{snake-case-keys}} {{sanitized}} A full record is not a full collection: ZPA list tools return one caller-chosen page ([[zpa.api.pagination:mcp-manual-pages]])."
+      "text": "{{no-output-schema}} {{shape-overlay}} {{read-tools-trimmed-0-13-restored-0-14}} {{snake-case-keys}} {{sanitized}} A full record is not a full collection: ZPA list tools return one caller-chosen page ([[zpa.api.pagination:mcp-manual-pages]])."
     },
     {
       "heading": "Externally authored content"
@@ -299,6 +299,40 @@
             "a single empty list (such as the empty `urls` field on many records) switched the whole response to JSON"
           ],
           "after": "## 0.15.0 (August 5, 2026)"
+        }
+      ]
+    },
+    "read-tools-trimmed-0-13-restored-0-14": {
+      "statement": "From v0.13.0 to v0.14.0 the server's read tools projected each resource down to a fixed subset of fields; issue #88 reported that `zcc_list_devices` returned only six device fields and had lost `policy_name`, and it was closed as completed when 0.14.0 restored the complete record and made field names exactly what the Zscaler API returns.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Since v0.13.0, read tools projected each resource down to a fixed subset of fields, so any attribute outside that subset silently disappeared.",
+            "Read tools now return the **complete record**, exactly as the Zscaler API provides it.",
+            "Field names in responses are now exactly what the Zscaler API returns"
+          ],
+          "after": "## 0.14.0 (July 24, 2026)"
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-88.json",
+          "quotes": [
+            "Starting with v0.13.0, the zcc_list_devices tool returns only a shaped, 6-field device summary.",
+            "The policy_name field",
+            "# zcc_list_devices dropped policy_name and other enrollment fields since v0.13.0 (regression)"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-88.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed"
+          }
         }
       ]
     }

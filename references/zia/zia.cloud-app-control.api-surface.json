@@ -45,7 +45,7 @@
     },
     {
       "label": "Duplicating a rule.",
-      "text": "The Go SDK's `CreateDuplicate` cannot send a request, so it is not a way to clone a rule: [[zia.sdk-go.service-defects]]. {{python-duplicate-exists}}"
+      "text": "The Go SDK's `CreateDuplicate` cannot send a request, so it is not a way to clone a rule: [[zia.sdk-go.service-defects]]. {{python-duplicate-exists}} {{mcp-read-rules-tools-request}}"
     }
   ],
   "checks": [
@@ -380,6 +380,40 @@
           "quotes": [
             "CloudAppRiskProfile *common.IDCustom          `json:\"cloudAppRiskProfile,omitempty\"`"
           ]
+        }
+      ]
+    },
+    "mcp-read-rules-tools-request": {
+      "statement": "MCP server issue #76 asked for `zia_list_cloud_app_control_rules` and `zia_get_cloud_app_control_rule` because only `zia_list_cloud_app_control_actions` existed in the build the reporter tested; it was closed as completed on 2026-06-03 with a reply from a member of the repository's organization, signed Zscaler DevRel, that both tools already shipped in v0.11.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-76.json",
+          "quotes": [
+            "The MCP server currently exposes `zia_list_cloud_app_control_actions`, which returns the *available action types*",
+            "## Comment (MEMBER, 2026-06-03) @(user) Both tools you're requesting — `zia_list_cloud_app_control_rules` and `zia_get_cloud_app_control_rule` — already exist; they shipped in v0.11.0",
+            "Closing as already-implemented — let us know if a current build still shows the tools missing. Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 0.11.0 (May 4, 2026)",
+            "Added **ZIA Cloud App Control rule** family: `zia_list_cloud_app_control_rules`, `zia_get_cloud_app_control_rule`",
+            "`rule_type` is required on every CRUD call"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-76.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-06-03"
+          }
         }
       ]
     }

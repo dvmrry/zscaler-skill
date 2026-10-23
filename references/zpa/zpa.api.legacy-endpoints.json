@@ -37,7 +37,7 @@
     },
     {
       "label": "One application route.",
-      "text": "{{application-shared-path}}"
+      "text": "{{application-shared-path}} {{ansible-by-type-400-fixed-2-2-0}}"
     },
     {
       "label": "Schedules.",
@@ -284,6 +284,45 @@
           "expect_absent": [
             "/mgmtconfig/v1/admin/customers/{customerId}/stepupauthlevel"
           ]
+        }
+      ]
+    },
+    "ansible-by-type-400-fixed-2-2-0": {
+      "statement": "Ansible collection issue #85 reported that `zpa_application_segment_by_type_info` on collection 2.1.0 failed permanently with a `read.message.failed` error from the by-type application request; it was closed as completed on 2026-05-30 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v2.2.0, whose changelog lists a fix for the module's failure when retrieving application segments by type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zpacloud-ansible-85.json",
+          "quotes": [
+            "Tried to request application segments by type with collection version 2.1.0. It ends permanently in this error message:",
+            "\"code\": \"read.message.failed\","
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zpacloud-ansible-85.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-05-30) Upgrade to v2.2.0 Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zpacloud-ansible-85.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-05-30"
+          }
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Fixed `zpa_application_segment_by_type_info` failure when retrieving application segments by type."
+          ],
+          "after": "## 2.2.0 (May, 29 2026)"
         }
       ]
     }

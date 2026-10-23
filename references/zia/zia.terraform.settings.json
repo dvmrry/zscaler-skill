@@ -32,7 +32,7 @@
     },
     {
       "label": "End user notifications.",
-      "text": "{{eun-no-javascript}}"
+      "text": "{{eun-no-javascript}} {{issue-472-javascript-and-escape-drift}} Whether the escape drift remains is open {{gap:issue-472-escape-drift-current}}."
     },
     {
       "label": "Browser control.",
@@ -179,6 +179,47 @@
           ]
         }
       ]
+    },
+    "issue-472-javascript-and-escape-drift": {
+      "statement": "Provider issue #472, still open, reports that `zia_end_user_notification` `custom_text` holding JavaScript was rejected, which a repository member put down to the API not supporting JavaScript tags in the payload and escalated as an internal bug, and that on provider 4.4.9/10 a heredoc using the Terraform escape `$${` produced a change back to `${`; the member answered that the provider sets the HCL as returned by the API and pointed the reporter to Zscaler support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-472.json",
+          "quotes": [
+            "## Comment (MEMBER, 2025-09-03) @(user) This is an api issue and has been escalated. The API does not support JavaScript tags in the payload.",
+            "## Comment (MEMBER, 2025-09-09) @(user) WebUI and API are not the same. An internal BUG issue has been raised with our engineering team",
+            "it wants to do a change and swap back to escape from native `${` result",
+            "the provider sets the HCL as returned by the API",
+            "- there's still a problem with 4.4.9/10 and not respecting heredoc format",
+            "the terraform escape characters `$${` to pass the java vars thru",
+            "uses the arg `custom_text`",
+            "- zia_end_user_notification",
+            "If there are problem still problems please contact Zscaler support and make reference of this GitHub Issue."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-472.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "issue-472-escape-drift-current": {
+      "kind": "semantic",
+      "title": "Whether the current provider still rewrites `$${` in end user notification text",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying that escaped template syntax in notification text plans cleanly",
+      "detail": "Issue 472 reports the drift on v4.4.9 and v4.4.10, was never reported fixed, and the vendored provider is much later, so whether `$${` still produces a plan change is not shown. Apply a notification whose `custom_text` holds `$${` and plan again."
     }
   }
 }

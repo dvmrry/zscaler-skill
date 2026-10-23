@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "[ISSUE] The ZPA empty-body update placeholder returns model defaults (e.g. `enabled=True`) that a caller cannot tell apart from real values",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-sdk-python/issues/582",
+    "repo": "zscaler/zscaler-sdk-python",
+    "number": 582,
+    "state": "closed",
+    "created_at": "2026-09-08",
+    "updated_at": "2026-10-06",
+    "labels": [
+      "documentation",
+      "⚙️ In development"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-06",
+    "updated": "2026-10-06",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "[ISSUE] The ZPA empty-body update placeholder returns model defaults (e.g. `enabled=True`) that a caller cannot tell apart from real values",
+      "level": 1
+    },
+    {
+      "heading": "[ISSUE] The ZPA empty-body update placeholder returns model defaults (e.g. `enabled=True`) that a caller cannot tell apart from real values",
+      "level": 1
+    },
+    {
+      "text": "**Environment**"
+    },
+    {
+      "text": "| | | |---|---| | SDK version | `zscaler-sdk-python` 1.9.44 (editable install of `master` @ `e7f5f7ef`) | | Python | 3.11.15 | | OS | macOS (arm64) | | Affected product / resource | ZPA — 59 update methods across 42 modules (list below) |"
+    },
+    {
+      "text": "Found by reading the SDK source and confirmed with the offline reproduction below (a stub request executor, so no credentials and no network are involved). All identifiers used are synthetic."
+    },
+    {
+      "text": "---"
+    },
+    {
+      "heading": "This is deliberately narrower than #289 and #419 — please read this part first",
+      "level": 2
+    },
+    {
+      "text": "#289 and #419 both asked why `update_segment` doesn't return the updated field values, and both were answered: ZPA replies `204 No Content` on updates, the SDK cannot populate a full model, and callers should follow an update with a `get_*` call. That answer is clear and I'm not relitigating it."
+    },
+    {
+      "text": "What neither issue covered, and what this one is about, is that the placeholder the SDK substitutes is not *empty* — it carries the model's **constructor defaults**, and some of them are affirmative. `ApplicationSegments({\"id\": segment_id})` reports `enabled=True`, because `zscaler/zpa/models/application_segment.py:42` is:"
+    },
+    {
+      "code": "self.enabled = config[\"enabled\"] if \"enabled\" in config else True"
+    },
+    {
+      "text": "So `as_dict()` on the placeholder emits `{'id': ..., 'enabled': True, 'domain_names': [], 'tcp_port_ranges': [], 'udp_port_ranges': [], ...}` — values the API never sent. A caller who logs, diffs, caches, or asserts on the returned object is reading fabricated data, and since `err is None` and the object is a real `ApplicationSegments`, nothing distinguishes it from a response that genuinely said `enabled=True` with no domains. Both of the linked issues' docstring-style usage (`print(f\"... {update_segment.as_dict()}\")`) hits exactly this."
+    },
+    {
+      "text": "I acknowledge a caller *can* disambiguate today via `response.get_status()` (`zscaler/oneapi_response.py:163`) — that's a reasonable answer, and if it's the intended one I'd be glad to send a docs-only PR saying so, since none of the 59 docstrings mention it."
+    },
+    {
+      "heading": "Description",
+      "level": 2
+    },
+    {
+      "text": "The pattern is:"
+    },
+    {
+      "code": "# zscaler/zpa/application_segment.py:464-465\nif response is None or not response.get_body():\n    return (ApplicationSegments({\"id\": segment_id}), response, None)"
+    },
+    {
+      "text": "It appears **59 times across 42 modules, all of them under `zscaler/zpa/`**, and nowhere else in the SDK:"
+    },
+    {
+      "code": "$ python - <<'PY'\nimport re, glob, collections\nguard = re.compile(r'if (?:response is None or not response\\.get_body\\(\\)'\n                   r'|not response or not response\\.get_body\\(\\))\\s*:')\nret = re.compile(r'return \\((\\w+)\\(\\{\"id\": ([a-z_]+)\\}\\), response, None\\)')\ntotal, files = 0, collections.OrderedDict()\nfor f in sorted(glob.glob('zscaler/**/*.py', recursive=True)):\n    lines = open(f).read().split('\\n')\n    for i, line in enumerate(lines):\n        if guard.search(line):\n            for j in range(i + 1, min(i + 4, len(lines))):\n                if ret.search(lines[j]):\n                    total += 1\n                    files.setdefault(f, []).append(i + 1)\n                    break\nprint('placeholder returns:', total)\nprint('modules:', len(files))\nprint('by service:', dict(collections.Counter(f.split('/')[1] for f in files)))\nPY\nplaceholder returns: 59\nmodules: 42\nby service: {'zpa': 42}"
+    },
+    {
+      "text": "Other services chose the opposite convention for the same situation, which is the part I find hard to reconcile:"
+    },
+    {
+      "item": "`zscaler/zia/locations.py:565-570` — for a `204`, returns `(None, None)` with the comment",
+      "depth": 0
+    },
+    {
+      "text": "*\"This is the expected case for 204 No Content\"*. No object is fabricated."
+    },
+    {
+      "item": "`zscaler/zcell/sim_handling.py:230-231`, `zscaler/zcell/anomaly_policy.py:208-209`,",
+      "depth": 0
+    },
+    {
+      "text": "`zscaler/zcell/customer_data_handling.py:125-126` — `if not response or not response.get_body(): return (None, response, None)`. Same guard, honest return value."
+    },
+    {
+      "item": "ZIA / ZTW / ZCC / ZDX / ZIdentity update methods have no such guard at all — e.g.",
+      "depth": 0
+    },
+    {
+      "text": "`zscaler/zia/url_filtering.py` `update_rule` parses the body directly."
+    },
+    {
+      "text": "So the \"return a stub\" choice is specific to ZPA, and within ZPA it returns defaults rather than `None`. I'm raising the defaults part, not the \"why isn't it populated\" part."
+    },
+    {
+      "heading": "Reproduction",
+      "level": 2
+    },
+    {
+      "text": "Fully offline — no credentials, no network. The stub replies with an empty body, which is what `RequestExecutor.execute` produces for a `204` (`zscaler/request_executor.py:545-559` constructs a `ZscalerAPIResponse` with `response_body={}`)."
+    },
+    {
+      "code": "from zscaler.zpa.application_segment import ApplicationSegmentAPI\n\nSEGMENT_ID = \"<id>\"\nCONFIG = {\"client\": {\"customerId\": \"<id>\"}}\n\n\nclass StubResponse:\n    def get_body(self):\n        return {}          # what a 204 yields\n\n    def get_results(self):\n        return []\n\n    def get_status(self):\n        return 204\n\n\nclass StubExecutor:\n    \"\"\"Stands in for RequestExecutor.\"\"\"\n\n    def create_request(self, method, endpoint, body=None, headers=None, params=None,\n                       use_raw_data_for_body=False):\n        return {\"method\": method, \"endpoint\": endpoint.strip(),\n                \"body\": {} if body is None else body, \"params\": params or {}}, None\n\n    def execute(self, request, response_type=None, return_raw_response=False):\n        return StubResponse(), None\n\n\nseg, resp, err = ApplicationSegmentAPI(StubExecutor(), CONFIG).update_segment(\n    SEGMENT_ID, description=\"new description\")\n\nprint(\"err            =\", err)\nprint(\"type           =\", type(seg).__name__)\nprint(\"seg.enabled    =\", seg.enabled, \"  <- never sent by the API\")\nprint(\"seg.domain_names =\", seg.domain_names, \"  <- never sent by the API\")\nprint(\"as_dict()      =\", seg.as_dict())"
+    },
+    {
+      "heading": "Expected behaviour",
+      "level": 2
+    },
+    {
+      "text": "The returned value should not assert field values the API did not send. Any of these would achieve that; I'm not assuming which you'd want."
+    },
+    {
+      "heading": "Actual behaviour",
+      "level": 2
+    },
+    {
+      "code": "err            = None\ntype           = ApplicationSegments\nseg.enabled    = True   <- never sent by the API\nseg.domain_names = []   <- never sent by the API\nas_dict()      = {'id': '<id>', 'domain_names': [], 'server_groups': [], 'enabled': True, 'tcp_port_ranges': [], 'udp_port_ranges': [], 'tcp_port_range': [], 'udp_port_range': [], 'pra_apps': [], 'guest_details': []}"
+    },
+    {
+      "heading": "Root cause",
+      "level": 2
+    },
+    {
+      "text": "| Location | Code | |---|---| | `zscaler/zpa/application_segment.py:464-465` | representative instance of the placeholder (58 more like it) | | `zscaler/zpa/models/application_segment.py:42` | `self.enabled = ... else True` — the affirmative default that leaks into the placeholder | | `zscaler/zia/locations.py:565-570` | the other convention in the same codebase, for the same `204` | | `zscaler/zcell/sim_handling.py:230-231` | ditto, `(None, response, None)` |"
+    },
+    {
+      "heading": "Suggested direction",
+      "level": 2
+    },
+    {
+      "text": "Deliberately not prescribing, especially as the surrounding behaviour has already been declared intentional:"
+    },
+    {
+      "item": "Leave the behaviour and document it — add a line to the ZPA update docstrings saying the",
+      "depth": 0
+    },
+    {
+      "text": "returned object carries only the `id`, that other fields are model defaults and not API data, and that `response.get_status()` distinguishes the case. Smallest, non-breaking, and I'd be happy to write it."
+    },
+    {
+      "item": "Return `(None, response, None)` on an empty body, matching `zscaler/zcell/*` and",
+      "depth": 0
+    },
+    {
+      "text": "`zscaler/zia/locations.py`. Honest, but breaking for anyone reading `.id` off the result."
+    },
+    {
+      "item": "Keep returning an object but construct it so unknown fields are `None` rather than",
+      "depth": 0
+    },
+    {
+      "text": "constructor defaults, so `as_dict()` (which already drops `None`) yields just the `id`."
+    },
+    {
+      "text": "Which of these fits your plans? I'm happy to open the PR once you've picked."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-06)",
+      "level": 2
+    },
+    {
+      "text": "The placeholder is intentional: ZPA returns 204 No Content on updates, and since #437 the SDK returns an object carrying the id so callers don't get id=None. Its other attributes are model defaults, not API data. Use response.get_status() to detect the 204 and call the matching get_* method to read the updated resource. We documented this in the README in 1.11.1. We are not changing the return value, since that would break callers that read .id from it."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

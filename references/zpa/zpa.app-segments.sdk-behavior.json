@@ -44,11 +44,11 @@
     },
     {
       "label": "Python models and writes.",
-      "text": "{{python-enabled-default}} {{python-rejects-both-port-forms}} {{python-update-clears-port-forms}}"
+      "text": "{{python-enabled-default}} {{python-rejects-both-port-forms}} {{python-update-clears-port-forms}} The maintainers call this intentional {{python-port-clearing-intended}}."
     },
     {
       "label": "Browser Access key.",
-      "text": "{{python-clientless-key-presence}} {{mcp-clientless-param-removed}}"
+      "text": "{{python-clientless-key-presence}} {{mcp-clientless-param-removed}} {{mcp-icmp-and-other-fields-added-0-11-0}}"
     },
     {
       "label": "Federation decoding.",
@@ -318,6 +318,78 @@
         }
       ],
       "conditions": "The Python request executor converts keyword names to camel case and returns scalar values unchanged, so the key reaches the API as bypassOnReauth: false."
+    },
+    "mcp-icmp-and-other-fields-added-0-11-0": {
+      "statement": "Before MCP server release 0.11.0 `zpa_create_application_segment` and `zpa_update_application_segment` silently dropped `icmp_access_type` and other fields such as `double_encrypt` and `config_space` because they were not declared as parameters; issue #58 reported that no workaround existed through the MCP server and was closed as completed with a reply to upgrade to v0.11.0, which exposes them with every new field defaulting to `None` so that omitting one preserves the existing API value on update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "now expose the full set of SDK-supported fields. Previously these tools silently dropped `icmp_access_type`, `double_encrypt`, `config_space`,",
+            "because they were not declared as parameters.",
+            "all new fields default to `None` so omitting them preserves existing API values on update."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-58.json",
+          "quotes": [
+            "neither `zpa_create_application_segment` nor `zpa_update_application_segment `expose it as a parameter, it is silently dropped, always defaulting to NONE.",
+            "No workaround exists via the MCP server."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-58.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed"
+          }
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-58.json",
+          "quotes": [
+            "Upgrade to the latest version v0.11.0 where this issue has been fixed."
+          ]
+        }
+      ]
+    },
+    "python-port-clearing-intended": {
+      "statement": "Python SDK issue #580 asked about `update_segment` clearing port ranges the caller did not pass; it was closed as completed on 2026-10-06 with a reply from a member of the repository's organization, signed Zscaler DevRel, that the behavior is intentional (omitted port fields are sent as empty lists so removed ports are cleared, and callers pass the segment's current ports on every update to keep them), and the v1.11.1 changelog lists it as documented.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-580.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-06) This is intentional: since v1.4.3 (#296), update_segment sends omitted port fields as empty lists so ports removed from the desired configuration are actually cleared",
+            "Updates are full replacements, so pass the segment's current ports on every update if you want to keep them.",
+            "In 1.11.1 we added a note to the update_segment* docstrings to make this explicit. Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.11.1 (October 6 2026)",
+            "Documented that ZPA application segment updates clear omitted port fields."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-580.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-06"
+          }
+        }
+      ]
     }
   },
   "divergences": {

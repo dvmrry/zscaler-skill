@@ -59,7 +59,7 @@
     },
     {
       "label": "Reference Terraform modules and July 2026 remote settings.",
-      "text": "{{module-rhel9}} {{module-aws-example-types}} {{module-azure-example-types}} {{module-aws-defaults}} {{module-azure-defaults}} {{module-network-defaults}} {{module-aws-hardening}} {{module-azure-hardening}} {{asg-no-instance-refresh}} What an apply does to running ASG instances comes from an upstream issue and is open {{gap:aws-asg-instance-refresh}}. The July 13, 2026 release added remote network commands: {{get-network-interfaces-july13}} {{network-settings-july13}}"
+      "text": "{{module-rhel9}} {{module-aws-example-types}} {{module-azure-example-types}} {{module-aws-defaults}} {{module-azure-defaults}} {{module-network-defaults}} {{module-aws-hardening}} {{module-azure-hardening}} {{asg-no-instance-refresh}} What an apply does to running ASG instances comes from an upstream issue and is open {{gap:aws-asg-instance-refresh}}. The July 13, 2026 release added remote network commands: {{get-network-interfaces-july13}} {{network-settings-july13}} {{azure-bastion-b1s-sku-unavailable}}"
     },
     {
       "text": "Enrollment and group membership are in [[zpa.app-connectors.enrollment]] and [[zpa.app-connectors.connector-groups]]; how a session picks a connector is in [[zpa.app-connectors.selection]]."
@@ -946,6 +946,54 @@
             "July 13, 2026",
             "You can configure settings to perform remote commands that enable SSH on the OS, and also update software interface settings across Private Access (ZPA) virtual machines, such as AWS, Azure, and GCP."
           ]
+        }
+      ]
+    },
+    "azure-bastion-b1s-sku-unavailable": {
+      "statement": "Issue #24 on the Azure module reported that the bastion VM's default `Standard_B1s` size failed with `SkuNotAvailable` in most regions, including through the `zsac` script, and was closed as completed on 2026-07-07 with a reply to upgrade to v1.3.1; the module's changelog records that v1.3.1 changed the bastion default to `Standard_B2ts_v2`, and the module's `instance_size` variable now defaults to that size and can be overridden with any size available in the target region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-azurerm-zpa-app-connector-modules-24.json",
+          "quotes": [
+            "Standard_B1s is deprecated in most Azure regions, please update bastion module default instance type to utilise a newer VM SKU e.g. Standard_B2ts_v2",
+            "This variable can be customised when calling modules directly but it breaks with zsac script"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-azurerm-zpa-app-connector-modules-24.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-07-07) Upgrade to v1.3.1"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-azurerm-zpa-app-connector-modules-24.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-07-07"
+          }
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "* **bastion:** default to Standard_B2ts_v2 to avoid SkuNotAvailable"
+          ],
+          "after": "## [1.3.1]"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-bastion-azure/variables.tf",
+          "quotes": [
+            "Override with any SKU available in your target region.\"",
+            "default     = \"Standard_B2ts_v2\""
+          ],
+          "after": "variable \"instance_size\" {"
         }
       ]
     }

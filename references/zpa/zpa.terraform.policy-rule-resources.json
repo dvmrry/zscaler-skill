@@ -46,7 +46,7 @@
     },
     {
       "label": "Provider changes by version.",
-      "text": "{{device-posture-notification-4-4-9}} {{capabilities-join-control-session}} The changelog names the wrong block {{divergence:capabilities-block-name}}. {{portal-rule-upload-capabilities-4-4-7}}"
+      "text": "{{device-posture-notification-4-4-9}} {{device-posture-notification-request-674}} {{capabilities-join-control-session}} The changelog names the wrong block {{divergence:capabilities-block-name}}. {{portal-rule-upload-capabilities-4-4-7}}"
     },
     {
       "label": "Ordering resource and doc layout.",
@@ -751,6 +751,40 @@
         }
       ],
       "conditions": "That no resource is registered under a variant name rests on the provider's resource map, whose zpa_policy_access_rule entries are only the base, v2 and reorder resources."
+    },
+    "device-posture-notification-request-674": {
+      "statement": "Provider issue #674 reported that before v4.4.9 a Terraform update of an access rule sent a full object without `devicePostureFailureNotificationEnabled`, so a rule with it enabled in the Admin Portal was silently reverted to disabled by any unrelated update. It was closed as completed on 2026-07-24 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v4.4.9, adding that the feature is not available to all customers and is enabled on a tenant only on explicit request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-674.json",
+          "quotes": [
+            "Because Terraform performs a full-object PUT when updating a rule, any rule with this attribute configured via the ZPA Admin Portal GUI gets silently reverted to its API default (disabled) the next time Terraform applies any update to that rule",
+            "Support devicePostureFailureNotificationEnabled on access policy rules",
+            "a routine terraform apply for an unrelated change to the same rule will silently wipe this setting.",
+            "This specific feature isn't available to all customers is only enable on tenants upon explicitly request. Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-674.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-07-24) Upgrade to v4.4.9",
+            "This specific feature isn't available to all customers is only enable on tenants upon explicitly request."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-674.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-07-24"
+          }
+        }
+      ]
     }
   },
   "gaps": {

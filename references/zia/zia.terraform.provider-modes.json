@@ -22,7 +22,7 @@
   ],
   "prose": [
     {
-      "text": "The ZIA Terraform provider supports OneAPI and the legacy framework, and has a no-credential mode and its own rate-limit handling. {{legacy-compat-since-4-0}} {{legacy-client-switch}}"
+      "text": "The ZIA Terraform provider supports OneAPI and the legacy framework, and has a no-credential mode and its own rate-limit handling. {{legacy-compat-since-4-0}} {{legacy-client-switch}} {{issue-598-put-bypassed-legacy-client}}"
     },
     {
       "label": "Government clouds.",
@@ -324,6 +324,37 @@
             "} else if os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\") != \"\" {",
             "config.useLegacyClient = strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\""
           ]
+        }
+      ]
+    },
+    "issue-598-put-bypassed-legacy-client": {
+      "statement": "Provider issue #598 reported that on v4.8.3 with ZSCALER_USE_LEGACY_CLIENT=true, `zia_url_filtering_and_cloud_app_settings` read through the legacy client but sent its PUT to the OneAPI host, which answered 401, because the resource called `service.Client.ExecuteRequest` directly instead of a method that checks `UseLegacyClient`. A repository member closed it as completed, asking the reporter to upgrade to v4.8.5 and saying the problem was largely due to upstream API changes; the reporter replied that they would test it the next morning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-598.json",
+          "quotes": [
+            "Terraform v1.15.8",
+            "3. OneAPI returns HTTP 401.",
+            "The SDK's normal UpdateWithPut method checks UseLegacyClient and dispatches through LegacyClient.ZiaClient:",
+            "## Comment (MEMBER, 2026-08-07) @(user) please upgrade your provider configuration to the latest minor release v4.8.5. The issue was largely due to upstream api changes.",
+            "provider registry.terraform.io/zscaler/zia v4.8.3",
+            "# zia_url_filtering_and_cloud_app_settings bypasses legacy client for PUT and returns 401",
+            "This appears to be caused by the resource calling service.Client.ExecuteRequest(...) directly for its full-payload PUT:",
+            "When ZSCALER_USE_LEGACY_CLIENT=true, both the GET and PUT requests should be routed through the legacy ZIA client.",
+            "Will do. I will test in the morning and I appreciate the help."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-598.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-08-06"
+          }
         }
       ]
     }

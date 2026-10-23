@@ -2,6 +2,13 @@
 
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
+> **Note (2026-10):** the knowledge base is now the JSON graph under `references/` (subjects of claims with
+> quoted evidence, gaps and divergences, read with `node scripts/kb.mjs resolve`), not Markdown reference docs.
+> Layout: [`docs/kb-layout.md`](docs/kb-layout.md); model:
+> [`docs/superpowers/specs/2026-10-17-kb-graph-model-design.md`](docs/superpowers/specs/2026-10-17-kb-graph-model-design.md).
+> The build record below is kept as written: the Markdown paths, clarification IDs and coverage tiers it names are
+> historical (clarification IDs resolve to gaps with `kb.mjs resolve`).
+
 Last updated: 2026-08-12 (semantic-consistency correction for routing, product
 tiers, programmable-surface boundaries, and source-derived snapshot guidance).
 
@@ -14,13 +21,13 @@ If you are maintaining a fork, the parts you actually need to know are:
 3. **`_data/` is a runtime-data mount.** Public upstream does not track tenant data. Create `_data/` with `scripts/setup-data-mount.mjs`, verify it with `scripts/check-data-contract.mjs`, then populate it out of band from a private overlay or read-only `zscalerctl` dump. Without a snapshot, the skill falls back to general answers for tenant-specific questions — still useful, just hedged.
 4. **Credentialed live-tenant diagnostics are out of scope here.** The never-validated SDK diagnostic scripts were removed; this repo keeps reference hygiene, data-mount checks, Automate capture maintenance, and the `splunk-query.sh` stub. Tenant reads belong in the read-only `zscalerctl` companion or another private data-populator.
 5. **Known API / documentation blind spots** — all have operator-level workarounds documented:
-   - **Malware Protection and ATP block diagnosis** — settings are queryable/configurable through the SDK/API, but identifying the engine for one transaction still requires Web Insights or equivalent logs (workflow codified in `references/zia/malware-and-atp.md`).
+   - **Malware Protection and ATP block diagnosis** — settings are queryable/configurable through the SDK/API, but identifying the engine for one transaction still requires Web Insights or equivalent logs (workflow codified in the `zia.malware-protection` subject).
    - **Snapshot schema docs** — source-derived, medium-confidence guides now exist for ZIA, ZPA, ZCC, and ZIdentity; tenant validation remains deferred until real output exists. The Postman collection at `vendor/zscaler-api-specs/oneapi-postman-collection.json` is an additional spec source for stitching response-shape detail before tenant data exists.
-   - **Z-Tunnel wire-format protocol internals** — permanently deferred after targeted search confirmed no public docs (operational layer codified in `references/zcc/z-tunnel.md`).
+   - **Z-Tunnel wire-format protocol internals** — permanently deferred after targeted search confirmed no public docs (operational layer codified in the `zcc.z-tunnel` subject).
    - **ZCC int-enum semantic mappings** (`zcc-01` through `zcc-04`, `zcc-06`) — datatype resolved via Go SDK; integer-to-meaning mapping pending the first tenant read (IaC or `zscalerctl`).
    - **Lab-testable clarifications** (6 remaining) — see §Pending lab tests.
    - **No vendor-published OpenAPI / Swagger spec** — the repo now carries a reconstructed Automate contract and generated OpenAPI snapshots under `vendor/zscaler-api-specs/automate-zscaler/`; the vendored Postman collection remains an additional machine-readable source.
-6. **Most of this document is historical build context.** For current work, start with [`IMPROVEMENTS.md`](./IMPROVEMENTS.md), the open status in [`references/_meta/clarifications.md`](./references/_meta/clarifications.md), and the advisory outputs from `check-hygiene.py` / `check-vendor-drift.py`. Use the completed roadmap sections only when reconstructing why a design exists.
+6. **Most of this document is historical build context.** For current work, start with [`IMPROVEMENTS.md`](./IMPROVEMENTS.md), the open gaps in the knowledge graph (`node scripts/kb.mjs resolve <subject>`; see [`docs/kb-layout.md`](./docs/kb-layout.md)), and the advisory outputs from `check-hygiene.py` / `check-vendor-drift.py`. Use the completed roadmap sections only when reconstructing why a design exists.
 
 ## Since 2026-05-18
 
@@ -43,10 +50,10 @@ This repo is designed to be **forked privately to run against a real tenant**. T
 | File | What it is |
 |---|---|
 | `SKILL.md` | Anthropic-canonical skill entrypoint — extensive question-routing table |
-| `references/_meta/clarifications.md` | **Canonical index** of open/partial/resolved ambiguities with sources. Status summary near the top is the quick-scan view (20 resolved or clarified, 27 partially resolved, and an expanded open register as of the 2026-06-21 refresh). |
-| `references/zia/*.md`, `references/zpa/*.md`, `references/zcc/*.md`, `references/zdx/*.md`, `references/zbi/*.md`, `references/zidentity/*.md`, `references/cloud-connector/*.md`, `references/zwa/*.md`, `references/shared/*.md` | Distilled reference docs; each cites vendored sources and links to `_meta/clarifications.md` by ID |
+| `references/**/*.json` | **The knowledge graph.** Each subject carries its claims, gaps (the former clarifications, same IDs) and divergences. Read with `node scripts/kb.mjs resolve`; layout in `docs/kb-layout.md`. |
+| `references/<product>/<subject-id>.json` | One subject per file; each claim cites quoted evidence from a vendored source or capture |
 | `vendor/zscaler-help/README.md` | Drop convention, workflow, refresh instructions for the pinned bibliography |
-| `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every reference doc cites something here |
+| `vendor/zscaler-help/*.pdf`, `vendor/zscaler-help/*.md` | Pinned bibliography — every claim cites something here |
 | `scripts/setup-data-mount.mjs`, `scripts/check-data-contract.mjs`, `scripts/refresh-automate-zscaler.sh`, `scripts/splunk-query.sh` | Runtime data mount setup/checks, Automate capture refresh, and the Splunk helper stub. Credentialed tenant reads are out of scope for this repo. |
 | `references/_meta/evals/evals.json` | 25 skill eval prompts with structured assertions, `must_cite_files`, and `must_not_say` traps |
 | `_data/overlay/`, `_data/iac/` | Company overlay and IaC inside the ignored `_data/` runtime-data mount (the saved snapshot tier is retired; live reads use `zscalerctl`) |
@@ -164,7 +171,7 @@ Architecture coverage landed 2026-04-23. Captured articles (all in `vendor/zscal
 - **PSEN ≈ Private Service Edge Node** (instance-level within a PSE cluster). Not a separate SKU — see `understanding-private-service-edge-internet-saas.md § Cluster Architecture`.
 - **VSEN ≈ Virtual Service Edge Node** (per-VM instance within a VSE cluster).
 - `broker*.region` style hostnames in log fields are per-ZEN identifiers — useful for support tickets and log correlation.
-- Codified in `references/shared/terminology.md`.
+- Codified in the `shared.terminology` subject.
 
 **Remaining architecture gaps (lower priority):**
 - **Z-Tunnel wire-format internals** — permanently deferred 2026-04-24 after second targeted search confirmed no public docs. Operational layer is covered in `references/zcc/z-tunnel.md`.

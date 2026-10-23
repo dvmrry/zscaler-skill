@@ -27,14 +27,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ## Proposed
 
-### Token-budget hygiene check (from zscaler-terraform-skills observation)
-
-- **Status**: Proposed
-- **Origin**: 2026-05-03 — observed in `vendor/zscaler-terraform-skills`. Their authoring conventions cap `SKILL.md` at 300 lines and reference subsections at 400 tokens (~1,600 chars), enforced via `make check-line-counts`.
-- **Impact**: would surface oversized refs for compression. Not biting today (our `SKILL.md` is 265 lines, under their ceiling), but some of our refs run long (e.g., `references/zia/terraform.md` at 1,347 lines).
-- **Cost**: low. Extend `check-hygiene.py` with a per-file line-count threshold (warn on `>N lines`) and optionally a per-section token estimate.
-- **Notes**: not actionable until we observe a retrieval/comprehension issue tied to ref size. File so we have the lever ready if that day comes.
-
 ### Test the decision-table-first authoring pattern on a Devin workflow
 
 - **Status**: Proposed (experiment, not commitment)
@@ -61,24 +53,13 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 - **Cost**: medium-to-high. Needs a workflow that calls Claude (via the GitHub action — anthropic/claude-code-action or equivalent), passes the failure context, and lets the agent push to a fix branch. Plus playbook content to handle "self-maintenance" as a recognized workflow shape.
 - **Notes**: Claude-specific by design (uses Agent tool, CC's slash command surface). Not a cross-agent pattern. Conceptually the right "endgame" for closing the action loop, but real cost — defer until the manual loop (pre-push + branch protection + status badge + occasional manual `/z-investigator` on failures) demonstrably becomes a bottleneck. Until then, manual is fine.
 
-### Per-claim citation discipline — audit pass
-
-- **Status**: Proposed (real gap; needs real attention)
-- **Origin**: 2026-05-01 — surfaced when sampling reference files to spot-check citation density. `app-connector.md`: 14 vendor refs in body but only 1 file:line citation and 2 inline `(Source:)` patterns; `agents/investigator/methodology.md`: only 1 source in frontmatter for a `confidence: high` doc; many ZIA files use `Tier A/B/C/D` markers, others don't. Pattern across the skill is uneven.
-- **Impact**: the methodology says *"every claim has a source"*, but `check-hygiene.py` and `check-citations.sh` validate structure (frontmatter parses, citation paths resolve, dates are current) — they don't validate semantic completeness (does each body claim have an inline source). So claims slip through uncited. The skill's "soft + hard pairings" principle is unfulfilled here: the soft rule has no working hard check.
-- **Current mitigation**: `scripts/check-citation-density.py` now provides an advisory ranked report. It scans `references/` by default, splits body text into paragraphs, counts paragraphs with vendor/source evidence markers (`Tier A/B/C/D`, `Source:`/`File:` markers that resolve to `vendor/` or `scripts/` paths, `vendor/...:line`, URL citations, or clarification IDs), and reports files below a configurable threshold. Internal `references/...` links are treated as cross-links, not primary source evidence. Agent runtime files can be scanned explicitly by passing `agents`.
-- **Remaining work**: run the report, tune false positives from a sampled top set, then do product-sliced human/agent audit passes. The script only identifies low-density candidates; it does not prove a paragraph's citation is correct or that an uncited paragraph contains a load-bearing claim.
-- **Cost**: low to write the script (~50-100 lines Python). Real cost is the audit pass to bring flagged files up to standard — could be days of work depending on how many files fall below the threshold.
-- **Notes**: real reference work cites per claim, sometimes per sentence. The skill currently relies on frontmatter `sources:` declarations to "cover" the body, which is a softer form of citation than the methodology asks for. Not blocking the alpha; not something to defer indefinitely either. When this lands, expect a sweep PR per-product (zia, zpa, etc.) bringing citation density up to standard.
-
-
 ### Determinism beyond scripts — soft-to-hard pairings
 
 - **Status**: Proposed (framing exercise; individual patterns can be promoted as separate items)
 - **Origin**: 2026-04-30 — design discussion on "non-scripted but deterministic" agent guidelines
 - **Impact**: names the design space between hard scripts and loose agent prompts. Gives a vocabulary for which improvements buy script-level determinism without writing a Python check per every rule.
 - **Cost**: variable per pattern; the framing itself is free, individual implementations vary
-- **Notes**: The principle: **every "soft" guideline can be paired with a "hard" check that gates or verifies it.** The skill has been moving in this direction without naming the pattern. Examples already in place: status enum (soft) ↔ enum-validation in `check-hygiene.py` (hard); confidence calibration rules (soft) ↔ frontmatter validator that checks high-confidence-with-empty-sources (hard); diagnostics templates with `verification:` field (soft) ↔ could be paired with script that validates the field cites a real ticket / lab session / vendor doc (hard, not yet built).
+- **Notes**: The principle: **every "soft" guideline can be paired with a "hard" check that gates or verifies it.** The skill has been moving in this direction without naming the pattern. Examples already in place: gap status and claim tiers (soft) ↔ schema validation and `kb-lint.mjs` (hard); "a Tier A claim states only what its evidence states" (soft) ↔ the lint that checks versions, numbers and names against the quoted evidence (hard); quoted evidence (soft) ↔ `check-citations.mjs` re-anchoring each quote in its capture (hard); diagnostics templates with a `verification:` field (soft) ↔ could be paired with a script that validates the field cites a real ticket / lab session / vendor doc (hard, not yet built).
 
   Patterns we haven't yet exploited, ordered roughly by leverage:
 
@@ -100,23 +81,6 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
   **Action triggers**: promote individual patterns to their own IMPROVEMENTS.md items when there's a real reason to build them. Don't speculatively build — the framing is the contribution; individual investments need their own justification.
 
-### URL content drift detection
-
-- **Status**: Proposed
-- **Origin**: 2026-04-30 (gap analysis after PR #4)
-- **Impact**: catch when a cited URL's content changes (not just 404s, which `check-citations.sh --check-urls` already handles)
-- **Cost**: medium (needs hashing or diff infrastructure; bandwidth implications)
-- **Notes**: alternative pattern — enforce that every URL citation is paired with a `vendor/zscaler-help/` capture, and validate via "URL → local capture" cross-link. Requires no fetch infrastructure.
-
-### Per-source last-verified granularity
-
-- **Status**: Proposed (likely deferred)
-- **Origin**: 2026-04-30 (gap analysis)
-- **Impact**: track which of a ref's sources got re-verified vs. which inherited the date
-- **Cost**: medium (schema + audit-workflow change)
-- **Notes**: defer until we have evidence of refs going stale on a subset of sources. Current single `last-verified` is a weak claim but adequate for most refs.
-
-
 ### Postman / API-spec drift detection
 
 - **Status**: Proposed
@@ -129,10 +93,10 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ### Subtype-parameterize `/z-auditor` (lint subtypes only)
 
 - **Status**: Proposed (most original subtypes moved to `/z-soc` instead)
-- **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes; clarified 2026-05-01 — the **original intent** of `/z-auditor` was tenant-config lint (audit the tenant config (overlay IaC or live `zscalerctl`) for misconfig / drift / dead rules). The skill-doc lint role that shipped is a divergence from intent. The earlier "charter" rabbit hole was an attempt to fabricate meta-purpose around the wrong shipped scope instead of naming the gap.
-- **Impact**: split `/z-auditor` into lint-shape subtypes — `/z-auditor refs` (current default — reference doc lint) and `/z-auditor tenant-config` (the **originally-intended scope**: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
+- **Origin**: 2026-04-29 (command rename discussion); partially redirected 2026-04-30 when `/z-soc` was created and absorbed the posture-shaped subtypes; clarified 2026-05-01 — the **original intent** of `/z-auditor` was tenant-config lint (audit the tenant config (overlay IaC or live `zscalerctl`) for misconfig / drift / dead rules). The graph-lint role that shipped is a divergence from intent. The earlier "charter" rabbit hole was an attempt to fabricate meta-purpose around the wrong shipped scope instead of naming the gap.
+- **Impact**: split `/z-auditor` into lint-shape subtypes — `/z-auditor refs` (current default — knowledge-graph lint) and `/z-auditor tenant-config` (the **originally-intended scope**: orphan segments, disabled rules without rationale, unused URL categories, dead refs in tenant config). The originally-planned posture / access / coverage / activity subtypes are now `/z-soc` subtypes, not audit.
 - **Cost**: low to add `tenant-config` subtype playbook content (~100-150 lines) and parameterize the entry point. Auto-detect-from-scope or explicit-subtype-arg remains the design choice.
-- **Notes**: see `agents/auditor/prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is hygiene; `/z-soc` is defensibility. **Pre-alpha team-share**: the misalignment is documented but not fixed — team will hit this and the friction tells us whether a rename, a subtype split, or repurposing is the right call.
+- **Notes**: see `agents/auditor/prompt.md` § Future subtypes for the partition between audit (lint-shape) and `/z-soc` (posture-shape). Audit's role is graph hygiene; `/z-soc` is defensibility. **Pre-alpha team-share**: the misalignment is documented but not fixed — team will hit this and the friction tells us whether a rename, a subtype split, or repurposing is the right call.
 
 ### Verified diagnostics library
 
@@ -182,6 +146,17 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 ---
 
 ## Resolved
+
+### Knowledge base moved from Markdown to a JSON graph ✅ RESOLVED 2026-10
+
+- **Status**: Resolved (design: `docs/superpowers/specs/2026-10-17-kb-graph-model-design.md`; layout: `docs/kb-layout.md`)
+- **Origin**: the Markdown reference docs carried frontmatter (`confidence`, `source-tier`, `author-status`, `last-verified`), coverage tiers T1-T5, a clarification ledger and a portfolio map, all kept honest by hand and by `check-hygiene.py`.
+- **Resolution**: `references/` is now JSON subjects (claims with quoted evidence, gaps, divergences) read with `node scripts/kb.mjs resolve`. That finished or made moot these backlog items:
+  - **Token-budget hygiene check** (per-file line counts of Markdown refs): moot; there are no long Markdown refs to cap.
+  - **Per-claim citation discipline audit**: done by construction. A claim needs quoted evidence, `kb-lint.mjs` checks that a Tier A claim's versions, numbers and names appear in it, and `check-citations.mjs` re-anchors every quote in its capture. The `check-citation-density.py` report now covers only the Markdown that remains.
+  - **Per-source last-verified granularity**: evidence is per claim and per source, and `references/_meta/verified.json` records per-source citation counts at the current pins.
+  - **URL content drift detection**: help and issue captures are hashed in `references/_meta/capture-manifest.json`; `help_capture.py` and `issue_capture.py` re-check them and `kb-drift.mjs` reviews the result, including quotes that no longer anchor.
+  - **Clarification ledger / frontmatter / coverage-tier maintenance**: clarification IDs resolve to gaps, confidence is derived from tier and evidence, and the portfolio is a product (`references/portfolio/`).
 
 ### SDK quirk note: `cloud_firewall_nw_service` `isNameL10nTag` deserialization ✅ RESOLVED 2026-05-05
 
@@ -255,4 +230,5 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 - [`PLAN.md`](PLAN.md) — original skill-building plan
 - [`SKILL.md`](SKILL.md) — skill-routing entry point
-- `scripts/check-*.py` / `check-*.sh` — the hygiene check suite that some of these items extend
+- `scripts/check-*` and `scripts/kb-*.mjs` — the check suite that some of these items extend
+- [`docs/kb-layout.md`](docs/kb-layout.md) — the knowledge-graph layout

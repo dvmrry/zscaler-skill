@@ -59,9 +59,9 @@
     <section class="glance" id="glance">
       <h2>At a glance</h2>
       <ul>
-        <li><span class="key">Ask from evidence</span><span>Product behavior should be answered from references, IaC, captured contracts, or source citations. If none exist, expect an explicit gap.</span></li>
+        <li><span class="key">Ask from evidence</span><span>Product behavior should be answered from the knowledge graph, IaC, captured contracts, or source citations. If none exist, expect an explicit gap.</span></li>
         <li><span class="key">Start read-only</span><span>Most questions can be narrowed with references, the overlay's IaC, or read-only <code>zscalerctl</code> reads. The skill stays read-only; any write-lane test is a separate human step.</span></li>
-        <li><span class="key">Use the companion split</span><span><code>zscalerctl</code> observes tenant state; this skill interprets it with policy semantics, source tiers, and clarification boundaries.</span></li>
+        <li><span class="key">Use the companion split</span><span><code>zscalerctl</code> observes tenant state; this skill interprets it with policy semantics, claim tiers, and the gaps the graph records.</span></li>
         <li><span class="key">Name the task shape</span><span>Debugging, posture review, architecture, reference expansion, and doc audit are different workflows. The more specific the shape, the better the output.</span></li>
         <li><span class="key">Preserve uncertainty</span><span>Contract metadata can prove documented paths, fields, enums, and readonly flags. It cannot prove live backend acceptance unless the tenant is tested.</span></li>
       </ul>
@@ -77,13 +77,13 @@
           <tr><th>Use</th><th>When the human needs</th><th>Output to expect</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>@zscaler</code></td><td>A definition, behavior explanation, product lookup, or tenant-aware read.</td><td>Conversational answer with citations and confidence.</td></tr>
+          <tr><td><code>@zscaler</code></td><td>A definition, behavior explanation, product lookup, or tenant-aware read.</td><td>Conversational answer with citations, claim tiers and any gaps.</td></tr>
           <tr><td><code>zscaler-skill-setup</code></td><td>Set up or repair the runtime-data mount before asking tenant-specific questions.</td><td>Verified data mount or a concrete repair path.</td></tr>
           <tr><td><code>/z-investigator</code></td><td>A live or historical symptom with affected scope and timeframe.</td><td>Discovery journal with hypotheses, evidence, and next checks.</td></tr>
           <tr><td><code>/z-soc</code></td><td>Security posture, least privilege, exposure, RBAC, telemetry coverage, or defensibility.</td><td>Posture register with findings and remediation framing.</td></tr>
           <tr><td><code>/z-architect</code></td><td>Capacity, scaling, topology, design tradeoffs, or SPOF questions.</td><td>Recommendation register and decision notes.</td></tr>
-          <tr><td><code>/z-auditor</code></td><td>Reference quality, structural hygiene, config linting, or consistency review.</td><td>Audit register, usually findings-first.</td></tr>
-          <tr><td><code>/z-researcher</code></td><td>Citation-backed expansion of the knowledge base or a source-mining pass.</td><td>Reference edits with claims ledgers and open questions.</td></tr>
+          <tr><td><code>/z-auditor</code></td><td>Knowledge-graph quality, claim and evidence checks, config linting, or consistency review.</td><td>Audit register, usually findings-first.</td></tr>
+          <tr><td><code>/z-researcher</code></td><td>Citation-backed expansion of the knowledge base or a source-mining pass.</td><td>Subject edits (claims with quoted evidence) and gaps.</td></tr>
           <tr><td><code>/z-retro</code></td><td>A postmortem after an investigation journal already exists.</td><td>Warning ledger plus proceed/stop decision.</td></tr>
         </tbody>
       </table>
@@ -103,7 +103,7 @@
         <div><dt>Product and tenant cloud</dt><dd>Say <code>ZIA</code>, <code>ZPA</code>, <code>ZCC</code>, <code>ZTW</code>, <code>ZID</code>, or <code>ZDX</code>, and include the cloud or portal family when known.</dd></div>
         <div><dt>Scope</dt><dd>Give affected users, groups, apps, locations, forwarding profiles, segments, connectors, devices, or rule names.</dd></div>
         <div><dt>Timeframe</dt><dd>For investigations, include when it started, whether it is still happening, and any known change window.</dd></div>
-        <div><dt>Evidence source</dt><dd>Name the IaC file, log export, API output, Terraform plan, PR, or reference path the agent should inspect.</dd></div>
+        <div><dt>Evidence source</dt><dd>Name the IaC file, log export, API output, Terraform plan, PR, or subject ID the agent should inspect.</dd></div>
         <div><dt>Desired artifact</dt><dd>Ask for a short answer, a command checklist, a journal, a posture register, a PR review, or reference edits.</dd></div>
         <div><dt>Access boundary</dt><dd>Say read-only, no tenant calls, or <code>zscalerctl</code> reads only. The skill is read-only by contract — it never runs raw API or write tests.</dd></div>
         <div><dt>Observation source</dt><dd>If this is tenant-specific, say whether the agent should use the overlay's IaC, a live read-only <code>zscalerctl</code> read (for drift or what IaC cannot answer), or draft an on-demand read command.</dd></div>
@@ -134,11 +134,11 @@
           <tr><th>Signal</th><th>Meaning</th><th>Operator action</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>confidence</code></td><td>How strong the cited evidence is for the claim.</td><td>Use high-confidence claims operationally; treat low-confidence claims as hypotheses.</td></tr>
-          <tr><td><code>source-tier</code></td><td>Whether the claim came from docs, SDK code, Terraform, Ansible, MCP, captured contracts, IaC, or synthesis.</td><td>Prefer executable source and captured tenant data over prose when they conflict.</td></tr>
+          <tr><td>Claim tier</td><td>Tier A: the claim is backed by quoted evidence from a source. Tier B: observed or inferred, with the basis stated. Confidence is derived from tier and evidence, not stored.</td><td>Act on tier A claims; treat tier B claims as conditional until checked.</td></tr>
+          <tr><td>Evidence source</td><td>Each claim cites a source in <code>references/_meta/sources.json</code>: vendor docs, SDK code, Terraform, captured help pages or issues, IaC, or a live read.</td><td>Prefer executable source and captured tenant data over prose when they conflict.</td></tr>
           <tr><td>Gap ID</td><td>A known open question in the knowledge graph (old clarification IDs such as <code>zia-02</code> resolve to their gap).</td><td>Do not treat the item as closed unless the gap says resolved.</td></tr>
-          <tr><td>Partial resolution</td><td>Some documented evidence is known, but runtime behavior or backend acceptance is still unverified.</td><td>Use read-only checks first; escalate to lab tests only if the answer depends on live acceptance.</td></tr>
-          <tr><td>Open question</td><td>The sources do not currently prove the behavior.</td><td>Preserve the uncertainty in downstream docs, tickets, and runbooks.</td></tr>
+          <tr><td>Partly resolved gap</td><td>Some documented evidence is known, but runtime behavior or backend acceptance is still unverified.</td><td>Use read-only checks first; escalate to lab tests only if the answer depends on live acceptance.</td></tr>
+          <tr><td>Open question</td><td>The sources do not currently prove the behavior.</td><td>Preserve the uncertainty in downstream docs and tickets.</td></tr>
         </tbody>
       </table>
     </section>
@@ -153,7 +153,7 @@
         <div class="step"><div><span class="head">State the boundary.</span>Tell the agent whether it may inspect IaC only, run read-only commands, or draft commands for a human to run.</div></div>
         <div class="step"><div><span class="head">Prefer read validation.</span>Use read-only <code>zscalerctl</code> reads to observe fields, enums, and object shape. The skill does not run write tests.</div></div>
         <div class="step"><div><span class="head">Use cached dumps when fresh.</span>A recent <code>zscalerctl</code> dump or diff in the runtime-data mount is faster than a live read and should be the normal path for broad inventory questions.</div></div>
-        <div class="step"><div><span class="head">Record the result.</span>When a read narrows a clarification, update the ledger as partially resolved unless it proves the whole behavior.</div></div>
+        <div class="step"><div><span class="head">Record the result.</span>When a read narrows a gap, record it as partly resolved unless it proves the whole behavior.</div></div>
       </div>
     </section>
 
@@ -183,7 +183,7 @@
         <tbody>
           <tr><td>Discovery journal</td><td><code>&lt;runtime-mount&gt;/cases/&lt;slug&gt;/journal.md</code></td><td>Investigation hypotheses, evidence, ruled-out paths, and next checks.</td></tr>
           <tr><td>Posture register</td><td><code>&lt;runtime-mount&gt;/cases/&lt;slug&gt;/posture.md</code></td><td>SOC findings, severity, evidence, and remediation.</td></tr>
-          <tr><td>Reference edit</td><td><code>references/&lt;product&gt;/</code></td><td>Source-backed product behavior and API notes.</td></tr>
+          <tr><td>Subject edit</td><td><code>references/&lt;product&gt;/&lt;subject-id&gt;.json</code></td><td>Claims with quoted evidence, gaps and divergences for one subject.</td></tr>
           <tr><td>Gap</td><td><code>node scripts/kb.mjs resolve &lt;subject&gt;</code></td><td>Open, partial, or resolved questions with stable IDs, in each subject.</td></tr>
           <tr><td>Validation checklist</td><td>Chat, case directory, or PR body</td><td>Human-run read commands and expected evidence shape.</td></tr>
         </tbody>
@@ -205,13 +205,13 @@
         <li>Do not convert absence in one tested tenant into global deprecation or removal.</li>
         <li>Do not file vendor issues directly from a worklist unless the human explicitly authorizes filing.</li>
         <li>Do not let an agent infer tenant state without the overlay's IaC, explicit command output, or a human-provided artifact.</li>
-        <li>Do not hide uncertainty. Carry it into the answer, the clarification ledger, and any downstream ticket.</li>
+        <li>Do not hide uncertainty. Carry it into the answer, the subject's gaps, and any downstream ticket.</li>
       </ul>
     </section>
 
   </main>
 </div>
 
-<script src="nav.js?v=28"></script>
+<script src="nav.js?v=29"></script>
 </body>
 </html>

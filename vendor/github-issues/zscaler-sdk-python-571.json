@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "Read-modify-write on an existing policy rule requires rebuilding it from named parameters",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-sdk-python/issues/571",
+    "repo": "zscaler/zscaler-sdk-python",
+    "number": 571,
+    "state": "closed",
+    "created_at": "2026-09-01",
+    "updated_at": "2026-10-06",
+    "labels": [],
+    "state_reason": "completed",
+    "closed_at": "2026-10-06",
+    "updated": "2026-10-06",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "Read-modify-write on an existing policy rule requires rebuilding it from named parameters",
+      "level": 1
+    },
+    {
+      "text": "Hi first, thanks for the SDK."
+    },
+    {
+      "text": "I've hit a use case that I can't find a clean path for, and I suspect it's just outside the pattern the policy methods were designed around. Wanted to describe it in case it's useful input."
+    },
+    {
+      "heading": "What we're trying to do",
+      "level": 3
+    },
+    {
+      "text": "We have existing `ACCESS_POLICY` rules. We need to add **one** device-posture operand to the POSTURE condition block on each of them a new client certificate joining the set the rule already accepts and change nothing else about any rule."
+    },
+    {
+      "heading": "Where it gets difficult",
+      "level": 3
+    },
+    {
+      "text": "`get_rule()` gives us the rule as a `PolicySetControllerV1`. `update_access_rule()` takes named parameters. There's no method that accepts the object we just read:"
+    },
+    {
+      "code": "rule = policies.get_rule(\"access\", rule_id)     # PolicySetControllerV1\n# ...no update(rule) so every field has to be taken apart and passed back\npolicies.update_access_rule(rule_id, name=..., action=..., conditions=..., ...)"
+    },
+    {
+      "text": "Since the payload is assembled from arguments and then filtered"
+    },
+    {
+      "code": "payload = {k: v for k, v in payload.items() if v is not None}"
+    },
+    {
+      "text": "anything we don't re-supply isn't in the PUT body. And `**kwargs` doesn't cover it, because `transform_common_id_fields` only walks the three tuples in `reformat_params`; other keys are dropped silently."
+    },
+    {
+      "text": "In practice that leaves us hand-mapping ~17 fields per rule, with a few we couldn't map at all:"
+    },
+    {
+      "item": "**`enabled`**  `PolicySetControllerV1` parses `disabled` but doesn't declare `enabled`, an `request_format()` doesn't emit it, so rule enablement doesn't",
+      "depth": 0
+    },
+    {
+      "text": "survive the round trip."
+    },
+    {
+      "item": "**rule-level `operator`** (AND/OR) no parameter, and kwargs won't carry it.",
+      "depth": 0
+    },
+    {
+      "item": "**`policySetId`**  parsed in `__init__`, absent from `request_format()`.",
+      "depth": 0
+    },
+    {
+      "item": "`bypassDefaultRule`, `auditMessage`, `zpnCbiProfileId`, `browserPostureProfileId` and a few others appear in the Go SDK's wire struct but aren't parsed here.",
+      "depth": 0
+    },
+    {
+      "item": "`\"appConnectorGroups\": [...] or []` produces `[]` rather than `None`, so it survives the filter and is always sent which clears the groups unless every ID is re-supplied.",
+      "depth": 0
+    },
+    {
+      "item": "Feeding conditions back as dicts goes through a key whitelist expecting snake-case `idp_id`, while a GET returns `idpId`.",
+      "depth": 0
+    },
+    {
+      "text": "We may well be holding it wrong if there's an intended pattern for this we've missed, we'd genuinely like to know."
+    },
+    {
+      "heading": "What would help",
+      "level": 3
+    },
+    {
+      "text": "Either of these would solve it for us:"
+    },
+    {
+      "item": "An update that accepts the full rule e.g. `update_access_rule_raw(rule_id, body: dict)`,",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "or letting `update_access_rule` take the object `get_rule()` returned."
+    },
+    {
+      "item": "Documenting the request-executor path as supported. For what it's worth,",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "this already works and is lossless `get_body()` returns the raw response, and `convert_keys_to_camel_case` passes camelCase keys through untouched:"
+    },
+    {
+      "code": "   executor = client.get_request_executor()\n   request, err = executor.create_request(\"PUT\", url, body=rule_dict)\n   response, err = executor.execute(request, return_raw_response=True)"
+    },
+    {
+      "text": "It just isn't in the README or `examples/`, so we've been reluctant to build on it."
+    },
+    {
+      "heading": "Context",
+      "level": 3
+    },
+    {
+      "text": "This may simply be a different shape of problem than the SDK targets. The Terraform provider does the same operation via `zscaler-sdk-go`, but it can pass a fully populated struct because Terraform already holds the complete desired state. Tools that edit pre-existing objects they didn't create don't have that, which is where the gap shows up."
+    },
+    {
+      "text": "**Environment:** `zscaler-sdk-python` 1.9.43, Python 3.13, ZPA OneAPI."
+    },
+    {
+      "text": "Happy to provide more detail or test a change if it's helpful. Thanks again."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-06)",
+      "level": 2
+    },
+    {
+      "text": "The ZPA update_*_rule methods are intentionally declarative: each call replaces the rule with the state you pass in, the same contract the Terraform provider follows. They are not patch operations, and we don't plan to add a raw-body or \"update from the get_rule() object\" variant. To change one operand, read the rule, then pass the full argument set (name, action, conditions, connector/server groups, etc.) back to the update method."
+    },
+    {
+      "text": "A few clarifications on the fields you listed: ZPA policy rules don't have an enabled field — the API uses disabled, which the model parses and emits. policySetId is part of the PUT URL, so it doesn't need to be in the body. The request executor isn't documented as a public extension point, so we can't guarantee its behavior across releases."
+    },
+    {
+      "text": "Closing as a feature request we don't plan to implement."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

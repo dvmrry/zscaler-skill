@@ -6,17 +6,30 @@
 
 > An agent skill that makes AI assistants reason **correctly** about Zscaler — rule precedence, matching semantics, and policy evaluation order — instead of answering confidently and wrong.
 
-The product is **codified behavior**, not API access. An agent with live API keys and no behavioral model will still tell you the wrong rule won, that `*.foo.com` matches `foo.com`, or that SSL inspection happens once. This skill encodes how Zscaler actually behaves, with every claim graded by source and confidence. Unofficial; not affiliated with, endorsed by, or sponsored by Zscaler.
+The product is **codified behavior**, not API access. An agent with live API keys and no behavioral model will still tell you the wrong rule won, that `*.foo.com` matches `foo.com`, or that SSL inspection happens once. This skill encodes how Zscaler actually behaves as a knowledge graph of claims, each quoting the pinned vendor source it rests on. Unofficial; not affiliated with, endorsed by, or sponsored by Zscaler.
 
 ## What it knows
 
 - **The behavior LLMs hallucinate** — URL-filter rule order and first-match semantics, the wildcard-vs-exact specificity gotcha, the two-pass SSL inspection model, Cloud App Control ↔ URL Filtering interaction, ZPA app-segment matching, and cross-product policy evaluation.
-- **Honest coverage tiers** — deep operational depth (SDK / Terraform / OneAPI) on ZIA, ZPA, ZCC, ZDX, ZIdentity, and Cloud & Branch Connector; awareness-level on the rest of the portfolio — and it tells you which tier it's standing on before it answers.
+- **The whole portfolio, at the depth the sources allow** — ZIA, ZPA, Client Connector, ZDX, ZIdentity and Cloud & Branch Connector in operational depth (help, API contracts, Python and Go SDKs, Terraform providers, deployment modules, log formats), and every other product as far as Zscaler's own material goes. Where no source says, the graph says that instead of guessing.
 - **Source-graded answers** — every claim is Tier A (it quotes a pinned source, and the quote is re-anchored on every change) or Tier B (an inference with stated conditions); what no source settles is an explicit gap, so unverified claims don't get dressed up as fact.
 - **Tenant-aware, fail-closed** — answers tenant-specific questions ("is `reddit.com` blocked in *our* tenant?") from the knowledge graph plus the company overlay's records, the overlay's IaC when it declares `iac`, or live read-only `zscalerctl` when it declares `live` (runtime-data mount `_data/` by default, configurable in `zscaler-skill-runtime.json`). It declines rather than guesses when there is no tenant observation.
 - **Structured workflows** — repeatable, evidence-based roles for investigation, research, audit, and review when a task needs a defined output, not just a chat answer.
 
-[`SKILL.md`](./SKILL.md) is the routing surface — the question-shape table that sends each query to the right reference. `node scripts/kb.mjs resolve portfolio.overview` maps each customer need to its product.
+## How it works
+
+About 1,000 subjects hold 8,000 claims, 1,600 open gaps and 390 divergences (where two vendor sources disagree), plus 190 tenant object types and their fields. Agents read them through one resolver, never by opening files:
+
+```bash
+node scripts/kb.mjs resolve "why does a lower allow rule win?"   # ranked subjects for a question
+node scripts/kb.mjs resolve --compact --each zia.url-filtering.rule-order zia.cloud-app-control.precedence
+node scripts/kb.mjs resolve zia                                     # a product's areas
+node scripts/kb.mjs surface zia_url_filtering_rules                 # API, SDK and Terraform surface
+```
+
+Each bundle carries the subject's prose, claims with their quotes, gaps, divergences, neighbors, the tenant object types it binds (with their IaC coverage and read-only `zscalerctl` command) and, when a company overlay is configured, the company's own records. [`SKILL.md`](./SKILL.md) is the agent's entry point; `node scripts/kb.mjs resolve portfolio.overview` maps each customer need to its product.
+
+The sources are pinned: vendor repositories as git submodules, and help pages, API references and triaged GitHub issues as captures under `vendor/`. A gate re-anchors every quote on every change. The refresh loop ([docs/maintenance.md](./docs/maintenance.md)) refetches the captures and reviews which claims a source change touched, including quotes that still match beside changed code; new and changed claims also go through a model-graded audit before they land.
 
 ## Install
 
@@ -31,7 +44,7 @@ mkdir -p ~/.claude/skills
 ln -s "$(pwd)" ~/.claude/skills/zscaler
 ```
 
-That is enough for grounded Q&A from the committed reference corpus. Maintainers
+That is enough for grounded Q&A from the committed knowledge graph. Maintainers
 who audit source provenance, refresh references, or run the researcher workflow
 should also initialize the pinned upstream source repositories:
 
@@ -100,7 +113,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 **Usage**
 - [docs/getting-started.md](./docs/getting-started.md) — fork setup, credentials, overlay setup, first script run
 - [scripts/README.md](./scripts/README.md) — script inventory, support boundary, conventions
-- [docs/maintenance.md](./docs/maintenance.md) — CI, automated weekly upstream refresh, sticky issues, contribution rules
+- [docs/maintenance.md](./docs/maintenance.md) — the refresh loop, CI, sticky issues, contribution rules
 
 **Reference**
 - [docs/tooling.md](./docs/tooling.md) — pre-release `zscalerctl` companion contract and runtime-data cache model
@@ -116,7 +129,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 - Open questions are gaps in the graph, each with what would resolve it; some need tenant-specific lab tests.
 - Field shapes for tenant types come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); validate them against real tenant output before treating them as tenant-confirmed.
 - Z-Tunnel wire-format internals are not customer-documented.
-- Tier 3 / Tier 4 portfolio areas can be routed and explained, but the skill will not invent SDK, Terraform, or API behavior for them.
+- Products Zscaler documents only in marketing material are explained as marketed; the skill will not invent SDK, Terraform or API behavior for them.
 
 ## License
 

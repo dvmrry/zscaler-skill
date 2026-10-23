@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "v4.8.4 -`user_agent_types` validator rejects `BRAVE` returned by ZIA API",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/606",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 606,
+    "state": "closed",
+    "created_at": "2026-09-21",
+    "updated_at": "2026-10-05",
+    "labels": [
+      ":bug: type/bug",
+      "🐛 api/issue"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-01",
+    "updated": "2026-10-05",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "v4.8.4 -`user_agent_types` validator rejects `BRAVE` returned by ZIA API",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 3
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Version",
+      "level": 3
+    },
+    {
+      "code": "Terraform v1.x.x\nprovider registry.terraform.io/zscaler/zia v4.8.4"
+    },
+    {
+      "heading": "Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "`zia_url_filtering_rules`",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Configuration Files",
+      "level": 3
+    },
+    {
+      "code": "resource \"zia_url_filtering_rules\" \"example\" {\n  name             = \"Example Rule\"\n  state            = \"ENABLED\"\n  action           = \"ALLOW\"\n  user_agent_types = [\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\"]\n  # BRAVE cannot be added here — provider validator rejects it at plan time\n}"
+    },
+    {
+      "heading": "Debug Output",
+      "level": 3
+    },
+    {
+      "text": "N/A"
+    },
+    {
+      "heading": "Panic Output",
+      "level": 3
+    },
+    {
+      "text": "N/A"
+    },
+    {
+      "heading": "Expected Behavior",
+      "level": 3
+    },
+    {
+      "text": "`BRAVE` should be a valid value for `user_agent_types`. The ZIA API already returns it for existing rules, so the provider schema and validator should accept it. Users should be able to include `\"BRAVE\"` in their HCL configuration without a validation error."
+    },
+    {
+      "heading": "Actual Behavior",
+      "level": 3
+    },
+    {
+      "text": "`terraform plan` fails with a validation error when the ZIA API returns `BRAVE` as part of `user_agent_types` during state refresh:"
+    },
+    {
+      "code": "expected [{pathStepImpl:{} Name:user_agent_types} {pathStepImpl:{} Key:{ty:{typeImpl:{typeImplSigil:{} Kind:78}} v:0xc000aeee70}}] to be one of [\"OPERA\" \"FIREFOX\" \"MSIE\" \"MSEDGE\" \"CHROME\" \"SAFARI\" \"MSCHREDGE\" \"OTHER\"], got BRAVE"
+    },
+    {
+      "text": "This is a read-time failure - it occurs during `terraform plan` when the provider reads existing rules back from the ZIA API and the API response contains `BRAVE`. There is no workaround within Terraform since adding `\"BRAVE\"` to the HCL also fails the same validator."
+    },
+    {
+      "heading": "Steps to Reproduce",
+      "level": 3
+    },
+    {
+      "item": "Have an existing `zia_url_filtering_rules` resource with a broad `user_agent_types`",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "selection already imported into Terraform state"
+    },
+    {
+      "item": "Run `terraform plan`",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Terraform refreshes state by calling the ZIA API for that rule",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "The API response includes `BRAVE` in `userAgentTypes`",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The provider validator rejects it - plan fails",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "heading": "Important Factoids",
+      "level": 3
+    },
+    {
+      "item": "The affected rules were **not manually edited** in the ZIA portal - audit logs confirm",
+      "depth": 0
+    },
+    {
+      "text": "no GUI changes were made to these rules"
+    },
+    {
+      "item": "Only rules with broad/catch-all browser selections appear to be affected. Zscaler's",
+      "depth": 0
+    },
+    {
+      "text": "backend appears to have retroactively added `BRAVE` to rules that had wide browser coverage, likely as part of a backend update adding Brave browser support"
+    },
+    {
+      "item": "The root cause is in `zia/validator.go` - `supportedUserAgentTypes` does not include",
+      "depth": 0
+    },
+    {
+      "text": "`BRAVE`:"
+    },
+    {
+      "code": "// current list in validator.go\n\"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"MSCHREDGE\", \"OTHER\","
+    },
+    {
+      "text": "Suggested fix: add `\"BRAVE\"` to this slice. Also consider updating the ISOLATE action validation message in `resource_zia_url_filtering_rules.go` if Brave is valid for ISOLATE rules."
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "item": "`zia/validator.go` → `supportedUserAgentTypes` and `validateUserAgentTypes()`",
+      "depth": 0
+    },
+    {
+      "item": "`zia/resource_zia_url_filtering_rules.go` → ISOLATE action validation message",
+      "depth": 0
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-01)",
+      "level": 2
+    },
+    {
+      "text": "@(user) Issue has been resolved in the latest version v4.8.9. Please upgrade."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-10-05)",
+      "level": 2
+    },
+    {
+      "text": "thank you @(user)"
+    }
+  ]
+}

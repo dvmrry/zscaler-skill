@@ -57,7 +57,7 @@
     },
     {
       "label": "Rule builders.",
-      "text": "{{python-credential-exclusive}} {{python-isolation-client-type}} {{python-capabilities-mapping}} {{python-redirection-rules}} {{python-timeout-defaults}} {{python-reformat-params-key}}"
+      "text": "{{python-credential-exclusive}} {{python-isolation-client-type}} {{python-capabilities-mapping}} {{python-redirection-rules}} {{python-timeout-defaults}} {{python-reformat-params-key}} {{timeout-action-fixed-re-auth}} {{isolation-update-action-guard}} {{update-rules-are-full-replacements}}"
     },
     {
       "label": "Reordering.",
@@ -782,6 +782,94 @@
         "zpa.sdk-python.policy-helpers:lock-object"
       ],
       "conditions": "Follows from the lock being a threading.Lock held in module memory. Another process, host or tool writing rules at the same time is not covered."
+    },
+    "timeout-action-fixed-re-auth": {
+      "statement": "Python SDK issue #579 reported that the SDK's v2 timeout rule method documents an `action` keyword but hard-codes the action; it was closed as completed on 2026-10-06 with a reply from a member of the repository's organization, signed Zscaler DevRel, that the timeout policy only supports RE_AUTH so the SDK always sets it, and v1.11.1 removed `action` from the v2 timeout docstrings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-579.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-06) The timeout policy only supports RE_AUTH, so the SDK always sets it.",
+            "and corrected the documented reauth_timeout / reauth_idle_timeout argument names. Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.11.1 (October 6 2026)",
+            "ZPA timeout rules: removed the ignored `action` argument from the v2 docstrings (the action is always `RE_AUTH`)"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-579.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-06"
+          }
+        }
+      ]
+    },
+    "isolation-update-action-guard": {
+      "statement": "Python SDK issue #574 reported that `update_isolation_rule` and `update_isolation_rule_v2` raise AttributeError when `action` is omitted; it was closed as completed on 2026-10-06, and the v1.11.1 changelog lists the fix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-574.json",
+          "quotes": [
+            "Omitting `action` — as you\nwould for a partial update — raises before any request is made"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 1.11.1 (October 6 2026)",
+            "Fixed ZPA `update_isolation_rule` and `update_isolation_rule_v2` raising `AttributeError` when `action` is omitted."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-574.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-06"
+          }
+        }
+      ]
+    },
+    "update-rules-are-full-replacements": {
+      "statement": "Python SDK issue #571 asked for a way to update a ZPA policy rule from the object `get_rule` returns; it was closed as completed on 2026-10-06 with a reply from a member of the repository's organization, signed Zscaler DevRel, that the `update_*_rule` methods are intentionally declarative, replace the rule with the state passed in, are not patch operations, and will not get an update-from-object variant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-571.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-06) The ZPA update_*_rule methods are intentionally declarative: each call replaces the rule with the state you pass in",
+            "They are not patch operations, and we don't plan to add a raw-body or \"update from the get_rule() object\" variant.",
+            "Closing as a feature request we don't plan to implement. Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-571.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-06"
+          }
+        }
+      ]
     }
   },
   "gaps": {

@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "# zia_url_categories: removing a URL from `urls` also removes `db_categorized_urls` entries in ZIA (regression from #505)",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/615",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 615,
+    "state": "open",
+    "created_at": "2026-10-22",
+    "updated_at": "2026-10-22",
+    "labels": [],
+    "updated": "2026-10-22",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "# zia_url_categories: removing a URL from `urls` also removes `db_categorized_urls` entries in ZIA (regression from #505)",
+      "level": 1
+    },
+    {
+      "heading": "Versions",
+      "level": 2
+    },
+    {
+      "item": "terraform-provider-zia: **v4.8.13**",
+      "depth": 0
+    },
+    {
+      "item": "Terraform: >1.5.0",
+      "depth": 0
+    },
+    {
+      "item": "Earlier versions back to the #505 change appear to behave the same way.",
+      "depth": 0
+    },
+    {
+      "heading": "Summary",
+      "level": 2
+    },
+    {
+      "text": "When `urls` changes on an existing `zia_url_categories` resource, Update sends only incremental `ADD_TO_LIST` / `REMOVE_FROM_LIST` calls. Each call carries the **whole desired category**, built with `expandURLCategory(d)`. ZIA applies the action to every list in the payload, not just `urls`. As a result:"
+    },
+    {
+      "item": "**Any removal from `urls`** also removes the desired `db_categorized_urls` entries from the category, even when `db_categorized_urls` is unchanged in config.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Planned changes to `db_categorized_urls` are not applied: removals never happen, and additions only happen as a side effect of `ADD_TO_LIST`.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "The plan doesn't show any of this. After the apply, Read refreshes state from the API, and the **next** plan shows drift. Applying that second plan fixes the category, because with `urls` unchanged Update falls through to the full update (`\"\"` action)."
+    },
+    {
+      "heading": "Reproduction",
+      "level": 2
+    },
+    {
+      "text": "Start from an existing custom category:"
+    },
+    {
+      "code": "resource \"zia_url_categories\" \"test\" {\n  configured_name     = \"PROVIDER_BUG_REPRO\"\n  super_category      = \"USER_DEFINED\"\n  type                = \"URL_CATEGORY\"\n  custom_category     = true\n  urls                = [\"test.example.com\"]\n  db_categorized_urls = [\"keep-a.example.net\", \"keep-b.example.net\", \"remove-me.example.org\"]\n}"
+    },
+    {
+      "text": "Apply. The ZIA admin portal matches the config."
+    },
+    {
+      "text": "Change only the lists (the same thing happens if you leave `db_categorized_urls` untouched and only remove from `urls`):"
+    },
+    {
+      "code": "  urls                = []\n  db_categorized_urls = [\"keep-a.example.net\", \"keep-b.example.net\"]"
+    },
+    {
+      "text": "The plan is correct:"
+    },
+    {
+      "code": "~ db_categorized_urls = [\n    - \"remove-me.example.org\",\n      # (2 unchanged elements hidden)\n  ]\n~ urls = [\n    - \"test.example.com\",\n  ]"
+    },
+    {
+      "text": "Apply."
+    },
+    {
+      "text": "**Expected:** Custom URLs is empty. URLs Retaining Parent Category is `keep-a.example.net`, `keep-b.example.net`."
+    },
+    {
+      "text": "**Actual:** Custom URLs is empty. URLs Retaining Parent Category contains **only `remove-me.example.org`**: the two entries the plan left unchanged were removed, and the one the plan removed is still there."
+    },
+    {
+      "text": "The next plan shows the drift, and applying it fixes the category:"
+    },
+    {
+      "code": "~ db_categorized_urls = [\n    - \"remove-me.example.org\",\n    + \"keep-a.example.net\",\n    + \"keep-b.example.net\",\n  ]"
+    },
+    {
+      "text": "The add direction (adding to `urls` and to `db_categorized_urls` together) looks fine, but only because `ADD_TO_LIST` with the full desired `db_categorized_urls` is a no-op for entries that already exist."
+    },
+    {
+      "heading": "Cause (from reading `zia/resource_zia_url_categories.go` at v4.8.13)",
+      "level": 2
+    },
+    {
+      "text": "In `resourceURLCategoriesUpdate`:"
+    },
+    {
+      "code": "desiredCategory := expandURLCategory(d)   // includes DBCategorizedUrls, IPRanges, keywords, ...\n...\nremoveCategory := desiredCategory\nremoveCategory.Urls = urlsToRemove\nUpdateURLCategories(ctx, service, id, &removeCategory, \"REMOVE_FROM_LIST\")\n...\naddCategory := desiredCategory\naddCategory.Urls = urlsToAdd\nUpdateURLCategories(ctx, service, id, &addCategory, \"ADD_TO_LIST\")"
+    },
+    {
+      "text": "The full update (`\"\"` action) only runs when there are no `urls` changes. So in the remove case, `DBCategorizedUrls` (and presumably `IPRanges`, `IpRangesRetainingParentCategory`, `Keywords`, `KeywordsRetainingParentCategory`) goes out with `REMOVE_FROM_LIST`, and changes to those fields are never applied as a full set."
+    },
+    {
+      "heading": "Suggested fix",
+      "level": 2
+    },
+    {
+      "text": "Either of these would work:"
+    },
+    {
+      "item": "**Incremental payloads with only `urls`:** in the `ADD_TO_LIST` / `REMOVE_FROM_LIST` payloads, send only `urls` (empty or omitted for the other list fields), then send a full update without an action for the remaining fields whenever any of them changed. Or simply always finish with a full update after the incremental calls.",
+      "depth": 0
+    },
+    {
+      "item": "**Incremental diffs for every list field:** compute add/remove sets for each list field, the same way it's done for `urls`.",
+      "depth": 0
+    },
+    {
+      "heading": "Workaround we use",
+      "level": 2
+    },
+    {
+      "text": "Immediately after any apply that changes `urls` on a category with `db_categorized_urls` entries, run a second plan/apply. The category is wrong in ZIA in the time between the two applies."
+    },
+    {
+      "text": "---"
+    },
+    {
+      "heading": "Second, related issue, less critical",
+      "level": 2
+    },
+    {
+      "text": "`urls` has `DiffSuppressFunc: suppressURLCategoriesReorderDiff`, which compares `d.GetChange(\"urls\")`. If the attribute is removed from config, or set to `null` (e.g. `urls = length(var.urls) > 0 ? var.urls : null`), `GetChange` returns the state value for both old and new. The function decides the lists are equal and suppresses the removal. **The last URL is never removed from ZIA, and the plan stays clean.** Passing `urls = []` explicitly makes the removal show up in the plan."
+    },
+    {
+      "text": "Two more observations on that function:"
+    },
+    {
+      "item": "**The check:** it should probably consult `d.GetRawConfig()` (or treat a null config value as empty) rather than relying on `GetChange`.",
+      "depth": 0
+    },
+    {
+      "item": "**The cache:** `urlsReorderSuppressionCache` is a package-level `sync.Map` keyed by resource ID and never cleared, so the first result for an ID is reused for the rest of the provider process.",
+      "depth": 0
+    }
+  ]
+}

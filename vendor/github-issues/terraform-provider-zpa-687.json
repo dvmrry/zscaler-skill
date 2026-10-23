@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "GitHub Issue (for zscaler/terraform-provider-zpa)",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zpa/issues/687",
+    "repo": "zscaler/terraform-provider-zpa",
+    "number": 687,
+    "state": "closed",
+    "created_at": "2026-08-28",
+    "updated_at": "2026-10-01",
+    "labels": [
+      "type/bug"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-01",
+    "updated": "2026-10-01",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "GitHub Issue (for zscaler/terraform-provider-zpa)",
+      "level": 1
+    },
+    {
+      "heading": "Terraform Version",
+      "level": 3
+    },
+    {
+      "text": "OpenTofu (via Spacelift), provider `registry.terraform.io/zscaler/zpa` v4.3.82 (constraint `~> 4.0`)"
+    },
+    {
+      "heading": "Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "zpa_application_segment",
+      "depth": 0
+    },
+    {
+      "item": "zpa_application_segment_inspection (referenced re: schema gap and prior fix)",
+      "depth": 0
+    },
+    {
+      "item": "zpa_application_segment_browser_access / zpa_application_segment_pra (referenced re: PR #500 precedent)",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Configuration Files",
+      "level": 3
+    },
+    {
+      "text": "resource \"zpa_segment_group\" \"this\" { name    = \"test-segment-group\" enabled = true }"
+    },
+    {
+      "text": "resource \"zpa_application_segment\" \"this\" { name              = \"test-appprotection-bug\" domain_names      = [\"test-appprotection-bug.example.com\"] segment_group_id  = zpa_segment_group.this.id use_in_dr_mode    = true   # any unrelated field works as the trigger"
+    },
+    {
+      "text": "tcp_port_range { from = \"80\" to   = \"80\" } tcp_port_range { from = \"443\" to   = \"443\" }"
+    },
+    {
+      "text": "server_groups { id = [var.server_group_id] } }"
+    },
+    {
+      "heading": "No zpa_application_segment_inspection or zpa_application_segment_browser_access",
+      "level": 1
+    },
+    {
+      "heading": "resource is declared anywhere -- AppProtection is enabled manually in the console",
+      "level": 1
+    },
+    {
+      "heading": "after this segment is created, which is what triggers the bug on the next apply.",
+      "level": 1
+    },
+    {
+      "heading": "Debug Output",
+      "level": 3
+    },
+    {
+      "text": "Not captured -- this isn't a crash/panic, so no debug log was generated. Happy to produce one on request if it would help (would need guidance on what to capture, since the console/API-side behavior isn't something a client-side debug log would show)."
+    },
+    {
+      "heading": "Panic Output",
+      "level": 3
+    },
+    {
+      "text": "N/A -- no panic, this is a data-corruption/console-visibility bug, not a crash."
+    },
+    {
+      "heading": "Expected Behavior",
+      "level": 3
+    },
+    {
+      "text": "Applying an unrelated field change (e.g. `use_in_dr_mode`) to an existing zpa_application_segment should not alter that segment's AppProtection or Active Directory Inspection configuration, regardless of whether those were enabled directly in the console. The segment should remain visible/findable in the console's main Application Segments list."
+    },
+    {
+      "heading": "Actual Behavior",
+      "level": 3
+    },
+    {
+      "text": "If AppProtection (or Active Directory Inspection) was enabled on the segment via the console, applying *any* unrelated Terraform update to that segment corrupts the linked Inspection configuration and the segment disappears from the console's main Application Segments list (though it remains functional and still reachable via its Segment Group's member list -- see \"Important Factoids\")."
+    },
+    {
+      "text": "Specifically for AppProtection: the segment-level \"Auto App Protection: Enabled\" toggle reverts, and the per-domain config becomes: AppProtection checkbox checked, Port = 443, no protocol selected, \"Use Untrusted Certificates\" checked -- an incomplete configuration (selecting a protocol then prompts for a certificate before the segment can be saved). Manually unchecking AppProtection for that domain immediately restores the segment's visibility in the main list."
+    },
+    {
+      "heading": "Steps to Reproduce",
+      "level": 3
+    },
+    {
+      "item": "`terraform apply` -- create a new zpa_application_segment. AppProtection",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "defaults to disabled (a clean, non-broken default)."
+    },
+    {
+      "item": "`terraform apply` again with an unrelated field changed (e.g. toggle",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "`use_in_dr_mode`). Segment stays visible, AppProtection untouched -- this step alone does not reproduce the bug."
+    },
+    {
+      "item": "In the ZPA console, manually enable \"Auto App Protection\" (segment-level",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "toggle) on the same segment."
+    },
+    {
+      "item": "`terraform apply` again with the same kind of unrelated field change (e.g.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "toggle `use_in_dr_mode` back)."
+    },
+    {
+      "item": "Observe: segment disappears from the main Application Segments list (still",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "reachable via its Segment Group). \"Auto App Protection\" has reverted to a per-domain checkbox, checked, Port 443, no protocol selected, \"Use Untrusted Certificates\" checked."
+    },
+    {
+      "item": "Manually unchecking the per-domain AppProtection checkbox immediately restores",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "visibility."
+    },
+    {
+      "text": "Reproduced twice independently on two different segments (one pre-existing production segment, one created fresh for testing), with the control case (step"
+    },
+    {
+      "item": "confirmed clean both times.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "We also tested with Active Directory Inspection (Kerberos/LDAP/SMB) enabled instead of AppProtection: the same kind of unrelated update reverted AD Inspection to disabled and re-typed the per-domain companion object as an AppProtection configuration instead (not an AD Inspection one) -- Port = ANY, no protocol, no certificate. The segment did NOT go invisible in this instance, unlike the AppProtection case (Port 443, no protocol). We suspect the underlying disturbance to the linked Inspection object happens either way, but whether the resulting state actually breaks console visibility depends on whether that state is invalid by the API's own internal rules."
+    },
+    {
+      "heading": "Important Factoids",
+      "level": 3
+    },
+    {
+      "item": "The segment is not actually broken while \"invisible\" -- it continues to",
+      "depth": 0
+    },
+    {
+      "text": "function normally (policy evaluation, connector routing), confirmed via browser devtools showing the API still returns its full data. It's a console list/search rendering issue, not a data-integrity failure."
+    },
+    {
+      "item": "It's still findable via its Segment Group's member list, and can be repaired",
+      "depth": 0
+    },
+    {
+      "text": "from there."
+    },
+    {
+      "item": "`terraform apply -replace='zpa_application_segment.this[\"<name>\"]'` (forcing",
+      "depth": 0
+    },
+    {
+      "text": "destroy+recreate) also restores visibility."
+    },
+    {
+      "item": "The zpa_application_segment resource's documented schema has zero attributes",
+      "depth": 0
+    },
+    {
+      "text": "related to AppProtection/Inspection, so nothing in our Terraform config sets or clears this -- the update itself appears to disturb an existing linked Inspection object the base resource has no knowledge of."
+    },
+    {
+      "item": "The documented zpa_application_segment_inspection schema has no attribute",
+      "depth": 0
+    },
+    {
+      "text": "equivalent to the console's \"Use Untrusted Certificates\" option -- certificate_id is the only documented option when application_protocol=HTTPS, with no alternative for untrusted/self-signed certs. This means we currently can't even test whether managing AppProtection via zpa_application_segment_inspection in Terraform (alongside the base segment) would prevent this, since we can't declare the exact working configuration."
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "item": "#500 (fix: Fixed ZPA Specialized Application Segments Update Functions) --",
+      "depth": 0
+    },
+    {
+      "text": "same category of bug (update payloads not properly preserving a linked companion object's identity), but for the specialized resources' own updates. Our case is the base zpa_application_segment's update corrupting a linked Inspection object it has no schema knowledge of at all -- the same problem, one level removed."
+    },
+    {
+      "item": "#498 (linked from #500)",
+      "depth": 0
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-01)",
+      "level": 2
+    },
+    {
+      "text": "@(user) Upgrade to the latest version [v4.4.12.](https://github.com/zscaler/terraform-provider-zpa/releases/tag/v4.4.12)"
+    },
+    {
+      "text": "We would like to emphasize that AppProtection (Auto App Protection) and Active Directory Inspection are not supported attributes of the zpa_application_segment resource. They are supported only by the zpa_application_segment_inspection resource, which is the resource to use for any application segment with AppProtection or AD Inspection enabled. Please refer to the documentation: https://registry.terraform.io/providers/zscaler/zpa/latest/docs/resources/zpa_application_segment_inspection"
+    },
+    {
+      "text": "The \"Use Untrusted Certificates\" option you mentioned is available there as common_apps_dto.apps_config.trust_untrusted_cert."
+    },
+    {
+      "text": "To resolve the customer case, move the affected segment to zpa_application_segment_inspection (import it into that resource and remove it from zpa_application_segment) and manage it there going forward."
+    },
+    {
+      "text": "This is how the resource is supposed to be configured:"
+    },
+    {
+      "code": "resource \"zpa_application_segment_inspection\"\n \"this\" {  auto_app_protect_enabled = true\n  bypass_type              = \"NEVER\"\n  config_space             = \"DEFAULT\"\n  description              = \"Issue 687 supported-model verification\"\n  domain_names = [    \"jenkins.example.com\",  \"jenkins1.example.com\"]\n  enabled                = true\n  health_check_type      = \"DEFAULT\"\n  health_reporting       = \"ON_ACCESS\"\n  icmp_access_type       = \"NONE\"\n  is_cname_enabled       = true\n  name                   = \"sup4246-inspection-segment\"\n  passive_health_enabled = true\n  segment_group_id       = \"<id>\"\n  tcp_port_range = [\n    {      from = \"443\"\n           to   = \"443\"\n    },\n    {\n      from = \"4443\"\n      to   = \"4443\"\n    },\n]\n   common_apps_dto {\n    apps_config {\n      app_types = [        \"INSPECT\",      ]\n      domain               = \"jenkins.example.com\"\n      name                 = \"jenkins.example.com\"\n      trust_untrusted_cert = true\n    }\n    apps_config {\n      app_types = [        \"INSPECT\",      ]\n      domain               = \"jenkins1.example.com\"\n      name                 = \"jenkins1.example.com\"\n      trust_untrusted_cert = true    }\n  }\n  server_groups {\n    id = [      \"<id>\",    ]\n  }\n}"
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

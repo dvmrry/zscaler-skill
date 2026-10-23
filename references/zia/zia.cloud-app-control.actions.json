@@ -43,7 +43,7 @@
     },
     {
       "label": "Finding the valid strings.",
-      "text": "{{common-actions-in-console}} {{two-discovery-endpoints}} {{provider-prefers-all-endpoint}} {{python-has-only-old-endpoint}} Between v3.8.45 and the pin the Go name `AllAvailableActions` moved onto the new endpoint {{all-available-actions-reassigned}}. The Automate capture describes only the older discovery path {{automate-capture-availableactions-only}}. How the two endpoints differ is open {{gap:all-vs-available-differs}}, and so is what a multi-app request returns {{gap:multi-app-aggregation}}. Output-shape defects in the data source itself are in [[zia.terraform.data-source-fidelity]]."
+      "text": "{{common-actions-in-console}} {{two-discovery-endpoints}} {{provider-prefers-all-endpoint}} {{python-has-only-old-endpoint}} Between v3.8.45 and the pin the Go name `AllAvailableActions` moved onto the new endpoint {{all-available-actions-reassigned}}. The Automate capture describes only the older discovery path {{automate-capture-availableactions-only}}. How the two endpoints differ is open {{gap:all-vs-available-differs}} {{issue-522-actions-endpoint-omits-actions}} What v4.8.6 changed is open {{gap:actions-endpoint-fix-in-4-8-6}}., and so is what a multi-app request returns {{gap:multi-app-aggregation}}. Output-shape defects in the data source itself are in [[zia.terraform.data-source-fidelity]]."
     },
     {
       "label": "Notifications.",
@@ -475,6 +475,51 @@
           ]
         }
       ]
+    },
+    "issue-522-actions-endpoint-omits-actions": {
+      "statement": "Provider issues #522 and #570 reported that the actions the `zia_cloud_app_control_rule_actions` data source returns do not include every action the API accepts. In #522 a repository member confirmed that ALLOW_FILE_SHARE_UPLOAD and ALLOW_FILE_SHARE_VIEW are not returned by that endpoint, said an internal bug would be raised with the API team, and advised listing the actions manually in `actions` to stop the drift; in #570 the member called it an API issue under investigation, not addressable in the provider. Both issues were closed as completed, #522 with a reply to upgrade to v4.8.6 that does not say what that release changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "quotes": [
+            "The actions: ALLOW_FILE_SHARE_UPLOAD, ALLOW_FILE_SHARE_VIEW are not returned via this endpoint; hence, the diff when running terraform plan/apply.",
+            "We'll raise an internal BUG with the API team to address that.",
+            "Alternatively, you can manually pass the list of actions directly in the `actions` list attribute temporarily to prevent the drift.",
+            "Please upgrade to the latest version v4.8.6 which addresses the problem in quesiton.",
+            "The problem is related to the API used to retrieve the available actions for each rule type via the data source `zia_cloud_app_control_rule_actions`"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-570.json",
+          "quotes": [
+            "This is a known issue, and is being investigated via the following issue ONEAPI-2421.",
+            "As you already outlined this is a API issue and is being investigated. This isn't an issue addressable at the provider level."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-03-10"
+          }
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-570.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-05-15"
+          }
+        }
+      ]
     }
   },
   "gaps": {
@@ -577,6 +622,16 @@
           ]
         }
       ]
+    },
+    "actions-endpoint-fix-in-4-8-6": {
+      "kind": "semantic",
+      "title": "What the v4.8.6 provider release changed for the missing actions",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "saying the actions data source returns every action the console offers",
+      "detail": "The reply closing issue 522 says v4.8.6 addresses the problem, but the vendored changelog is the only release source and the reply names no change, so whether the data source now returns the omitted file-share actions, or the fix is in the API, is not shown. Call the data source for a file-share rule and compare it with the console's actions."
     }
   },
   "divergences": {

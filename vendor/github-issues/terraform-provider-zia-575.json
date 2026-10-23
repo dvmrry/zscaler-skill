@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "zia_url_categories refresh extremely slow on large URL lists — 5s API call → 18+ minute plan",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/575",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 575,
+    "state": "closed",
+    "created_at": "2026-05-27",
+    "updated_at": "2026-05-28",
+    "labels": [
+      "type/enhancement"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-05-28",
+    "updated": "2026-05-28",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "zia_url_categories refresh extremely slow on large URL lists — 5s API call → 18+ minute plan",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 3
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Version",
+      "level": 3
+    },
+    {
+      "code": "Terraform v1.9.8\non darwin_arm64\n+ provider registry.terraform.io/zscaler/zia v4.7.18"
+    },
+    {
+      "heading": "Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "`zia_url_categories`",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Configuration Files",
+      "level": 3
+    },
+    {
+      "code": "resource \"zia_url_categories\" \"kosher_domain\" {\n  configured_name     = \"kosher Domain\"\n  custom_category     = true\n  super_category      = \"USER_DEFINED\"\n  type                = \"URL_CATEGORY\"\n  urls                = [/* 19,377 entries */]\n  db_categorized_urls = [/* 33 entries */]\n}"
+    },
+    {
+      "text": "Full HCL is ~530 KB / 20,000+ lines because of the URL list. Available on request — encrypted via your GPG key if preferred."
+    },
+    {
+      "heading": "Debug Output",
+      "level": 3
+    },
+    {
+      "text": "Not yet attached. `TF_LOG=DEBUG` produces several hundred MB on this workspace and the relevant section is silent — the provider enters the resource read function and emits nothing for ~18 minutes. Happy to upload a trimmed Gist if a maintainer points at the slice they want (e.g. just the seconds around the `Refreshing state...` line for `kosher_domain`)."
+    },
+    {
+      "heading": "Panic Output",
+      "level": 3
+    },
+    {
+      "text": "No panic. Provider read returns successfully — just very slowly."
+    },
+    {
+      "heading": "Expected Behavior",
+      "level": 3
+    },
+    {
+      "text": "Refresh time roughly proportional to API response time plus a small constant for unmarshal and diff. For a 5-second API call returning ~400 KB of JSON, refresh should complete in a few seconds, not minutes."
+    },
+    {
+      "heading": "Actual Behavior",
+      "level": 3
+    },
+    {
+      "text": "`terraform plan` refresh of a single `zia_url_categories` resource holding ~19,000 entries in `urls` takes 15–20 minutes per run. The same data via the underlying ZIA REST endpoint returns in ~5 seconds. The provider read implementation appears to be the bottleneck — likely O(n²) somewhere in URL list handling, state diff, or HCL marshalling."
+    },
+    {
+      "text": "Timing data — raw REST call to the same endpoint the provider hits during refresh:"
+    },
+    {
+      "code": "$ time curl -s \"https://api.zsapi.net/zia/api/v1/urlCategories/CUSTOM_08\" \\\n    -H \"Authorization: Bearer $TOKEN\" -o /tmp/kosher.json\n\nreal    0m5.259s\nuser    0m0.014s\nsys     0m0.016s\n\n$ wc -c /tmp/kosher.json\n407552 /tmp/kosher.json     # ~400 KB\n\n$ jq '.urls | length' /tmp/kosher.json\n19377"
+    },
+    {
+      "text": "Provider behavior on the same resource via `terraform plan`:"
+    },
+    {
+      "item": "Init and provider load: ~10 seconds",
+      "depth": 0
+    },
+    {
+      "item": "Plan output emitted: ~18 minutes after `Running terraform plan...`",
+      "depth": 0
+    },
+    {
+      "item": "No errors, no warnings, no `still reading after Nm Ns` lines emitted past the 10-second mark",
+      "depth": 0
+    },
+    {
+      "item": "Net effect: a workspace with one large category cannot be planned within typical CI step timeouts",
+      "depth": 0
+    },
+    {
+      "text": "That is roughly a 200× overhead between the API response and the end of the provider read. Suggests one of:"
+    },
+    {
+      "item": "O(n²) deduplication or normalization on the URL slice",
+      "depth": 0
+    },
+    {
+      "item": "O(n²) state-diff over the list",
+      "depth": 0
+    },
+    {
+      "item": "Per-URL allocation churn in HCL marshalling",
+      "depth": 0
+    },
+    {
+      "item": "Sequential validation per URL with no batching",
+      "depth": 0
+    },
+    {
+      "text": "`TF_LOG=DEBUG` shows the provider entering the read function and emitting nothing until plan output — i.e., the hot loop is inside the resource read, not in HTTP, auth, or rate limiting."
+    },
+    {
+      "heading": "Steps to Reproduce",
+      "level": 3
+    },
+    {
+      "item": "Create a `zia_url_categories` resource of `type = \"URL_CATEGORY\"`, `custom_category = true`, `super_category = \"USER_DEFINED\"` containing ~20,000 entries in `urls`. Real-world example: an organisation-wide kosher allowlist, phishing-allowlist, or large bypass list.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "`terraform import zia_url_categories.<name> CUSTOM_NN`, or `terraform apply` to create.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run `terraform plan` — the refresh phase hangs for 15–20 minutes per resource.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "Smaller categories (≤200 URLs) refresh in milliseconds. Cost scales nonlinearly with `len(urls)`."
+    },
+    {
+      "heading": "Important Factoids",
+      "level": 3
+    },
+    {
+      "item": "Tenant cloud: `zscalerthree`",
+      "depth": 0
+    },
+    {
+      "item": "Auth: OneAPI / Zidentity OAuth2 client credentials",
+      "depth": 0
+    },
+    {
+      "item": "State backend: S3 + DynamoDB lock (eu-west-1)",
+      "depth": 0
+    },
+    {
+      "item": "CI runner: Bitbucket Pipelines (also reproduces on local macOS Terraform)",
+      "depth": 0
+    },
+    {
+      "item": "Workspace contains ~80 resources total; only the one large `zia_url_categories` is slow — every other resource refreshes in under a second",
+      "depth": 0
+    },
+    {
+      "item": "Production tenants with kosher-domain, phishing-allowlist, or large bypass lists routinely hold tens of thousands of URLs in a single category — this is not a synthetic test",
+      "depth": 0
+    },
+    {
+      "text": "Workarounds currently in use, neither acceptable long-term:"
+    },
+    {
+      "item": "Keep large lists UI-managed (loses Terraform as source of truth)",
+      "depth": 0
+    },
+    {
+      "item": "Run plans with `-refresh=false` for PRs that don't touch the category (loses drift detection)",
+      "depth": 0
+    },
+    {
+      "text": "Asks:"
+    },
+    {
+      "item": "Profile the `resourceURLCategoriesRead` path on a 20K-URL category and identify the quadratic step.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "If diff or normalization is the cause, switch to `schema.TypeSet` semantics or pre-sort to avoid n² compares.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Document a tested upper bound on `urls` length so users can size accordingly.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "Happy to test a pre-release build against our tenant."
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "text": "No prior open or closed issues on slow `zia_url_categories` refresh or scaling — search `is:issue url_categories slow OR performance OR refresh` returns 0 open results."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-05-28)",
+      "level": 2
+    },
+    {
+      "text": "@(user) A performance fix for zia_url_categories on large URL lists shipped in v4.7.22 ([PR #576](https://github.com/zscaler/terraform-provider-zia/pull/576)). On our reproducer with a single custom category containing 20,000 URLs:"
+    },
+    {
+      "text": "Fresh create: several minutes → ~35 seconds. Refresh: many minutes → ~20 seconds. Reordering URLs in HCL no longer produces a diff. Please upgrade to v4.7.22 and rerun your plan. The configuration that worked on v4.7.18 will continue to work on v4.7.22 without edits."
+    },
+    {
+      "text": "Closing on the shipped fix. Reopen with the v4.7.22 numbers if the refresh time is still unacceptable in your environment."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-05-28)",
+      "level": 2
+    },
+    {
+      "text": "Thanks @(user)  — picked up v4.7.22 today and ran the same benchmark on the original repro tenant. Refresh time is dramatically improved as advertised, but the perf fix introduced a CustomizeDiff regression that blocks terraform plan on the same resource:"
+    },
+    {
+      "text": "Setup:"
+    },
+    {
+      "item": "Provider: zscaler/zia v4.7.22",
+      "depth": 1
+    },
+    {
+      "item": "Same single category as the original report: 19,377 entries in urls, 33 in db_categorized_urls, type = \"URL_CATEGORY\", custom_category = true, super_category = \"USER_DEFINED\"",
+      "depth": 1
+    },
+    {
+      "item": "terraform import succeeds; resource lands in state cleanly",
+      "depth": 1
+    },
+    {
+      "text": "Timing — much better:"
+    },
+    {
+      "item": "Init + provider load: ~10s",
+      "depth": 1
+    },
+    {
+      "item": "Full workspace terraform plan (75 resources, refresh + diff): ~44s, vs ~18 min on v4.7.18 (~25× speedup ✅)",
+      "depth": 1
+    },
+    {
+      "text": "But the plan errors before output:"
+    },
+    {
+      "text": "Error: SetNew only operates on computed keys - urls is not one"
+    },
+    {
+      "text": "with zia_url_categories.kosher_domain, on url_categories.tf line 1, in resource \"zia_url_categories\" \"kosher_domain\": 1: resource \"zia_url_categories\" \"kosher_domain\" {"
+    },
+    {
+      "text": "Looks like the URL-reordering normalization path in CustomizeDiff is calling d.SetNew(\"urls\", …) on a non-Computed schema field. SetNew only works on computed keys. The reorder-no-diff behavior you tested in the repro is the code path triggering this."
+    },
+    {
+      "text": "Suggested fixes:"
+    },
+    {
+      "item": "Mark urls as Computed: true (with Optional: true retained), or",
+      "depth": 0
+    },
+    {
+      "item": "Use d.SetNewComputed(\"urls\") if you want to defer to apply-time, or",
+      "depth": 0
+    },
+    {
+      "item": "Replace SetNew with sorting the inputs in CustomizeDiff before the framework computes the diff (no SetNew needed if both sides are",
+      "depth": 1
+    },
+    {
+      "text": "pre-sorted)."
+    },
+    {
+      "text": "Currently this blocks adoption: refresh is fast enough now, but no plan can be generated, so no apply, no merge. Happy to retest the moment a fix lands."
+    },
+    {
+      "text": "Reopening this issue (or filing a follow-up) since the fix as-shipped is not usable end-to-end."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-05-28)",
+      "level": 2
+    },
+    {
+      "text": "Please upgrade to v4.7.23"
+    },
+    {
+      "text": "NOTE: We appreciate the suggestions; however, we have specific reasons tied to our own API behavior on why we avoid leveraging certain aspects of the Terraform v2 SDK itself such as Computed or SetNewComputed."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-05-28)",
+      "level": 2
+    },
+    {
+      "text": "Thank you very much for the quick update. Will test and update here 😃"
+    },
+    {
+      "heading": "Comment (NONE, 2026-05-28)",
+      "level": 2
+    },
+    {
+      "text": "@(user) Thank you for the incredibly fast fix. I tested v4.7.23 and looks like we're good. 17 URL cats, code over 20k lines and plan passed after 1m and 6 seconds."
+    },
+    {
+      "text": "You are the best!"
+    }
+  ]
+}

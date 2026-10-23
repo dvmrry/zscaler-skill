@@ -17,15 +17,15 @@
 [
   "Today's a cursory overview. Six slides, then a live demo against the zs3 ZIA + ZPA API dump. The thesis to anchor everything: this is a knowledge base AND an agent scaffold. Both audiences are first-class. Engineers browse it directly to learn how Zscaler works. Agents consume the same files as their discipline when troubleshooting. Same content, same citations, same rigor — two consumers. Total ~15 minutes plus demo.",
 
-  "One sentence to anchor everything: this serves both engineers and agents. Engineers read references/ as a curated knowledge base — the same way you'd hit a wiki to learn URL filtering or ZPA segments. Agents read the same files via tool calls when working a ticket. Same content. The discipline that makes the content reliable for human readers also makes it reliable for agent reasoning. We're not building 'AI tells you stuff.' We're building one source of truth that both populations consume.",
+  "One sentence to anchor everything: this serves both engineers and agents. Engineers read references/ as a curated knowledge graph — JSON subjects of claims with quoted evidence, read through the resolver — the way you'd hit a wiki to learn URL filtering or ZPA segments. Agents read the same subjects via tool calls when working a ticket. Same content. The discipline that makes the content reliable for human readers also makes it reliable for agent reasoning. We're not building 'AI tells you stuff.' We're building one source of truth that both populations consume.",
 
-  "Four pillars hold the skill together — and each serves both audiences. KNOWLEDGE: ~220 curated reference files plus pinned upstream vendor sources. Engineers browse them. Agents cite from them. DISCIPLINE: methodology docs that define how to investigate / audit / propose / review-posture. Engineers read for guidance. Agents follow as procedure. WORKFLOWS: four slash commands (/z-investigator, /z-auditor, /z-architect, /z-soc) — primarily agent surfaces, but the playbook content is reference-grade for any engineer wanting to understand the methodology. TOOLING: CI hygiene ensures the skill is reliable for human readers AND agent reasoning. Same pipeline guards both consumers.",
+  "Four pillars hold the skill together — and each serves both audiences. KNOWLEDGE: about a thousand JSON subjects plus pinned upstream vendor sources. Engineers browse them. Agents cite from them. DISCIPLINE: methodology docs that define how to investigate / audit / propose / review-posture. Engineers read for guidance. Agents follow as procedure. WORKFLOWS: four slash commands (/z-investigator, /z-auditor, /z-architect, /z-soc) — primarily agent surfaces, but the playbook content is reference-grade for any engineer wanting to understand the methodology. TOOLING: CI checks ensure the skill is reliable for human readers AND agent reasoning. Same pipeline guards both consumers.",
 
-  "The principle that ties it all together: every soft rule has a hard pairing. We don't write a Python script for every guideline — that would be brittle. We pair each soft guideline with a check that verifies it. Status enum is soft; enum validation is hard. Citation-required is soft; the hygiene script that flags missing sources is hard. Verified-diagnostic-only is soft; the verification-field gating is hard. This is what makes the content trustworthy for engineers reading it directly AND reliable for agents citing it.",
+  "The principle that ties it all together: every soft rule has a hard pairing. We don't write a Python script for every guideline — that would be brittle. We pair each soft guideline with a check that verifies it. Gap status is soft; schema validation is hard. Citation-required is soft; the lint that fails a claim without quoted evidence is hard. Verified-diagnostic-only is soft; the verification-field gating is hard. This is what makes the content trustworthy for engineers reading it directly AND reliable for agents citing it.",
 
-  "Live demo. Three quick walkthroughs against real zs3 data. First: /z-investigator against a recent ticket — watch it produce a discovery journal, prioritize hypotheses, name evidence sources, and crucially — every claim points at a reference file an engineer could open and read. Second: hygiene pipeline — intentionally break a citation, watch CI catch it, fix it. Third: eval suite — list a behavioral spec, validate a sample response. Each shows a different facet: structured procedure / CI rigor / behavior testing.",
+  "Live demo. Three quick walkthroughs against real zs3 data. First: /z-investigator against a recent ticket — watch it produce a discovery journal, prioritize hypotheses, name evidence sources, and crucially — every claim points at a subject and quoted evidence an engineer could open and read. Second: the lint and citation checks — intentionally break a citation, watch CI catch it, fix it. Third: eval suite — list a behavioral spec, validate a sample response. Each shows a different facet: structured procedure / CI rigor / behavior testing.",
 
-  "Where this is headed. First verified diagnostic from production — when a real investigation lands, capture it as the canonical example. Schema-validated structured output to make registers machine-checkable for agents AND human-readable for engineers reviewing them. Index-driven workflow loading — workflow files today carry hardcoded trigger-phrase glossaries that duplicate what skill indexes already maintain; Phase 1 work is to swap that for index-driven loading so the agent reasons from the canonical content map. Less context cost, less drift. Big picture: the skill gets stronger every cycle for both audiences. The MD-level question worth asking: what's the next workflow worth scaffolding this way — and which knowledge gap should the references/ side close first?"
+  "Where this is headed. First verified diagnostic from production — when a real investigation lands, capture it as the canonical example. Schema-validated structured output to make registers machine-checkable for agents AND human-readable for engineers reviewing them. Index-driven workflow loading — workflow files today carry hardcoded trigger-phrase glossaries that duplicate what skill indexes already maintain; Phase 1 work is to swap that for index-driven loading so the agent reasons from the canonical content map. Less context cost, less drift. Big picture: the skill gets stronger every cycle for both audiences. The MD-level question worth asking: what's the next workflow worth scaffolding this way — and which gap in the graph should be closed first?"
 ]
 </script>
 
@@ -226,10 +226,10 @@
       <em>A knowledge base AND an agent scaffold.</em><br>
       Engineers read it directly to learn how Zscaler works.<br>
       Agents cite from the same files when troubleshooting.<br>
-      Same content. Same citations. Same hygiene.
+      Same content. Same citations. Same checks.
     </p>
     <p style="margin-top: 48px; color: var(--ink-3); font-size: 20px; max-width: 1000px;">
-      Both audiences are first-class. The references an engineer browses to understand URL filtering are the same files an agent cites in a discovery journal. The discipline that makes content trustworthy for human readers also makes it reliable for agent reasoning. <em style="font-style: normal; color: var(--ink-2);">Not 'AI tells you stuff' — one source of truth, two consumers.</em>
+      Both audiences are first-class. The subjects an engineer reads to understand URL filtering are the same ones an agent cites in a discovery journal. The discipline that makes content trustworthy for human readers also makes it reliable for agent reasoning. <em style="font-style: normal; color: var(--ink-2);">Not 'AI tells you stuff' — one source of truth, two consumers.</em>
     </p>
   </div>
 
@@ -249,17 +249,17 @@
   <div style="display: flex; flex-direction: column; flex: 1; justify-content: center;">
     <h2 style="margin: 0 0 16px 0;">Four pillars. Both audiences.</h2>
     <p style="max-width: 1100px; margin-bottom: 32px; color: var(--ink-2);">
-      Engineers consume directly — read references, follow methodology docs, run scripts. Agents consume the same content via tool calls. Same files. Same single source of truth.
+      Engineers consume directly — read subjects, follow methodology docs, run scripts. Agents consume the same content via tool calls. Same files. Same single source of truth.
     </p>
 
     <div class="layers">
       <div class="layer">
         <div class="role"><span>The pinned bibliography</span><span class="nm">Knowledge</span></div>
-        <div class="desc">~220 curated reference files plus vendored upstream sources (SDK, Terraform, Postman, help docs) as pinned bibliography. <em style="font-style: normal; color: var(--accent-ink);">Engineers</em> browse via the docs site or directly in the repo. <em style="font-style: normal; color: var(--accent-ink);">Agents</em> cite the same files in their discovery journals.</div>
+        <div class="desc">The JSON knowledge graph (claims with quoted evidence, gaps, divergences) plus vendored upstream sources (SDKs, Terraform, help captures, issues) as pinned bibliography. <em style="font-style: normal; color: var(--accent-ink);">Engineers</em> read them with the resolver or directly in the repo. <em style="font-style: normal; color: var(--accent-ink);">Agents</em> cite the same subjects in their discovery journals.</div>
       </div>
       <div class="layer">
         <div class="role"><span>How work actually happens</span><span class="nm">Discipline</span></div>
-        <div class="desc">Methodology docs for investigation / audit / architect — citation-anchored, status-enumed, verification-gated. <em style="font-style: normal; color: var(--accent-ink);">Engineers</em> read them as work guidance. <em style="font-style: normal; color: var(--accent-ink);">Agents</em> follow them as procedure.</div>
+        <div class="desc">Methodology docs for investigation / audit / architect — citation-anchored, tier-labelled, verification-gated. <em style="font-style: normal; color: var(--accent-ink);">Engineers</em> read them as work guidance. <em style="font-style: normal; color: var(--accent-ink);">Agents</em> follow them as procedure.</div>
       </div>
       <div class="layer">
         <div class="role"><span>Structured procedures</span><span class="nm">Workflows</span></div>
@@ -267,7 +267,7 @@
       </div>
       <div class="layer">
         <div class="role"><span>Operator-grade quality</span><span class="nm">Tooling</span></div>
-        <div class="desc">Five hygiene checks in CI. Eval suite of 19 behavioral specs. Vendor-drift detection. Scrape freshness. The pipeline ensures the skill is reliable for <em style="font-style: normal; color: var(--accent-ink);">both</em> human readers and agent reasoning — same checks, same standards.</div>
+        <div class="desc">Graph lint and citation checks in CI. Answer and workflow evals. Vendor-drift detection. Scrape freshness. The pipeline ensures the skill is reliable for <em style="font-style: normal; color: var(--accent-ink);">both</em> human readers and agent reasoning — same checks, same standards.</div>
       </div>
     </div>
   </div>
@@ -297,16 +297,16 @@
       <div class="h row-lbl" style="text-transform: none; letter-spacing: 0;">Where it lives</div>
 
       <div>Every claim has a source</div>
-      <div class="accent-cell">Hygiene script flags missing citations</div>
-      <div class="row-lbl">check-citations.sh · check-hygiene.py</div>
+      <div class="accent-cell">Lint flags a claim without quoted evidence</div>
+      <div class="row-lbl">check-citations.mjs · kb-lint.mjs</div>
 
-      <div>Status enums (Open / Confirmed / Stale / …)</div>
-      <div class="accent-cell">Enum validation on frontmatter</div>
-      <div class="row-lbl">check-hygiene.py · methodology docs</div>
+      <div>Claim tiers (A / B) and gap status</div>
+      <div class="accent-cell">Schema validation of each subject</div>
+      <div class="row-lbl">references/_meta/schema/ · kb-lint.mjs</div>
 
-      <div>Confidence calibration (high needs sources)</div>
-      <div class="accent-cell">High-confidence-empty-sources warning</div>
-      <div class="row-lbl">check-hygiene.py · auditor/prompt.md</div>
+      <div>Confidence follows evidence</div>
+      <div class="accent-cell">Tier A needs its own quoted evidence</div>
+      <div class="row-lbl">kb-lint.mjs · agents/auditor/prompt.md</div>
 
       <div>Vendor sources stay pinned</div>
       <div class="accent-cell">Submodule SHA drift detection</div>
@@ -349,7 +349,7 @@
       </div>
       <div class="demo-row">
         <span class="lbl">DEMO 2</span>
-        <span class="ti">Hygiene pipeline catching real rot — break a citation intentionally, watch CI flag it, fix and re-verify.</span>
+        <span class="ti">Citation checks catching real rot — break a citation intentionally, watch CI flag it, fix and re-verify.</span>
         <span class="sub">CI-grade rigor</span>
       </div>
       <div class="demo-row">

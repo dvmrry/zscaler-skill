@@ -1,44 +1,26 @@
-// hub-topics.js — augment a section hub with a compact list of every
-// markdown file in the corresponding references/ subdir.
+// hub-topics.js — append a "Product knowledge" note to a section hub.
 //
-// Activate by setting <body data-hub-group="zia"> (or "zpa", etc.) on
-// the hub page, then including this script. It fetches the GitHub
-// trees API once (sharing the same 30-min localStorage cache as nav.js
-// and source.html), filters to the named group, and appends a "Topics"
-// section after the main <nav class="docs"> with one link per file.
+// Activate by setting <body data-hub-group="zia"> (or "zpa", etc.) on the hub
+// page. Product knowledge under references/<product>/ is JSON subjects (claims
+// with quoted evidence, gaps, divergences), read with the resolver rather than
+// rendered as pages, so the section points at the command and the directory.
+// The welcome hub (data-hub-group="_meta/primer") needs no note.
 (function () {
   const group = document.body && document.body.dataset && document.body.dataset.hubGroup;
   if (!group) return;
   if (!window.ZSkill) { if (window.console) console.warn('hub-topics: docs-lib.js not loaded'); return; }
 
-  const { loadTree, prettify, encodePath, escapeHtml } = window.ZSkill;
+  const { TREE, escapeHtml } = window.ZSkill;
+  const docsNav = document.querySelector('nav.docs');
+  if (!docsNav || group.startsWith('_meta')) return;
 
-  loadTree().then(entries => {
-    const items = entries
-      .filter(p => p.startsWith(group + '/') && !p.endsWith('/index.md'))
-      .map(p => {
-        const rel = p.slice(group.length + 1).replace(/\.md$/, '');
-        return { slug: group + '/' + rel, label: prettify(rel) };
-      })
-      .sort((a, b) => a.label.localeCompare(b.label));
-
-    if (!items.length) return;
-
-    const docsNav = document.querySelector('nav.docs');
-    if (!docsNav) return;
-
-    const section = document.createElement('section');
-    section.className = 'topic-list-section';
-    const links = items.map(it =>
-      `<a href="../source.html?p=${encodePath(it.slug)}">${escapeHtml(it.label)}</a>`
-    ).join('');
-    section.innerHTML =
-      '<h3 class="topic-list-heading">Documents</h3>' +
-      '<p class="topic-list-desc">Each link below renders the underlying markdown directly.</p>' +
-      '<div class="topic-list">' + links + '</div>';
-
-    docsNav.parentNode.insertBefore(section, docsNav.nextSibling);
-  }).catch(err => {
-    if (window.console) console.warn('hub-topics: could not load tree', err);
-  });
+  const section = document.createElement('section');
+  section.className = 'topic-list-section';
+  section.innerHTML =
+    '<h3 class="topic-list-heading">Product knowledge</h3>' +
+    '<p class="topic-list-desc">Read with <code>node scripts/kb.mjs resolve ' + escapeHtml(group) +
+    '</code>: each subject carries claims with quoted evidence, gaps and divergences. ' +
+    'The subjects are JSON files in <a href="' + TREE + '/references/' + encodeURIComponent(group) +
+    '" target="_blank" rel="noopener"><code>references/' + escapeHtml(group) + '/</code></a>.</p>';
+  docsNav.parentNode.insertBefore(section, docsNav.nextSibling);
 })();

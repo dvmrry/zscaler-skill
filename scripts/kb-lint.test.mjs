@@ -34,3 +34,13 @@ test("Tier B claims and numbers inside backticks are not checked", () => {
   const ev = [{ source: "sdk-go", path: "a.go", quotes: ["x := 500"] }];
   assert.deepEqual(checks(claim("The helper sets `x := 500`.", ev)), []);
 });
+
+test("a name the statement marks as absent needs no evidence; a present one still does", () => {
+  const ev = [{ source: "sdk-go", path: "models.go", quotes: ["Name string `json:\"name\"`"] }];
+  const checks = (st) => lintClaim({ tier: "A", statement: st, evidence: ev }).map((f) => [f.check, f.missing]);
+  assert.deepEqual(checks("The model has `name` without `description`."), []);
+  assert.deepEqual(checks("The model carries `name` and has no `id` or `rank`."), []);
+  assert.deepEqual(checks("The model lacks the `rank` field."), []);
+  assert.deepEqual(checks("The model has `name` and `rank`."), [["identifier", ["rank"]]]);
+  assert.deepEqual(checks("Without retries the model sends `rank`."), [["identifier", ["rank"]]]);
+});

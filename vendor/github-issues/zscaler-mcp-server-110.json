@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "convert_v1_to_v2_response drops existing v2 operands and silently omits unlisted object types",
+  "source": {
+    "url": "https://github.com/zscaler/zscaler-mcp-server/issues/110",
+    "repo": "zscaler/zscaler-mcp-server",
+    "number": 110,
+    "state": "open",
+    "created_at": "2026-10-08",
+    "updated_at": "2026-10-08",
+    "labels": [],
+    "updated": "2026-10-08",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "convert_v1_to_v2_response drops existing v2 operands and silently omits unlisted object types",
+      "level": 1
+    },
+    {
+      "heading": "Summary",
+      "level": 2
+    },
+    {
+      "text": "The `convert_v1_to_v2_response` helper translates ZPA policy rule conditions into v2 request shape. When given operands that are already in v2 format (`values` or `entry_values`), it extracts nothing and returns `[]`. Operands whose object type is not in `_V1_TO_V2_VALUE_TYPES` or `_V1_TO_V2_ENTRY_TYPES` are also silently dropped, with no error or warning."
+    },
+    {
+      "heading": "Affected code",
+      "level": 2
+    },
+    {
+      "item": "**File:** `src/zscaler_mcp/common/zpa_helpers.py`",
+      "depth": 0
+    },
+    {
+      "item": "**Function:** `convert_v1_to_v2_response` (lines 212–255)",
+      "depth": 0
+    },
+    {
+      "item": "**Version:** `0.15.4` (commit `809f68d6c921e0829fb2e07e9b797e7e70cf720b`)",
+      "depth": 0
+    },
+    {
+      "heading": "Steps to reproduce",
+      "level": 2
+    },
+    {
+      "heading": "Bug 1: already-v2 condition input returns an empty list",
+      "level": 3
+    },
+    {
+      "code": "from zscaler_mcp.common.zpa_helpers import convert_v1_to_v2_response\n\nv2_input = [{\n    \"operator\": \"OR\",\n    \"operands\": [\n        {\"object_type\": \"APP\", \"values\": [\"<id>\"]},\n        {\"object_type\": \"SCIM_GROUP\", \"entry_values\": [{\"lhs\": \"idp-1\", \"rhs\": \"grp-1\"}]},\n    ],\n}]\nprint(convert_v1_to_v2_response(v2_input))"
+    },
+    {
+      "heading": "Bug 2: unlisted object type is silently dropped",
+      "level": 3
+    },
+    {
+      "code": "from zscaler_mcp.common.zpa_helpers import convert_v1_to_v2_response\n\nunknown_input = [{\n    \"operator\": \"OR\",\n    \"operands\": [\n        {\"object_type\": \"UNKNOWN_TYPE\", \"rhs\": \"12345\"},\n        {\"object_type\": \"APP\", \"rhs\": \"<id>\"},\n    ],\n}]\nprint(convert_v1_to_v2_response(unknown_input))"
+    },
+    {
+      "heading": "Expected vs actual behavior",
+      "level": 2
+    },
+    {
+      "text": "**Bug 1**"
+    },
+    {
+      "item": "Expected: operands carrying `values` or `entry_values` are preserved.",
+      "depth": 0
+    },
+    {
+      "item": "Actual: `[]`",
+      "depth": 0
+    },
+    {
+      "text": "**Bug 2**"
+    },
+    {
+      "item": "Expected: the `UNKNOWN_TYPE` operand is preserved, or an explicit error is raised.",
+      "depth": 0
+    },
+    {
+      "item": "Actual: `[{'operator': 'OR', 'operands': [{'object_type': 'APP', 'values': ['<id>']}]}]` (`UNKNOWN_TYPE` omitted)",
+      "depth": 0
+    },
+    {
+      "heading": "Impact",
+      "level": 2
+    },
+    {
+      "text": "`convert_v1_to_v2_response` is called by `get_rule` in `src/zscaler_mcp/tools/zpa/_policy_common.py` (line 135) and by `normalize_v2_rule_response` in `zpa_helpers.py` (line 279)."
+    },
+    {
+      "text": "In read-convert-update flows, where a caller reads a rule via `zpa_get_access_policy_rule` and passes the returned `conditions` into `zpa_update_access_policy_rule`, existing v2 operands or unlisted criteria are stripped before the write is submitted."
+    },
+    {
+      "heading": "Root cause",
+      "level": 2
+    },
+    {
+      "text": "In `src/zscaler_mcp/common/zpa_helpers.py`:"
+    },
+    {
+      "item": "Lines 233–241 only inspect `operand.get(\"rhs\")` and `operand.get(\"lhs\")`. If operands already use `values` or `entry_values`, `rhs` is `None`, so nothing is collected. Lines 251–252 then skip appending because `new_operands` is empty.",
+      "depth": 0
+    },
+    {
+      "item": "Lines 233 and 237 only check the hardcoded sets `_V1_TO_V2_VALUE_TYPES` and `_V1_TO_V2_ENTRY_TYPES` (lines 185–209). Any operand with an unlisted `object_type` is skipped.",
+      "depth": 0
+    },
+    {
+      "heading": "Suggested fix",
+      "level": 2
+    },
+    {
+      "item": "Pass through operands that already contain `values` or `entry_values`.",
+      "depth": 0
+    },
+    {
+      "item": "For unknown object types, pass them through or raise an error instead of silently dropping them.",
+      "depth": 0
+    },
+    {
+      "item": "Add unit tests covering v1 input, v2 input, mixed input, and unknown object types.",
+      "depth": 0
+    },
+    {
+      "heading": "Related",
+      "level": 2
+    },
+    {
+      "text": "Related to #109 (`convert_v2_to_sdk_format` returning `[]` for flat condition dicts)."
+    }
+  ]
+}

@@ -3013,9 +3013,9 @@ export const MOVES = {
   "references/soc-workbench/overview.md": {
     default: "soc-workbench.overview",
     anchors: [
-      ["connectors-and-outegrations", "aem.secops-platform"],
-      ["open-questions", "aem.secops-platform"],
-      ["api-surface", "aem.secops-platform"],
+      ["connectors-and-outegrations", "portfolio.secops-platform"],
+      ["open-questions", "portfolio.secops-platform"],
+      ["api-surface", "portfolio.secops-platform"],
     ],
   },
   "references/dspm/overview.md": {
@@ -3028,8 +3028,8 @@ export const MOVES = {
   "references/aem/overview.md": {
     default: "aem.overview",
     anchors: [
-      ["data-source-and-workflow-scope", "aem.secops-platform"],
-      ["open-questions", "aem.secops-platform"],
+      ["data-source-and-workflow-scope", "portfolio.secops-platform"],
+      ["open-questions", "portfolio.secops-platform"],
     ],
   },
   "references/identity-protection/overview.md": {

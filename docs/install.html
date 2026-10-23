@@ -49,10 +49,10 @@
       <h1>Installation Guide</h1>
       <p class="lede">Install the Zscaler skill as a source-backed knowledge base, then attach private runtime data without committing tenant material to the public checkout.</p>
       <dl class="frontmatter">
-        <dt>Public repo contains</dt><dd>Skill logic, HTML docs, reference notes, verification scripts, and vendored source trees.</dd>
+        <dt>Public repo contains</dt><dd>Skill logic, HTML docs, the JSON knowledge graph under <code>references/</code>, verification scripts, and vendored source trees.</dd>
         <dt>Public repo omits</dt><dd>Company overlay, IaC, credentials, work-machine runtime data, and private mirror pointers.</dd>
         <dt>Install model</dt><dd>Clone with submodules, register the repo as a skill, then mount runtime data from a private source if tenant-aware answers are needed. The default mount is <code>_data/</code>, configured in <code>zscaler-skill-runtime.json</code>.</dd>
-        <dt>Related</dt><dd><a href="operator-guide.html" style="color: var(--accent-ink);">Operator Guide</a> · <code>docs/tooling.md</code> · <a href="data-contract/README.md" style="color: var(--accent-ink);">Data contract</a> · <code>docs/getting-started.md</code></dd>
+        <dt>Related</dt><dd><a href="operator-guide.html" style="color: var(--accent-ink);">Operator Guide</a> · <code>docs/tooling.md</code> · <a href="https://github.com/dvmrry/zscaler-skill/blob/main/docs/data-contract/README.md" style="color: var(--accent-ink);">Data contract</a> · <code>docs/getting-started.md</code></dd>
       </dl>
     </header>
 
@@ -84,7 +84,7 @@
     <section class="section" id="checkout">
       <div class="section-num">§ 2 · Checkout</div>
       <h2>Get the skill</h2>
-      <p class="standfirst">Clone recursively so the source-backed references can resolve their citations.</p>
+      <p class="standfirst">Clone recursively so the knowledge graph can resolve its citations.</p>
 
       <pre><code>git clone --recursive &lt;fork-or-upstream-url&gt; zscaler-skill
 cd zscaler-skill
@@ -97,7 +97,7 @@ git config core.hooksPath .githooks</code></pre>
 
       <div class="note">
         <span class="label">Why recursive clone matters</span>
-        Many reference citations point into <code>vendor/</code>. A bare checkout can still render prose, but audit and reconciliation work becomes misleading because the source files are absent.
+        Many claims cite evidence quoted from <code>vendor/</code>. A bare checkout can still render prose, but audit and reconciliation work becomes misleading because the source files are absent.
       </div>
     </section>
 
@@ -165,7 +165,7 @@ node scripts/check-data-contract.mjs</code></pre>
       <h2>Verify setup</h2>
       <p class="standfirst">These checks confirm that source files, docs, and optional runtime data are visible.</p>
 
-      <pre><code># Source-backed references can resolve vendor paths.
+      <pre><code># Cited evidence can resolve vendor paths.
 test -d vendor/zscaler-sdk-go
 test -d vendor/terraform-provider-zia
 
@@ -189,7 +189,7 @@ find _data/overlay -name overlay.json -print -quit  # replace _data with the con
       <table class="tbl">
         <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
         <tbody>
-          <tr><td>References cite missing <code>vendor/...</code> files</td><td>Submodules were not initialized.</td><td>Run <code>git submodule update --init --recursive</code>.</td></tr>
+          <tr><td>Claims cite missing <code>vendor/...</code> files</td><td>Submodules were not initialized.</td><td>Run <code>git submodule update --init --recursive</code>.</td></tr>
           <tr><td>Tenant-specific answers decline</td><td>The configured runtime mount's <code>overlay/</code> directory is empty or not mounted, or <code>overlay.json</code> declares neither <code>iac</code> nor <code>live</code>.</td><td>Mount runtime data and run <code>check-data-contract.mjs</code>.</td></tr>
           <tr><td>Skill does not appear in the agent runtime</td><td>The runtime cannot see the skill directory or symlink.</td><td>Confirm the symlink target exists and restart the agent session.</td></tr>
           <tr><td>Commands mention private runtime-data paths that do not exist</td><td>The instructions came from a private mirror assumption.</td><td>Replace the placeholder with the local runtime-data source, or use the public manual mount path.</td></tr>
@@ -201,6 +201,6 @@ find _data/overlay -name overlay.json -print -quit  # replace _data with the con
   </main>
 </div>
 
-<script src="nav.js?v=28"></script>
+<script src="nav.js?v=29"></script>
 </body>
 </html>

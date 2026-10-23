@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "zia_cloud_app_control_rule and actions on 4.7",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/570",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 570,
+    "state": "closed",
+    "created_at": "2026-05-12",
+    "updated_at": "2026-05-15",
+    "labels": [],
+    "state_reason": "completed",
+    "closed_at": "2026-05-15",
+    "updated": "2026-05-15",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "zia_cloud_app_control_rule and actions on 4.7",
+      "level": 1
+    },
+    {
+      "text": "Hi @(user)"
+    },
+    {
+      "text": "I'm working on the next steps in our implementation phase by tightening the security. Therefore I want to implement block for high risk and isolate for medium risk cloud applications."
+    },
+    {
+      "text": "For that, I took your examples, but there seems to be something wrong, e.g. for AI_ML:"
+    },
+    {
+      "code": "data \"zia_cloud_app_control_rule_actions\" \"deny_ai_ml_actions\" {\n    type = \"AI_ML\"\n    cloud_apps = [\"AI_ML_WEB_USE\"]\n    action_prefixes = [\"DENY\"]\n}\n\nresource \"zia_cloud_app_control_rule\" \"app_control_rule_block_high_risk_ai\" {\n  name                    = \"BLOCK_HIGH_RISK_AI\"\n  description             = local.policy_description\n  type                    = \"AI_ML\"\n  order                   = 1\n  rank                    = 7\n  state                   = \"ENABLED\"\n  browser_eun_template_id = 8507\n\n  actions = data.zia_cloud_app_control_rule_actions.deny_ai_ml_actions.filtered_actions\n\n  cloud_app_risk_profile {\n    id = data.zia_risk_profiles.high_risk_app_profile.id\n  }\n}"
+    },
+    {
+      "text": "This one results in:"
+    },
+    {
+      "code": "  + resource \"zia_cloud_app_control_rule\" \"app_control_rule_block_high_risk_ai\" {\n      + id      = (known after apply)\n      + name    = \"BLOCK_HIGH_RISK_AI\"\n      + order   = 1\n      + rank    = 7\n      + rule_id = (known after apply)\n      + state   = \"ENABLED\"\n      + type    = \"AI_ML\"\n      + cloud_app_risk_profile {\n          + id = 1767\n        }\n    }"
+    },
+    {
+      "text": "As you can see, the actions attribute is completely missing. However, when changing actions to hardcoded value (against best practice, I know):"
+    },
+    {
+      "code": ""
+    },
+    {
+      "item": "resource \"zia_cloud_app_control_rule\" \"app_control_rule_block_high_risk_ai\" {",
+      "depth": 1
+    },
+    {
+      "item": "actions = [",
+      "depth": 3
+    },
+    {
+      "item": "\"DENY_AI_ML_WEB_USE\",",
+      "depth": 5
+    },
+    {
+      "text": "]"
+    },
+    {
+      "item": "id      = (known after apply)",
+      "depth": 3
+    },
+    {
+      "item": "name    = \"BLOCK_HIGH_RISK_AI\"",
+      "depth": 3
+    },
+    {
+      "item": "order   = 1",
+      "depth": 3
+    },
+    {
+      "item": "rank    = 7",
+      "depth": 3
+    },
+    {
+      "item": "rule_id = (known after apply)",
+      "depth": 3
+    },
+    {
+      "item": "state   = \"ENABLED\"",
+      "depth": 3
+    },
+    {
+      "item": "type    = \"AI_ML\"",
+      "depth": 3
+    },
+    {
+      "item": "cloud_app_risk_profile {",
+      "depth": 3
+    },
+    {
+      "item": "id = 1767",
+      "depth": 5
+    },
+    {
+      "text": "} }"
+    },
+    {
+      "code": "\nSo, as you can see the actions attribute is now present.\n\nYet, I'm not sure, if this is related to this note:\n_NOTE: Note that some new actions may not be returned in the API response. This is a known issue, and is being investigated via the following issue ONEAPI-2421. Please contact Zscaler support for an update if the action you're attempting ton configure isn't supported or returned in the response._\n\n"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-05-13)",
+      "level": 2
+    },
+    {
+      "text": "As you already outlined this is a API issue and is being investigated. This isn't an issue addressable at the provider level. I am not sure what your exact question or issue is exactly. Please clarify what the exact ask is."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-05-13)",
+      "level": 2
+    },
+    {
+      "text": "I was not sure if I'm hit by the bug or if I was doing something wrong."
+    },
+    {
+      "text": "The documentation especially outlines that one should use the actions data source instead of hard coding the actions and that's where I was lost."
+    },
+    {
+      "text": "What do you suggest for the next steps? File in an official support ticket?"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-05-13)",
+      "level": 2
+    },
+    {
+      "text": "The documentation do not say \"DO NOT use\" it says \"Avoid hardcoding actions\""
+    },
+    {
+      "text": "<img width=\"880\" height=\"424\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/966bf605-025c-4d99-937e-dc186b61ff55\" />"
+    },
+    {
+      "text": "If there are missing actions, that's part of the BUG I already indicated that is being handled by engineering. Not a provider issue itself. Bottom line is, how you pass the actions, dynamically via data source or hard coded is entirely up to how you want to manage your code going forward. The documentation is clear on what we recommend, regardless of what the existing API issue is."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-05-15)",
+      "level": 2
+    },
+    {
+      "text": "Perhaps, I was not able to transport my intention fully, but I didn't want to blame someone, but I was not sure if I hit the mentioned bug (the bug description is not very detailed) or if I misused something."
+    },
+    {
+      "text": "Is there a list available of which actions are returned or which not?"
+    },
+    {
+      "text": "Edit: I got confirmation, that the underlying bug shall be fixed in the weeks, so we can close this one"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-05-15)",
+      "level": 2
+    },
+    {
+      "text": "The data source https://registry.terraform.io/providers/zscaler/zia/latest/docs/data-sources/zia_cloud_app_control_rule_actions was designed to retrieve these actions. However, missing actions in the response are an API based issue that as indicated is being handled by the backend API team."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

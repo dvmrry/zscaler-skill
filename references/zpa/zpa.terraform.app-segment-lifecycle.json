@@ -48,7 +48,7 @@
     },
     {
       "label": "Nested apps.",
-      "text": "{{inspection-subapp-flags-always-serialized}} {{inspection-subapp-expand-subset}} {{inspection-update-may-reset-subapp-state}} {{browser-hidden-sent-false}} {{pra-update-sends-remote-values}} {{pra-update-returns-read-after-update}}"
+      "text": "{{inspection-subapp-flags-always-serialized}} {{inspection-subapp-expand-subset}} {{inspection-update-may-reset-subapp-state}} {{browser-hidden-sent-false}} {{pra-update-sends-remote-values}} {{pra-update-returns-read-after-update}} {{main-resource-unsupported-for-appprotection-segments}}"
     },
     {
       "label": "Child identity.",
@@ -1287,6 +1287,55 @@
         "zpa.segment-groups.api-surface:tf-resource-schema"
       ],
       "conditions": "Follows from Read writing the API's membership into state and the plan-time check comparing ID sets on an existing group. It assumes Terraform diffs the configured list against the refreshed state for this Optional and Computed attribute, which is Terraform behavior not shown in a captured source."
+    },
+    "main-resource-unsupported-for-appprotection-segments": {
+      "statement": "The `zpa_application_segment` resource documents that a segment on which Auto App Protection or Active Directory Inspection has been enabled, for example in the Admin Portal, becomes an inspection segment that only `zpa_application_segment_inspection` supports: it must be imported there and removed from `zpa_application_segment`, because any update the main resource applies disables the feature and leaves the per-domain inspection configuration invalid. Issue #687 reported that an unrelated update did exactly that and also made the segment vanish from the console's main list; it was closed as completed on 2026-10-01 with a reply from a member of the repository's organization, signed Zscaler DevRel, naming `zpa_application_segment_inspection` and its `trust_untrusted_cert` setting as the supported way to manage such a segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_application_segment.md",
+          "quotes": [
+            "Enabling **Auto App Protection** or **Active Directory Inspection** on an application segment — for example in the ZPA Admin Portal — converts it into an *inspection* application segment, which is only supported by the [`zpa_application_segment_inspection`](zpa_application_segment_inspection.md) resource.",
+            "A segment that has been converted must be imported into `zpa_application_segment_inspection` and removed from `zpa_application_segment`.",
+            "any update it applies disables AppProtection or Active Directory Inspection and leaves the segment's per-domain inspection configuration in an invalid state."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "quotes": [
+            "applying *any* unrelated Terraform update to that segment corrupts the linked Inspection configuration and the segment disappears from the console's main Application Segments list"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "after": "## Comment (MEMBER, 2026-10-01)",
+          "quotes": [
+            "Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-10-01) @(user) Upgrade to the latest version",
+            "AppProtection (Auto App Protection) and Active Directory Inspection are not supported attributes of the zpa_application_segment resource. They are supported only by the zpa_application_segment_inspection resource",
+            "The \"Use Untrusted Certificates\" option you mentioned is available there as common_apps_dto.apps_config.trust_untrusted_cert."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zpa-687.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-01"
+          }
+        }
+      ]
     }
   },
   "gaps": {

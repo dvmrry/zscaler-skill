@@ -31,7 +31,7 @@
     },
     {
       "label": "The call.",
-      "text": "{{endpoint}} {{scan-body}} {{current-policy-ignored}} The README says currentPolicy selects a policy {{divergence:current-policy}}. {{session-not-sent}} The README promises session grouping {{divergence:session-tracking}}."
+      "text": "{{endpoint}} {{cloud-host-reported-dead-issue-10}} Whether the per-cloud host still answers is open {{gap:cloud-host-still-accepted}}. {{scan-body}} {{current-policy-ignored}} The README says currentPolicy selects a policy {{divergence:current-policy}}. {{session-not-sent}} The README promises session grouping {{divergence:session-tracking}}."
     },
     {
       "label": "Verdicts and failures.",
@@ -401,6 +401,52 @@
         }
       ],
       "conditions": "Rests on the SDK's response model (a map keyed by detector name) and the other examples, which all walk it as a map; the fragment was not run."
+    },
+    "cloud-host-reported-dead-issue-10": {
+      "statement": "Issue #10 on the integrations repository reported that the per-cloud AI Guard endpoint the Azure README and policy fragment use no longer works; it was closed as completed on 2026-09-02 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v0.2.0, and the policy fragment still builds the host from `{cloud}`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zguard-ai-integrations-10.json",
+          "quotes": [
+            "The following API endpoint no longer works and the 'cloud' variable is no longer needed.",
+            "The following API endpoint works. My understanding is that the API endpoint now uses a global load balancer."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zguard-ai-integrations-10.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-09-02) Upgrade to v0.2.0 Zscaler DevRel"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zguard-ai-integrations-10.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-09-02"
+          }
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "quotes": [
+            "return $\"https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy\";"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/README.md",
+          "quotes": [
+            "**Endpoint**: `https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy`"
+          ],
+          "after": "### AI Guard API Integration"
+        }
+      ]
     }
   },
   "gaps": {
@@ -412,6 +458,26 @@
       "blocks": "whether streamed and tool-call-only responses pass through this fragment",
       "resolves_with": [
         "lab-test"
+      ]
+    },
+    "cloud-host-still-accepted": {
+      "kind": "semantic",
+      "title": "Whether the per-cloud AI Guard host still answers",
+      "status": "open",
+      "detail": "The issue reporter's claim that the per-cloud host stopped working and that the global host replaced it rests on one report; the maintainer reply names a release without saying what changed, and the 0.2.0 changelog does not mention the endpoint. Whether `api.{cloud}.zseclipse.net` still answers, or only the global host does, is not established by any captured source.",
+      "blocks": "deploying the Azure policy fragment with a per-cloud host",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zguard-ai-integrations-10.json",
+          "quotes": [
+            "My understanding is that the API endpoint now uses a global load balancer."
+          ]
+        }
       ]
     }
   },

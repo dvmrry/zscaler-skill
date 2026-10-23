@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "zia_cloud_app_control_rule_actions missing Action values",
+  "source": {
+    "url": "https://github.com/zscaler/terraform-provider-zia/issues/522",
+    "repo": "zscaler/terraform-provider-zia",
+    "number": 522,
+    "state": "closed",
+    "created_at": "2026-02-12",
+    "updated_at": "2026-08-13",
+    "labels": [
+      ":question: question",
+      "wontfix"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-03-10",
+    "updated": "2026-08-13",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "zia_cloud_app_control_rule_actions missing Action values",
+      "level": 1
+    },
+    {
+      "heading": "Community Note",
+      "level": 3
+    },
+    {
+      "item": "Please vote on this issue by adding a 👍 [reaction](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) to the original issue to help the community and maintainers prioritize this request",
+      "depth": 0
+    },
+    {
+      "item": "Please do not leave \"+1\" or other comments that do not add relevant new information or questions, they generate extra noise for issue followers and do not help prioritize the request",
+      "depth": 0
+    },
+    {
+      "item": "If you are interested in working on this issue or have submitted a pull request, please leave a comment",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Version",
+      "level": 3
+    },
+    {
+      "code": "Terraform v1.14.4\non darwin_arm64\n+ provider registry.terraform.io/hashicorp/aws v6.32.0\n+ provider registry.terraform.io/zscaler/zia v4.7.2"
+    },
+    {
+      "heading": "Affected Resource(s)",
+      "level": 3
+    },
+    {
+      "item": "zia_cloud_app_control_rule",
+      "depth": 0
+    },
+    {
+      "heading": "Terraform Configuration Files",
+      "level": 3
+    },
+    {
+      "code": "data \"zia_cloud_app_control_rule_actions\" \"gdrive_allow\" {\n  type            = \"FILE_SHARE\"\n  cloud_apps      = [\"GDRIVE\"]\n  action_prefixes = [\"ALLOW\"]\n}\n\nresource \"zia_cloud_app_control_rule\" \"allow_google_drive\" {\n  name        = \"Allow: Google Drive\"\n  type        = \"FILE_SHARE\"\n  order       = 4\n  rank        = 7\n  state       = \"ENABLED\"\n  actions     = data.zia_cloud_app_control_rule_actions.gdrive_allow.filtered_actions\n  applications = [\n    \"GDRIVE\"\n  ]\n  tenancy_profile_ids {\n    id = [116075892]\n  }\n}\n\ndata \"zia_cloud_app_control_rule_actions\" \"onedrive_allow\" {\n  type            = \"FILE_SHARE\"\n  cloud_apps      = [\"ONEDRIVE\"]\n  action_prefixes = [\"ALLOW\"]\n}\n\nresource \"zia_cloud_app_control_rule\" \"office_365_one_click_rule_file_share\" {\n  name        = \"Office 365 One Click Rule\"\n  description = \"Office 365 One Click Rule\"\n  type        = \"FILE_SHARE\"\n  order       = 5\n  rank        = 7\n  state       = \"ENABLED\"\n  actions     = data.zia_cloud_app_control_rule_actions.onedrive_allow.filtered_actions\n  applications = [\n    \"ONEDRIVE\"\n  ]\n}"
+    },
+    {
+      "heading": "Expected Behavior",
+      "level": 3
+    },
+    {
+      "text": "Terraform plan should show no changes needed."
+    },
+    {
+      "heading": "Actual Behavior",
+      "level": 3
+    },
+    {
+      "text": "Relates to https://github.com/zscaler/terraform-provider-zia/issues/520"
+    },
+    {
+      "text": "Seems like the [cloudappcontrol.AllAvailableActions](https://github.com/zscaler/terraform-provider-zia/blob/master/zia/validator.go#L708) API call is not returning all the actions that can be used in a specific Cloud App. When using the data source there are missing actions that can be set through the console. The actions are `[ALLOW_FILE_SHARE_UPLOAD ALLOW_FILE_SHARE_VIEW]`. Not sure if it's a terraform provider, Go SDK or API issue."
+    },
+    {
+      "text": "This is also causing a drift with the Office365 OneClick rules."
+    },
+    {
+      "text": "This only happens with `GDRIVE` and `ONEDRIVE` Cloud Apps. Terraform plan output:"
+    },
+    {
+      "code": "Terraform used the selected providers to generate the following execution\nplan. Resource actions are indicated with the following symbols:\n  ~ update in-place\n\nTerraform will perform the following actions:\n\n  # zia_cloud_app_control_rule.allow_google_drive will be updated in-place\n  ~ resource \"zia_cloud_app_control_rule\" \"allow_google_drive\" {\n      ~ actions                 = [\n          - \"ALLOW_FILE_SHARE_UPLOAD\",\n          - \"ALLOW_FILE_SHARE_VIEW\",\n            # (7 unchanged elements hidden)\n        ]\n        id                      = \"1538862\"\n        name                    = \"Allow: Google Drive\"\n        # (20 unchanged attributes hidden)\n\n        # (2 unchanged blocks hidden)\n    }\n\n  # zia_cloud_app_control_rule.office_365_one_click_rule_file_share will be updated in-place\n  ~ resource \"zia_cloud_app_control_rule\" \"office_365_one_click_rule_file_share\" {\n      ~ actions                 = [\n          - \"ALLOW_FILE_SHARE_UPLOAD\",\n          - \"ALLOW_FILE_SHARE_VIEW\",\n          + \"ALLOW_FILE_SHARE_CREATE\",\n          + \"ALLOW_FILE_SHARE_DELETE\",\n          + \"ALLOW_FILE_SHARE_DOWNLOAD\",\n          + \"ALLOW_FILE_SHARE_EDIT\",\n          + \"ALLOW_FILE_SHARE_RENAME\",\n          + \"ALLOW_FILE_SHARE_SHARE\",\n        ]\n        id                      = \"490066\"\n        name                    = \"Office 365 One Click Rule\"\n        # (20 unchanged attributes hidden)\n    }\n\nPlan: 0 to add, 3 to change, 0 to destroy.\n"
+    },
+    {
+      "heading": "Steps to Reproduce",
+      "level": 3
+    },
+    {
+      "item": "Create a cloud app rule via the console with all actions in Allow",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Import it into terraform",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Use the zia_cloud_app_control_rule_actions as shown in the code snippet.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Do a terraform plan and it will show that changes are needed.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "References",
+      "level": 3
+    },
+    {
+      "text": "These are all the actions available for GDRIVE when done via the Console. <img width=\"646\" height=\"589\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/0c0559ce-74f6-4e60-8174-9e97166cec55\" />"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-02-12)",
+      "level": 2
+    },
+    {
+      "text": "@(user) it is no \"missing\". We answered similar question of yours in this issue yesterday https://github.com/zscaler/terraform-provider-zia/issues/520#issuecomment-3887386059"
+    },
+    {
+      "text": "You must use the data source `zia_cloud_app_control_rule_actions` https://registry.terraform.io/providers/zscaler/zia/latest/docs/data-sources/zia_cloud_app_control_rule_actions as already indicated. We no longer do local validation of supported API values, and users are required to either use the data source, or refer to the API documentation for the most updated values API documentation here: https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zia/cloud-app-control-policy/web-application-rule-resource-get-available-actions"
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-02-12)",
+      "level": 2
+    },
+    {
+      "text": "@(user) that's what I did. It is in the example configuration I added in this bug description. I followed your instructions yet the available actions that can be assigned via the API don't match with what is available in the ZScaler ZIA Console."
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-02-12)",
+      "level": 2
+    },
+    {
+      "text": "Ok We understand the issue now. The problem is related to the API used to retrieve the available actions for each rule type via the data source `zia_cloud_app_control_rule_actions`"
+    },
+    {
+      "item": "The actions: ALLOW_FILE_SHARE_UPLOAD, ALLOW_FILE_SHARE_VIEW are not returned via this endpoint; hence, the diff when running terraform plan/apply.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The only actions currently returned via this endpoint, are the following: (Notice that it does not include ALLOW_FILE_SHARE_UPLOAD, ALLOW_FILE_SHARE_VIEW)",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "code": "[\n    \"ALLOW_FILE_SHARE_CREATE\",\n    \"ALLOW_FILE_SHARE_DELETE\",\n    \"ALLOW_FILE_SHARE_DOWNLOAD\",\n    \"ALLOW_FILE_SHARE_EDIT\",\n    \"ALLOW_FILE_SHARE_FORM_SHARE\",\n    \"ALLOW_FILE_SHARE_RENAME\",\n    \"ALLOW_FILE_SHARE_SHARE\",\n    \"DENY_FILE_SHARE_CREATE\",\n    \"DENY_FILE_SHARE_DELETE\",\n    \"DENY_FILE_SHARE_DOWNLOAD\",\n    \"DENY_FILE_SHARE_EDIT\",\n    \"DENY_FILE_SHARE_FORM_SHARE\",\n    \"DENY_FILE_SHARE_RENAME\",\n    \"DENY_FILE_SHARE_SHARE\",\n    \"FILE_SHARE_CONDITIONAL_ACCESS\"\n]"
+    },
+    {
+      "item": "We'll raise an internal BUG with the API team to address that.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Alternatively, you can manually pass the list of actions directly in the `actions` list attribute temporarily to prevent the drift.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "We'll keep this case opened until we have an update from our backend team.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-02-20)",
+      "level": 2
+    },
+    {
+      "text": "Thanks @(user)"
+    },
+    {
+      "text": "> Alternatively, you can manually pass the list of actions directly in the actions list attribute temporarily to prevent the drift."
+    },
+    {
+      "text": "I can't do this because the provider will error out saying that the list of actions that we set manually doesn't match the actions that are supported for that application based on the list of actions returned by https://github.com/zscaler/terraform-provider-zia/blob/0c678b124397be77684b7d275959b9503ad4407e/zia/validator.go#L701-L705"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-02-20)",
+      "level": 2
+    },
+    {
+      "text": "You need to upgrade the provider version to the latest where we removed local validation. You are still attempting to run your HCL using the older version that does not contain the workaround/fix. Either way, this is a API bug that has already been filed with our engineering teams. Unless you upgrade to the latest provider version, there is no fix for this."
+    },
+    {
+      "text": "This is a working configuration example:"
+    },
+    {
+      "code": "resource \"zia_cloud_app_control_rule\" \"allow_google_drive\" {\n  name        = \"Allow: Google Drive\"\n  type        = \"FILE_SHARE\"\n  order       = 1\n  rank        = 7\n  state       = \"ENABLED\"\n  actions     =     [\"ALLOW_FILE_SHARE_CREATE\",\n    \"ALLOW_FILE_SHARE_DELETE\",\n    \"ALLOW_FILE_SHARE_DOWNLOAD\",\n    \"ALLOW_FILE_SHARE_EDIT\",\n    \"ALLOW_FILE_SHARE_FORM_SHARE\",\n    \"ALLOW_FILE_SHARE_RENAME\",\n    \"ALLOW_FILE_SHARE_SHARE\"]\n  applications = [\n    \"GDRIVE\"\n  ]\n}"
+    },
+    {
+      "text": "Nothing else we can add to this case."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-02-23)",
+      "level": 2
+    },
+    {
+      "text": "We're having the same issue on provider version 4.7.6."
+    },
+    {
+      "text": "zia_cloud_app_control_rule_actions doesn't return all of the supported actions for Github. Setting the list manually, using:"
+    },
+    {
+      "code": "actions = [\n    \"ALLOW_SYSTEM_DEVELOPMENT_APPS\",\n    \"ALLOW_SYSTEM_DEVELOPMENT_UPLOAD\",\n    \"ALLOW_SYSTEM_DEVELOPMENT_CREATE\",\n    \"ALLOW_SYSTEM_DEVELOPMENT_EDIT\",\n    \"ALLOW_SYSTEM_DEVELOPMENT_SHARE\",\n    \"ALLOW_SYSTEM_DEVELOPMENT_COMMENT\",\n    \"ALLOW_SYSTEM_DEVELOPMENT_REACTION\"\n  ]"
+    },
+    {
+      "text": "Causes the plan to fail:"
+    },
+    {
+      "code": "##[error]╷\n│ Error: Invalid actions for the specified applications.\n│\n│ The following actions are not supported: [ALLOW_SYSTEM_DEVELOPMENT_APPS ALLOW_SYSTEM_DEVELOPMENT_UPLOAD]\n│\n│ Valid actions for applications [GITHUB] with rule_type 'SYSTEM_AND_DEVELOPMENT':\n│ [ALLOW_SYSTEM_DEVELOPMENT_COMMENT ALLOW_SYSTEM_DEVELOPMENT_CREATE ALLOW_SYSTEM_DEVELOPMENT_EDIT ALLOW_SYSTEM_DEVELOPMENT_REACTION ALLOW_SYSTEM_DEVELOPMENT_SHARE BLOCK_SYSTEM_DEVELOPMENT_COMMENT BLOCK_SYSTEM_DEVELOPMENT_CREATE BLOCK_SYSTEM_DEVELOPMENT_EDIT BLOCK_SYSTEM_DEVELOPMENT_REACTION BLOCK_SYSTEM_DEVELOPMENT_SHARE DEV_CONDITIONAL_ACCESS]"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-02-24)",
+      "level": 2
+    },
+    {
+      "text": "@(user) Please give it a try on minor version v4.7.7 We removed all local validations to ensure the API itself can provide you the accurate combinations during errors. Be aware that the cloud app control api has very complex rule action combinations. We have added very clear remarks this time around explaining its utilization."
+    },
+    {
+      "item": "`actions` - (List of String) The actions applied by this rule. You can either use the [zia_cloud_app_control_rule_actions](https://registry.terraform.io/providers/zscaler/zia/latest/docs/data-sources/zia_cloud_app_control_rule_actions) data source to retrieve valid actions, or specify them manually for granular control (e.g., mixing `ALLOW_` and `BLOCK_` for different action categories). See the [Granular Mixed Actions](#granular-mixed-actions) section below for details.",
+      "depth": 0
+    },
+    {
+      "text": "* If issues persist please raise a Support case with Zscaler support for escalation, and we'll look deeper into it."
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-03-10)",
+      "level": 2
+    },
+    {
+      "text": "There are still API errors but at lest we can now manually set the actions so we are good to close this. Thanks @(user)"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-08-13)",
+      "level": 2
+    },
+    {
+      "text": "@(user) @(user) Please upgrade to the latest version v4.8.6 which addresses the problem in quesiton."
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}

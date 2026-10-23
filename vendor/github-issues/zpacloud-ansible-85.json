@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "kind": "github-issue",
+  "title": "Module zpa_application_segment_by_type_info did not work",
+  "source": {
+    "url": "https://github.com/zscaler/zpacloud-ansible/issues/85",
+    "repo": "zscaler/zpacloud-ansible",
+    "number": 85,
+    "state": "closed",
+    "created_at": "2025-12-18",
+    "updated_at": "2026-05-30",
+    "labels": [
+      "bug"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-05-30",
+    "updated": "2026-05-30",
+    "updated_basis": "issue-updated-at"
+  },
+  "captured_at": "2026-10-23",
+  "blocks": [
+    {
+      "heading": "Module zpa_application_segment_by_type_info did not work",
+      "level": 1
+    },
+    {
+      "heading": "Describe the bug",
+      "level": 2
+    },
+    {
+      "text": "Tried to request application segments by type with collection version 2.1.0. It ends permanently in this error message:"
+    },
+    {
+      "code": "[ERROR]: Task failed: Module failed: Error retrieving application segments: {\n  \"status\": 400,\n  \"code\": \"read.message.failed\",\n  \"message\": \"Failed to read http message, Please check the input/format of the message\",\n  \"url\": \"https://api.zsapi.net/zpa/mgmtconfig/v1/admin/customers/********/application/getAppsByType\"\n}\nOrigin: /home/zscaler-ansible/roles/zpa/tasks/GET_ALL_APP_SEGMENTS.yml:115:7\n\n113 - name: Handle Secure Remote Access Application Segments\n114   block:\n115     - name: Retrieve Details of Secure Remote Access Application Segments\n          ^ column 7\n\nfatal: [localhost]: FAILED! => {\"attempts\": 5, \"changed\": false, \"msg\": \"Error retrieving application segments: {\\n  \\\"status\\\": 400,\\n  \\\"code\\\": \\\"read.message.failed\\\",\\n  \\\"message\\\": \\\"Failed to read http message, Please check the input/format of the message\\\",\\n  \\\"url\\\": \\\"https://api.zsapi.net/zpa/mgmtconfig/v1/admin/customers/********/application/getAppsByType\\\"\\n}\"}"
+    },
+    {
+      "text": "Example Ansible task:"
+    },
+    {
+      "item": "name: Retrieve Details of Secure Remote Access Application Segments",
+      "depth": 0
+    },
+    {
+      "text": "zscaler.zpacloud.zpa_application_segment_by_type_info: provider: \"{{ zpa_cloud }}\" application_type: \"SECURE_REMOTE_ACCESS\" expand_all: true register: zpa_app_segments_sra retries: \"{{ zpa_max_retries | int }}\" delay: \"{{ (zpa_backoff_base | int) ** ((ansible_attempt | default(1) | int) - 1) }}\" until: zpa_app_segments_sra is succeeded"
+    },
+    {
+      "heading": "Expected behavior",
+      "level": 2
+    },
+    {
+      "text": "Should work like it is described in https://galaxy.ansible.com/ui/repo/published/zscaler/zpacloud/content/module/zpa_application_segment_by_type_info/?version=2.1.0"
+    },
+    {
+      "heading": "Current behavior",
+      "level": 2
+    },
+    {
+      "text": "See error message above."
+    },
+    {
+      "heading": "Possible solution",
+      "level": 2
+    },
+    {
+      "text": "Changes a little bit in the related python code for this module. The module is now working for me, but I'm not a pro in Pyhton, maybe there is an easier way to fix it?!"
+    },
+    {
+      "code": "diff -u   ./collections/ansible_collections/zscaler/zpacloud/plugins/modules/zpa_application_segment_by_type_info.py.bak   ./collections/ansible_collections/zscaler/zpacloud/plugins/modules/zpa_application_segment_by_type_info.py\n--- ./collections/ansible_collections/zscaler/zpacloud/plugins/modules/zpa_application_segment_by_type_info.py.bak\t2025-12-18 09:01:27.723944058 +0100\n+++ ./collections/ansible_collections/zscaler/zpacloud/plugins/modules/zpa_application_segment_by_type_info.py\t2025-12-18 10:10:44.580709175 +0100\n@@ -42,7 +42,6 @@\n extends_documentation_fragment:\n   - zscaler.zpacloud.fragments.provider\n   - zscaler.zpacloud.fragments.documentation\n-\n options:\n   name:\n     description:\n@@ -106,7 +105,7 @@\n \"\"\"\n\n RETURN = \"\"\"\n-apps:\n+data:\n   description: Details of the application segments retrieved by the specified access type.\n   returned: always\n   type: list\n@@ -171,11 +170,33 @@\n from ansible.module_utils._text import to_native\n from ansible.module_utils.basic import AnsibleModule\n from ansible_collections.zscaler.zpacloud.plugins.module_utils.zpa_client import (\n-    ZPAClientHelper,\n-)\n-from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import (\n-    collect_all_items,\n+    ZPAClientHelper\n )\n+from ansible_collections.zscaler.zpacloud.plugins.module_utils.utils import collect_all_items\n+\n+\n+def serialize_object(obj):\n+    \"\"\"Recursively serialize SDK objects to dict\"\"\"\n+    if obj is None:\n+        return None\n+    elif isinstance(obj, (str, int, float, bool)):\n+        return obj\n+    elif isinstance(obj, (list, tuple)):\n+        return [serialize_object(item) for item in obj]\n+    elif isinstance(obj, dict):\n+        return {k: serialize_object(v) for k, v in obj.items()}\n+    elif hasattr(obj, 'as_dict'):\n+        try:\n+            return serialize_object(obj.as_dict())\n+        except AttributeError:\n+            pass\n+    if hasattr(obj, '__dict__'):\n+        result = {}\n+        for key, value in obj.__dict__.items():\n+            if not key.startswith('_'):\n+                result[key] = serialize_object(value)\n+        return result\n+    return str(obj)\n\n\n def core(module):\n@@ -198,7 +219,8 @@\n         query_params[\"microtenant_id\"] = microtenant_id\n\n     module.warn(\n-        f\"[Application Segment] Querying segments of type '{application_type}' with expand_all={expand_all} and microtenant_id={microtenant_id}\"\n+        f\"[Application Segment] Querying segments of type '{application_type}' \"\n+        f\"with expand_all={expand_all} and microtenant_id={microtenant_id}\"\n     )\n\n     # Use collect_all_items for paginated fetch\n@@ -212,7 +234,7 @@\n     if err:\n         module.fail_json(msg=f\"Error retrieving application segments: {to_native(err)}\")\n\n-    # Optional filtering by name\n+# Optional filtering by name\n     if application_name:\n         matched = next(\n             (a for a in segments if getattr(a, \"name\", \"\") == application_name), None\n@@ -223,9 +245,8 @@\n                 msg=f\"Application Segment '{application_name}' not found. Available: {available}\"\n             )\n         segments = [matched]\n-\n-    # ✅ Serialize from SDK model (snake_case guaranteed)\n-    result = [s.as_dict() if hasattr(s, \"as_dict\") else s for s in segments]\n+\n+    result = [serialize_object(s) for s in segments]\n     module.exit_json(changed=False, data=result)\n\n\n@@ -241,7 +262,7 @@\n             choices=[\n                 \"BROWSER_ACCESS\",\n                 \"INSPECT\",\n-                \"SECURE_REMOTE_ACCESS\",\n+                \"SECURE_REMOTE_ACCESS\"\n             ],\n         ),\n     )\n\n[fix-zpa_application_segment_by_type_info.py](https://github.com/user-attachments/files/24237239/fix-zpa_application_segment_by_type_info.py)\n"
+    },
+    {
+      "heading": "Context",
+      "level": 2
+    },
+    {
+      "text": "My job is to write a sample playbook for ZPA tasks."
+    },
+    {
+      "heading": "Your Environment",
+      "level": 2
+    },
+    {
+      "item": "Collection: 2.1.0",
+      "depth": 0
+    },
+    {
+      "item": "Python: 3.12.3",
+      "depth": 0
+    },
+    {
+      "item": "Ansible: core 2.20.1",
+      "depth": 0
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-05-30)",
+      "level": 2
+    },
+    {
+      "text": "Upgrade to v2.2.0"
+    },
+    {
+      "text": "Zscaler DevRel"
+    }
+  ]
+}
