@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from help_capture import _parse_md_body, changes, document, render, text_of  # noqa: E402
+from help_capture import _parse_md_body, _release_notes_html, changes, document, render, text_of  # noqa: E402
 
 ARTICLE = """
 <article>
@@ -27,6 +27,21 @@ ARTICLE = """
   <p>Related text that must not appear</p>
 </article>
 """
+
+
+def test_release_notes_entries_render_after_the_introduction():
+    notes = {"entries": {"2026-10-21": {"title": "October 21, 2026", "feature": {
+        "available": [{"version": "", "title": "Feature Available", "entries": [
+            {"id": "1", "title": "Isolation Viewer Upgrade", "description": "<p>The viewer was upgraded.</p>"}]}],
+        "limited": [{"version": "6.2", "title": "Limited Availability", "entries": [
+            {"id": "2", "title": "New Toggle", "description": "<p>A toggle.</p>"}]}]}}}}
+    html = f"<article><h3>Release Upgrade Summary (2026)</h3><p>Intro.</p>{_release_notes_html(notes)}</article>"
+    _title, blocks = render(html)
+    assert text_of(blocks) == (
+        "Intro.\n#### October 21, 2026\n##### Feature Available\n###### Isolation Viewer Upgrade\n"
+        "The viewer was upgraded.\n##### Limited Availability 6.2\n###### New Toggle\nA toggle.\n"
+    )
+    assert _release_notes_html(None) == ""
 
 
 def test_title_is_the_article_heading_not_the_product_banner():

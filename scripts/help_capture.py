@@ -376,10 +376,31 @@ def page(url: str) -> dict:
         return {**base, "kind": "help-index", "categories": cats, "articles": _articles(body.get("articles"))}
     if not body.get("content"):
         raise SystemExit(f"no article at {url}")
+    notes = _release_notes_html(body.get("release_notes")) if view == "release_notes" else ""
     # The site renders a PDF of each article when it is published; its Last-Modified is the article's date.
     return {**base, "kind": "help-article", "nid": str(body["nid"]), "rev": str(body["revision_id"]),
-            "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}</article>",
+            "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}{notes}</article>",
             "updated": _last_modified(body.get("pdf_url")), "updated_basis": "pdf-last-modified"}
+
+
+def _release_notes_html(notes: dict | None) -> str:
+    """A release-notes page's entries, which the site sends beside the article rather than in its content.
+
+    The payload carries the entries for its default cloud (`selected_category`): for each deployment date,
+    groups such as Feature Available and Limited Availability, each a list of titled entries with HTML
+    descriptions. They render as a date heading, a group heading (with its version when it has one), and each
+    entry's title and description, in the payload's order (newest date first).
+    """
+    out = []
+    for day in (notes or {}).get("entries", {}).values():
+        out.append(f"<h4>{html.escape(day['title'])}</h4>")
+        for groups in (day.get("feature") or {}).values():
+            for g in groups:
+                label = " ".join(x for x in (g.get("title", ""), g.get("version", "")) if x)
+                out.append(f"<h5>{html.escape(label)}</h5>")
+                for e in g.get("entries") or []:
+                    out.append(f"<h6>{html.escape(e['title'])}</h6>{e.get('description') or ''}")
+    return "".join(out)
 
 
 def _cache_file(nid: str, rev: str) -> Path | None:
