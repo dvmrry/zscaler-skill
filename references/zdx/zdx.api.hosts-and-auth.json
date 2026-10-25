@@ -51,7 +51,7 @@
     },
     {
       "label": "Paths on each host.",
-      "text": "{{direct-host-paths}} The clients' own settings are in [[zdx.sdk-python.legacy-client]] and [[zdx.sdk-go.legacy-client]], and the Go ZDX services reach the API only through OneAPI: [[zdx.sdk-go.legacy-client:services-not-routed]]."
+      "text": "{{direct-host-paths}} The OneAPI Postman collection uses the gateway shape: {{postman-base-url}} The clients' own settings are in [[zdx.sdk-python.legacy-client]] and [[zdx.sdk-go.legacy-client]], and the Go ZDX services reach the API only through OneAPI: [[zdx.sdk-go.legacy-client:services-not-routed]]."
     },
     {
       "label": "Which host a tenant uses.",
@@ -147,6 +147,23 @@
         "contract-server"
       ],
       "conditions": "Drawn from the Python legacy client's path handling, the legacy reference's server and the contract's server; the Go SDK's direct client is not used by its ZDX services, so it does not bear on this."
+    },
+    "postman-base-url": {
+      "statement": "The OneAPI Postman collection sets `{{ZDXBaseUrl}}` to `{{oneAPIBaseUrl}}/zdx/v1`, with `oneAPIBaseUrl` set to `https://api.zsapi.net`, so a request such as `{{ZDXBaseUrl}}/devices` carries no second `/v1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"ZDXBaseUrl\",",
+            "\"value\": \"{{oneAPIBaseUrl}}/zdx/v1\"",
+            "\"key\": \"oneAPIBaseUrl\",",
+            "\"value\": \"https://api.zsapi.net\"",
+            "\"raw\": \"{{ZDXBaseUrl}}/devices\""
+          ]
+        }
+      ]
     }
   },
   "divergences": {

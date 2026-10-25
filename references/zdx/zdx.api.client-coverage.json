@@ -44,6 +44,10 @@
       "text": "{{go-deeptrace-functions}} {{python-deeptrace-readers}} {{app-users-python-only}} {{go-device-filters}}"
     },
     {
+      "label": "Postman examples.",
+      "text": "{{postman-scope}}"
+    },
+    {
       "label": "Writes the SDKs do cover.",
       "text": "Starting and deleting deep traces: [[zdx.diagnostics.start-request]] and [[zdx.diagnostics.session-records]]. Score analysis: [[zdx.diagnostics.analysis]]. Alert snapshots: [[zdx.alerts.snapshot]]."
     }
@@ -281,6 +285,79 @@
         }
       ],
       "conditions": "The quoted fields are the whole `GetDevicesFilters` struct, and the embedded `GetFromToFilters` has no MAC or IPv4 field at the pin. How Python sends these names is in zdx.sdk-python.request-shaping."
+    },
+    "postman-scope": {
+      "statement": "The OneAPI Postman collection's ZDX requests cover the reports on applications, users and devices (with their web and cloud-path probes and call quality), deep traces, score analysis, alerts, software inventory, and the administration and active-geolocation reads. It has no request for the contract's configuration, snapshot or sign-in operations, nor for its application score, device events, device health metrics or deep-trace events reads.",
+      "tier": "B",
+      "conditions": "Found by listing every collection request whose URL starts with {{ZDXBaseUrl}} (38 requests) and matching each against the contract's paths with the /v1 prefix removed (129 operations in the OpenAPI file): every collection request matches a contract path, and the contract operations named here match no collection request.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"raw\": \"{{ZDXBaseUrl}}/active_geo\"",
+            "{{ZDXBaseUrl}}/devices/{{deviceID}}/deeptraces/{{trace_id}}/top-processes",
+            "{{ZDXBaseUrl}}/alerts/historical",
+            "{{ZDXBaseUrl}}/inventory/software/{{software_key}}"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1config~1applications/post",
+          "expect": {
+            "operationId": "Application Resource Create Application"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1snapshot~1user/post",
+          "expect": {
+            "operationId": "Snapshot Resource Create User Snapshot"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1oauth~1token/post",
+          "expect": {
+            "operationId": "Oauth Resource Acquire Token"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1apps~1{id}~1score/get",
+          "expect": {
+            "operationId": "App Resource Get App Score"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1events/get",
+          "expect": {
+            "operationId": "Device Resource List Device Events"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1health-metrics/get",
+          "expect": {
+            "operationId": "Device Resource List Device Health Metrics"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces~1{traceId}~1events/get",
+          "expect": {
+            "operationId": "Device Resource Get Device Trace Events"
+          }
+        }
+      ]
     }
   }
 }

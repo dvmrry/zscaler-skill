@@ -27,7 +27,7 @@
     },
     {
       "label": "The contract.",
-      "text": "{{contract-start}} {{contract-result}}"
+      "text": "{{contract-start}} {{contract-result}} {{postman-start-body}} Its keys differ from the contract's {{divergence:postman-body-keys}}."
     },
     {
       "label": "Python.",
@@ -239,6 +239,53 @@
           ]
         }
       ]
+    },
+    "postman-start-body": {
+      "statement": "The OneAPI Postman collection's Start Score Analysis request sends `deviceid` (a quoted string), `appid` (filled from `{{appID}}`), `t0` and `t1`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\\\"deviceid\\\": \\\"52756968\\\",\\n  \\\"appid\\\": \\\"{{appID}}\\\",\\n  \\\"t0\\\": 1682092800,\\n  \\\"t1\\\": 1682096400",
+            "\"description\": \"Start Score Analysis\""
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "postman-body-keys": {
+      "summary": "The analysis start body's ID keys: the contract requires `device_id` and `app_id`; the Postman example sends `deviceid` and `appid`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1analysis/post/requestBody/content/application~1json/schema",
+            "expect": {
+              "required": [
+                "device_id",
+                "app_id",
+                "t0"
+              ]
+            }
+          },
+          "says": "`device_id`, `app_id` and `t0` are required."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "oneapi-postman-collection.json",
+            "quotes": [
+              "\\\"deviceid\\\": \\\"52756968\\\",\\n  \\\"appid\\\": \\\"{{appID}}\\\""
+            ]
+          },
+          "says": "The Postman start body names the IDs `deviceid` and `appid`."
+        }
+      ],
+      "impact": "A request copied from the collection lacks two keys the contract marks required; no source says whether the API accepts the unseparated names."
     }
   }
 }

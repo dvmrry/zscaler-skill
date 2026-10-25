@@ -55,7 +55,7 @@
     },
     {
       "label": "Session length.",
-      "text": "{{sdk-session-lengths}} The contract describes a shorter maximum {{divergence:session-length-range}}."
+      "text": "{{sdk-session-lengths}} The contract describes a shorter maximum {{divergence:session-length-range}}. {{postman-start-body}} The collection's example uses another key {{divergence:postman-length-key}}."
     },
     {
       "label": "What comes back.",
@@ -416,6 +416,34 @@
         "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
       ],
       "conditions": "Follows from Go's encoding/json writing every field that lacks `omitempty`; not observed on the wire."
+    },
+    "postman-start-body": {
+      "statement": "The OneAPI Postman collection's `POST {{ZDXBaseUrl}}/devices/{{deviceID}}/deeptraces` request (described as \"Start deep trace\") sends a body with `session_name`, `app_id`, `web_probe_id`, `cloudpath_probe_id`, `session_length` (300 in the example), `probe_device` and `callback_url`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\\\"session_name\\\": \\\"in enim labore sit proident\\\"",
+            "\\\"app_id\\\": \\\"ea amet Ut anim sit\\\"",
+            "\\\"web_probe_id\\\": \\\"laborum sed ut\\\"",
+            "\\\"cloudpath_probe_id\\\": \\\"consequat elit id est Excepteur\\\"",
+            "\\\"session_length\\\": 300",
+            "\\\"probe_device\\\": false,\\n  \\\"callback_url\\\": \\\"dolor ea\\\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"method\": \"POST\"",
+            "\"raw\": \"{{ZDXBaseUrl}}/devices/{{deviceID}}/deeptraces\"",
+            "\"description\": \"Start deep trace\""
+          ],
+          "after": "\"description\": \"Get list of deep traces\""
+        }
+      ]
     }
   },
   "divergences": {
@@ -501,6 +529,34 @@
         }
       ],
       "impact": "A 30- or 60-minute request that the SDK documents as supported may be refused or shortened by the API; no source shows which."
+    },
+    "postman-length-key": {
+      "summary": "The start body's session-length key: the contract defines `session_length_minutes` and no callback; the Postman example sends `session_length` and a `callback_url`.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/requestBody/content/application~1json/schema/properties/session_length_minutes",
+            "expect": {
+              "description": "Session length in minutes (upto 15 mins)"
+            }
+          },
+          "says": "The length key is `session_length_minutes`; the body has no `callback_url`."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "oneapi-postman-collection.json",
+            "quotes": [
+              "\\\"session_length\\\": 300",
+              "\\\"callback_url\\\": \\\"dolor ea\\\""
+            ]
+          },
+          "says": "The Postman start body sends `session_length` and `callback_url`."
+        }
+      ],
+      "impact": "A request copied from the collection carries a length key the contract does not define, and its example value of 300 is out of the contract's range if read as minutes; no source says whether the API reads `session_length`, in which unit, or what it does with `callback_url`."
     }
   },
   "gaps": {

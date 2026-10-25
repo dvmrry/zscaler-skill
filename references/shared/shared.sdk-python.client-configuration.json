@@ -35,6 +35,10 @@
     {
       "label": "TLS settings.",
       "text": "{{tls-settings-constructor-only}}"
+    },
+    {
+      "label": "Proxy with httpx 0.28 (zssdk).",
+      "text": "{{zssdk-proxy-httpx-028}}"
     }
   ],
   "claims": {
@@ -184,6 +188,40 @@
           "quotes": [
             "TLS verification (`sslContext`) is now only honored when passed to the client constructor; it is ignored in `zscaler.yaml` files."
           ]
+        }
+      ]
+    },
+    "zssdk-proxy-httpx-028": {
+      "statement": "Python SDK issue #498, open, reports that a proxy configured on the `zssdk` package (`zssdk.Session` with a `Proxy` in its `Config`) fails with httpx 0.28 or later: `httpx.Client` rejects the `proxies` keyword that `zssdk/zscore/httpsession.py` passes, raising a TypeError. The reporter's suggested fix passes `proxy` instead; a reply on 2026-04-29 from an account with no association to the repository says a fix is in the pipeline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-498.json",
+          "quotes": [
+            "**Description** Configure proxy with SDK fails when httpx version is >=0.28",
+            "session = zssdk.Session(config=config)",
+            "site-packages/zssdk/zscore/httpsession.py\", line 90, in __init__",
+            "TypeError: Client.__init__() got an unexpected keyword argument 'proxies'",
+            "client_kwargs[\"proxy\"] = proxy_url",
+            "proxy=Proxy(host=\"abc.domain.com\", port=80),",
+            "**Additional context** The Fix to the issue is as follows on httpsession.py line 88"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-498.json",
+          "quotes": [
+            "## Comment (NONE, 2026-04-29) Hi @(user) - we have an update/fix in our pipeline."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-498.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "open"
+          }
         }
       ]
     }

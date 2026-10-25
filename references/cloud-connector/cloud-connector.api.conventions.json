@@ -7,7 +7,10 @@
     "ztw default response",
     "zcloudconnector default response as success",
     "cloud connector api conventions",
-    "/ztw/api/v1"
+    "/ztw/api/v1",
+    "ztw postman collection",
+    "ZTWBaseUrl",
+    "ztGateway api"
   ],
   "related": [
     {
@@ -36,6 +39,10 @@
       "text": "{{oneapi-base-path}} The hosts and sign-in for each path are in [[cloud-connector.api.authentication]]."
     },
     {
+      "label": "OneAPI Postman collection.",
+      "text": "{{postman-base-variable}} {{postman-oneapi-only-notes}} The provider documentation carries the same note for DNS and log rules only: [[cloud-connector.terraform.provider-config:dns-log-rules-oneapi-only]]. {{postman-ztgateway-not-in-contract}} Zero Trust Gateways themselves are described in [[cloud-connector.overview.zero-trust-gateways]]."
+    },
+    {
       "label": "Success responses.",
       "text": "{{default-response-as-success}} {{default-as-success-marker}} Which status code those operations return on success, and whether the default schema is a success body at all, is open {{gap:default-response-semantics}}."
     },
@@ -55,6 +62,12 @@
         "default-response-as-success",
         "default-as-success-marker",
         "default-response-semantics"
+      ]
+    },
+    {
+      "do": "Before calling a `/ztGateway` path, that it comes from the Postman collection only: the captured contract and the clients have no Zero Trust Gateway endpoints to check it against.",
+      "uses": [
+        "postman-ztgateway-not-in-contract"
       ]
     }
   ],
@@ -119,6 +132,101 @@
             "200",
             "204"
           ]
+        }
+      ]
+    },
+    "postman-base-variable": {
+      "statement": "The OneAPI Postman collection sets `ZTWBaseUrl` to `{{oneAPIBaseUrl}}/ztw/api/v1`, and has folders named `Cloud & Branch Connector` and `Zscaler Cloud & Branch Connector`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"ZTWBaseUrl\",",
+            "\"value\": \"{{oneAPIBaseUrl}}/ztw/api/v1\"",
+            "\"name\": \"Cloud & Branch Connector\",",
+            "\"name\": \"Zscaler Cloud & Branch Connector\","
+          ]
+        }
+      ]
+    },
+    "postman-oneapi-only-notes": {
+      "statement": "In the Postman collection, the requests for DNS gateways, DNS forwarding rules, log and control forwarding rules and workload groups carry a note that the endpoint is accessible only via OneAPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "<p>Retrieves the list of DNS Gateways.</p> \\n <p><strong>&#9888; This API endpoint is accessible only via",
+            "<p>Retrieves the list of DNS forwarding rules.</p> \\n <p><strong>&#9888; This API endpoint is accessible only via",
+            "<p> Retrieves the list of log and control forwarding rules.</p> \\n <p><strong>&#9888; This API endpoint is accessible only via"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "<p>Retrieves the list of workload groups.</p> \\n <p><strong>&#9888; This API endpoint is accessible only via"
+          ],
+          "after": "\"name\": \"Workload Group Z Resource Get Workload Groups\","
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "This API endpoint is accessible only via <a href=\\\"https://automate.zscaler.com/docs/api-reference-and-guides/guides/UnderstandingOneAPI\\\">OneAPI</a>"
+          ],
+          "after": "Retrieves the list of DNS Gateways."
+        }
+      ]
+    },
+    "postman-ztgateway-not-in-contract": {
+      "statement": "The Postman collection has a `Zero Trust Gateway` folder of `/ztGateway` requests (list, create, update, delete, lite, count, status, config status and compare, events, license info, supported regions and traffic tests), and the captured OneAPI contract has no `/ztGateway` path; the Cloud & Branch Connector release notes for July 06, 2026 announce these endpoints as new.",
+      "tier": "B",
+      "conditions": "Absence: the contract's /paths was checked for the /ztGateway paths; under vendor/ the string ztGateway occurs only in the Postman collection and that release note, so no captured SDK, Terraform provider or MCP source calls these endpoints either.",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"name\": \"Zero Trust Gateway\",",
+            "\"description\": \"Retrieve list of Zero Trust Gateways\"",
+            "\"description\": \"Creates a Zero Trust Gateway based on the specified parameters\"",
+            "\"description\": \"Update ZT gateway based on the ZT gateway ID\"",
+            "\"description\": \"Delete a ZT gateway based on the ZT gateway ID\"",
+            "\"description\": \"Retrieves the list of ID and name of existing Zero Trust Gateways\"",
+            "\"description\": \"Retrieves the total number of existing Zero Trust Gateways per organization\"",
+            "\"description\": \"Retrieves the status of the ZT gateway based on the ID\"",
+            "\"description\": \"Retrieves the Zero Trust gateway configuration status based on the gateway ID\"",
+            "\"raw\": \"{{ZTWBaseUrl}}/ztGateway/config/compare/:id",
+            "\"description\": \"Retrieves the list of events that occurred based on the ZT gateway resource ID\"",
+            "\"description\": \"Retrieves license details of ZT Gateway\"",
+            "\"description\": \"Retrieves the list of ZT gateway supported regions\"",
+            "\"raw\": \"{{ZTWBaseUrl}}/ztGateway/:gwId/trafficTest/run\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcloudconnector.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/ztGateway",
+            "/ztGateway/lite",
+            "/ztGateway/count",
+            "/ztGateway/{id}",
+            "/ztGateway/trafficTest"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-release-upgrade-summary-2026.json",
+          "quotes": [
+            "Endpoints for Zero Trust Gateways",
+            "New endpoints are added to extend programmatic access to features and functionalities for Zero Trust Gateways (ZTGWs)."
+          ],
+          "after": "July 06, 2026"
         }
       ]
     }

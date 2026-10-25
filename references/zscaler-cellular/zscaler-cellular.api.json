@@ -35,7 +35,7 @@
     },
     {
       "label": "Calling it.",
-      "text": "The OneAPI base path is in [[shared.oneapi.base-urls:base-path-table]]. {{oneapi-only}} {{customer-scoping}} {{id-precedence}} The OneAPI guide's own note on the Cellular customer ID is [[shared.oneapi.base-urls:cellular-customer-id]]."
+      "text": "The OneAPI base path is in [[shared.oneapi.base-urls:base-path-table]]. {{oneapi-only}} {{customer-scoping}} {{id-precedence}} {{postman-base-url}} The OneAPI guide's own note on the Cellular customer ID is [[shared.oneapi.base-urls:cellular-customer-id]]."
     },
     {
       "label": "Clients.",
@@ -43,7 +43,7 @@
     },
     {
       "label": "Audit metadata.",
-      "text": "{{sdk-audit-metadata}} The contract does not publish that path {{divergence:audit-metadata}}."
+      "text": "{{sdk-audit-metadata}} The contract does not publish that path {{divergence:audit-metadata}}. {{postman-matches-contract}}"
     },
     {
       "label": "Wire notes.",
@@ -145,6 +145,56 @@
           ]
         }
       ]
+    },
+    "postman-base-url": {
+      "statement": "The OneAPI Postman collection sets `{{ZCellBaseUrl}}` to `{{oneAPIBaseUrl}}/zcell/config` and appends `/api/v1/...` to it, with the customer ID as the `:id` path variable, for example `{{ZCellBaseUrl}}/api/v1/customers/:id/sims/search`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"ZCellBaseUrl\",",
+            "\"value\": \"{{oneAPIBaseUrl}}/zcell/config\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"raw\": \"{{ZCellBaseUrl}}/api/v1/customers/:id/sims/search\""
+          ]
+        }
+      ]
+    },
+    "postman-matches-contract": {
+      "statement": "The Postman collection's 36 Cellular requests are the same method-and-path set as the contract's 36 operations, so it adds no ZCell endpoint; like the contract it has no audit metadata request (`/audit/metadata`), which only the SDK and MCP server call.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"name\": \"Cellular API\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"raw\": \"{{ZCellBaseUrl}}/api/v1/network-events/:id/search/startTime/:startTime/endTime/:endTime\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths",
+          "expect_absent": [
+            "/api/v1/audit/metadata"
+          ]
+        }
+      ],
+      "conditions": "Comparison of every request in the collection whose URL starts with `{{ZCellBaseUrl}}` (36, all under the Cellular API folder) against the 36 method/path pairs of automate-zscaler/openapi/zcell.openapi.json at the pin, with `:param` read as `{param}`; a search of the collection for audit/metadata finds nothing."
     }
   },
   "divergences": {

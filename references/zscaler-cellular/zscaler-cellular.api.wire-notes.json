@@ -29,7 +29,7 @@
     },
     {
       "label": "Paging.",
-      "text": "{{paging-contract}} {{sdk-paging}} [[shared.sdk-python.pagination:next-is-get]] {{next-page-post-search}}"
+      "text": "{{paging-contract}} {{sdk-paging}} [[shared.sdk-python.pagination:next-is-get]] {{next-page-post-search}} {{sort-defaults}}"
     },
     {
       "label": "Time windows.",
@@ -41,7 +41,7 @@
     },
     {
       "label": "Anomaly violations.",
-      "text": "{{violations-content-strings}} {{sdk-drops-non-dict}} {{violations-lost}} {{divergence:violation-items}} What a live response holds is open {{gap:violation-shape}}."
+      "text": "{{violations-content-strings}} {{violations-sort-ignored}} {{sdk-drops-non-dict}} {{violations-lost}} {{divergence:violation-items}} What a live response holds is open {{gap:violation-shape}}."
     },
     {
       "label": "Audit search.",
@@ -484,6 +484,105 @@
           "pointer": "/paths/~1api~1v1~1customers~1{id}~1sims~1lock/patch/requestBody/content/application~1json/schema/properties/simLockDetails/items/properties/imei",
           "expect": {
             "description": "One or more 15-digit IMEIs as a single comma-separated string"
+          }
+        }
+      ]
+    },
+    "sort-defaults": {
+      "statement": "The Postman collection documents these default `sortBy` values: `policyName` for anomaly policies, `timestamp` (with `sortDir` default `DESC`) for a SIM's violation details, `iccid` for SIM search, `usage` for the SIM CSV export, and `name` for SIM location groups and tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "Default: policyName. Sortable fields: id, policyType, policyName, violations."
+          ],
+          "after": "\"name\": \"List all anomaly policies\""
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "Default: timestamp. Sortable fields: policyId, policyType, timestamp."
+          ],
+          "after": "\"name\": \"Get violation details for a SIM\""
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "Default: iccid. Sortable fields:"
+          ],
+          "after": "\"name\": \"Search SIMs\""
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "Default: usage. Sortable fields:"
+          ],
+          "after": "\"name\": \"Export SIM inventory as CSV\""
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"sortDir\"",
+            "\"description\": \"ASC or DESC. Default: DESC.\""
+          ],
+          "after": "\"name\": \"Get violation details for a SIM\""
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"sortBy\"",
+            "\"description\": \"Field to sort by. Default: name. Sortable fields: id, name.\""
+          ],
+          "after": "\"name\": \"List SIM location groups\""
+        },
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"sortBy\"",
+            "\"description\": \"Field to sort by. Default: name. Sortable fields: id, name.\""
+          ],
+          "after": "\"name\": \"List customer tags\""
+        }
+      ]
+    },
+    "violations-sort-ignored": {
+      "statement": "Listing the SIMs with violations of an anomaly policy accepts `sortBy` and `sortDir` but ignores them, as both the Postman collection and the contract say.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"sortBy\"",
+            "\"description\": \"Accepted but ignored on this endpoint.\"",
+            "\"key\": \"sortDir\""
+          ],
+          "after": "\"raw\": \"{{ZCellBaseUrl}}/api/v1/customers/:id/anomaly-policy/:policyId/violations\","
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy~1{policyId}~1violations/get/parameters/[name=sortBy]",
+          "expect": {
+            "in": "query",
+            "description": "Accepted but ignored on this endpoint."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcell.openapi.json",
+          "pointer": "/paths/~1api~1v1~1customers~1{id}~1anomaly-policy~1{policyId}~1violations/get/parameters/[name=sortDir]",
+          "expect": {
+            "in": "query",
+            "description": "Accepted but ignored on this endpoint."
           }
         }
       ]

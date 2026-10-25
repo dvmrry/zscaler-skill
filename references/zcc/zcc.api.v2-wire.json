@@ -50,7 +50,7 @@
       "text": "{{notification-template-shape}}"
     },
     {
-      "text": "{{contract-lacks-v2}} Whether v2 replaces the v1 endpoints is open [[zcc.api.trusted-networks-wire:v1-v2-coexistence]]."
+      "text": "{{contract-lacks-v2}} {{postman-lacks-v2}} Whether v2 replaces the v1 endpoints is open [[zcc.api.trusted-networks-wire:v1-v2-coexistence]]."
     }
   ],
   "checks": [
@@ -263,6 +263,23 @@
           ]
         }
       ]
+    },
+    "postman-lacks-v2": {
+      "statement": "The OneAPI Postman collection has no ZCC v2 request either: none of its `{{ZCCBaseUrl}}` requests is under `/v2` or names trusted-networks, notification-templates or zia-posture-profiles, so the Go SDK and the Terraform provider are the only sources for these endpoints.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"value\": \"{{oneAPIBaseUrl}}/zcc/papi/public\""
+          ]
+        }
+      ],
+      "derived_from": [
+        "zcc.api.v2-wire:contract-lacks-v2"
+      ],
+      "conditions": "A search of the collection at the pin for `{{ZCCBaseUrl}}/v2`, `{{ZCCBaseUrl}}/papi/public/v2`, `trusted-networks` and `zia-posture` found nothing; `notification-templates` appears only in ZIA DLP help links. The collection's ZCC requests are the 9 in \"Client Connector\" and the 50 in \"Zscaler Client Connector\", all v1 or the login."
     }
   }
 }

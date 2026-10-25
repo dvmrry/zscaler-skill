@@ -54,3 +54,18 @@ def test_a_mention_without_evidence_does_not_count(tmp_path, monkeypatch):
     _subject(root, "zbi.api", aliases=["vendor/zpacloud-ansible"],
              prose=[{"text": "The Ansible collection `vendor/zpacloud-ansible` has CBI modules."}])
     assert fc.documented_families("zbi") == set()
+
+
+def test_every_product_with_a_contract_or_postman_folder_inventories_it():
+    # Contract and Postman paths carry no product prefix, so a path-stem filter once emptied both families
+    # for every product but browser isolation, and the coverage check could not see them.
+    l1 = fc.l1
+    for product, cfg in l1.PRODUCTS.items():
+        inv = l1.get_inventory(product)
+        products = cfg.get("contract_products", cfg.get("parents", []))
+        products = [products] if isinstance(products, str) else products
+        root = Path(l1.V) / "zscaler-api-specs" / "automate-zscaler"
+        if any((root / f"{p}-api-reference.json").exists() for p in products):
+            assert any(inv["automate-contract"].values()), product
+        if cfg.get("postman_base"):
+            assert any(inv["postman"].values()), product

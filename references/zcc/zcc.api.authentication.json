@@ -10,7 +10,9 @@
     "zcc auth-token header",
     "api-mobile zcc",
     "zcc api base url",
-    "zcc api not enabled"
+    "zcc api not enabled",
+    "zcc postman ZCCBaseUrl",
+    "zcc postman doubled papi public"
   ],
   "related": [
     {
@@ -43,6 +45,10 @@
       "text": "{{oneapi-base-url}} [[shared.sdk-python.client-configuration:bearer-header]] The OneAPI credential variables and token endpoint are common to the Python SDK: [[zia.sdk-python.authentication:oneapi-env-vars]], [[zia.sdk-python.authentication:vanity-domain-token-url]]. Which roles or scopes an API client needs for ZCC is open {{gap:oneapi-zcc-scopes}}."
     },
     {
+      "label": "Postman.",
+      "text": "{{postman-base-url}} {{postman-doubled-prefix}}"
+    },
+    {
       "label": "Legacy login.",
       "text": "{{legacy-login-request}} {{legacy-token-expiry}} {{legacy-secret-shown-once}} {{legacy-zcc-env}} Whether ZCC_API_KEY is also read is open {{gap:zcc-api-key-env}}."
     },
@@ -70,6 +76,12 @@
       "do": "Which host a legacy script logs in to, against the api-mobile or mobile hostnames the sources give.",
       "uses": [
         "legacy-host"
+      ]
+    },
+    {
+      "do": "Whether a request copied from the Postman \"Zscaler Client Connector\" folder went out with a doubled `/papi/public` in its URL.",
+      "uses": [
+        "postman-doubled-prefix"
       ]
     }
   ],
@@ -230,6 +242,60 @@
           ]
         }
       ]
+    },
+    "postman-base-url": {
+      "statement": "The OneAPI Postman collection defines `ZCCBaseUrl` as `{{oneAPIBaseUrl}}/zcc/papi/public`, with `oneAPIBaseUrl` set to `https://api.zsapi.net`; its \"Client Connector\" folder has requests such as `{{ZCCBaseUrl}}/v1/getDevices`, which resolves to `https://api.zsapi.net/zcc/papi/public/v1/getDevices`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"key\": \"ZCCBaseUrl\",",
+            "\"value\": \"{{oneAPIBaseUrl}}/zcc/papi/public\"",
+            "\"key\": \"oneAPIBaseUrl\",",
+            "\"value\": \"https://api.zsapi.net\"",
+            "\"name\": \"Client Connector\"",
+            "\"raw\": \"{{ZCCBaseUrl}}/v1/getDevices\""
+          ]
+        }
+      ]
+    },
+    "postman-doubled-prefix": {
+      "statement": "The collection's second ZCC folder, \"Zscaler Client Connector\", writes the contract's full paths after the same variable, as in `{{ZCCBaseUrl}}/papi/public/v1/getDevices` and `{{ZCCBaseUrl}}/papi/auth/v1/login`; with the collection's own `ZCCBaseUrl` these resolve to `https://api.zsapi.net/zcc/papi/public/papi/public/v1/getDevices`, a doubled `/papi/public` that matches neither the contract server plus path (`https://api.zsapi.net/zcc` + `/papi/public/v1/getDevices`) nor the \"Client Connector\" folder's form.",
+      "tier": "B",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "oneapi-postman-collection.json",
+          "quotes": [
+            "\"name\": \"Zscaler Client Connector\"",
+            "\"raw\": \"{{ZCCBaseUrl}}/papi/public/v1/getDevices\"",
+            "\"raw\": \"{{ZCCBaseUrl}}/papi/auth/v1/login\"",
+            "\"value\": \"{{oneAPIBaseUrl}}/zcc/papi/public\""
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/servers/[url=https:~1~1api.zsapi.net~1zcc]",
+          "expect": {
+            "description": "Inferred Url"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1getDevices/get",
+          "expect": {
+            "operationId": "Lists all enrolled devices of your organization and their basic details"
+          }
+        }
+      ],
+      "derived_from": [
+        "zcc.api.authentication:postman-base-url"
+      ],
+      "conditions": "The resolved URL is computed by substituting the collection-level variables as defined; a Postman environment that overrides `ZCCBaseUrl` (for example to `https://api.zsapi.net/zcc`) would make this folder's URLs correct and the other folder's wrong. Neither form was sent to the gateway."
     }
   },
   "divergences": {

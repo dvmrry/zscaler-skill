@@ -7,8 +7,10 @@ collision-free anchors (no fuzzy term matching):
   go-sdk / python-sdk : per-product SDK package directory          (dir-anchor)
   terraform           : provider file whose SDK *import* matches the product
                         anchor AND that defines a resource/data source
-  postman             : request URL contains a configured Postman endpoint stem
-  automate-contract   : rendered Automate contract JSON operations (endpoint-path)
+  postman             : request URL starts with the product's Postman base-URL variable
+                        (or contains one of `postman_endpoint_stems`)
+  automate-contract   : every operation in the product's rendered Automate contract
+                        (or those whose path contains one of `contract_endpoint_stems`)
   mcp / ansible       : the collection / tools dir of the SDK parent (parent-scoped)
 
 A product whose SDK lives in its own top-level package and has no parent IaC
@@ -29,13 +31,16 @@ MCP_PACKAGE_ROOTS = ("src/zscaler_mcp", "zscaler_mcp")
 # collections / mcp tool dirs. `go_anchor` = SDK import-path substrings
 # identifying the product's Go packages (the TF wrapper-edge anchor too).
 # `resource_stems` scope the parent-organized families (mcp/ansible) and seed
-# the Go endpoint-keyword filter. `endpoint_stems` anchor contract paths; use
-# `postman_endpoint_stems` when the collection's base-variable path shape differs.
+# the Go endpoint-keyword filter. `postman_base` names the collection's base-URL
+# variable for the product, and `contract_products` its contract files when they
+# are not named after `parents`. A product that is a slice of its parents' API
+# (browser isolation) filters both with `contract_endpoint_stems` and
+# `postman_endpoint_stems` instead.
 PRODUCTS = {
     "zia": dict(parents=["zia"],
                 go_anchor=["zia/services"],
                 py_globs=["zscaler-sdk-python/zscaler/zia/*.py"],
-                endpoint_stems=["/zia/api/"],
+                postman_base="ZIABaseUrl", endpoint_stems=["/zia/api/"],
                 resource_stems=["zia"],
                 mcp_all_parent=True,
                 doc_area="zia"),
@@ -43,7 +48,7 @@ PRODUCTS = {
                 go_anchor=["zpa/services"],
                 py_globs=["zscaler-sdk-python/zscaler/zpa/*.py"],
                 endpoint_stems=["/zpa/"],
-                postman_endpoint_stems=["/mgmtconfig/", "/cbiconfig/", "/userconfig/"],
+                postman_base="ZPABaseUrl",
                 resource_stems=["zpa"],
                 mcp_all_parent=True,
                 doc_area="zpa"),
@@ -52,6 +57,8 @@ PRODUCTS = {
                 py_globs=["zscaler-sdk-python/zscaler/zia/cloud_browser_isolation.py",
                           "zscaler-sdk-python/zscaler/zpa/cbi_*.py"],
                 endpoint_stems=["/cbiconfig/", "/browserIsolation/", "/isolation/profiles"],
+                contract_endpoint_stems=["/cbiconfig/", "/browserIsolation/", "/isolation/profiles"],
+                postman_endpoint_stems=["/cbiconfig/", "/browserIsolation/", "/isolation/profiles"],
                 resource_stems=["cloud_browser_isolation", "cbi", "isolation", "browser_isolation"]),
     "zwa": dict(parents=["zwa"],
                 go_anchor=["zwa/services", "/zwa/"],
@@ -59,23 +66,23 @@ PRODUCTS = {
                 endpoint_stems=["/dlp/v1/incidents", "/dlp/v1/customer/audit"],
                 resource_stems=["dlp_incident", "customer_audit", "workflow_automation"]),
     "zcc": dict(parents=["zcc"], go_anchor=["zcc/services"], py_globs=["zscaler-sdk-python/zscaler/zcc/*.py"],
-                endpoint_stems=["/zcc/papi/"], resource_stems=["zcc"], mcp_all_parent=True, doc_area="zcc"),
+                postman_base="ZCCBaseUrl", endpoint_stems=["/zcc/papi/"], resource_stems=["zcc"], mcp_all_parent=True, doc_area="zcc"),
     "ztw": dict(parents=["ztw"], go_anchor=["ztw/services"], py_globs=["zscaler-sdk-python/zscaler/ztw/*.py"],
-                endpoint_stems=["/ztw/api/"], resource_stems=["ztw", "ztc"], mcp_all_parent=True,
+                postman_base="ZTWBaseUrl", contract_products="zcloudconnector", endpoint_stems=["/ztw/api/"], resource_stems=["ztw", "ztc"], mcp_all_parent=True,
                 doc_area="cloud-connector"),
     "zdx": dict(parents=["zdx"], go_anchor=["zdx/services"], py_globs=["zscaler-sdk-python/zscaler/zdx/*.py"],
-                endpoint_stems=["/zdx/"], resource_stems=["zdx"], mcp_all_parent=True, doc_area="zdx"),
+                postman_base="ZDXBaseUrl", endpoint_stems=["/zdx/"], resource_stems=["zdx"], mcp_all_parent=True, doc_area="zdx"),
     "zid": dict(parents=["zid"], go_anchor=["ziam/services"], py_globs=["zscaler-sdk-python/zscaler/zid/*.py"],
-                endpoint_stems=["/ziam/"], resource_stems=["zid"], mcp_all_parent=True, doc_area="zidentity"),
+                postman_base="ZIAMBaseUrl", endpoint_stems=["/ziam/"], resource_stems=["zid"], mcp_all_parent=True, doc_area="zidentity"),
     "zms": dict(parents=["zms"], go_anchor=["zms/services"], py_globs=["zscaler-sdk-python/zscaler/zms/*.py"],
                 endpoint_stems=["/zms/"], resource_stems=["zms"], mcp_all_parent=True, doc_area="zms"),
     "easm": dict(parents=["easm"], go_anchor=["easm/services"], py_globs=["zscaler-sdk-python/zscaler/zeasm/*.py"],
-                 endpoint_stems=["/easm/"], resource_stems=["easm"], mcp_all_parent=True, doc_area="easm"),
+                 postman_base="EASMBaseUrl", endpoint_stems=["/easm/"], resource_stems=["easm"], mcp_all_parent=True, doc_area="easm"),
     "zcell": dict(parents=["zcell"], go_anchor=["zcell/services"], py_globs=["zscaler-sdk-python/zscaler/zcell/*.py"],
-                  endpoint_stems=["/zcell/"], resource_stems=["zcell"], mcp_all_parent=True,
+                  postman_base="ZCellBaseUrl", endpoint_stems=["/zcell/"], resource_stems=["zcell"], mcp_all_parent=True,
                   doc_area="zscaler-cellular"),
     "bi": dict(parents=["bi"], go_anchor=["bi/services"], py_globs=["zscaler-sdk-python/zscaler/zbi/*.py"],
-               endpoint_stems=["/bi/api/"], resource_stems=["zbi"], doc_area="business-insights"),
+               postman_base="ZBIBaseUrl", endpoint_stems=["/bi/api/"], resource_stems=["zbi"], doc_area="business-insights"),
     "aiguard": dict(parents=["aiguard"], go_anchor=["aiguard/services"],
                     py_globs=["zscaler-sdk-python/zscaler/aiguard/*.py"],
                     endpoint_stems=["/aiguard/"], resource_stems=["aiguard"], doc_area="ai-security"),
@@ -357,7 +364,11 @@ def _ansible_symbols(path):
 
 
 def _postman_requests(cfg):
-    out, stems = [], cfg.get("postman_endpoint_stems", cfg["endpoint_stems"])
+    out = []
+    stems = cfg.get("postman_endpoint_stems")
+    base = cfg.get("postman_base")
+    if stems is None and base is None:
+        return out
     path = V + "/zscaler-api-specs/oneapi-postman-collection.json"
     if not os.path.exists(path):
         return out
@@ -369,7 +380,7 @@ def _postman_requests(cfg):
             if isinstance(req, dict):
                 url = req.get("url", {})
                 raw = url.get("raw", "") if isinstance(url, dict) else str(url)
-                if any(s in raw for s in stems):
+                if raw.startswith(f"{{{{{base}}}}}/") if stems is None else any(s in raw for s in stems):
                     out.append({"kind": "request",
                                 "name": f'{req.get("method", "?")} {node.get("name", "")[:50]}'})
             for v in node.values():
@@ -386,7 +397,7 @@ def _contract_ops(cfg):
     products = cfg.get("contract_products", cfg.get("parents", []))
     if isinstance(products, str):
         products = [products]
-    stems = cfg.get("contract_endpoint_stems", cfg["endpoint_stems"])
+    stems = cfg.get("contract_endpoint_stems")
     out = {}
     for product in products:
         path = os.path.join(V, "zscaler-api-specs", "automate-zscaler", f"{product}-api-reference.json")
