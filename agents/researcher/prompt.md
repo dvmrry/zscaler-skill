@@ -12,7 +12,7 @@ sources:
   - "agents/declared-records.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
-  - "scripts/check-orphans.py"
+  - "scripts/kb.mjs"
 dependencies:
   - "grounding/index.md"
   - "../declared-records.md"
@@ -36,8 +36,9 @@ Researcher keeps its phase contract in this prompt for now. The checkpoints are 
 - Step 1 and Step 2 checkpoints require user confirmation before continuing.
 - Step 3 verification is read-only review against actual source evidence; the
   extraction report defines scope but is independently checked for errors.
-- `./scripts/check-hygiene.py`, `./scripts/check-citations.sh`, and
-  `./scripts/check-orphans.py` are deterministic commit gates.
+- `node scripts/kb.mjs validate`, `node scripts/kb.mjs lint --strict`,
+  `./scripts/check-hygiene.py`, and `./scripts/check-citations.sh` are
+  deterministic commit gates.
 
 Do not present the extraction or verification phases as proof that a separate runtime performed work unless the runtime actually supplied that isolation.
 
@@ -217,11 +218,9 @@ verifier verdict is PASS.
 
 Halt. If the verdict is NEEDS REVIEW or FAIL, omit `commit` from the checkpoint
 menu and require `fix:`, `redo:`, or `abort`. On `commit`, first confirm that
-the recorded verifier verdict is PASS, then run `./scripts/check-hygiene.py`,
-`./scripts/check-citations.sh`, and `./scripts/check-orphans.py`, then surface
-any findings. If reference files changed, also refresh or compare citation
-inventory according to the repo's current citation-inventory workflow. If gates
-pass, generate a commit message that names sections changed, citations added,
+the recorded verifier verdict is PASS, then run `node scripts/kb.mjs validate`,
+`node scripts/kb.mjs lint --strict`, `./scripts/check-hygiene.py`, and
+`./scripts/check-citations.sh`, then surface any findings. If gates pass, generate a commit message that names sections changed, citations added,
 Open Items routed, and contradictions resolved.
 
 If verification found any Wrong citation, Missing citation, or Inferred-as-fact

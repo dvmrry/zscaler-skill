@@ -25,11 +25,10 @@ marker carries state so no Actions cache or local `state.json` is needed.
 
 `.github/workflows/maintenance-digest.yml` runs
 `scripts/maintenance-digest.py` weekly after the main hygiene cadence. It
-updates a sticky issue with label `maintenance-digest` with stale legacy
-Markdown help scrapes, eval coverage warnings, script scaffolds, and TODO/stub
-inventory (its reference-doc and vendor-drift sections predate the graph and
-now count nothing). This is advisory backlog generation, not a
-merge gate.
+updates a sticky issue with label `maintenance-digest` with stale help
+captures, eval coverage warnings, script scaffolds, and TODO inventory. Vendor
+drift against the graph is the weekly refresh pull request's job, not the
+digest's. This is advisory backlog generation, not a merge gate.
 
 `.github/workflows/vendor-impact.yml` runs on PRs touching `vendor/**` or
 `.gitmodules`. It posts or updates a PR comment with submodule commit logs and the
@@ -204,14 +203,7 @@ git commit -m "bump sdk-python"
 
 After a manual bump, use the same review path as Renovate: wait for hygiene,
 read the vendor-impact summary, and propagate real SDK / Terraform / contract
-changes into the affected reference docs.
-
-For checked-in Help/API captures, commit the captured source before recording
-that commit in a reference's `verified-against` metadata. Preserve those source
-commits when merging the documentation PR (use a merge commit, not squash or
-rebase), unless the provenance pins are explicitly rewritten and revalidated
-against replacement source commits. Otherwise a clean CI checkout cannot
-resolve a capture commit that existed only on the discarded branch.
+changes into the claims that cite them.
 
 ## Contributing
 

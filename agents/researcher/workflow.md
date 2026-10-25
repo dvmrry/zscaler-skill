@@ -31,7 +31,7 @@ optional-reads:
 supporting-scripts:
   - scripts/check-hygiene.py
   - scripts/check-citations.sh
-  - scripts/check-orphans.py
+  - scripts/kb.mjs
   - scripts/prepare-overlay-submission.mjs
 ---
 
@@ -64,7 +64,7 @@ Supporting scripts:
 
 - `scripts/check-hygiene.py`
 - `scripts/check-citations.sh`
-- `scripts/check-orphans.py`
+- `scripts/kb.mjs`
 - `scripts/prepare-overlay-submission.mjs`
 
 ## Closeout Option

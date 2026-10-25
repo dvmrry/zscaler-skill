@@ -38,11 +38,6 @@ const CHECKS = [
     args: ["scripts/check-release-state.mjs"],
   },
   {
-    name: "verified-against provenance",
-    command: "./scripts/check-verified-against.py",
-    args: [],
-  },
-  {
     name: "workflow metadata",
     command: "node",
     args: ["scripts/check-workflow-metadata.mjs"],

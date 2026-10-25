@@ -15,7 +15,7 @@ sources:
   - "agents/declared-records.md"
   - "scripts/check-hygiene.py"
   - "scripts/check-citations.sh"
-  - "scripts/check-staleness.sh"
+  - "scripts/kb.mjs"
   - "scripts/check-doc-links.py"
 dependencies:
   - "harness.md"
@@ -48,7 +48,7 @@ Select the mode from the request:
   release readiness, or merge go/no-go. Load and follow
   [`diff-readiness.md`](./diff-readiness.md).
 
-The mechanical lint pipeline (`scripts/check-hygiene.py`, `check-citations.sh`, `check-staleness.sh`, `check-doc-links.py`) catches frontmatter / link / date errors deterministically, **and now also catches inference-shaped claims without an in-paragraph citation** (`check-citations.sh` § Inference-without-citation). Treat each of those hits as a finding candidate to triage — most are real (unsourced editorial framing), some are false positives in operational-routing or empirical-context paragraphs that the script's pattern-match can't distinguish.
+The mechanical lint pipeline (`node scripts/kb.mjs validate`, `kb.mjs lint`, `kb.mjs freshness`, `scripts/check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`) catches unanchored quotes, Tier A evidence gaps, stale cited material and frontmatter / link errors deterministically, **and now also catches inference-shaped claims without an in-paragraph citation** (`check-citations.sh` § Inference-without-citation). Treat each of those hits as a finding candidate to triage — most are real (unsourced editorial framing), some are false positives in operational-routing or empirical-context paragraphs that the script's pattern-match can't distinguish.
 
 Your value-add is the **editorial** layer CI can't catch: voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene, **and the subtler citation discipline cases the inference-pattern script doesn't match** (claims that read as fact but aren't framed with one of the script's known phrases).
 
@@ -113,23 +113,24 @@ verbatim.
 In reference mode, invoke the applicable existing CI scripts against the scope:
 
 ```bash
+# Knowledge graph: schema, links, and every quote anchored in its capture
+node scripts/kb.mjs validate
+
+# Tier A claims carry their own quoted evidence
+node scripts/kb.mjs lint --strict
+
+# Cited vendor material older than a year
+node scripts/kb.mjs freshness
+
 # Frontmatter, anchor resolution, clarification propagation, eval cross-references
 ./scripts/check-hygiene.py
 
-# Markdown citation resolution
+# Markdown citation resolution in agents/**/*.md
 ./scripts/check-citations.sh
-
-# Stale last-verified dates (90-day default)
-./scripts/check-staleness.sh
-
-# Reference files with no inbound links (orphans)
-./scripts/check-orphans.py
 
 # HTML doc link integrity (if scope touches docs/)
 ./scripts/check-doc-links.py
 ```
-
-`check-orphans.py` emits files that no other markdown link, backticked path, or directory reference points at. Treat orphans as `Medium` severity by default — readers can't discover them without knowing the path. Bump to `High` if the file is a substantive product overview / schema reference. The script exempts `_meta/archive/**` (intentionally not linked).
 
 Treat the script output as **Tier A evidence** — deterministic, mechanical, not subject to debate. Quote relevant output lines in the finding's Source field.
 
@@ -296,7 +297,7 @@ Render the register per the methodology format. Group by severity, highest first
 AUDIT: <scope>
 STATUS: Initial pass complete
 TIMESTAMP: <ISO 8601 UTC>
-AUDITOR: agent (CI scripts: check-hygiene.py, check-citations.sh, check-staleness.sh)
+AUDITOR: agent (CI scripts: kb.mjs validate/lint/freshness, check-hygiene.py, check-citations.sh)
 
 FINDINGS BY SEVERITY:
 - Critical: <n> | High: <n> | Medium: <n> | Low: <n> | Info: <n>
@@ -380,5 +381,5 @@ When the lint subtypes are added, this prompt becomes the **skill-meta lint** br
 - [`auditor/methodology.md`](./methodology.md) — register format, severity, status lifecycle, anti-patterns
 - [`investigator/methodology.md`](../investigator/methodology.md) — parallel discipline for investigations
 - [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` playbook (the hypothesis-driven sibling)
-- Mechanical CI scripts — `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
+- Mechanical CI scripts — `node scripts/kb.mjs validate|lint|freshness`, `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-doc-links.py`
 - Open questions — gaps in the knowledge graph (`node scripts/kb.mjs resolve <subject>`)

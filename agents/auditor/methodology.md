@@ -264,4 +264,4 @@ NEXT STEPS:
 - [`investigator/methodology.md`](../investigator/methodology.md) — parallel discipline for hypothesis-driven investigations
 - [`auditor/prompt.md`](./prompt.md) — `/z-auditor` slash command playbook (lint flavor)
 - [`siem-emission-discipline.md`](../siem-emission-discipline.md) — applies when audits query SIEMs (future audit subtypes)
-- Mechanical CI scripts: `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-staleness.sh`, `scripts/check-doc-links.py`
+- Mechanical CI scripts: `node scripts/kb.mjs validate|lint|freshness`, `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-doc-links.py`

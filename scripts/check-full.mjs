@@ -9,13 +9,10 @@ import { runTempRoot } from "./lib.mjs";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // Set by main: the run's temporary root, handed to every check as TMPDIR and removed when the gate exits.
 let runTemp = { env: {} };
-const referenceFreshnessBase = process.env.REFERENCE_FRESHNESS_BASE || "origin/main";
 const PYTEST_FILES = [
   "scripts/test_help_capture.py",
   "scripts/test_issue_capture.py",
-  "scripts/test_capture_paths.py",
   "scripts/test_automate_pages.py",
-  "scripts/test_check_vendor_drift.py",
   "scripts/test_issue_watch.py",
   "scripts/test_family_coverage.py",
   "scripts/test_maintenance_digest.py",
@@ -46,25 +43,9 @@ const FULL_CHECKS = [
   { name: "knowledge graph (citations anchored)", command: "node", args: ["scripts/kb.mjs", "validate"] },
   { name: "Tier A evidence lint", command: "node", args: ["scripts/kb.mjs", "lint", "--strict"] },
   {
-    name: "changed reference source-pin paths",
-    command: "./scripts/check-verified-against.py",
-    args: ["--base", referenceFreshnessBase],
-  },
-  {
     name: "pure agent-pattern regression tests",
     command: "uv",
     args: ["run", "python", "scripts/agent_patterns.test.py"],
-  },
-  {
-    name: "reference freshness semantics",
-    command: process.execPath,
-    args: [
-      "scripts/check-reference-freshness.mjs",
-      "--base",
-      referenceFreshnessBase,
-      "--strict",
-    ],
-    advisory: true,
   },
   {
     name: "automate-capture regression tests",
@@ -101,49 +82,9 @@ const FULL_CHECKS = [
   { name: "generated log types are current", command: "node", args: ["scripts/gen-log-types.mjs", "--check"] },
   { name: "documentation links", command: "./scripts/check-doc-links.py", args: [] },
   {
-    name: "citation-density regression tests",
-    command: "./scripts/check-citation-density.test.py",
-    args: [],
-  },
-  {
-    name: "citation source audit",
-    command: "./scripts/check-citation-density.py",
-    args: ["--audit-source-quality", "--include-source-style", "--strict-sources", "--top", "25"],
-  },
-  {
-    name: "semantic citation evidence coverage",
-    command: "./scripts/check-citation-density.py",
-    args: [
-      "--audit-source-quality",
-      "--include-semantic",
-      "--strict-sources",
-      "--top",
-      "10",
-    ],
-    advisory: true,
-  },
-  {
-    name: "citation inventory",
-    command: "./scripts/check-citation-density.py",
-    args: [
-      "--compare-citation-inventory",
-      "references/_meta/citation-inventory.json",
-      "--strict-inventory",
-      "--top",
-      "25",
-    ],
-  },
-  { name: "orphan references", command: "./scripts/check-orphans.py", args: [] },
-  {
     name: "vendor family coverage",
     command: "./scripts/check-family-coverage.py",
     args: [],
-  },
-  {
-    name: "vendor-source drift",
-    command: "./scripts/check-vendor-drift.py",
-    args: [],
-    advisory: true,
   },
   { name: "help-article scrape freshness", command: "./scripts/check-scrape-freshness.py", args: [] },
 ];

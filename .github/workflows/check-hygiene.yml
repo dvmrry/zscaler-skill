@@ -2,7 +2,7 @@ name: Doc hygiene
 
 # Runs the full local gate, `node scripts/check-full.mjs`: the knowledge-graph validate (every quote anchored)
 # and strict lint, the generated-layer --check runs, the retrieval regression, every Node and Python test,
-# and the doc-hygiene, link and provenance checks. One list of checks, kept in check-full.mjs and
+# and the doc-hygiene, link and capture-freshness checks. One list of checks, kept in check-full.mjs and
 # check-fast.mjs, so CI and a maintainer's machine run the same gate. Advisory checks report without failing.
 #
 # Triggers:
@@ -83,7 +83,4 @@ jobs:
           node-version-file: ".node-version"
 
       - name: Full gate
-        env:
-          # Diff-aware provenance checks compare against the PR base, or the previous main commit on push.
-          REFERENCE_FRESHNESS_BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD^' }}
         run: node scripts/check-full.mjs

@@ -20,7 +20,6 @@ Read it through `node scripts/kb.mjs resolve`; the model is
 | `references/_meta/imports/zscalerctl.json` | the pinned zscalerctl catalogue | `kb.mjs export-zscalerctl` |
 | `references/_meta/surfaces/` | API, SDK and Terraform surface per product | `scripts/gen-surfaces.mjs` |
 | `references/_meta/evals/` | answer evals and workflow eval shapes ([how they run](evals.md)) | people |
-| `references/_meta/citation-inventory.json` | citation density of the remaining Markdown | `scripts/check-citation-density.py` |
 
 `references/` holds no Markdown outside `_meta/archive/`. Generic background (networking, proxies and
 tunnels, zero trust, identity protocols) is the [primer](primer/index.md): teaching material, not cited

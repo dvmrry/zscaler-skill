@@ -11,8 +11,8 @@ sources:
   - ".github/workflows/check-hygiene.yml"
   - "scripts/check-fast.mjs"
   - "scripts/check-release-state.mjs"
-  - "scripts/check-verified-against.py"
-  - "scripts/check-reference-freshness.mjs"
+  - "scripts/kb.mjs"
+  - "scripts/kb-drift.mjs"
 dependencies:
   - "harness.md"
   - "methodology.md"
@@ -71,15 +71,15 @@ Add surface-specific gates:
 - **Broad repository changes:** `node scripts/check-fast.mjs`
 - **Release/version changes:** `node scripts/check-release-state.mjs`, full tag
   history, workflow YAML parsing, and changed-path trigger inspection
-- **Provenance changes:** `./scripts/check-verified-against.py` with initialized
-  submodules when object resolution is claimed, plus
-  `node scripts/check-reference-freshness.mjs --base <base>` for independent
-  working-tree checks of date/pin agreement and cited-root initialization
-  (pass `--head <head>` for a committed range)
+- **Knowledge-graph or vendor-pin changes:** `node scripts/kb.mjs validate`
+  and `node scripts/kb.mjs lint --strict` with initialized submodules (every
+  quote must anchor at the pinned capture), plus
+  `node scripts/kb-drift.mjs --pins <base>` for the evidence a pin bump breaks
+  or touches
 - **Portable skill changes:** `./scripts/check-agent-skills.py` and the skill
   quick validator
-- **Reference/doc changes:** hygiene, citations, staleness, orphans, doc links,
-  and source-quality checks as applicable
+- **Reference/doc changes:** hygiene, citations, `kb.mjs freshness`, and doc
+  links as applicable
 - **Python/JavaScript changes:** the repository's pinned Ruff/Biome commands and
   focused regression tests
 

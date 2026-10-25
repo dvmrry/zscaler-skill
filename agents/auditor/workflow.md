@@ -33,8 +33,8 @@ supporting-scripts:
   - scripts/check-hygiene.py
   - scripts/check-fast.mjs
   - scripts/check-release-state.mjs
-  - scripts/check-verified-against.py
-  - scripts/check-reference-freshness.mjs
+  - scripts/kb.mjs
+  - scripts/kb-drift.mjs
   - scripts/auditor-artifacts.mjs
   - scripts/auditor-mcp-server.mjs
 ---
@@ -74,8 +74,8 @@ The public `docs/data-contract/knowledge.md` contract may be read as workflow
 policy; this exclusion applies to private records under the runtime-data mount.
 
 Supporting scripts: `scripts/check-hygiene.py`, `scripts/check-fast.mjs`,
-`scripts/check-release-state.mjs`, `scripts/check-verified-against.py`,
-`scripts/check-reference-freshness.mjs`, `scripts/auditor-artifacts.mjs`, and
+`scripts/check-release-state.mjs`, `scripts/kb.mjs`, `scripts/kb-drift.mjs`,
+`scripts/auditor-artifacts.mjs`, and
 `scripts/auditor-mcp-server.mjs`.
 
 On MCP runtimes, the role entrypoint is server-provided (prompt `audit`), and

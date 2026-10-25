@@ -11,7 +11,7 @@ const helpScripts = [
   "check-data-contract.mjs", "setup-data-mount.mjs", "runtime-data-path.mjs",
   "doctor.mjs", "check-helper-command-refs.mjs", "prepare-overlay-submission.mjs",
   "soc-artifacts.mjs", "auditor-artifacts.mjs", "investigator-artifacts.mjs",
-  "check-reference-freshness.mjs", "check-vendor-refresh.mjs",
+  "check-vendor-refresh.mjs",
   "vendor-impact-summary.mjs", "refresh-discovery.mjs", "bridge/run-investigation.mjs",
 ];
 const cases = [
