@@ -55,7 +55,7 @@
     },
     {
       "label": "The location must enforce it.",
-      "text": "{{enforce-iot-policy-control}} {{cac-iot-needs-enforce}} {{enforce-flag-is-console-option}} The discovery switch itself is in [[zia.iot.discovery]]."
+      "text": "{{cac-iot-needs-enforce}} {{enforce-flag-is-console-option}} Whether the option also governs URL Filtering rules, and whether it depends on Enable IoT Discovery, is open {{gap:enforce-option-scope}}. The discovery switch itself is in [[zia.iot.discovery]]."
     },
     {
       "label": "Selecting by location instead.",
@@ -74,7 +74,6 @@
     {
       "do": "Whether Enable IoT Discovery and Enforce IoT Policy Control are on at the device's location, when a URL Filtering or Cloud App Control rule using the IoT device group never matches.",
       "uses": [
-        "enforce-iot-policy-control",
         "iot-group-availability",
         "cac-iot-needs-enforce"
       ]
@@ -142,23 +141,6 @@
         }
       ]
     },
-    "enforce-iot-policy-control": {
-      "statement": "Enforce IoT Policy Control, shown when Enable IoT Discovery is on, enforces URL Filtering and Cloud App Control policy rules for unauthenticated traffic from IoT devices at that location.",
-      "tier": "A",
-      "binds": [
-        "zia/locations#iotEnforcePolicySet"
-      ],
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "configuring-sublocations.json",
-          "quotes": [
-            "Enforce IoT Policy Control: Enable to enforce URL Filtering and Cloud App Control policy rules for unauthenticated traffic from IoT devices at this location.",
-            "The Enforce IoT Policy Control option appears when the Enable IoT Discovery option is enabled."
-          ]
-        }
-      ]
-    },
     "cac-iot-needs-enforce": {
       "statement": "Cloud App Control rules apply to IoT devices from a location or sublocation that has Enforce IoT Policy Control enabled, to devices the AI/ML engine identified and classified (for example printers, sensors) under the IoT group in the Device Groups criterion.",
       "tier": "A",
@@ -183,7 +165,7 @@
       "binds": [
         "zia/locations#iotEnforcePolicySet"
       ],
-      "conditions": "Matched by name only: the field is separate from iotDiscoveryEnabled, the console option is a dependent child of Enable IoT Discovery, and no source states the mapping; the Terraform and Go descriptions of the field are empty. Confirm by toggling the console option and reading the location back.",
+      "conditions": "Matched by name only: the field is separate from iotDiscoveryEnabled, and no source states the mapping; the Terraform and Go descriptions of the field are empty. Confirm by toggling the console option and reading the location back.",
       "evidence": [
         {
           "source": "tf-zia",
@@ -194,9 +176,9 @@
         },
         {
           "source": "zscaler-help",
-          "path": "configuring-sublocations.json",
+          "path": "adding-rules-cloud-app-control-policy.json",
           "quotes": [
-            "Enforce IoT Policy Control: Enable to enforce URL Filtering and Cloud App Control policy rules"
+            "The Cloud App Control policy rules can also be applied to IoT devices from a location or a sublocation that has the Enforce IoT Policy Control option enabled."
           ]
         }
       ]
@@ -257,6 +239,20 @@
         "lab-test"
       ],
       "detail": "Unverified legacy statement: that DNS Control, DLP and Bandwidth Control rules can be scoped to the IoT Traffic Group and cannot reference device classification. The captured DNS Control and Bandwidth Control help pages mention no IoT choice; DLP was not checked. Resolve by reading each rule type's criteria in the console or API."
+    },
+    "enforce-option-scope": {
+      "kind": "semantic",
+      "title": "Whether Enforce IoT Policy Control also governs URL Filtering rules, and whether it depends on Enable IoT Discovery",
+      "status": "open",
+      "former_ids": [
+        "zia.iot.policy-use:enforce-iot-policy-control"
+      ],
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "diagnosing a URL Filtering rule on the IoT device group that never matches",
+      "detail": "Unverified prior statement: the location help page said Enforce IoT Policy Control enforces URL Filtering and Cloud App Control policy rules for unauthenticated traffic from IoT devices at the location, and that the option appears when Enable IoT Discovery is enabled. The 2026-10-25 refresh dropped those lines; the Cloud App Control page still ties its rules to the option (cac-iot-needs-enforce). Resolve with the page that now documents the option, or a lab test of a URL Filtering rule on the IoT group with the option off and on."
     }
   }
 }

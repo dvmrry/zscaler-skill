@@ -40,7 +40,7 @@
     },
     {
       "label": "Getting data for a location.",
-      "text": "{{per-location-enable}} {{location-lag}} {{discovery-scope}} {{org-entitlement}}"
+      "text": "{{per-location-enable}} {{location-lag}} What discovery collects at a location, and what the organization must have enabled first, is open {{gap:location-iot-options}}."
     },
     {
       "label": "The two location flags.",
@@ -135,46 +135,6 @@
           "quotes": [
             "Addition or removal of locations can take up to 24 hours to reflect in the location filter.",
             "The first report for any new location takes 24 hours to generate."
-          ]
-        }
-      ]
-    },
-    "discovery-scope": {
-      "statement": "Enable IoT Discovery on a location or sublocation discovers IoT/OT devices, servers, and unmanaged devices (for example personal user devices) at that location.",
-      "tier": "A",
-      "binds": [
-        "zia/locations#iotDiscoveryEnabled"
-      ],
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "configuring-sublocations.json",
-          "quotes": [
-            "Enable to discover IoT/OT devices, servers, and unmanaged devices (e.g., personal user devices) at this location."
-          ]
-        },
-        {
-          "source": "zscaler-help",
-          "path": "about-iot-report.json",
-          "quotes": [
-            "To generate the report, ensure IoT is enabled for that location on the Location Management page."
-          ]
-        }
-      ]
-    },
-    "org-entitlement": {
-      "statement": "The Enable IoT Discovery and Enforce IoT Policy Control options exist only where IoT discovery and IoT policy control, respectively, are enabled for the organization.",
-      "tier": "A",
-      "binds": [
-        "zia/locations#iotDiscoveryEnabled",
-        "zia/locations#iotEnforcePolicySet"
-      ],
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "configuring-sublocations.json",
-          "quotes": [
-            "The Enable IoT Discovery and Enforce IoT Policy Control options are available only if IoT discovery and IoT policy control, respectively, are enabled for your organization."
           ]
         }
       ]
@@ -278,6 +238,21 @@
         "support-ticket"
       ],
       "detail": "Unverified legacy statement: that phones with non-standard User-Agents may be misclassified as IoT, that low-traffic devices may stay Unknown or get low-confidence labels, and that unmanaged laptops can make the User Device and Unknown counts large relative to real IoT counts. The help page documents only that Unknown means limited information for the engine and that unmanaged user devices are counted."
+    },
+    "location-iot-options": {
+      "kind": "semantic",
+      "title": "What Enable IoT Discovery collects at a location, and what the organization must have enabled first",
+      "status": "open",
+      "former_ids": [
+        "zia.iot.discovery:discovery-scope",
+        "zia.iot.discovery:org-entitlement"
+      ],
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "telling an operator what turning on IoT discovery at a location will inventory, and why the location options may be missing from the console",
+      "detail": "Unverified prior statement: the location help page said Enable IoT Discovery discovers IoT/OT devices, servers and unmanaged devices (for example personal user devices) at the location, and that Enable IoT Discovery and Enforce IoT Policy Control are available only if IoT discovery and IoT policy control, respectively, are enabled for the organization. The 2026-10-25 refresh of the sublocation configuration page dropped its IoT options, and no captured page describes them now. Resolve with the help page that now documents the options, or by reading the options on a tenant with and without the entitlement."
     }
   }
 }
