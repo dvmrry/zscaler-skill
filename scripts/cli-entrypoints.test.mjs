@@ -23,6 +23,7 @@ const cases = [
   { script: "check-release-state.mjs", args: [], code: 1, output: /Release state check failed/ },
   { script: "check-worktree-whitespace.mjs", args: [], code: 1, output: /check-worktree-whitespace:/ },
   { script: "kb-drift.mjs", args: [], code: 2, output: /usage: node scripts\/kb-drift\.mjs/ },
+  { script: "kb-refresh.mjs", args: [], code: 2, output: /usage: node scripts\/kb-refresh\.mjs/ },
 ];
 
 test("every native entrypoint guard has a subprocess regression case", () => {

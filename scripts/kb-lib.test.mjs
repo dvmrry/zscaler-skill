@@ -471,8 +471,10 @@ test("resolve follows former IDs and returns candidates for ambiguous text", () 
 });
 
 // Line numbers are computed at render time and move with every vendor bump; goldens ignore them.
-// IaC commit dates move with every overlay commit, so goldens ignore them too.
-const stripLines = (v) => JSON.parse(JSON.stringify(v, (k, x) => (k === "line" || k === "lines" || k === "committed" ? undefined : x)));
+// IaC commit dates move with every overlay commit, and a source's as-of date with every capture refresh, so
+// goldens ignore them too; the bundle schema still checks their shape.
+const VOLATILE = new Set(["line", "lines", "committed", "as_of"]);
+const stripLines = (v) => JSON.parse(JSON.stringify(v, (k, x) => (VOLATILE.has(k) ? undefined : x)));
 
 test("a question with no alias match returns ranked candidates, deterministically, never auto-resolved", () => {
   const g = graphOf(ROOT);

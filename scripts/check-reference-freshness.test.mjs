@@ -85,18 +85,16 @@ test("parses block and flow verified-against mappings", () => {
   assert.equal(flow.verifiedAgainst.get("vendor/example").value, `${"b".repeat(40)} (v2)`);
 });
 
-test("hygiene CI runs the checker as an advisory after provenance validation", () => {
+test("hygiene CI runs the full gate, where the checker is advisory against the PR base", () => {
   const workflow = fs.readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "check-hygiene.yml"),
     "utf8",
   );
-  const provenanceIndex = workflow.indexOf("name: Check verified-against provenance");
-  const freshnessIndex = workflow.indexOf("name: Check reference freshness semantics (advisory)");
-  assert.ok(provenanceIndex >= 0);
-  assert.ok(freshnessIndex > provenanceIndex);
+  assert.match(workflow, /REFERENCE_FRESHNESS_BASE: \$\{\{ github\.event\.pull_request\.base\.sha[^\n]*\n\s*run: node scripts\/check-full\.mjs/);
+  const fullGate = fs.readFileSync(path.join(repositoryRoot, "scripts", "check-full.mjs"), "utf8");
   assert.match(
-    workflow.slice(freshnessIndex, freshnessIndex + 400),
-    /continue-on-error: true[\s\S]*node scripts\/check-reference-freshness\.mjs --base[^\n]+--head HEAD/,
+    fullGate,
+    /name: "reference freshness semantics",[\s\S]*?check-reference-freshness\.mjs",\s*"--base",\s*referenceFreshnessBase,[\s\S]*?advisory: true/,
   );
 });
 

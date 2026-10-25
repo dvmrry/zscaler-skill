@@ -91,7 +91,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Classify every evidence entry that cites a page in the report. */
 export function driftReview(g, report) {
-  const pages = new Map(report.pages.map((p) => [p.file, { ...p, evidence: [] }]));
+  // issue_capture.py lists every issue it checked; one that did not change has nothing to review.
+  const pages = new Map(report.pages.filter((p) => p.status !== "unchanged").map((p) => [p.file, { ...p, evidence: [] }]));
   const cache = new Map();
   for (const { node, ev, where } of allEvidence(g)) {
     if (ev.source !== (report.source || "zscaler-help")) continue;
@@ -107,7 +108,7 @@ export function driftReview(g, report) {
   return [...pages.values()];
 }
 
-function markdown(pages, title = "Help capture drift") {
+export function markdown(pages, title = "Help capture drift") {
   const out = [`# ${title}`, ""];
   const count = (s) => pages.reduce((n, p) => n + p.evidence.filter((e) => e.state === s).length, 0);
   out.push(

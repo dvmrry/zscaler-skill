@@ -1,26 +1,9 @@
 name: Doc hygiene
 
-# Runs the doc-hygiene check suite:
-#   - check-hygiene.py:          frontmatter, anchors, clarification propagation, evals
-#   - check-citations.sh:        markdown link path resolution in references/** and agents/**
-#   - check-doc-links.py:        HTML link / asset path resolution in docs/**
-#   - check-citation-density.py: reference source-anchor coverage and Source: audit
-#   - check-workflow-metadata.mjs: workflow metadata and adapter-reference check
-#   - check-verified-against.py:   verified source pins and paths are valid; SHAs resolve in initialized submodules;
-#                                  exact changed Help/API capture sources exist at their recorded superproject pin
-#   - check-reference-freshness.mjs: diff-aware date/pin and cited-root checks (advisory)
-#   - check-capability-registry.mjs: role-routing registry contract
-#   - node --test:            stdlib helper regressions for investigator gates
-#                             and _data setup/data-contract helpers
-#   - check-mcp-conformance.mjs: in-process JSON-RPC checks for role MCP servers
-#   - check-orphans.py:          reference files with no inbound links from anywhere
-#   - check-workflow-evals.py:   agent workflow eval coverage and fixture health
-#   - check-vendor-drift.py:     refs whose cited vendor sources may have drifted
-#                                (advisory — exits 1 on confirmed changes or unavailable comparisons)
-#   - check-scrape-freshness.py: stale Zscaler help-article scrapes
-#                                (advisory — exit 0 unless --strict)
-#
-# Errors fail the build; warnings are advisory and don't block.
+# Runs the full local gate, `node scripts/check-full.mjs`: the knowledge-graph validate (every quote anchored)
+# and strict lint, the generated-layer --check runs, the retrieval regression, every Node and Python test,
+# and the doc-hygiene, link and provenance checks. One list of checks, kept in check-full.mjs and
+# check-fast.mjs, so CI and a maintainer's machine run the same gate. Advisory checks report without failing.
 #
 # Triggers:
 #   - Every PR. This workflow is a required check, so path filtering would leave
@@ -83,10 +66,8 @@ jobs:
           fetch-depth: 0
 
       - name: Initialize submodules
-        # Vendor submodules are referenced by ref-doc citations
-        # (e.g. references/zia/locations.md → ../../vendor/...) and by
-        # check-vendor-drift.py. CI doesn't init submodules by default;
-        # do it once up front so every check below can see them.
+        # Claims quote files in the vendor submodules, and validate anchors
+        # every quote, so the gate needs them checked out.
         run: git submodule update --init --recursive
 
       - name: Set up uv
@@ -101,128 +82,8 @@ jobs:
         with:
           node-version-file: ".node-version"
 
-      - name: Run hygiene checks
-        run: ./scripts/check-hygiene.py
-
-      - name: Knowledge graph (schemas, references, quote-anchored citations)
-        run: node scripts/kb.mjs validate
-
-      - name: Check portable Agent Skill contracts
-        run: ./scripts/check-agent-skills.py
-
-      - name: Check capability registry
-        # Gates the role-routing registry so handoff cues resolve to valid
-        # canonical workflow metadata before adapter/runtime docs depend on it.
-        run: node scripts/check-capability-registry.mjs
-
-      - name: Check workflow metadata
-        run: node scripts/check-workflow-metadata.mjs
-
-      - name: Check release metadata agreement
-        run: node scripts/check-release-state.mjs
-
-      - name: Check verified-against provenance and changed source paths
+      - name: Full gate
         env:
-          REFERENCE_PROVENANCE_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: ./scripts/check-verified-against.py --base "${REFERENCE_PROVENANCE_BASE:-HEAD^}" --head HEAD
-
-      - name: Check reference freshness semantics (advisory)
-        continue-on-error: true
-        env:
-          REFERENCE_FRESHNESS_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-        run: node scripts/check-reference-freshness.mjs --base "${REFERENCE_FRESHNESS_BASE:-HEAD^}" --head HEAD
-
-      - name: Run Node helper regression tests
-        run: node --test scripts/*.test.mjs scripts/bridge/*.test.mjs
-
-      - name: Check MCP server conformance
-        # Gates tool, prompt, resource, and error semantics for all role MCP
-        # servers. MCP_CONFORMANCE_OFFLINE skips the optional Inspector probe
-        # (an npx download) so the deterministic in-process JSON-RPC assertions
-        # run without network access.
-        env:
-          MCP_CONFORMANCE_OFFLINE: "1"
-        run: node scripts/check-mcp-conformance.mjs
-
-      - name: Run Python regression tests
-        # The Docusaurus blob extractor is the capture trust boundary; the OpenAPI
-        # builder preserves structural compatibility and provenance; the reconciler
-        # and rosetta tests pin the cross-surface synthesis. Submodules are
-        # initialized above, so the reconciler integration smoke test runs (it
-        # self-skips if the vendor sources are absent).
-        run: |
-          uv run --with pytest --with pyyaml --with httpx python -m pytest \
-            scripts/test_check_hygiene.py \
-            scripts/test_check_vendor_drift.py \
-            scripts/test_issue_watch.py \
-            scripts/test_maintenance_digest.py \
-            scripts/automate-capture/test_extract_docusaurus_blobs.py \
-            scripts/automate-capture/test_build_openapi_from_blobs.py \
-            scripts/automate-capture/test_reconcile_contract.py \
-            scripts/automate-capture/test_rosetta.py \
-            scripts/automate-capture/test_reference_anchors.py
-
-      - name: Run pure agent-pattern regression tests
-        run: uv run python scripts/agent_patterns.test.py
-
-      - name: Check helper command references in docs
-        run: node scripts/check-helper-command-refs.mjs
-
-      - name: Check for broken markdown citations in references/ and agents/
-        run: ./scripts/check-citations.sh
-
-      - name: Check for broken HTML links in docs/
-        run: ./scripts/check-doc-links.py
-
-      - name: Run citation-density source-path regression tests
-        # Guards the source-quality lint below (notably unquoted-source-path),
-        # so a regression in the path-detection regexes is caught here rather
-        # than by silently dropping legitimate backticked citation paths.
-        run: ./scripts/check-citation-density.test.py
-
-      - name: Audit local citation/source anchors
-        # Density is advisory while the existing corpus is being backfilled.
-        # Source-line hygiene is strict: canonical Source: lines must cite
-        # vendor/script/URL evidence with consistent formatting, not internal
-        # reference docs, clarification IDs, or vague scopes.
-        run: ./scripts/check-citation-density.py --audit-source-quality --include-source-style --strict-sources --top 25
-
-      - name: Audit semantic citation evidence coverage (advisory)
-        # Surfaces body prose that names an evidence tier such as SDK, MCP, or
-        # Terraform provider behavior while the surrounding section Source:
-        # lines do not cite that evidence family. Advisory until the current
-        # queue is reviewed.
-        continue-on-error: true
-        run: ./scripts/check-citation-density.py --audit-source-quality --include-semantic --top 80
-
-      - name: Check citation inventory regression
-        # Fails when a file loses visible Source: coverage, cited-paragraph
-        # coverage, source-path mentions, or gains source-quality findings.
-        # Intentional citation restructures should update
-        # references/_meta/citation-inventory.json in the same PR.
-        run: ./scripts/check-citation-density.py --compare-citation-inventory references/_meta/citation-inventory.json --strict-inventory --top 25
-
-      - name: Check for orphan reference files
-        run: ./scripts/check-orphans.py
-
-      - name: Check vendor family coverage (advisory)
-        # DAV-20 L1: flags a documentation area whose docs do not cite a vendor
-        # source family that actually has a surface — the class that let zbi ship
-        # without its Ansible coverage (#146/#149). Advisory while the per-product
-        # config registry (scripts/l1_inventory.py PRODUCTS) is expanded; promote
-        # to a blocking check once it covers the products with multi-family surface.
-        continue-on-error: true
-        run: ./scripts/check-family-coverage.py
-
-      - name: Check for vendor-source drift
-        # Drift is advisory follow-up work, not a merge gate; it surfaces in
-        # the job log/summary. Without continue-on-error, every Renovate
-        # submodule bump deadlocks on this required check.
-        continue-on-error: true
-        run: ./scripts/check-vendor-drift.py
-
-      - name: Check Zscaler help-article scrape freshness (advisory)
-        run: ./scripts/check-scrape-freshness.py
-
-      - name: Check workflow eval shapes (static)
-        run: ./scripts/check-workflow-evals.py
+          # Diff-aware provenance checks compare against the PR base, or the previous main commit on push.
+          REFERENCE_FRESHNESS_BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD^' }}
+        run: node scripts/check-full.mjs

@@ -36,8 +36,11 @@ test("a drifted page sorts the evidence citing it into broken, in-change and unt
       claims: { gone: cite("Rules stop at the first match."), near: cite("Rules stop at the last match."), far: cite("Far from the change.") },
     },
   });
-  const report = { pages: [{ file: "page.json", status: "drift", from: "2", to: "3", changed_lines: [2], removed: ["Rules stop at the first match."] }] };
-  const [page] = driftReview(buildGraph(loadPublic(root)), report);
+  const report = { pages: [{ file: "page.json", status: "drift", from: "2", to: "3", changed_lines: [2], removed: ["Rules stop at the first match."] }, { file: "other.json", status: "unchanged" }] };
+  const pages = driftReview(buildGraph(loadPublic(root)), report);
+  // An unchanged page (issue_capture.py lists every issue it checked) has nothing to review.
+  assert.deepEqual(pages.map((p) => p.file), ["page.json"]);
+  const [page] = pages;
   const byClaim = Object.fromEntries(page.evidence.map((e) => [e.where.match(/(gone|near|far)/)[1], e.state]));
   assert.deepEqual(byClaim, { gone: "broken", near: "in-change", far: "untouched" });
 });

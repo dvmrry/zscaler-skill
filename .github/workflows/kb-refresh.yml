@@ -1,0 +1,93 @@
+name: KB refresh
+
+# The knowledge-graph refresh loop (docs/maintenance.md) run weekly by `node scripts/kb-refresh.mjs`:
+# refetch every help and issue capture and rewrite what moved, re-quote spacing-only breaks, regenerate
+# the log-type layer and the records, then open a pull request whose description is the drift review.
+# Broken evidence is what the pull request is for: the gate fails on it until a maintainer re-anchors it.
+# Nothing merges itself, and the model-graded claim audit stays local (it calls a model API).
+#
+# While a refresh pull request is open the job only reports, so a maintainer's fixes on the branch are
+# never overwritten. A pull request opened with GITHUB_TOKEN starts no pull_request workflows, so the job
+# dispatches the required checks on the branch itself.
+
+on:
+  schedule:
+    # Mondays 12:00 UTC: after Renovate (before 9am), before the hygiene and digest runs.
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: kb-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    env:
+      BRANCH: kb-refresh
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Skip while a refresh pull request is open
+        id: open
+        run: |
+          pr=$(gh pr list --head "$BRANCH" --state open --json number,url --jq '.[0].url // ""')
+          echo "url=$pr" >> "$GITHUB_OUTPUT"
+          if [ -n "$pr" ]; then
+            echo "A refresh pull request is still open: $pr. Merge or close it before the next refresh." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Initialize submodules
+        if: steps.open.outputs.url == ''
+        run: git submodule update --init --recursive
+
+      - name: Set up Node.js
+        if: steps.open.outputs.url == ''
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".node-version"
+
+      - name: Refresh
+        if: steps.open.outputs.url == ''
+        env:
+          # issue_capture.py sends it for the higher GitHub API rate limit.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/kb-refresh.mjs --out "$RUNNER_TEMP/kb-refresh"
+
+      - name: Upload the review
+        if: always() && steps.open.outputs.url == ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: kb-refresh
+          path: ${{ runner.temp }}/kb-refresh
+          if-no-files-found: ignore
+
+      - name: Open the pull request
+        if: steps.open.outputs.url == ''
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No capture moved." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git add -A references vendor/zscaler-help vendor/github-issues
+          if git status --porcelain | grep -qv '^[MADR] '; then
+            echo "The refresh changed files outside references/ and the capture directories:" >&2
+            git status --porcelain | grep -v '^[MADR] ' >&2
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git commit -q -m "chore(kb): weekly knowledge-graph refresh $(date -u +%F)"
+          git push --force origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "chore(kb): weekly knowledge-graph refresh $(date -u +%F)" \
+            --body-file "$RUNNER_TEMP/kb-refresh/body.md"
+          for wf in check-hygiene.yml lint-js.yml lint-py.yml; do gh workflow run "$wf" --ref "$BRANCH"; done
+          cat "$RUNNER_TEMP/kb-refresh/body.md" >> "$GITHUB_STEP_SUMMARY"

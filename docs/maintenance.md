@@ -4,10 +4,17 @@ This page collects repo upkeep that does not need to sit in the root README.
 
 ## Automation
 
-`.github/workflows/check-hygiene.yml` runs `scripts/check-hygiene.py` on every
-PR and on the weekly hygiene cadence. Errors fail CI; warnings are advisory.
-This catches frontmatter drift, broken anchors, eval-doc desync, and
-resolved-clarification propagation gaps.
+`.github/workflows/check-hygiene.yml` (the required `hygiene` check) runs
+`node scripts/check-full.mjs` on every PR, on pushes to main and on Monday's
+cron: the same gate a maintainer runs locally, so the list of checks lives in
+`check-full.mjs` and `check-fast.mjs` and nowhere else. Errors fail CI;
+advisory checks report without failing. `lint-js.yml` and `lint-py.yml` are
+the other two required checks (Biome and Ruff).
+
+`.github/workflows/kb-refresh.yml` runs the knowledge-graph refresh loop below
+every Monday at 12:00 UTC through `node scripts/kb-refresh.mjs`, and opens a
+`kb-refresh` pull request when a capture moved. See "Weekly knowledge-graph
+refresh" below.
 
 `.github/workflows/issue-watch.yml` runs `scripts/issue-watch.py` in
 sticky-issue mode every Monday at 13:00 UTC. The first run creates a sticky
@@ -18,14 +25,16 @@ marker carries state so no Actions cache or local `state.json` is needed.
 
 `.github/workflows/maintenance-digest.yml` runs
 `scripts/maintenance-digest.py` weekly after the main hygiene cadence. It
-updates a sticky issue with label `maintenance-digest` with stale references,
-stale help captures, vendor drift counts, eval coverage warnings, script
-scaffolds, and TODO/stub inventory. This is advisory backlog generation, not a
+updates a sticky issue with label `maintenance-digest` with stale legacy
+Markdown help scrapes, eval coverage warnings, script scaffolds, and TODO/stub
+inventory (its reference-doc and vendor-drift sections predate the graph and
+now count nothing). This is advisory backlog generation, not a
 merge gate.
 
 `.github/workflows/vendor-impact.yml` runs on PRs touching `vendor/**` or
-`.gitmodules`. It posts or updates a PR comment with submodule commit logs and
-`check-vendor-drift.py` counts, runs `scripts/find-asymmetries.py`, and uploads
+`.gitmodules`. It posts or updates a PR comment with submodule commit logs and the
+knowledge-graph pin review (`kb-drift.mjs --pins`: evidence citing a changed
+file, sorted into broken, in changed text and untouched), runs `scripts/find-asymmetries.py`, and uploads
 the vendor impact summary plus asymmetry candidates as artifacts. Use this for
 Renovate and submodule PR triage before merging.
 
@@ -76,8 +85,28 @@ Keep scratch output outside the checkout (`$TMP` below).
    temporary files under one root it removes).
 8. **Pull request.** Open it with the drift review in the description. It never merges itself.
 
+`node scripts/kb-refresh.mjs --out $TMP` runs steps 1, 1a, 2, 3 (the review), the log-type half of 5 and 6
+in that order and writes the check reports, the full review (`review.md`) and a pull-request description
+bounded to GitHub's size limit (`body.md`). It does not commit, push or run the gate.
+
 A model-graded claim audit (does each quote support its claim's statement?) is worth running on the claims
 the review marks `broken` or `in-change`; it calls a model API, so it runs outside the repo and outside CI.
+
+## Weekly knowledge-graph refresh (automated)
+
+- Monday at 12:00 UTC, `kb-refresh.yml` runs `kb-refresh.mjs`. When nothing
+  moved it says so in the job summary and stops. Otherwise it commits the
+  rewritten captures and records to the `kb-refresh` branch, opens a pull
+  request whose description is the drift review, uploads the full review
+  (diffs included) as the `kb-refresh` artifact, and dispatches the three
+  required checks on the branch (a pull request opened with `GITHUB_TOKEN`
+  starts no `pull_request` workflows).
+- Broken evidence fails the gate on that pull request: re-anchor it on the
+  branch, or turn the claim into a gap when the source no longer says it, read
+  every in-change entry against its claim, and run the claim audit on the
+  claims you touched before merging.
+- While a refresh pull request is open, the next run only reports it, so fixes
+  pushed to the branch are never overwritten. Merge or close it to resume.
 
 ## Weekly upstream refresh (automated)
 
@@ -90,23 +119,20 @@ Most weeks, a maintainer does not need to start the upstream bump by hand.
   exact released tag, so claims cite a version that shipped. Nothing here runs
   the vendored modules or providers; a bump of any of them is reviewed with
   `node scripts/kb-drift.mjs --pins <base-ref>` like any other source.
-- A bump PR that changes `vendor/**` or `.gitmodules` triggers the hygiene
-  workflow. The non-advisory hygiene checks fail the job on real errors; vendor
-  family coverage and vendor drift are advisory so expected upstream movement is
-  visible without deadlocking every bump.
+- A bump PR runs the full gate. A quote that no longer anchors at the new pin
+  fails it: that is a real source change to re-anchor on the bump branch.
 - `vendor-impact.yml` also runs on vendor PRs. Read its PR comment first: it
-  contains the submodule commit logs and `check-vendor-drift.py` counts. The
+  contains the submodule commit logs and the pin review, whose in-change list
+  is the evidence to read against its claims even when nothing is broken. The
   workflow also runs the asymmetry scan and uploads that output as an artifact.
 - Monday at 13:00 UTC, `check-hygiene.yml` and `issue-watch.yml` run by cron.
   Issue watch updates the sticky `issue-watch-digest` issue with upstream
-  Zscaler GitHub issue activity.
+  Zscaler GitHub issue activity; an issue worth keeping is captured with
+  `issue_capture.py` (see Contributing), after which the refresh tracks it.
 - Monday at 13:20 UTC, `maintenance-digest.yml` updates the sticky
-  `maintenance-digest` issue. Its stale checks use 60 days for reference docs'
-  `last-verified` dates and 90 days for help captures.
+  `maintenance-digest` issue.
 - Bump PRs do not merge themselves; `renovate.json` has no automerge setting.
   Review the checks and the vendor-impact comment, then merge manually.
-- Upstream doc changes are threaded into the references by weekly doc-threading
-  PRs; PR #198 / commit `9673804` is one example.
 
 ## Discovery cadence and boundaries
 

@@ -444,16 +444,16 @@ test("full gate and hygiene CI invoke changed source-path validation as blocking
     /name: "changed reference source-pin paths",[\s\S]*?check-verified-against\.py[\s\S]*?"--base", referenceFreshnessBase/,
   );
 
+  const step = fullGate.slice(fullGate.indexOf('name: "changed reference source-pin paths"'));
+  assert.doesNotMatch(step.slice(0, step.indexOf("},")), /advisory: true/);
+
+  // Hygiene CI runs that gate, with the PR base as the comparison point.
   const workflow = fs.readFileSync(
     path.join(repositoryRoot, ".github", "workflows", "check-hygiene.yml"),
     "utf8",
   );
-  const stepStart = workflow.indexOf("name: Check verified-against provenance and changed source paths");
-  const nextStep = workflow.indexOf("\n      - name:", stepStart + 1);
-  assert.ok(stepStart >= 0);
-  const step = workflow.slice(stepStart, nextStep);
-  assert.match(step, /check-verified-against\.py --base[^\n]+--head HEAD/);
-  assert.doesNotMatch(step, /continue-on-error:\s*true/);
+  assert.match(workflow, /REFERENCE_FRESHNESS_BASE: \$\{\{ github\.event\.pull_request\.base\.sha[^\n]*\n\s*run: node scripts\/check-full\.mjs/);
+  assert.doesNotMatch(workflow, /continue-on-error:\s*true/);
 });
 
 test("option-shaped refs are rejected before Git can interpret them", (t) => {

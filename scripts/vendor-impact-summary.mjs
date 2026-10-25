@@ -4,6 +4,8 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { pinReview } from "./kb-drift.mjs";
+import { buildGraph, loadPublic } from "./kb-lib.mjs";
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MCP_SUBMODULE = "vendor/zscaler-mcp-server";
@@ -91,11 +93,11 @@ function usage(exitCode = 0) {
   out.write(`Usage:
   node scripts/vendor-impact-summary.mjs --base <ref> [--head <ref> | --worktree] --output <path> [--max-commits <n>] [--strict]
 
-Summarizes changed vendor submodule commits and cited-reference drift. When the
+Summarizes changed vendor submodule commits and the knowledge-graph evidence they move. When the
 Zscaler MCP submodule changes, also classifies changed paths into semantic
 review lenses. --worktree compares the base ref with the current index and
 working tree, including an unstaged submodule pointer. --strict exits nonzero
-after writing the report when changed-source drift or MCP classification is
+after writing the report when evidence is broken or MCP classification is
 incomplete.
 `);
   process.exit(exitCode);
@@ -229,11 +231,6 @@ function shortSha(sha) {
   return isZeroSha(sha) ? "(none)" : sha.slice(0, 7);
 }
 
-function comparisonSha(value) {
-  if (typeof value !== "string" || value.length === 0) return "(unknown)";
-  return /^[0-9a-f]+$/i.test(value) ? shortSha(value) : value;
-}
-
 function submoduleLogs(changes, maxCommits, options = {}) {
   const runner = options.runner || runCommand;
   const root = options.root || REPO_ROOT;
@@ -266,77 +263,66 @@ function submoduleLogs(changes, maxCommits, options = {}) {
   return lines;
 }
 
+/** The graph's pin-drift review for the changed submodules: kb-drift.mjs's pinReview over each moved pin. */
+function graphPinReview(changes, root) {
+  const g = buildGraph(loadPublic(root));
+  const byRoot = new Map(Object.entries(g.sources.sources).filter(([, s]) => s.kind === "submodule").map(([name, s]) => [s.root, name]));
+  const pins = {};
+  const unregistered = [];
+  for (const change of changes) {
+    const name = byRoot.get(change.path);
+    if (!name) unregistered.push(change.path);
+    else if (!isZeroSha(change.oldSha) && !isZeroSha(change.newSha)) pins[name] = { from: change.oldSha, to: change.newSha };
+  }
+  return { pages: pinReview(g, pins), unregistered };
+}
+
 function driftReport(changes, options = {}) {
-  const changedPaths = new Set(changes.map((change) => change.path));
-  if (changedPaths.size === 0) {
+  if (changes.length === 0) {
     return {
       blockingReasons: [],
       lines: ["No vendor submodule pointer changes detected, so vendor drift impact was skipped.", ""],
     };
   }
 
-  const runner = options.runner || runCommand;
-  const root = options.root || REPO_ROOT;
-  const result = runner(path.join(root, "scripts/check-vendor-drift.py"), ["--json"], { cwd: root });
-  let data;
+  const review = options.review || ((c) => graphPinReview(c, options.root || REPO_ROOT));
+  let result;
   try {
-    data = JSON.parse(result.stdout);
-  } catch {
-    const detail = failureDetail("vendor drift", result);
+    result = review(changes);
+  } catch (error) {
     return {
-      blockingReasons: [`vendor drift analysis failed: ${detail}`],
-      lines: [`Could not parse \`check-vendor-drift.py --json\` output: ${detail}`, ""],
+      blockingReasons: [`pin drift review failed: ${error.message.split("\n")[0]}`],
+      lines: [`Could not review the moved pins: ${error.message.split("\n")[0]}`, ""],
     };
   }
 
-  const filtered = (key) => (Array.isArray(data[key]) ? data[key] : [])
-    .filter((item) => changedPaths.has(item.submodule));
-  const high = filtered("drifted_high_priority");
-  const low = filtered("drifted_low_priority");
-  const unverified = filtered("unverified");
-  // Repository-wide inventory failures have no changed submodule path, but
-  // still invalidate the whole report. Preserve rows without a ref while
-  // retaining the normal changed-submodule filtering for per-ref findings.
-  const indeterminate = (Array.isArray(data.indeterminate) ? data.indeterminate : [])
-    .filter((item) => item.ref == null || changedPaths.has(item.submodule));
+  const { pages, unregistered = [] } = result;
+  const entries = pages.flatMap((p) => p.evidence.map((e) => ({ ...e, file: p.file })));
+  const count = (state) => entries.filter((e) => e.state === state).length;
   const lines = [
-    `- High-priority cited-file drift: **${high.length}**`,
-    `- Low-priority unchanged cited-file bumps: **${low.length}**`,
-    `- Unverified vendor-citing ref/submodule pairs on changed submodules: **${unverified.length}**`,
-    `- Indeterminate/unavailable cited-file comparisons: **${indeterminate.length}**`,
+    `Evidence citing files that changed between the two pins (\`node scripts/kb-drift.mjs --pins <base>\`):`,
+    "",
+    `- Broken (no longer anchors; re-anchor or turn into a gap): **${count("broken")}**`,
+    `- In changed text (still anchors; read the change against the claim): **${count("in-change")}**`,
+    `- Untouched (anchors away from every change): **${count("untouched")}**`,
     "",
   ];
-  if (high.length > 0) {
-    lines.push("High-priority items:");
-    for (const item of high.slice(0, 20)) {
-      lines.push(`- \`${item.ref}\` — \`${item.submodule}\`; changed: ${(item.touched_files || []).slice(0, 3).join(", ")}`);
+  for (const state of ["broken", "in-change"]) {
+    const list = entries.filter((e) => e.state === state);
+    if (list.length === 0) continue;
+    lines.push(`${state === "broken" ? "Broken" : "In changed text"}:`, "");
+    for (const e of list.slice(0, 40)) {
+      lines.push(`- \`${e.where}\` — \`${e.file}\`${e.errors ? `: ${e.errors[0]}` : ""}`);
     }
-    if (high.length > 20) lines.push(`- ... and ${high.length - 20} more`);
+    if (list.length > 40) lines.push(`- ... and ${list.length - 40} more`);
     lines.push("");
   }
-  if (indeterminate.length > 0) {
-    lines.push("Indeterminate items require source initialization or commit-object recovery before drift can be classified:", "");
-    for (const item of indeterminate.slice(0, 20)) {
-      const ref = item.ref || "(repository submodule inventory)";
-      const oldSha = comparisonSha(item.captured_sha ?? item.old_sha);
-      const newSha = comparisonSha(item.current_sha ?? item.new_sha);
-      lines.push(
-        `- \`${ref}\` — \`${item.submodule || "(unknown submodule)"}\` `
-          + `(${oldSha}..${newSha}); reason: ${item.reason || "comparison unavailable"}`,
-      );
-    }
-    if (indeterminate.length > 20) lines.push(`- ... and ${indeterminate.length - 20} more`);
-    lines.push("");
+  if (unregistered.length > 0) {
+    lines.push(`Changed submodules no source in \`references/_meta/sources.json\` names: ${unregistered.map((p) => `\`${p}\``).join(", ")}`, "");
   }
   const blockingReasons = [];
-  if (high.length > 0) blockingReasons.push(`${high.length} high-priority cited-file drift finding(s) remain`);
-  if (indeterminate.length > 0) {
-    blockingReasons.push(`${indeterminate.length} indeterminate vendor source comparison(s) remain`);
-  }
-  return {
-    blockingReasons,
-    lines,
-  };
+  if (count("broken") > 0) blockingReasons.push(`${count("broken")} broken evidence entr${count("broken") === 1 ? "y" : "ies"} remain`);
+  return { blockingReasons, lines };
 }
 
 function driftSection(changes, options = {}) {
@@ -437,7 +423,7 @@ function buildSummaryReport(args, options = {}) {
     "## Submodule Commit Logs",
     "",
     ...submoduleLogs(changes, args.maxCommits, options),
-    "## Reference Drift",
+    "## Knowledge-Graph Evidence",
     "",
     ...drift.lines,
     "## MCP Semantic Review Lenses",
