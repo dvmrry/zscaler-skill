@@ -78,3 +78,14 @@ test("a moved submodule pin sorts the evidence citing changed files into broken,
   const byClaim = Object.fromEntries(pages[0].evidence.map((e) => [e.where.match(/:(\w+) /)[1], e.state]));
   assert.deepEqual(byClaim, { gone: "broken", near: "in-change", far: "untouched" });
 });
+
+test("the command line reads the report named as its first argument", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kb-drift-cli-"));
+  const report = path.join(dir, "report.json");
+  fs.writeFileSync(report, JSON.stringify({ pages: [{ file: "nothing.json", status: "unchanged" }] }));
+  for (const args of [[report], [report, "--json"], ["--json", report]]) {
+    const out = execFileSync(process.execPath, [path.join(ROOT, "scripts/kb-drift.mjs"), ...args], { encoding: "utf8" });
+    assert.match(out, args.includes("--json") ? /^\[\]\n$/ : /^# Help capture drift\n/);
+  }
+  fs.rmSync(dir, { recursive: true, force: true });
+});

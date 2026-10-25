@@ -138,7 +138,7 @@ if (import.meta.main) {
   const args = process.argv.slice(2);
   const pinsAt = args.indexOf("--pins");
   const base = pinsAt === -1 ? undefined : args[pinsAt + 1];
-  const [file] = args.filter((a, i) => !a.startsWith("--") && i !== pinsAt + 1);
+  const [file] = args.filter((a, i) => !a.startsWith("--") && (pinsAt === -1 || i !== pinsAt + 1));
   if (pinsAt === -1 ? !file : !base) {
     console.error("usage: node scripts/kb-drift.mjs <check-report.json> [--json]\n       node scripts/kb-drift.mjs --pins <base-ref> [--json]");
     process.exit(2);
