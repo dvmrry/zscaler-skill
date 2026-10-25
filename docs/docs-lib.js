@@ -56,6 +56,13 @@
     return SAFE_SCHEMES.has(m[1].toLowerCase()) ? href : "#";
   }
 
+  // A `kb:<subject id>` link names a knowledge-graph subject; it opens the subject's JSON file on
+  // GitHub, which sits at references/<id prefix>/<id>.json. Anything that is not a subject id is "#".
+  function kbHref(href) {
+    const m = String(href == null ? "" : href).trim().match(/^kb:([a-z0-9][a-z0-9-]*(?:\.[a-z0-9][a-z0-9-]*)+)$/);
+    return m ? `${VIEW}/references/${m[1].split(".")[0]}/${m[1]}.json` : "#";
+  }
+
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({
       "&": "&amp;",
@@ -95,6 +102,7 @@
     TREE,
     DOC_GROUPS,
     safeHref,
+    kbHref,
     escapeHtml,
     prettify,
     encodePath,
