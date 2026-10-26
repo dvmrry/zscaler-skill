@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -438,6 +438,13 @@ test("resolve --each returns one bundle per argument in one call", () => {
   const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--no-overlay", "--each", "zia.url-filtering", "zpa.microtenants.lifecycle"], { encoding: "utf8" });
   const bundles = JSON.parse(out);
   assert.deepEqual(bundles.map((b) => b.resolved.id), ["zia.url-filtering", "zpa.microtenants.lifecycle"]);
+});
+
+test("resolve rejects an unknown flag instead of searching for it", () => {
+  const r = spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--no-overlay", "--help"], { encoding: "utf8" });
+  assert.equal(r.status, 2);
+  assert.equal(r.stdout, "");
+  assert.match(r.stderr, /unknown option --help/);
 });
 
 test("resolve --compact gives labels and one-line claims that fit the bundle schema, much smaller than full", () => {

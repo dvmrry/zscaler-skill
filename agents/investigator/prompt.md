@@ -58,7 +58,8 @@ overlay, IaC, case, schema, audit, and SOC-review paths.
 
 During Step 2, after product scope is known, company knowledge for that scope
 comes with `node scripts/kb.mjs resolve`: an overlay's active records arrive as
-`layer: company` facets on the bundles you resolve. A missing overlay is silent.
+`layer: company` facets on the bundles you resolve. Resolve the scoped subjects
+in one `resolve --each <id> <id> ...` call, not one call each. A missing overlay is silent.
 Before using a company facet, load
 [`../../docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md)
 and follow its answer-time rules (attribution, scope, confidence, `validated`
@@ -144,26 +145,26 @@ The grounding list grows as new symptom shapes surface in real investigations â€
 
 **Keyword fallback â€” load every file matching the framing's vocabulary:**
 
-A `kb:<id>` entry is a knowledge-graph subject: load it with `node scripts/kb.mjs resolve <id>` (the bundle carries the claims, gaps and citations) instead of a file read.
+A `kb:<id>` entry is a knowledge-graph subject in `references/<first ID segment>/<id>.json`: read the file (it carries the claims, gaps and citations; its parent and children share the ID prefix). Each shell command waits for a person's approval on many runtimes, so do not run the resolver per subject: company facets for the subjects you loaded come from one `node scripts/kb.mjs resolve --each <id> <id> ...` (see Step 2).
 
 | Framing mentions... | Load via file-read tool |
 |---|---|
-| SIPA, Source IP Anchoring | `node scripts/kb.mjs resolve shared.source-ip-anchoring` |
+| SIPA, Source IP Anchoring | `kb:shared.source-ip-anchoring` |
 | App Connector, connector health, connector flap, connector status, connector assignment | `kb:zpa.app-connectors` and `kb:zpa.server-groups` |
-| App Connector Metrics, AliveTargetCount, TargetCount | `node scripts/kb.mjs resolve zpa/app-connector-metrics-log` (fields), `zpa.logs.app-connector-metrics` |
+| App Connector Metrics, AliveTargetCount, TargetCount | `kb:zpa.logs.app-connector-metrics` (field types: `node scripts/kb.mjs resolve zpa/app-connector-metrics-log`) |
 | ZPA reachability, private app unreachable, app missing, application not found | `kb:zpa.app-segments`, `kb:zpa.server-groups`, and `kb:zpa.policy` |
 | ZPA segment, app segment, application segment, segment scope | `kb:zpa.app-segments` and `kb:zpa.server-groups` |
 | ZPA policy evaluation, access policy, policy precedence | `kb:zpa.policy` |
 | Server group | `kb:zpa.server-groups` |
 | ZIA URL filtering, URL category, allow / block rule | `kb:zia.url-filtering` |
 | SSL inspection, TLS inspection, inspection bypass | `kb:zia.ssl-inspection` and `kb:zia.ssl-inspection.pipeline` |
-| ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | `node scripts/kb.mjs resolve zcc.forwarding-profiles` (all ZCC areas: `resolve zcc`) |
-| Service Edge, ZEN, broker, Public Service Edge | `node scripts/kb.mjs resolve shared.cloud-architecture` and `node scripts/kb.mjs resolve shared.terminology` |
+| ZCC, Zscaler Client Connector, Z-Tunnel, forwarding profile | `kb:zcc.forwarding-profiles` (all ZCC subjects: `references/zcc/`) |
+| Service Edge, ZEN, broker, Public Service Edge | `kb:shared.cloud-architecture` and `kb:shared.terminology` |
 | Private Service Edge, PSE, PSEN | `kb:zia.private-service-edge` (Virtual Service Edge: `kb:zia.virtual-service-edge`) |
-| Cloud Connector, Branch Connector | `node scripts/kb.mjs resolve cloud-connector.overview` (all areas: `resolve cloud-connector`) |
-| ZDX probe, deeptrace, Cloud Path | `node scripts/kb.mjs resolve zdx.overview` (all areas: `resolve zdx`) |
-| ZIdentity, OneAPI, Authentication Level, step-up auth | `node scripts/kb.mjs resolve zidentity.overview` (all areas: `resolve zidentity`) |
-| Anything else, or unsure | `node scripts/kb.mjs resolve <product>` lists its areas; resolve the one that fits |
+| Cloud Connector, Branch Connector | `kb:cloud-connector.overview` (all subjects: `references/cloud-connector/`) |
+| ZDX probe, deeptrace, Cloud Path | `kb:zdx.overview` (all subjects: `references/zdx/`) |
+| ZIdentity, OneAPI, Authentication Level, step-up auth | `kb:zidentity.overview` (all subjects: `references/zidentity/`) |
+| Anything else, or unsure | search `references/<product>/` for the framing's words; `node scripts/kb.mjs resolve "<words>"` ranks candidates when that finds nothing |
 
 Product defaults (ZIA allow-by-default vs ZPA deny-by-default) and architectural assumptions (single connector vs cluster, app-segment scope vs server-group, IdP-provided vs SCIM-provided attributes) change which hypotheses are plausible. A hypothesis built on the wrong product mental model wastes the whole investigation.
 

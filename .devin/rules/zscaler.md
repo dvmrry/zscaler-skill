@@ -20,5 +20,5 @@ For procedural tasks, prefer the existing Devin workflows:
 
 Do not answer Zscaler policy, API, log, or tenant-specific questions from
 memory. Load only the files needed for the current question. Tenant-specific
-truth comes from the knowledge graph (`node scripts/kb.mjs resolve <id | text>`), then the overlay's IaC, then live read-only `zscalerctl`. Do not read `vendor/` unless
+truth comes from the knowledge graph (read subject files under `references/` with your file tools; each shell command needs approval, so batch `node scripts/kb.mjs resolve --each <id> ...` into one call for ranking and company facets), then the overlay's IaC, then live read-only `zscalerctl`. Do not read `vendor/` unless
 the loaded prompt or current question specifically requires it.

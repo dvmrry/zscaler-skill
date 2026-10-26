@@ -842,6 +842,9 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     // --compact: one-line claims and labels only (compactBundle), for scanning several subjects cheaply.
     const view = args.includes("--compact") ? (b) => compactBundle(g, b) : (b) => b;
     const words = args.filter((a) => !["--pretty", "--cases", "--evidence", "--each", "--no-overlay", "--compact"].includes(a));
+    // An unknown flag (--help, a typo) would otherwise become search text and return unrelated candidates.
+    const unknown = words.find((a) => a.startsWith("--"));
+    if (unknown) usage(`resolve: unknown option ${unknown}; resolve <id | text> [--each] [--compact] [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]`);
     // --each: every argument is its own query (an ID, or quoted text), returned as one JSON array, so an agent
     // reads several subjects in one call instead of one round trip each.
     if (args.includes("--each")) {

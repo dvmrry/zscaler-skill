@@ -50,22 +50,31 @@ Vendored provider and SDK source say what a tool can express, never what *we* de
 
 ## Using the knowledge graph
 
-Read through the resolver, not by opening or grepping files:
+Many runtimes run file reads and searches without asking but stop for a person to approve every shell command.
+Find and read subjects with your file tools, and keep resolver commands to one or two batched calls per answer.
+
+- **Subject files.** An ID names its file: `zia.url-filtering.rule-order` is
+  `references/zia/zia.url-filtering.rule-order.json`. Its parent and children share the ID as a prefix (glob
+  `references/zia/zia.url-filtering*.json`); `related` names other subjects it depends on or interacts with.
+- **Finding subjects.** Search `references/` for the question's words: titles, aliases and claim statements are
+  plain JSON strings. When the subject you opened does not hold the answer, the one next to it often does.
+- **Reading one.** `prose` is the reasoning: `{{key}}` is a claim in the file's `claims`, `[[id:key]]` a claim in
+  another subject (open that file for it). `checks`, `cases`, `gaps` and `divergences` follow; a gap with a
+  `resolution` is closed.
+- **The resolver** is for what the files cannot give you. Batch it: one call for several IDs, not one per subject.
 
 ```bash
-node scripts/kb.mjs resolve <subject ID>              # one subject: prose, cited claims, gaps, types, company facets
-node scripts/kb.mjs resolve "<the question's words>"  # candidates, ranked when no alias matches
+node scripts/kb.mjs resolve "<the question's words>"  # ranked candidates, when a search finds nothing useful
 node scripts/kb.mjs resolve zia                       # a product: its areas and their subjects
-node scripts/kb.mjs resolve --compact --each <id> ...  # scan several subjects: one-line claims, gaps, neighbors
-node scripts/kb.mjs resolve --each <id> <id> ...      # several full subjects in one call
+node scripts/kb.mjs resolve --each <id> <id> ...      # full bundles: company facets, types, neighbors
+node scripts/kb.mjs resolve --compact --each <id> ...  # one-line claims, gaps and neighbors per subject
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
 ```
 
-- **Candidates.** A ranked candidate carries `matched`, the line that fits the question best. Read them all and
-  scan every candidate whose line bears on the question with `--compact --each`, not only the first, then resolve
-  in full only the one or two that hold the answer. Full bundles are 10-50 KB each; compact ones about a fifth.
-- **Neighbors.** Every subject lists its parent, children and siblings. When the subject you opened does not hold
-  the answer, the one next to it often does; check before guessing another ID.
+- **Company overlay.** Company facets come only through the resolver. When an overlay is configured, finish with
+  one `resolve --each` over the subjects the answer uses.
+- **Candidates.** A ranked candidate carries `matched`, the line that fits the question best. Read them all, open
+  every candidate whose line bears on the question, not only the first.
 - **Claims.** Tier A claims quote their source. Tier B claims are inferences with stated `conditions`: say so
   when an answer rests on one. Cite claim IDs (`zia.url-filtering.rule-order:first-match`).
 - **Gaps** are what is not known. A data gap says which tier can fill it (`iac`, `live`, `operator`); an earlier

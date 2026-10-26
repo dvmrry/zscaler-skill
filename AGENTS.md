@@ -39,7 +39,8 @@ For Zscaler questions:
   canonical workflows; prefer the slash commands above for direct invocation.
 - Load only the files needed for the current question.
 - Tenant-specific truth comes from three answer tiers (see `SKILL.md`
-  "Answer tiers"): the knowledge graph (`node scripts/kb.mjs resolve <id | text>`),
+  "Answer tiers"): the knowledge graph (subject files under `references/`, read with file
+  tools; `node scripts/kb.mjs resolve <id | text>` batched for ranking and company facets),
   the overlay's IaC when `overlay.json` declares `iac`, then live read-only
   `zscalerctl` when it declares `live`. The overlay lives at `$ZSCALER_KB_OVERLAY`
   or `<runtime-data mount>/overlay/`. Resolve a downstream selector or root

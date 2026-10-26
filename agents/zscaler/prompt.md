@@ -47,30 +47,38 @@ The procedural roles (`/z-investigator`, `/z-architect`, `/z-auditor`, `/z-soc`,
 
 Product knowledge is a knowledge graph under `references/<product>/` (`zia/`, `zpa/`, `zcc/`, `zdx/`,
 `cloud-connector/`, `zidentity/`, `zwa/`, `zbi/`, `ai-security/`, `zms/`, `easm/`, `zscaler-cellular/`,
-`business-insights/` and the other portfolio directories, with `shared/` for cross-product material), read
-through the resolver, not by opening or grepping the files:
-`node scripts/kb.mjs resolve <subject ID | product | a few words>`. A product name (`zia`, `ZPA`,
-`Client Connector`) lists its areas; a subject returns its reasoning, cited claims, open gaps, bound tenant
-object types and any company-overlay facets. API endpoints, SDK calls and Terraform arguments come from
+`business-insights/` and the other portfolio directories, with `shared/` for cross-product material), one JSON
+file per subject: `references/<first ID segment>/<id>.json`. `node scripts/kb.mjs resolve <subject ID |
+product | a few words>` ranks candidates, lists a product's areas (`zia`, `ZPA`, `Client Connector`) and adds
+bound tenant object types and company-overlay facets to a subject. API endpoints, SDK calls and Terraform arguments come from
 `node scripts/kb.mjs surface <product | name | path>`. `references/_meta/` holds the remaining
 clarification ledger, evals and skill metadata; shared terminology is
-`node scripts/kb.mjs resolve shared.terminology`. Tenant-specific data comes from the overlay (records the
+`references/shared/shared.terminology.json`. Tenant-specific data comes from the overlay (records the
 resolver merges in), its IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or
 `<runtime-data mount>/overlay/`. If root `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
 `runtimeData.mountPath`, treat that configured relative path as the runtime-data mount and substitute it for
 `_data` in tenant-data paths. Skip `vendor/**` unless the question explicitly needs source verification,
 SDK/TF/API surface checks, or citation repair.
 
-## Resolve first
+## Graph first, few commands
 
-Every product answer starts with `node scripts/kb.mjs resolve`. Pass the question's key words (or the
-question itself); text with several matches returns `candidates`, ranked best first when no alias matched:
-pick and resolve its ID. A ranked candidate carries `matched`, the line that fits the question best: read
-them all and open every candidate whose line bears on the question, not only the first. If a bundle does not
-hold the answer, check its `neighbors` (parent, children, siblings) before guessing another ID. To read several
-subjects (candidates, neighbors), scan them in one call with `node scripts/kb.mjs resolve --compact --each <id> <id> ...` (one-line claims, gaps, neighbors), then resolve in full only the one or two that hold the answer. Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and
-say when an answer rests on an open gap or a Tier B claim (an inference with stated conditions). Search files
-with `rg` only when the resolver finds nothing, and say so.
+Every product answer starts in the knowledge graph. Many runtimes run file reads and searches without asking
+but stop for a person to approve each shell command, so find and read subjects with your file tools and keep
+shell commands to one or two batched calls per answer.
+
+- **Find.** Search `references/` for the question's key words (titles, aliases and claim statements are plain
+  JSON strings), or glob an ID prefix (`references/zia/zia.url-filtering*.json`) for a subject's parent and
+  children. `related` in a subject names others it depends on or interacts with.
+- **Read.** `prose` is the reasoning: `{{key}}` is a claim in the file's `claims`, `[[id:key]]` a claim in
+  another subject. Then `checks`, `cases`, `gaps` (one with a `resolution` is closed) and `divergences`.
+- **Resolve, batched.** When a search finds nothing useful, `node scripts/kb.mjs resolve "<the question's
+  words>"` returns ranked `candidates`, each with `matched`, the line that fits best: open every candidate whose
+  line bears on the question, not only the first. When an overlay is configured, company facets arrive only
+  through the resolver: finish with one `node scripts/kb.mjs resolve --each <id> <id> ...` over the subjects the
+  answer uses. Never run one resolver call per subject.
+
+Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and say when an answer rests on an open gap or a
+Tier B claim (an inference with stated conditions).
 
 ## Operational knowledge
 
