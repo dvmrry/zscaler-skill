@@ -9,7 +9,10 @@
     "traffic goes direct instead of through zpa",
     "wildcard segment not matching",
     "specific fqdn segment removes host from wildcard",
-    "no match in this application segment"
+    "no match in this application segment",
+    "works by hostname but not by ip",
+    "ssh to ip address fails",
+    "raw ip not going through zpa"
   ],
   "binds": [
     "zpa/application-segments#domainNames",
@@ -41,6 +44,10 @@
     {
       "label": "Selection.",
       "text": "Exact match is the default, and it attempts the more granular segment: [[zpa.policy.multimatch:exact-match-default]]. {{granularity-ranking}} Ties and the part port ranges play are open {{gap:same-specificity-tie}} {{gap:granularity-port-narrowness}}."
+    },
+    {
+      "label": "Names and addresses.",
+      "text": "{{raw-ip-no-dns-interception}}"
     },
     {
       "label": "When the port is not listed.",
@@ -187,6 +194,14 @@
           ]
         }
       ]
+    },
+    "raw-ip-no-dns-interception": {
+      "statement": "A connection made to a raw IP address sends no DNS request, so Client Connector's DNS interception never hands it a synthetic address: a segment defined only by FQDN does not capture it, and Private Access carries it only if an IP-based segment covers that address.",
+      "tier": "B",
+      "derived_from": [
+        "shared.cloud-architecture.tunnels:synthetic-ip"
+      ],
+      "conditions": "Inferred from the help's description of interception, which starts from the client's DNS request for a protected domain; no captured source states the raw-IP case. Confirm with a lab test: an FQDN-only segment, then connect to the server's IP."
     }
   },
   "divergences": {

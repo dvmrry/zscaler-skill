@@ -512,7 +512,9 @@ test("ranked resolve counts company records against the subject they are about",
   const withOv = resolve(g, q, { overlay: ov });
   const hit = withOv.candidates.find((c) => c.id === "zia.ssl-inspection.pipeline");
   assert.ok(hit, "the record's words lift the public subject it is about");
-  assert.match(hit.matched, /^\[company\] /, "its statement is the matched line");
+  const lines = [hit.matched, hit.matched_company].filter(Boolean);
+  assert.ok(lines.some((l) => /^\[company\] /.test(l)), "its statement is a matched line");
+  assert.ok(!hit.matched_company || !/^\[company\] /.test(hit.matched), "a public line leads when both fit");
   assert.ok(!without.includes("zia.ssl-inspection.pipeline") || without.indexOf("zia.ssl-inspection.pipeline") > withOv.candidates.indexOf(hit));
   assert.deepEqual(resolve(g, q).candidates.map((c) => c.id), without, "the public index is unchanged by an overlay query");
 });

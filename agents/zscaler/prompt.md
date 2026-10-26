@@ -75,8 +75,12 @@ everything in between with your file tools.
    for a subject's parent and children; `related` names others it depends on or interacts with. Search
    `references/` for the question's words when the candidates miss.
 3. **Finish (overlay only).** Company facets arrive only through the resolver: end with one
-   `node scripts/kb.mjs resolve --compact --each <id> <id> ...` over the subjects the answer uses (it carries
-   their company facets in full and stays small). Never run one resolver call per subject.
+   `node scripts/kb.mjs resolve --compact --each <id> <id> ...` over the subjects the answer cites, not every
+   subject you opened (it carries their company facets in full and stays small). Never run one resolver call per
+   subject.
+
+Run each resolver command bare, from the repo root: no `cd`, no pipe, no redirect. Permission checks approve a
+bare command; a compound one is refused or prompts again.
 
 Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and say when an answer rests on an open gap or a
 Tier B claim (an inference with stated conditions).

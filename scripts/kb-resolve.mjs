@@ -283,8 +283,12 @@ export function resolve(g, query, { overlay = null, cases = "summary", evidence 
       return {
         ...base, resolved: null, match,
         candidates: hits.map((h) => {
-          const matched = match === "ranked" ? matchedLine(g, h, query, overlay) : null;
-          return { id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h), ...(matched ? { matched } : {}) };
+          const m = match === "ranked" ? matchedLines(g, h, query, overlay) : {};
+          // The public line leads: it says why the subject fits. Company text, when it also fits, rides alongside
+          // so it cannot hide the public claim a reader chooses by.
+          const matched = m.public || m.company;
+          const company = m.public && m.company;
+          return { id: h, kind: g.nodes.get(h).kind, title: titleOf(g, h), ...(matched ? { matched } : {}), ...(company ? { matched_company: company } : {}) };
         }),
       };
     }
@@ -321,7 +325,7 @@ export function compactBundle(g, bundle) {
     };
   }
   const sid = bundle.subject.id;
-  const matched = query !== resolved.id && query !== sid ? matchedLine(g, sid, query) : null;
+  const matched = query !== resolved.id && query !== sid ? matchedLines(g, sid, query).public : null;
   return {
     ...base,
     ...(matched ? { matched } : {}),
@@ -469,22 +473,25 @@ function ranked(g, query, { limit = 8, among = null, overlay = null } = {}) {
   return [...order.filter((id) => !isType(id)).slice(0, limit), ...order.filter(isType).slice(0, 2)];
 }
 
-/** The subject's line (claim statement, gap title or prose) that best fits the query, to choose a candidate by. */
-function matchedLine(g, id, query, overlay = null) {
+/**
+ * The subject's lines that best fit the query, to choose a candidate by: the best public line (claim statement,
+ * gap title or prose) and, kept apart, the best company-record line. Each is null when no word of it fits.
+ */
+function matchedLines(g, id, query, overlay = null) {
   const { lines, df, n } = rankIndex(g, overlay);
   const q = new Set(words(query));
-  let best = null;
-  let bestScore = 0;
-  let bestRank = Infinity;
+  const best = { public: [null, 0, Infinity], company: [null, 0, Infinity] };
   for (const [text, rank] of lines.get(id) || []) {
     // Score the words a reader sees, not the IDs inside links: a pointer line ("details are in [[a]] and
     // [[b]]") would otherwise collect the query's words from its targets and beat the claim that answers.
     const seen = text.replace(/\[\[[^\]]*\]\]/g, " ");
     let score = 0;
     for (const t of new Set(words(seen))) if (q.has(t) && df.has(t)) score += Math.log(n / df.get(t));
-    if (score > bestScore || (score === bestScore && score > 0 && rank < bestRank)) [best, bestScore, bestRank] = [text, score, rank];
+    const slot = best[text.startsWith("[company] ") ? "company" : "public"];
+    if (score > slot[1] || (score === slot[1] && score > 0 && rank < slot[2])) [slot[0], slot[1], slot[2]] = [text, score, rank];
   }
-  return best && (best.length > 200 ? `${best.slice(0, 197)}...` : best);
+  const cut = (t) => t && (t.length > 200 ? `${t.slice(0, 197)}...` : t);
+  return { public: cut(best.public[0]), company: cut(best.company[0]) };
 }
 
 /**
