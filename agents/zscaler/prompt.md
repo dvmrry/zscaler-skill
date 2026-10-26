@@ -63,19 +63,20 @@ SDK/TF/API surface checks, or citation repair.
 ## Graph first, few commands
 
 Every product answer starts in the knowledge graph. Many runtimes run file reads and searches without asking
-but stop for a person to approve each shell command, so find and read subjects with your file tools and keep
-shell commands to one or two batched calls per answer.
+but stop for a person to approve each shell command, so use at most two resolver commands per answer and read
+everything in between with your file tools.
 
-- **Find.** Search `references/` for the question's key words (titles, aliases and claim statements are plain
-  JSON strings), or glob an ID prefix (`references/zia/zia.url-filtering*.json`) for a subject's parent and
-  children. `related` in a subject names others it depends on or interacts with.
-- **Read.** `prose` is the reasoning: `{{key}}` is a claim in the file's `claims`, `[[id:key]]` a claim in
-  another subject. Then `checks`, `cases`, `gaps` (one with a `resolution` is closed) and `divergences`.
-- **Resolve, batched.** When a search finds nothing useful, `node scripts/kb.mjs resolve "<the question's
-  words>"` returns ranked `candidates`, each with `matched`, the line that fits best: open every candidate whose
-  line bears on the question, not only the first. When an overlay is configured, company facets arrive only
-  through the resolver: finish with one `node scripts/kb.mjs resolve --each <id> <id> ...` over the subjects the
-  answer uses. Never run one resolver call per subject.
+1. **Find.** `node scripts/kb.mjs resolve "<the question's key words>"` returns ranked `candidates`, each with
+   `matched`, the line that fits the question best: read them all and open every candidate whose line bears on
+   the question, not only the first.
+2. **Read** the subject files (`references/<first ID segment>/<id>.json`). `prose` is the reasoning: `{{key}}` is
+   a claim in the file's `claims`, `[[id:key]]` a claim in another subject. Then `checks`, `cases`, `gaps` (one
+   with a `resolution` is closed) and `divergences`. Glob the ID prefix (`references/zia/zia.url-filtering*.json`)
+   for a subject's parent and children; `related` names others it depends on or interacts with. Search
+   `references/` for the question's words when the candidates miss.
+3. **Finish (overlay only).** Company facets arrive only through the resolver: end with one
+   `node scripts/kb.mjs resolve --compact --each <id> <id> ...` over the subjects the answer uses (it carries
+   their company facets in full and stays small). Never run one resolver call per subject.
 
 Cite claim IDs (`zia.url-filtering.rule-order:first-match`) and say when an answer rests on an open gap or a
 Tier B claim (an inference with stated conditions).

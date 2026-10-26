@@ -464,7 +464,10 @@ test("resolve --compact gives labels and one-line claims that fit the bundle sch
   assert.ok(subject.summary.claims.every((c) => c.statement.length <= 200));
   assert.ok(subject.summary.neighbors.length > 0);
   assert.equal(type.view, "compact");
-  assert.ok(type.summary.company.some((f) => f.id === "company.zia.url-filtering-iac"), "company facet labels survive");
+  // Company facets are what an overlay answer needs from the resolver: the compact view keeps them whole.
+  const fullType = JSON.parse(full)[1];
+  assert.deepEqual(type.summary.company, fullType.company);
+  assert.ok(type.summary.company.some((f) => f.id === "company.zia.url-filtering-iac"));
   assert.equal(candidates.view, undefined, "candidate lists pass through unchanged");
   assert.ok(candidates.candidates.length > 0);
 });

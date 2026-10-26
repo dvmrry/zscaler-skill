@@ -51,30 +51,31 @@ Vendored provider and SDK source say what a tool can express, never what *we* de
 ## Using the knowledge graph
 
 Many runtimes run file reads and searches without asking but stop for a person to approve every shell command.
-Find and read subjects with your file tools, and keep resolver commands to one or two batched calls per answer.
+Use at most two resolver commands per answer: one to find subjects, and with an overlay one to finish. Read
+everything in between with your file tools.
 
-- **Subject files.** An ID names its file: `zia.url-filtering.rule-order` is
-  `references/zia/zia.url-filtering.rule-order.json`. Its parent and children share the ID as a prefix (glob
-  `references/zia/zia.url-filtering*.json`); `related` names other subjects it depends on or interacts with.
-- **Finding subjects.** Search `references/` for the question's words: titles, aliases and claim statements are
-  plain JSON strings. When the subject you opened does not hold the answer, the one next to it often does.
-- **Reading one.** `prose` is the reasoning: `{{key}}` is a claim in the file's `claims`, `[[id:key]]` a claim in
-  another subject (open that file for it). `checks`, `cases`, `gaps` and `divergences` follow; a gap with a
-  `resolution` is closed.
-- **The resolver** is for what the files cannot give you. Batch it: one call for several IDs, not one per subject.
+1. **Find.** `node scripts/kb.mjs resolve "<the question's words>"` returns ranked candidates, each with
+   `matched`, the line that fits the question best. Read them all; every candidate whose line bears on the
+   question is worth opening, not only the first. A product name (`zia`) lists its areas instead.
+2. **Read.** An ID names its file: `zia.url-filtering.rule-order` is
+   `references/zia/zia.url-filtering.rule-order.json`. `prose` is the reasoning: `{{key}}` is a claim in the
+   file's `claims`, `[[id:key]]` a claim in another subject (open that file for it). `checks`, `cases`, `gaps` and
+   `divergences` follow; a gap with a `resolution` is closed. The parent and children share the ID as a prefix
+   (glob `references/zia/zia.url-filtering*.json`), and `related` names subjects it depends on or interacts
+   with: when the subject you opened does not hold the answer, the one next to it often does. Search
+   `references/` for the question's words when the ranked candidates miss.
+3. **Finish (overlay only).** Company facets come only through the resolver. When an overlay is configured, end
+   with one `node scripts/kb.mjs resolve --compact --each <id> <id> ...` over the subjects the answer uses: it
+   carries their company facets in full and stays small. Never run one resolver call per subject.
 
 ```bash
-node scripts/kb.mjs resolve "<the question's words>"  # ranked candidates, when a search finds nothing useful
+node scripts/kb.mjs resolve "<the question's words>"  # ranked candidates
 node scripts/kb.mjs resolve zia                       # a product: its areas and their subjects
-node scripts/kb.mjs resolve --each <id> <id> ...      # full bundles: company facets, types, neighbors
-node scripts/kb.mjs resolve --compact --each <id> ...  # one-line claims, gaps and neighbors per subject
+node scripts/kb.mjs resolve --compact --each <id> ...  # per subject: one-line claims, gaps, neighbors, company facets
+node scripts/kb.mjs resolve --each <id> <id> ...      # full bundles, adding bound tenant types and citations (large)
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
 ```
 
-- **Company overlay.** Company facets come only through the resolver. When an overlay is configured, finish with
-  one `resolve --each` over the subjects the answer uses.
-- **Candidates.** A ranked candidate carries `matched`, the line that fits the question best. Read them all, open
-  every candidate whose line bears on the question, not only the first.
 - **Claims.** Tier A claims quote their source. Tier B claims are inferences with stated `conditions`: say so
   when an answer rests on one. Cite claim IDs (`zia.url-filtering.rule-order:first-match`).
 - **Gaps** are what is not known. A data gap says which tier can fill it (`iac`, `live`, `operator`); an earlier

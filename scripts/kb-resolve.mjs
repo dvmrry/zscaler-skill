@@ -299,15 +299,15 @@ const oneLine = (t) => (t.length > 200 ? `${t.slice(0, 197)}...` : t);
 
 /**
  * The compact view of a resolved bundle (--compact): per subject its claims as one-line statements, gap and
- * divergence labels, company facet labels and neighbor IDs, without prose, checks, citations, cases or types.
+ * divergence labels, company facets in full and neighbor IDs, without prose, checks, citations, cases or types.
  * An agent reads several subjects this way in one small call, then resolves in full only the one or two it
- * needs. Candidate lists and product area lists are already compact and pass through unchanged.
+ * needs. Company facets stay whole: they are what an overlay answer needs from the resolver, and they are small. Candidate lists and product area lists are already compact and pass through unchanged.
  */
 export function compactBundle(g, bundle) {
   if (!bundle.resolved || bundle.resolved.kind === "product") return bundle;
   const { bundle_version, query, tiers: t, resolved, focus } = bundle;
   const base = { bundle_version, query, tiers: t, resolved, ...(focus ? { focus } : {}), view: "compact" };
-  const company = (bundle.company || []).map((f) => ({ id: f.id, kind: f.kind, title: f.title }));
+  const company = bundle.company || [];
   if (bundle.type) {
     return {
       ...base,
