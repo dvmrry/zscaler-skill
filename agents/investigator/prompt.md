@@ -59,8 +59,8 @@ overlay, IaC, case, schema, audit, and SOC-review paths.
 During Step 2, after product scope is known, company knowledge for that scope
 comes with `node scripts/kb.mjs resolve`: an overlay's active records arrive as
 `layer: company` facets on the bundles you resolve. Resolve the scoped subjects
-in one `resolve --compact --each <id> <id> ...` call (company facets in full,
-small output), not one call each. A missing overlay is silent.
+in one `resolve --company --each <id> <id> ...` call (company facets
+only, small output), not one call each. A missing overlay is silent.
 Before using a company facet, load
 [`../../docs/data-contract/knowledge.md`](../../docs/data-contract/knowledge.md)
 and follow its answer-time rules (attribution, scope, confidence, `validated`
@@ -146,7 +146,7 @@ The grounding list grows as new symptom shapes surface in real investigations â€
 
 **Keyword fallback â€” load every file matching the framing's vocabulary:**
 
-A `kb:<id>` entry is a knowledge-graph subject in `references/<first ID segment>/<id>.json`: read the file (it carries the claims, gaps and citations; its parent and children share the ID prefix). Each shell command waits for a person's approval on many runtimes, so do not run the resolver per subject: company facets for the subjects you loaded come from one `node scripts/kb.mjs resolve --compact --each <id> <id> ...` (see Step 2).
+A `kb:<id>` entry is a knowledge-graph subject in `references/<first ID segment>/<id>.json`: read the file (it carries the claims, gaps and citations; its parent and children share the ID prefix). Each shell command waits for a person's approval on many runtimes, so do not run the resolver per subject: company facets for the subjects you loaded come from one `node scripts/kb.mjs resolve --company --each <id> <id> ...` (see Step 2).
 
 | Framing mentions... | Load via file-read tool |
 |---|---|

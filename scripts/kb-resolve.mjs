@@ -342,6 +342,16 @@ export function compactBundle(g, bundle) {
   };
 }
 
+/**
+ * The company view of a resolved bundle (--company): only the company facets, for the call that finishes an
+ * overlay answer after the subjects were read as files. Candidate lists and product area lists pass through.
+ */
+export function companyBundle(bundle) {
+  if (!bundle.resolved || bundle.resolved.kind === "product") return bundle;
+  const { bundle_version, query, tiers: t, resolved, focus } = bundle;
+  return { bundle_version, query, tiers: t, resolved, ...(focus ? { focus } : {}), view: "company", company: bundle.company || [] };
+}
+
 /** The product (or "shared") a query names by its ID, or by its name or a products.json alias unless idOnly. */
 function productOf(g, query, idOnly) {
   const q = normalizeText(query);
@@ -847,11 +857,12 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     const cases = args.includes("--cases") ? "full" : "summary";
     const evidence = args.includes("--evidence");
     // --compact: one-line claims and labels only (compactBundle), for scanning several subjects cheaply.
-    const view = args.includes("--compact") ? (b) => compactBundle(g, b) : (b) => b;
-    const words = args.filter((a) => !["--pretty", "--cases", "--evidence", "--each", "--no-overlay", "--compact"].includes(a));
+    // --company: company facets only, for the finishing call of an overlay answer.
+    const view = args.includes("--company") ? companyBundle : args.includes("--compact") ? (b) => compactBundle(g, b) : (b) => b;
+    const words = args.filter((a) => !["--pretty", "--cases", "--evidence", "--each", "--no-overlay", "--compact", "--company"].includes(a));
     // An unknown flag (--help, a typo) would otherwise become search text and return unrelated candidates.
     const unknown = words.find((a) => a.startsWith("--"));
-    if (unknown) usage(`resolve: unknown option ${unknown}; resolve <id | text> [--each] [--compact] [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]`);
+    if (unknown) usage(`resolve: unknown option ${unknown}; resolve <id | text> [--each] [--compact | --company] [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]`);
     // --each: every argument is its own query (an ID, or quoted text), returned as one JSON array, so an agent
     // reads several subjects in one call instead of one round trip each.
     if (args.includes("--each")) {

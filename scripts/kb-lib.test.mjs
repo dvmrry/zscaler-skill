@@ -440,6 +440,23 @@ test("resolve --each returns one bundle per argument in one call", () => {
   assert.deepEqual(bundles.map((b) => b.resolved.id), ["zia.url-filtering", "zpa.microtenants.lifecycle"]);
 });
 
+test("resolve --company carries only the company facets, identical to the full bundle's", () => {
+  const run = (...a) => execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--overlay", OVERLAY, "--each", ...a], { encoding: "utf8" });
+  const ids = ["zia.url-filtering", "zia/url-filtering-rules", "zia.url-filtering.rule-order"];
+  const full = JSON.parse(run(...ids));
+  const out = run("--company", ...ids);
+  const views = JSON.parse(out);
+  const schemas = loadSchemas(path.join(ROOT, "references/_meta/schema"));
+  views.forEach((v, i) => {
+    assert.deepEqual(validate(schemas, "bundle.schema.json", v), []);
+    assert.equal(v.view, "company");
+    assert.deepEqual(v.company, full[i].company);
+    assert.equal(v.subject, undefined);
+  });
+  assert.ok(views[0].company.length > 0, "the fixture overlay has a facet on zia.url-filtering");
+  assert.ok(out.length * 4 < JSON.stringify(full).length, `company ${out.length} bytes`);
+});
+
 test("resolve rejects an unknown flag instead of searching for it", () => {
   const r = spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--no-overlay", "--help"], { encoding: "utf8" });
   assert.equal(r.status, 2);

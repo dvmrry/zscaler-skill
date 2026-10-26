@@ -65,8 +65,8 @@ everything in between with your file tools.
    with: when the subject you opened does not hold the answer, the one next to it often does. Search
    `references/` for the question's words when the ranked candidates miss.
 3. **Finish (overlay only).** Company facets come only through the resolver. When an overlay is configured, end
-   with one `node scripts/kb.mjs resolve --compact --each <id> <id> ...` over the subjects the answer cites (not
-   every subject you opened): it carries their company facets in full and stays small. Never run one resolver
+   with one `node scripts/kb.mjs resolve --company --each <id> <id> ...` over the subjects the answer cites (not
+   every subject you opened): it returns only their company facets, so it stays small. Never run one resolver
    call per subject.
 
 Run each resolver command bare, from the repo root: no `cd`, no pipe, no redirect. Permission checks approve a
@@ -75,6 +75,7 @@ bare command; a compound one is refused or prompts again.
 ```bash
 node scripts/kb.mjs resolve "<the question's words>"  # ranked candidates
 node scripts/kb.mjs resolve zia                       # a product: its areas and their subjects
+node scripts/kb.mjs resolve --company --each <id> ...  # per subject: company facets only (finishing an overlay answer)
 node scripts/kb.mjs resolve --compact --each <id> ...  # per subject: one-line claims, gaps, neighbors, company facets
 node scripts/kb.mjs resolve --each <id> <id> ...      # full bundles, adding bound tenant types and citations (large)
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
