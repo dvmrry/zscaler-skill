@@ -64,6 +64,7 @@ const FULL_CHECKS = [
       ...PYTEST_FILES,
     ],
   },
+  { name: "generated spines are current", command: "node", args: ["scripts/gen-spine.mjs", "--check"] },
   { name: "generated surface layer is current (ZIA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zia", "--check"] },
   { name: "generated surface layer is current (ZPA)", command: "node", args: ["scripts/gen-surfaces.mjs", "zpa", "--check"] },
   { name: "generated surface layer is current (ZCC)", command: "node", args: ["scripts/gen-surfaces.mjs", "zcc", "--check"] },

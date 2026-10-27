@@ -1,0 +1,15 @@
+{
+  "area": "zia.tenant-profiles",
+  "title": "Tenant Profiles: SaaS tenant restriction",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.tenant-profiles","title":"Tenant Profiles: SaaS tenant restriction","lead":"Tenancy restriction lets you restrict access to personal accounts, business accounts, or both for certain cloud applications.","edges":{"interacts-with":["zia.cloud-app-control.precedence","zia.cloud-app-control.ai-ml-rules"],"depends-on":["zia.cloud-app-control","zia.tenant-profiles.ssl-prerequisite","zia.ssl-inspection.pipeline"]}},
+    {"id":"zia.tenant-profiles.api-surface","title":"Tenant profile API, SDK and Terraform behavior","lead":"Tenant profiles are read and written at `/zia/api/v1/tenancyRestrictionProfile` (list, create) and `/tenancyRestrictionProfile/{id}` (get, update by PUT, del..."},
+    {"id":"zia.tenant-profiles.app-specifics","title":"Per-application options and traps in tenant profiles","lead":"A Google profile has two options, both defaulting to No: Allow Consumer Access (consumer access to the profile's domains) and Allow Visitor Access (visitor a..."},
+    {"id":"zia.tenant-profiles.applications","title":"Which applications support tenant profiles, and what each profile identifies","lead":"The Help form offers fifteen cloud applications: Amazon Web Services, ChatGPT, Claude, Docusign, Dropbox, GitHub, Google, Google Cloud Platform, IBM SmartClo..."},
+    {"id":"zia.tenant-profiles.limits","title":"Tenant profile limits: per rule,, per organization","lead":"A Cloud App Control rule can have up to 16 tenant profiles associated with it."},
+    {"id":"zia.tenant-profiles.microsoft","title":"Microsoft Login Services tenant profiles: v1, v2, personal accounts","lead":"A Microsoft Login Services profile is Version 1 or Version 2.","edges":{"interacts-with":["zia.saas-apps.tenant-restriction-order","zia.authentication.exemptions"],"depends-on":["zia.tenant-profiles.ssl-prerequisite"]}},
+    {"id":"zia.tenant-profiles.ssl-prerequisite","title":"SSL/TLS inspection rules a tenant profile depends on","lead":"When a tenant profile is associated with a cloud application rule, the application must be selected as a criterion in an SSL/TLS Inspection rule.","edges":{"decided-by":["zia.ssl-inspection.rules"],"interacts-with":["zia.saas-apps.tenant-restriction-order","zia.authentication.exemptions"],"depends-on":["zia.ssl-inspection.pipeline"]}},
+    {"id":"zia.tenant-profiles.wire-mechanic","title":"How a tenant profile is enforced: the headers ZIA inserts","lead":"When a tenant profile is associated with a Cloud App Control rule and a request reaches login.microsoftonline.com, login.microsoft.com, login.windows.net or ...","edges":{"depends-on":["zia.tenant-profiles.ssl-prerequisite","zia.ssl-inspection.pipeline"]}}
+  ]
+}

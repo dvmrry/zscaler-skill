@@ -533,7 +533,14 @@ export function validateGraph(g, { citations = true } = {}) {
     if (node.kind === "subject") {
       const d = node.data;
       for (const b of d.binds || []) expectKind(node.file, node.id, b, ["type", "field"]);
-      for (const r of d.related || []) expectKind(node.file, node.id, r.to, ["subject"]);
+      for (const r of d.related || []) {
+        // Only logs and API/Terraform surfaces are types; every other edge joins two subjects.
+        expectKind(node.file, node.id, r.to, ["logged-in", "configured-via"].includes(r.rel) ? ["subject", "type"] : ["subject"]);
+        if (r.to === node.id) err(node.file, `${node.id}: an edge to itself`);
+        if (r.because) expectKind(node.file, node.id, r.because, ["claim"]);
+      }
+      const edges = (d.related || []).map((r) => `${r.rel} ${r.to}`);
+      if (new Set(edges).size !== edges.length) err(node.file, `${node.id}: a related edge is listed twice`);
       for (const s of d.into || []) expectKind(node.file, node.id, s, ["subject"]);
       if (d.status === "split" && !(d.into || []).length) err(node.file, `${node.id}: a split subject needs "into"`);
       checkProse(g, node, err, warnings);

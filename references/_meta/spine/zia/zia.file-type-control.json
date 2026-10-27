@@ -1,0 +1,12 @@
+{
+  "area": "zia.file-type-control",
+  "title": "ZIA File Type Control",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.file-type-control","title":"ZIA File Type Control","edges":{"decided-by":["zia.file-type-control.criteria","zia.file-type-control.actions"],"scoped-by":["zia.time-intervals.rule-usage","zia.locations.rule-scoping"],"interacts-with":["zia.file-type-control.pipeline","zia.dlp.evaluation","zia.ftp-control"],"depends-on":["zia.ssl-inspection.bypass-impact"]}},
+    {"id":"zia.file-type-control.actions","title":"File Type Control actions, direction and defaults","lead":"By default the service allows upload and download of all file types.","edges":{"interacts-with":["zia.ftp-control.settings"]}},
+    {"id":"zia.file-type-control.api-shape","title":"File Type Control API shape: rules, categories and custom types","lead":"File Type Control is a rule resource: `GET` and `POST` on `/fileTypeRules`, and `GET`, `PUT` and `DELETE` on `/fileTypeRules/{ruleId}`, with a reduced `GET /..."},
+    {"id":"zia.file-type-control.criteria","title":"File Type Control rule criteria","lead":"A rule fires when all of these hold: File Types AND URL Categories AND Cloud Applications AND Application Segment; Users OR Groups OR Departments; Location G...","edges":{"scoped-by":["zia.locations.rule-scoping","zia.time-intervals.rule-usage","zia.authentication.unauthenticated-traffic"]}},
+    {"id":"zia.file-type-control.pipeline","title":"Where File Type Control sits in the inspection order","lead":"For an HTTP POST request, File Type Control checks the POST after Malware Protection and before Data Loss Prevention.","edges":{"interacts-with":["zia.malware-protection","zia.dlp.evaluation","zia.sandbox.coverage","zia.ftp-control.scope"],"depends-on":["zia.ssl-inspection.bypass-impact"]}}
+  ]
+}

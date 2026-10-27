@@ -10,7 +10,11 @@
     "linux posture certificate fails"
   ],
   "related": [
-    { "rel": "depends-on", "to": "zcc.device-posture.check-types" }
+    {
+      "rel": "depends-on",
+      "to": "zcc.device-posture.check-types",
+      "because": "zcc.device-posture.check-types:client-certificate"
+    }
   ],
   "prose": [
     {
@@ -36,15 +40,23 @@
   "checks": [
     {
       "do": "Whether the certificate and key sit in the directories for the profile's Non-Exportable Private Key setting, with the .pem and .key extensions.",
-      "uses": ["cert-locations", "key-locations"]
+      "uses": [
+        "cert-locations",
+        "key-locations"
+      ]
     },
     {
       "do": "With Non-Exportable Private Key on, whether the key file under /opt/zscaler/private_key/ is readable by any non-root user, which fails the check.",
-      "uses": ["key-permission-enforced"]
+      "uses": [
+        "key-permission-enforced"
+      ]
     },
     {
       "do": "Whether openssl verifies the certificate chain against the system store, with any intermediates installed.",
-      "uses": ["verify-commands", "ca-in-trust-store"]
+      "uses": [
+        "verify-commands",
+        "ca-in-trust-store"
+      ]
     }
   ],
   "claims": {

@@ -1,0 +1,13 @@
+{
+  "area": "zia.saas-apps",
+  "title": "SaaS apps that break or misbehave behind ZIA",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.saas-apps","title":"SaaS apps that break or misbehave behind ZIA","edges":{"interacts-with":["zia.ssl-inspection.uninspectable","zia.ssl-inspection.exemptions","zia.tenant-profiles"]}},
+    {"id":"zia.saas-apps.conditional-access","title":"Conditional Access blocks users behind ZIA: Source IP Anchoring","lead":"Source IP Anchoring addresses Microsoft 365 Conditional Access that lets users in only from a trusted location such as a corporate network (with multifactor ...","edges":{"depends-on":["zia.forwarding-control.sipa","zia.dns-control.predefined-rules","zpa.app-segments.definition"]}},
+    {"id":"zia.saas-apps.idp-bypass","title":"Login and MFA endpoints: inspect, bypass or exempt from authentication","lead":"The authentication exemption list and an SSL Inspection bypass are separate configuration objects with separate effects: an exemption skips the authenticatio...","edges":{"interacts-with":["zia.authentication.exemptions","zia.ssl-inspection.exemptions"]}},
+    {"id":"zia.saas-apps.quic-conferencing","title":"QUIC and HTTP/3 behind ZIA: where it escapes and how to block it","lead":"Zscaler cannot examine QUIC sessions when SSL/TLS Inspection is on, and users may also see certificate errors when QUIC is used.","edges":{"decided-by":["zia.firewall.rule-order"],"interacts-with":["zia.ssl-inspection.uninspectable","zia.dns-control","zia.traffic-forwarding.zcc","zia.firewall.network-services"]}},
+    {"id":"zia.saas-apps.shared-cdn-bypass","title":"Bypassing a SaaS that lives on a shared cloud storage or CDN domain","lead":"When one S3 bucket, Blob container or CloudFront distribution must be exempted, exempt its exact hostname (for example `mybucket.s3.amazonaws.com`) and never...","edges":{"depends-on":["zia.ssl-inspection.exemptions"]}},
+    {"id":"zia.saas-apps.tenant-restriction-order","title":"Tenant restriction does nothing: bypass rule ahead of the login inspection rule","lead":"With the Microsoft-Recommended One Click configuration on, its predefined SSL/TLS Inspection rule exempts any Microsoft 365 traffic from SSL/TLS Inspection a...","edges":{"decided-by":["zia.ssl-inspection.rules"],"interacts-with":["zia.ssl-inspection.pipeline","zia.ssl-inspection.exemptions","zia.cloud-app-control.ssl-visibility"],"depends-on":["zia.tenant-profiles.ssl-prerequisite","zia.tenant-profiles.wire-mechanic"]}}
+  ]
+}

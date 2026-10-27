@@ -1,0 +1,17 @@
+{
+  "area": "zpa.app-connectors",
+  "title": "ZPA App Connectors",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zpa.app-connectors","title":"ZPA App Connectors","edges":{"depends-on":["zpa.app-connectors.provisioning-keys"],"logged-in":["zpa.logs.control-session-status","zpa.logs.app-connector-metrics"]}},
+    {"id":"zpa.app-connectors.connector-groups","title":"App Connector groups","lead":"Every App Connector belongs to exactly one App Connector group, and a group should always be associated with at least one OAuth 2.0 enrollment token or provi...","edges":{"scoped-by":["zpa.server-groups.connector-binding"],"depends-on":["zpa.app-connectors.provisioning-keys"]}},
+    {"id":"zpa.app-connectors.deployment","title":"App Connector deployment, redundancy and limits","lead":"App Connectors only make outbound connections and need no inbound open ports to operate.","edges":{"scoped-by":["zpa.server-groups.connector-binding"],"depends-on":["zpa.app-connectors.enrollment"]}},
+    {"id":"zpa.app-connectors.enrollment","title":"App Connector enrollment, certificates and re-enrollment","lead":"An App Connector is enrolled with either an OAuth 2.0 enrollment token or a provisioning key; the help calls OAuth tokens preferred.","edges":{"depends-on":["zpa.app-connectors.provisioning-keys","zpa.app-connectors.connector-groups"]}},
+    {"id":"zpa.app-connectors.gcp-reference-modules","title":"Reference Terraform modules for App Connectors on GCP","lead":"As of module version 1.1.0 the GCP App Connector module deploys all App Connectors on Red Hat Enterprise Linux 9."},
+    {"id":"zpa.app-connectors.health","title":"App Connector health, status values and telemetry","lead":"The App Connectors page shows each connector's Connection Health as Connected or Disconnected, separately from its Status (enabled or disabled).","edges":{"interacts-with":["zpa.app-connectors.upgrades"],"logged-in":["zpa.logs.control-session-status","zpa.logs.app-connector-metrics"]}},
+    {"id":"zpa.app-connectors.provisioning-key-tooling","title":"Provisioning key fields and tool behavior across SDKs, provider and MCP","lead":"The Python SDK ProvisioningKey model reads thirteen attributes from the response: id, name, creationTime, modifiedTime, modifiedBy, enabled, usageCount, maxU..."},
+    {"id":"zpa.app-connectors.provisioning-keys","title":"App Connector provisioning keys","lead":"A provisioning key is a text string that enrolls an App Connector; it works as the connector's credential, letting the Private Access cloud verify the connec...","edges":{"depends-on":["zpa.app-connectors.connector-groups"]}},
+    {"id":"zpa.app-connectors.selection","title":"How a session is assigned to an App Connector","lead":"Private Access selects the closest App Connector given the location of the user and the App Connector-to-application latency.","edges":{"decided-by":["zpa.app-connectors.connector-groups","zpa.app-segments.settings"],"interacts-with":["zpa.app-segments.multimatch-requirements"],"logged-in":["zpa.logs.user-activity"]}},
+    {"id":"zpa.app-connectors.upgrades","title":"App Connector software and host OS updates","lead":"The software update day and time are set on the App Connector group (Update Settings, App Connector Software Update Schedule), and the group's Next Periodic ...","edges":{"scoped-by":["zpa.app-connectors.connector-groups"],"interacts-with":["zpa.app-connectors.health"]}}
+  ]
+}

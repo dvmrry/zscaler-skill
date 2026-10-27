@@ -1,0 +1,15 @@
+{
+  "area": "zia.dns-control",
+  "title": "ZIA DNS Control",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.dns-control","title":"ZIA DNS Control","lead":"DNS Control is a module of Zscaler Firewall: its best practices apply when DNS traffic is forwarded to the Zscaler service and inspected by the DNS Control m...","edges":{"decided-by":["zia.dns-control.criteria","zia.dns-control.predefined-rules"],"scoped-by":["zia.time-intervals.rule-usage"],"reached-via":["zia.traffic-forwarding.methods"],"depends-on":["zia.firewall"],"logged-in":["zia.logs.dns-outcome","zia/dns-log"]}},
+    {"id":"zia.dns-control.actions","title":"DNS Control actions and what each API action requires","lead":"The console's rule actions are Allow, Block, the Redirect Request variants (keep sender protocol, using DoH, using TCP), Redirect Response, and resolving Pri...","edges":{"depends-on":["shared.source-ip-anchoring"],"logged-in":["zia.logs.dns-outcome"]}},
+    {"id":"zia.dns-control.api-rules","title":"DNS Control rule resource over the API","lead":"DNS rules use the dedicated endpoint `/zia/api/v1/firewallDnsRules`, separate from Firewall Filtering."},
+    {"id":"zia.dns-control.criteria","title":"What a DNS Control rule can match on","lead":"DNS Control rules can use conditions such as users, groups, or departments, client locations, categorization of domains and IP addresses, DNS record types, a...","edges":{"interacts-with":["zia.dns-control.nrod","zia.dns-control.tunnel-detection"],"logged-in":["zia.logs.dns-record-fields"]}},
+    {"id":"zia.dns-control.doh","title":"DNS over HTTPS in DNS Control","lead":"Zscaler states DNS Control monitors and applies policy to all DNS requests and responses irrespective of protocol and encryption, including UDP, TCP and DNS ...","edges":{"logged-in":["zia.logs.dns-record-fields"]}},
+    {"id":"zia.dns-control.nrod","title":"Newly registered domains and classification delay in DNS Control","lead":"Zscaler categorizes domains newly registered within the last 30 days, or observed for the first time, as Newly Registered and Observed Domains (NROD) until a...","edges":{"depends-on":["zia.url-filtering.advanced-settings"]}},
+    {"id":"zia.dns-control.predefined-rules","title":"Predefined DNS Control rules and the ZPA resolvers","lead":"Zscaler provides three predefined DNS rules: UCaaS One Click Rule (allows firewall traffic when any UCaaS application is enabled in Advanced Settings), ZPA R...","edges":{"depends-on":["shared.source-ip-anchoring","zia.traffic-forwarding.methods"]}},
+    {"id":"zia.dns-control.tunnel-detection","title":"DNS tunnel detection","lead":"DNS Control can detect and prevent DNS tunneling; Zscaler points to a separate page, Detecting and Controlling DNS Tunnels, for details.","edges":{"interacts-with":["zia.dns-control.predefined-rules"],"logged-in":["zia/dns-log"]}}
+  ]
+}

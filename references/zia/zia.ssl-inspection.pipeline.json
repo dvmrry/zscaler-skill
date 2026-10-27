@@ -17,12 +17,43 @@
   ],
   "related": [
     {
-      "rel": "interacts-with",
-      "to": "zia.url-filtering.rule-order"
+      "rel": "decided-by",
+      "to": "zia.ssl-inspection.rules",
+      "because": "zia.ssl-inspection.rules:ascending-order"
+    },
+    {
+      "rel": "scoped-by",
+      "to": "zia.authentication.surrogate-ip",
+      "because": "zia.ssl-inspection.pipeline:user-context-needed"
     },
     {
       "rel": "interacts-with",
-      "to": "zia.cloud-app-control.precedence"
+      "to": "zia.url-filtering",
+      "because": "zia.ssl-inspection.pipeline:url-filtering-twice"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.cloud-app-control.precedence",
+      "because": "zia.ssl-inspection.pipeline:first-pass-subset"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.firewall.traffic-path",
+      "because": "zia.ssl-inspection.pipeline:firewall-first"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.atp.enforcement-order",
+      "because": "zia.ssl-inspection.pipeline:first-pass-subset"
+    },
+    {
+      "rel": "interacts-with",
+      "to": "zia.proxy-mode",
+      "because": "zia.ssl-inspection.pipeline:transparent-matches-destination-ip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.rule-order"
     },
     {
       "rel": "see-also",

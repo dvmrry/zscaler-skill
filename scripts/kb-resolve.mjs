@@ -10,6 +10,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { validate } from "./kb-schema.mjs";
+import { spines } from "./gen-spine.mjs";
 import { runtimeDataMountSettings } from "./lib.mjs";
 import {
   ID, META, allEvidence, anchorEvidence, gitlink, idKind, materialDate, normalizeText, qualify, resolvePointer, sha256File,
@@ -624,7 +625,7 @@ export function proseText(blocks = []) {
 }
 
 /** Render a subject's prose with claims inlined. With footnotes, citations are appended. */
-export function renderProse(g, subjectId, { footnotes = true } = {}) {
+export function renderProse(g, subjectId, { footnotes = true, qualified = false } = {}) {
   const node = g.nodes.get(subjectId);
   const text = proseText(node.data.prose);
   const order = [];
@@ -632,18 +633,20 @@ export function renderProse(g, subjectId, { footnotes = true } = {}) {
     if (!order.includes(local)) order.push(local);
     return order.indexOf(local) + 1;
   };
+  // qualified: marks carry the full citable ID (`[subject:local]`), for text read outside the subject.
+  const at = (local) => (qualified ? `${subjectId}:${local}` : local);
   let out = text.replace(/\{\{([a-z0-9]+(?:-[a-z0-9]+)*)(\|ref)?\}\}/g, (_, local, ref) => {
     const claim = node.data.claims?.[local];
     if (!claim) return `{{${local}}}`;
     const n = num(local);
-    const mark = footnotes ? `[^${n}]` : `[${local}]`;
+    const mark = footnotes ? `[^${n}]` : `[${at(local)}]`;
     return ref ? mark : `${claim.statement} ${mark}`;
   });
   // A gap or divergence is listed with the subject; the prose points at it.
   out = out.replace(/\{\{(gap|divergence):([a-z0-9]+(?:-[a-z0-9]+)*)\}\}/g, (_, kind, local) => {
     const item = node.data[`${kind}s`]?.[local];
     if (!item) return `{{${kind}:${local}}}`;
-    if (!footnotes) return `[${kind}:${local}]`;
+    if (!footnotes) return `[${kind}:${at(local)}]`;
     // Say what state the item is in: a resolved gap or divergence is not an open question.
     if (kind === "gap") return `(${item.status || "open"} gap \`${local}\`)`;
     return `(${item.resolution ? "resolved divergence" : "divergence"} \`${local}\`)`;
@@ -710,6 +713,154 @@ export function renderSubject(g, subjectId) {
     parts.push("");
   }
   return parts.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd() + "\n";
+}
+
+// ---------------------------------------------------------------- map + read (the agent's retrieval path)
+
+const areaOf = (id) => id.split(".").slice(0, 2).join(".");
+const subjectsOf = (g) => [...g.nodes.values()].filter((n) => n.kind === "subject").sort((a, b) => a.id.localeCompare(b.id));
+
+/**
+ * The spine as reading text: every subject by area with its title, its opening fact and its typed edges, and the log,
+ * API and config types. The same content as references/_meta/spine/<product>.json (scripts/gen-spine.mjs). An agent
+ * reads it for the products a question involves, works out which mechanisms and evidence matter, and picks subjects
+ * by their facts and edges, not by matching the question's words.
+ */
+export function subjectMap(g, prefixes = []) {
+  const want = (id) => !prefixes.length || prefixes.some((p) => id === p || id.startsWith(`${p}.`) || id.startsWith(`${p}/`));
+  const out = [];
+  for (const spine of Object.values(spines(g))) {
+    for (const area of spine.areas) {
+      const subs = area.subjects.filter((x) => want(x.id));
+      if (!subs.length) continue;
+      const tokens = subs.reduce((sum, x) => sum + readSubject(g, x.id).length, 0) / 4;
+      out.push(`## ${area.id} (${subs.length} subject${subs.length > 1 ? "s" : ""}, ~${Math.max(1, Math.round(tokens / 1000))}k tokens)`);
+      for (const x of subs) {
+        const edges = Object.entries(x.edges || {}).map(([rel, to]) => `${rel}: ${to.join(", ")}`).join("; ");
+        out.push(`${x.id === area.id ? area.id : x.id.slice(area.id.length)} — ${x.title}${x.lead ? ` | ${x.lead}` : ""}${edges ? ` | ${edges}` : ""}`);
+      }
+    }
+  }
+  const types = [...g.nodes.values()].filter((n) => n.kind === "type" && want(n.id)).sort((x, y) => x.id.localeCompare(y.id));
+  if (types.length) {
+    out.push("## Types (fields of logs, API objects and config; read one by ID)");
+    for (const t of types) out.push(`${t.id}${t.data.title ? ` — ${t.data.title}` : ""}`);
+  }
+  return `${out.join("\n")}\n`;
+}
+
+/**
+ * One subject as reading text: prose with every claim inlined and marked with its citable ID, the claims the prose
+ * does not carry, and the open gaps. No evidence quotes: they are for verifying a claim, not for answering.
+ */
+function readSubject(g, id) {
+  const s = g.nodes.get(id).data;
+  const { text, order } = renderProse(g, id, { footnotes: false, qualified: true });
+  const parts = [`# ${s.title} (${id})`, text];
+  if (s.checks) parts.push(`What to check:\n${s.checks.map((c, i) => `${i + 1}. ${c.do}`).join("\n")}`);
+  const further = Object.entries(s.claims || {}).filter(([local]) => !order.includes(local));
+  if (further.length) parts.push(`Further facts:\n${further.map(([local, c]) => `- ${c.statement} [${id}:${local}]`).join("\n")}`);
+  const gaps = Object.entries(s.gaps || {}).filter(([, gp]) => gp.status !== "resolved");
+  if (gaps.length) parts.push(`Not known (open gaps):\n${gaps.map(([local, gp]) => `- ${gp.title} [gap:${id}:${local}]`).join("\n")}`);
+  return parts.filter(Boolean).join("\n\n");
+}
+
+/** A type as reading text: one line per field. */
+function readType(g, id) {
+  const t = g.nodes.get(id).data;
+  const lines = Object.entries(t.fields).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
+  return [`# ${t.title || id} (${id})`, ...lines].join("\n");
+}
+
+/** Company records about the given IDs, as reading text with their IaC locations or values. */
+function readCompany(ov, ids) {
+  return companyFacets(ov, ids).map((f) => {
+    const iac = (f.iac || []).map((p) => `  - IaC ${p.label ? `${p.label}: ` : ""}${p.location || p.source}${p.value !== undefined ? ` = ${JSON.stringify(p.value)}` : ""}${p.committed ? ` (committed ${p.committed})` : ""}${p.error ? ` (unresolved: ${p.error})` : ""}`);
+    return [`- [${f.id}] ${f.title}${f.statement ? `: ${f.statement}` : ""}${f.do_not_infer ? ` Do not infer: ${f.do_not_infer}` : ""}`, ...iac].join("\n");
+  }).join("\n");
+}
+
+// How strongly `read` follows each edge type: the mechanisms that settle an outcome first, prose links next.
+// see-also and configured-via are listed by title, not read; so is any type (a log's field list is long).
+const FOLLOW = { "decided-by": 3, "scoped-by": 3, "interacts-with": 3, "depends-on": 3, "reached-via": 3, "logged-in": 3, "links-to": 2, "configured-via": 0, "see-also": 0 };
+
+/**
+ * A subject's outgoing edges: its typed `related` entries, the typed edges of the hubs above it (a child shares what
+ * decides, scopes and logs its parent), then the subjects its prose links to.
+ */
+function edgesOf(g, id) {
+  const n = g.nodes.get(id);
+  const out = (n.data.related || []).map((e) => ({ to: e.to, rel: e.rel }));
+  const parts = id.split(".");
+  for (let i = parts.length - 1; i >= 2; i--) {
+    const hub = g.nodes.get(parts.slice(0, i).join("."));
+    if (hub?.kind !== "subject") continue;
+    for (const e of hub.data.related || []) if (FOLLOW[e.rel] >= 3 && e.to !== id) out.push({ to: e.to, rel: e.rel, via: hub.id });
+  }
+  for (const m of JSON.stringify(n.data.prose || []).matchAll(/\[\[([^\]:#|]+)/g)) {
+    const to = g.nodes.get(m[1])?.kind === "subject" ? m[1] : g.nodes.get(m[1])?.subject;
+    if (to && to !== id) out.push({ to, rel: "links-to" });
+  }
+  return out.filter((e) => ["subject", "type"].includes(g.nodes.get(e.to)?.kind));
+}
+
+/**
+ * Read areas, subjects and types as text, then walk the graph one hop. An argument is a type ID, or a subject,
+ * area or product ID (`zia.ssl-inspection.actions`, `zia.ssl-inspection`, `zpa`), which reads that subject and
+ * every subject under it. The subjects those point to are read next, the ones most of the reading set points to
+ * first, until `budget` tokens; the rest are listed by title. With an overlay, each subject is followed by the
+ * company records about it.
+ */
+export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) {
+  const out = [];
+  // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
+  const repos = (ov?.iacRepos || []).filter((r) => r.available);
+  if (repos.length) out.push(`IaC repos: ${repos.map((r) => `${r.id} = ${r.path}/${r.committed ? ` (last commit ${r.committed})` : ""}`).join("; ")}`);
+  const seen = new Set();
+  const emit = (id) => {
+    seen.add(id);
+    const n = g.nodes.get(id);
+    const text = n.kind === "type" ? readType(g, id) : readSubject(g, id);
+    out.push(text);
+    const company = ov ? readCompany(ov, new Set([id, ...(n.kind === "type" ? Object.keys(n.data.fields).map((f) => `${id}#${f}`) : itemsOf(g, id, "claim").map((c) => c.id))])) : "";
+    if (company) out.push(`Company records:\n${company}`);
+    return text.length / 4;
+  };
+  for (const arg of args) {
+    const node = g.nodes.get(arg);
+    // A subject reads with everything under it, so an area's ID (also its hub subject) reads the whole area.
+    const ids = node?.kind === "type" ? [arg]
+      : subjectsOf(g).map((n) => n.id).filter((id) => id === arg || id.startsWith(`${arg}.`));
+    if (!ids.length) out.push(`# ${arg}: no subject, type or area has this ID; check the map`);
+    for (const id of ids) if (!seen.has(id)) emit(id);
+  }
+  for (let hop = 0; hop < hops; hop++) {
+    // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
+    const votes = new Map();
+    for (const id of seen) {
+      if (g.nodes.get(id).kind !== "subject") continue;
+      for (const e of edgesOf(g, id)) {
+        if (seen.has(e.to)) continue;
+        const v = votes.get(e.to) || { w: 0, via: [] };
+        v.w += FOLLOW[e.rel];
+        v.via.push(`${e.rel} from ${e.via || id}`);
+        votes.set(e.to, v);
+      }
+    }
+    const ranked = [...votes.entries()].sort((a, b) => b[1].w - a[1].w || a[0].localeCompare(b[0]));
+    if (!ranked.length) break;
+    out.push(`## Linked subjects (one hop from what was read)`);
+    let spent = 0;
+    const listed = [];
+    for (const [id, v] of ranked) {
+      const follow = v.w > 0 && g.nodes.get(id).kind === "subject";
+      const cost = follow ? readSubject(g, id).length / 4 : Infinity;
+      if (spent + cost <= budget) spent += emit(id);
+      else listed.push(`- ${id} — ${titleOf(g, id)} (${v.via.slice(0, 2).join("; ")})`);
+    }
+    if (listed.length) out.push(`Linked but not read (read them by ID if the answer needs them):\n${listed.join("\n")}`);
+  }
+  return `${out.join("\n\n")}\n`;
 }
 
 function citeLine(g, ev, cache) {
@@ -874,6 +1025,18 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     const query = words.join(" ").trim();
     if (!query) usage("resolve needs an ID or text");
     process.stdout.write(JSON.stringify(view(resolve(g, query, { overlay: ov, cases, evidence })), null, pretty ? 2 : 0) + "\n");
+    return 0;
+  }
+  if (cmd === "map") {
+    process.stdout.write(subjectMap(g, args.filter((a) => !a.startsWith("--"))));
+    return 0;
+  }
+  if (cmd === "read") {
+    const ids = args.filter((a) => !a.startsWith("--"));
+    const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--no-overlay"].includes(a));
+    if (unknown) usage(`read: unknown option ${unknown}; read <area | subject | type> ... [--no-links] [--overlay <dir> | --no-overlay]`);
+    if (!ids.length) usage("read needs one or more area, subject or type IDs");
+    process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1 }));
     return 0;
   }
   if (cmd === "render") {

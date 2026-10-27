@@ -15,13 +15,15 @@
     "former_ids": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
     "binds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/bind-target" }, "uniqueItems": true },
     "related": {
+      "description": "Typed edges from this subject (A) to another subject or a type (B); `read` walks them. decided-by: B holds the order, matching, criteria or precedence that settle A's outcome. scoped-by: B decides which traffic, users or devices A applies to (locations, authentication, posture, forwarding profiles, segments). reached-via: B is a path traffic takes to reach A. interacts-with: B's outcome can preempt or change A's (another policy in the same path). depends-on: A needs B to work (a prerequisite setting, subscription, certificate or component). logged-in: B records A's decisions (a log subject or log type). configured-via: B is A's API, SDK or Terraform surface (a subject or type). see-also: none of these. `because` is the claim that establishes the edge.",
       "type": "array",
       "items": {
         "type": "object",
         "required": ["rel", "to"],
         "properties": {
-          "rel": { "enum": ["depends-on", "interacts-with", "see-also"] },
-          "to": { "$ref": "common.schema.json#/$defs/subject-id" }
+          "rel": { "enum": ["decided-by", "scoped-by", "reached-via", "interacts-with", "depends-on", "logged-in", "configured-via", "see-also"] },
+          "to": { "anyOf": [{ "$ref": "common.schema.json#/$defs/subject-id" }, { "$ref": "common.schema.json#/$defs/type-id" }] },
+          "because": { "$ref": "common.schema.json#/$defs/item-id" }
         },
         "additionalProperties": false
       }

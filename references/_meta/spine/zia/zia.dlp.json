@@ -1,0 +1,17 @@
+{
+  "area": "zia.dlp",
+  "title": "ZIA Data Loss Prevention",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.dlp","title":"ZIA Data Loss Prevention","edges":{"decided-by":["zia.dlp.rules","zia.dlp.evaluation"],"scoped-by":["zia.locations.rule-scoping"],"interacts-with":["zia.url-filtering","zia.cloud-app-control.precedence"],"depends-on":["zia.dlp.engines","zia.ssl-inspection.pipeline"],"logged-in":["zia.logs.web-field-semantics","zia/web-log"]}},
+    {"id":"zia.dlp.dictionaries","title":"DLP dictionaries: predefined, cloned and custom","lead":"A DLP dictionary contains a set of algorithms designed to detect a specific kind of information in users' traffic and activities.","edges":{"depends-on":["zia.dlp.engines"]}},
+    {"id":"zia.dlp.endpoint-dlp","title":"Endpoint DLP API families in the SDKs and Terraform provider","lead":"The Go SDK manages Endpoint DLP as separate families, each with its own path: the application catalog and custom applications (`/endPointApplications`), appl...","edges":{"depends-on":["zia.dlp.engines"]}},
+    {"id":"zia.dlp.engines","title":"DLP engines: the unit a rule references","lead":"A DLP engine is a collection of one or more DLP dictionaries, and any mix of cloned, predefined and custom dictionaries can be added to one.","edges":{"depends-on":["zia.dlp.dictionaries"]}},
+    {"id":"zia.dlp.evaluation","title":"Why DLP did or did not fire: pipeline position, evaluation mode and exemptions","lead":"For a POST request the Public Service Edge applies policies in a listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Con...","edges":{"decided-by":["zia.dlp.rules"],"interacts-with":["zia.url-filtering","zia.cloud-app-control.precedence"],"depends-on":["zia.ssl-inspection.pipeline"],"logged-in":["zia.logs.web-field-semantics"]}},
+    {"id":"zia.dlp.incident-forwarding","title":"Where a DLP match goes: notification, ICAP, Incident Receiver and Cloud-to-Cloud","lead":"A DLP rule can detect data, allow or block the transaction, and notify the organization's auditor.","edges":{"depends-on":["zia.dlp.rules"],"logged-in":["zwa.incidents"]}},
+    {"id":"zia.dlp.inspection-limits","title":"DLP file size, archive and text limits: why DLP did not catch a large file","lead":"DLP engines are documented to support files up to 400 MB."},
+    {"id":"zia.dlp.outbound-email","title":"Outbound Email DLP rules in the SDKs and Terraform provider","lead":"The Go SDK manages Outbound Email DLP rules at `/zia/api/v1/emailDlpRules` with get, lite list, list, create, update and delete, plus `GetActions`, which ret..."},
+    {"id":"zia.dlp.rule-wire-shape","title":"Web DLP rule API fields, enums and fields the contract does not document","lead":"Web DLP rules are managed at `/zia/api/v1/webDlpRules`, and tenant-wide DLP advanced settings at `/zia/api/v1/webDlpGlobalOptions`."},
+    {"id":"zia.dlp.rules","title":"Web DLP policy rules: order, criteria and actions","lead":"DLP policy rules are evaluated in ascending rule order and, by default, evaluation stops at the first match; a disabled rule keeps its place in the order whi...","edges":{"decided-by":["zia.dlp.evaluation","zia.dlp.engines"],"scoped-by":["zia.locations.rule-scoping","zia.authentication.unauthenticated-traffic"],"interacts-with":["zia.url-filtering.rule-order"],"depends-on":["zia.ssl-inspection.pipeline"],"logged-in":["zia.logs.web-field-semantics"]}}
+  ]
+}

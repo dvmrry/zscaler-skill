@@ -1,0 +1,19 @@
+{
+  "area": "zpa.troubleshooting",
+  "title": "Troubleshooting ZPA access: from symptom to layer",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zpa.troubleshooting","title":"Troubleshooting ZPA access: from symptom to layer"},
+    {"id":"zpa.troubleshooting.access-path","title":"The hops of a ZPA access request and where each can fail","lead":"A Microtunnel is an end-to-end channel that is created on demand between Zscaler Client Connector and an internal application, through a Public or Private Se...","edges":{"interacts-with":["zpa.policy.evaluation-order"]}},
+    {"id":"zpa.troubleshooting.authentication","title":"Authentication failures and step-up prompt loops in ZPA","lead":"When an application requires additional authentication, Zscaler Client Connector shows a pop-up notification prompting the user to verify access with a Verif...","edges":{"interacts-with":["zpa.policy.actions"],"depends-on":["zpa.policy.scim-sync"]}},
+    {"id":"zpa.troubleshooting.certificates","title":"Certificate and encryption failures: Browser Access, double encryption, pinned clients","lead":"Traffic between Zscaler Client Connector and the Public Service Edge for Private Access is encrypted with TLS 1.2 by default, and Double Encryption adds a se...","edges":{"interacts-with":["zpa.app-segments.settings"],"depends-on":["zpa.browser-access.certificates"]}},
+    {"id":"zpa.troubleshooting.intermittent","title":"Intermittent ZPA access failures","lead":"Each User Activity record names the connector and the Public Service Edge that handled the session, so sessions can be grouped by connector and edge.","edges":{"logged-in":["zpa.logs.user-activity"]}},
+    {"id":"zpa.troubleshooting.log-fields","title":"What the ZPA User Activity log fields say when diagnosing access","lead":"The Policy field of a User Activity record is the access policy rule name.","edges":{"logged-in":["zpa.logs.user-activity"]}},
+    {"id":"zpa.troubleshooting.no-access","title":"A user cannot reach a private application at all","lead":"Zscaler Client Connector recognizes the internal applications that are available via Private Access (access to them is defined in Private Access policies), i...","edges":{"interacts-with":["zpa.app-segments.matching","zpa.app-segments.bypass"]}},
+    {"id":"zpa.troubleshooting.policy-checks","title":"Checking policy match, forwarding, posture and timeout for a blocked user","edges":{"decided-by":["zpa.policy.evaluation-order"]}},
+    {"id":"zpa.troubleshooting.read-side-calls","title":"Read-only SDK calls for ZPA triage","lead":"The Go SDK's policysetcontrollerv2.GetPolicyByApplication, given a policy type and an application ID, calls GET .../policySet/rules/policyType/{type}/applica..."},
+    {"id":"zpa.troubleshooting.segment-checks","title":"Checking segments, segment groups and connector groups for a failing application","lead":"On the segment group page, if required fields are missing an Incomplete Configuration icon appears next to the indicated item.","edges":{"interacts-with":["zpa.app-segments.matching","zpa.segment-groups.membership"]}},
+    {"id":"zpa.troubleshooting.signals","title":"Where ZPA access evidence lives: console, client, connector, log streaming","lead":"Z-Tunnel 2.0 uses DTLS or TLS to send packets to the Zscaler service and can send all ports and protocols, while Z-Tunnel 1.0 forwards via CONNECT requests a...","edges":{"interacts-with":["zpa.posture-profiles.evaluation"]}},
+    {"id":"zpa.troubleshooting.slow","title":"A ZPA application is slow","edges":{"logged-in":["zpa.logs.user-activity"]}}
+  ]
+}

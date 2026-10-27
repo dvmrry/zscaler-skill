@@ -1,0 +1,16 @@
+{
+  "area": "zia.bandwidth-control",
+  "title": "ZIA Bandwidth Control",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.bandwidth-control","title":"ZIA Bandwidth Control","edges":{"decided-by":["zia.bandwidth-control.rules","zia.bandwidth-control.allocation"],"scoped-by":["zia.bandwidth-control.location-scope","zia.time-intervals.rule-usage"],"interacts-with":["zia.firewall.traffic-path","zia.url-filtering"],"depends-on":["zia.locations.bandwidth"]}},
+    {"id":"zia.bandwidth-control.allocation","title":"How Bandwidth Control allocates bandwidth: minimum, maximum, contention","lead":"A rule's maximum is the largest percentage of total bandwidth the class can use at a point in time; its minimum is the guaranteed percentage available to the...","edges":{"decided-by":["zia.bandwidth-control.rules"],"scoped-by":["zia.bandwidth-control.location-scope"]}},
+    {"id":"zia.bandwidth-control.api-surface","title":"Bandwidth Control API, SDK and Terraform shape","lead":"Bandwidth classes have list, lite list, add, get, update and delete operations: GET and POST /bandwidthClasses, GET /bandwidthClasses/lite, and GET, PUT and ..."},
+    {"id":"zia.bandwidth-control.classes","title":"Bandwidth classes: what a class is and which exist","lead":"A bandwidth class identifies the URL categories and cloud applications to which the service allocates bandwidth.","edges":{"depends-on":["zia.url-categories.membership"]}},
+    {"id":"zia.bandwidth-control.default-rule","title":"The default rule and unreferenced classes","lead":"The Bandwidth Control policy contains a default rule that can be edited but not deleted.","edges":{"decided-by":["zia.bandwidth-control.rules"],"interacts-with":["zia.bandwidth-control.classes"]}},
+    {"id":"zia.bandwidth-control.limits","title":"Bandwidth Control limits: rules, classes, domains","lead":"An organization can have 125 Bandwidth Control policy rules."},
+    {"id":"zia.bandwidth-control.location-scope","title":"Which traffic Bandwidth Control covers: locations and limits","lead":"Bandwidth Control starts with maximum upload and download limits per location, which apply to traffic proxied to Zscaler.","edges":{"depends-on":["zia.locations.bandwidth"]}},
+    {"id":"zia.bandwidth-control.pipeline-position","title":"Where Bandwidth Control sits in policy enforcement","lead":"Bandwidth Control is the final entry in the ordered policy lists the web module applies to HTTP GET and POST requests, to responses, and to the domain-only p...","edges":{"interacts-with":["zia.firewall.traffic-path","zia.url-filtering","zia.cloud-app-control.precedence"]}},
+    {"id":"zia.bandwidth-control.rules","title":"Bandwidth Control rules: terms, order and rank","lead":"Each rule defines a maximum and minimum bandwidth for the bandwidth classes in the rule, along with other parameters such as location and time of day.","edges":{"scoped-by":["zia.bandwidth-control.location-scope","zia.time-intervals.rule-usage"],"interacts-with":["zia.bandwidth-control.default-rule"],"depends-on":["zia.bandwidth-control.classes"]}}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "area": "zia.url-filtering",
+  "title": "ZIA URL Filtering",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.url-filtering","title":"ZIA URL Filtering","edges":{"decided-by":["zia.url-filtering.rule-order","zia.url-filtering.criteria","zia.url-categories.membership"],"scoped-by":["zia.locations.rule-scoping","zia.authentication.unauthenticated-traffic"],"interacts-with":["zia.cloud-app-control.precedence","zia.ssl-inspection.pipeline"],"logged-in":["zia.logs.web-rule-attribution"]}},
+    {"id":"zia.url-filtering.actions","title":"URL Filtering actions and their prerequisites","lead":"Caution shows an end-user notification (default or a redirect page) before letting the user through.","edges":{"depends-on":["zbi.policy","zia.ssl-inspection.pipeline"],"logged-in":["zia.logs.web-rule-attribution"]}},
+    {"id":"zia.url-filtering.advanced-settings","title":"Advanced URL Filtering settings that change outcomes","lead":"Miscellaneous or Unknown holds sites Zscaler has not yet classified; blocking it outright also blocks newly encountered legitimate sites.","edges":{"interacts-with":["zia.ssl-inspection.pipeline","zia.cloud-app-control.precedence","zia.url-categories.membership"]}},
+    {"id":"zia.url-filtering.criteria","title":"How URL Filtering rule criteria combine","lead":"A rule matches when all four groups are true, joined by AND: Who, Where and When [ (Users OR/AND Groups OR/AND Departments) AND User Risk Profile AND Adaptiv...","edges":{"scoped-by":["zia.locations.rule-scoping","zia.authentication.unauthenticated-traffic"],"depends-on":["zia.ssl-inspection.pipeline"]}},
+    {"id":"zia.url-filtering.list-pagination","title":"Listing URL Filtering rules and URL categories without truncation","lead":"The Go SDK's `GetAll` for URL Filtering rules walks pages through `common.ReadAllPages`, which requests `pageSize=1000` by default and stops at the first pag...","edges":{"interacts-with":["zia.url-filtering.rule-order"]}},
+    {"id":"zia.url-filtering.rule-order","title":"URL Filtering rule order and first match","lead":"URL Filtering rules evaluate in ascending `order` (Rule 1 before Rule 2).","edges":{"decided-by":["zia.url-categories.membership","zia.url-filtering.criteria"],"interacts-with":["zia.cloud-app-control.precedence","zia.ssl-inspection.pipeline"],"logged-in":["zia.logs.web-rule-attribution"]}}
+  ]
+}

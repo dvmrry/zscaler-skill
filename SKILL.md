@@ -34,13 +34,12 @@ Structured troubleshooting with a symptom, an affected scope and a timeframe bel
 | Live | read-only `zscalerctl`, when the overlay declares it | what is true now, and drift from IaC |
 
 The overlay is at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/` (`node scripts/runtime-data-path.mjs
-overlay`). Every bundle's `tiers` block says what is available; `tiers.iac.repos` lists the IaC repos with their
-paths, and IaC reads go there and nowhere else.
+overlay`). IaC reads go only to the repos the overlay lists.
 
-- **IaC before live.** Company facets already carry the values their IaC pointers resolve to; read further in the
-  listed repos only when a facet does not answer, and state the `committed` date of what you used.
+- **IaC before live.** Company records carry the values or file locations their IaC pointers resolve to; read
+  the located files when the answer depends on our configuration, and state the `committed` date of what you used.
 - **Live only** when IaC does not cover the type, field or value, is too stale, or the question is about drift.
-  Run or draft the bundle's read-only `zscalerctl` command; keep the result in this session (a case may save it
+  Run or draft a read-only `zscalerctl` command; keep the result in this session (a case may save it
   under its `evidence/`), never as a standing tenant cache. Until `zscalerctl` is adopted where you are, say "if
   installed" and offer to draft the command.
 - **No overlay:** never invent tenant truth. Answer the general case, say which tenant fact is missing, and name
@@ -50,34 +49,41 @@ Vendored provider and SDK source say what a tool can express, never what *we* de
 
 ## Using the knowledge graph
 
-Many runtimes run file reads and searches without asking but stop for a person to approve every shell command.
-Use at most two resolver commands per answer: one to find subjects, and with an overlay one to finish. Read
-everything in between with your file tools.
+Retrieval is a file read and one command: the spine, then one `read`. Many runtimes stop for a person to approve
+every shell command, so keep to that one (a second `read` only when the first points at something the answer
+needs).
 
-1. **Find.** `node scripts/kb.mjs resolve "<the question's words>"` returns ranked candidates, each with
-   `matched`, the line that fits the question best. Read them all; every candidate whose line bears on the
-   question is worth opening, not only the first. A product name (`zia`) lists its areas instead.
-2. **Read.** An ID names its file: `zia.url-filtering.rule-order` is
-   `references/zia/zia.url-filtering.rule-order.json`. `prose` is the reasoning: `{{key}}` is a claim in the
-   file's `claims`, `[[id:key]]` a claim in another subject (open that file for it). `checks`, `cases`, `gaps` and
-   `divergences` follow; a gap with a `resolution` is closed. The parent and children share the ID as a prefix
-   (glob `references/zia/zia.url-filtering*.json`), and `related` names subjects it depends on or interacts
-   with: when the subject you opened does not hold the answer, the one next to it often does. Search
-   `references/` for the question's words when the ranked candidates miss.
-3. **Finish (overlay only).** Company facets come only through the resolver. When an overlay is configured, end
-   with one `node scripts/kb.mjs resolve --company --each <id> <id> ...` over the subjects the answer cites (not
-   every subject you opened): it returns only their company facets, so it stays small. Never run one resolver
-   call per subject.
+1. **Spine.** With your file tool, read `references/_meta/spine/<product>.json` for each product the question
+   involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared` for cross-product material and log
+   correlation; the smaller products by their ID prefix). One line per area: its summary and the areas it connects
+   to by typed edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in). Then open
+   `references/_meta/spine/<product>/<area>.json` for the 3 to 6 areas that bear on the question, following the
+   edges: one line per subject with its title, its opening fact and its typed edges. File reads need no approval.
+2. **Decide what the answer needs.** Before reading, work out what decides the outcome the question is about:
+   which policies run and in what order, how their rules match and what scopes them, how the traffic is
+   forwarded, what sits in the path. Then work out what evidence would show the cause: which log and which
+   fields. Pick from the spine the areas and subjects that hold those mechanisms, not only the ones that share
+   the question's words; the edges show where each mechanism lives. Your own Zscaler knowledge chooses what to
+   read; it is never a source for the answer.
+3. **Read.** `node scripts/kb.mjs read <area | subject | type> ...` in one call, usually 3 to 6 arguments:
+   for example `read zia.url-filtering zia.url-categories zia/web-log`. An area reads every subject under it;
+   take whole areas for the mechanisms the question turns on, and single subjects from areas over about 10k
+   tokens. Claims arrive inline with their citable ID in brackets (`[zia.url-filtering.rule-order:first-match]`),
+   then further facts and open gaps. `read` then walks the graph one hop: the subjects the ones you named link to
+   (dependencies, interactions, prose links) follow under "Linked subjects", the most-linked first, and the rest
+   are listed by title; read one of those by ID only if the answer needs it. With a company overlay, each subject is followed by the company records about it and their IaC locations.
+4. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
+   files the company records locate, with your file tools, and search them for the objects the question names
+   (the app, rule, location or category). Give the file's `committed` date.
 
-Run each resolver command bare, from the repo root: no `cd`, no pipe, no redirect. Permission checks approve a
-bare command; a compound one is refused or prompts again.
+Run each command bare, from the repo root: no `cd`, no pipe, no redirect. Permission checks approve a bare
+command; a compound one is refused or prompts again. When a command's output is long and the runtime saves it to a
+file, open that file with your file tool, never with `cat`, `grep` or another shell command.
 
 ```bash
-node scripts/kb.mjs resolve "<the question's words>"  # ranked candidates
-node scripts/kb.mjs resolve zia                       # a product: its areas and their subjects
-node scripts/kb.mjs resolve --company --each <id> ...  # per subject: company facets only (finishing an overlay answer)
-node scripts/kb.mjs resolve --compact --each <id> ...  # per subject: one-line claims, gaps, neighbors, company facets
-node scripts/kb.mjs resolve --each <id> <id> ...      # full bundles, adding bound tenant types and citations (large)
+node scripts/kb.mjs map <product> ...                     # the spine as text, when a file read is not available
+node scripts/kb.mjs read <area | subject | type> ...       # reading text with claim IDs; company records with an overlay
+node scripts/kb.mjs resolve <id>                          # one subject or old ledger ID as a JSON bundle, with citations
 node scripts/kb.mjs surface <name | API path | SDK package or method | product>   # endpoints, SDK calls, Terraform arguments
 ```
 
@@ -88,14 +94,14 @@ node scripts/kb.mjs surface <name | API path | SDK package or method | product> 
   than skipping to a later rule. Old ledger IDs such as `zia-02` resolve to their gap.
 - **Divergences** are sources that disagree. Do not pick one silently: name both, and answer at medium confidence
   at most.
-- **Checks** are what to verify before relying on an answer; follow the ones the bundle names.
-- **Company facets** (`layer: company`) follow [`docs/data-contract/knowledge.md`](docs/data-contract/knowledge.md):
+- **Checks** are what to verify before relying on an answer; follow the ones the subject names.
+- **Company records** follow [`docs/data-contract/knowledge.md`](docs/data-contract/knowledge.md):
   attribute them as company knowledge, give scope, confidence and `validated` date, and emit `do_not_infer`
   verbatim.
 
 ## Traps
 
-Resolve the subject before answering; these are the points answers most often get wrong.
+Read the named subject before answering; these are the points answers most often get wrong.
 
 - **Wildcards:** asterisks are not a valid Zscaler wildcard; `.example.com` is (bare domain plus subdomains, up to
   5 levels). Translate `*.` to the leading-period form and say so: `zia.url-categories.entry-matching`.
@@ -134,7 +140,7 @@ Resolve the subject before answering; these are the points answers most often ge
   `ai-security.ai-guard.integrations`.
 
 For a portfolio-level entry (Resilience, BCC, CTEM, Posture Control, Red Canary MDR, CASB as a term, B2B, the
-federal clouds), resolve its `portfolio.*` subject; `portfolio.overview` maps each need to its product. Most of
+federal clouds), read its `portfolio.*` subject; `portfolio.overview` maps each need to its product. Most of
 their API and rule details are open gaps: give the conceptual answer and do not invent API details or rule behavior.
 
 ## Answer format
@@ -147,7 +153,7 @@ their API and rule details are open gaps: give the conceptual answer and do not 
 <why, citing the mechanics: rule order, match type, evaluation stage; name any Tier B claim, gap or divergence the answer rests on>
 
 ## Sources
-- zia.url-filtering.rule-order:first-match (claim IDs from resolved bundles)
+- zia.url-filtering.rule-order:first-match (claim IDs from what you read)
 - company.zia.<record> (company knowledge, validated <date>), an IaC repo path and commit date, or the zscalerctl command run
 
 ## Confidence
@@ -169,6 +175,6 @@ lead with that drift: it is the finding.
 ## When to decline
 
 - **Tenant state needed and no overlay or observation:** say so, answer the general case, and name the read-only
-  command from the bundle.
+  command that would answer it.
 - **The graph has a gap for it:** answer what the claims support, cite the gap, and say what would resolve it.
-- **Nothing resolves:** say the skill does not cover it rather than answering from memory.
+- **Nothing in the spine covers it:** say the skill does not cover it rather than answering from memory.

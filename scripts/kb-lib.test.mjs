@@ -457,6 +457,41 @@ test("resolve --company carries only the company facets, identical to the full b
   assert.ok(out.length * 4 < JSON.stringify(full).length, `company ${out.length} bytes`);
 });
 
+test("map lists every subject once under its area, and the types", () => {
+  const g = buildGraph(loadPublic(ROOT));
+  const out = execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "map", "--no-overlay"], { encoding: "utf8" });
+  const subjects = [...g.nodes.values()].filter((n) => n.kind === "subject");
+  let area = null;
+  const listed = [];
+  for (const line of out.split("\n")) {
+    const head = line.match(/^## (\S+) \(\d+ subjects?, ~\d+k tokens\)$/);
+    if (head) { area = head[1]; continue; }
+    if (line.startsWith("## Types")) { area = null; continue; }
+    if (area && line) listed.push(line.startsWith(".") ? area + line.split(" — ")[0] : line.split(" — ")[0]);
+  }
+  assert.deepEqual(listed.sort(), subjects.map((n) => n.id).sort());
+  assert.match(out, /^zia\/web-log — /m, "types are listed by ID");
+});
+
+test("read gives an area's subjects as text with citable claim IDs and no evidence; company records with an overlay", () => {
+  const run = (...a) => execFileSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", ...a], { encoding: "utf8" });
+  const g = buildGraph(loadPublic(ROOT));
+  const out = run("--no-overlay", "--no-links", "zia.url-filtering");
+  for (const n of g.nodes.values()) {
+    if (n.kind === "subject" && n.id.startsWith("zia.url-filtering.")) assert.ok(out.includes(`(${n.id})\n`), `${n.id} is read`);
+    if (n.kind === "claim" && n.subject.startsWith("zia.url-filtering.")) assert.ok(out.includes(`[${n.id}]`), `${n.id} is marked`);
+  }
+  const quote = g.nodes.get("zia.url-filtering.rule-order:first-match").data.evidence[0].quotes[0];
+  assert.ok(!out.includes(quote.trim()), "evidence quotes stay out");
+  assert.match(run("--no-overlay", "zia.nope"), /no subject, type or area has this ID/);
+  const linked = run("--no-overlay", "zia.url-filtering.rule-order");
+  assert.match(linked, /## Linked subjects \(one hop from what was read\)\n\n# .*\(zia\.url-categories\.membership\)/s, "a subject the prose links to is read next");
+  assert.equal(spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--bogus", "zia"], { encoding: "utf8" }).status, 2);
+  const withOverlay = run("--overlay", OVERLAY, "zia/url-filtering-rules");
+  assert.match(withOverlay, /^IaC repos: /m);
+  assert.match(withOverlay, /Company records:\n- \[company\.zia\./);
+});
+
 test("resolve rejects an unknown flag instead of searching for it", () => {
   const r = spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "resolve", "--no-overlay", "--help"], { encoding: "utf8" });
   assert.equal(r.status, 2);

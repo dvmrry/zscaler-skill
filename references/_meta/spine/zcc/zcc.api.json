@@ -1,0 +1,20 @@
+{
+  "area": "zcc.api",
+  "title": "The ZCC API from a client's side: hosts, sign-in, limits, conventions and wire notes",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zcc.api","title":"The ZCC API from a client's side: hosts, sign-in, limits, conventions and wire notes"},
+    {"id":"zcc.api.admin-users-wire","title":"ZCC admin users on the wire: the admin sync operations and the serviceType field","lead":"`POST /syncZiaZdxAdminUsers` synchronizes ZCC's local copy of all ZIA and ZDX admin users and `POST /syncZpaAdminUsers` that of the ZPA admin users; `GET /ge..."},
+    {"id":"zcc.api.authentication","title":"Reaching and signing in to the ZCC API: OneAPI gateway and legacy login","lead":"Availability of the Zscaler Client Connector API is limited: the organization must have it enabled by contacting Zscaler Support or the account team, and mus...","edges":{"depends-on":["shared.oneapi.authentication","shared.oneapi.base-urls"]}},
+    {"id":"zcc.api.company-wire","title":"ZCC company info and password management calls: who may read, and which clients can write","lead":"The Terraform provider exposes company info only as the `zcc_company_info` data source; it has no company-info resource."},
+    {"id":"zcc.api.conventions","title":"Conventions of the ZCC v1 API: casing, query parameters, caching, status codes","lead":"The contract names the v1 list query parameters in camelCase (`page`, `pageSize`, `search`, `searchType`), and the Python SDK camel-cases every ZCC query par..."},
+    {"id":"zcc.api.devices-wire","title":"ZCC device endpoints on the wire: removal, CSV downloads, OTPs and app profile passwords","lead":"The device list takes `page` (default 1) and `pageSize`, which defaults to 50 with a maximum of 5000, and filters by `username` and `osType`.","edges":{"interacts-with":["zcc.api.rate-limits"]}},
+    {"id":"zcc.api.entitlements-wire","title":"ZCC entitlement calls: response and update body shapes"},
+    {"id":"zcc.api.forwarding-profile-wire","title":"ZCC forwarding profile calls: integer codes, read and write types, and where the contract and SDKs differ","lead":"Forwarding profiles are created and updated through the same `POST /webForwardingProfile/edit`: the contract's only operation on that path is a POST describe..."},
+    {"id":"zcc.api.rate-limits","title":"ZCC API rate limits: 100 calls an hour, 3 a day for downloads, and how the SDKs back off","lead":"For an organization, all endpoints called from a given IP address are limited to 100 calls per hour, except `/downloadDevices`, `/downloadServiceStatus` and ...","edges":{"decided-by":["shared.oneapi.rate-limits"]}},
+    {"id":"zcc.api.trusted-networks-wire","title":"What goes on the wire for ZCC trusted networks: the v1 webTrustedNetwork and v2 trusted-networks APIs","lead":"Both SDKs read the v1 list as an object and take the networks from its `trustedNetworkContracts` member (Go also reads `totalCount` and errors when it is pos..."},
+    {"id":"zcc.api.v2-wire","title":"The ZCC v2 API: RESTful paths, offset paging and the list envelope","lead":"The Go SDK pages v2 lists by offset with the query parameters `skip` and `perPage`, searches with `keyword`, and adds per-family filters: `type` for trusted ..."},
+    {"id":"zcc.api.web-policy-wire","title":"What goes on the wire for ZCC web policies (app profiles): /web/policy/edit and activate","lead":"One endpoint, `PUT /web/policy/edit`, adds or updates a policy or app profile for a platform; the Go SDK's model says the API treats a body with no `id` key ..."},
+    {"id":"zcc.api.web-privacy-wire","title":"ZCC web privacy (User Privacy) calls: string flags, fields the contract lacks, and key casing","lead":"Web privacy is a single settings record, not a list: the API document's GET takes no parameters and returns an object, the Go SDK returns a single struct, an..."}
+  ]
+}

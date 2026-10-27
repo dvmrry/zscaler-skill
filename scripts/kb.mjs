@@ -7,9 +7,12 @@
 //   resolve <id | text> [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]
 //   resolve --each <id> <id> ...     one bundle per argument, as a JSON array (one call for several subjects)
 //   resolve --compact ...            labels and one-line claims only (with --each: scan several, then open one)
-//   resolve --company ...            company facets only (with --each: finish an overlay answer in one small call)
+//   resolve --company ...            company facets only (with --each)
 //     The overlay defaults to $ZSCALER_KB_OVERLAY, then <runtime-data mount>/overlay if it has overlay.json.
 //                                    one layer-labelled bundle (JSON on stdout)
+//   map [<product | area> ...]       the spine as text: areas, subjects, opening facts and typed edges
+//   read <area | subject | type> ... reading text with citable claim IDs, one hop of linked subjects, and
+//                                    company records with an overlay (--no-links: no hop)
 //   render <subject-id>              the subject as Markdown (deterministic)
 //   manifest                         record capture-manifest entries for cited captures
 //   verified                         regenerate references/_meta/verified.json
@@ -34,7 +37,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|lint|resolve|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|freshness> [args]");
+  console.error("usage: kb.mjs <validate|lint|resolve|map|read|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|freshness> [args]");
   process.exit(2);
 }
 

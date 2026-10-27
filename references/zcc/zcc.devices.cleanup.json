@@ -15,8 +15,15 @@
     "setDeviceCleanupInfo"
   ],
   "related": [
-    { "rel": "depends-on", "to": "zcc.devices.lifecycle" },
-    { "rel": "see-also", "to": "zcc.devices" }
+    {
+      "rel": "interacts-with",
+      "to": "zcc.devices.lifecycle",
+      "because": "zcc.devices.cleanup:permanent-delete"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices"
+    }
   ],
   "prose": [
     {
@@ -46,15 +53,23 @@
   "checks": [
     {
       "do": "Whether a device the user did not remove was taken by the threshold (the user enrolled a newer device past it) or by inactivity, from its state history and the cleanup settings.",
-      "uses": ["threshold", "inactive-removal", "zcc.devices.lifecycle:removed-conditions"]
+      "uses": [
+        "threshold",
+        "inactive-removal",
+        "zcc.devices.lifecycle:removed-conditions"
+      ]
     },
     {
       "do": "Whether a cleanup setting was changed within the last week, since the Enrolled Devices view can lag that long.",
-      "uses": ["week-lag"]
+      "uses": [
+        "week-lag"
+      ]
     },
     {
       "do": "Before reading or writing cleanup through the API, which field carries which setting, since the contract does not say.",
-      "uses": ["field-to-setting-mapping"]
+      "uses": [
+        "field-to-setting-mapping"
+      ]
     }
   ],
   "claims": {
@@ -102,7 +117,9 @@
     "permanent-delete": {
       "statement": "Permanently Delete Removed Devices After deletes a device from the admin console after it has been Removed or Unregistered for 60, 90, 120, 150 or 180 days, measured from the device's Last Deregistration Timestamp.",
       "tier": "A",
-      "binds": ["zcc/devices#deregistrationTimestamp"],
+      "binds": [
+        "zcc/devices#deregistrationTimestamp"
+      ],
       "evidence": [
         {
           "source": "zscaler-help",
@@ -150,41 +167,69 @@
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
           "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/autoRemovalDays",
-          "expect": { "type": "string" }
+          "expect": {
+            "type": "string"
+          }
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
           "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/autoPurgeDays",
-          "expect": { "type": "string" }
+          "expect": {
+            "type": "string"
+          }
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
           "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/deviceExceedLimit",
-          "expect": { "type": "string" }
+          "expect": {
+            "type": "string"
+          }
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
           "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties/forceRemoveType",
-          "expect": { "type": "string" }
+          "expect": {
+            "type": "string"
+          }
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
           "pointer": "/paths/~1papi~1public~1v1~1getDeviceCleanupInfo/get/responses/200/content/*~1*/schema/properties",
           "expect": {
-            "active": { "type": "string" },
-            "autoPurgeDays": { "type": "string" },
-            "autoRemovalDays": { "type": "string" },
-            "companyId": { "type": "string" },
-            "createdBy": { "type": "string" },
-            "deviceExceedLimit": { "type": "string" },
-            "editedBy": { "type": "string" },
-            "forceRemoveType": { "type": "string" },
-            "forceRemoveTypeString": { "type": "string" },
-            "id": { "type": "string" }
+            "active": {
+              "type": "string"
+            },
+            "autoPurgeDays": {
+              "type": "string"
+            },
+            "autoRemovalDays": {
+              "type": "string"
+            },
+            "companyId": {
+              "type": "string"
+            },
+            "createdBy": {
+              "type": "string"
+            },
+            "deviceExceedLimit": {
+              "type": "string"
+            },
+            "editedBy": {
+              "type": "string"
+            },
+            "forceRemoveType": {
+              "type": "string"
+            },
+            "forceRemoveTypeString": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
           }
         },
         {
@@ -192,16 +237,36 @@
           "path": "automate-zscaler/openapi/zcc.openapi.json",
           "pointer": "/paths/~1papi~1public~1v1~1setDeviceCleanupInfo/put/requestBody/content/application~1json/schema/properties",
           "expect": {
-            "active": { "type": "string" },
-            "autoPurgeDays": { "type": "string" },
-            "autoRemovalDays": { "type": "string" },
-            "companyId": { "type": "string" },
-            "createdBy": { "type": "string" },
-            "deviceExceedLimit": { "type": "string" },
-            "editedBy": { "type": "string" },
-            "forceRemoveType": { "type": "string" },
-            "forceRemoveTypeString": { "type": "string" },
-            "id": { "type": "string" }
+            "active": {
+              "type": "string"
+            },
+            "autoPurgeDays": {
+              "type": "string"
+            },
+            "autoRemovalDays": {
+              "type": "string"
+            },
+            "companyId": {
+              "type": "string"
+            },
+            "createdBy": {
+              "type": "string"
+            },
+            "deviceExceedLimit": {
+              "type": "string"
+            },
+            "editedBy": {
+              "type": "string"
+            },
+            "forceRemoveType": {
+              "type": "string"
+            },
+            "forceRemoveTypeString": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
           }
         }
       ]
@@ -215,7 +280,9 @@
           "evidence": {
             "source": "zscaler-help",
             "path": "configuring-automated-device-cleanup.json",
-            "quotes": ["A device becomes inactive when the most recent KeepAlive Timestamp is older than the defined period."]
+            "quotes": [
+              "A device becomes inactive when the most recent KeepAlive Timestamp is older than the defined period."
+            ]
           },
           "says": "The device's most recent KeepAlive Timestamp."
         },
@@ -223,7 +290,9 @@
           "evidence": {
             "source": "zscaler-help",
             "path": "device-states-enrolled-devices.json",
-            "quotes": ["An inactive device is based on the Last Seen Connected to ZIA timestamp associated with the Zscaler Client Connector registration."]
+            "quotes": [
+              "An inactive device is based on the Last Seen Connected to ZIA timestamp associated with the Zscaler Client Connector registration."
+            ]
           },
           "says": "The device's Last Seen Connected to ZIA timestamp."
         }
@@ -237,7 +306,9 @@
           "evidence": {
             "source": "zscaler-help",
             "path": "configuring-automated-device-cleanup.json",
-            "quotes": ["Select from the following intervals: 60, 90, 120, 150, or 180 days."]
+            "quotes": [
+              "Select from the following intervals: 60, 90, 120, 150, or 180 days."
+            ]
           },
           "says": "The console offers 60, 90, 120, 150 or 180 days, with no 0, 30 or Never."
         },
@@ -246,7 +317,9 @@
             "source": "tf-zcc",
             "path": "internal/framework/resources/device_cleanup.go",
             "after": "\"auto_purge_days\": schema.Int64Attribute{",
-            "quotes": ["int64validator.OneOf(0, 30, 60, 90, 120, 150, 180),"]
+            "quotes": [
+              "int64validator.OneOf(0, 30, 60, 90, 120, 150, 180),"
+            ]
           },
           "says": "The ZCC Terraform provider's `auto_purge_days` also accepts 0 and 30."
         },
@@ -255,7 +328,9 @@
             "source": "sdk-python",
             "path": "tests/integration/zcc/cassettes/TestDevice.yaml",
             "after": "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/getDeviceCleanupInfo",
-            "quotes": ["\\ \\\"autoPurgeDays\\\" : \\\"0\\\"\\n}\""]
+            "quotes": [
+              "\\ \\\"autoPurgeDays\\\" : \\\"0\\\"\\n}\""
+            ]
           },
           "says": "A recorded cleanup read from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) carries `autoPurgeDays` \"0\", a value the console does not list."
         }
@@ -270,7 +345,10 @@
       "status": "partial",
       "detail": "Unverified legacy statement: `autoRemovalDays` is the inactive-removal period (0 or null for Never), `autoPurgeDays` the permanent-deletion period, `deviceExceedLimit` the per-user threshold (1 to 16), and `forceRemoveType` an integer enum of the force-remove type with `forceRemoveTypeString` its display form. The contract gives only names and string types and the SDKs carry the fields without describing them, but the ZCC Terraform provider's `zcc_device_cleanup` resource describes and validates them (generated surface): `auto_removal_days` takes 0 (Never), 30, 60, 90, 120, 150 or 180; `auto_purge_days` takes 0, 30, 60, 90, 120, 150 or 180 with no label for 0 (divergence purge-period-values); `force_remove_type` takes 0 (Restrict) or 8 through 16, and the codes 8 to 16 have no labels. A recorded `getDeviceCleanupInfo` response from one test tenant (recorded with SDK 1.9.13, Python SDK cassette) sends the values as strings: `forceRemoveType` \"0\", `deviceExceedLimit` \"16\", `autoRemovalDays` \"0\", `autoPurgeDays` \"0\". What the force-remove codes 8 to 16 mean, and how `deviceExceedLimit` relates to them, is still open.",
       "blocks": "reading or writing cleanup settings through the API or Terraform with confidence about what a value means",
-      "resolves_with": ["tenant-data", "support-ticket"],
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
       "evidence": [
         {
           "source": "tf-zcc",

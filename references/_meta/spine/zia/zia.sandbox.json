@@ -1,0 +1,15 @@
+{
+  "area": "zia.sandbox",
+  "title": "ZIA Sandbox",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zia.sandbox","title":"ZIA Sandbox","edges":{"decided-by":["zia.sandbox.rules","zia.sandbox.coverage"],"scoped-by":["zia.time-intervals.rule-usage"],"interacts-with":["zia.url-filtering","zia.malware-protection","zia.atp.security-exceptions"],"depends-on":["zia.ssl-inspection.pipeline"],"logged-in":["zia.logs.web-records","zia/web-log"]}},
+    {"id":"zia.sandbox.coverage","title":"What Sandbox analyzes and why a file may not be","lead":"Basic Sandbox analyzes only .exe, .dll, .scr, .ocx, .sys and .zip files up to 2 MB.","edges":{"decided-by":["zia.sandbox.rules"],"interacts-with":["zia.file-type-control"],"depends-on":["zia.ssl-inspection.pipeline"]}},
+    {"id":"zia.sandbox.md5-blocklist","title":"Sandbox custom MD5 hash list","lead":"Sandbox keeps a custom list of MD5 file hashes it blocks, under /zia/api/v1/behavioralAnalysisAdvancedSettings: GET reads the list and PUT replaces it."},
+    {"id":"zia.sandbox.quarantine","title":"Files stuck in Sandbox quarantine","lead":"For one-time download links the URL stops serving the file after the first request, so later download attempts return 404 or 403 from the origin.","edges":{"decided-by":["zia.sandbox.rules"]}},
+    {"id":"zia.sandbox.report","title":"Sandbox reports, quota, and trusting report content","lead":"The report is fetched by MD5 as a summary or a full report; a separate endpoint returns the Sandbox quota."},
+    {"id":"zia.sandbox.rules","title":"Sandbox rules: first-time file behavior and the default rule","lead":"A rule's terminal action, `baRuleAction`, is ALLOW or BLOCK.","edges":{"scoped-by":["zia.time-intervals.rule-usage"]}},
+    {"id":"zia.sandbox.submission","title":"Submitting files to Sandbox and out-of-band inspection (Discan)","lead":"The submit call sends a raw or archive file to Sandbox for analysis (up to 100 files per day).","edges":{"depends-on":["zia.sandbox.rules"]}},
+    {"id":"zia.sandbox.verdicts","title":"Which engine blocked the file, and what a Sandbox verdict means","lead":"The Blocked Policy Type field in Web Insights logs identifies which security control is responsible for a block: Sandbox, Malware Protection, or Advanced Thr...","edges":{"interacts-with":["zia.malware-protection","zia.atp","zia.url-filtering"],"logged-in":["zia.logs.web-records","zia/web-log"]}}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "area": "zpa.microtenants",
+  "title": "ZPA Microtenants",
+  "read_with": "node scripts/kb.mjs read <subject> ...",
+  "subjects": [
+    {"id":"zpa.microtenants","title":"ZPA Microtenants","edges":{"decided-by":["zpa.microtenants.user-mapping","zpa.microtenants.policy-evaluation","zpa.microtenants.admin-permissions"],"scoped-by":["zpa.microtenants.user-mapping"],"interacts-with":["zpa.private-service-edges.disaster-recovery"],"depends-on":["zpa.microtenants.isolation","zpa.microtenants.limits"]}},
+    {"id":"zpa.microtenants.admin-permissions","title":"Microtenant admin permissions","lead":"The permission matrix defines four levels: Full is read or write access, Read only is read-only access, Read only* is read-only access that can still perform...","edges":{"scoped-by":["shared.admin-rbac.zpa"]}},
+    {"id":"zpa.microtenants.api-scoping","title":"How an API call selects a Microtenant","lead":"The ZPA API reference describes the `microtenantId` query parameter as the Microtenant's unique identifier, where 0 is passed for the Default Microtenant and...","edges":{"interacts-with":["zpa.b2b-federation.api-routes"]}},
+    {"id":"zpa.microtenants.isolation","title":"What a Microtenant isolates","lead":"A Microtenant is a delegated administrator responsibility that an admin with Microtenant administrator privileges assigns to an admin; Microtenants are defin...","edges":{"interacts-with":["zpa.microtenants.policy-evaluation"]}},
+    {"id":"zpa.microtenants.lifecycle","title":"Microtenant lifecycle: create, disable, delete","lead":"In the Add Microtenant drawer the Status is disabled by default.","edges":{"interacts-with":["zpa.log-receivers","zpa.pra.approvals","zpa.emergency-access.configuration"]}},
+    {"id":"zpa.microtenants.limits","title":"Microtenant limits and unsupported features","lead":"The ranges and limitations article allows 100 Microtenants.","edges":{"interacts-with":["zpa.private-service-edges.disaster-recovery"]}},
+    {"id":"zpa.microtenants.policy-evaluation","title":"Policy evaluation between Default and custom Microtenants","lead":"A user in the Default Microtenant accessing a Default Microtenant segment, or a user in a custom Microtenant accessing a segment in that custom Microtenant, ...","edges":{"scoped-by":["zpa.microtenants.user-mapping"],"interacts-with":["zpa.policy.evaluation-order"]}},
+    {"id":"zpa.microtenants.share-and-move","title":"Sharing and moving between Microtenants","lead":"Applications can be shared explicitly between Microtenants; the Share icon appears only inside a Microtenant, and the Default tenant is not a share target.","edges":{"depends-on":["zpa.segment-groups.membership","zpa.server-groups.role"]}},
+    {"id":"zpa.microtenants.user-mapping","title":"How users are mapped to a Microtenant","lead":"End users that are authenticated to Private Access with the selected authentication domains are mapped to their relevant Microtenant.","edges":{"scoped-by":["zpa.saml-attributes.policy-criteria","zpa.scim.policy-criteria"]}}
+  ]
+}
