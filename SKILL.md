@@ -57,21 +57,25 @@ needs).
    involves (`zia`, `zpa`, `zcc`, `cloud-connector`, `zdx`, `zidentity`, `shared` for cross-product material and log
    correlation; the smaller products by their ID prefix). One line per area: its summary and the areas it connects
    to by typed edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in). Then open
-   `references/_meta/spine/<product>/<area>.json` for the 3 to 6 areas that bear on the question, following the
-   edges: one line per subject with its title, its opening fact and its typed edges. File reads need no approval.
+   `references/_meta/spine/<product>/<area id>.json` (for example `references/_meta/spine/zia/zia.url-filtering.json`)
+   for the 3 to 6 areas that bear on the question, following the edges: one line per subject with its title, its
+   opening fact and its typed edges. File reads need no approval.
 2. **Decide what the answer needs.** Before reading, work out what decides the outcome the question is about:
    which policies run and in what order, how their rules match and what scopes them, how the traffic is
    forwarded, what sits in the path. Then work out what evidence would show the cause: which log and which
    fields. Pick from the spine the areas and subjects that hold those mechanisms, not only the ones that share
    the question's words; the edges show where each mechanism lives. Your own Zscaler knowledge chooses what to
    read; it is never a source for the answer.
-3. **Read.** `node scripts/kb.mjs read <area | subject | type> ...` in one call, usually 3 to 6 arguments:
-   for example `read zia.url-filtering zia.url-categories zia/web-log`. An area reads every subject under it;
-   take whole areas for the mechanisms the question turns on, and single subjects from areas over about 10k
-   tokens. Claims arrive inline with their citable ID in brackets (`[zia.url-filtering.rule-order:first-match]`),
-   then further facts and open gaps. `read` then walks the graph one hop: the subjects the ones you named link to
-   (dependencies, interactions, prose links) follow under "Linked subjects", the most-linked first, and the rest
-   are listed by title; read one of those by ID only if the answer needs it. With a company overlay, each subject is followed by the company records about it and their IaC locations.
+3. **Read.** `node scripts/kb.mjs read <area | subject | type | field> ...` in one call, usually 3 to 6 arguments:
+   for example `read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`. An area reads every
+   subject under it; take whole areas for the mechanisms the question turns on, and single subjects from areas over
+   about 10k tokens. For log evidence, name the fields (`zia/web-log#ssldecrypted`) or the log type; each product's
+   spine file lists its log types. Claims arrive inline with their citable ID in brackets
+   (`[zia.url-filtering.rule-order:first-match]`), then further facts and open gaps. `read` then walks the graph one
+   hop: the subjects the ones you named link to follow under "Linked subjects", the most-linked first, and every
+   other link prints as one line with the claim that establishes it; read one of those by ID only if the answer
+   needs it. With a company overlay, each subject is followed by the company records about it and their IaC
+   locations.
 4. **Tenant configuration (overlay only).** When the answer depends on how *our* tenant is set up, open the IaC
    files the company records locate, with your file tools, and search them for the objects the question names
    (the app, rule, location or category). Give the file's `committed` date.

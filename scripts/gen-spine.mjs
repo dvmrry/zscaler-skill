@@ -33,7 +33,8 @@ function leadOf(s) {
 
 // An area whose name marks it as reference material (wire formats, SDK and provider behaviour).
 const REFERENCE = /^(api|sdk-|terraform|ansible|mcp-server|legacy-api)/;
-const areaOf = (id) => id.split(/[./]/).slice(0, 2).join(".");
+// A type (`zia/web-log`) is its own target; a subject belongs to the area its first two segments name.
+const areaOf = (id) => (id.includes("/") ? id : id.split(".").slice(0, 2).join("."));
 
 export function spines(g) {
   const products = new Map();
@@ -90,11 +91,16 @@ export function spineFiles(g) {
   const files = {};
   for (const spine of Object.values(spines(g))) {
     const isRef = (a) => REFERENCE.test(a.id.split(".")[1] || "");
+    // Log types are authored, one file each under references/<product>/types/; API types are generated and many.
+    const logTypes = [...g.nodes.values()].filter((n) => n.kind === "type" && n.authored && n.file.startsWith(`references/${spine.product}/types/`))
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map((n) => ({ id: n.id, title: n.data.title || n.id, fields: Object.keys(n.data.fields || {}).length }));
     files[`${spine.product}.json`] = lines({
       product: spine.product,
       generated_by: "scripts/gen-spine.mjs",
-      open: `references/_meta/spine/${spine.product}/<area>.json for an area's subjects`,
-    }, { areas: spine.areas.filter((a) => !isRef(a)).map(areaEntry), reference_areas: spine.areas.filter(isRef).map(areaEntry) });
+      open: `an area's subjects are in references/_meta/spine/${spine.product}/<area id>.json, e.g. references/_meta/spine/${spine.product}/${spine.areas[0].id}.json`,
+      ...(logTypes.length ? { log_fields: "read a log type, or only some of its fields: kb.mjs read <type>#<field> ..." } : {}),
+    }, { areas: spine.areas.filter((a) => !isRef(a)).map(areaEntry), log_types: logTypes, reference_areas: spine.areas.filter(isRef).map(areaEntry) });
     for (const a of spine.areas) {
       files[`${spine.product}/${a.id}.json`] = lines({ area: a.id, title: a.title || a.id, read_with: "node scripts/kb.mjs read <subject> ..." }, { subjects: a.subjects });
     }

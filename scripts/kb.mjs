@@ -11,7 +11,8 @@
 //     The overlay defaults to $ZSCALER_KB_OVERLAY, then <runtime-data mount>/overlay if it has overlay.json.
 //                                    one layer-labelled bundle (JSON on stdout)
 //   map [<product | area> ...]       the spine as text: areas, subjects, opening facts and typed edges
-//   read <area | subject | type> ... reading text with citable claim IDs, one hop of linked subjects, and
+//   read <subject | area | type | field> ...
+//                                    reading text with citable claim IDs, one hop of linked subjects, and
 //                                    company records with an overlay (--no-links: no hop)
 //   render <subject-id>              the subject as Markdown (deterministic)
 //   manifest                         record capture-manifest entries for cited captures

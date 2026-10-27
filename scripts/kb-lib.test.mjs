@@ -483,9 +483,14 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   }
   const quote = g.nodes.get("zia.url-filtering.rule-order:first-match").data.evidence[0].quotes[0];
   assert.ok(!out.includes(quote.trim()), "evidence quotes stay out");
-  assert.match(run("--no-overlay", "zia.nope"), /no subject, type or area has this ID/);
+  assert.match(run("--no-overlay", "zia.nope"), /no subject, type, field or area has this ID/);
   const linked = run("--no-overlay", "zia.url-filtering.rule-order");
   assert.match(linked, /## Linked subjects \(one hop from what was read\)\n\n# .*\(zia\.url-categories\.membership\)/s, "a subject the prose links to is read next");
+  // A neighbour past the budget prints as its edge and the claim that establishes it.
+  assert.match(run("--no-overlay", "zia.ssl-inspection"), /^Linked, not read here[^\n]*\n- (decided-by|scoped-by|reached-via|interacts-with|depends-on|logged-in|links-to) \S+ \(.*\), from \S+: .+ \[[a-z0-9.-]+:[a-z0-9-]+\]$/m);
+  const fieldsOut = run("--no-overlay", "zia/web-log#ssldecrypted", "zia/web-log#cltsslfailreason");
+  assert.match(fieldsOut, /^- ssldecrypted .*\n- cltsslfailreason /m);
+  assert.ok(!fieldsOut.includes("- time "), "a field read prints only those fields");
   assert.equal(spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--bogus", "zia"], { encoding: "utf8" }).status, 2);
   const withOverlay = run("--overlay", OVERLAY, "zia/url-filtering-rules");
   assert.match(withOverlay, /^IaC repos: /m);

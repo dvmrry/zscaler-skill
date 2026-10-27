@@ -1,7 +1,8 @@
 {
   "product": "zpa",
   "generated_by": "scripts/gen-spine.mjs",
-  "open": "references/_meta/spine/zpa/<area>.json for an area's subjects",
+  "open": "an area's subjects are in references/_meta/spine/zpa/<area id>.json, e.g. references/_meta/spine/zpa/zpa.api.json",
+  "log_fields": "read a log type, or only some of its fields: kb.mjs read <type>#<field> ...",
   "areas": [
     {"id":"zpa.app-connectors","title":"ZPA App Connectors","summary":"App Connector groups; App Connector deployment, redundancy and limits; App Connector enrollment, certificates and re-enrollment; Reference Terraform modules for App Connectors on GCP; App Connector health, status values and telemetry","subjects":10,"edges":{"decided-by":["zpa.app-segments"],"scoped-by":["zpa.server-groups"],"interacts-with":["zpa.app-segments"],"logged-in":["zpa.logs"]}},
     {"id":"zpa.app-segments","title":"ZPA application segments","summary":"How the Ansible Browser Access, PRA and Inspection modules reconcile child applications; Application segment fields in the API and SDK models; The application segment Bypass setting and how it ranks; What an application segment can contain: entries, wildcards and ports; Which application segment a destination maps to when several overlap","subjects":10,"edges":{"decided-by":["zpa.policy"],"scoped-by":["zcc.forwarding-profiles"],"interacts-with":["zia.ssl-inspection","zpa.app-connectors","zpa.policy","zpa.server-groups"],"depends-on":["shared.source-ip-anchoring"]}},
@@ -26,6 +27,20 @@
     {"id":"zpa.server-groups","title":"ZPA server groups","summary":"The OpenAPI server group schemas carry an inconsistentConfigDetails object on the create request and on the read response, whose members are arrays of name a...","subjects":8,"edges":{"scoped-by":["zpa.app-segments"],"reached-via":["zpa.app-connectors"],"interacts-with":["zpa.app-connectors","zpa.app-segments","zpa.policy"]}},
     {"id":"zpa.troubleshooting","title":"Troubleshooting ZPA access: from symptom to layer","summary":"The hops of a ZPA access request and where each can fail; Authentication failures and step-up prompt loops in ZPA; Certificate and encryption failures: Browser Access, double encryption, pinned clients; Intermittent ZPA access failures; What the ZPA User Activity log fields say when diagnosing access","subjects":12,"edges":{"decided-by":["zpa.policy"],"interacts-with":["zpa.app-segments","zpa.policy","zpa.posture-profiles","zpa.segment-groups"],"depends-on":["zpa.browser-access","zpa.policy"],"logged-in":["zpa.logs"]}},
     {"id":"zpa.trusted-networks","title":"ZPA trusted networks","summary":"The ZPA trusted network object and how to fetch it; The TRUSTED_NETWORK operand in ZPA policy rules; Trusted networks on ZPA Private Service Edge groups; Trusted networks in ZPA and in Client Connector","subjects":5,"edges":{"decided-by":["zcc.trusted-networks"],"interacts-with":["zcc.forwarding-profiles","zpa.private-service-edges"],"depends-on":["zcc.trusted-networks"]}}
+  ],
+  "log_types": [
+    {"id":"zpa/app-connector-metrics-log","title":"ZPA App Connector Metrics Log (LSS zpn_ast_comprehensive_stats)","fields":31},
+    {"id":"zpa/app-connector-status-log","title":"ZPA App Connector Status Log (LSS zpn_ast_auth_log)","fields":37},
+    {"id":"zpa/appprotection-log","title":"ZPA AppProtection Log (LSS zpn_waf_http_exchanges_log)","fields":61},
+    {"id":"zpa/audit-log","title":"ZPA Audit Log (LSS zpn_audit_log)","fields":14},
+    {"id":"zpa/browser-access-log","title":"ZPA Browser Access Log (LSS zpn_http_trans_log)","fields":37},
+    {"id":"zpa/microsegmentation-flow-log","title":"ZPA Microsegmentation Flow Log (LSS zms_flow_log)","fields":22},
+    {"id":"zpa/private-cloud-controller-metrics-log","title":"ZPA Private Cloud Controller Metrics Log (LSS zpn_sitec_comprehensive_stats)","fields":15},
+    {"id":"zpa/private-cloud-controller-status-log","title":"ZPA Private Cloud Controller Status Log (LSS zpn_sitec_auth_log)","fields":37},
+    {"id":"zpa/private-service-edge-metrics-log","title":"ZPA Private Service Edge Metrics Log (LSS zpn_pbroker_comprehensive_stats)","fields":16},
+    {"id":"zpa/private-service-edge-status-log","title":"ZPA Private Service Edge Status Log (LSS zpn_sys_auth_log)","fields":39},
+    {"id":"zpa/user-activity-log","title":"ZPA User Activity Log (LSS zpn_trans_log)","fields":77},
+    {"id":"zpa/user-status-log","title":"ZPA User Status Log (LSS zpn_auth_log)","fields":33}
   ],
   "reference_areas": [
     {"id":"zpa.api","title":"The ZPA API from a client's side: paths, authentication, paging, limits and wire notes","summary":"Whether ZPA changes need an activation step; ZPA App Connector, group, schedule and version profile calls: what is sent and where the sources differ; Application segment wire behavior: what each SDK sends, drops and matches across the four segment kinds; How a client authenticates to the ZPA API: OneAPI, legacy and government clouds; ZPA API base paths: hosts, the /zpa prefix, v1 and v2 versions, userconfig and cbiconfig","subjects":24,"edges":{"decided-by":["zpa.policy"],"scoped-by":["zpa.microtenants"],"interacts-with":["zpa.microtenants"],"depends-on":["shared.sdk-go"]}},

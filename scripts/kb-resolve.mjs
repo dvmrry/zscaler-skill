@@ -765,10 +765,10 @@ function readSubject(g, id) {
   return parts.filter(Boolean).join("\n\n");
 }
 
-/** A type as reading text: one line per field. */
-function readType(g, id) {
+/** A type as reading text: one line per field, or per field in `paths`. */
+function readType(g, id, paths = null) {
   const t = g.nodes.get(id).data;
-  const lines = Object.entries(t.fields).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
+  const lines = Object.entries(t.fields).filter(([p]) => !paths || paths.includes(p)).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
   return [`# ${t.title || id} (${id})`, ...lines].join("\n");
 }
 
@@ -790,12 +790,12 @@ const FOLLOW = { "decided-by": 3, "scoped-by": 3, "interacts-with": 3, "depends-
  */
 function edgesOf(g, id) {
   const n = g.nodes.get(id);
-  const out = (n.data.related || []).map((e) => ({ to: e.to, rel: e.rel }));
+  const out = (n.data.related || []).map((e) => ({ to: e.to, rel: e.rel, because: e.because }));
   const parts = id.split(".");
   for (let i = parts.length - 1; i >= 2; i--) {
     const hub = g.nodes.get(parts.slice(0, i).join("."));
     if (hub?.kind !== "subject") continue;
-    for (const e of hub.data.related || []) if (FOLLOW[e.rel] >= 3 && e.to !== id) out.push({ to: e.to, rel: e.rel, via: hub.id });
+    for (const e of hub.data.related || []) if (FOLLOW[e.rel] >= 3 && e.to !== id) out.push({ to: e.to, rel: e.rel, because: e.because, via: hub.id });
   }
   for (const m of JSON.stringify(n.data.prose || []).matchAll(/\[\[([^\]:#|]+)/g)) {
     const to = g.nodes.get(m[1])?.kind === "subject" ? m[1] : g.nodes.get(m[1])?.subject;
@@ -805,11 +805,15 @@ function edgesOf(g, id) {
 }
 
 /**
- * Read areas, subjects and types as text, then walk the graph one hop. An argument is a type ID, or a subject,
- * area or product ID (`zia.ssl-inspection.actions`, `zia.ssl-inspection`, `zpa`), which reads that subject and
- * every subject under it. The subjects those point to are read next, the ones most of the reading set points to
- * first, until `budget` tokens; the rest are listed by title. With an overlay, each subject is followed by the
- * company records about it.
+ * Read areas, subjects, types and fields as text, then walk the graph one hop. An argument is a field ID
+ * (`zia/web-log#ssldecrypted`), a type ID, or a subject, area or product ID (`zia.ssl-inspection.actions`,
+ * `zia.ssl-inspection`, `zpa`), which reads that subject and every subject under it. The subjects those point to are
+ * read next, the ones most of the reading set points to first, until `budget` tokens; every other neighbour prints as
+ * one line with the claim that establishes its edge. With an overlay, each subject is followed by the company records
+ * about it.
+ *
+ * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
+ * proxy questions, capping it lost more facts than the read-back costs.
  */
 export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) {
   const out = [];
@@ -826,24 +830,30 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     if (company) out.push(`Company records:\n${company}`);
     return text.length / 4;
   };
+  const fields = new Map();
   for (const arg of args) {
     const node = g.nodes.get(arg);
+    if (node?.kind === "field") {
+      fields.set(node.type, [...(fields.get(node.type) || []), node.path]);
+      continue;
+    }
     // A subject reads with everything under it, so an area's ID (also its hub subject) reads the whole area.
     const ids = node?.kind === "type" ? [arg]
       : subjectsOf(g).map((n) => n.id).filter((id) => id === arg || id.startsWith(`${arg}.`));
-    if (!ids.length) out.push(`# ${arg}: no subject, type or area has this ID; check the map`);
+    if (!ids.length) out.push(`# ${arg}: no subject, type, field or area has this ID; check the spine`);
     for (const id of ids) if (!seen.has(id)) emit(id);
   }
+  for (const [type, paths] of fields) out.push(readType(g, type, paths));
   for (let hop = 0; hop < hops; hop++) {
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
     const votes = new Map();
     for (const id of seen) {
       if (g.nodes.get(id).kind !== "subject") continue;
       for (const e of edgesOf(g, id)) {
-        if (seen.has(e.to)) continue;
-        const v = votes.get(e.to) || { w: 0, via: [] };
+        if (seen.has(e.to) || !FOLLOW[e.rel]) continue;
+        const v = votes.get(e.to) || { w: 0, edges: [] };
         v.w += FOLLOW[e.rel];
-        v.via.push(`${e.rel} from ${e.via || id}`);
+        v.edges.push({ ...e, from: e.via || id });
         votes.set(e.to, v);
       }
     }
@@ -853,14 +863,32 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     let spent = 0;
     const listed = [];
     for (const [id, v] of ranked) {
-      const follow = v.w > 0 && g.nodes.get(id).kind === "subject";
-      const cost = follow ? readSubject(g, id).length / 4 : Infinity;
-      if (spent + cost <= budget) spent += emit(id);
-      else listed.push(`- ${id} — ${titleOf(g, id)} (${v.via.slice(0, 2).join("; ")})`);
+      const cost = g.nodes.get(id).kind === "subject" ? readSubject(g, id).length / 4 : Infinity;
+      if (spent + cost <= budget) {
+        spent += emit(id);
+        continue;
+      }
+      // The edge and the claim that establishes it.
+      const e = v.edges.find((x) => x.because) || v.edges[0];
+      const because = e.because && g.nodes.get(e.because)?.data?.statement;
+      listed.push(`- ${e.rel} ${id} (${titleOf(g, id)}), from ${e.from}${because ? `: ${because} [${e.because}]` : ""}`);
     }
-    if (listed.length) out.push(`Linked but not read (read them by ID if the answer needs them):\n${listed.join("\n")}`);
+    if (listed.length) out.push(fit("Linked, not read here (each with the claim that links it; read one by ID for the rest):", listed, 12000, "linked subjects"));
   }
   return `${out.join("\n\n")}\n`;
+}
+
+/** A heading and as many lines as fit in `room` characters, then a count of the rest. */
+function fit(head, lines, room, what) {
+  const kept = [];
+  let size = head.length;
+  for (const l of lines) {
+    if (size + l.length + 1 > room) break;
+    kept.push(l);
+    size += l.length + 1;
+  }
+  const more = lines.length - kept.length;
+  return [head, ...kept, ...(more ? [`- and ${more} more ${what}`] : [])].join("\n");
 }
 
 function citeLine(g, ev, cache) {
@@ -1034,7 +1062,7 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
   if (cmd === "read") {
     const ids = args.filter((a) => !a.startsWith("--"));
     const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--no-overlay"].includes(a));
-    if (unknown) usage(`read: unknown option ${unknown}; read <area | subject | type> ... [--no-links] [--overlay <dir> | --no-overlay]`);
+    if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links] [--overlay <dir> | --no-overlay]`);
     if (!ids.length) usage("read needs one or more area, subject or type IDs");
     process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1 }));
     return 0;
