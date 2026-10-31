@@ -8,7 +8,10 @@
     "POST status activate",
     "client.zia.activate",
     "pending configuration api",
-    "ACTIVE PENDING INPROGRESS"
+    "ACTIVE PENDING INPROGRESS",
+    "what does ACTIVE mean",
+    "activation status meaning",
+    "force activate"
   ],
   "related": [
     {
@@ -31,7 +34,11 @@
     },
     {
       "label": "Saved, not live.",
-      "text": "{{saved-not-live|ref}} {{status-values}}"
+      "text": "{{saved-not-live|ref}} {{status-is-a-report}} {{status-values}} {{active-means-nothing-pending}}"
+    },
+    {
+      "label": "In the Admin Portal.",
+      "text": "{{portal-activation-states}} {{force-activate}} The Terraform side of queueing is in [[zia.terraform.activation-methods]]."
     },
     {
       "label": "The calls.",
@@ -46,7 +53,8 @@
       "do": "Whether the activation status reads PENDING or INPROGRESS after a write, before looking for a platform fault.",
       "uses": [
         "saved-not-live",
-        "status-values"
+        "status-values",
+        "active-means-nothing-pending"
       ]
     },
     {
@@ -143,6 +151,60 @@
         }
       ],
       "conditions": "Re-sourced on recapture (2026-10-18) from the removed sample-endpoints page to the OneAPI contract's response schema."
+    },
+    "portal-activation-states": {
+      "statement": "The Admin Portal's Activation menu shows each admin's own status: no pending changes, Editing (saved but not activated), or Activation queued (activated, but held until the other editing admins activate theirs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "saving-and-activating-changes-zia-admin-portal.json",
+          "quotes": [
+            "No pending changes to activate: You haven't saved or activated your changes.",
+            "Editing: You saved your changes but haven't activated them.",
+            "Activation queued: Your activated changes are pending and haven't been pushed to the CA."
+          ]
+        }
+      ]
+    },
+    "force-activate": {
+      "statement": "Force Activate pushes every saved change in the tenant to the Central Authority at once, and only super admins and full admins can use it; a queued activation cannot be cancelled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "saving-and-activating-changes-zia-admin-portal.json",
+          "quotes": [
+            "Force Activate: Immediately pushes all saved changes to the CA. Only super admins and full admins can Force Activate changes.",
+            "A queued activation cannot be canceled."
+          ]
+        }
+      ]
+    },
+    "status-is-a-report": {
+      "statement": "GET /status reports the activation status of the saved configuration changes; it changes nothing, and activating is the separate POST /status/activate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1status/get",
+          "expect": {
+            "description": "<p>Gets the activation status for the saved configuration changes. To learn more about activating configuration changes, see <a href=\"https://help.zscaler.com/zia/saving-and-activating-changes-zia-admin-portal\" target=\"_blank\">Saving and Activating Changes in the ZIA Admin Portal</a>.</p>\n"
+          }
+        }
+      ]
+    },
+    "active-means-nothing-pending": {
+      "statement": "A status of ACTIVE means nothing saved is waiting to be activated. It is a reading, not a mode: a write made while the status reads ACTIVE is still saved but not live until the next activation.",
+      "tier": "B",
+      "conditions": "No captured source defines each status value. This reads ACTIVE, PENDING and INPROGRESS against the Admin Portal's states (no pending changes, Editing, Activation queued) and the rule that every change is saved, not live, until activated. The Terraform resource's `status = \"ACTIVE\"` is a request to activate, not this reading (zia.terraform.activation-resource).",
+      "derived_from": [
+        "zia.api.activation:status-values",
+        "zia.api.activation:status-is-a-report",
+        "zia.api.activation:portal-activation-states",
+        "zia.api.activation:saved-not-live"
+      ]
     }
   },
   "divergences": {
