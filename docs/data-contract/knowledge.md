@@ -94,8 +94,9 @@ fails a resolve. The contract check below is the strict gate.
 
 ## At answer time
 
-`node scripts/kb.mjs resolve <id | text>` merges every active record whose `about` touches the bundle as a
-`layer: company` facet, and ranks text queries on the records' words too. When an answer uses one:
+`node scripts/kb.mjs read` follows each subject, type or field it reads with every active record whose `about`
+touches it or the types it binds; `resolve <id | text>` merges the same records into its bundle as `layer: company`
+facets, and ranks text queries on the records' words too. When an answer uses one:
 
 1. Attribute it as company knowledge, never as vendor-documented behavior.
 2. Say its scope, confidence and `validated` date; emit `do_not_infer` verbatim.

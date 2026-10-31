@@ -149,7 +149,7 @@ New items go to the top of **Proposed**. Status changes leave a dated note.
 
 ### Knowledge base moved from Markdown to a JSON graph ✅ RESOLVED 2026-10
 
-- **Status**: Resolved (design: `docs/superpowers/specs/2026-10-17-kb-graph-model-design.md`; layout: `docs/kb-layout.md`)
+- **Status**: Resolved (layout: `docs/kb-layout.md`; record contracts: `references/_meta/schema/`)
 - **Origin**: the Markdown reference docs carried frontmatter (`confidence`, `source-tier`, `author-status`, `last-verified`), coverage tiers T1-T5, a clarification ledger and a portfolio map, all kept honest by hand and by `check-hygiene.py`.
 - **Resolution**: `references/` is now JSON subjects (claims with quoted evidence, gaps, divergences) read with `node scripts/kb.mjs resolve`. That finished or made moot these backlog items:
   - **Token-budget hygiene check** (per-file line counts of Markdown refs): moot; there are no long Markdown refs to cap.

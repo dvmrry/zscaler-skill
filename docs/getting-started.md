@@ -18,6 +18,8 @@ relative mount path in the committed `zscaler-skill-runtime.json`.
 - **Node 24.19+ (Node 24 LTS)** for deterministic workflow helpers such as
   case-intake, runtime-data setup, data-contract checks, and artifact handling.
 - **Git** for submodule fetch.
+- **Go** for `npm run check:full` only: its surface check reads the Terraform provider schemas with
+  `go run scripts/tf-schema.go`.
 - **ZIA and ZPA admin access** to create the API client credentials used below.
 
 ## Clone with Submodules

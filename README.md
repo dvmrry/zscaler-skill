@@ -29,7 +29,7 @@ node scripts/kb.mjs resolve --each zia.url-filtering.rule-order zia.cloud-app-co
 
 `read` prints each claim with its citable ID, then inferences with their conditions, divergences and open gaps, follows one hop to the subjects they link, and, when a company overlay is configured, adds the company's own records and their IaC locations. `resolve` is the script and bundle interface: the same knowledge as JSON, with quotes and the tenant object types a subject binds (their IaC coverage and read-only `zscalerctl` command). [`SKILL.md`](./SKILL.md) is the agent's entry point; `node scripts/kb.mjs read portfolio.overview` maps each customer need to its product.
 
-The sources are pinned: vendor repositories as git submodules, and help pages, API references and triaged GitHub issues as captures under `vendor/`. A gate re-anchors every quote on every change. The refresh loop ([docs/maintenance.md](./docs/maintenance.md)) refetches the captures and reviews which claims a source change touched, including quotes that still match beside changed code; new and changed claims also go through a model-graded audit before they land.
+The sources are pinned: vendor repositories as git submodules, and help pages, API references and triaged GitHub issues as captures under `vendor/`. A gate re-anchors every quote on every change. The refresh loop ([docs/maintenance.md](./docs/maintenance.md)) refetches the captures and reviews which claims a source change touched, including quotes that still match beside changed code; a model-graded audit of new and changed claims runs outside CI ([docs/maintenance.md](./docs/maintenance.md)).
 
 ## Install
 

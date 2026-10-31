@@ -1,9 +1,8 @@
 // scripts/kb-lib.mjs
 //
 // The knowledge graph: load records, index them by ID, validate them, anchor
-// citations, and resolve IDs or text to bundles. Zero-dependency. The design is
-// docs/superpowers/specs/2026-10-17-kb-graph-model-design.md; record contracts are
-// references/_meta/schema/*.schema.json (enforced by kb-schema.mjs).
+// citations, and resolve IDs or text to bundles. Zero-dependency. The layout is docs/kb-layout.md; record
+// contracts are references/_meta/schema/*.schema.json (enforced by kb-schema.mjs).
 //
 // Node kinds: subject, item (claim | case | divergence | gap), type, field.
 // IDs: '.' hierarchy, ':' item inside a subject, '/' type, '#' field.

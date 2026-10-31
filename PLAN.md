@@ -3,9 +3,9 @@
 **Purpose of this file:** crash-recovery artifact. If the session dies, read this to know what the project is, what's been done, and what's next without reconstructing from a 99MB transcript.
 
 > **Note (2026-10):** the knowledge base is now the JSON graph under `references/` (subjects of claims with
-> quoted evidence, gaps and divergences, read with `node scripts/kb.mjs resolve`), not Markdown reference docs.
-> Layout: [`docs/kb-layout.md`](docs/kb-layout.md); model:
-> [`docs/superpowers/specs/2026-10-17-kb-graph-model-design.md`](docs/superpowers/specs/2026-10-17-kb-graph-model-design.md).
+> quoted evidence, gaps and divergences, entered through the spine and read with `node scripts/kb.mjs read`), not
+> Markdown reference docs.
+> Layout: [`docs/kb-layout.md`](docs/kb-layout.md); record contracts: `references/_meta/schema/`.
 > The build record below is kept as written: the Markdown paths, clarification IDs and coverage tiers it names are
 > historical (clarification IDs resolve to gaps with `kb.mjs resolve`).
 

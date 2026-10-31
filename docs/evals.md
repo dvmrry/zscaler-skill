@@ -11,7 +11,7 @@ author-status: draft
 
 # Eval suite — `evals.json`
 
-Hand-written behavioral specifications: 31 entries shaped as `{prompt, expected_output, assertions, must_cite_files, must_not_say, expected_confidence, tenant_data_required}`. Captures concrete examples of "what a correct answer looks like" for the skill across URL filtering, ZPA segments and API-publication drift, ZCC forwarding, SSL inspection, AI Security source-boundary handling, SDK/accessor lifecycle boundaries, SOC evidence-first taxonomy mapping, and other high-value areas.
+Hand-written behavioral specifications: 31 entries shaped as `{prompt, expected_output, assertions, must_cite, must_not_say, expected_confidence, tenant_data_required}`, where `must_cite` lists graph IDs (a few entries also carry `must_cite_files` paths). Captures concrete examples of "what a correct answer looks like" for the skill across URL filtering, ZPA segments and API-publication drift, ZCC forwarding, SSL inspection, AI Security source-boundary handling, SDK/accessor lifecycle boundaries, SOC evidence-first taxonomy mapping, and other high-value areas.
 
 ## What this is — and isn't
 
@@ -41,7 +41,7 @@ The validate command emits a markdown report to stdout and saves it under `_data
 Per eval, a response must:
 
 - Contain each `assertions` substring (case-insensitive)
-- Mention each `must_cite_files` path or filename (case-insensitive)
+- Cite each `must_cite` graph ID, and mention each `must_cite_files` path or filename (case-insensitive)
 - NOT contain any `must_not_say` substring (case-insensitive)
 - Claim a confidence level matching `expected_confidence` (advisory — not mechanically checked)
 
@@ -59,7 +59,7 @@ guards the fixture contract in CI, while
 `scripts/bridge/scenarios/auditor-diff-readiness.json` provides an optional
 local live-agent discovery run.
 
-The `must_cite_files` paths are validated by `scripts/check-hygiene.py` to catch eval-references-deleted-file rot. If you delete or rename a referenced file, update the eval too.
+`node scripts/kb.mjs validate` checks that every `must_cite` ID resolves, and `scripts/check-hygiene.py` that every `must_cite_files` path exists, to catch eval-references-deleted-file rot. If you delete or rename a referenced file, update the eval too.
 
 ## Schema
 

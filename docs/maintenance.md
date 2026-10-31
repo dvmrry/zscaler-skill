@@ -208,8 +208,7 @@ changes into the claims that cite them.
 ## Contributing
 
 - Knowledge is JSON subjects under `references/<product>/`, one subject per file, validated against
-  `references/_meta/schema/` (the model is
-  `docs/superpowers/specs/2026-10-17-kb-graph-model-design.md`). A Tier A claim quotes its source; a Tier B
+  `references/_meta/schema/` (the layout is `docs/kb-layout.md`). A Tier A claim quotes its source; a Tier B
   claim states its `conditions`. `node scripts/kb.mjs validate` anchors every quote and pointer.
 - Every part of a Tier A statement must be readable in its quotes. The claim audit rejects most often:
   an absence ("the module creates no X") with no line saying so; a count or list the quotes do not contain;

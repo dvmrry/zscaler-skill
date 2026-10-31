@@ -111,8 +111,7 @@ inferred signal tagged with an `outcomeBasis`. The Devin export records tool
 *calls* but not *results*, so gate friction is inferred from duplicate calls and
 **disambiguated against disk truth** (e.g. `record_finding` call count vs the
 finding count on disk → inferred retries). Aggregation across runs, public
-promotion, and LLM reflection are intentionally not built yet — see
-`docs/superpowers/specs/2026-06-14-bridge-meta-retro-design.md`.
+promotion, and LLM reflection are intentionally not built yet.
 
 ### Optional per-session permission lock
 

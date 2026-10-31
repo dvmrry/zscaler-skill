@@ -51,8 +51,8 @@ Product knowledge is a knowledge graph under `references/<product>/` (`zia/`, `z
 file per subject: `references/<first ID segment>/<id>.json`. `references/_meta/spine/<product>.json` lists a product's areas and `references/_meta/spine/<product>/<area>.json`
 an area's subjects, with their facts and typed edges,
 and `node scripts/kb.mjs read <area | subject | type> ...` returns them as reading text. API endpoints, SDK calls and Terraform arguments come from
-`node scripts/kb.mjs surface <product | name | path>`. `references/_meta/` holds the remaining
-clarification ledger, evals and skill metadata; shared terminology is
+`node scripts/kb.mjs surface <product | name | path>`. `references/_meta/` holds the spine, schemas,
+evals and generated metadata; shared terminology is
 `references/shared/shared.terminology.json`. Tenant-specific data comes from the overlay (records `read`
 merges in), its IaC, and live read-only `zscalerctl`; the overlay lives at `$ZSCALER_KB_OVERLAY` or
 `<runtime-data mount>/overlay/`. If root `zscaler-skill-runtime.json` or local `zscaler-skill-setup.json` sets
