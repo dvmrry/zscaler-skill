@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "description": "Gold facts for scripts/kb-eval.mjs: each question names the facts a correct answer states and the claim that holds each.",
+  "questions": [
+    {
+      "id": "q02",
+      "turn": "I have two URL filtering rules that both match the same request: a Block rule lower in the order and an Allow rule higher up. Which one wins and why?",
+      "facts": [
+        {
+          "id": "first-match",
+          "claim": "zia.url-filtering.rule-order:first-match",
+          "fact": "Evaluation stops at the first matching rule."
+        },
+        {
+          "id": "ascending",
+          "claim": "zia.url-filtering.rule-order:ascending-order",
+          "fact": "Rules evaluate in ascending order, Rule 1 first."
+        },
+        {
+          "id": "specificity",
+          "claim": "zia.url-categories.membership:specific-entry-wins",
+          "fact": "Category membership is decided by the most specific entry across custom categories, before rule order."
+        }
+      ]
+    },
+    {
+      "id": "q03",
+      "turn": "We have a URL category entry `*.example.com`. Does it match example.com itself? foo.bar.example.com? Does http vs https matter?",
+      "facts": [
+        {
+          "id": "asterisk",
+          "claim": "zia.url-categories.entry-matching:asterisk-invalid",
+          "fact": "Asterisks are not valid wildcards; the leading-period form is."
+        },
+        {
+          "id": "leading-period",
+          "claim": "zia.url-categories.entry-matching:leading-period-wildcard",
+          "fact": "A leading-period entry matches the bare domain and subdomains up to 5 levels."
+        },
+        {
+          "id": "scheme",
+          "claim": "zia.url-categories.entry-matching:scheme-not-matched",
+          "fact": "Entries carry no scheme, so http and https match the same."
+        }
+      ]
+    },
+    {
+      "id": "q04",
+      "turn": "For an HTTPS request to a site we block by URL category, does SSL inspection happen before or after the URL filtering decision? Does it change if the category is set to Do Not Inspect?",
+      "facts": [
+        {
+          "id": "first-pass",
+          "claim": "zia.ssl-inspection.pipeline:first-pass-on-domain",
+          "fact": "URL Filtering first evaluates on the domain (CONNECT/SNI) before any decryption."
+        },
+        {
+          "id": "ssl-decision",
+          "claim": "zia.ssl-inspection.pipeline:ssl-decision-between",
+          "fact": "The SSL inspection policy then decides on the same CONNECT/SNI information whether to decrypt."
+        },
+        {
+          "id": "bypass-other",
+          "claim": "zia.ssl-inspection.pipeline:bypass-other-policies",
+          "fact": "Do Not Inspect with Bypass Other Policies skips URL Filtering entirely."
+        }
+      ]
+    },
+    {
+      "id": "q05",
+      "turn": "URL Filtering says Block on a site, but Cloud App Control explicitly allows the SaaS app hosted there. What happens to the request?",
+      "facts": [
+        {
+          "id": "cac-allow",
+          "claim": "zia.cloud-app-control.precedence:cac-allow-skips-url-filtering",
+          "fact": "A CAC allow means URL Filtering is not applied."
+        },
+        {
+          "id": "cascading",
+          "claim": "zia.cloud-app-control.precedence:cascading-allow-path",
+          "fact": "Allow Cascading to URL Filtering makes URL Filtering run after the allow."
+        },
+        {
+          "id": "block-final",
+          "claim": "zia.cloud-app-control.precedence:cac-block-final",
+          "fact": "A CAC block is final regardless of cascading."
+        }
+      ]
+    },
+    {
+      "id": "q06",
+      "turn": "In ZPA two application segments both cover *.internal.corp, and one also has foo.internal.corp on port 443 only. Users hit foo.internal.corp:8443 and it goes direct instead of through ZPA. Why?",
+      "facts": [
+        {
+          "id": "granular",
+          "claim": "zpa.policy.multimatch:exact-match-default",
+          "fact": "Client Connector matches the more granular segment by default."
+        },
+        {
+          "id": "port-bypass",
+          "claim": "zpa.app-segments.matching:port-mismatch-bypass",
+          "fact": "If the granular segment lacks the port, the client bypasses Private Access for it."
+        },
+        {
+          "id": "multimatch-fix",
+          "claim": "zpa.app-segments.matching:fix-for-carve-out",
+          "fact": "Fix: add the port to the specific segment or enable Multimatch."
+        }
+      ]
+    },
+    {
+      "id": "q07",
+      "turn": "A user on our corporate network can reach a URL our ZIA URL Filtering rule should block. Remote users on home Wi-Fi get blocked correctly for the same URL. Why?",
+      "facts": [
+        {
+          "id": "trusted-none",
+          "claim": "zcc.forwarding-profiles.internet-actions:trusted-none-skips-zia",
+          "fact": "A forwarding profile with On-Trusted action None sends nothing through ZIA on trusted networks."
+        },
+        {
+          "id": "criteria",
+          "claim": "zcc.trusted-networks.detection:criteria-defined",
+          "fact": "Trusted Network Criteria decide when a network counts as trusted."
+        }
+      ]
+    },
+    {
+      "id": "q08",
+      "turn": "We switched our forwarding profile to Z-Tunnel 2.0, but the dashboard shows most users still on Z-Tunnel 1.0. What's the most likely cause?",
+      "facts": [
+        {
+          "id": "fallback",
+          "claim": "zcc.z-tunnel.transport:setup-failure-behavior",
+          "fact": "Setup Failure Behavior can fall back to Z-Tunnel 1.0 when 2.0 cannot be set up."
+        }
+      ]
+    },
+    {
+      "id": "q09",
+      "turn": "ZDX shows a user's score as 38 but they say everything is fine. Is ZDX broken?",
+      "facts": [
+        {
+          "id": "lowest",
+          "claim": "zdx.score.calculation:hourly-lowest",
+          "fact": "Each hour takes the lowest 5-minute value."
+        },
+        {
+          "id": "bands",
+          "claim": "zdx.score:bands",
+          "fact": "38 falls in Okay (34-65), not Poor."
+        },
+        {
+          "id": "one-sample",
+          "claim": "zdx.score.calculation:one-bad-sample",
+          "fact": "One poor sample can set the hour's value."
+        }
+      ]
+    },
+    {
+      "id": "q10",
+      "turn": "We have a URL Filtering rule with action Isolate for Miscellaneous or Unknown, and an SSL Inspection Do Not Inspect rule for the same category. Users reach those sites directly, not in an isolated browser. Why?",
+      "facts": [
+        {
+          "id": "isolate-redirect",
+          "claim": "zbi.cloud-browser:zia-redirect",
+          "fact": "Matching traffic is redirected to Cloud Browser through the Public Service Edge."
+        }
+      ]
+    },
+    {
+      "id": "q11",
+      "turn": "Our Conditional Access rule in ZIA URL Filtering matches, but no MFA prompt ever appears; users just get access denied. What should we check first?",
+      "facts": [
+        {
+          "id": "oidc-only",
+          "claim": "zia.authentication.step-up:oidc-only",
+          "fact": "Step-up authentication works only with OIDC external IdP integrations."
+        },
+        {
+          "id": "saml-cannot",
+          "claim": "zia.authentication.step-up:not-for-hosted-saml",
+          "fact": "A SAML-only or Hosted DB tenant cannot use step-up."
+        },
+        {
+          "id": "conditional-prereqs",
+          "claim": "zia.url-filtering.actions:conditional-prereqs",
+          "fact": "Conditional needs Authentication Service and Client Connector forwarding."
+        }
+      ]
+    },
+    {
+      "id": "q12",
+      "turn": "In ZIdentity I built this Authentication Level tree:\n\n  AL1 (password only), validity 8 hours\n    └ AL2 (password + TOTP), validity 1 hour\n\nSaving fails with a validation error on the validity period. Why?",
+      "facts": [
+        {
+          "id": "validity-rule",
+          "claim": "zia.authentication.step-up:level-limits",
+          "fact": "A parent level's validity must be less than any of its sub-levels'."
+        },
+        {
+          "id": "parent-stronger",
+          "claim": "zidentity.step-up.levels:parent-stronger",
+          "fact": "The parent is the stronger level."
+        }
+      ]
+    },
+    {
+      "id": "q13",
+      "turn": "We deployed Cloud Connector in AWS yesterday. Today some workloads can't reach the internet at all, and the dashboard shows one of our gateways as unhealthy. What's the most likely explanation?",
+      "facts": [
+        {
+          "id": "fail-close",
+          "claim": "cloud-connector.overview.gateway-failover:fail-close-default",
+          "fact": "The default gateway configuration fails closed."
+        },
+        {
+          "id": "failover",
+          "claim": "cloud-connector.overview.gateway-failover:failover-30s",
+          "fact": "Failover to the secondary takes about 30 seconds."
+        },
+        {
+          "id": "tertiary",
+          "claim": "cloud-connector.overview.gateway-failover:tertiary",
+          "fact": "A tertiary Service Edge is tried by default."
+        }
+      ]
+    },
+    {
+      "id": "q14",
+      "turn": "Our ZIA DLP policy shows a violation in Web Insights, but no incident appears in Workflow Automation for that event. Where do I look first?",
+      "facts": [
+        {
+          "id": "integration",
+          "claim": "zwa.incidents:dlp-integration-required",
+          "fact": "Incidents appear in Workflow Automation only once a DLP application integration is configured."
+        }
+      ]
+    },
+    {
+      "id": "q15",
+      "turn": "A developer wants to put ZSDK in their iOS app. Is that the same as Client Connector, and does it use the same Service Edges?",
+      "facts": [
+        {
+          "id": "embedded",
+          "claim": "shared.zsdk:embedded-in-app",
+          "fact": "ZSDK is embedded in the app's source code, not an agent users install."
+        },
+        {
+          "id": "own-cloud",
+          "claim": "shared.zsdk:one-cloud",
+          "fact": "An organization runs on its own ZSDK cloud."
+        },
+        {
+          "id": "components",
+          "claim": "shared.zsdk.architecture:components",
+          "fact": "ZSDK has its own Public and Private Service Edges plus App Connectors."
+        }
+      ]
+    },
+    {
+      "id": "q16",
+      "turn": "We created a ZPA Microtenant a week ago. The admin now needs its admin password for a Terraform pipeline. How do we recover it?",
+      "facts": [
+        {
+          "id": "shown-once",
+          "claim": "zpa.microtenants.lifecycle:admin-credentials-shown-once",
+          "fact": "The admin ID and password are shown only when adding the Microtenant."
+        }
+      ]
+    },
+    {
+      "id": "q18",
+      "turn": "We enabled Tenant Profiles to block personal Microsoft 365 accounts. A test with a personal account still signs in fine from a corporate device. The profile looks right. What did we miss?",
+      "facts": [
+        {
+          "id": "bypass-first",
+          "claim": "zia.saas-apps.tenant-restriction-order:bypass-first-disables-restriction",
+          "fact": "A Do Not Inspect rule for Microsoft 365 earlier in the order disables the restriction."
+        },
+        {
+          "id": "order-fix",
+          "claim": "zia.saas-apps.tenant-restriction-order:order-fix",
+          "fact": "Place the Microsoft Login Services SSL rule above the One Click rule."
+        },
+        {
+          "id": "needs-decrypt",
+          "claim": "zia.tenant-profiles.wire-mechanic:needs-decrypted-traffic",
+          "fact": "Header insertion needs the traffic decrypted."
+        }
+      ]
+    },
+    {
+      "id": "q19",
+      "turn": "Our ZPA access policy has a posture criterion and isn't matching, though the device meets the posture requirement. Here is the operand from the rule:\n\n  {\"objectType\": \"POSTURE\", \"lhs\": \"216196257331285881\", \"rhs\": \"true\"}\n\nWhat are we missing?",
+      "facts": [
+        {
+          "id": "lhs-udid",
+          "claim": "zpa.posture-profiles.policy-operand:lhs-is-udid",
+          "fact": "The lhs must be the posture_udid, not the profile's id."
+        },
+        {
+          "id": "cadence",
+          "claim": "zpa.posture-profiles.evaluation:cadence",
+          "fact": "Client Connector evaluates posture every 15 minutes."
+        }
+      ]
+    },
+    {
+      "id": "q28",
+      "turn": "Can I automate Cloud Connector from the Zscaler Python SDK? We're thinking of moving to the Python 2.0.0 beta.",
+      "facts": [
+        {
+          "id": "v2-excludes",
+          "claim": "cloud-connector.api.client-coverage:python-v2-excludes-ztw",
+          "fact": "The v2 beta covers ZIA, ZDX and ZIdentity only, not ZTW."
+        }
+      ]
+    },
+    {
+      "id": "q29",
+      "turn": "We have no ZIdentity API clients yet. How do we create the first one, and can automation later create resource servers?",
+      "facts": [
+        {
+          "id": "console-first",
+          "claim": "zidentity.api-clients:console-provisioning",
+          "fact": "API clients are created and provisioned in the console first."
+        },
+        {
+          "id": "rs-read-only",
+          "claim": "zidentity.resource-servers:read-only",
+          "fact": "Resource servers are read-only: the contract has only GET."
+        }
+      ]
+    },
+    {
+      "id": "q31",
+      "turn": "Which actions can a Cloud Connector DNS rule take through Terraform? Our module has:\n\n  resource \"ztc_traffic_forwarding_dns_rule\" \"x\" { action = \"OVERWRITE\" ... }\n\nand plan rejects it.",
+      "facts": [
+        {
+          "id": "tf-four",
+          "claim": "cloud-connector.dns.policies:tf-actions",
+          "fact": "Terraform validates action against ALLOW, BLOCK, REDIR_ZPA and REDIR_REQ."
+        },
+        {
+          "id": "contract-eleven",
+          "claim": "cloud-connector.dns.policies:contract-actions",
+          "fact": "The API contract lists eleven actions, none of them OVERWRITE."
+        }
+      ]
+    }
+  ]
+}

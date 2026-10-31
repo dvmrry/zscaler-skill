@@ -65,6 +65,32 @@ local live-agent discovery run.
 
 See `evals.json` § `schema_notes` for field-level documentation.
 
+## Retrieval eval — `facts.json` and `scripts/kb-eval.mjs`
+
+The behavioral specs above say what a correct answer contains. The retrieval eval measures whether an agent that
+follows `SKILL.md` gets there: each question in `references/_meta/evals/facts.json` lists the gold facts a correct
+answer states and the claim that holds each (`kb.mjs validate` checks those claims exist).
+
+```bash
+node scripts/kb-eval.mjs run --ref HEAD --out /tmp/kb-eval/head --reps 3   # headless Claude Code sessions
+node scripts/kb-eval.mjs judge --out /tmp/kb-eval/head                      # does each answer state each fact
+node scripts/kb-eval.mjs report /tmp/kb-eval/main /tmp/kb-eval/head         # per rep, side by side
+```
+
+`report` gives, per rep: facts stated, holders reached (the holder claim's ID entered the context), context tokens
+per answer, shell calls a corporate runtime would stop to approve, and runs over the 8-call guardrail. Read it like
+this:
+
+- **Same harness only.** `run` records the Claude Code version, model, effort, tools and the prompt and question
+  hashes in `<out>/meta.json`. It will not add runs to a directory recorded under different ones, and `report`
+  will not compare such directories. A Claude Code upgrade changes how agents explore, so re-run the baseline
+  ref under the new version before comparing.
+- **Noise.** Rep-to-rep noise is several points: run 3 reps and read a gap under about 5 points as no change.
+- **Cost.** Every run and judgement is a model call on your Claude quota; it never runs in CI. Results and the
+  worktree of the ref go in `--out`, outside the checkout (`git worktree remove <out>/worktree` when done).
+- **Coverage.** The 20 public questions are written close to the graph's own wording, so they saturate; questions
+  phrased the way users ask, with facts the graph holds, are the most useful addition.
+
 ## Cross-links
 
 - [`scripts/run-evals.py`](../scripts/run-evals.py) — the runner

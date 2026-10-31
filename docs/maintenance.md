@@ -85,11 +85,30 @@ Keep scratch output outside the checkout (`$TMP` below).
 8. **Pull request.** Open it with the drift review in the description. It never merges itself.
 
 `node scripts/kb-refresh.mjs --out $TMP` runs steps 1, 1a, 2, 3 (the review), the log-type half of 5 and 6
-in that order and writes the check reports, the full review (`review.md`) and a pull-request description
-bounded to GitHub's size limit (`body.md`). It does not commit, push or run the gate.
+in that order and writes the check reports, the full review (`review.md`), the capture queue
+(`capture-queue.md`) and a pull-request description bounded to GitHub's size limit (`body.md`). It does not
+commit, push or run the gate.
 
-A model-graded claim audit (does each quote support its claim's statement?) is worth running on the claims
-the review marks `broken` or `in-change`; it calls a model API, so it runs outside the repo and outside CI.
+**Capture queue.** `node scripts/capture-queue.mjs` lists the help pages the pinned vendor material links to
+that are not captured, ranked by how many cited vendor files link each. Clear old addresses first with
+`python3 scripts/help_capture.py alias <url> ...` (a URL that redirects to a captured page becomes that capture's
+alias), run `node scripts/kb.mjs manifest`, then capture what the graph needs with `help_capture.py capture`.
+
+**Claim audit.** `validate` proves each quote is in its source; `python3 scripts/claim_audit.py` asks whether
+the quotes state everything the statement says. Haiku judges every claim and Opus re-judges the covered and
+unsure verdicts; each claim comes out `overreach`, `borderline` (a person decides) or `covered`. Run it on the
+claims a change adds or rewrites, and on what the review marks `broken` or `in-change`:
+
+```bash
+python3 scripts/claim_audit.py build --base origin/main --out $TMP/audit   # claims new or changed since main
+python3 scripts/claim_audit.py run --out $TMP/audit
+python3 scripts/claim_audit.py record --out $TMP/audit                     # into references/_meta/claim-audit.json
+python3 scripts/claim_audit.py status
+```
+
+Verdicts are kept per claim with a hash of its statement and evidence, so `build --unaudited` finds what changed
+since its audit. It runs through the `claude` CLI on a Claude plan's quota, never in CI. Before trusting a
+rubric or model change, rerun the calibration set (`build --calibration`, `run`, `grade`).
 
 ## Weekly knowledge-graph refresh (automated)
 

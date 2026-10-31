@@ -134,6 +134,13 @@ async function main(argv) {
       if (r.kind === "type" && !g.nodes.has(r.id)) errors.push({ file: r.file, message: `names tenant type ${r.id}, which the graph does not have` });
       if (r.kind === "read" && !resources.has(`${r.product} ${r.resource}`)) errors.push({ file: r.file, message: `names zscalerctl ${r.product} ${r.resource}, which the pinned zscalerctl catalogue does not have` });
     }
+    // The retrieval eval's gold facts (scripts/kb-eval.mjs) each name the claim that holds them.
+    const factsFile = "references/_meta/evals/facts.json";
+    for (const q of JSON.parse(fs.readFileSync(path.join(ROOT, factsFile), "utf8")).questions) {
+      for (const f of q.facts) {
+        if (g.nodes.get(f.claim)?.kind !== "claim") errors.push({ file: factsFile, message: `${q.id} fact ${f.id}: ${f.claim} is not a claim` });
+      }
+    }
     const evalsFile = "references/_meta/evals/evals.json";
     for (const e of JSON.parse(fs.readFileSync(path.join(ROOT, evalsFile), "utf8")).evals) {
       for (const id of e.must_cite || []) {
@@ -149,6 +156,11 @@ async function main(argv) {
   return runCommand(ROOT, g, cmd, args, { option, usage });
 }
 
+// A reader that stops early (`| head`) closes the pipe; that ends the output, not the command with a stack trace.
+process.stdout.on("error", (e) => {
+  if (e.code === "EPIPE") process.exit(0);
+  throw e;
+});
 // exitCode, not process.exit(): exit() can end the process before a large bundle has drained into a pipe,
 // handing the reader truncated JSON.
 process.exitCode = await main(process.argv.slice(2));
