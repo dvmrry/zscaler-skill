@@ -516,6 +516,8 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   assert.match(area, /^ {2}- IaC the rule as our Terraform declares it: zia-tf:url_filtering\.tf /m);
   // A company claim keeps the scope, confidence and date an answer must give.
   const scoped = run("--overlay", OVERLAY, "--no-links", "zia.ssl-inspection.pipeline");
+  assert.ok(!scoped.includes("no subject, type, field or area"), "the overlay's directory is not read as an ID");
+  assert.match(run("--no-overlay", "--no-links", "zia.api.activation"), /^No company overlay is configured: this is the public graph only\.$/m);
   assert.match(scoped, /^ {2}Scope: environment our tenant; condition GRE-forwarded locations with Surrogate IP disabled$/m);
   assert.match(scoped, /^ {2}Confidence medium, validated 2026-01-01$/m);
   // A field read carries the SIEM mapping for those fields only.

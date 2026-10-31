@@ -1199,10 +1199,12 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     return 0;
   }
   if (cmd === "read") {
-    const ids = args.filter((a) => !a.startsWith("--"));
-    const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--no-overlay"].includes(a));
+    const ids = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--overlay");
+    const unknown = args.find((a) => a.startsWith("--") && !["--no-links", "--no-overlay", "--overlay"].includes(a));
     if (unknown) usage(`read: unknown option ${unknown}; read <subject | area | type | field> ... [--no-links] [--overlay <dir> | --no-overlay]`);
     if (!ids.length) usage("read needs one or more area, subject or type IDs");
+    // Say when there is no overlay, so a reader does not go looking for company records or IaC.
+    if (!ov) process.stdout.write("No company overlay is configured: this is the public graph only.\n\n");
     process.stdout.write(readText(g, ids, ov, { hops: args.includes("--no-links") ? 0 : 1 }));
     return 0;
   }

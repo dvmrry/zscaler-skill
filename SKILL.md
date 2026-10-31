@@ -31,8 +31,9 @@ Structured troubleshooting with a symptom, an affected scope and a timeframe bel
 | IaC | the overlay's IaC repos | what our configuration is, as of the repo's last commit |
 | Live | read-only `zscalerctl`, when the overlay declares it | what is true now, and drift from IaC |
 
-The overlay is at `$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/` (`node scripts/runtime-data-path.mjs
-overlay`). IaC reads go only to the repos the overlay lists.
+`read` finds the overlay itself (`$ZSCALER_KB_OVERLAY`, else `<runtime-data mount>/overlay/`): with one it prints the
+IaC repos and their paths, without one it says so, so there is nothing to locate first. IaC reads go only to the
+repos the overlay lists.
 
 - **IaC before live.** Company records carry the values or file locations their IaC pointers resolve to; read
   the located files when the answer depends on our configuration, and state the `committed` date of what you used.

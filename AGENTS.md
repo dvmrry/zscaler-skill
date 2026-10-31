@@ -42,10 +42,10 @@ For Zscaler questions:
   "Answer tiers"): the knowledge graph (the spine under `references/_meta/spine/`, read with
   file tools, then `node scripts/kb.mjs read <area | subject | type#field>` for subjects, log fields and company records),
   the overlay's IaC when `overlay.json` declares `iac`, then live read-only
-  `zscalerctl` when it declares `live`. The overlay lives at `$ZSCALER_KB_OVERLAY`
-  or `<runtime-data mount>/overlay/`. Resolve a downstream selector or root
-  config with `node scripts/runtime-data-path.mjs` before substituting paths in
-  commands.
+  `zscalerctl` when it declares `live`. `read` finds the overlay itself
+  (`$ZSCALER_KB_OVERLAY` or `<runtime-data mount>/overlay/`) and prints its IaC
+  repo paths; resolve other runtime-data paths with
+  `node scripts/runtime-data-path.mjs` only for setup, workflows or repair.
 - Do not read `vendor/` unless the loaded prompt or current question
   specifically requires it.
 
