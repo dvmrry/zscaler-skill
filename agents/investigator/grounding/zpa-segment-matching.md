@@ -10,6 +10,10 @@ sources:
   - "`kb:zpa.app-segments`"
   - "`kb:zpa.server-groups`"
   - "`kb:zpa.policy`"
+  - "`kb:zpa.app-segments.matching`"
+  - "`kb:zpa.app-segments.bypass`"
+  - "`kb:zpa.app-segments.multimatch`"
+  - "`kb:zpa.policy.access-rule-order`"
 author-status: draft
 ---
 
@@ -26,15 +30,21 @@ author-status: draft
 
 Read these *before* interpreting any policy log. Segment matching has a non-obvious specificity rule that determines which of two overlapping segments takes precedence — without reading it first, the hypothesis space is wrong.
 
-- [`zpa.app-segments`](kb:zpa.app-segments) — wildcard/literal/port specificity; the "carved out" default; bypass precedence.
-- [`zpa.app-segments`](kb:zpa.app-segments) — how a port mismatch makes a segment look like it matches when it doesn't.
-- [`zpa.policy`](kb:zpa.policy) — access-policy ordering for segment-resolved traffic.
+- [`zpa.app-segments.matching`](kb:zpa.app-segments.matching) — wildcard/literal/port specificity; the "carved out" default.
+- [`zpa.app-segments.bypass`](kb:zpa.app-segments.bypass) — bypass precedence.
+- [`zpa.app-segments.matching`](kb:zpa.app-segments.matching) — how a port mismatch makes a segment look like it matches when it doesn't.
+- [`zpa.app-segments.multimatch`](kb:zpa.app-segments.multimatch) — one request, several overlapping segments.
+- [`zpa.policy.access-rule-order`](kb:zpa.policy.access-rule-order) — access-policy ordering for segment-resolved traffic.
 
 ## Load docs
 
 - `kb:zpa.app-segments`
 - `kb:zpa.server-groups`
 - `kb:zpa.policy`
+- `kb:zpa.app-segments.matching`
+- `kb:zpa.app-segments.bypass`
+- `kb:zpa.app-segments.multimatch`
+- `kb:zpa.policy.access-rule-order`
 
 ## Inspect tenant config
 

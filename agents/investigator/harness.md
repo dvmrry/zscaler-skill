@@ -485,8 +485,12 @@ Then halt and surface `Turn abandoned before journal mutation: <reason>`. If
 with a valid turn JSON or manually reconcile the journal.
 
 Use `actionType: "query-request"` only for a SIEM/Splunk catalog-pattern
-request. It must include `queryPatterns` from
-`node scripts/kb.mjs resolve shared.splunk`.
+request. It must include `queryPatterns`, each a `shared.splunk*` subject ID
+(`shared.splunk.zia-policy-validation`) or one of the pattern names those
+subjects keep as aliases (`url-coverage-check`, `segment-match-observed`); the
+helper rejects any other name. The subjects hold the field names and what each
+search checks, not SPL text: write the SPL from them, with placeholder plumbing
+per [`siem-emission-discipline.md`](../siem-emission-discipline.md).
 
 Use `actionType: "request-user-evidence"` for non-Splunk evidence requests
 such as Azure changes, API/manual lookups, screenshots, support tickets, or
@@ -628,8 +632,10 @@ Always include:
 - `agents/investigator/harness.md`
 
 Then include every grounding card and product reference that matches the
-framing's vocabulary. Include telemetry references under
-`references/{zia,zpa,zcc}/logs/` only when logs, metrics, SIEM data, LSS/NSS,
+framing's vocabulary. Include telemetry references (the log subjects, such as
+`zia.logs.*`, `zpa.logs.*` and `zcc.logs.*`, and the log types each product
+spine lists under `log_types`, such as `zia/web-log` in
+`references/zia/types/web-log.json`) only when logs, metrics, SIEM data, LSS/NSS,
 compact telemetry terms such as `syslog`, `weblog`, or `log4j`, or a
 user-provided evidence path is part of the framing. Prefer explicit
 framing-to-file matches over model inference; companion references are often

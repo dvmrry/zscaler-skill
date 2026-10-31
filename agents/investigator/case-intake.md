@@ -136,8 +136,9 @@ arguments before showing the new list. Run `verify-case` only when resuming an
 existing case or re-checking after a repair — not as a required second step
 after a passing `open-case`.
 
-Telemetry references under `references/{zia,zpa,zcc}/logs/` are only valid when
-the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
+Telemetry references (log subjects such as `zia.logs.*`, `zpa.logs.*` and
+`zcc.logs.*`, and the log types under `references/<product>/types/`) are only
+valid when the user's framing already mentions logs, metrics, SIEM data, LSS/NSS,
 pre-collected evidence, Splunk, compact telemetry terms such as `syslog`,
 `weblog`, or `log4j`, or an explicit evidence path. If the framing does not
 contain that telemetry context, the helper marks the case intake blocked

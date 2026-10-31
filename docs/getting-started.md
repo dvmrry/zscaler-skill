@@ -193,7 +193,8 @@ private source.
 ## Configure the overlay
 
 Tenant-specific answers come from three tiers (see `SKILL.md` "Answer tiers"):
-the knowledge graph (`node scripts/kb.mjs resolve <id | text>`, public index plus
+the knowledge graph (the spine under `references/_meta/spine/`, then
+`node scripts/kb.mjs read <area | subject | type#field>`: public subjects plus
 the company overlay's records), the overlay's IaC when its `overlay.json`
 declares `iac`, and live read-only
 [`zscalerctl`](https://github.com/dvmrry/zscalerctl) when it declares `live`.

@@ -8,6 +8,10 @@ confidence: medium
 source-tier: practice
 sources:
   - "kb:zia.url-filtering"
+  - "kb:zia.url-filtering.rule-order"
+  - "kb:zia.url-categories.membership"
+  - "kb:zia.ssl-inspection.pipeline"
+  - "kb:zia.cloud-app-control.precedence"
 author-status: draft
 ---
 
@@ -24,14 +28,18 @@ author-status: draft
 
 Read these *before* interpreting any web log. URL filtering precedence has two non-obvious gotchas (specificity beats order; HTTPS gets two evaluation passes) that change the hypothesis space.
 
-- [`zia.url-filtering`](kb:zia.url-filtering) — the baseline ordering model.
-- [`zia.url-filtering`](kb:zia.url-filtering) — when specificity beats explicit order; the implication for "why does rule A beat rule B."
-- [`zia.url-filtering`](kb:zia.url-filtering) — the pre-CONNECT vs post-CONNECT pass.
-- [`zia.url-filtering`](kb:zia.url-filtering) — when CAC overrides URL filtering and vice versa.
+- [`zia.url-filtering.rule-order`](kb:zia.url-filtering.rule-order) — the baseline ordering model.
+- [`zia.url-categories.membership`](kb:zia.url-categories.membership) — when specificity beats explicit order; the implication for "why does rule A beat rule B."
+- [`zia.ssl-inspection.pipeline`](kb:zia.ssl-inspection.pipeline) — the pre-CONNECT vs post-CONNECT pass.
+- [`zia.cloud-app-control.precedence`](kb:zia.cloud-app-control.precedence) — when CAC overrides URL filtering and vice versa.
 
 ## Load docs
 
 - `kb:zia.url-filtering`
+- `kb:zia.url-filtering.rule-order`
+- `kb:zia.url-categories.membership`
+- `kb:zia.ssl-inspection.pipeline`
+- `kb:zia.cloud-app-control.precedence`
 
 ## Inspect tenant config
 

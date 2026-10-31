@@ -42,7 +42,7 @@ Load and follow the files listed in `required-reads`. Load
 `agents/researcher/verifier.md` only for Step 3b, or let a runtime-specific
 subagent wrapper load those files.
 
-Use this workflow to expand reference docs from source material. Follow the
+Use this workflow to expand knowledge-graph subjects from source material. Follow the
 parse, extract, write, and verify checkpoints in `agents/researcher/prompt.md`.
 The checkpoints are audit/attestation gates, not helper-enforced structural
 gates.

@@ -31,8 +31,9 @@ punch list; the user or coordinator decides whether to fix.
 
 1. **The structured input the writer used** - typically an extraction report
    path or a citation-fix proposal. Use it to identify intended claims and
-   citations, including claims that may be wrong in the report itself.
-2. **The modified target file path** - the file the writer just edited.
+   quotes, including claims that may be wrong in the report itself.
+2. **The modified subject path** - the `references/<product>/<subject-id>.json`
+   the writer just edited.
 3. **Optional git ref** to diff against, for example `HEAD`. If unspecified,
    default to `git diff <file>` against the working-tree state.
 4. **Source access** - the captured files and exact vendor revisions supporting
@@ -41,26 +42,40 @@ punch list; the user or coordinator decides whether to fix.
 
 ## What you check
 
-For each new or modified fact-claim in the diff:
+Run `node scripts/kb.mjs validate` and `node scripts/kb.mjs lint --strict`
+first and keep the errors that name the modified subject. `validate` anchors
+every quote and pointer in its capture or pinned file, and checks that every
+claim is inlined once, every prose sentence rests on a marker or link, Tier B
+claims carry `conditions`, and every `derived_from`, `because` and `uses`
+resolves. An unanchored quote is a Wrong citation; report the other errors at
+the severity below. An anchored quote proves the text exists, not that it
+supports the statement, so continue.
 
-1. **Citation mismatch** - the cited source does not support the new text. Read
-   enough surrounding implementation or article context to check scope,
-   conditions, and exceptions, including when the text matches the report.
-2. **Missing citation** - fact-claim with no source reference at all. Watch
-   especially for operational guidance, frequency wording, anecdotal-observation
-   wording, and numeric specifics without an immediate source.
-3. **Inferred-as-fact** - claim is plausible but the cited source only implies,
-   rather than states, it.
-4. **Polish** - wording inconsistency, cross-link nit, or anchor mismatch.
-   Verification dates are whole-document claims: do not request a fresh date
-   merely because one section changed. Reconfirm every recorded source before
-   advancing the date; otherwise retain it and date the bounded verification
-   in the relevant section when useful.
+For each new or modified claim, divergence position and gap in the diff:
 
-Also check the affected clarification entries and generated coverage inventories
-named by the changed references. Identify conflicting current-state claims and
-explicitly distinguish retained historical captures from current observations.
-Do not infer backend acceptance or endpoint retirement from publication state.
+1. **Citation mismatch** - the quotes or pointer members do not support the
+   statement. Read enough surrounding implementation or article context to
+   check scope, conditions, and exceptions, including when the text matches
+   the report.
+2. **Missing citation** - a material part of a Tier A statement (value,
+   default, value list, scope, quantifier, cause, behavior) that no quote
+   states, or a prose sentence or `checks` step asserting a fact no claim
+   holds; a sentence anchored only on a `[[...]]` link can still say more than
+   the linked subject. Watch especially for operational guidance, frequency
+   wording, anecdotal-observation wording, and numeric specifics.
+3. **Inferred-as-fact** - a Tier A claim the cited source only implies, rather
+   than states; or a Tier B claim whose `derived_from` chain does not yield it,
+   or whose `conditions` do not say what it rests on.
+4. **Polish** - wording inconsistency, link nit, or marker placement.
+   Verification state is generated (`references/_meta/verified.json`), so
+   subjects carry no date; do not request one.
+
+Also check the gaps the change touches (one the new claims answer, or one that
+now contradicts them) and the subjects that cite a changed claim by its
+qualified ID. Identify conflicting current-state claims and explicitly
+distinguish evidence pinned to an older release (`at`) from current
+observations. Do not infer backend acceptance or endpoint retirement from
+publication state.
 
 ## What you do not do
 
@@ -68,9 +83,9 @@ Do not infer backend acceptance or endpoint retirement from publication state.
 - Do not invent facts or sources. Independently read the actual evidence
   supporting the scoped changes; reject report-level errors as well as writer
   errors. A report's PASS/status assertion is never verification evidence.
-- Do not over-flag structural cross-references between reference docs.
-- Do not flag legacy uncited claims that pre-date the diff unless they are
-  directly contradicted by the input. Your scope is the diff.
+- Do not over-flag `see-also` edges and `[[...]]` links between subjects.
+- Do not flag claims that pre-date the diff unless they are directly
+  contradicted by the input. Your scope is the diff.
 
 ## Specific failure modes
 
@@ -78,27 +93,31 @@ Check these regression patterns:
 
 - **Compensating mechanism wording** - a removed inference phrase is replaced
   with new technical wording that is not in the input.
-- **Bundled citation** - one citation at the end of a paragraph is used for
-  several distinct claims, only some of which it backs.
-- **Frontmatter inventory drift** - body has new file:line citations to sources
-  not listed in frontmatter `sources:`.
-- **Confident framing without citation** - phrases that turn a source-backed
-  detail into broad operational guidance without support.
-- **Removed-without-replacement** - a claim was removed from body but its inline
-  citation marker is still there pointing to nothing.
+- **Bundled citation** - one statement bundles several distinct facts, and its
+  quotes state only some of them.
+- **Unrecorded capture** - evidence cites a capture with no
+  `references/_meta/capture-manifest.json` entry (`validate` reports it;
+  `node scripts/kb.mjs manifest` records it).
+- **Confident framing without citation** - a prose sentence or `checks` step
+  that turns a source-backed detail into broad operational guidance without
+  support.
+- **Removed-without-replacement** - a claim was removed, but a prose sentence
+  that rested on it still stands, or a `{{claim|ref}}`, `derived_from`,
+  `because`, `uses` or another subject's qualified reference still names it.
 
 ## Output
 
 Punch list of findings, grouped by severity. Give every finding a stable ID in
-the form `V-001`, `V-002`, and so on. Each finding names the location in the
-modified file plus a one-line description.
+the form `V-001`, `V-002`, and so on. Each finding names the item in the
+modified subject (a claim, gap or divergence ID, or `prose[n]` / `checks[n]`)
+plus a one-line description.
 
 Severity legend:
 
 - **Wrong citation** - claim does not match cited source
 - **Missing citation** - fact-claim has no source reference
 - **Inferred-as-fact** - plausible but only implied by source
-- **Polish** - wording inconsistency, cross-link nit, frontmatter source-inventory drift
+- **Polish** - wording inconsistency, link nit, unrecorded capture
 
 After the punch list, output a count line in this exact order:
 

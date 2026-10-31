@@ -18,16 +18,16 @@ The product is **codified behavior**, not API access. An agent with live API key
 
 ## How it works
 
-About 1,000 subjects hold 8,000 claims, 1,600 open gaps and 390 divergences (where two vendor sources disagree), plus 190 tenant object types and their fields. Agents read them through one resolver, never by opening files:
+About 1,000 subjects hold 8,000 claims, 1,600 open gaps and 390 divergences (where two vendor sources disagree), plus 190 tenant object types and their fields. Subjects link by typed edges (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in), most naming the claim that establishes them. An agent enters through the generated spine: with its file tools it reads `references/_meta/spine/<product>.json` (the product's areas and the areas their edges reach), then `references/_meta/spine/<product>/<area>.json` for the areas that bear on the question (each subject's opening fact and edges), and reads what it picked in one call:
 
 ```bash
-node scripts/kb.mjs resolve "why does a lower allow rule win?"   # ranked subjects for a question
-node scripts/kb.mjs resolve --compact --each zia.url-filtering.rule-order zia.cloud-app-control.precedence
-node scripts/kb.mjs resolve zia                                     # a product's areas
+node scripts/kb.mjs read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel   # areas, subjects, log fields
+node scripts/kb.mjs map zia                                         # the spine as text, without a file tool
 node scripts/kb.mjs surface zia_url_filtering_rules                 # API, SDK and Terraform surface
+node scripts/kb.mjs resolve --each zia.url-filtering.rule-order zia.cloud-app-control.precedence   # JSON bundles, for scripts
 ```
 
-Each bundle carries the subject's prose, claims with their quotes, gaps, divergences, neighbors, the tenant object types it binds (with their IaC coverage and read-only `zscalerctl` command) and, when a company overlay is configured, the company's own records. [`SKILL.md`](./SKILL.md) is the agent's entry point; `node scripts/kb.mjs resolve portfolio.overview` maps each customer need to its product.
+`read` prints each claim with its citable ID, then inferences with their conditions, divergences and open gaps, follows one hop to the subjects they link, and, when a company overlay is configured, adds the company's own records and their IaC locations. `resolve` is the script and bundle interface: the same knowledge as JSON, with quotes and the tenant object types a subject binds (their IaC coverage and read-only `zscalerctl` command). [`SKILL.md`](./SKILL.md) is the agent's entry point; `node scripts/kb.mjs read portfolio.overview` maps each customer need to its product.
 
 The sources are pinned: vendor repositories as git submodules, and help pages, API references and triaged GitHub issues as captures under `vendor/`. A gate re-anchors every quote on every change. The refresh loop ([docs/maintenance.md](./docs/maintenance.md)) refetches the captures and reviews which claims a source change touched, including quotes that still match beside changed code; new and changed claims also go through a model-graded audit before they land.
 
@@ -127,7 +127,7 @@ slash-command adapter. See [`AGENTS.md`](./AGENTS.md) for the runtime model.
 
 - Malware Protection and ATP **settings** are queryable/configurable through the SDK/API; diagnosing which engine blocked a specific transaction still requires Web Insights or equivalent transaction logs.
 - Open questions are gaps in the graph, each with what would resolve it; some need tenant-specific lab tests.
-- Field shapes for tenant types come from `node scripts/kb.mjs resolve <type-id>` (for example `zia/url-filtering-rules`); validate them against real tenant output before treating them as tenant-confirmed.
+- Field shapes for tenant types come from `node scripts/kb.mjs read <type-id>` (for example `zia/url-filtering-rules`); validate them against real tenant output before treating them as tenant-confirmed.
 - Z-Tunnel wire-format internals are not customer-documented.
 - Products Zscaler documents only in marketing material are explained as marketed; the skill will not invent SDK, Terraform or API behavior for them.
 

@@ -48,9 +48,9 @@ Select the mode from the request:
   release readiness, or merge go/no-go. Load and follow
   [`diff-readiness.md`](./diff-readiness.md).
 
-The mechanical lint pipeline (`node scripts/kb.mjs validate`, `kb.mjs lint`, `kb.mjs freshness`, `scripts/check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`) catches unanchored quotes, Tier A evidence gaps, stale cited material and frontmatter / link errors deterministically, **and now also catches inference-shaped claims without an in-paragraph citation** (`check-citations.sh` § Inference-without-citation). Treat each of those hits as a finding candidate to triage — most are real (unsourced editorial framing), some are false positives in operational-routing or empirical-context paragraphs that the script's pattern-match can't distinguish.
+The mechanical lint pipeline (`node scripts/kb.mjs validate`, `kb.mjs lint`, `kb.mjs freshness`, `scripts/check-hygiene.py`, `check-citations.sh`, `check-doc-links.py`) catches unanchored quotes, Tier A evidence gaps, subject prose sentences that rest on no marker, stale cited material, and agent-doc frontmatter / link errors deterministically, **and also catches inference-shaped phrases without an in-paragraph citation in agent docs** (`check-citations.sh` § Inference-without-citation). Treat each of those hits as a finding candidate to triage — most are real (unsourced editorial framing), some are false positives in operational-routing or empirical-context paragraphs that the script's pattern-match can't distinguish.
 
-Your value-add is the **editorial** layer CI can't catch: voice, structural shape, confidence calibration, content/frontmatter agreement, cross-link reciprocity, dangling concepts, open-question hygiene, **and the subtler citation discipline cases the inference-pattern script doesn't match** (claims that read as fact but aren't framed with one of the script's known phrases).
+Your value-add is the **editorial** layer CI can't catch: voice, subject shape, tier calibration, title/content agreement, related edges and reciprocity, dangling concepts, gap hygiene, **and the subtler citation discipline cases `validate` can't see** (a claim statement that says more than its quotes, a link-anchored sentence that says more than the linked subject).
 
 For documentation/reference audits, also check **coverage-boundary honesty**:
 claims such as "covered", "certified", "complete", "comprehensive", or
@@ -65,7 +65,7 @@ A good `/z-auditor` invocation includes a **scope**. The scope can be:
 
 | Field | Example |
 |---|---|
-| **Directory** | `references/zia/logs/`, `references/shared/`, `references/zpa/` |
+| **Directory** | `references/zia/`, `references/shared/`, `references/zpa/` |
 | **File** | `node scripts/kb.mjs resolve shared.siem-mapping` |
 | **Whole repo** | `.` or empty |
 | **Topic across paths** | `splunk` (audit anything Splunk-related) |
@@ -73,7 +73,7 @@ A good `/z-auditor` invocation includes a **scope**. The scope can be:
 | **Pull request / diff** | `PR 214`, `main...feature/x`, `HEAD^..HEAD`, or working tree |
 | **Release readiness** | `release readiness for the current branch` |
 
-Optional second arg: a **subset of checks** to focus on (e.g., `confidence` for confidence-calibration only, `cross-links` for link reciprocity only). Default: all editorial checks.
+Optional second arg: a **subset of checks** to focus on (e.g., `tiers` for tier calibration only, `edges` for related edges and reciprocity only). Default: all editorial checks.
 
 If scope is missing or unclear, ask **one** clarifying question — don't fabricate a default scope.
 
@@ -83,7 +83,7 @@ For tenant-config audit scopes, prefer read-only observed state from the runtime
 
 Follow [`./harness.md`](./harness.md), [`./grounding/index.md`](./grounding/index.md), plus the audit register format and severity scale in [`auditor/methodology.md`](./methodology.md):
 
-- Every finding cites a source (file:line, script output, cross-file comparison)
+- Every finding cites a source (file:line or kb item ID, script output, cross-file comparison)
 - Audit findings are declared records: include record type, source, severity,
   confidence when evidence quality is material, status, remediation, and
   verification/disproof condition using the audit register vocabulary.
@@ -122,7 +122,7 @@ node scripts/kb.mjs lint --strict
 # Cited vendor material older than a year
 node scripts/kb.mjs freshness
 
-# Frontmatter, anchor resolution, clarification propagation, eval cross-references
+# Agent-doc frontmatter, anchor resolution, agent dependencies, eval cross-references
 ./scripts/check-hygiene.py
 
 # Markdown citation resolution in agents/**/*.md
@@ -150,7 +150,7 @@ below only to changed documentation/reference surfaces.
 
 In reference mode, apply each editorial check below across the scope.
 
-Apply each check below across the scope. Every finding cites a file:line or cross-file comparison.
+Apply each check below across the scope. Every finding cites a file:line, a kb item ID (e.g., `zia.api.activation:status-values`), or a cross-file comparison.
 
 #### a. Voice / terminology / tone consistency
 
@@ -163,104 +163,91 @@ Within the scope, do files use consistent vocabulary? Sample for known variants:
 
 Severity: usually `Low` (style) unless variance changes meaning (e.g., a mismatched product name).
 
-#### b. Structural shape
+#### b. Subject shape
 
-Reference files in this skill follow a shape: frontmatter → title → intro → sections → cross-links → (optional) open questions. Check the in-scope files for:
-- Missing frontmatter or required fields
-- No title `# H1` matching frontmatter
-- No intro paragraph between title and first `##`
-- No `## Cross-links` section
-- Out-of-order sections (cross-links before content; open questions before cross-links)
+A subject file (`references/<product>/<subject-id>.json`, contract in `references/_meta/schema/subject.schema.json`) has a `title`, prose whose opening frames the subject, `claims` each with a tier, `gaps`, `divergences`, typed `related` edges, and `checks`. `kb.mjs validate` enforces the schema, every claim inlined once, every prose sentence resting on a marker or link (bar two framing sentences in the opening), no Markdown, and no What-to-check paragraph. Check the in-scope subjects for what it does not:
+- A title that does not name what the claims answer
+- An opening that does not say what the subject answers (its first claim is the subject's lead in the spine, `references/_meta/spine/`)
+- Prose order that does not follow the reasoning (e.g., claims inlined in the order of the `claims` object)
+- A `checks` step whose `uses` do not hold what its `do` relies on
 
-Severity: `Medium` for missing required structural elements; `Low` for ordering deviations.
+Severity: `Medium` for a missing opening or a misleading title; `Low` for ordering deviations.
 
-#### c. Confidence calibration
+#### c. Tier calibration
 
-For each in-scope reference, read frontmatter `confidence` and `sources`. Apply:
+Confidence is derived from tier and evidence, not stored. For each in-scope claim, apply:
 
-| Confidence | Expected | Flag if… |
+| Tier | Expected | Flag if… |
 |---|---|---|
-| `high` | ≥2 cited sources, detailed body, clear scope | Single source; thin body; sources field empty |
-| `medium` | At least 1 cited source; body acknowledges gaps in "Open questions" or inline | No "Open questions" section AND clear gaps in body |
-| `low` | Body is exploratory; gaps prominently called out | Pretends to be authoritative |
+| `A` | Own `evidence`; every material part of the statement (values, defaults, value lists, scope, quantifiers, causes, behavior) stated by a quote or pointer member | A material part no quote states (overreach); a `lint --strict` hit |
+| `B` | `derived_from` names every link in the chain; `conditions` say what the inference rests on | The chain does not yield the statement; `conditions` only restate it; prose or `checks` treat it as quoted fact |
+| `confidence_override` | A `reason` that justifies the value | The reason does not justify the value |
 
-Severity: `High` for inflated confidence with no remediation path; `Medium` for honest-but-thin medium claims; `Low` for missing "Open questions" alone.
+Severity: `High` for a Tier A overreach on numeric or behavioral specifics; `Medium` for a thin Tier B chain; `Low` for a statement its quotes support only loosely.
 
-**Index / curator files are a special case.** A pure index file (e.g., `references/_meta/primer/index.md`) whose body is a curated list of pointers to other references doesn't have "external sources" the same way a content file does — its sources *are* the child references. For an index file, accept any of:
-- `sources:` empty AND a body composed of cross-links to listed children, OR
-- `sources:` populated with the child reference paths, OR
-- A note in the body explaining the curation pattern
+**Hub subjects are a special case.** An area hub (e.g., `zia.ftp-control`) whose prose is mostly `[[subject-id]]` links to its children needs no claims of its own. Flag it only when a link-anchored sentence asserts behavior the linked subject does not hold.
 
-Flag only if confidence is `high` AND neither of the above is satisfied. A reasonable downgrade is `confidence: medium` with a note that the file is an index.
+#### d. Title / content agreement
 
-#### d. Content / frontmatter agreement
-
-Does the body match what frontmatter promises?
-- `title` reflects the actual content?
-- `topic` matches the file location?
-- `last-verified` is plausible given last edit and content currency?
-- `sources` cited in frontmatter actually appear in the body or footer?
-- coverage/certification language matches the `sources` list and any stated
-  source-class boundary?
+Does the subject hold what its title and ID promise?
+- `title` reflects the claims and prose?
+- Each claim belongs to this subject, not a neighbour? (Remediation for a misfiled claim: `node scripts/kb.mjs move-claim <subject>:<claim> <subject>:<claim>`.)
+- `aliases` are search terms for this subject, not another's?
+- Cited material is current? (`kb.mjs freshness` lists cited material older than a year; subjects carry no verified date.)
+- coverage/certification language matches the evidence sources the claims cite and the gaps recorded?
 
 Severity: `High` for mismatches that mislead readers; `Medium` otherwise.
 
-#### e. Cross-link reciprocity
+#### e. Related edges and reciprocity
 
-Sample bidirectional links. If A cross-links B for a concept, B should cross-link A when B references that concept too. Common one-way patterns to flag:
-- A schema cross-links a query catalog; query catalog doesn't link back
-- A reference doc cross-links a methodology doc; methodology doesn't reference the example
+`related` edges are typed and outgoing, and `kb.mjs read` walks them one hop, so a missing or mistyped edge is where a reader fails to reach the subject an answer needs. Check:
+- Each typed edge (anything but `see-also` and `configured-via`) names a `because` claim, and that claim establishes the relation as the schema defines it (`decided-by`: B settles A's outcome; `logged-in`: B records A's decisions)
+- A `see-also` where a typed relation applies
+- Sampled pairs: if A links B for a concept and B covers that concept too, B should link A
 
 **When reciprocity is required** (flag if missing):
-- Two siblings in the same conceptual layer (e.g., `splunk-queries.md` ↔ `siem-log-mapping.md`) — both should reference each other
-- A schema and its primary query catalog (e.g., `web-log-schema.md` ↔ `splunk-queries.md`)
+- Two siblings in the same layer (e.g., `zia.logs.web-field-semantics` ↔ `zia.logs.web-rule-attribution`)
+- A log subject and the validation subject that queries its fields (e.g., `zia.logs.web-field-semantics` ↔ `shared.splunk.zia-policy-validation`)
 - A playbook and the methodology it follows (e.g., `investigator/prompt.md` ↔ `investigator/methodology.md`)
-- A canonical reference and its catalog entry (e.g., `casb-log-schema.md` ↔ `siem-log-mapping.md`)
+- A log subject and the SIEM catalogue entry for its feed (e.g., `zia.casb.insights-logs` ↔ `shared.siem-mapping`)
 
 **When reciprocity is NOT required** (don't flag):
-- A methodology / shared discipline doc doesn't need to list every consumer (one-to-many fan-out)
-- An overview / portfolio doc references children that don't need to point back at the overview
-- A vendor source (`vendor/zscaler-help/*.md`) doesn't need to reference the skill reference that cites it
+- A shared-discipline subject doesn't need to list every consumer (one-to-many fan-out)
+- An area hub's children don't need to point back at the hub (the spine lists each subject under its area)
+- A type (e.g., `zia/web-log`) needs no edge back: the graph indexes the subjects and claims that bind its fields
+- A vendor capture (`vendor/zscaler-help/*.json`) doesn't need to reference the subject that cites it
 
-Severity: `Medium` when required-and-missing; do not open a finding when reciprocity is in the "not required" bucket.
+Severity: `Medium` when required-and-missing or when a typed edge has no `because`; do not open a finding when reciprocity is in the "not required" bucket.
 
 #### f. Dangling concepts
 
-Terms used in the body but never defined or linked:
+Terms used in prose or claim statements but never defined or linked:
 - Acronyms used without expansion on first use (`LSS`, `NSS`, `TA`, `CASB`)
-- Product/feature names without a link to the canonical reference (e.g., "ZPA App Connector" without `[link](kb:zpa.app-connectors)` on first reference)
-- Field names referenced without linking to the schema doc
+- Product/feature names without a link to the canonical subject (e.g., "ZPA App Connector" without `[[zpa.app-connectors]]` on first reference)
+- Log or config field names with no claim that `binds` the field and no link to its type (e.g., `[[zia/web-log]]`)
 
-Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the same file.
+Severity: `Medium` for first-reference dangling; `Low` for repeat usage in the same subject.
 
-#### g. Open-questions hygiene
+#### g. Gap hygiene
 
-For each in-scope file with an `## Open questions` section:
-- Are listed open questions tracked as gaps in the knowledge graph?
-- Are any of them stale — i.e., resolved elsewhere in the skill but not propagated back here?
-- Is the section a real list of open items, or has it become a stale dumping ground?
+For each in-scope subject's `gaps` (`node scripts/kb.mjs read <subject>` lists the open ones):
+- Is a gap stale — answered by a claim elsewhere in the graph but still `open`, when it should be `resolved` with a `resolution` or narrowed to `partial`?
+- Does an open gap contradict a claim in the same subject, or duplicate a gap in another subject?
+- Is each gap a real question, with a `title`, a `detail` saying what is and is not known, and `resolves_with` (or `resolvable_by` for a data gap), or has `gaps` become a dumping ground?
 
-Cross-reference the graph gaps (`node scripts/kb.mjs resolve <subject>`) to detect stale items; flag what it doesn't catch (e.g., a question that's resolved but the file's open-questions text doesn't reflect the resolution).
+Severity: `Medium` for stale gaps; `Low` for a duplicate that should point at the other.
 
-Severity: `Medium` for stale open questions; `Low` for "open questions" section that should be removed entirely if empty.
+**Uncertainty lives in the graph, not in prose caveats.** A claim that a gap qualifies names it in its `gaps`, and the prose sentence it qualifies carries `{{gap:id}}`. Flag only when (a) a claim is clearly qualified by an open gap AND (b) neither the claim nor the prose names that gap.
 
-**Inline caveats can substitute for an `## Open questions` section.** A `confidence: medium` file is *not* obligated to have a dedicated `## Open questions` section if the body acknowledges gaps in place. Examples of valid inline caveats:
+#### h. Citation discipline (validate-complementary)
 
-- "Per-category column detail is partial in this skill — see the Open questions section for the gap and how to close it." *(inline pointer to a section that does exist further down)*
-- "Treat all rows in this section as `❓ unverified` until cross-checked against the per-category column documentation." *(in-place qualifier; no separate section needed)*
-- "Schemas vary by TA version; the table below assumes TA ≥ 4.0 — confirm against your tenant's installed version." *(scope-narrowing caveat)*
+`kb.mjs validate` rejects a prose sentence that rests on no claim, gap, divergence or link, so an unsourced fact enters a subject only where `validate` cannot look:
 
-Flag only when (a) there are clear gaps AND (b) neither inline caveats nor an Open questions section acknowledges them. A `confidence: medium` file with neither is a real finding; a `confidence: medium` file that explicitly calls out its uncertainty inline is fine.
+- A claim `statement` that says more than its quotes: a specific behavior (e.g., "the connector retries every 30 seconds"), numeric specifics (timeouts, limits, version floors), or a cross-product interaction no quote states — see (c)
+- A sentence anchored only on a `[[...]]` link or `{{claim|ref}}` that asserts something the linked subject or claim does not hold
+- A `checks` step that asserts behavior its `uses` do not hold
 
-#### h. Citation discipline (script-complementary)
-
-`check-citations.sh` flags paragraphs containing inference-shaped phrases (`most common cause`, `almost always`, `the answer is`, `operationally significant`, `operators report`, etc.) that lack an in-paragraph citation. Walk those hits first — most are real findings.
-
-Then look for what the script can't match: claims that **read as documented behavior** but lack any source citation, even though they don't use the script's known phrases. Examples:
-
-- A specific behavior described as fact (e.g., "the connector retries every 30 seconds") without a vendor source citation
-- Numeric specifics (timeouts, limits, version floors) stated without a source
-- Cross-product interaction claims that don't use inference phrases but assert specific behavior
+`check-citations.sh` still flags inference-shaped phrases (`most common cause`, `almost never`, `operationally significant`, `operators report`, etc.) that lack an in-paragraph citation in Markdown under `agents/`. Walk those hits first for agent docs — most are real findings.
 
 Severity: `High` for fact-shaped claims with no source backing (especially numeric or behavioral specifics); `Medium` for general framings that read as inference; `Low` for cosmetic citation gaps.
 
@@ -268,8 +255,8 @@ For script false positives (the paragraph is actually well-cited overall, or it'
 
 #### i. Coverage-boundary honesty
 
-For documentation coverage or reference-expansion audits, check whether the doc
-distinguishes:
+For documentation coverage or reference-expansion audits, check whether the
+subject's claims and gaps distinguish:
 
 - Help/product docs
 - API/schema sources
@@ -279,7 +266,7 @@ distinguishes:
 - Public integrations/examples/tests
 - Existing references used for contradiction or routing checks
 
-Open a finding if the doc claims a product, feature, or source family is
+Open a finding if a subject claims a product, feature, or source family is
 "complete", "certified", or "comprehensive" but only cites one source class, or
 if relevant absent source classes are not listed as gaps. Do not require a full
 research pass inside the audit; the finding can route the missing source class
@@ -382,4 +369,4 @@ When the lint subtypes are added, this prompt becomes the **skill-meta lint** br
 - [`investigator/methodology.md`](../investigator/methodology.md) — parallel discipline for investigations
 - [`investigator/prompt.md`](../investigator/prompt.md) — `/z-investigator` playbook (the hypothesis-driven sibling)
 - Mechanical CI scripts — `node scripts/kb.mjs validate|lint|freshness`, `scripts/check-hygiene.py`, `scripts/check-citations.sh`, `scripts/check-doc-links.py`
-- Open questions — gaps in the knowledge graph (`node scripts/kb.mjs resolve <subject>`)
+- Gaps — open questions in the knowledge graph (`node scripts/kb.mjs read <subject>` lists a subject's open gaps)

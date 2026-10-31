@@ -35,7 +35,7 @@ For each finding, document:
 | Field | Content |
 |---|---|
 | **Finding ID** | Stable identifier such as `AUD-001` or `AUD-DIFF-001`; reuse it through remediation closure |
-| **Finding** | One-sentence description (e.g., "`siem-log-mapping.md` claims `confidence: high` but cites only one source") |
+| **Finding** | One-sentence description (e.g., "Tier A claim `<subject>:<claim>` states a default its quotes do not") |
 | **Source** | Exact reference: file path + line, script output, API call + result. Same standard as a discovery journal claim. |
 | **Severity** | `Critical` / `High` / `Medium` / `Low` / `Info` — see [Severity scale](#severity-scale) |
 | **Status** | `Open` / `Acknowledged` / `Resolved` / `Acceptable` / `Wontfix` — see [Status lifecycle](#status-lifecycle) |
@@ -50,11 +50,11 @@ Severity captures **impact if not addressed**, not editorial priority. Use the l
 
 | Severity | Definition | Examples |
 |---|---|---|
-| **Critical** | Breaks functionality, fails CI, or actively misleads readers | Frontmatter that fails `check-hygiene.py`; broken cross-link in a top-level reference; confidence claim with zero sources |
-| **High** | Significant editorial defect; reader will be misled or confused | Content contradicts frontmatter (`confidence: high` with thin body); inflated confidence (claims `high`, single source); methodology violations (claim without citation) |
-| **Medium** | Structural inconsistency that degrades usability | Missing cross-link reciprocity (A → B but not B → A where it matters); inconsistent terminology within scope; missing "Open questions" section in a confidence-medium file |
-| **Low** | Minor style / polish issue | Heading capitalization variance; trailing whitespace; section ordering deviates from house style |
-| **Info** | Notes for future review; not a defect | "Consider splitting this 600-line file"; "Schema X may be partially superseded by feed Y"; recommendations rather than findings |
+| **Critical** | Breaks functionality, fails CI, or actively misleads readers | A subject that fails `kb.mjs validate` (unanchored quote, unresolved `[[...]]` link); agent-doc frontmatter that fails `check-hygiene.py`; a claim whose evidence states the opposite |
+| **High** | Significant editorial defect; reader will be misled or confused | Tier A overreach (a material part of the statement no quote states); a Tier B inference presented as quoted fact; methodology violations (link-anchored sentence asserting what no claim holds) |
+| **Medium** | Structural inconsistency that degrades usability | Missing edge reciprocity (A → B but not B → A where it matters); a typed edge with no `because` claim; inconsistent terminology within scope; a stale open gap |
+| **Low** | Minor style / polish issue | Heading capitalization variance; trailing whitespace; prose order deviates from house style |
+| **Info** | Notes for future review; not a defect | "Consider splitting this 40-claim subject"; "Log type X may be partially superseded by feed Y"; recommendations rather than findings |
 
 When in doubt between two adjacent levels, pick the lower one. Reviewers can promote later.
 
@@ -82,7 +82,7 @@ Severity follows demonstrated impact, not the fact that a tool printed a line.
 | **Open** | Just identified; awaiting review or remediation | Default state for a new finding |
 | **Acknowledged** | Reviewer agrees but defers fix | Tracked; not blocking the current cycle |
 | **Resolved** | Fix applied; finding no longer holds | Verified by re-running the check or re-reading |
-| **Acceptable** | False positive after review, OR intentional deviation | Document why — terminology variance might be deliberate (different audiences); confidence claim might be defensible with sources elsewhere |
+| **Acceptable** | False positive after review, OR intentional deviation | Document why — terminology variance might be deliberate (different audiences); a Tier B chain might be defensible with claims elsewhere |
 | **Wontfix** | Known issue, out of scope, not worth fixing | Used sparingly; record reason |
 
 Do not mark a finding `Resolved` until you've **verified** the fix landed (re-run the check, re-read the file). "I edited it" is not the same as "the finding no longer holds."
@@ -122,24 +122,24 @@ integrations under residual test gaps rather than narrating them as success.
 
 **Bad (no evidence trail, no severity):**
 ```
-Finding: web-log-schema.md is too long
+Finding: zia.logs.web-field-semantics is too long
 Status: Open
 ```
 (No citation. No severity. No remediation. The reviewer can't act on this.)
 
 **Good (evidence-based, falsifiable):**
 ```
-Finding: references/<area>/<doc>.md exceeds 300 lines (317) without
-         a contents/index section, slowing reader navigation
-Source: file is 317 lines; no Markdown anchor index near the top
+Finding: <subject-id> inlines 40 claims in one unlabelled prose block,
+         slowing reader navigation
+Source: references/<product>/<subject-id>.json prose[1]: 40 claim
+        markers, no `label` or `heading`
 Severity: Low
 Status: Open
-Remediation: Add a "## Contents" anchor index near line 19, mirroring the
-             pattern in investigator/methodology.md
+Remediation: Split into labelled blocks, mirroring zia.api.activation
+             ("Saved, not live.", "The calls.")
 Timestamp: 2026-04-29 14:30 UTC
-Notes: file already has an "in-content" section list at line 22; could
-       repurpose. Other long-form references (siem-log-mapping.md at
-       ~340 lines) follow the same pattern — consider as a sweep.
+Notes: if neighbouring subjects in the area follow the same pattern,
+       consider as a sweep.
 ```
 
 ## Anti-patterns
@@ -152,7 +152,7 @@ Severity: Critical
 Better:
 ```
 Finding: same — terminology variance for SSL/TLS Inspection within
-         kb:zia.ssl-inspection and web-log-schema.md
+         zia.ssl-inspection and zia.logs.web-field-semantics
 Severity: Low
 Notes: Zscaler docs use both; pick one and align — or document the
        distinction if intentional. Not blocking.
@@ -160,27 +160,27 @@ Notes: Zscaler docs use both; pick one and align — or document the
 
 ### ❌ Vague findings without citation
 ```
-Finding: confidence calibration seems off in some files
+Finding: tier calibration seems off in some subjects
 ```
 Better:
 ```
-Finding: confidence: high in references/_meta/primer/index.md without sources
-         field populated (sources: empty)
-Source: references/_meta/primer/index.md:6 (frontmatter)
+Finding: Tier A claim <subject>:<claim> states a 30-second retry
+         interval; its quotes state no interval
+Source: references/<product>/<subject>.json claims.<claim>.evidence
 Severity: High
-Remediation: Either populate sources (Tier A vendor docs) or downgrade
-             to medium
+Remediation: Quote the interval, narrow the statement, or move the
+             interval to Tier B (derived_from, conditions) or a gap
 ```
 
 ### ❌ Scope creep mid-audit
-Audit was scoped to `references/zia/logs/`. Auditor starts editing files in `references/zpa/`.
+Audit was scoped to the `zia.logs` area. Auditor starts editing subjects in `references/zpa/`.
 
 Better: note the cross-scope finding in **Notes**, mark out of scope, return to in-scope work. If the cross-scope finding is significant, open a separate audit cycle.
 
 ### ❌ "Resolved" without verification
 Finding marked `Resolved` because the reviewer "fixed it" — but they didn't re-run the check or re-read the file to confirm.
 
-Better: verify, then mark resolved. Leave a verification note: "Re-ran `check-hygiene.py` 2026-04-29 14:45 UTC — finding cleared."
+Better: verify, then mark resolved. Leave a verification note: "Re-ran `kb.mjs validate` 2026-04-29 14:45 UTC — finding cleared."
 
 ### ❌ Wontfix without reason
 ```
@@ -191,7 +191,7 @@ Better:
 ```
 Status: Wontfix
 Notes: Out of scope — this is vendor PDF content extraction, tracked
-       separately in clarification log-04. Re-evaluate when PDF parser
+       separately as gap <subject>:<gap>. Re-evaluate when PDF parser
        lands.
 ```
 
@@ -204,10 +204,10 @@ Notes: Out of scope — this is vendor PDF content extraction, tracked
 
 ### What counts as a source
 Same standard as a discovery journal claim:
-- **File reference**: `references/<area>/<doc>.md`:L317
-- **Script output**: `./scripts/check-hygiene.py` exit code 1; quote relevant lines
-- **Cross-file comparison**: "compared `splunk-queries.md` `Tier A` vs. `siem-log-mapping.md` `Tier-A`"
-- **Frontmatter inspection**: "`siem-log-mapping.md` frontmatter `confidence: medium`, `sources` has 4 entries — appropriate"
+- **Item reference**: `zia.logs.web-field-semantics:respcode-403`, or `references/zia/zia.logs.web-field-semantics.json` with the JSON path
+- **Script output**: `node scripts/kb.mjs validate` exit code 1; quote relevant lines
+- **Cross-file comparison**: "compared the `related` edges of `shared.splunk.zia-policy-validation` and `zia.logs.web-field-semantics`"
+- **Item inspection**: "`shared.splunk.zia-policy-validation:cac-only-label` is Tier B with `derived_from` and `conditions` — appropriate"
 
 ### When to mark status
 - **Open**: default
@@ -219,7 +219,7 @@ Same standard as a discovery journal claim:
 ### Scope discipline
 Define scope in the register header:
 ```
-SCOPE: references/zia/logs/
+SCOPE: zia.logs (area)
 TIMESTAMP: 2026-04-29 14:30 UTC
 AUDITOR: <agent / user / mixed>
 ```

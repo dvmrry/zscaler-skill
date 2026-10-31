@@ -2,13 +2,16 @@
 
 `references/` is the knowledge graph: the same for every installation, built only from public sources.
 Company knowledge lives in the overlay ([`data-contract/knowledge.md`](data-contract/knowledge.md)), never here.
-Read it through `node scripts/kb.mjs resolve`; the model is
+Agents open the spine with their file tools, then read the areas, subjects, log types and fields they picked with one
+`node scripts/kb.mjs read <area | subject | type | field> ...` (`SKILL.md` "Retrieval"); `kb.mjs resolve` is the JSON
+bundle interface for scripts. The model is
 [`superpowers/specs/2026-10-17-kb-graph-model-design.md`](superpowers/specs/2026-10-17-kb-graph-model-design.md).
 
 | Path | Holds | Written by |
 |---|---|---|
 | `references/<product>/<subject-id>.json` | one subject: prose, claims, gaps, divergences, cases, checks | people (and conversion tools) |
 | `references/<product>/types/*.json` | log types and their fields | `scripts/gen-log-types.mjs` |
+| `references/_meta/spine/` | the agents' entry point: `<product>.json` lists a product's areas, log types and reference areas with the areas their typed edges reach; `<product>/<area>.json` lists an area's subjects with their opening fact and edges. `gen-spine.mjs --check` gates it | `scripts/gen-spine.mjs` |
 | `references/_meta/schema/` | JSON Schemas for subjects, types, registries, the overlay and the resolve bundle | people |
 | `references/_meta/products.json` | product IDs, names and aliases | people |
 | `references/_meta/sources.json` | every citable source: submodules, help captures, static files, with rank | people |

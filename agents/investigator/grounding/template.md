@@ -34,7 +34,7 @@ last-verified: "YYYY-MM-DD"
 confidence: medium
 source-tier: practice
 sources:
-  - "references/<product>/<source>.md"
+  - "kb:<subject-id>"
 author-status: draft
 ---
 
@@ -46,17 +46,17 @@ author-status: draft
 
 ## Expected behavior anchors
 
-- `references/<product>/<source>.md` section `<heading>` — <why this anchor matters before reasoning>
+- `kb:<subject-id>` — <the topic that subject holds; why this anchor matters before reasoning>
 
 ## Load docs
 
-- `references/<product>/<source>.md`
+- `kb:<subject-id>`
 
 ## Inspect tenant config
 
 - The overlay's IaC for `<product>/<type-id>` (when `overlay.json` declares `iac`)
 - `zscalerctl <product> <type-id> list` (live, read-only; only when IaC cannot answer or for drift)
-- `node scripts/kb.mjs resolve <product>/<type-id>` for field shapes
+- `node scripts/kb.mjs read <product>/<type-id>` for field shapes
 
 ## Use runtime logs only when
 

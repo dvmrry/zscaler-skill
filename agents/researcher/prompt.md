@@ -21,7 +21,7 @@ author-status: draft
 
 # Researcher - citation-backed reference expansion workflow
 
-Expand a reference doc by mining vendor sources, writing citation-backed content, and verifying the output against captured or pinned source evidence, with the extraction report defining scope. This workflow exists to prevent in-flight troubleshooting hypotheses from being promoted into documented behavior.
+Expand a knowledge-graph subject by mining vendor sources, writing claims backed by quoted evidence, and verifying the output against captured or pinned source evidence, with the extraction report defining scope. This workflow exists to prevent in-flight troubleshooting hypotheses from being promoted into documented behavior.
 
 ## Procedure model
 
@@ -74,13 +74,13 @@ extraction prose.
 Parse the user's request:
 
 - **Target file** - full path under `references/`, for example `references/zdx/zdx.api.json`. If ambiguous, ask once.
-- **Sources to mine** - suggest from the target file's `sources` frontmatter,
-  then apply the source-class checklist in `grounding/index.md`: Help/product
+- **Sources to mine** - suggest from the sources the target's `evidence`
+  entries already cite, then apply the source-class checklist in `grounding/index.md`: Help/product
   docs, API/schema sources, SDKs, Terraform/IaC, MCP/tools/automation, public
   integration repositories, changelogs/issues/examples, and existing
   references for contradiction and routing checks.
-- **Scope** - whole-file rewrite, specific section, or add a new section/topic.
-- **Open Items routing list** - operator-reported scenarios, hypotheses, or conversation-context items the user wants captured. These route to Open questions in Step 3, not the reference body. If none are named, the list is empty.
+- **Scope** - whole subject, a prose section (heading or labelled block), or a new topic or subject.
+- **Open Items routing list** - operator-reported scenarios, hypotheses, or conversation-context items the user wants captured. These become open gaps in Step 3, not claims. If none are named, the list is empty.
 
 Output:
 
@@ -97,7 +97,7 @@ Output:
   - MCP/tools/automation: `vendor/...` or `none / not relevant`
   - Public integrations/examples: `vendor/...` or `none / not relevant`
   - Existing references for contradictions/routing: `references/...`
-- Scope: `<whole-file | section: NAME | add: TOPIC>`
+- Scope: `<whole-subject | section: NAME | add: TOPIC>`
 - Open Items routing list:
   - `<item>` - `<one-line description>`
   - or: none
@@ -113,23 +113,25 @@ Halt and wait.
 
 ## Step 2 - Extract
 
-Run a read-only extraction pass. Use a separate read-only research agent when the runtime supports it; otherwise do the extraction in the current runtime without editing files.
+Run a read-only extraction pass. Use a separate read-only research agent when the runtime supports it; otherwise do the extraction in the current runtime without editing files. The one write is a capture: a help page the scope needs that is not under `vendor/zscaler-help/` yet is captured first with `python3 scripts/help_capture.py capture <url>`.
 
 The extraction pass must:
 
-- Read the target reference doc once for context
-- Mine each confirmed source from Step 1
+- Read the target subject once for context
+- Mine each confirmed source from Step 1, quoting the capture, never the live
+  page
 - Report the source-class checklist: checked, finding-bearing, absent,
   irrelevant, and gap classes
-- Extract field names with wire keys, types, and line references where available
-- Extract API endpoint URLs, HTTP methods, and line references where available
-- Extract specific help-article statements with line references where available
+- Extract field names with wire keys and types, each with the verbatim quote
+  (or JSON pointer) that states it
+- Extract API endpoint URLs and HTTP methods, each with its quote or pointer
+- Extract specific help-article statements as verbatim quotes
 - Extract integration semantics from public repos when in scope: interception
   point, request/response direction, policy selection, verdict handling,
   fail-open/fail-closed behavior, logging/correlation fields, and platform
   limits
 - Flag SDK divergences, including fields present in one SDK but not another, type mismatches, and different wire keys
-- Flag findings that contradict existing claims in the target doc
+- Flag findings that contradict existing claims in the target subject
 - End with a `Gaps` section listing requested items not found in the sources
 
 Do not interpret beyond the source files. Do not synthesize unsupported behavior. Do not add operator scenarios or hypotheses.
@@ -170,7 +172,7 @@ Run the writer pass with only:
 2. The target file path
 3. The Open Items routing list from Step 1
 
-The writer edits the target file and returns a structured summary. Route Open Items into an Open questions / validation gaps section unless the extraction report directly supports adding them to the body.
+The writer edits the target subject and returns a structured summary. Open Items become open gaps unless the extraction report directly supports a claim. Then record any new capture with `node scripts/kb.mjs manifest` (`validate` fails on a cited capture with no manifest entry). Misfiled claims the writer lists stay put until the user asks for the move (`node scripts/kb.mjs move-claim`, which rewrites every reference).
 
 ### 3b - Verify
 
@@ -183,13 +185,16 @@ Run a read-only verification pass:
 - Inspect the diff for the target file
 - For each new or modified fact claim, read the cited source and surrounding
   context independently, even when the wording matches the extraction report
-- Check affected clarification entries and generated coverage inventories for
-  contradictory current-state claims; keep historical evidence clearly dated
+- Run `node scripts/kb.mjs validate` and `node scripts/kb.mjs lint --strict`
+  and report their errors on the target as findings
+- Check the gaps the change touches and the subjects that cite a changed claim
+  for contradictory current-state claims; keep release-pinned evidence distinct
+  from current observations
 - Flag findings by severity:
   - **Wrong citation** - claim does not match the cited source
   - **Missing citation** - fact claim has no source reference
   - **Inferred as fact** - plausible but not stated by the cited source
-  - **Polish** - wording, cross-link, or consistency issue
+  - **Polish** - wording, link, or consistency issue
 - Do not edit during verification
 
 Require stable verifier finding IDs (`V-001`, `V-002`, and so on), finding
@@ -220,8 +225,9 @@ Halt. If the verdict is NEEDS REVIEW or FAIL, omit `commit` from the checkpoint
 menu and require `fix:`, `redo:`, or `abort`. On `commit`, first confirm that
 the recorded verifier verdict is PASS, then run `node scripts/kb.mjs validate`,
 `node scripts/kb.mjs lint --strict`, `./scripts/check-hygiene.py`, and
-`./scripts/check-citations.sh`, then surface any findings. If gates pass, generate a commit message that names sections changed, citations added,
-Open Items routed, and contradictions resolved.
+`./scripts/check-citations.sh`, then `node scripts/gen-spine.mjs` when a
+title, opening claim or typed edge changed, and surface any findings. If gates pass, generate a commit message that names the claims added or changed, gaps
+opened, and contradictions resolved.
 
 If verification found any Wrong citation, Missing citation, or Inferred-as-fact
 finding, do not commit until it is fixed and the verifier returns PASS.

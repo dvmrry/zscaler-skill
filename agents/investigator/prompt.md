@@ -130,7 +130,7 @@ hypotheses produces output that's confidently wrong. **Use your file-read tool
 for every confirmed Step 2 load — do not summarize from memory or skip based on
 perceived relevance.**
 
-**a. Use your file-read tool to load the relevant log schema.** If the framing involves logs (LSS / NSS / audit / SIEM), load the schema file under `references/{zia,zpa,zcc}/logs/<name>-schema.md` before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes. If you don't know which schema applies, use your file-read tool to load `references/<product>/index.md` first and find it from there.
+**a. Use your file-read tool to load the relevant log schema.** If the framing involves logs (LSS / NSS / audit / SIEM), load the log type (its fields: `zia/web-log` is `references/zia/types/web-log.json`) and the log subjects that read it (`kb:zia.logs.web-rule-attribution`) before reasoning over field values. Field names look self-evident but aren't (`action`, `reason`, `status` mean different things across log types); sample values mislead without the enum / type / semantic notes. If you don't know which log type applies, use your file-read tool to load the product spine, `references/_meta/spine/<product>.json`, which lists its log types under `log_types`, and its logs area (`references/_meta/spine/zia/zia.logs.json`) for the log subjects.
 
 **b. Use your file-read tool to load the canonical product / feature reference.** If the framing names a Zscaler product or feature, load the relevant reference before forming a hypothesis.
 

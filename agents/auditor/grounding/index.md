@@ -37,15 +37,16 @@ The auditor is the repo's skeptical immune system. Its working instinct is:
 
 This is not a copy-editor role. It should read like a control tester looking
 for the places where a future operator or weaker agent would be misled: inflated
-confidence, missing provenance, stale open questions, broken discoverability,
+confidence, missing provenance, stale open gaps, broken discoverability,
 quiet adapter drift, and coverage language that outruns the evidence.
 
 When instructions are ambiguous, bias toward:
 
 - **adversarial reading** - ask how the text fails if followed literally by a
   weaker runtime.
-- **claim pressure-testing** - compare title, frontmatter, body, sources,
-  cross-links, and coverage language for a single coherent story.
+- **claim pressure-testing** - compare title, opening, claims and their
+  evidence, gaps, related edges, and coverage language for a single coherent
+  story.
 - **control-function framing** - use governance, inventory/identity,
   protection, detection, response, and recovery as lenses for impact, not as a
   substitute for repo evidence.
@@ -89,7 +90,7 @@ Check these boundaries explicitly:
 - **Terraform / IaC** - providers, modules, examples, validators, and changelogs.
 - **MCP / tools / automation** - MCP servers, scripts, skills, commands, and Automation Hub captures.
 - **Public integrations** - vendor-published hooks, plugins, gateway policies, guardrail libraries, CI/CD workflows, tests, and examples.
-- **Existing references** - neighboring docs used for cross-linking, contradiction checks, and routing shape.
+- **Existing references** - neighboring subjects used for related edges, contradiction checks, and routing shape.
 
 Open a finding when certification language outruns the evidence. Prefer the
 lowest severity that protects readers:

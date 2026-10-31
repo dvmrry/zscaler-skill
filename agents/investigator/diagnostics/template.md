@@ -122,8 +122,8 @@ If you cannot cite verification, the diagnostic is not ready to ship.
 Each query follows the SIEM emission discipline:
 
 - Placeholder plumbing (`$INDEX_X`, `<your_*>`)
-- Zscaler-published field names only (cited per `references/{zia,zpa,zcc}/logs/`)
-- Cite a named pattern from `splunk-queries.md` when one exists rather than freelancing SPL
+- Zscaler-published field names only (cited per log type field, e.g. `kb:zia/web-log#urlcat`)
+- Cite a validation search from the `shared.splunk*` subjects by subject ID or pattern name (`url-coverage-check`) when one exists, and write the SPL from the fields and checks it names rather than freelancing
 
 ### Decision logic
 

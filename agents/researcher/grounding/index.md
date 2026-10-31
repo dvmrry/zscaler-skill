@@ -22,7 +22,7 @@ Use this grounding index before `/z-researcher` starts Step 1.
 
 Use public documentation taxonomy as discipline, not as a substitute for product sources:
 
-- Separate **reference** material from **how-to**, **explanation**, and **tutorial** material before writing. Most files in `references/` should behave like reference docs, with examples only when they clarify a source-backed behavior.
+- Separate **reference** material from **how-to**, **explanation**, and **tutorial** material before writing. Most subjects in `references/` should behave like reference material, with examples only when they clarify a source-backed behavior.
 - Preserve provenance at the smallest useful unit: field, enum, endpoint, policy rule, log key, or source paragraph.
 - Build indexes for retrieval and contradiction handling, not narrative completeness.
 - Treat source discovery, extraction, writing, and verification as separate phases. Do not let a useful narrative from discovery skip extraction or verification.
@@ -66,8 +66,8 @@ examples, tests, changelogs, and workflow files explain deployment patterns,
 edge cases, and product semantics.
 
 Every product claim added to `references/` must be traceable to captured source
-material or explicitly marked as an open gap, contradiction, operator-reported
-candidate, or inference. Unsourced product behavior is not "background
+material (Tier A, with quoted evidence) or explicitly recorded as an open gap, a
+divergence, or a Tier B inference with its `conditions`. Unsourced product behavior is not "background
 knowledge"; it is unreliable and must not be promoted into reference text.
 
 Coverage language must name the source boundary it certifies. "Help coverage",
@@ -77,8 +77,8 @@ pass checked all relevant source classes and recorded the gaps.
 
 ## Source selection
 
-Start from the target reference's `sources:` frontmatter, then build a
-source-class checklist for the scoped product or feature. Check every relevant
+Start from the sources the target subject's `evidence` already cites, then
+build a source-class checklist for the scoped product or feature. Check every relevant
 class before claiming coverage:
 
 1. **Help and product docs** - `vendor/zscaler-help/`, Automate docs, PDFs/text captures, and public help pages already captured locally.
@@ -88,7 +88,7 @@ class before claiming coverage:
 5. **MCP / tools / automation** - MCP servers, skills, scripts, commands, Automation Hub captures, and tool docs that expose operational workflows.
 6. **Public integration repositories** - vendor-published examples, hooks, plugins, CI/CD integrations, gateway policies, guardrail libraries, workflows, and tests.
 7. **Changelogs, issues, and examples** - upstream changelogs, documented issues, sample configs, and tests when they clarify source-backed behavior or drift.
-8. **Existing references** - nearby `references/` files only to identify current claims, cross-links, contradictions, and routing shape.
+8. **Existing references** - nearby subjects only to identify current claims, `related` edges, open gaps, contradictions, and routing shape.
 
 If a class is relevant but absent or not yet captured, record it in `Gaps`.
 If a class is irrelevant to the scope, say why briefly in the extraction
@@ -100,12 +100,12 @@ interesting. Ask before expanding the scope boundary.
 
 ## Extraction discipline
 
-- Extract exact fields, wire keys, endpoint paths, enum names, and line references.
+- Extract exact fields, wire keys, endpoint paths, and enum names, each with the verbatim quote or JSON pointer that states it.
 - Extract source-class coverage: which relevant source classes were checked,
   which had findings, which were absent, and which are out of scope.
 - Keep source quotes short and targeted.
 - Capture contradictions separately from new content.
-- Put missing or unsupported findings in `Gaps`, not the body.
+- Put missing or unsupported findings in `Gaps`, not claims.
 - Do not use operator scenarios as documentation unless a source supports them.
 
 ## Efficiency tips
@@ -120,6 +120,6 @@ interesting. Ask before expanding the scope boundary.
 The writer may only use the extraction report and must flag unsupported report
 claims during its source checks. The verifier independently checks the diff
 and the report's claims against captured or pinned source context, including
-affected clarifications and generated coverage inventories. Commit is available only after a
+the gaps and neighbouring claims the change touches. Commit is available only after a
 PASS verdict with no Wrong citation, Missing citation, or Inferred-as-fact
 findings; otherwise fix or redo before committing.
