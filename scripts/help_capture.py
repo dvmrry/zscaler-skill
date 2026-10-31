@@ -17,7 +17,11 @@ unchanged revision can only come from this tool (`rerender`), never from the ven
 Usage:
   help_capture.py render <article.html>          print the blocks for saved HTML
   help_capture.py text <name.json>               print a capture's anchoring text (what quotes match)
-  help_capture.py capture <url> [<name.json>]    fetch and write vendor/zscaler-help/<name.json>
+  help_capture.py capture <url> [<name.json>]    fetch and write vendor/zscaler-help/<name.json>; a URL that
+                                                 redirects to a captured page is recorded as its alias instead
+  help_capture.py alias <url> ...                record each URL that redirects to a captured page as an
+                                                 alias of that capture; report the rest as new (no capture);
+                                                 then run `node scripts/kb.mjs manifest`
   help_capture.py check [<name.json> ...]        refetch committed captures; exit 1 on drift
   help_capture.py check [--json] [--replace] ..   --json prints a report for scripts/kb-drift.mjs;
   help_capture.py check --replace <name.json> .. rewrite drifted captures in place (then run
@@ -479,6 +483,11 @@ KINDS = ("help-article", "help-api-spec", "help-index", "automate-doc")
 
 def write(path: Path, doc: dict) -> None:
     path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+    if _index is not None:
+        src = doc.get("source") or {}
+        for key in ([f"node:{src['node']}"] if src.get("node") else []) + [src.get("url"), *src.get("aliases", [])]:
+            if key:
+                _index[key] = path
 
 
 def read(path: Path) -> dict | None:
@@ -490,15 +499,77 @@ def read(path: Path) -> dict | None:
     return doc if isinstance(doc, dict) and doc.get("kind") in KINDS else None
 
 
+def with_aliases(doc: dict, *urls: str) -> dict:
+    """The capture with `urls` recorded as other addresses of its page (links that redirect to it), so a link to
+    an old address counts as captured (scripts/capture-queue.mjs). The page's own URL is never its alias."""
+    src = doc["source"]
+    aliases = sorted({u for u in [*src.get("aliases", []), *urls] if u and u != src["url"]})
+    doc["source"] = {k: v for k, v in src.items() if k != "aliases"} | ({"aliases": aliases} if aliases else {})
+    return doc
+
+
+_index: dict[str, Path] | None = None
+
+
+def _capture_index() -> dict[str, Path]:
+    """Every committed capture by node ID (`node:<id>`) and by URL, its own and its aliases; built once per run."""
+    global _index
+    if _index is None:
+        _index = {}
+        for path in sorted(HELP.glob("*.json")):
+            src = ((read(path) or {}).get("source")) or {}
+            for key in ([f"node:{src['node']}"] if src.get("node") else []) + [src.get("url"), *src.get("aliases", [])]:
+                if key:
+                    _index.setdefault(key, path)
+    return _index
+
+
+def captured(pg: dict) -> Path | None:
+    """The committed capture of this page, matched by node ID or by URL (its own or an alias)."""
+    index = _capture_index()
+    return index.get(f"node:{pg['nid']}") if pg.get("nid") and f"node:{pg['nid']}" in index else index.get(pg["url"])
+
+
 def capture(url: str, name: str | None) -> Path:
     name = name or url.rstrip("/").rsplit("/", 1)[-1] + ".json"
     if not re.fullmatch(r"[\w.-]+\.json", name):
         raise SystemExit(f"capture name must be a plain file name ending in .json: {name}")
+    pg = page(url)
+    # A link to an old address of a page already captured adds the address, not a second capture.
+    existing = captured(pg)
+    if existing:
+        doc = read(existing)
+        if url not in [doc["source"]["url"], *doc["source"].get("aliases", [])]:
+            write(existing, with_aliases(doc, url))
+            print(f"already captured as {existing.name} ({pg['url']}); recorded {url} as its alias", file=sys.stderr)
+        return existing
     out = HELP / name
     if out.exists():
         raise SystemExit(f"exists: {out}; use `check --replace {name}` to update it")
-    write(out, build(page(url)))
+    write(out, with_aliases(build(pg), url))
     return out
+
+
+def alias(urls: list[str]) -> int:
+    """For each URL: record it as an alias of the capture of its page when there is one, else report it as new.
+    Captures nothing, so a capture queue can be cleared of old addresses before any capture work."""
+    new = 0
+    for url in urls:
+        try:
+            pg = page(url)
+        except (Unavailable, SystemExit) as e:
+            print(f"skip  {url}: {e}")
+            continue
+        existing = captured(pg)
+        if existing:
+            doc = read(existing)
+            if url not in [doc["source"]["url"], *doc["source"].get("aliases", [])]:
+                write(existing, with_aliases(doc, url))
+            print(f"alias {url} -> {existing.name}")
+        else:
+            new += 1
+            print(f"new   {url}" + (f" (now {pg['url']})" if pg["url"] != url else ""))
+    return new
 
 
 def changes(old: str, new: str) -> dict:
@@ -554,7 +625,8 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
         if same_rev:
             say(f"ok    {path.name} (revision {src['revision']})")
             continue
-        fresh = build(pg, doc["captured_at"])
+        # A page that moved keeps its old address as an alias, and every recorded alias stays.
+        fresh = with_aliases(build(pg, doc["captured_at"]), src["url"], *src.get("aliases", []))
         revs = {"from": src.get("revision"), "to": pg.get("rev")} if "revision" in src else {}
         if content(fresh) == content(doc):
             # Same content: the material did not change, whatever the vendor's file dates say now.
@@ -570,7 +642,7 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
         if not as_json:
             sys.stdout.write(delta["diff"])
         if replace:
-            write(path, build(pg))
+            write(path, with_aliases(build(pg), src["url"], *src.get("aliases", [])))
             say(f"      replaced {path.name}")
     if as_json:
         print(json.dumps({"pages": report}, indent=2, ensure_ascii=False))
@@ -707,6 +779,8 @@ if __name__ == "__main__":
         sys.stdout.write(text_of(json.loads(Path(args[1]).read_text())["blocks"]))
     elif args[:1] == ["capture"] and len(args) in (2, 3):
         print(capture(args[1], args[2] if len(args) == 3 else None))
+    elif args[:1] == ["alias"] and len(args) > 1:
+        print(f"{alias(args[1:])} new")
     elif args[:1] == ["recapture"] and len(args) > 1:
         sys.exit(1 if recapture(args[1:]) else 0)
     elif args[:1] == ["rerender"]:

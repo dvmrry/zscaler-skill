@@ -6,6 +6,7 @@
 //   <out>/help.json, <out>/issues.json   the check reports (kb-drift.mjs input)
 //   <out>/review.md                      the full review, diffs included
 //   <out>/body.md                        the pull-request description, bounded to GitHub's size limit
+//   <out>/capture-queue.md               help pages the vendor material links to that are not captured
 // and prints a one-line JSON summary. It never commits, pushes or runs the gate; the workflow does that.
 // Broken evidence is the output, not a failure: the pull request is where it gets re-anchored.
 //
@@ -14,6 +15,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { captureQueue, citedFiles, markdown as queueMarkdown } from "./capture-queue.mjs";
 import { driftReview, markdown } from "./kb-drift.mjs";
 import { buildGraph, loadPublic } from "./kb-lib.mjs";
 
@@ -26,6 +28,23 @@ function step(command, args, { ok = [0], capture = false } = {}) {
   const r = spawnSync(command, args, { cwd: ROOT, encoding: "utf8", maxBuffer: 256 << 20, stdio: ["ignore", capture ? "pipe" : "inherit", "inherit"] });
   if (r.error || !ok.includes(r.status)) throw new Error(`${command} ${args.join(" ")} exited ${r.error?.message ?? r.status}`);
   return r.stdout;
+}
+
+/** The pull request's note on the capture queue: how many pages, the first few, and what to do with them. */
+export function queueNote(queue, shown = 10) {
+  if (!queue.length) return "";
+  const top = queue.slice(0, shown).map((q) => `- ${q.url} (linked from ${q.linking_files} vendor file(s), ${q.cited_linkers} cited)`);
+  return [
+    "",
+    "## Help pages linked but not captured",
+    "",
+    `${queue.length} help pages are linked from the pinned vendor material and not captured; the full list is the artifact's`,
+    "`capture-queue.md`. Clear old addresses with `python3 scripts/help_capture.py alias <url> ...`, then capture what",
+    "the graph needs with `python3 scripts/help_capture.py capture <url>`.",
+    "",
+    ...top,
+    "",
+  ].join("\n");
 }
 
 /** Evidence counts by state across a review's pages. */
@@ -107,8 +126,11 @@ function main(argv) {
   const g = buildGraph(loadPublic(ROOT));
   const reviews = reports.map((r) => ({ title: r.title, pages: driftReview(g, JSON.parse(fs.readFileSync(path.join(dir, r.file), "utf8"))) }));
   fs.writeFileSync(path.join(dir, "review.md"), reviews.map((r) => markdown(r.pages, r.title)).join("\n"));
-  fs.writeFileSync(path.join(dir, "body.md"), prBody(reviews));
-  const summary = Object.fromEntries(reviews.map((r, i) => [reports[i].file.replace(".json", ""), counts(r.pages)]));
+  const queue = captureQueue(ROOT, citedFiles(g));
+  fs.writeFileSync(path.join(dir, "capture-queue.md"), queueMarkdown(queue, queue.length));
+  const note = queueNote(queue);
+  fs.writeFileSync(path.join(dir, "body.md"), prBody(reviews, BODY_LIMIT - note.length) + note);
+  const summary = { ...Object.fromEntries(reviews.map((r, i) => [reports[i].file.replace(".json", ""), counts(r.pages)])), capture_queue: queue.length };
   process.stdout.write(`${JSON.stringify(summary)}\n`);
   return 0;
 }

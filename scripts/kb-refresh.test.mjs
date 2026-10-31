@@ -38,3 +38,12 @@ test("a review over the limit drops diffs, then pages, and names what it cut", (
   assert.match(body, /### p0\.json/);
   assert.match(body, /## Not shown\n\n- Help capture drift: \d+ file\(s\) not shown \(p\d+\.json/);
 });
+
+test("the queue note names the pages to capture and the tools to use, and is empty for an empty queue", async () => {
+  const { queueNote } = await import("./kb-refresh.mjs");
+  assert.equal(queueNote([]), "");
+  const note = queueNote([{ url: "https://help.zscaler.com/zia/x", linking_files: 3, cited_linkers: 1 }]);
+  assert.match(note, /^## Help pages linked but not captured$/m);
+  assert.match(note, /^- https:\/\/help\.zscaler\.com\/zia\/x \(linked from 3 vendor file\(s\), 1 cited\)$/m);
+  assert.match(note, /help_capture\.py alias/);
+});

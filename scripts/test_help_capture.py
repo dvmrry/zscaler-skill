@@ -111,3 +111,22 @@ def test_a_drift_report_names_the_changed_lines_of_the_new_text():
     assert delta["changed_lines"] == [2, 5] and delta["removed"] == ["b"]
     # A deletion marks the lines on either side of where it was.
     assert changes("a\nb\nc\n", "a\nc\n")["changed_lines"] == [1, 2]
+
+
+def test_a_link_to_an_old_address_of_a_captured_page_becomes_its_alias(tmp_path, monkeypatch):
+    import help_capture
+
+    title, blocks = render(ARTICLE)
+    old = document(title, "https://help.zscaler.com/unified/x-admin-console", blocks, "12", "34", "2026-10-18")
+    help_capture.write(tmp_path / "x-admin-console.json", old)
+    monkeypatch.setattr(help_capture, "HELP", tmp_path)
+    monkeypatch.setattr(help_capture, "_index", None)
+    moved = {"kind": "help-article", "url": "https://help.zscaler.com/unified/x-admin-console", "nid": "12", "rev": "34", "html": ARTICLE}
+    monkeypatch.setattr(help_capture, "page", lambda url: moved)
+    path = help_capture.capture("https://help.zscaler.com/zia/x-zia-admin-portal", None)
+    assert path.name == "x-admin-console.json"
+    assert not (tmp_path / "x-zia-admin-portal.json").exists(), "no second capture of the same page"
+    src = help_capture.read(path)["source"]
+    assert src["url"] == "https://help.zscaler.com/unified/x-admin-console"
+    assert src["aliases"] == ["https://help.zscaler.com/zia/x-zia-admin-portal"]
+    assert help_capture.with_aliases(dict(old), old["source"]["url"])["source"].get("aliases") is None, "a page is never its own alias"
