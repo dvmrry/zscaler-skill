@@ -31,6 +31,8 @@ SKILLS_ROOT = REPO_ROOT / ".agents" / "skills"
 AGENTS_ROOT = REPO_ROOT / "agents"
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n?", re.DOTALL)
+# The Agent Skills specification caps a skill's description; loaders may truncate or reject a longer one.
+DESCRIPTION_MAX = 1024
 BACKTICK_PATH_RE = re.compile(r"`([^`]+)`")
 
 ROUTING_DOCS = [
@@ -152,6 +154,8 @@ def check_skill(
         return None
     if not isinstance(description, str) or len(description.strip()) < 40:
         findings.append(Finding("error", skill_file, "frontmatter description is missing or too thin"))
+    elif len(description.strip()) > DESCRIPTION_MAX:
+        findings.append(Finding("error", skill_file, f"frontmatter description is {len(description.strip())} characters, over the {DESCRIPTION_MAX} limit"))
 
     if skill_file.parent.name != name:
         findings.append(
@@ -420,6 +424,12 @@ def main() -> int:
         name = check_skill(skill_file, findings, args.allow_smoke_tests, expected_workflows)
         if name:
             skill_names.append(name)
+
+    # The root SKILL.md is itself a skill: its description has the same limit.
+    root_skill = parse_frontmatter(REPO_ROOT / "SKILL.md")
+    root_description = (root_skill[0].get("description") or "") if root_skill else ""
+    if len(root_description.strip()) > DESCRIPTION_MAX:
+        findings.append(Finding("error", REPO_ROOT / "SKILL.md", f"frontmatter description is {len(root_description.strip())} characters, over the {DESCRIPTION_MAX} limit"))
 
     check_expected_portable_skills(skill_names, expected_workflows, findings)
     check_portable_skill_inventory(expected_workflows, findings)

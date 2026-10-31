@@ -2,17 +2,15 @@
 name: zscaler
 description: >
   Answer questions about the Zscaler portfolio from a citation-backed knowledge graph: ZIA (URL filtering and
-  categories, wildcard matching, SSL inspection order, Cloud App Control, DLP, sandbox, malware and ATP,
-  firewall, traffic forwarding), ZPA (app segments, policy order, App Connectors, Browser Access, PRA,
-  AppProtection), ZCC / Client Connector (forwarding profiles, trusted networks, Z-Tunnel), ZDX (score, probes,
-  diagnostic sessions / deeptraces), ZIdentity (OneAPI authentication, API clients, step-up), Cloud & Branch
-  Connector (ZTW / ZTC / CBC), Zero Trust Browser / Cloud Browser Isolation (ZBI), Workflow Automation (ZWA), AI
-  Guard and AI Security, ZMS microsegmentation, EASM, Zscaler Cellular, Business Insights, and the SecOps family
-  (Risk360, Deception, UVM, AEM, DSPM, ITDR, Breach Predictor, Agentic SOC, Zero Trust Branch); plus their APIs,
-  Python and Go SDKs, Terraform providers and log formats. Use whenever the user mentions Zscaler or any of these
-  products or features, asks "is $URL covered / blocked / allowed", "why does this rule win", "what happens when
-  these policies overlap", "why is this user's app slow", "what is $product", or "does Zscaler have something for
-  $use-case", even without naming Zscaler.
+  categories, SSL inspection, Cloud App Control, DLP, sandbox, malware and ATP, firewall, forwarding), ZPA (app
+  segments, policy order, App Connectors, Browser Access, PRA), Client Connector (forwarding profiles, trusted
+  networks, Z-Tunnel), ZDX, ZIdentity and OneAPI, Cloud & Branch Connector (ZTW), Cloud Browser Isolation,
+  Workflow Automation, AI Guard and AI Security, microsegmentation, EASM, Cellular, Business Insights and the
+  SecOps family (Risk360, Deception, UVM, AEM, DSPM, ITDR, Agentic SOC, Zero Trust Branch); plus their APIs,
+  SDKs, Terraform providers and log formats. Use whenever the user mentions Zscaler or any of these products,
+  asks "is $URL covered / blocked / allowed", "why does this rule win", "what happens when these policies
+  overlap", "why is this user's app slow", "what is $product", or "does Zscaler have something for $use-case",
+  even without naming Zscaler.
 ---
 
 # Zscaler

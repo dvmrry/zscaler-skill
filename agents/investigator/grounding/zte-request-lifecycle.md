@@ -73,7 +73,7 @@ IaC cannot answer or for drift:
 - ZPA: the overlay's IaC for the relevant `zpa/<type-id>`, or `zscalerctl zpa <type-id> list`
 - ZCC: the overlay's IaC for the relevant `zcc/<type-id>`, or `zscalerctl zcc <type-id> list`
 
-Examples: `zia/url-filtering-rules`, `zpa/app-segments`,
+Examples: `zia/url-filtering-rules`, `zpa/application-segments`,
 `zcc/forwarding-profiles`. Use `node scripts/kb.mjs resolve <type-id>` for field
 shapes. Do not collapse multi-cloud tenant state into one view.
 

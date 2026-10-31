@@ -39,8 +39,8 @@ Read these *before* interpreting any logs. Establish what *should* happen in the
 
 ## Inspect tenant config
 
-- The overlay's IaC (when `overlay.json` declares `iac`) for `zpa/app-segments`, `zpa/server-groups`, `zpa/connector-groups`, and `zpa/app-connectors`
-- Live, read-only, only when IaC cannot answer or for drift: `zscalerctl zpa app-segments list`, `zscalerctl zpa server-groups list`, `zscalerctl zpa connector-groups list`, `zscalerctl zpa app-connectors list` (connector status is live-only state)
+- The overlay's IaC (when `overlay.json` declares `iac`) for `zpa/application-segments`, `zpa/server-groups`, `zpa/app-connector-groups`, and `zpa/app-connectors`
+- Live, read-only, only when IaC cannot answer or for drift: `zscalerctl zpa application-segments list`, `zscalerctl zpa server-groups list`, `zscalerctl zpa app-connector-groups list`, `zscalerctl zpa app-connectors list` (connector status is live-only state)
 
 (Do not scan broad `_data/`. Use `node scripts/kb.mjs resolve <type-id>` for field shapes.)
 

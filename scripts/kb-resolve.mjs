@@ -20,7 +20,10 @@ export const BUNDLE_VERSION = 1;
 
 // ---------------------------------------------------------------- overlay
 
-/** Load a company overlay root. Missing overlay is not an error: returns null. */
+/**
+ * Load a company overlay root: null for no directory; an error for a directory without a readable overlay.json. A
+ * record that is not valid JSON is kept with its parse error, for validateOverlay to report and usableOverlay to drop.
+ */
 export function loadOverlay(g, dir) {
   if (!dir) return null;
   const root = path.resolve(dir);
@@ -35,7 +38,11 @@ export function loadOverlay(g, dir) {
       for (const name of fs.readdirSync(path.join(kdir, scope.name)).sort()) {
         if (!name.endsWith(".json")) continue;
         const file = path.join(kdir, scope.name, name);
-        records.push({ file: path.relative(root, file), data: readJson(file) });
+        try {
+          records.push({ file: path.relative(root, file), data: readJson(file) });
+        } catch (e) {
+          records.push({ file: path.relative(root, file), data: null, parseError: e.message });
+        }
       }
     }
   }
@@ -49,7 +56,11 @@ export function validateOverlay(g, ov) {
   const err = (file, message) => errors.push({ file, message });
   for (const e of validate(g.schemas, "overlay.schema.json", ov.config, { $ref: "#/$defs/overlay" })) err("overlay.json", e);
   const seen = new Set();
-  for (const { file, data } of ov.records) {
+  for (const { file, data, parseError } of ov.records) {
+    if (parseError) {
+      err(file, `not valid JSON: ${parseError}`);
+      continue;
+    }
     for (const e of validate(g.schemas, "overlay.schema.json", data, { $ref: "#/$defs/record" })) err(file, e);
     if (!data?.id) continue;
     if (path.basename(file, ".json") !== data.id) err(file, `file name must equal id (${data.id}.json)`);
@@ -539,9 +550,13 @@ function bindsOf(g, subjectId) {
   return [...(g.nodes.get(subjectId).data.binds || []), ...itemsOf(g, subjectId, "claim").flatMap((n) => n.data.binds || [])];
 }
 
-/** What company records about a subject can be about: the subject, its claims, and the types and fields they bind. */
+/**
+ * What company records about a subject can be about: the subject, its claims, and the types and fields they bind. A
+ * bound field brings its type, so a record about a whole log or object type reaches every subject about its fields.
+ */
 function aboutIds(g, subjectId) {
-  return new Set([subjectId, ...itemsOf(g, subjectId, "claim").map((n) => n.id), ...bindsOf(g, subjectId)]);
+  const binds = bindsOf(g, subjectId);
+  return new Set([subjectId, ...itemsOf(g, subjectId, "claim").map((n) => n.id), ...binds, ...binds.map((b) => b.split("#")[0])]);
 }
 
 function subjectBundle(g, subjectId, ov, ctx) {
@@ -925,7 +940,17 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     return text.length / 4;
   };
   const fields = new Map();
-  for (const arg of args) {
+  for (const given of args) {
+    // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
+    // old ledger ID (`zia-02`).
+    let arg = given.replace(/^(gap|divergence):/, "");
+    if (!g.nodes.has(arg) && g.formerIds.has(arg)) arg = g.formerIds.get(arg);
+    if (g.nodes.get(arg)?.subject) arg = g.nodes.get(arg).subject;
+    // A whole product is hundreds of thousands of tokens; its spine says which areas a question needs.
+    if (!g.nodes.has(arg) && !/[./]/.test(arg) && subjectsOf(g).some((n) => n.id.startsWith(`${arg}.`))) {
+      out.push(`# ${arg}: a whole product is too large to read; pick its areas from references/_meta/spine/${arg}.json`);
+      continue;
+    }
     const node = g.nodes.get(arg);
     if (node?.kind === "field") {
       fields.set(node.type, [...(fields.get(node.type) || []), node.path]);
@@ -934,7 +959,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     // A subject reads with everything under it, so an area's ID (also its hub subject) reads the whole area.
     const ids = node?.kind === "type" ? [arg]
       : subjectsOf(g).map((n) => n.id).filter((id) => id === arg || id.startsWith(`${arg}.`));
-    if (!ids.length) out.push(`# ${arg}: no subject, type, field or area has this ID; check the spine`);
+    if (!ids.length) out.push(`# ${given}: no subject, type, field or area has this ID; check the spine`);
     for (const id of ids) if (!seen.has(id)) emit(id);
   }
   for (const [type, paths] of fields) {
@@ -1067,7 +1092,11 @@ function gitDate(root, file) {
  * checked_at only moves when the pin or the result changes, so the file churns
  * only on real change.
  */
-export function updateVerified(g, today = new Date().toISOString().slice(0, 10)) {
+/**
+ * Regenerate verified.json: per source, its pin and its citation counts. `check` writes nothing and reports whether
+ * the committed file differs in anything but `checked_at`.
+ */
+export function updateVerified(g, { today = new Date().toISOString().slice(0, 10), check = false } = {}) {
   const file = path.join(g.root, META, "verified.json");
   const prev = fs.existsSync(file) ? readJson(file).sources : {};
   const results = {};
@@ -1090,8 +1119,10 @@ export function updateVerified(g, today = new Date().toISOString().slice(0, 10))
     entry.checked_at = old && old.pin === entry.pin && old.citations === entry.citations && old.failing === entry.failing ? old.checked_at : today;
     sources[id] = entry;
   }
-  fs.writeFileSync(file, JSON.stringify({ schema_version: 1, generated_by: "node scripts/kb.mjs verified", sources }, null, 2) + "\n");
-  return sources;
+  const dateless = (x) => JSON.stringify(Object.entries(x).map(([id, { checked_at, ...v }]) => [id, v]));
+  const stale = dateless(prev) !== dateless(sources);
+  if (!check) fs.writeFileSync(file, JSON.stringify({ schema_version: 1, generated_by: "node scripts/kb.mjs verified", sources }, null, 2) + "\n");
+  return { sources, stale };
 }
 
 function sha256OfManifest(g, root) {
@@ -1125,9 +1156,19 @@ export function usableOverlay(g, ov) {
   return { ...ov, records: ov.records.filter((r) => !bad.has(r.file)) };
 }
 
+/** The overlay for a command, or null with a warning when it cannot be opened: public answers never fail on it. */
+function openOverlay(g, dir) {
+  try {
+    return usableOverlay(g, loadOverlay(g, dir));
+  } catch (e) {
+    console.error(`overlay not used (${e.message}); answering from the public graph only`);
+    return null;
+  }
+}
+
 export async function runCommand(root, g, cmd, args, { option, usage }) {
   const overlayDir = args.includes("--no-overlay") ? null : option(args, "--overlay") ?? process.env.ZSCALER_KB_OVERLAY ?? defaultOverlay(root);
-  const ov = overlayDir ? usableOverlay(g, loadOverlay(g, overlayDir)) : null;
+  const ov = overlayDir ? openOverlay(g, overlayDir) : null;
   if (cmd === "resolve") {
     // Compact JSON by default: indentation costs agents about a quarter of a bundle's tokens.
     const pretty = args.includes("--pretty");
@@ -1176,7 +1217,12 @@ export async function runCommand(root, g, cmd, args, { option, usage }) {
     return 0;
   }
   if (cmd === "verified") {
-    const s = updateVerified(g);
+    const check = args.includes("--check");
+    const { sources: s, stale } = updateVerified(g, { check });
+    if (check) {
+      if (stale) console.error("kb: references/_meta/verified.json is stale; run `node scripts/kb.mjs verified`");
+      return stale ? 1 : 0;
+    }
     for (const [id, v] of Object.entries(s)) console.log(`${id}: ${v.citations} citations, ${v.failing} failing, pin ${v.pin}`);
     return Object.values(s).some((v) => v.failing) ? 1 : 0;
   }

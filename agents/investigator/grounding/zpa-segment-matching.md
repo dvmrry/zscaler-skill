@@ -48,8 +48,9 @@ Read these *before* interpreting any policy log. Segment matching has a non-obvi
 
 ## Inspect tenant config
 
-- The overlay's IaC (when `overlay.json` declares `iac`) for `zpa/app-segments`, `zpa/segment-groups`, and `zpa/access-policy-rules`
-- Live, read-only, only when IaC cannot answer or for drift: `zscalerctl zpa app-segments list`, `zscalerctl zpa segment-groups list`, `zscalerctl zpa access-policy-rules list`
+- The overlay's IaC (when `overlay.json` declares `iac`) for `zpa/application-segments` and `zpa/segment-groups`
+- Live, read-only, only when IaC cannot answer or for drift: `zscalerctl zpa application-segments list`, `zscalerctl zpa segment-groups list`
+- Access policy rules have no tenant type or `zscalerctl` resource yet: ask for the rules from the console or the API, and say the answer rests on them
 
 ## Use runtime logs only when
 

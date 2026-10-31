@@ -434,8 +434,11 @@ test("resolve degrades on a bad overlay: an invalid record is dropped, an unreso
   const c = JSON.parse(fs.readFileSync(claim, "utf8"));
   delete c.validated;
   fs.writeFileSync(claim, JSON.stringify(c));
+  fs.writeFileSync(path.join(bad, "knowledge/zia/company.zia.truncated.json"), '{ "schema_version": 1, "id": "company.zia.trunc');
+  assert.ok(validateOverlay(g, loadOverlay(g, bad)).some((e) => e.file.endsWith("company.zia.truncated.json") && /not valid JSON/.test(e.message)), "a record that does not parse is named");
   const ov = usableOverlay(g, loadOverlay(g, bad));
-  assert.ok(!ov.records.some((r) => r.data.id === "company.zia.first-pass-user-context"), "the invalid record is dropped");
+  assert.ok(!ov.records.some((r) => r.data?.id === "company.zia.first-pass-user-context"), "the invalid record is dropped");
+  assert.ok(!ov.records.some((r) => r.file.endsWith("company.zia.truncated.json")), "so is the one that does not parse");
   const b = resolve(g, "zia/url-filtering-rules", { overlay: ov });
   const repo = b.tiers.iac.repos.find((r) => r.id === "iac");
   assert.equal(repo.available, false);
@@ -525,6 +528,18 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   assert.match(activation, /^Sources disagree \(name both sides\):\n- .+ \[divergence:zia\.api\.activation:activate-path-differs\]\n {2}- zscaler-help: /m);
   assert.match(activation, /^- \[zia\.api\.activation:active-means-nothing-pending\] Tier B: /m);
   assert.match(run("--no-overlay", "--no-links", "zia.saas-apps.tenant-restriction-order"), /\(data gap\): filled by live; run `zscalerctl /);
+  // A subject that binds only some of a type's fields still gets the records about the whole type, mapped to its fields.
+  const fieldsOnly = run("--overlay", OVERLAY, "--no-links", "zia.logs.web-rule-attribution");
+  assert.match(fieldsOnly, /^ {2}- zia\/web-log#urlfilterrulelabel is zs_url_rule$/m);
+  // A cited item reads as its subject; a whole product is refused with a pointer to its spine.
+  assert.match(run("--no-overlay", "--no-links", "zia.api.activation:status-values"), /^# .*\(zia\.api\.activation\)$/m);
+  assert.match(run("--no-overlay", "--no-links", "gap:zia.api.activation:eusa-precondition"), /^# .*\(zia\.api\.activation\)$/m);
+  assert.match(run("--no-overlay", "zia"), /^# zia: a whole product is too large to read; pick its areas from references\/_meta\/spine\/zia\.json$/m);
+  // An overlay that cannot be opened leaves public answers working.
+  const gone = spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--overlay", path.join(os.tmpdir(), "kb-no-such-overlay"), "--no-links", "zia.api.activation"], { encoding: "utf8" });
+  assert.equal(gone.status, 0);
+  assert.match(gone.stderr, /overlay not used/);
+  assert.match(gone.stdout, /\(zia\.api\.activation\)/);
 });
 
 test("resolve rejects an unknown flag instead of searching for it", () => {

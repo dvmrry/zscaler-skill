@@ -3140,6 +3140,23 @@ export function migrateLinks(root, g, args) {
   return 0;
 }
 
+/**
+ * Tenant type IDs (`zpa/application-segments`, `zia/web-log#urlcat`) in backticks, for the products given, and
+ * `zscalerctl <product> <resource> list|get` reads named in Markdown, for validation against the graph and the
+ * pinned zscalerctl catalogue.
+ */
+export function tenantRefs(root, products) {
+  const type = new RegExp(`\`((?:${[...products].join("|")})/[a-z0-9][a-z0-9-]*)(?:#([a-z0-9_.-]+))?\``, "g");
+  const found = [];
+  for (const file of markdownFiles(root)) {
+    if (file === "PLAN.md") continue;
+    const text = fs.readFileSync(path.join(root, file), "utf8");
+    for (const m of text.matchAll(type)) found.push({ file, kind: "type", id: m[2] ? `${m[1]}#${m[2]}` : m[1] });
+    for (const m of text.matchAll(/zscalerctl ([a-z]+) ([a-z0-9-]+) (?:list|get)\b/g)) found.push({ file, kind: "read", product: m[1], resource: m[2] });
+  }
+  return found;
+}
+
 /** Every `kb:` link in legacy Markdown, for validation. */
 /**
  * Plain-text mentions of a converted (moved) file, such as a front-matter `sources` entry or a
@@ -3151,7 +3168,7 @@ export function staleMentions(root) {
   const pattern = new RegExp(`(?:references/|\\.\\./|\\./)?(${names.map((n) => n.replace(/[.]/g, "\\.")).join("|")})(?![\\w-])`, "g");
   const found = [];
   for (const file of markdownFiles(root)) {
-    if (file.startsWith("docs/superpowers/") || file === "PLAN.md") continue;
+    if (file === "PLAN.md") continue;
     const text = fs.readFileSync(path.join(root, file), "utf8");
     for (const m of text.matchAll(pattern)) {
       const moved = `references/${m[1]}`;

@@ -44,7 +44,7 @@ Read these *before* interpreting any web log. URL filtering precedence has two n
 ## Inspect tenant config
 
 - The overlay's IaC for `zia/url-filtering-rules` (when `overlay.json` declares `iac`), or `zscalerctl zia url-filtering-rules list` (live, read-only; only when IaC cannot answer or for drift)
-- The overlay's IaC for `zia/cloud-app-control-rules`, or `zscalerctl zia cloud-app-control-rules list` (load if Cloud App Control is in the question's scope)
+- The overlay's IaC for `zia/cloud-app-control`, or `zscalerctl zia cloud-app-control list` (load if Cloud App Control is in the question's scope)
 
 ## Use runtime logs only when
 

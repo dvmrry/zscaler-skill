@@ -11,12 +11,12 @@
 //     The overlay defaults to $ZSCALER_KB_OVERLAY, then <runtime-data mount>/overlay if it has overlay.json.
 //                                    one layer-labelled bundle (JSON on stdout)
 //   map [<product | area> ...]       the spine as text: areas, subjects, opening facts and typed edges
-//   read <subject | area | type | field> ...
+//   read <subject | area | type | field> ...  (a claim, gap or ledger ID reads its subject)
 //                                    reading text with citable claim IDs, one hop of linked subjects, and
 //                                    company records with an overlay (--no-links: no hop)
 //   render <subject-id>              the subject as Markdown (deterministic)
 //   manifest                         record capture-manifest entries for cited captures
-//   verified                         regenerate references/_meta/verified.json
+//   verified [--check]               regenerate references/_meta/verified.json (--check: exit 1 if it is stale)
 //   export-zscalerctl                export the pinned zscalerctl catalogue (needs Go)
 //   import-types                     regenerate references/_meta/types/*.json
 //   migrate-links                    rewrite legacy links to converted docs as kb: links
@@ -53,6 +53,13 @@ function option(args, name) {
 async function main(argv) {
   const [cmd, ...args] = argv;
   if (!cmd) usage();
+  if (["--help", "-h", "help"].includes(cmd)) {
+    // The header comment is the command reference.
+    const header = fs.readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1);
+    const end = header.findIndex((l) => !l.startsWith("//"));
+    process.stdout.write(`${header.slice(0, end).map((l) => l.replace(/^\/\/ ?/, "")).join("\n")}\n`);
+    return 0;
+  }
   if (cmd === "export-zscalerctl") {
     const out = exportZscalerctl(ROOT);
     console.log(`exported ${out.resources.length} resources, ${out.references.length} reference edges, ${out.commands.length} commands`);
@@ -112,12 +119,20 @@ async function main(argv) {
   if (cmd === "validate") {
     const { errors, warnings, stats } = validateGraph(g, { citations: !args.includes("--no-citations") });
     // Legacy Markdown links into the graph (written by migrate-links) must resolve.
-    const { kbLinks, staleMentions } = await import("./kb-migrate.mjs");
+    const { kbLinks, staleMentions, tenantRefs } = await import("./kb-migrate.mjs");
     for (const { file, id } of kbLinks(ROOT)) {
       if (!g.nodes.has(id)) errors.push({ file, message: `kb:${id} does not resolve` });
     }
     for (const { file, moved, id } of staleMentions(ROOT)) {
       errors.push({ file, message: `mentions ${moved}, which was converted; use kb:${id}` });
+    }
+    // A tenant type or a zscalerctl read named in a doc exists in the graph and the pinned catalogue.
+    const catalogue = JSON.parse(fs.readFileSync(path.join(ROOT, "references/_meta/imports/zscalerctl.json"), "utf8"));
+    const resources = new Set(catalogue.resources.map((r) => `${r.product} ${r.name}`));
+    const products = new Set([...g.nodes.values()].filter((n) => n.kind === "type").map((n) => n.id.split("/")[0]));
+    for (const r of tenantRefs(ROOT, products)) {
+      if (r.kind === "type" && !g.nodes.has(r.id)) errors.push({ file: r.file, message: `names tenant type ${r.id}, which the graph does not have` });
+      if (r.kind === "read" && !resources.has(`${r.product} ${r.resource}`)) errors.push({ file: r.file, message: `names zscalerctl ${r.product} ${r.resource}, which the pinned zscalerctl catalogue does not have` });
     }
     const evalsFile = "references/_meta/evals/evals.json";
     for (const e of JSON.parse(fs.readFileSync(path.join(ROOT, evalsFile), "utf8")).evals) {

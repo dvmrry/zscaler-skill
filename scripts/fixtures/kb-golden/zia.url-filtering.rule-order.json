@@ -302,5 +302,42 @@
       }
     }
   ],
-  "company": []
+  "company": [
+    {
+      "layer": "company",
+      "id": "company.zia.url-filtering-iac",
+      "kind": "iac-coverage",
+      "relation": "extends",
+      "about": [
+        "zia/url-filtering-rules"
+      ],
+      "title": "Synthetic fixture: URL Filtering rules in our IaC",
+      "refresh": "15m",
+      "iac": [
+        {
+          "label": "disabled in our pipeline",
+          "source": "iac:coverage.json#/resources/zia_url_filtering_rules/disabled",
+          "value": [
+            {
+              "when": {
+                "action": "ISOLATE"
+              },
+              "reason": "Provider cannot rebuild cbi_profile on import; ISOLATE rules are managed in the console."
+            }
+          ]
+        },
+        {
+          "label": "checks we added",
+          "source": "iac:coverage.json#/resources/zia_url_filtering_rules/checks",
+          "value": [
+            "assert-clean after import for the imported addresses only"
+          ]
+        },
+        {
+          "label": "the rule as our Terraform declares it",
+          "location": "zia-tf:url_filtering.tf zia_url_filtering_rules.block_gambling"
+        }
+      ]
+    }
+  ]
 }
