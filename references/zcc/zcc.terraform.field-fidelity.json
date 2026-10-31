@@ -56,7 +56,7 @@
     },
     {
       "label": "Defects on the SDK side.",
-      "text": "{{intorstring-truncates-fractions}} {{trusted-network-create-sleeps-blindly}} {{emergency-access-create-clears-activate-now}} {{sdk-defects-reach}} {{v1-backend-serves-tenants-without-v2}} Which probe failures select the v1 backend is [[zcc.terraform.trusted-network-backend:probe-unavailable-statuses]]. Legacy-client routing for the same package is in [[zcc.sdk-go.legacy-routing]]; ZIA's equivalent field-fidelity mechanisms are in [[zia.terraform.field-fidelity]]."
+      "text": "{{intorstring-truncates-fractions}} {{trusted-network-create-sleeps-blindly}} [[zpa.emergency-access.api-surface:sdk-go-create-clears-activate-now]] {{sdk-defects-reach}} {{v1-backend-serves-tenants-without-v2}} Which probe failures select the v1 backend is [[zcc.terraform.trusted-network-backend:probe-unavailable-statuses]]. Legacy-client routing for the same package is in [[zcc.sdk-go.legacy-routing]]; ZIA's equivalent field-fidelity mechanisms are in [[zia.terraform.field-fidelity]]."
     },
     {
       "text": "Whether the ZCC v2 create and update responses carry every field is open {{gap:partial-create-update-response}}."
@@ -853,48 +853,13 @@
         }
       ]
     },
-    "emergency-access-create-clears-activate-now": {
-      "statement": "The ZPA SDK's emergency-access `Create` sets `ActivateNow` to false on the caller's struct before posting, so a caller cannot create a user that is activated immediately. The field is `omitempty`, so it is not sent at all.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zpa/services/emergencyaccess/emergencyaccess.go",
-          "at": [
-            "v3.8.37",
-            "HEAD"
-          ],
-          "after": "func Create(",
-          "quotes": [
-            "emergencyAccess.ActivateNow = false"
-          ]
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zpa/services/emergencyaccess/emergencyaccess.go",
-          "at": [
-            "v3.8.37",
-            "HEAD"
-          ],
-          "quotes": [
-            "ActivateNow bool `json:\"activateNow,omitempty\" url:\"activateNow,omitempty\"`"
-          ]
-        }
-      ],
-      "upstream": [
-        {
-          "status": "unfiled",
-          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
-        }
-      ]
-    },
     "sdk-defects-reach": {
       "statement": "These three SDK defects reach providers unevenly. The ZCC provider uses the shared `IntOrString` only through web-policy code it does not register, and reaches the v1 trusted-network create only through the backend added after v0.1.0-beta.1. The ZPA provider has an emergency-access resource that calls `Create` but sets no activation field, so for Terraform users `ActivateNow` is not an input.",
       "tier": "B",
       "derived_from": [
         "intorstring-truncates-fractions",
         "trusted-network-create-sleeps-blindly",
-        "emergency-access-create-clears-activate-now"
+        "zpa.emergency-access.api-surface:sdk-go-create-clears-activate-now"
       ],
       "evidence": [
         {

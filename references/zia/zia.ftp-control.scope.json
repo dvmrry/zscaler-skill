@@ -38,7 +38,7 @@
     {
       "rel": "depends-on",
       "to": "zia.firewall",
-      "because": "zia.firewall:ftp-sits-in-firewall"
+      "because": "zia.ftp-control.scope:ftp-sits-in-firewall"
     },
     {
       "rel": "configured-via",
@@ -69,11 +69,11 @@
         },
         {
           "label": "Which protocols?",
-          "text": "{{ftps-supported}} Passive-only behavior and the default-deny on FTP over HTTP are held in [[zia.firewall]] (`ftp-passive-only`, `ftp-default`). Whether FTP over HTTPS needs decryption for content inspection is open: see gap `ftp-over-https-decrypt`, and check [[zia.ssl-inspection.bypass-impact]]."
+          "text": "{{ftps-supported}} {{ftp-passive-only}} {{ftp-default}} Whether FTP over HTTPS needs decryption for content inspection is open: see gap `ftp-over-https-decrypt`, and check [[zia.ssl-inspection.bypass-impact]]."
         },
         {
           "label": "Does URL Filtering decide first?",
-          "text": "URL Filtering rules take precedence over FTP Control (`ftp-url-filtering-precedence` in [[zia.firewall]]). {{url-filtering-only-all-user-rules}} A user-scoped URL Filtering rule therefore never explains an FTP block; look for an all-users rule in [[zia.url-filtering.rule-order]]."
+          "text": "{{ftp-sits-in-firewall}} {{ftp-url-filtering-precedence}} {{url-filtering-only-all-user-rules}} A user-scoped URL Filtering rule therefore never explains an FTP block; look for an all-users rule in [[zia.url-filtering.rule-order]]."
         },
         {
           "label": "What scans the files?",
@@ -182,6 +182,62 @@
             "user-, department-, or group-level URL filtering rules blocking access to specific sites are not enforced for FTP sites because FTP does not support cookies.",
             "Only rules applied to all users are enforced.",
             "For example, if you have a catch-all URL filtering rule that blocks access to gambling sites, users trying to FTP to ftp://ftp.site.com would be blocked."
+          ]
+        }
+      ]
+    },
+    "ftp-default": {
+      "statement": "Without FTP Control the service does not allow uploads or downloads from FTP sites that use FTP over HTTP; only native FTP traffic is allowed. FTP Control provides access control for both native FTP and FTP over HTTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.json",
+          "quotes": [
+            "By default, the Zscaler service doesn't allow users from a location to upload or download files from FTP sites that use FTP over HTTP",
+            "Only native FTP traffic is allowed.",
+            "With FTP Control, Zscaler provides access control for native FTP and FTP over HTTP traffic."
+          ]
+        }
+      ]
+    },
+    "ftp-passive-only": {
+      "statement": "The service supports passive FTP only. If the destination server does not support passive FTP, the service shows an alert message in the user's browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.json",
+          "quotes": [
+            "The service supports only passive FTP.",
+            "If the destination server does not support passive FTP, the service generates an alert message to this effect in the end user's browser."
+          ]
+        }
+      ]
+    },
+    "ftp-url-filtering-precedence": {
+      "statement": "URL Filtering rules take precedence over the FTP Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-ftp-control.json",
+          "quotes": [
+            "URL Filtering policy rules take precedence over the FTP Control policy."
+          ]
+        }
+      ]
+    },
+    "ftp-sits-in-firewall": {
+      "statement": "FTP Control settings are configured within Firewall: the firewall policy help points to FTP Control for them.",
+      "tier": "A",
+      "conditions": "Corrected on recapture (2026-10-18): previously \"FTP Control is part of the firewall module and, for non-web FTP traffic, evaluates before web-module policies.\" The recaptured FTP Control page states URL Filtering precedence and does not state an evaluation order against web-module policies.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-firewall-policies.json",
+          "quotes": [
+            "For FTP Control settings within Firewall, see Understanding FTP Control."
           ]
         }
       ]

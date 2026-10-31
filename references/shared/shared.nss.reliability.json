@@ -50,7 +50,7 @@
       "heading": "Cloud NSS"
     },
     {
-      "text": "Cloud NSS recovery: [[zia.logs.nss-feed-format:cloud-from-nanolog]] Whether it also needs a Support request is open {{gap:cloud-recovery-enablement}}. Batch handling by HTTP status: [[zia.casb.insights-logs:cloud-nss-http-codes]] {{http-feed-codes}}"
+      "text": "Cloud NSS recovery: [[zia.logs.nss-feed-format:cloud-from-nanolog]] Whether it also needs a Support request is open {{gap:cloud-recovery-enablement}}. Batch handling by HTTP status: {{cloud-nss-http-codes}} {{http-feed-codes}}"
     },
     {
       "heading": "After the window"
@@ -87,7 +87,7 @@
     {
       "do": "For Cloud NSS or an HTTP feed, the HTTP status the SIEM returned: a 400 drops the batch at once.",
       "uses": [
-        "zia.casb.insights-logs:cloud-nss-http-codes",
+        "shared.nss.reliability:cloud-nss-http-codes",
         "http-feed-codes"
       ]
     }
@@ -224,6 +224,22 @@
           "quotes": [
             "The NSS buffers the logs for at least one hour. If a security information and event management (SIEM) system goes offline for maintenance or if the connection between the NSS and the SIEM is disrupted, the NSS buffers the logs and sends them after the connection is re-established.",
             "The amount of memory required to buffer the logs is incorporated into the VM spec computation. The buffer size increases proportionally to the amount of RAM allocated to the NSS."
+          ]
+        }
+      ]
+    },
+    "cloud-nss-http-codes": {
+      "statement": "A Cloud NSS feed treats HTTP 200 or 204 from the SIEM as a successful batch, treats 400 as a parsing error and drops the batch, and retries the same batch on any other code for up to one hour before dropping it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-cloud-nss-feeds.json",
+          "quotes": [
+            "HTTP code 200 or 204: The feed considers the batch of logs successfully uploaded.",
+            "HTTP code 400: The feed considers the batch of logs to have a parsing error and drops the batch.",
+            "Any other HTTP code (e.g., 401, 403, 501): The feed repeatedly attempts to upload the same batch until it receives a 200, 204, or 400 response from the SIEM up to one hour.",
+            "After one hour, the batch is dropped."
           ]
         }
       ]

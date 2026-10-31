@@ -56,6 +56,9 @@
     },
     {
       "text": "{{annotations}} {{annotations-advisory}} {{list-cache-hint}}"
+    },
+    {
+      "text": "Tools added on request: {{mcp-atp-tools-request}}"
     }
   ],
   "checks": [
@@ -353,6 +356,46 @@
           ]
         }
       ]
+    },
+    "mcp-atp-tools-request": {
+      "statement": "MCP server issue #61 asked for tools to read the ZIA Advanced Threat Protection policy, malware protection policy, advanced settings and mobile malware protection policy; it was closed as completed on 2026-05-17 with a reply signed Zscaler DevRel to upgrade to v0.12.1, and the changelog lists tools for ATP settings and security exceptions, malware protection, advanced settings and mobile advanced threat settings in the 0.12.0 section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-61.json",
+          "quotes": [
+            "There are a few additional ZIA API endpoints/tools that would be very helpful for evaluating security and performance settings in ZIA.",
+            "## Comment (MEMBER, 2026-05-17) Upgrade to v0.12.1. Zscaler DevRel",
+            "api-reference/zia/malware-protection-policy",
+            "api-reference/zia/mobile-malware-protection-policy"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "## 0.12.0 (May 15, 2026)",
+            "[Issue #61](https://github.com/zscaler/zscaler-mcp-server/issues/61) — Added **ZIA Advanced Threat Protection (ATP) policy** management tools",
+            "Added **ZIA Advanced Threat Protection — Malware Protection Policy** management tools",
+            "Added **ZIA Advanced Settings** management tools",
+            "Added **ZIA Mobile Advanced Threat Settings** management tools",
+            "and the security-exceptions tool manages the tenant-wide bypass URL list",
+            "`zia_get_atp_security_exceptions`, `zia_update_atp_security_exceptions`"
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "zscaler-mcp-server-61.json",
+          "pointer": "/source",
+          "expect": {
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-05-17"
+          }
+        }
+      ],
+      "conditions": "Which release first contained each tool is read from the changelog section headings; the reply names v0.12.1."
     }
   },
   "gaps": {

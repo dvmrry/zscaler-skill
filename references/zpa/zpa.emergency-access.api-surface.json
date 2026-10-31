@@ -39,7 +39,7 @@
     },
     {
       "label": "Create and activate.",
-      "text": "{{activate-now}} {{send-email}} {{add-user-drops-microtenant}}"
+      "text": "{{activate-now}} {{sdk-go-create-clears-activate-now}} {{send-email}} {{add-user-drops-microtenant}}"
     },
     {
       "label": "Paging.",
@@ -486,6 +486,41 @@
       "upstream": [
         {
           "status": "unfiled"
+        }
+      ]
+    },
+    "sdk-go-create-clears-activate-now": {
+      "statement": "The ZPA SDK's emergency-access `Create` sets `ActivateNow` to false on the caller's struct before posting, so a caller cannot create a user that is activated immediately. The field is `omitempty`, so it is not sent at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/emergencyaccess/emergencyaccess.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func Create(",
+          "quotes": [
+            "emergencyAccess.ActivateNow = false"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/emergencyaccess/emergencyaccess.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "ActivateNow bool `json:\"activateNow,omitempty\" url:\"activateNow,omitempty\"`"
+          ]
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
         }
       ]
     }

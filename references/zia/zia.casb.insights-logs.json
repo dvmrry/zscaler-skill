@@ -49,10 +49,10 @@
     },
     {
       "label": "Streaming.",
-      "text": "{{cloud-nss-feed}} {{nss-vm-described-as-web}} Whether a VM-based feed can carry SaaS Security is open {{gap:nss-vm-saas-security}}. {{nss-vm-limits}} The feed's field names are open {{gap:nss-feed-fields}}, and a licensing requirement is open {{gap:cloud-nss-licensing}}. Audit-log streaming is in [[zia.audit-logs.streaming]]."
+      "text": "{{cloud-nss-feed}} {{nss-vm-described-as-web}} Whether a VM-based feed can carry SaaS Security is open {{gap:nss-vm-saas-security}}. [[shared.nss.feeds:cbc-nss-limits]] The feed's field names are open {{gap:nss-feed-fields}}, and a licensing requirement is open {{gap:cloud-nss-licensing}}. Audit-log streaming is in [[zia.audit-logs.streaming]]."
     },
     {
-      "text": "A SaaS Security feed over Cloud NSS follows the feed delivery rules: {{cloud-nss-http-codes}}"
+      "text": "A SaaS Security feed over Cloud NSS follows the feed delivery rules: [[shared.nss.reliability:cloud-nss-http-codes]]"
     },
     {
       "text": "The feed is configured in the admin portal: {{cloud-nss-config-location}}"
@@ -319,26 +319,6 @@
         }
       ]
     },
-    "nss-vm-limits": {
-      "statement": "The limits page's Cloud & Branch Connector section lists 2 NSS servers and 8 feeds per server, with 1,024 users, departments, locations, clients and threat names per feed.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "ranges-limitations-zia.json",
-          "quotes": [
-            "NSS Servers | 2 servers",
-            "NSS Feeds per Server | 8 feeds",
-            "NSS Users per Feed | 1,024 users",
-            "NSS Departments per Feed | 1,024 departments",
-            "NSS Locations per Feed | 1,024 locations",
-            "NSS Clients per Feed | 1,024 clients",
-            "NSS Threat Names per Feed | 1,024 threat names"
-          ],
-          "after": "- Cloud & Branch Connector Ranges and Limitations"
-        }
-      ]
-    },
     "nss-vm-described-as-web": {
       "statement": "The Insights logs article describes the NSS virtual machine as streaming web traffic logs in real time from the Nanolog to a SIEM.",
       "tier": "A",
@@ -348,22 +328,6 @@
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
             "Zscaler also offers the Nanolog Streaming Service (NSS), a virtual machine (VM) that can stream web traffic logs in real time from the Zscaler Nanolog to your security information and event management (SIEM) system"
-          ]
-        }
-      ]
-    },
-    "cloud-nss-http-codes": {
-      "statement": "A Cloud NSS feed treats HTTP 200 or 204 from the SIEM as a successful batch, treats 400 as a parsing error and drops the batch, and retries the same batch on any other code for up to one hour before dropping it.",
-      "tier": "A",
-      "evidence": [
-        {
-          "source": "zscaler-help",
-          "path": "about-cloud-nss-feeds.json",
-          "quotes": [
-            "HTTP code 200 or 204: The feed considers the batch of logs successfully uploaded.",
-            "HTTP code 400: The feed considers the batch of logs to have a parsing error and drops the batch.",
-            "Any other HTTP code (e.g., 401, 403, 501): The feed repeatedly attempts to upload the same batch until it receives a 200, 204, or 400 response from the SIEM up to one hour.",
-            "After one hour, the batch is dropped."
           ]
         }
       ]

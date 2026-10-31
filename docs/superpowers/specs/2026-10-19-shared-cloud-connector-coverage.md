@@ -52,7 +52,7 @@ gaps, 33 divergences). 32 help pages were captured (manifest updated).
 - Help and the Zscaler deployment modules disagree on several defaults (GCP Health Monitor windows, Azure scale
   window, AWS GWLB probe interval, AWS small instance types); each is a divergence.
 - `zpa.scim.api-surface:no-sdk-writes` was wrong at the pin (the Go `scim_api` package writes users and groups)
-  and is narrowed to the management packages; `zia.casb.insights-logs:nss-vm-limits` was scoped to the Cloud &
+  and is narrowed to the management packages; `shared.nss.feeds:cbc-nss-limits` was scoped to the Cloud &
   Branch Connector section of the limits page it quotes.
 
 Ledger: 64 entries migrated (`shared-06`–`shared-40` except `shared-38`, already migrated; `cloud-connector-01`–`29`;
