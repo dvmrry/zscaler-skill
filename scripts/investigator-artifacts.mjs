@@ -589,12 +589,18 @@ function validateMarkResolved(journalPath, turnInput, actionType, priorEvents, j
   }
 }
 
+// The validation searches are the `shared.splunk` subjects. A pattern is named by subject ID, or by a pre-graph
+// pattern name, which the subject that absorbed it keeps as a slug alias (`segment-match-observed`).
+const SPLUNK_SUBJECTS = "shared.splunk";
+
 function splunkPatternNames(root) {
-  const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
-  const catalog = fs.readFileSync(catalogPath, "utf8");
+  const dir = path.join(root, "references", "shared");
   const names = new Set();
-  for (const match of catalog.matchAll(/^### `([^`]+)`/gm)) {
-    names.add(match[1]);
+  for (const file of fs.existsSync(dir) ? fs.readdirSync(dir) : []) {
+    if (file !== `${SPLUNK_SUBJECTS}.json` && !file.startsWith(`${SPLUNK_SUBJECTS}.`)) continue;
+    const subject = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+    names.add(subject.id);
+    for (const alias of subject.aliases || []) if (/^[a-z0-9]+(?:-[a-z0-9]+)+$/.test(alias)) names.add(alias);
   }
   return names;
 }
@@ -603,12 +609,12 @@ function validateQueryRequest(root, turnInput, actionType) {
   if (!QUERY_REQUEST_ACTION_TYPES.has(actionType)) return [];
   const queryPatterns = asArray(turnInput.queryPatterns);
   if (queryPatterns.length === 0) {
-    throw new Error(`${actionType} turns must include queryPatterns from references/shared/splunk-queries.md`);
+    throw new Error(`${actionType} turns must include queryPatterns: a ${SPLUNK_SUBJECTS} subject ID or a pattern name it lists`);
   }
   const catalogNames = splunkPatternNames(root);
   for (const pattern of queryPatterns) {
     if (!catalogNames.has(pattern)) {
-      throw new Error(`query pattern is not in references/shared/splunk-queries.md: ${pattern}`);
+      throw new Error(`query pattern is not a ${SPLUNK_SUBJECTS} subject or one of their pattern names: ${pattern}`);
     }
   }
   return queryPatterns;
@@ -1724,8 +1730,9 @@ function hasLogContext(framing) {
   return separatedLogToken.test(haystack) || telemetryToken.test(haystack);
 }
 
+// Log knowledge is a product's log types (references/<product>/types/) and its log subjects (<product>.logs.*).
 function isTelemetryReferencePath(relativePath) {
-  return /^references\/(zia|zpa|zcc)\/logs\/.+\.md$/.test(relativePath);
+  return /^references\/(zia|zpa|zcc)\/(types\/[^/]+|\1\.logs\.[^/]+)\.json$/.test(relativePath);
 }
 
 function caseIntakeStatus(framing, proposedLoads, root = null) {

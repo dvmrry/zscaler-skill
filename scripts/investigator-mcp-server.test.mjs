@@ -486,7 +486,7 @@ test("run_turn with invalid actionType returns isError listing valid actionType 
 test("open_case with telemetry proposed load and no telemetry framing produces blocked status in result", async () => {
   const root = tempFixtureRepo();
   // Add the telemetry reference file to the fixture.
-  makeRepoFiles(root, ["references/zia/logs/web-log-schema.md"]);
+  makeRepoFiles(root, ["references/zia/types/web-log.json"]);
   const caseSlug = `mcp-telemetry-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const server = spawnServer();
   try {
@@ -511,7 +511,7 @@ test("open_case with telemetry proposed load and no telemetry framing produces b
           proposed_loads: [
             "agents/investigator/prompt.md",
             "agents/investigator/harness.md",
-            "references/zia/logs/web-log-schema.md",
+            "references/zia/types/web-log.json",
           ],
         },
       },

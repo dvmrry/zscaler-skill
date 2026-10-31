@@ -10,7 +10,6 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { validate } from "./kb-schema.mjs";
-import { spines } from "./gen-spine.mjs";
 import { runtimeDataMountSettings } from "./lib.mjs";
 import {
   ID, META, allEvidence, anchorEvidence, gitlink, idKind, materialDate, normalizeText, qualify, resolvePointer, sha256File,
@@ -232,6 +231,7 @@ function companyFacets(ov, ids) {
       ...(data.confidence ? { confidence: data.confidence } : {}),
       ...(data.map ? { map: data.map } : {}),
       ...(data.dropped_fields ? { dropped_fields: data.dropped_fields } : {}),
+      ...(data.system ? { system: data.system } : {}),
       ...(data.refresh ? { refresh: data.refresh } : {}),
       ...(data.evidence ? { evidence: data.evidence } : {}),
     };
@@ -534,6 +534,16 @@ function itemsOf(g, subjectId, kind) {
   return [...g.nodes.values()].filter((n) => n.kind === kind && n.subject === subjectId);
 }
 
+/** The types and fields a subject and its claims bind (`<type>` or `<type>#<field>`). */
+function bindsOf(g, subjectId) {
+  return [...(g.nodes.get(subjectId).data.binds || []), ...itemsOf(g, subjectId, "claim").flatMap((n) => n.data.binds || [])];
+}
+
+/** What company records about a subject can be about: the subject, its claims, and the types and fields they bind. */
+function aboutIds(g, subjectId) {
+  return new Set([subjectId, ...itemsOf(g, subjectId, "claim").map((n) => n.id), ...bindsOf(g, subjectId)]);
+}
+
 function subjectBundle(g, subjectId, ov, ctx) {
   const s = g.nodes.get(subjectId).data;
   const prose = renderProse(g, subjectId, { footnotes: false });
@@ -545,14 +555,14 @@ function subjectBundle(g, subjectId, ov, ctx) {
     return { ...rest, in_prose: true };
   });
   const boundFields = new Map(); // type -> Set(field path) | null (whole type)
-  const bindAll = [...(s.binds || []), ...claims.flatMap((c) => c.binds || [])];
+  const bindAll = bindsOf(g, subjectId);
   for (const b of bindAll) {
     const [t, f] = b.split("#");
     if (!g.nodes.has(t)) continue;
     if (!boundFields.has(t)) boundFields.set(t, new Set());
     if (f) boundFields.get(t).add(f);
   }
-  const ids = new Set([subjectId, ...claims.map((c) => c.id), ...bindAll]);
+  const ids = aboutIds(g, subjectId);
   return {
     subject: {
       id: subjectId, title: s.title,
@@ -717,7 +727,53 @@ export function renderSubject(g, subjectId) {
 
 // ---------------------------------------------------------------- map + read (the agent's retrieval path)
 
-const areaOf = (id) => id.split(".").slice(0, 2).join(".");
+/** The typed edges a spine lists: what decides, scopes, reaches, interacts with, depends on or logs a subject. */
+export const TYPED_EDGES = ["decided-by", "scoped-by", "reached-via", "interacts-with", "depends-on", "logged-in"];
+
+/** The subject's opening claim: the first claim its prose inlines, else its first claim; one sentence, clipped. */
+function leadOf(s) {
+  const first = JSON.stringify(s.prose || []).match(/\{\{([a-z0-9]+(?:-[a-z0-9]+)*)\}\}/)?.[1];
+  const claim = s.claims?.[first] || Object.values(s.claims || {})[0];
+  if (!claim) return undefined;
+  const sentence = claim.statement.replace(/\s+/g, " ").match(/^.+?[.!?](?=\s|$)/)?.[0] || claim.statement;
+  return sentence.length > 160 ? `${sentence.slice(0, 157)}...` : sentence;
+}
+
+// A type (`zia/web-log`) is its own target; a subject belongs to the area its first two segments name.
+export const areaOf = (id) => (id.includes("/") ? id : id.split(".").slice(0, 2).join("."));
+
+/** The spine: per product, every area with its subjects, their leads and typed edges (scripts/gen-spine.mjs writes it). */
+export function spines(g) {
+  const products = new Map();
+  const subjects = [...g.nodes.values()].filter((n) => n.kind === "subject").sort((a, b) => a.id.localeCompare(b.id));
+  for (const n of subjects) {
+    const product = n.id.split(".")[0];
+    const area = areaOf(n.id);
+    if (!products.has(product)) products.set(product, new Map());
+    const areas = products.get(product);
+    if (!areas.has(area)) areas.set(area, []);
+    const s = n.data;
+    const edges = {};
+    for (const e of s.related || []) {
+      if (!TYPED_EDGES.includes(e.rel)) continue;
+      edges[e.rel] ||= [];
+      edges[e.rel].push(e.to);
+    }
+    const lead = leadOf(s);
+    areas.get(area).push({ id: n.id, title: s.title, ...(lead ? { lead } : {}), ...(Object.keys(edges).length ? { edges } : {}) });
+  }
+  const out = {};
+  for (const [product, areas] of products) {
+    out[product] = {
+      product,
+      generated_by: "scripts/gen-spine.mjs",
+      read_with: "node scripts/kb.mjs read <area | subject | type> ...",
+      areas: [...areas].map(([id, subs]) => ({ id, ...(g.nodes.get(id)?.kind === "subject" ? { title: g.nodes.get(id).data.title } : {}), subjects: subs })),
+    };
+  }
+  return out;
+}
+
 const subjectsOf = (g) => [...g.nodes.values()].filter((n) => n.kind === "subject").sort((a, b) => a.id.localeCompare(b.id));
 
 /**
@@ -760,8 +816,26 @@ function readSubject(g, id) {
   if (s.checks) parts.push(`What to check:\n${s.checks.map((c, i) => `${i + 1}. ${c.do}`).join("\n")}`);
   const further = Object.entries(s.claims || {}).filter(([local]) => !order.includes(local));
   if (further.length) parts.push(`Further facts:\n${further.map(([local, c]) => `- ${c.statement} [${id}:${local}]`).join("\n")}`);
+  // What an answer must say about the claims it rests on: an inference names its conditions.
+  const inferred = Object.entries(s.claims || {}).filter(([, c]) => c.tier !== "A");
+  if (inferred.length) parts.push(`Inferred, not quoted (say so when an answer rests on one):\n${inferred.map(([local, c]) => `- [${id}:${local}] Tier ${c.tier}${c.conditions ? `: ${c.conditions}` : ""}`).join("\n")}`);
+  const divs = Object.entries(s.divergences || {});
+  if (divs.length) {
+    parts.push(`Sources disagree (name both sides):\n${divs.map(([local, d]) => [
+      `- ${d.summary} [divergence:${id}:${local}]`,
+      ...d.positions.map((x) => `  - ${x.evidence.source}: ${x.says}`),
+      ...(d.impact ? [`  Impact: ${d.impact}`] : []),
+      ...(d.resolution ? [`  Resolved (${d.resolution.rule}) by ${qualify(id, d.resolution.by)}${d.resolution.note ? `: ${d.resolution.note}` : ""}`] : []),
+    ].join("\n")).join("\n")}`);
+  }
   const gaps = Object.entries(s.gaps || {}).filter(([, gp]) => gp.status !== "resolved");
-  if (gaps.length) parts.push(`Not known (open gaps):\n${gaps.map(([local, gp]) => `- ${gp.title} [gap:${id}:${local}]`).join("\n")}`);
+  // A data gap names the tier that can fill it; any gap names what would settle it.
+  const fill = (gp) => [
+    gp.resolvable_by && `filled by ${gp.resolvable_by.join(" or ")}`,
+    gp.live_command && `run \`${gp.live_command}\``,
+    gp.resolves_with && `settled by ${gp.resolves_with.join(" or ")}`,
+  ].filter(Boolean).join("; ");
+  if (gaps.length) parts.push(`Not known (open gaps):\n${gaps.map(([local, gp]) => `- ${gp.title} [gap:${id}:${local}]${gp.kind === "data" ? " (data gap)" : ""}${fill(gp) ? `: ${fill(gp)}` : ""}${gp.blocks ? `. Blocks: ${gp.blocks}` : ""}`).join("\n")}`);
   return parts.filter(Boolean).join("\n\n");
 }
 
@@ -772,11 +846,30 @@ function readType(g, id, paths = null) {
   return [`# ${t.title || id} (${id})`, ...lines].join("\n");
 }
 
-/** Company records about the given IDs, as reading text with their IaC locations or values. */
-function readCompany(ov, ids) {
-  return companyFacets(ov, ids).map((f) => {
+/**
+ * Company records about the given IDs, as reading text: what each says, where it holds (scope), how sure and how
+ * recent it is, and its field map or IaC locations. A map keeps only the fields asked about when any are.
+ */
+function readCompany(ov, ids, shown = new Set()) {
+  return companyFacets(ov, ids).filter((f) => !shown.has(f.id) && shown.add(f.id)).map((f) => {
+    const head = `- [${f.id}] ${f.kind}, ${f.relation} ${f.about.join(", ")}: ${f.title}${f.statement ? `. ${f.statement}` : ""}`;
+    const scope = f.scope ? Object.entries(f.scope).map(([k, v]) => `${k} ${v}`).join("; ") : "";
+    const sure = [f.confidence && `confidence ${f.confidence}`, f.validated && `validated ${f.validated}`, f.refresh && `refreshed every ${f.refresh}`].filter(Boolean).join(", ");
+    const entries = Object.entries(f.map || {});
+    const asked = entries.filter(([k]) => ids.has(k));
+    const map = (asked.length ? asked : entries).map(([k, v]) => `  - ${k} is ${v}`);
+    const dropped = (f.dropped_fields || []).filter((d) => !asked.length || ids.has(d));
     const iac = (f.iac || []).map((p) => `  - IaC ${p.label ? `${p.label}: ` : ""}${p.location || p.source}${p.value !== undefined ? ` = ${JSON.stringify(p.value)}` : ""}${p.committed ? ` (committed ${p.committed})` : ""}${p.error ? ` (unresolved: ${p.error})` : ""}`);
-    return [`- [${f.id}] ${f.title}${f.statement ? `: ${f.statement}` : ""}${f.do_not_infer ? ` Do not infer: ${f.do_not_infer}` : ""}`, ...iac].join("\n");
+    return [
+      head,
+      ...(scope ? [`  Scope: ${scope}`] : []),
+      ...(sure ? [`  ${sure[0].toUpperCase()}${sure.slice(1)}`] : []),
+      ...(f.system ? [`  Stored in: ${f.system}`] : []),
+      ...map,
+      ...(dropped.length ? [`  Not stored: ${dropped.join(", ")}`] : []),
+      ...(f.do_not_infer ? [`  Do not infer: ${f.do_not_infer}`] : []),
+      ...iac,
+    ].join("\n");
   }).join("\n");
 }
 
@@ -821,12 +914,13 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
   const repos = (ov?.iacRepos || []).filter((r) => r.available);
   if (repos.length) out.push(`IaC repos: ${repos.map((r) => `${r.id} = ${r.path}/${r.committed ? ` (last commit ${r.committed})` : ""}`).join("; ")}`);
   const seen = new Set();
+  const shown = new Set(); // company records already printed in this read
   const emit = (id) => {
     seen.add(id);
     const n = g.nodes.get(id);
     const text = n.kind === "type" ? readType(g, id) : readSubject(g, id);
     out.push(text);
-    const company = ov ? readCompany(ov, new Set([id, ...(n.kind === "type" ? Object.keys(n.data.fields).map((f) => `${id}#${f}`) : itemsOf(g, id, "claim").map((c) => c.id))])) : "";
+    const company = ov ? readCompany(ov, n.kind === "type" ? new Set([id, ...Object.keys(n.data.fields).map((f) => `${id}#${f}`)]) : aboutIds(g, id), shown) : "";
     if (company) out.push(`Company records:\n${company}`);
     return text.length / 4;
   };
@@ -843,7 +937,11 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     if (!ids.length) out.push(`# ${arg}: no subject, type, field or area has this ID; check the spine`);
     for (const id of ids) if (!seen.has(id)) emit(id);
   }
-  for (const [type, paths] of fields) out.push(readType(g, type, paths));
+  for (const [type, paths] of fields) {
+    out.push(readType(g, type, paths));
+    const company = ov ? readCompany(ov, new Set([type, ...paths.map((p) => `${type}#${p}`)]), shown) : "";
+    if (company) out.push(`Company records:\n${company}`);
+  }
   for (let hop = 0; hop < hops; hop++) {
     // Neighbours of everything read so far, ranked by the weight of the edges pointing at them.
     const votes = new Map();

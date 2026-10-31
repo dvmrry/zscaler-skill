@@ -30,10 +30,10 @@ function tempRepo() {
     "agents/investigator/prompt.md",
     "agents/investigator/harness.md",
     "agents/investigator/grounding/zpa-segment-matching.md",
-    "references/zia/logs/web-log-schema.md",
-    "references/zpa/logs/access-log-schema.md",
-    "references/zpa/logs/app-connector-metrics.md",
-    "references/zpa/logs/app-connector-status.md",
+    "references/zia/types/web-log.json",
+    "references/zpa/types/user-activity-log.json",
+    "references/zpa/zpa.logs.app-connector-metrics.json",
+    "references/zpa/types/app-connector-status-log.json",
   ]);
   return root;
 }
@@ -229,7 +229,7 @@ test("openCase blocks speculative telemetry loads without telemetry framing", ()
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zia/logs/web-log-schema.md",
+      "references/zia/types/web-log.json",
     ],
   });
 
@@ -260,7 +260,7 @@ test("openCase does not treat hyphenated hostname log token as telemetry context
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/access-log-schema.md",
+      "references/zpa/types/user-activity-log.json",
     ],
   });
 
@@ -285,7 +285,7 @@ test("openCase blocks metrics references without telemetry framing", () => {
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/app-connector-metrics.md",
+      "references/zpa/zpa.logs.app-connector-metrics.json",
     ],
   });
 
@@ -314,8 +314,8 @@ test("openCase does not treat flagged host tokens as telemetry context", () => {
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/access-log-schema.md",
-      "references/zpa/logs/app-connector-metrics.md",
+      "references/zpa/types/user-activity-log.json",
+      "references/zpa/zpa.logs.app-connector-metrics.json",
     ],
   });
 
@@ -347,7 +347,7 @@ test("openCase allows telemetry loads when telemetry phrase is in userFlaggedSpe
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/app-connector-metrics.md",
+      "references/zpa/zpa.logs.app-connector-metrics.json",
     ],
   });
 
@@ -372,7 +372,7 @@ test("openCase allows telemetry loads when a bare telemetry keyword is flagged",
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/app-connector-metrics.md",
+      "references/zpa/zpa.logs.app-connector-metrics.json",
     ],
   });
 
@@ -397,7 +397,7 @@ test("openCase allows telemetry loads when evidence is in framing", () => {
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/app-connector-status.md",
+      "references/zpa/types/app-connector-status-log.json",
     ],
   });
 
@@ -406,9 +406,9 @@ test("openCase allows telemetry loads when evidence is in framing", () => {
 
 test("openCase allows compact telemetry terms in framing", () => {
   for (const [term, referencePath] of [
-    ["syslog shows connector resets", "references/zpa/logs/access-log-schema.md"],
-    ["weblog has blocked transaction entries", "references/zia/logs/web-log-schema.md"],
-    ["log4j events appear in SIEM", "references/zia/logs/web-log-schema.md"],
+    ["syslog shows connector resets", "references/zpa/types/user-activity-log.json"],
+    ["weblog has blocked transaction entries", "references/zia/types/web-log.json"],
+    ["log4j events appear in SIEM", "references/zia/types/web-log.json"],
   ]) {
     const root = tempRepo();
     const framingPath = writeJson(root, "framing.json", {
@@ -506,7 +506,7 @@ test("verifyCaseFiles fails for blocked case intake", () => {
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zia/logs/web-log-schema.md",
+      "references/zia/types/web-log.json",
     ],
   });
 
@@ -539,7 +539,7 @@ test("verifyCaseFiles fails for missing and mutated case intake artifacts", () =
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zpa/logs/access-log-schema.md",
+      "references/zpa/types/user-activity-log.json",
     ],
   });
 
@@ -568,7 +568,7 @@ test("verifyCaseFiles recomputes status and rejects forged passing artifacts", (
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zia/logs/web-log-schema.md",
+      "references/zia/types/web-log.json",
     ],
   });
 
@@ -736,8 +736,8 @@ test("importEvidence supports a small multi-item evidence wave from input JSON",
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
   const journal = fs.readFileSync(journalPath, "utf8").replace(
     "| H1: Application segment may not include the app | references/zpa/app-segments.md | Open (uncertain) | Check application segment snapshot | 2026-05-17T00:00:00.000Z | reference-grounded |",
-    `| H2: Managed proxy path is healthy | references/zia/logs/web-log-schema.md | Open (uncertain) | Check proxy logs | 2026-05-17T00:00:00.000Z | telemetry |
-| H3: Unmanaged direct egress path is failing | references/zia/logs/web-log-schema.md | Open (uncertain) | Check direct egress | 2026-05-17T00:00:00.000Z | telemetry |`,
+    `| H2: Managed proxy path is healthy | references/zia/types/web-log.json | Open (uncertain) | Check proxy logs | 2026-05-17T00:00:00.000Z | telemetry |
+| H3: Unmanaged direct egress path is failing | references/zia/types/web-log.json | Open (uncertain) | Check direct egress | 2026-05-17T00:00:00.000Z | telemetry |`,
   );
   fs.writeFileSync(journalPath, journal, "utf8");
   initializeTurnLedger({ root, caseSlug });
@@ -1453,18 +1453,16 @@ test("completeTurn requires touched claims for investigative journal changes", (
   );
 });
 
-test("completeTurn validates query-request patterns against the Splunk catalog", () => {
+// A validation-search subject whose aliases keep a pre-graph pattern name.
+function writeSplunkSubject(root) {
+  const subjectPath = path.join(root, "references", "shared", "shared.splunk.zpa-validation.json");
+  fs.mkdirSync(path.dirname(subjectPath), { recursive: true });
+  fs.writeFileSync(subjectPath, JSON.stringify({ id: "shared.splunk.zpa-validation", aliases: ["segment-match-observed", "which segment served a host"] }), "utf8");
+}
+
+test("completeTurn validates query-request patterns against the shared.splunk subjects", () => {
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
-  const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
-  fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
-  fs.writeFileSync(catalogPath, `# SPL patterns
-
-### \`segment-match-observed\`
-
-\`\`\`spl
-index=$INDEX_ZPA Application=$APP
-\`\`\`
-`, "utf8");
+  writeSplunkSubject(root);
 
   initializeTurnLedger({ root, caseSlug });
   const begun = beginTurn({ root, caseSlug, userAction: "continue-top-open" });
@@ -1479,7 +1477,7 @@ index=$INDEX_ZPA Application=$APP
     actionType: "query-request",
     actionSummary: "Prepared the next SIEM query request.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["references/shared/splunk-queries.md#segment-match-observed"],
+    evidenceRefs: ["kb:shared.splunk.zpa-validation"],
     journalHashBefore: pending.journalHashBefore,
     allowedNext: ["pause"],
   };
@@ -1490,13 +1488,17 @@ index=$INDEX_ZPA Application=$APP
   });
   assert.throws(
     () => completeTurn({ root, caseSlug, turnJson: unknownPath }),
-    /query pattern is not in references\/shared\/splunk-queries\.md/,
+    /query pattern is not a shared\.splunk subject/,
   );
 
   const validPath = writeJson(root, "turn-valid-query.json", {
     ...baseTurn,
     queryPatterns: ["segment-match-observed"],
   });
+  assert.throws(
+    () => completeTurn({ root, caseSlug, turnJson: writeJson(root, "turn-prose-alias.json", { ...baseTurn, queryPatterns: ["which segment served a host"] }) }),
+    /query pattern is not a shared\.splunk subject/,
+  );
   const completed = completeTurn({ root, caseSlug, turnJson: validPath });
   assert.deepEqual(completed.event.queryPatterns, ["segment-match-observed"]);
 });
@@ -1555,16 +1557,7 @@ test("completeTurn requires evidenceRequest for request-user-evidence", () => {
 
 test("completeTurn keeps user evidence requests separate from returned evidence", () => {
   const { root, caseSlug, journalPath } = createPassingCaseWithJournal();
-  const catalogPath = path.join(root, "references", "shared", "splunk-queries.md");
-  fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
-  fs.writeFileSync(catalogPath, `# SPL patterns
-
-### \`segment-match-observed\`
-
-\`\`\`spl
-index=$INDEX_ZPA Application=$APP
-\`\`\`
-`, "utf8");
+  writeSplunkSubject(root);
 
   initializeTurnLedger({ root, caseSlug });
   const begun = beginTurn({ root, caseSlug, userAction: "request-user-evidence" });
@@ -1582,7 +1575,7 @@ index=$INDEX_ZPA Application=$APP
     actionType: "query-request",
     actionSummary: "Asked user to run the next SIEM query.",
     touchedClaims: ["H1: Application segment may not include the app"],
-    evidenceRefs: ["references/shared/splunk-queries.md#segment-match-observed"],
+    evidenceRefs: ["kb:shared.splunk.zpa-validation"],
     queryPatterns: ["segment-match-observed"],
     journalHashBefore: pending.journalHashBefore,
     allowedNext: ["record-user-evidence", "pause"],
@@ -1621,7 +1614,7 @@ STATUS: Investigating
 | Claim | Source | Status | Next evidence needed | Timestamp | Notes |
 |---|---|---|---|---|---|
 | H1: Application segment may not include the app | references/zpa/app-segments.md | Ruled out | - | 2026-05-17T00:00:00.000Z | segment match observed |
-| H2: Connector/backend health issue | references/zpa/logs/app-connector-metrics.md | Ruled out | - | 2026-05-17T00:05:00.000Z | no connector errors observed |
+| H2: Connector/backend health issue | references/zpa/zpa.logs.app-connector-metrics.json | Ruled out | - | 2026-05-17T00:05:00.000Z | no connector errors observed |
 | H3: Policy or posture issue | references/zpa/policy-precedence.md | Open (uncertain) | Check policy inspection failures | 2026-05-17T00:10:00.000Z | not directly tested |
 
 ## Resolution
@@ -2377,7 +2370,7 @@ test("status reports intake phase after blocked open-case", () => {
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zia/logs/web-log-schema.md",
+      "references/zia/types/web-log.json",
     ],
   });
 
@@ -2720,7 +2713,7 @@ test("status intake phase: nextCommands open-case includes --force and blockingI
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zia/logs/web-log-schema.md",
+      "references/zia/types/web-log.json",
     ],
   });
 
@@ -2800,7 +2793,7 @@ test("openCase overwrites a blocked intake WITHOUT --force (repair path)", () =>
     proposedLoads: [
       "agents/investigator/prompt.md",
       "agents/investigator/harness.md",
-      "references/zia/logs/web-log-schema.md",
+      "references/zia/types/web-log.json",
     ],
   });
   assert.equal(blocked.status, "blocked");

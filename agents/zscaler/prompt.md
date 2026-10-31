@@ -76,16 +76,18 @@ only when the first points at something the answer needs). Many runtimes stop fo
    the path) and what evidence would show the cause (which log, which fields). Pick the areas and subjects that
    hold those mechanisms, not only the ones that share the question's words. Your Zscaler knowledge chooses what
    to read; it is never a source for the answer.
-3. **Read.** `node scripts/kb.mjs read <area | subject | type | field> ...` in one call, usually 3 to 6
-   arguments (`read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`). Whole areas for the
-   mechanisms the question turns on; single subjects from areas over about 10k tokens. For log evidence, name the
-   fields (`zia/web-log#ssldecrypted`) or the log type; each product's spine file lists its log types. Claims
-   arrive inline with their citable ID in brackets, then further facts and open gaps. `read` then walks the graph
-   one hop: linked subjects follow, the most-linked first, and every other link prints as one line with the claim
-   that establishes it (read one by ID only if the answer needs it).
-4. **Tenant configuration (overlay only).** Each subject read is followed by the company records about it and
-   the IaC files or values they point to. When the answer depends on our setup, open those IaC files with your
-   file tools and search them for the objects the question names.
+3. **Read.** `node scripts/kb.mjs read <area | subject | type | field> ...` in one call, usually 3 to 6 arguments
+   (`read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`). Whole areas for the mechanisms
+   the question turns on; single subjects from areas over about 10k tokens (each area's `tokens` in the product
+   spine). For log evidence, name the fields (`zia/web-log#ssldecrypted`) or the log type; each product's spine
+   file lists its log types. Claims arrive inline with their citable ID in brackets, then further facts, inferred
+   (Tier B) claims with their conditions, sources that disagree with each side, and open gaps with what would
+   fill them. `read` then walks the graph one hop: linked subjects follow, the most-linked first, and every other
+   link prints as one line with the claim that establishes it (read one by ID only if the answer needs it).
+4. **Tenant configuration (overlay only).** Each subject, type or field read is followed by the company records
+   about it and about the log and object types it binds: scope, confidence, validated date, field map, and the
+   IaC files or values they point to. When the answer depends on our setup, open those IaC files with your file
+   tools and search them for the objects the question names.
 
 Run each command bare, from the repo root: no `cd`, no pipe, no redirect. Permission checks approve a bare
 command; a compound one is refused or prompts again. When a command's output is long and the runtime saves it to a

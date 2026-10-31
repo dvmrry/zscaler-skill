@@ -457,6 +457,7 @@ export function parseProse(blocks = []) {
   const items = { gap: new Set(), divergence: new Set() };
   const unanchored = [];
   const markdown = [];
+  const runOn = [];
   let whatToCheck = 0;
   const units = proseUnits(blocks);
   const lead = blocks.findIndex((b) => b.text !== undefined);
@@ -465,6 +466,12 @@ export function parseProse(blocks = []) {
     for (const m of all.matchAll(CLAIM_MARKER)) {
       if (m[2]) refs.add(m[1]);
       else inlined.set(m[1], (inlined.get(m[1]) || 0) + 1);
+    }
+    // An inlined claim renders as its whole statement, a sentence of its own: mid-sentence it runs on.
+    for (const m of u.text.matchAll(CLAIM_MARKER)) {
+      // A gap or divergence marker renders as a bracketed ID, so the sentence it closes still needs its full stop.
+      const before = u.text.slice(0, m.index).replace(/(\s*\{\{(?:gap|divergence):[a-z0-9-]+\}\})+\s*$/, "").trimEnd();
+      if (!m[2] && /[\p{L}\p{N},;]$/u.test(before)) runOn.push({ where: u.where, local: m[1], text: before.slice(-60) });
     }
     for (const m of all.matchAll(ITEM_MARKER)) items[m[1]].add(m[2]);
     for (const m of all.matchAll(LINK_MARKER)) links.add(m[1]);
@@ -476,7 +483,7 @@ export function parseProse(blocks = []) {
     unanchored.push(...(u.block === lead && u.where === `prose[${lead}]` ? loose.slice(LEAD_SENTENCES) : loose));
   }
   for (const b of blocks) if (b.heading && /[*#`[]/.test(b.heading)) markdown.push({ where: "heading", why: "markup in a heading" });
-  return { inlined, refs, links, docs, items, units: units.length, unanchored, whatToCheck, markdown };
+  return { inlined, refs, links, docs, items, units: units.length, unanchored, whatToCheck, markdown, runOn };
 }
 
 // ---------------------------------------------------------------- validation
@@ -538,6 +545,8 @@ export function validateGraph(g, { citations = true } = {}) {
         expectKind(node.file, node.id, r.to, ["logged-in", "configured-via"].includes(r.rel) ? ["subject", "type"] : ["subject"]);
         if (r.to === node.id) err(node.file, `${node.id}: an edge to itself`);
         if (r.because) expectKind(node.file, node.id, r.because, ["claim"]);
+        // An edge `read` follows says why it holds; configured-via (to an object type) and see-also are listed only.
+        else if (!["configured-via", "see-also"].includes(r.rel)) err(node.file, `${node.id}: the ${r.rel} edge to ${r.to} needs \`because\`, the claim that establishes it`);
       }
       const edges = (d.related || []).map((r) => `${r.rel} ${r.to}`);
       if (new Set(edges).size !== edges.length) err(node.file, `${node.id}: a related edge is listed twice`);
@@ -672,6 +681,9 @@ function checkProse(g, node, err, warnings) {
     for (const local of p.items[kind]) if (!own.includes(local)) err(f, `{{${kind}:${local}}} is not a ${kind} of ${node.id}`);
   }
   if (p.whatToCheck) err(f, "a What-to-check paragraph belongs in the subject's `checks`, not the prose");
+  for (const { where, local, text } of p.runOn) {
+    err(f, `${where}: {{${local}}} follows "${text}" mid-sentence, and an inlined claim renders as its own sentence; end the sentence before it, or cite it with {{${local}|ref}}`);
+  }
   for (const { where, text } of p.unanchored) {
     err(f, `${where}: sentence rests on no claim, gap, divergence or link; anchor it, move guidance to \`checks\`, or cut it: "${text.slice(0, 100)}"`);
   }

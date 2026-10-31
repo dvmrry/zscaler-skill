@@ -2,8 +2,8 @@
 // gen-spine.mjs — generate the spine: the tree an agent reads before it reads any subject.
 //
 // Two levels under references/_meta/spine/, in the style of a table-of-contents index (llms.txt, PageIndex):
-//   <product>.json         every area of the product with its summary and the areas its subjects' typed edges
-//                          reach (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in);
+//   <product>.json         every area of the product with its summary, the size of reading it, and the areas its
+//                          subjects' typed edges reach (decided-by, scoped-by, interacts-with, depends-on, reached-via, logged-in);
 //                          API, SDK and Terraform areas are listed apart, as reference areas.
 //   <product>/<area>.json  every subject of the area with its title, its lead (its opening claim) and its typed
 //                          edges to other subjects.
@@ -17,58 +17,23 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildGraph, loadPublic, META } from "./kb-lib.mjs";
+import { areaOf, readText, spines, TYPED_EDGES as EDGES } from "./kb-resolve.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, META, "spine");
-const EDGES = ["decided-by", "scoped-by", "reached-via", "interacts-with", "depends-on", "logged-in"];
-
-/** The subject's opening claim: the first claim its prose inlines, else its first claim; one sentence, clipped. */
-function leadOf(s) {
-  const first = JSON.stringify(s.prose || []).match(/\{\{([a-z0-9]+(?:-[a-z0-9]+)*)\}\}/)?.[1];
-  const claim = s.claims?.[first] || Object.values(s.claims || {})[0];
-  if (!claim) return undefined;
-  const sentence = claim.statement.replace(/\s+/g, " ").match(/^.+?[.!?](?=\s|$)/)?.[0] || claim.statement;
-  return sentence.length > 160 ? `${sentence.slice(0, 157)}...` : sentence;
-}
-
 // An area whose name marks it as reference material (wire formats, SDK and provider behaviour).
 const REFERENCE = /^(api|sdk-|terraform|ansible|mcp-server|legacy-api)/;
-// A type (`zia/web-log`) is its own target; a subject belongs to the area its first two segments name.
-const areaOf = (id) => (id.includes("/") ? id : id.split(".").slice(0, 2).join("."));
 
-export function spines(g) {
-  const products = new Map();
-  const subjects = [...g.nodes.values()].filter((n) => n.kind === "subject").sort((a, b) => a.id.localeCompare(b.id));
-  for (const n of subjects) {
-    const product = n.id.split(".")[0];
-    const area = areaOf(n.id);
-    if (!products.has(product)) products.set(product, new Map());
-    const areas = products.get(product);
-    if (!areas.has(area)) areas.set(area, []);
-    const s = n.data;
-    const edges = {};
-    for (const e of s.related || []) {
-      if (!EDGES.includes(e.rel)) continue;
-      edges[e.rel] ||= [];
-      edges[e.rel].push(e.to);
-    }
-    const lead = leadOf(s);
-    areas.get(area).push({ id: n.id, title: s.title, ...(lead ? { lead } : {}), ...(Object.keys(edges).length ? { edges } : {}) });
-  }
-  const out = {};
-  for (const [product, areas] of products) {
-    out[product] = {
-      product,
-      generated_by: "scripts/gen-spine.mjs",
-      read_with: "node scripts/kb.mjs read <area | subject | type> ...",
-      areas: [...areas].map(([id, subs]) => ({ id, ...(g.nodes.get(id)?.kind === "subject" ? { title: g.nodes.get(id).data.title } : {}), subjects: subs })),
-    };
-  }
-  return out;
+/**
+ * What reading an area costs, without its linked subjects, in thousands of tokens (about 4 characters each). Rounded
+ * so that a small edit seldom changes the committed spine.
+ */
+function readTokens(g, areaId) {
+  return Math.max(1, Math.round(readText(g, [areaId], null, { hops: 0 }).length / 4000)) * 1000;
 }
 
 /** An area's entry in its product file: summary, size and the other areas its subjects' typed edges reach. */
-function areaEntry(a) {
+function areaEntry(g, a) {
   const hub = a.subjects.find((x) => x.id === a.id);
   // An area whose hub has no claim of its own is summarised by what its subjects are about.
   const summary = hub?.lead || a.subjects.filter((x) => x.id !== a.id).slice(0, 5).map((x) => x.title).join("; ") || undefined;
@@ -83,7 +48,7 @@ function areaEntry(a) {
     }
   }
   const edges = Object.fromEntries(EDGES.filter((r) => reach[r]).map((r) => [r, [...reach[r]].sort()]));
-  return { id: a.id, title: a.title || hub?.title || a.id, ...(summary ? { summary } : {}), subjects: a.subjects.length, ...(Object.keys(edges).length ? { edges } : {}) };
+  return { id: a.id, title: a.title || hub?.title || a.id, ...(summary ? { summary } : {}), subjects: a.subjects.length, tokens: readTokens(g, a.id), ...(Object.keys(edges).length ? { edges } : {}) };
 }
 
 /** The spine's files, path relative to the spine directory -> text. */
@@ -99,8 +64,9 @@ export function spineFiles(g) {
       product: spine.product,
       generated_by: "scripts/gen-spine.mjs",
       open: `an area's subjects are in references/_meta/spine/${spine.product}/<area id>.json, e.g. references/_meta/spine/${spine.product}/${spine.areas[0].id}.json`,
+      size: "tokens is about what reading the area costs, before linked subjects; from an area over about 10000, read single subjects",
       ...(logTypes.length ? { log_fields: "read a log type, or only some of its fields: kb.mjs read <type>#<field> ..." } : {}),
-    }, { areas: spine.areas.filter((a) => !isRef(a)).map(areaEntry), log_types: logTypes, reference_areas: spine.areas.filter(isRef).map(areaEntry) });
+    }, { areas: spine.areas.filter((a) => !isRef(a)).map((a) => areaEntry(g, a)), log_types: logTypes, reference_areas: spine.areas.filter(isRef).map((a) => areaEntry(g, a)) });
     for (const a of spine.areas) {
       files[`${spine.product}/${a.id}.json`] = lines({ area: a.id, title: a.title || a.id, read_with: "node scripts/kb.mjs read <subject> ..." }, { subjects: a.subjects });
     }

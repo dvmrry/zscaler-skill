@@ -36,7 +36,7 @@ test("move-claim moves the claim, relinks its old subject and rewrites qualified
   const root = tmpRepo({
     "references/zia/zia.sdk.json": {
       schema_version: 1, id: "zia.sdk", title: "ZIA SDK",
-      prose: [{ text: "{{camel}} For ZIA, {{zia-scope}}" }],
+      prose: [{ text: "{{camel}} For ZIA: {{zia-scope}}" }],
       checks: [{ do: "Check the key casing.", uses: ["camel"] }],
       claims: {
         camel: { statement: "Request keys are camel-cased.", tier: "A", evidence: ev("keys are camel-cased") },
@@ -61,7 +61,7 @@ test("move-claim moves the claim, relinks its old subject and rewrites qualified
 
   const source = read(root, "references/zia/zia.sdk.json");
   assert.equal(source.claims.camel, undefined);
-  assert.equal(source.prose[0].text, `[[${to}]] For ZIA, {{zia-scope}}`);
+  assert.equal(source.prose[0].text, `[[${to}]] For ZIA: {{zia-scope}}`);
   assert.deepEqual(source.checks[0].uses, [to]);
   assert.deepEqual(source.claims["zia-scope"].derived_from, [to]);
 

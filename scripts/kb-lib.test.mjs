@@ -115,6 +115,15 @@ test("anchoring ignores PDF private-use glyphs and zero-width characters", () =>
 
 const para = (text, label) => (label ? { label, text } : { text });
 
+test("an inlined claim may not sit mid-sentence; after a sentence end, a marker or a link it may", () => {
+  const runOn = (text) => parseProse([para(text)]).runOn.map((r) => r.local);
+  assert.deepEqual(runOn("A write is not live until it is activated {{a}}, and the call is separate."), ["a"]);
+  assert.deepEqual(runOn("For a population that changes, {{a}}"), ["a"]);
+  assert.deepEqual(runOn("Whether it applies is open {{gap:g}} {{a}}"), ["a"], "a gap marker does not end the sentence it closes");
+  assert.deepEqual(runOn("Whether it applies is open {{gap:g}}. {{a}}"), []);
+  assert.deepEqual(runOn("{{a}} {{b}} Done. {{c}} See [[zia.x]] {{d}} Open: {{e}} Cited {{f|ref}}."), []);
+});
+
 test("prose may inline a claim once, refer back with |ref, and link only to real IDs", () => {
   assert.deepEqual([...parseProse([para("{{a}} and {{a|ref}}. [[zia.x]]")]).inlined], [["a", 1]]);
   const root = tmpRepo({
@@ -271,12 +280,15 @@ test("references must resolve to the right kind of node", () => {
   const root = tmpRepo({
     "vendor/fake/doc.txt": "evaluation stops at the first match.",
     "references/zia/zia.example.json": subject({
-      related: [{ rel: "see-also", to: "zia.nowhere" }],
+      related: [{ rel: "see-also", to: "zia.nowhere" }, { rel: "depends-on", to: "zia.other" }, { rel: "decided-by", to: "zia.other", because: "zia.example:first-match" }],
       cases: { c: { kind: "rule-evaluation", claims: ["first-match"], config: {}, request: { url: "x" }, expect: { verdict: "ambiguous" } } },
     }),
+    "references/zia/zia.other.json": subject({ id: "zia.other", claims: undefined, prose: [{ text: "[[zia.example]]" }] }),
   });
   const errs = messages(root);
   assert.ok(errs.some((m) => /unknown ID zia\.nowhere/.test(m)));
+  assert.ok(errs.some((m) => /the depends-on edge to zia\.other needs `because`/.test(m)), "a followed edge says why it holds");
+  assert.ok(!errs.some((m) => /decided-by edge to zia\.other needs/.test(m)));
   assert.ok(errs.some((m) => /ambiguous expectation must name its gap/.test(m)));
 });
 
@@ -495,6 +507,24 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   const withOverlay = run("--overlay", OVERLAY, "zia/url-filtering-rules");
   assert.match(withOverlay, /^IaC repos: /m);
   assert.match(withOverlay, /Company records:\n- \[company\.zia\./);
+  // A subject read carries the records about the types its claims bind, each record once.
+  const area = run("--overlay", OVERLAY, "--no-links", "zia.url-filtering");
+  assert.equal(area.match(/- \[company\.zia\.url-filtering-iac\]/g)?.length, 1, "the IaC coverage record of a bound type, printed once");
+  assert.match(area, /^ {2}- IaC the rule as our Terraform declares it: zia-tf:url_filtering\.tf /m);
+  // A company claim keeps the scope, confidence and date an answer must give.
+  const scoped = run("--overlay", OVERLAY, "--no-links", "zia.ssl-inspection.pipeline");
+  assert.match(scoped, /^ {2}Scope: environment our tenant; condition GRE-forwarded locations with Surrogate IP disabled$/m);
+  assert.match(scoped, /^ {2}Confidence medium, validated 2026-01-01$/m);
+  // A field read carries the SIEM mapping for those fields only.
+  const mapped = run("--overlay", OVERLAY, "zia/web-log#urlfilterrulelabel", "zia/web-log#urlcatmethod");
+  assert.match(mapped, /^ {2}- zia\/web-log#urlfilterrulelabel is zs_url_rule$/m);
+  assert.ok(!mapped.includes("zs_app_rule"), "unasked fields stay out of the map");
+  assert.match(mapped, /^ {2}Not stored: zia\/web-log#urlcatmethod$/m);
+  // Divergences name each side, inferences their conditions, and data gaps the tier that fills them.
+  const activation = run("--no-overlay", "--no-links", "zia.api.activation");
+  assert.match(activation, /^Sources disagree \(name both sides\):\n- .+ \[divergence:zia\.api\.activation:activate-path-differs\]\n {2}- zscaler-help: /m);
+  assert.match(activation, /^- \[zia\.api\.activation:active-means-nothing-pending\] Tier B: /m);
+  assert.match(run("--no-overlay", "--no-links", "zia.saas-apps.tenant-restriction-order"), /\(data gap\): filled by live; run `zscalerctl /);
 });
 
 test("resolve rejects an unknown flag instead of searching for it", () => {
