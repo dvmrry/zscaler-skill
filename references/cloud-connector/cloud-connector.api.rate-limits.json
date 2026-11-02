@@ -121,7 +121,8 @@
             "rl.postPutDeleteRequests = append(rl.postPutDeleteRequests, now) rl.deleteRequests = append(rl.deleteRequests, now)"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: in ratelimiter/limiter.go at v3.8.58, `deleteRequests` is read only by the hourly check (`if len(rl.deleteRequests) >= rl.deleteHourlyLimit {`) and by the cleanup of entries older than an hour; no 10-second list exists for DELETE alone."
     },
     "python-legacy-retry-after": {
       "statement": "On a 429 the Python SDK's legacy ZTW client reads `Retry-After` from the response headers (defaulting to 2 when absent), strips a \" seconds\" suffix, and waits at least 1 second before retrying.",

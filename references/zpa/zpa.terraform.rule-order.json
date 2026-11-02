@@ -299,10 +299,11 @@
             "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules) if deceptionAtOne { ruleIdToOrder[deceptionID] = 1 }"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: the body of `BulkReorder` in zscaler/zpa/services/policysetcontroller/policysetcontroller.go at Go SDK v3.8.58 makes one comparison that picks a rule out, `rule.Name == \"Default_Rule\"`."
     },
     "map-holds-configured-rules": {
-      "statement": "The map handed to `BulkReorder` is filled from the configured `rules` blocks, plus a pin of a rule named \"Zscaler Deception\" at order 1 to 1 when that rule is not itself configured. Up to v4.4.15 the configured numbers were offset by one whenever that rule sat at order 1, configured or not, and a configured Deception rule was left out of the map; from v4.4.16 the map holds every configured rule, and the offset and the pin apply only when the Deception rule is at order 1 and not configured. The provider adds no other policy rules to it.",
+      "statement": "The map handed to `BulkReorder` is filled from the configured `rules` blocks, plus a pin of a rule named \"Zscaler Deception\" at order 1 to 1 when that rule is not itself configured. Up to v4.4.15 the configured numbers were offset by one whenever that rule sat at order 1, configured or not, and a configured Deception rule was left out of the map; from v4.4.16 the map holds every configured rule, and the offset and pinning the Deception rule to 1 apply only when the Deception rule is at order 1 and not configured. The provider adds no other policy rules to it.",
       "tier": "A",
       "evidence": [
         {
@@ -356,7 +357,8 @@
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'ruleIdToOrder\\[' zpa/resource_zpa_policy_access_rule_reorder.go` at v4.4.16 finds three writes: the Deception rule's pin to 1 and the two branches of the loop over the configured orders."
     },
     "unmanaged-rules-sent-below-managed": {
       "statement": "So the list sent is: every configured rule in numeric order (up to v4.4.15, a configured Deception rule at order 1 goes with the other rules instead), then every other rule of the policy type in its current relative order, then `Default_Rule` (placed last even when it is configured with another number). Rules interleaved with configured rules, and any terminal rule not named exactly `Default_Rule`, end up below all configured rules.",

@@ -730,7 +730,7 @@
       ]
     },
     "casb-rules-one-key-for-all-types": {
-      "statement": "SaaS Security DLP and malware rules still use one registry key and one starting-order scalar each (`casb_dlp_rules`, `casb_malware_rules`), while their callbacks and the SDK list and get functions are scoped by a `ruleType` query parameter taken from the registering rule. Not fixed at v4.8.17, the pin.",
+      "statement": "SaaS Security DLP and malware rules still use one registry key and one starting-order scalar each (`casb_dlp_rules`, `casb_malware_rules`), while their callbacks and the SDK list and get functions are scoped by a `ruleType` query parameter taken from the registering rule. Not fixed as of v4.8.17.",
       "tier": "A",
       "evidence": [
         {
@@ -1358,7 +1358,8 @@
           "status": "unfiled",
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: at v4.8.17 the only rank assignment in resource_zia_bandwidth_control_rules.go and resource_zia_casb_dlp_rules.go is `req.Order, req.Rank = pos.Order, pos.Rank`, inside each update's own `func(pos OrderRule) error` placement write; the `func(id int, order OrderRule) error` callbacks handed to the reorder engine assign none."
     },
     "rank-mismatch-never-repaired": {
       "statement": "So when a registered bandwidth control or CASB DLP rule is at its declared order but not its declared rank, the worker reports a PUT each pass, no write happens, and the rank is never corrected. The pass is never clean; with the v4.8.3 worker nothing ends the cycle, and from v4.8.7 only the oscillation breaker does, abandoning the cycle with a WARN log and no error.",
