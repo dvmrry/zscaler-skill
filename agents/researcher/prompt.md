@@ -185,8 +185,8 @@ Run a read-only verification pass:
 - Inspect the diff for the target file
 - For each new or modified fact claim, read the cited source and surrounding
   context independently, even when the wording matches the extraction report
-- Run `node scripts/kb.mjs validate` and `node scripts/kb.mjs lint --strict`
-  and report their errors on the target as findings
+- Run `node scripts/kb.mjs check <target-subject-id>` (validate and lint for
+  that subject) and report its errors as findings
 - Check the gaps the change touches and the subjects that cite a changed claim
   for contradictory current-state claims; keep release-pinned evidence distinct
   from current observations

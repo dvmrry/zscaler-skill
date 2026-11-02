@@ -26,6 +26,7 @@ const cases = [
   { script: "kb-refresh.mjs", args: [], code: 2, output: /usage: node scripts\/kb-refresh\.mjs/ },
   { script: "capture-queue.mjs", args: ["--limit", "0"], code: 2, output: /usage: capture-queue\.mjs/ },
   { script: "kb-eval.mjs", args: [], code: 2, output: /usage: kb-eval\.mjs/ },
+  { script: "bump-pins.mjs", args: ["--bogus"], code: 2, output: /usage: node scripts\/bump-pins\.mjs/ },
 ];
 
 test("every native entrypoint guard has a subprocess regression case", () => {

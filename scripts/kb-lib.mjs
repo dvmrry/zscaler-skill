@@ -352,6 +352,27 @@ export function anchorEvidence(g, ev, cache = new Map()) {
   return { ok: errors.length === 0, errors, anchors, repoPath: f.repoPath, kind: f.src.kind };
 }
 
+/**
+ * The Markdown heading above each anchored quote of an evidence entry, in the text its line numbers come from (the
+ * pin when `at` lists it, otherwise the first ref). A changelog quote's heading names the release it belongs to.
+ */
+export function headingsAbove(g, ev, cache = new Map()) {
+  const r = anchorEvidence(g, ev, cache);
+  if (!r.ok) return [];
+  const ref = !ev.at || ev.at.includes("HEAD") ? "HEAD" : ev.at[0];
+  const lines = (anchorTextOf(textAt(sourceFile(g, ev), ref, cache), ev) ?? "").split("\n");
+  const out = new Set();
+  for (const a of r.anchors) {
+    for (let i = (a.line ?? 0) - 1; i >= 0; i--) {
+      if (/^#{1,6}\s/.test(lines[i])) {
+        out.add(lines[i]);
+        break;
+      }
+    }
+  }
+  return [...out];
+}
+
 /** True when any step of the pointer indexes into an array. */
 function pointerHasIndex(doc, pointer) {
   const steps = pointer.split("/").slice(1);
@@ -491,7 +512,11 @@ export function parseProse(blocks = []) {
  * Validate the whole public graph. Returns { errors: [{file, message}], warnings, stats }.
  * Citations are anchored here; pass { citations: false } to skip the (slower) quote checks.
  */
-export function validateGraph(g, { citations = true } = {}) {
+/**
+ * Structure, references and prose for the whole graph; quotes anchored for every subject, or with `only` (a set of
+ * subject IDs) for those subjects alone, which is what makes a check of one subject fast.
+ */
+export function validateGraph(g, { citations = true, only = null } = {}) {
   const errors = [...g.problems];
   const warnings = [];
   const err = (file, message) => errors.push({ file, message });
@@ -611,12 +636,14 @@ export function validateGraph(g, { citations = true } = {}) {
   if (citations) {
     const cache = new Map();
     for (const { node, ev, where } of allEvidence(g)) {
+      if (only && !only.has(node.subject)) continue;
       const r = anchorEvidence(g, ev, cache);
       quotes += (ev.quotes || []).length;
       for (const e of r.errors) err(node.file, `${where}: ${e}`);
       if (r.kind === "capture") citedCaptures.add(r.repoPath);
     }
-    checkCaptureInventory(g, err, warnings, citedCaptures);
+    // The inventory covers every capture, so a check of some subjects leaves it to a full run.
+    if (!only) checkCaptureInventory(g, err, warnings, citedCaptures);
     for (const file of citedCaptures) {
       const entry = g.manifest.files[file];
       if (!fs.existsSync(path.join(g.root, file))) continue; // the evidence check already reports it

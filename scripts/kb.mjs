@@ -2,6 +2,8 @@
 // scripts/kb.mjs — the knowledge-graph CLI.
 //
 //   validate [--no-citations]        schema + reference + prose + citation checks
+//   check <subject-id> ...           validate and lint for the named subjects: their quotes anchored, the structure
+//                                    of the whole graph checked (a removed claim breaks its citers); exit 1 on errors
 //   lint [--json] [--strict]         deterministic Tier A evidence checks (version, identifier, number);
 //                                    --strict exits 1 on any error-level finding
 //   resolve <id | text> [--overlay <dir> | --no-overlay] [--evidence] [--cases] [--pretty]
@@ -38,7 +40,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 function usage(msg) {
   if (msg) console.error(`kb: ${msg}`);
-  console.error("usage: kb.mjs <validate|lint|resolve|map|read|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|freshness> [args]");
+  console.error("usage: kb.mjs <validate|check|lint|resolve|map|read|render|manifest|verified|export-zscalerctl|import-types|migrate-links|requote|move-claim|surface|freshness> [args]");
   process.exit(2);
 }
 
@@ -108,16 +110,20 @@ async function main(argv) {
     return 0;
   }
   if (cmd === "lint") {
-    const { lintGraph } = await import("./kb-lint.mjs");
+    const { describe, lintGraph } = await import("./kb-lint.mjs");
     const findings = lintGraph(g);
     if (args.includes("--json")) process.stdout.write(`${JSON.stringify(findings, null, 2)}\n`);
-    else for (const f of findings) console.log(`${f.level}: ${f.file}: ${f.id}: ${f.check} not in evidence: ${f.missing.join(", ")}`);
+    else for (const f of findings) console.log(`${f.level}: ${f.file}: ${f.id}: ${describe(f)}`);
     const count = (level) => findings.filter((f) => f.level === level).length;
     console.error(`kb lint: ${count("error")} errors, ${count("warning")} warnings`);
     return args.includes("--strict") && count("error") ? 1 : 0;
   }
-  if (cmd === "validate") {
-    const { errors, warnings, stats } = validateGraph(g, { citations: !args.includes("--no-citations") });
+  if (cmd === "validate" || cmd === "check") {
+    const ids = cmd === "check" ? args.filter((a) => !a.startsWith("--")) : [];
+    if (cmd === "check" && !ids.length) return usage("check needs at least one subject ID");
+    for (const id of ids) if (g.nodes.get(id)?.kind !== "subject") return usage(`${id} is not a subject`);
+    const only = ids.length ? new Set(ids) : null;
+    const { errors, warnings, stats } = validateGraph(g, { citations: !args.includes("--no-citations"), only });
     // Legacy Markdown links into the graph (written by migrate-links) must resolve.
     const { kbLinks, staleMentions, tenantRefs } = await import("./kb-migrate.mjs");
     for (const { file, id } of kbLinks(ROOT)) {
@@ -149,6 +155,14 @@ async function main(argv) {
     }
     for (const w of warnings) console.log(`warning: ${w.file}: ${w.message}`);
     for (const e of errors) console.error(`error: ${e.file}: ${e.message}`);
+    if (only) {
+      const { describe, lintGraph } = await import("./kb-lint.mjs");
+      const findings = lintGraph(g, { only });
+      for (const f of findings) console.error(`${f.level}: ${f.file}: ${f.id}: ${describe(f)}`);
+      const failed = errors.length + findings.filter((f) => f.level === "error").length;
+      console.log(`kb check: ${ids.join(", ")}: ${failed} errors, ${warnings.length + findings.length - findings.filter((f) => f.level === "error").length} warnings`);
+      return failed ? 1 : 0;
+    }
     console.log(`kb: ${Object.entries(stats).map(([k, v]) => `${v} ${k}`).join(", ")}; ${errors.length} errors, ${warnings.length} warnings`);
     return errors.length ? 1 : 0;
   }

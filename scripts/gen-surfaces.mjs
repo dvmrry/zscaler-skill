@@ -15,11 +15,12 @@
 //
 // A product may lack a spec, a Go SDK or a Terraform provider; that part of its layer is then empty.
 //
-// Usage: node scripts/gen-surfaces.mjs [zia|zpa|zcc|ztw|zdx|zid|aiguard|aisec|bi|easm|zcell|zwa|zms|ztb|zins] [--check]
+// Usage: node scripts/gen-surfaces.mjs [zia|zpa|zcc|ztw|zdx|zid|aiguard|aisec|bi|easm|zcell|zwa|zms|ztb|zins|all] [--check]
+//   all      every product in turn (after a pin bump or a spec capture changes).
 //   --check  exit 1 if the committed file differs from what the pins generate.
 
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -93,6 +94,14 @@ const PRODUCTS = {
   ztb: { base: "/ztb", pyModules: "zscaler/ztb", pyBases: true },
   zins: { base: "/zins", pyModules: "zscaler/zins", pyBases: true },
 };
+if (product === "all") {
+  let failed = 0;
+  for (const key of Object.keys(PRODUCTS)) {
+    const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url), key, ...(check ? ["--check"] : [])], { stdio: "inherit" });
+    if (r.status !== 0) failed = r.status || 1;
+  }
+  process.exit(failed);
+}
 const P = PRODUCTS[product];
 if (!P) throw new Error(`unknown product ${product}; known: ${Object.keys(PRODUCTS).join(", ")}`);
 

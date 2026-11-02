@@ -42,8 +42,9 @@ punch list; the user or coordinator decides whether to fix.
 
 ## What you check
 
-Run `node scripts/kb.mjs validate` and `node scripts/kb.mjs lint --strict`
-first and keep the errors that name the modified subject. `validate` anchors
+Run `node scripts/kb.mjs check <modified-subject-id> ...` first: it runs
+`validate` and `lint` for those subjects (their quotes anchored, the whole
+graph's references checked) and prints their errors plus any reference broken anywhere in the graph. It anchors
 every quote and pointer in its capture or pinned file, and checks that every
 claim is inlined once, every prose sentence rests on a marker or link, Tier B
 claims carry `conditions`, and every `derived_from`, `because` and `uses`

@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { driftReview, pinReview } from "./kb-drift.mjs";
+import { bySubject, driftReview, pinReview, renameSweep, renames } from "./kb-drift.mjs";
 import { buildGraph, loadPublic } from "./kb-lib.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -116,4 +116,39 @@ test("the command line reads the report named as its first argument", () => {
     assert.match(out, args.includes("--json") ? /^\[\]\n$/ : /^# Help capture drift\n/);
   }
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("entries to read are grouped by subject across reviews; untouched ones are left out", () => {
+  const pages = [
+    { file: "page.json", evidence: [
+      { subject: "zia.a:one", where: "zia.a:one evidence[0]", state: "broken", errors: ["quote not found"] },
+      { subject: "zia.b:two", where: "zia.b:two evidence[0]", state: "untouched" },
+      { subject: "zia/web-log#urlcat", where: "zia/web-log#urlcat evidence[0]", state: "in-change" },
+    ] },
+    { file: "vendor/fake/a.go", evidence: [{ subject: "zia.a:three", where: "zia.a:three evidence[1]", state: "in-change" }] },
+  ];
+  assert.deepEqual(bySubject(pages), [
+    { subject: "zia.a", entries: [
+      { file: "page.json", state: "broken", where: "zia.a:one evidence[0]", errors: ["quote not found"] },
+      { file: "vendor/fake/a.go", state: "in-change", where: "zia.a:three evidence[1]" },
+    ] },
+    { subject: "zia/web-log", entries: [{ file: "page.json", state: "in-change", where: "zia/web-log#urlcat evidence[0]" }] },
+  ]);
+});
+
+test("a name a changed page replaced is found, with the subjects whose own wording still uses it", () => {
+  const diff = (old, now) => `--- old\n+++ new\n@@ -1 +1 @@\n-${old}\n+${now}\n`;
+  const report = { pages: [
+    { file: "a.json", status: "drift", diff: diff("Public Service Edges for Internet & SaaS (ZIA) forward it.", "Public Service Edges for Internet Access (ZIA) forward it.") },
+    { file: "b.json", status: "drift", diff: diff("Go to the Rules tab.", "Select the Rules tab.") },
+    { file: "c.json", status: "drift", diff: diff("There is one golden restore point.", "There is one Golden Restore Point.") },
+  ] };
+  assert.deepEqual(renames(report).map((r) => [r.from, r.to, r.files]), [["Internet & SaaS", "Internet Access", ["a.json"]]], "instruction edits and case changes are not renames");
+  const root = repo({
+    "references/_meta/sources.json": { schema_version: 1, sources: {} },
+    "references/zia/zia.example.json": { schema_version: 1, id: "zia.example", title: "Internet & SaaS forwarding", claims: {} },
+    "references/zia/zia.other.json": { schema_version: 1, id: "zia.other", title: "Internet Access forwarding", claims: {} },
+  });
+  const [r] = renameSweep(buildGraph(loadPublic(root)), renames(report));
+  assert.deepEqual(r.subjects, ["zia.example"]);
 });

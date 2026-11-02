@@ -171,6 +171,34 @@ propose alternative phrasings the report did not suggest, or synthesize from
 broader source context. The rule remains that the report is your only source
 for claims.
 
+## Check before you return
+
+Read each claim you wrote or changed against these; each is a defect the
+verifier and the claim audit found in writer output:
+
+- **Every member of a plural is quoted.** "The templates are version 1.3.5"
+  needs a quote from each template, or say which one.
+- **The source's conditions stay.** If the source says "when the category has
+  other entries", so does the statement.
+- **A consequence is not a quote.** "So the plan shows drift", "so it looks
+  like success": write it as a Tier B claim with `derived_from` and
+  `conditions`, or leave it out.
+- **An absence carries its search.** "No other rule", "never sets", "has no
+  case": put the search that found nothing in `conditions` (the command and
+  what it returned), or route it to a gap.
+- **A named release is tied to its evidence.** A version in the statement is
+  in a quote, an `after` anchor, the heading above a changelog quote, or the
+  evidence's `at`.
+- **Nothing is relative to the pin.** Write the release ("at v4.8.17", "from
+  v3.8.58"), not "the pinned release" or "at the pin": the pin moves.
+- **Labels are quoted.** A setting name, tab or console path in the statement
+  appears in a quote, not only its description.
+
+Then run `node scripts/kb.mjs check <subject-id> ...` for every subject you
+edited, when your runtime lets you, and fix what it reports: it anchors their
+quotes and lints them in about a second. If you cannot run it, say so in the
+summary so the verifier runs it.
+
 ## Output
 
 Apply edits to the target subject. Then output a structured summary:

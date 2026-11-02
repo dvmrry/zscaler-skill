@@ -70,17 +70,25 @@ Keep scratch output outside the checkout (`$TMP` below).
    `in-change` (it still anchors, on or next to a changed line: read the change against the claim) and
    `untouched`. Gone and maintenance pages are listed with the claims that cite them. A page that moved to a
    new address with the same content is reported `moved` (its old address becomes an alias), and only the
-   evidence pointing at its address can break.
-4. **Submodule bumps.** A pin bump re-anchors every quote into that submodule at the new pin; a quote that
+   evidence pointing at its address can break. `node scripts/kb-drift.mjs --by-subject $TMP/drift.json
+   $TMP/issues.json --pins <base-ref>` lists the same entries per subject across every review, so each subject
+   gets one writer. `node scripts/kb-drift.mjs --renames $TMP/drift.json` lists the names the changed pages
+   replaced ("Internet & SaaS" -> "Internet Access") and the subjects whose own wording (titles, aliases, prose,
+   statements) still uses the old one, which the evidence review does not reach.
+4. **Submodule bumps.** On main Renovate opens them; on a branch it does not watch, `node scripts/bump-pins.mjs`
+   lists what would move (`--apply` checks out and stages the new pins). It moves a submodule renovate.json holds
+   for approval only to a release tag, force-fetches tags so they match a fresh clone, and names any tag upstream
+   re-pointed, since evidence `at` resolves through tag names. A pin bump re-anchors every quote into that submodule at the new pin; a quote that
    breaks there is a real source change, never a spacing one, so it goes through review, not `requote`. A
    quote can also keep anchoring while the code beside it changes what the claim says (a field added to a
    request body the claim says holds only three). `node scripts/kb-drift.mjs --pins <base-ref>` diffs every
    moved pin and sorts the evidence citing changed files (evidence whose `at` names only fixed refs excepted; `at`
    with `HEAD` moves with the pin) into the same `broken`, `in-change` and `untouched`;
    read every `in-change` entry against its claim.
-5. **Generated layers.** `node scripts/gen-surfaces.mjs <product>` after a spec capture or an SDK or
+5. **Generated layers.** `node scripts/gen-surfaces.mjs all` (or one product) after a spec capture or an SDK or
    provider pin changes, and `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes;
-   both take `--check`.
+   both take `--check`. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` and
+   `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`.
 6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
    `node scripts/kb.mjs verified` regenerates `references/_meta/verified.json`.
 6a. **Retrieval.** `node scripts/kb-retrieval.mjs` reports how a plain-question resolve ranks each eval's gold
@@ -90,10 +98,11 @@ Keep scratch output outside the checkout (`$TMP` below).
    temporary files under one root it removes).
 8. **Pull request.** Open it with the drift review in the description. It never merges itself.
 
-`node scripts/kb-refresh.mjs --out $TMP` runs steps 1, 1a, 2, 3 (the review), the log-type half of 5 and 6
-in that order and writes the check reports, the full review (`review.md`), the capture queue
-(`capture-queue.md`) and a pull-request description bounded to GitHub's size limit (`body.md`). It does not
-commit, push or run the gate.
+`node scripts/kb-refresh.mjs --out $TMP` runs steps 1, 1a, 2, 3 (the review), 5 and 6 in that order and writes
+the check reports, the full review (`review.md`), the same entries by subject (`by-subject.md`), the rename sweep
+(`renames.md`), the capture queue (`capture-queue.md`) and a pull-request description bounded to GitHub's size
+limit (`body.md`). It does not commit, push or run the gate. While editing a subject, `node scripts/kb.mjs check
+<subject-id> ...` validates and lints just those subjects in about a second.
 
 **Capture queue.** `node scripts/capture-queue.mjs` lists the help pages the pinned vendor material links to
 that are not captured, ranked by how many cited vendor files link each. Clear old addresses first with

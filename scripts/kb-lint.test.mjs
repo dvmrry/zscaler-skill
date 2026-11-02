@@ -44,3 +44,48 @@ test("a name the statement marks as absent needs no evidence; a present one stil
   assert.deepEqual(checks("The model has `name` and `rank`."), [["identifier", ["rank"]]]);
   assert.deepEqual(checks("Without retries the model sends `rank`."), [["identifier", ["rank"]]]);
 });
+
+test("a statement placed relative to the pin is an error; one naming the release is not", () => {
+  const ev = [{ source: "tf-zia", path: "zia/x.go", quotes: ["func x() {}"] }];
+  assert.deepEqual(checks(claim("At the pinned release the provider calls x.", ev)), [["pin", ["At the pinned release"]]]);
+  assert.deepEqual(checks(claim("Not fixed at the pin.", ev)), [["pin", ["at the pin"]]]);
+  assert.deepEqual(checks(claim("The provider calls x.", ev)), []);
+});
+
+test("a changelog quote's release heading counts as evidence; a heading in other files does not", async () => {
+  const { buildGraph, loadPublic } = await import("./kb-lib.mjs");
+  const { lintGraph } = await import("./kb-lint.mjs");
+  const { execFileSync } = await import("node:child_process");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "kb-lint-"));
+  const write = (rel, body) => {
+    fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true });
+    fs.writeFileSync(path.join(root, rel), typeof body === "string" ? body : JSON.stringify(body, null, 2));
+  };
+  fs.cpSync(path.join(ROOT, "references/_meta/schema"), path.join(root, "references/_meta/schema"), { recursive: true });
+  fs.copyFileSync(path.join(ROOT, "references/_meta/products.json"), path.join(root, "references/_meta/products.json"));
+  write("references/_meta/sources.json", { schema_version: 1, sources: { fake: { kind: "submodule", root: "vendor/fake", rank: 1, title: "Fake" } } });
+  write("vendor/fake/CHANGELOG.md", "# Changelog\n\n## 4.8.17 (October 30, 2026)\n\n- Kept the other entries of a category.\n\n## 4.8.16 (October 29, 2026)\n\n- Removed the page size.\n");
+  write("vendor/fake/README.md", "## 4.8.16 notes\n\nThe page size is gone.\n");
+  execFileSync("git", ["-C", path.join(root, "vendor/fake"), "init", "-q"]);
+  const cite = (file, quote, statement) => ({ statement, tier: "A", evidence: [{ source: "fake", path: file, quotes: [quote] }] });
+  write("references/zia/zia.example.json", {
+    schema_version: 1, id: "zia.example", title: "Example",
+    claims: {
+      sectioned: cite("CHANGELOG.md", "Removed the page size.", "Provider v4.8.16 removed the page size."),
+      wrong: cite("CHANGELOG.md", "Removed the page size.", "Provider v4.8.17 removed the page size."),
+      readme: cite("README.md", "The page size is gone.", "From v4.8.16 the page size is gone."),
+    },
+  });
+  write("references/zia/zia.other.json", {
+    schema_version: 1, id: "zia.other", title: "Other",
+    claims: { elsewhere: cite("CHANGELOG.md", "Removed the page size.", "Provider v9.9.9 removed it.") },
+  });
+  const g = buildGraph(loadPublic(root));
+  const byId = Object.fromEntries(lintGraph(g, { only: new Set(["zia.example"]) }).map((f) => [f.id.split(":")[1], f.missing]));
+  assert.deepEqual(byId, { wrong: ["v4.8.17"], readme: ["v4.8.16"] });
+});

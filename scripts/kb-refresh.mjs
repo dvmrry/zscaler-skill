@@ -5,6 +5,8 @@
 // regenerates the log-type layer and the records, then writes the drift review a pull request needs:
 //   <out>/help.json, <out>/issues.json   the check reports (kb-drift.mjs input)
 //   <out>/review.md                      the full review, diffs included
+//   <out>/by-subject.md                  the same entries grouped by subject, one owner each
+//   <out>/renames.md                     names the changed help pages replaced, and the subjects still using the old
 //   <out>/body.md                        the pull-request description, bounded to GitHub's size limit
 //   <out>/capture-queue.md               help pages the vendor material links to that are not captured
 // and prints a one-line JSON summary. It never commits, pushes or runs the gate; the workflow does that.
@@ -16,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { captureQueue, citedFiles, markdown as queueMarkdown } from "./capture-queue.mjs";
-import { driftReview, markdown } from "./kb-drift.mjs";
+import { bySubject, driftReview, markdown, renameSweep, renames, renamesMarkdown, subjectsMarkdown } from "./kb-drift.mjs";
 import { buildGraph, loadPublic } from "./kb-lib.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -133,6 +135,8 @@ function main(argv) {
   }
   step(process.execPath, ["scripts/kb.mjs", "requote", "--write"]);
   step(process.execPath, ["scripts/gen-log-types.mjs"]);
+  // A refetched API spec page changes the surface layer as a pin bump does.
+  step(process.execPath, ["scripts/gen-surfaces.mjs", "all"]);
   step(process.execPath, ["scripts/kb.mjs", "manifest"]);
   // verified exits 1 when a citation fails, which is what the review below reports; it writes the record either way.
   step(process.execPath, ["scripts/kb.mjs", "verified"], { ok: [0, 1] });
@@ -140,6 +144,8 @@ function main(argv) {
   const g = buildGraph(loadPublic(ROOT));
   const reviews = reports.map((r) => ({ title: r.title, pages: driftReview(g, JSON.parse(fs.readFileSync(path.join(dir, r.file), "utf8"))) }));
   fs.writeFileSync(path.join(dir, "review.md"), reviews.map((r) => markdown(r.pages, r.title)).join("\n"));
+  fs.writeFileSync(path.join(dir, "by-subject.md"), `${subjectsMarkdown(bySubject(reviews.flatMap((r) => r.pages)))}\n`);
+  fs.writeFileSync(path.join(dir, "renames.md"), `${renamesMarkdown(renameSweep(g, renames(JSON.parse(fs.readFileSync(path.join(dir, "help.json"), "utf8")))))}\n`);
   const queue = captureQueue(ROOT, citedFiles(g));
   fs.writeFileSync(path.join(dir, "capture-queue.md"), queueMarkdown(queue, queue.length));
   const note = queueNote(queue);

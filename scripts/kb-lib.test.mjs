@@ -690,3 +690,20 @@ test("Terraform field paths convert to API field paths", () => {
   assert.equal(snakeToCamel("departments.name"), "departments.name");
   assert.equal(snakeToCamel("last_modified_by"), "lastModifiedBy");
 });
+
+test("a check of some subjects anchors only their quotes, and still reports a reference broken anywhere", () => {
+  const root = tmpRepo({
+    "vendor/fake/doc.txt": "Rules stop at the first match.\n",
+    "references/zia/zia.example.json": subject(),
+    // Its quote does not anchor, and it cites a claim that does not exist.
+    "references/zia/zia.other.json": subject({
+      id: "zia.other",
+      claims: { gone: { statement: "S.", tier: "A", evidence: [{ source: "fake-help", path: "doc.txt", quotes: ["a quote the file lacks"] }] } },
+      related: [{ rel: "see-also", to: "zia.example" }, { rel: "see-also", to: "zia.missing" }],
+    }),
+  });
+  const only = messages(root, { only: new Set(["zia.example"]) });
+  assert.ok(!only.some((m) => m.includes("a quote the file lacks")), "the other subject's quotes are not anchored");
+  assert.ok(only.some((m) => m.includes("zia.missing")), "a broken reference is reported whichever subject holds it");
+  assert.ok(messages(root).some((m) => m.includes("a quote the file lacks")), "a full run anchors every subject");
+});
