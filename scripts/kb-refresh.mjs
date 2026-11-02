@@ -30,6 +30,15 @@ function step(command, args, { ok = [0], capture = false } = {}) {
   return r.stdout;
 }
 
+/** Whether a check printed its JSON report ({"pages": [...]}), which is how a drift exit is told from a crash. */
+export function reportOk(text) {
+  try {
+    return Array.isArray(JSON.parse(text).pages);
+  } catch {
+    return false;
+  }
+}
+
 /** The pull request's note on the capture queue: how many pages, the first few, and what to do with them. */
 export function queueNote(queue, shown = 10) {
   if (!queue.length) return "";
@@ -49,7 +58,7 @@ export function queueNote(queue, shown = 10) {
 
 /** Evidence counts by state across a review's pages. */
 export function counts(pages) {
-  const n = { files: pages.filter((p) => p.status === "drift").length, broken: 0, "in-change": 0, untouched: 0, gone: 0, unavailable: 0 };
+  const n = { files: pages.filter((p) => p.status === "drift" || p.status === "moved").length, broken: 0, "in-change": 0, untouched: 0, gone: 0, unavailable: 0 };
   for (const p of pages) for (const e of p.evidence) n[e.state] = (n[e.state] ?? 0) + 1;
   return n;
 }
@@ -116,7 +125,12 @@ function main(argv) {
     { title: "Help capture drift", file: "help.json", args: ["scripts/help_capture.py", "check", "--replace", "--json"] },
     { title: "GitHub issue drift", file: "issues.json", args: ["scripts/issue_capture.py", "check", "--replace", "--json"] },
   ];
-  for (const r of reports) fs.writeFileSync(path.join(dir, r.file), step("python3", r.args, { ok: [0, 1], capture: true }));
+  for (const r of reports) {
+    const text = step("python3", r.args, { ok: [0, 1], capture: true });
+    // A crash exits 1 too: a check succeeded only if it printed its report (and then it rewrote the captures).
+    if (!reportOk(text)) throw new Error(`python3 ${r.args.join(" ")} printed no report: it failed (its error is above)`);
+    fs.writeFileSync(path.join(dir, r.file), text);
+  }
   step(process.execPath, ["scripts/kb.mjs", "requote", "--write"]);
   step(process.execPath, ["scripts/gen-log-types.mjs"]);
   step(process.execPath, ["scripts/kb.mjs", "manifest"]);

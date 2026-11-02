@@ -53,10 +53,13 @@ below takes a source change to a reviewable pull request; each step is determini
 Keep scratch output outside the checkout (`$TMP` below).
 
 1. **Help captures.** `python3 scripts/help_capture.py check --replace --json > $TMP/drift.json` refetches
-   every capture, rewrites the ones whose page revision moved, and reports them (exit 1 means drift). After a
+   every capture and reports the ones whose page revision moved (exit 1 means drift); it rewrites them only once
+   every page was checked, so a run that fails part way changes nothing. A page the site still fails to serve
+   after retries is reported unavailable, like one under maintenance. After a
    change to the renderer itself, use `help_capture.py rerender` instead: it re-renders captures still at
    their captured revision and reports any whose revision moved.
-1a. **Issues.** `python3 scripts/issue_capture.py check --replace --json > $TMP/issues.json` refetches the
+1a. **Issues.** `GITHUB_TOKEN=$(gh auth token) python3 scripts/issue_capture.py check --replace --json > $TMP/issues.json`
+   (without a token, GitHub's anonymous rate limit stops a full check part way) refetches the
    captured GitHub issues; a changed state (an issue closed, a pull request merged) marks every line of it
    changed, and `node scripts/kb-drift.mjs $TMP/issues.json` lists the claims citing it.
 2. **Spacing-only breaks.** `node scripts/kb.mjs requote --write` re-quotes every capture quote or `after`
@@ -65,12 +68,15 @@ Keep scratch output outside the checkout (`$TMP` below).
 3. **Review.** `node scripts/kb-drift.mjs $TMP/drift.json` sorts every evidence entry that cites a changed
    page into `broken` (re-anchor it, or turn the claim into a gap if the page no longer says it),
    `in-change` (it still anchors, on or next to a changed line: read the change against the claim) and
-   `untouched`. Gone and maintenance pages are listed with the claims that cite them.
+   `untouched`. Gone and maintenance pages are listed with the claims that cite them. A page that moved to a
+   new address with the same content is reported `moved` (its old address becomes an alias), and only the
+   evidence pointing at its address can break.
 4. **Submodule bumps.** A pin bump re-anchors every quote into that submodule at the new pin; a quote that
    breaks there is a real source change, never a spacing one, so it goes through review, not `requote`. A
    quote can also keep anchoring while the code beside it changes what the claim says (a field added to a
    request body the claim says holds only three). `node scripts/kb-drift.mjs --pins <base-ref>` diffs every
-   moved pin and sorts the evidence citing changed files into the same `broken`, `in-change` and `untouched`;
+   moved pin and sorts the evidence citing changed files (evidence whose `at` names only fixed refs excepted; `at`
+   with `HEAD` moves with the pin) into the same `broken`, `in-change` and `untouched`;
    read every `in-change` entry against its claim.
 5. **Generated layers.** `node scripts/gen-surfaces.mjs <product>` after a spec capture or an SDK or
    provider pin changes, and `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes;

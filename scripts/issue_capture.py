@@ -31,11 +31,13 @@ import json
 import os
 import re
 import sys
+import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from help_capture import changes, text_of  # noqa: E402
+from help_capture import RETRY_PAUSES, changes, text_of  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "vendor" / "github-issues"
@@ -47,6 +49,26 @@ MENTION = re.compile(r"(?<![\w@.])@[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\b")
 URL = re.compile(r"https://github\.com/([\w.-]+)/([\w.-]+)/(issues|pull)/(\d+)/?$")
 
 
+def _fetch(url: str, headers: dict) -> tuple[object, str]:
+    """One API response and its Link header, retrying server errors and dropped connections."""
+    for pause in (*RETRY_PAUSES, None):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=60) as resp:
+                return json.load(resp), resp.headers.get("Link") or ""
+        except urllib.error.HTTPError as e:
+            if e.code in (403, 429) and e.headers.get("X-RateLimit-Remaining") == "0":
+                hint = "" if "Authorization" in headers else "; set GITHUB_TOKEN (for example GITHUB_TOKEN=$(gh auth token))"
+                raise SystemExit(f"GitHub API rate limit reached at {url}{hint}") from e
+            if e.code < 500:
+                raise
+            err: OSError = e
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            err = e
+        if pause is None:
+            raise SystemExit(f"GitHub API unreachable after {len(RETRY_PAUSES) + 1} tries ({err}): {url}")
+        time.sleep(pause)
+
+
 def _get(path: str) -> list | dict:
     """One API resource; a list resource is followed through its `next` pages."""
     url = f"https://api.github.com{path}"
@@ -55,9 +77,8 @@ def _get(path: str) -> list | dict:
         headers["Authorization"] = f"Bearer {token}"
     out: list = []
     while url:
-        with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=60) as resp:
-            data = json.load(resp)
-            nxt = re.search(r'<([^>]+)>;\s*rel="next"', resp.headers.get("Link") or "")
+        data, link = _fetch(url, headers)
+        nxt = re.search(r'<([^>]+)>;\s*rel="next"', link)
         if not isinstance(data, list):
             return data
         out.extend(data)
@@ -150,7 +171,8 @@ def write(path: Path, doc: dict) -> None:
 
 def check(names: list[str], replace: bool, as_json: bool) -> int:
     files = [OUT / n for n in names] if names else sorted(OUT.glob("*.json"))
-    pages, drifted = [], 0
+    # Rewritten only after every issue was checked: a run that fails part way changes nothing.
+    pages, drifted, rewrites = [], 0, []
     for f in files:
         old = json.loads(f.read_text(encoding="utf-8"))
         new = fetch(old["source"]["url"])
@@ -170,9 +192,11 @@ def check(names: list[str], replace: bool, as_json: bool) -> int:
         pages.append(page)
         if replace:
             new["captured_at"] = datetime.date.today().isoformat()
-            write(f, new)
+            rewrites.append((f, new))
         if not as_json:
             print(f"DRIFT {f.name}: {page.get('message', 'content changed')}")
+    for f, new in rewrites:
+        write(f, new)
     if as_json:
         print(json.dumps({"source": "github-issues", "pages": pages}, indent=2))
     return drifted

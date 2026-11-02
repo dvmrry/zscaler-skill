@@ -44,3 +44,40 @@ def test_a_state_change_is_drift_on_every_line(tmp_path, monkeypatch, capsys):
     assert page["changed_lines"] == [1, 2, 3]
     assert json.loads((tmp_path / "x-1.json").read_text())["source"]["state"] == "closed"
     assert text_of(doc("open", "One.")["blocks"]) == "# T\nOne.\n"
+
+
+def test_a_rate_limit_names_the_fix_and_a_failed_check_rewrites_nothing(tmp_path, monkeypatch):
+    import urllib.error
+
+    def limited(req, timeout):
+        raise urllib.error.HTTPError(req.full_url, 403, "rate limit exceeded", {"X-RateLimit-Remaining": "0"}, None)
+
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.setattr(issue_capture.urllib.request, "urlopen", limited)
+    try:
+        issue_capture._get("/repos/zscaler/x/issues/1")
+        raise AssertionError("a rate limit must stop the run")
+    except SystemExit as e:
+        assert "set GITHUB_TOKEN" in str(e)
+
+    doc = {"schema_version": 1, "kind": "github-issue", "title": "T",
+           "source": {"url": "https://github.com/zscaler/x/issues/1", "repo": "zscaler/x", "number": 1, "state": "open",
+                      "created_at": "2026-10-01", "updated_at": "2026-10-02", "labels": []},
+           "captured_at": "2026-10-03", "blocks": [{"heading": "T", "level": 1}]}
+    monkeypatch.setattr(issue_capture, "OUT", tmp_path)
+    for n in (1, 2):
+        (tmp_path / f"x-{n}.json").write_text(json.dumps({**doc, "source": {**doc["source"], "number": n, "url": f"https://github.com/zscaler/x/issues/{n}"}}))
+    before = {p.name: p.read_text() for p in tmp_path.iterdir()}
+
+    def fetch(url):
+        if url.endswith("/2"):
+            raise SystemExit("GitHub API rate limit reached")
+        return {**doc, "source": {**doc["source"], "state": "closed"}}
+
+    monkeypatch.setattr(issue_capture, "fetch", fetch)
+    try:
+        issue_capture.check([], replace=True, as_json=True)
+        raise AssertionError("the failure must surface")
+    except SystemExit:
+        pass
+    assert {p.name: p.read_text() for p in tmp_path.iterdir()} == before

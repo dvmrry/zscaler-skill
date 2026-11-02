@@ -45,6 +45,28 @@ test("a drifted page sorts the evidence citing it into broken, in-change and unt
   assert.deepEqual(byClaim, { gone: "broken", near: "in-change", far: "untouched" });
 });
 
+test("a page that moved keeps its quotes; evidence pointing at its old address is broken", () => {
+  const root = repo({
+    "references/_meta/sources.json": { schema_version: 1, sources: { "zscaler-help": { kind: "capture", root: "vendor/zscaler-help", rank: 5, title: "Help" } } },
+    "vendor/zscaler-help/page.json": {
+      schema_version: 1, kind: "help-article", title: "Page", captured_at: "2026-10-18",
+      source: { url: "https://help.zscaler.com/zia/new-page", node: "1", revision: "3", aliases: ["https://help.zscaler.com/zia/page"] },
+      blocks: [{ text: "Rules stop at the first match." }],
+    },
+    "references/zia/zia.example.json": {
+      schema_version: 1, id: "zia.example", title: "Example",
+      claims: {
+        quoted: { statement: "S.", tier: "A", evidence: [{ source: "zscaler-help", path: "page.json", quotes: ["Rules stop at the first match."] }] },
+        address: { statement: "S.", tier: "A", evidence: [{ source: "zscaler-help", path: "page.json", pointer: "/source", expect: { url: "https://help.zscaler.com/zia/page" } }] },
+      },
+    },
+  });
+  const report = { pages: [{ file: "page.json", status: "moved", changed_lines: [], message: "moved: https://help.zscaler.com/zia/page -> https://help.zscaler.com/zia/new-page" }] };
+  const [page] = driftReview(buildGraph(loadPublic(root)), report);
+  const byClaim = Object.fromEntries(page.evidence.map((e) => [e.where.match(/(quoted|address)/)[1], e.state]));
+  assert.deepEqual(byClaim, { quoted: "untouched", address: "broken" });
+});
+
 test("a moved submodule pin sorts the evidence citing changed files into broken, in-change and untouched", () => {
   const cite = (file, quote) => ({ statement: "S.", tier: "A", evidence: [{ source: "fake", path: file, quotes: [quote] }] });
   const root = repo({
@@ -73,10 +95,16 @@ test("a moved submodule pin sorts the evidence citing changed files into broken,
   write(["// the fields sent include user", "var payload = { content: prompt };", "payload.user = user;", "", "", "function unrelatedHelper() {}"]);
   run("add", "-A"); run("commit", "-q", "-m", "two");
   const to = run("rev-parse", "HEAD");
+  // Evidence pinned to fixed refs does not move with the pin; evidence whose `at` names HEAD as well does.
+  const subject = path.join(root, "references/zia/zia.example.json");
+  const doc = JSON.parse(fs.readFileSync(subject, "utf8"));
+  doc.claims.released = { ...cite("a.js", "send only content and direction"), evidence: [{ source: "fake", path: "a.js", at: [from], quotes: ["send only content and direction"] }] };
+  doc.claims.current = { ...cite("a.js", "send only content and direction"), evidence: [{ source: "fake", path: "a.js", at: [from, "HEAD"], quotes: ["send only content and direction"] }] };
+  fs.writeFileSync(subject, JSON.stringify(doc, null, 2));
   const pages = pinReview(buildGraph(loadPublic(root)), { fake: { from, to } });
   assert.deepEqual(pages.map((p) => p.file), ["vendor/fake/a.js"], "only changed files are reviewed");
   const byClaim = Object.fromEntries(pages[0].evidence.map((e) => [e.where.match(/:(\w+) /)[1], e.state]));
-  assert.deepEqual(byClaim, { gone: "broken", near: "in-change", far: "untouched" });
+  assert.deepEqual(byClaim, { gone: "broken", near: "in-change", far: "untouched", current: "broken" });
 });
 
 test("the command line reads the report named as its first argument", () => {

@@ -152,7 +152,12 @@ For each edit you're about to make:
 3. If the report says X but the existing subject says Y, prefer the report and
    note the contradiction in your output summary. A wording fix keeps the claim
    ID; a changed meaning gets a new ID, with the old claim marked
-   `status: superseded` and `superseded_by` the new one.
+   `status: superseded` and `superseded_by` the new one. A source that moved on
+   is not a changed meaning: a claim citing the current capture or pin says
+   what that source says now, so update it in place, and a claim scoped to
+   releases (`at`) keeps the old evidence narrowed to the releases it held for
+   and gains evidence at the new ones. Supersede only a claim that misstated
+   its source.
 4. Spot-check each quote against the actual source. Before writing a claim on
    a quote, find it in the capture (`vendor/zscaler-help/<slug>.json`) or the
    pinned file and confirm it says what the report claims, in that scope.

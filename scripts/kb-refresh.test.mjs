@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { counts, prBody } from "./kb-refresh.mjs";
+import { counts, prBody, reportOk } from "./kb-refresh.mjs";
 
 const page = (file, diffLines = 3) => ({
   file,
@@ -46,4 +46,12 @@ test("the queue note names the pages to capture and the tools to use, and is emp
   assert.match(note, /^## Help pages linked but not captured$/m);
   assert.match(note, /^- https:\/\/help\.zscaler\.com\/zia\/x \(linked from 3 vendor file\(s\), 1 cited\)$/m);
   assert.match(note, /help_capture\.py alias/);
+});
+
+test("a check counts as run only when it printed its report, since a crash exits 1 like drift", () => {
+  assert.ok(reportOk('{"pages": []}'));
+  assert.ok(reportOk('{"source": "github-issues", "pages": [{"file": "x.json", "status": "unchanged"}]}'));
+  assert.ok(!reportOk(""));
+  assert.ok(!reportOk("Traceback (most recent call last):"));
+  assert.ok(!reportOk('{"error": "x"}'));
 });

@@ -44,6 +44,8 @@ import json
 import urllib.parse
 import re
 import sys
+import time
+import urllib.error
 import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
@@ -316,21 +318,37 @@ class Unavailable(SystemExit):
     """The page exists but cannot be read now (the site answers 403 while an article is under maintenance)."""
 
 
+# A server error, a rate limit or a dropped connection is retried after these pauses (seconds); one that
+# persists makes the page Unavailable, so a check reports it and goes on to the next page.
+RETRY_PAUSES = (2, 8)
+
+
+def _get(url: str) -> object:
+    """GET one JSON document, retrying transient failures."""
+    req = urllib.request.Request(url, headers={"User-Agent": "zscaler-skill help_capture.py"})
+    for pause in (*RETRY_PAUSES, None):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return json.load(resp)
+        except urllib.error.HTTPError as e:
+            if e.code < 500 and e.code != 429:
+                raise
+            err: OSError = e
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            err = e
+        if pause is None:
+            raise Unavailable(f"unreachable after {len(RETRY_PAUSES) + 1} tries ({err}): {url}")
+        time.sleep(pause)
+
+
 def _payload(url: str) -> dict:
     parsed = urllib.parse.urlparse(url)
     if parsed.netloc != "help.zscaler.com":
         raise SystemExit(f"not a help.zscaler.com page: {url}")
     query = urllib.parse.urlencode({"url_alias": parsed.path, "view_type": "full", "cloud": "false",
                                     "domain": "zscaler", "language": "en", "_format": "json"})
-    req = urllib.request.Request(f"{API}?{query}", headers={"User-Agent": "zscaler-skill help_capture.py"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return json.load(resp)["data"]
+    return _get(f"{API}?{query}")["data"]
 
-
-def _get_json(url: str) -> object:
-    req = urllib.request.Request(url, headers={"User-Agent": "zscaler-skill help_capture.py"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        return json.load(resp)
 
 
 def _last_modified(url: str | None) -> str | None:
@@ -373,7 +391,7 @@ def page(url: str) -> dict:
     view = info.get("view_type")
     if view == "swagger_article" and body.get("file_url"):
         return {**base, "kind": "help-api-spec", "nid": str(body["nid"]), "rev": str(body["revision_id"]),
-                "file_url": body["file_url"], "spec": _get_json(body["file_url"]),
+                "file_url": body["file_url"], "spec": _get(body["file_url"]),
                 "updated": _last_modified(body["file_url"]), "updated_basis": "file-last-modified"}
     if view == "documentation":
         cats = [{"title": c["title"], "articles": _articles(c.get("articles"))} for c in body.get("categories") or []]
@@ -598,10 +616,12 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
     has no revision, so its article list is compared. A page under maintenance is reported as unavailable
     and a missing page as gone; neither is drift. With `as_json`, print one JSON report instead of text:
     {"pages": [{file, status, from?, to?, changed_lines?, removed?, diff?, message?}]}, the input of
-    scripts/kb-drift.mjs.
+    scripts/kb-drift.mjs. With `replace`, the moved captures are rewritten only after every page was checked, so
+    a run that fails part way leaves every capture as it was and the next run reports the same drift.
     """
     drifted = 0
     report: list[dict] = []
+    rewrites: list[tuple[Path, dict]] = []
     say = (lambda *_: None) if as_json else print
     files = [HELP / n for n in names] or sorted(HELP.glob("*.json"))
     for path in files:
@@ -631,9 +651,16 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
         if content(fresh) == content(doc):
             # Same content: the material did not change, whatever the vendor's file dates say now.
             fresh["source"] = {**fresh["source"], **{k: src[k] for k in ("updated", "updated_basis") if k in src}}
-            say(f"ok    {path.name}" + (f" (revision {revs['from']} -> {revs['to']}, content unchanged)" if revs else ""))
+            if fresh["source"]["url"] != src["url"]:
+                # Same content at a new address: evidence that points at the URL is what changed.
+                drifted += 1
+                report.append({"file": path.name, "status": "moved", "changed_lines": [],
+                               "message": f"moved: {src['url']} -> {fresh['source']['url']}"})
+                say(f"MOVED {path.name}: {src['url']} -> {fresh['source']['url']}")
+            else:
+                say(f"ok    {path.name}" + (f" (revision {revs['from']} -> {revs['to']}, content unchanged)" if revs else ""))
             if replace and fresh != doc:
-                write(path, fresh)
+                rewrites.append((path, fresh))
             continue
         drifted += 1
         delta = changes(content(doc), content(fresh))
@@ -642,8 +669,10 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
         if not as_json:
             sys.stdout.write(delta["diff"])
         if replace:
-            write(path, with_aliases(build(pg), src["url"], *src.get("aliases", [])))
-            say(f"      replaced {path.name}")
+            rewrites.append((path, with_aliases(build(pg), src["url"], *src.get("aliases", []))))
+    for path, fresh in rewrites:
+        write(path, fresh)
+        say(f"replaced {path.name}")
     if as_json:
         print(json.dumps({"pages": report}, indent=2, ensure_ascii=False))
     return drifted

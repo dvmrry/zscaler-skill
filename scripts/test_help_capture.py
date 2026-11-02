@@ -130,3 +130,87 @@ def test_a_link_to_an_old_address_of_a_captured_page_becomes_its_alias(tmp_path,
     assert src["url"] == "https://help.zscaler.com/unified/x-admin-console"
     assert src["aliases"] == ["https://help.zscaler.com/zia/x-zia-admin-portal"]
     assert help_capture.with_aliases(dict(old), old["source"]["url"])["source"].get("aliases") is None, "a page is never its own alias"
+
+
+def test_a_server_error_is_retried_and_one_that_persists_makes_the_page_unavailable(monkeypatch):
+    import io
+    import urllib.error
+
+    import help_capture
+
+    monkeypatch.setattr(help_capture.time, "sleep", lambda s: None)
+    calls = []
+
+    def flaky(req, timeout):
+        calls.append(req.full_url)
+        if len(calls) < 3:
+            raise urllib.error.HTTPError(req.full_url, 502, "Bad Gateway", {}, None)
+        return io.BytesIO(b'{"data": {"ok": true}}')
+
+    monkeypatch.setattr(help_capture.urllib.request, "urlopen", flaky)
+    assert help_capture._payload("https://help.zscaler.com/zia/x") == {"ok": True}
+    assert len(calls) == 3
+
+    def down(req, timeout):
+        raise urllib.error.HTTPError(req.full_url, 502, "Bad Gateway", {}, None)
+
+    monkeypatch.setattr(help_capture.urllib.request, "urlopen", down)
+    try:
+        help_capture._payload("https://help.zscaler.com/zia/x")
+        raise AssertionError("a persistent 502 must raise")
+    except help_capture.Unavailable as e:
+        assert "unreachable after 3 tries" in str(e)
+
+    def missing(req, timeout):
+        raise urllib.error.HTTPError(req.full_url, 404, "Not Found", {}, None)
+
+    monkeypatch.setattr(help_capture.urllib.request, "urlopen", missing)
+    try:
+        help_capture._payload("https://help.zscaler.com/zia/x")
+        raise AssertionError("a 404 is not retried into Unavailable")
+    except urllib.error.HTTPError as e:
+        assert e.code == 404
+
+
+def test_a_check_that_fails_part_way_rewrites_no_capture(tmp_path, monkeypatch):
+    import help_capture
+
+    title, blocks = render(ARTICLE)
+    for name in ("a-page.json", "b-page.json"):
+        help_capture.write(tmp_path / name, document(title, f"https://help.zscaler.com/zia/{name[:-5]}", blocks, "12", "34", "2026-10-18"))
+    before = {p.name: p.read_text() for p in tmp_path.iterdir()}
+    monkeypatch.setattr(help_capture, "HELP", tmp_path)
+    changed = ARTICLE.replace("Silently drops the request.", "Drops the request.")
+
+    def page(url):
+        if url.endswith("b-page"):
+            raise RuntimeError("the site went away")
+        return {"kind": "help-article", "url": url, "nid": "12", "rev": "35", "html": changed}
+
+    monkeypatch.setattr(help_capture, "page", page)
+    try:
+        help_capture.check([], replace=True, as_json=True)
+        raise AssertionError("the failure must surface")
+    except RuntimeError:
+        pass
+    assert {p.name: p.read_text() for p in tmp_path.iterdir()} == before, "a-page drifted but must not be rewritten"
+    monkeypatch.setattr(help_capture, "page", lambda url: {"kind": "help-article", "url": url, "nid": "12", "rev": "35", "html": changed})
+    assert help_capture.check([], replace=True, as_json=True) == 2
+    assert "Drops the request." in (tmp_path / "a-page.json").read_text()
+
+
+def test_a_page_that_moved_without_changing_is_reported_as_moved(tmp_path, monkeypatch, capsys):
+    import json as _json
+
+    import help_capture
+
+    title, blocks = render(ARTICLE)
+    help_capture.write(tmp_path / "x.json", document(title, "https://help.zscaler.com/zia/x", blocks, "12", "34", "2026-10-18"))
+    monkeypatch.setattr(help_capture, "HELP", tmp_path)
+    moved = {"kind": "help-article", "url": "https://help.zscaler.com/zia/y", "moved": True, "nid": "12", "rev": "35", "html": ARTICLE}
+    monkeypatch.setattr(help_capture, "page", lambda url: moved)
+    assert help_capture.check([], replace=True, as_json=True) == 1
+    page = _json.loads(capsys.readouterr().out)["pages"][0]
+    assert page["status"] == "moved" and page["changed_lines"] == []
+    src = help_capture.read(tmp_path / "x.json")["source"]
+    assert src["url"] == "https://help.zscaler.com/zia/y" and src["aliases"] == ["https://help.zscaler.com/zia/x"]

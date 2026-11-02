@@ -78,8 +78,8 @@ export function pinReview(g, pins) {
   const changes = new Map(Object.entries(pins).map(([name, p]) => [name, changedLinesByFile(path.join(g.root, g.sources.sources[name].root), p.from, p.to)]));
   for (const { node, ev, where } of allEvidence(g)) {
     const files = changes.get(ev.source);
-    // An entry with `at` cites fixed refs, which a pin bump does not move.
-    if (!files || ev.at || !files.has(ev.path)) continue;
+    // An entry whose `at` names only fixed refs is not moved by a pin bump; one that also names HEAD is.
+    if (!files || (ev.at && !ev.at.includes("HEAD")) || !files.has(ev.path)) continue;
     const file = `${g.sources.sources[ev.source].root}/${ev.path}`;
     if (!pages.has(file)) pages.set(file, { file, status: "drift", from: pins[ev.source].from.slice(0, 7), to: pins[ev.source].to.slice(0, 7), evidence: [] });
     pages.get(file).evidence.push({ subject: node.id, where, ...classify(g, ev, files.get(ev.path), cache) });
@@ -99,7 +99,8 @@ export function driftReview(g, report) {
     const page = pages.get(ev.path);
     if (!page) continue;
     const item = { subject: node.id, where };
-    if (page.status !== "drift") {
+    // A moved page kept its content: only evidence that points at its address can have changed.
+    if (page.status !== "drift" && page.status !== "moved") {
       page.evidence.push({ ...item, state: page.status });
       continue;
     }
@@ -112,7 +113,7 @@ export function markdown(pages, title = "Help capture drift") {
   const out = [`# ${title}`, ""];
   const count = (s) => pages.reduce((n, p) => n + p.evidence.filter((e) => e.state === s).length, 0);
   out.push(
-    `${pages.filter((p) => p.status === "drift").length} file(s) changed; evidence citing them: ` +
+    `${pages.filter((p) => p.status === "drift" || p.status === "moved").length} file(s) changed; evidence citing them: ` +
       `${count("broken")} broken, ${count("in-change")} in changed text, ${count("untouched")} untouched.`,
     "",
   );
