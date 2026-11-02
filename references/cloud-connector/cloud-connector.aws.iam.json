@@ -267,7 +267,7 @@
             "Description: Zscaler Cloud Connector Instance IAM Role",
             "ManagedPolicyArns: - !Ref CcGetSecretsPolicy - !Ref CcSsmControlPolicy - !If [CreateCloudTagsIAM, !Ref CcCloudTagsPolicy, !Ref AWS::NoValue]",
             "Principal: Service: - ec2.amazonaws.com Action: - 'sts:AssumeRole'",
-            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3"
+            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.5"
           ]
         }
       ]
@@ -335,7 +335,7 @@
           "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
           "quotes": [
             "Description: Zscaler Cloud Connector Get Secrets Policy For Lambda PolicyDocument: Version: 2012-10-17 Statement: - Effect: Allow Action: - 'secretsmanager:GetSecretValue'",
-            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.3"
+            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.5"
           ]
         }
       ]
@@ -355,7 +355,7 @@
       ]
     },
     "cfn-macro-role": {
-      "statement": "The macro Lambda's execution role allows, on all resources, ec2:DescribeImages, ec2:DescribeSubnets, ec2:ReplaceRoute, secretsmanager:ListSecrets and secretsmanager:GetSecretValue, among other actions.",
+      "statement": "The macro Lambda's execution role allows, on all resources, ec2:DescribeImages, ec2:DescribeSubnets and ec2:ReplaceRoute among other actions, but secretsmanager:GetSecretValue only on secrets under the ZS/CC/ name prefix; secretsmanager:ListSecrets was dropped.",
       "tier": "A",
       "evidence": [
         {
@@ -364,8 +364,15 @@
           "quotes": [
             "- ec2:DescribeSubnets",
             "- ec2:ReplaceRoute",
-            "- ec2:DescribeImages",
-            "- secretsmanager:ListSecrets - secretsmanager:GetSecretValue Resource: \"*\""
+            "- ec2:DescribeImages - lambda:InvokeFunction - logs:CreateLogGroup - logs:CreateLogStream - logs:PutLogEvents Resource: \"*\"",
+            "- secretsmanager:GetSecretValue Resource: !Sub 'arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:ZS/CC/*'"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "* fix: restrict ZSCCMacroExecutionRole secretsmanager:GetSecretValue to ZS/CC/* ARN; drop unused ListSecrets (TF-CFN-01 / CKV_AWS_108)"
           ]
         }
       ]

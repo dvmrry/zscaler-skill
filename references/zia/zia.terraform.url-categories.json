@@ -29,7 +29,7 @@
     },
     {
       "label": "Custom categories.",
-      "text": "{{url-order-diff-suppressed}} {{issue-575-large-category-refresh}} {{val-for-dlp-reference}} {{delete-detaches-v4-7-26}} How that detach is written: [[zia.terraform.multi-step-writes]]. {{tf-limit-48-custom}} That disagrees with the help page {{divergence:custom-category-cap-48-vs-64}}. Plan time for very large categories is unmeasured {{gap:large-category-plan-time}}. {{issue-615-remove-clears-other-lists}} Whether the service behaves as that report says is open {{gap:issue-615-reproduction}}."
+      "text": "{{url-order-diff-suppressed}} {{issue-575-large-category-refresh}} {{val-for-dlp-reference}} {{delete-detaches-v4-7-26}} How that detach is written: [[zia.terraform.multi-step-writes]]. {{tf-limit-48-custom}} That disagrees with the help page {{divergence:custom-category-cap-48-vs-64}}. Plan time for very large categories is unmeasured {{gap:large-category-plan-time}}. {{issue-615-remove-clears-other-lists}} {{keeps-other-lists-v4-8-17}} {{provider-comment-remove-from-list-effect}} Whether the service behaves as that report says is open {{gap:issue-615-reproduction}}."
     },
     {
       "label": "Predefined categories.",
@@ -58,7 +58,7 @@
   ],
   "claims": {
     "url-order-diff-suppressed": {
-      "statement": "Provider v4.7.23 fixed `zia_url_categories` planning failing after import, or whenever the API returned `urls` in a different order from the HCL, and re-ordering URLs in the configuration produces no diff.",
+      "statement": "Provider v4.7.23 fixed `zia_url_categories` planning failing after import, or whenever the API returned `urls` in a different order from the HCL, and re-ordering URLs in the configuration produces no diff. From v4.8.16 removing the `urls` argument is a planned change that removes every URL.",
       "tier": "A",
       "evidence": [
         {
@@ -68,6 +68,15 @@
             "## 4.7.23 (May, 28 2026)",
             "Fixed a regression in the `zia_url_categories` resource where `terraform plan` could fail immediately after `terraform import` (or any time the API returned the `urls` list in a different order than the one declared in HCL)",
             "re-ordering URLs in the configuration continues to produce no diff"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "after": "## 4.8.16 (October 29, 2026)",
+          "quotes": [
+            "Removing the `urls` argument from the configuration was not detected as a change, so the URLs remained in ZIA without any reported drift.",
+            "It is now planned as removing every URL."
           ]
         }
       ]
@@ -181,7 +190,7 @@
       ]
     },
     "issue-615-remove-clears-other-lists": {
-      "statement": "Provider issue #615, still open, reports against v4.8.13 that removing a URL from `urls` on `zia_url_categories` also removes the desired `db_categorized_urls` entries from the category in ZIA even when `db_categorized_urls` is unchanged in configuration, that planned changes to `db_categorized_urls` are then not applied, and that the next plan shows drift. The reporter's explanation is that ZIA applies the action to every list in the payload.",
+      "statement": "Provider issue #615, closed as completed on 2026-10-29, reported against v4.8.13 that removing a URL from `urls` on `zia_url_categories` also removes the desired `db_categorized_urls` entries from the category in ZIA even when `db_categorized_urls` is unchanged in configuration, that planned changes to `db_categorized_urls` are then not applied, and that the next plan shows drift. The reporter's explanation is that ZIA applies the action to every list in the payload. A repository member's comments advise upgrading to v4.8.16 and then to v4.8.17; a commenter reported that removing only some `urls` was still broken on v4.8.16, and a later comment confirmed that 4.8.17 resolves the issue.",
       "tier": "A",
       "evidence": [
         {
@@ -194,7 +203,11 @@
             "The plan doesn't show any of this.",
             "ZIA applies the action to every list in the payload, not just `urls`.",
             "When `urls` changes on an existing `zia_url_categories` resource, Update sends only incremental",
-            "After the apply, Read refreshes state from the API, and the **next** plan shows drift."
+            "After the apply, Read refreshes state from the API, and the **next** plan shows drift.",
+            "Upgrade to v4.8.16",
+            "Removing only SOME urls is still broken on v4.8.16.",
+            "Upgrade to v4.8.17",
+            "Thanks Team, confirmed 4.8.17 resolves the issue!"
           ]
         },
         {
@@ -202,8 +215,56 @@
           "path": "terraform-provider-zia-615.json",
           "pointer": "/source",
           "expect": {
-            "state": "open"
+            "state": "closed",
+            "state_reason": "completed",
+            "closed_at": "2026-10-29"
           }
+        }
+      ]
+    },
+    "keeps-other-lists-v4-8-17": {
+      "statement": "From provider v4.8.17, adding or removing some of the `urls` no longer removes other entries of the category: its incremental requests empty `dbCategorizedUrls` and `ipRanges`, and updates that change `urls` together with `db_categorized_urls` or `ip_ranges`, or of a category with keyword-retaining, IP-range-retaining, regex or regex-retaining entries, update the category as a whole. From v4.8.16, removing every entry from `urls`, or replacing all of them, no longer fails with `INVALID_INPUT_ARGUMENT` when the category has other entries, such as `db_categorized_urls`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "`zia_url_categories`: adding or removing some of the `urls` no longer removes other entries of the category.",
+            "Updates that change `urls` together with `db_categorized_urls` or `ip_ranges`, and updates of categories that use `keywords_retaining_parent_category`, `ip_ranges_retaining_parent_category`, `regex_patterns` or `regex_patterns_retaining_parent_category`, now update the category as a whole."
+          ],
+          "after": "## 4.8.17 (October 30, 2026)"
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "after": "## 4.8.16 (October 29, 2026)",
+          "quotes": [
+            "`zia_url_categories`: removing every entry from `urls` no longer fails with `INVALID_INPUT_ARGUMENT` `At least 1 URL or keyword or IP range should be entered` when the category has other entries, such as `db_categorized_urls`.",
+            "Replacing all `urls` with different ones failed the same way and is also fixed.",
+            "In both cases the category is now updated as a whole, as in the ZIA Admin Portal."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "quotes": [
+            "func incrementalURLRequest(desired urlcategories.URLCategory, urls []string) urlcategories.URLCategory { req := desired req.Urls = urls req.DBCategorizedUrls = []string{} req.IPRanges = []string{} return req }",
+            "return len(c.KeywordsRetainingParentCategory) > 0 || len(c.IPRangesRetainingParentCategory) > 0 || len(c.RegexPatterns) > 0 || len(c.RegexPatternsRetainingParentCategory) > 0"
+          ]
+        }
+      ]
+    },
+    "provider-comment-remove-from-list-effect": {
+      "statement": "A comment in the provider source states that, verified against the API, REMOVE_FROM_LIST sent with the full desired `dbCategorizedUrls` and `ipRanges` removed them from the category, while keywords, which the API replaces when present, were kept. This is the vendor's statement, not a test in this repository.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "quotes": [
+            "// Verified against the API: sent with REMOVE_FROM_LIST, the full desired // dbCategorizedUrls and ipRanges were removed from the category, while // keywords (which the API replaces when present) were kept."
+          ]
         }
       ]
     },
@@ -285,7 +346,7 @@
         "lab-test"
       ],
       "blocks": "saying that a URL removal on a custom category keeps its db_categorized_urls entries",
-      "detail": "Issue 615 states that ZIA applies the action to every list in the payload; the vendored provider source builds the incremental payloads from the whole desired category with only `urls` replaced (custom-category-remove-then-add), so the request shape matches the report, but the service behavior was not reproduced. Remove a URL from `urls` on a category that holds `db_categorized_urls` entries and read the category back."
+      "detail": "Issue 615 states that ZIA applies the action to every list in the payload, and a commenter reports a reproduction on v4.8.16 (a third-party report, not a lab test). Through provider v4.8.16 the incremental payloads were built from the whole desired category with only `urls` replaced, so the request shape matched the report; from v4.8.17 they empty `dbCategorizedUrls` and `ipRanges` (custom-category-remove-then-add in zia.terraform.multi-step-writes), and the provider's own comment states the service behavior (provider-comment-remove-from-list-effect). The service behavior was not reproduced here. Remove a URL from `urls` on a category that holds `db_categorized_urls` entries and read the category back."
     }
   }
 }

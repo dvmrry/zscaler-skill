@@ -296,7 +296,7 @@
       ]
     },
     "cfn-mgmt-sg": {
-      "statement": "The Starter template's management group allows egress TCP 443 and UDP 123 to 0.0.0.0/0, marked required, and SSH (TCP 22) in from 0.0.0.0/0, marked recommended.",
+      "statement": "The Starter template's management group allows egress TCP 443 and UDP 123 to 0.0.0.0/0, marked required, and SSH (TCP 22) in from the CIDR given in the MgmtSSHCidr parameter, marked recommended.",
       "tier": "A",
       "evidence": [
         {
@@ -305,8 +305,8 @@
           "quotes": [
             "Description: \"Required: CC outbound TCP/443\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"tcp\" FromPort: 443 ToPort: 443 CidrIp: 0.0.0.0/0",
             "Description: \"Required: CC Mgmt outbound UDP/123\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"udp\" FromPort: 123 ToPort: 123 CidrIp: 0.0.0.0/0",
-            "Description: \"Recommended: SSH to CC management\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"tcp\" FromPort: 22 ToPort: 22 CidrIp: 0.0.0.0/0",
-            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3"
+            "Description: \"Recommended: SSH to CC management\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"tcp\" FromPort: 22 ToPort: 22 CidrIp: !Ref MgmtSSHCidr",
+            "The source IPv4 CIDR permitted for SSH (TCP/22) inbound to the Cloud Connector management interface."
           ]
         }
       ]
@@ -375,7 +375,7 @@
   },
   "divergences": {
     "ingress-source": {
-      "summary": "Where the management SSH rule and the service ingress rules accept traffic from: the reference Terraform module limits them to the VPC CIDR, the CloudFormation Starter template opens them to 0.0.0.0/0.",
+      "summary": "Where the management SSH rule and the service ingress rules accept traffic from: the reference Terraform module limits them to the VPC CIDR, the CloudFormation Starter template takes the SSH source from a parameter and opens its service ingress rules to 0.0.0.0/0.",
       "positions": [
         {
           "says": "The reference security group module allows SSH to the management interface from the VPC CIDR.",
@@ -389,18 +389,18 @@
           }
         },
         {
-          "says": "The Starter template allows SSH (TCP 22) to the management group from 0.0.0.0/0, and labels its all-protocol service ingress rule intra-VPC while using 0.0.0.0/0.",
+          "says": "The Starter template allows SSH (TCP 22) to the management group from the CIDR given in the MgmtSSHCidr parameter, and labels its all-protocol service ingress rule intra-VPC while using 0.0.0.0/0.",
           "evidence": {
             "source": "cft-aws-cloud-connector",
             "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
             "quotes": [
-              "Description: \"Recommended: SSH to CC management\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"tcp\" FromPort: 22 ToPort: 22 CidrIp: 0.0.0.0/0",
+              "Description: \"Recommended: SSH to CC management\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"tcp\" FromPort: 22 ToPort: 22 CidrIp: !Ref MgmtSSHCidr",
               "Description: \"Optional: Permit All Intra-VPC Traffic / Ensure CC Service Interfaces are able to communicate with each other freely\" GroupId: !Ref ServiceSecurityGroup IpProtocol: \"-1\" CidrIp: 0.0.0.0/0"
             ]
           }
         }
       ],
-      "impact": "A CloudFormation stack exposes SSH and the service ports to any source the network allows, which the Terraform module does not; the effective exposure depends on the subnet's routing and any network ACL, so check the deployed groups."
+      "impact": "A CloudFormation stack exposes the service ports to any source the network allows, which the Terraform module does not, and its SSH source is whatever CIDR the deployer supplies; the effective exposure depends on the subnet's routing and any network ACL, so check the deployed groups."
     }
   }
 }

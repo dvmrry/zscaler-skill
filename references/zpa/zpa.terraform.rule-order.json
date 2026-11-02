@@ -72,7 +72,7 @@
       ]
     },
     {
-      "do": "Whether a plan shows an order difference when the Deception rule sits at order 1, which is expected under the offset.",
+      "do": "Which provider version produced a plan that shows an order difference when the Deception rule sits at order 1: up to v4.4.15 the unreversed offset explains it, and v4.4.16 reads the offset back.",
       "uses": [
         "deception-offset-drift"
       ]
@@ -280,25 +280,68 @@
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.15"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "_, managedByTerraform := userDefinedRules.Orders[deceptionID] if !managedByTerraform { ruleIdToOrder[deceptionID] = 1 }"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, managedByTerraform := configured.Orders[rule.ID] return rule.ID, !managedByTerraform",
+            "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules) if deceptionAtOne { ruleIdToOrder[deceptionID] = 1 }"
+          ]
         }
       ]
     },
     "map-holds-configured-rules": {
-      "statement": "The map handed to `BulkReorder` is filled from the configured `rules` blocks (offset by one when a rule named \"Zscaler Deception\" sits at order 1), plus a pin of that Deception rule to 1 when it is not itself configured. The provider adds no other policy rules to it.",
+      "statement": "The map handed to `BulkReorder` is filled from the configured `rules` blocks, plus a pin of a rule named \"Zscaler Deception\" at order 1 to 1 when that rule is not itself configured. Up to v4.4.15 the configured numbers were offset by one whenever that rule sat at order 1, configured or not, and a configured Deception rule was left out of the map; from v4.4.16 the map holds every configured rule, and the offset and the pin apply only when the Deception rule is at order 1 and not configured. The provider adds no other policy rules to it.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
-            "v4.4.10",
+            "v4.4.16",
             "HEAD"
+          ],
+          "quotes": [
+            "ruleIdToOrder := make(map[string]int)",
+            "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules)",
+            "ruleIdToOrder[deceptionID] = 1",
+            "ruleIdToOrder[id] = order + 1",
+            "for id, order := range userDefinedRules.Orders { if deceptionAtOne { ruleIdToOrder[id] = order + 1 } else { ruleIdToOrder[id] = order } }",
+            "userDefinedRules, err := getRules(d)",
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "_, managedByTerraform := configured.Orders[rule.ID]",
+            "return rule.ID, !managedByTerraform"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
           ],
           "quotes": [
             "ruleIdToOrder := make(map[string]int)",
@@ -308,14 +351,15 @@
             "_, managedByTerraform := userDefinedRules.Orders[deceptionID] if !managedByTerraform { ruleIdToOrder[deceptionID] = 1 }",
             "for id, order := range userDefinedRules.Orders { if id == deceptionID { continue } if deceptionAtOne { ruleIdToOrder[id] = order + 1 } else { ruleIdToOrder[id] = order } }",
             "userDefinedRules, err := getRules(d)",
-            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {"
+            "if _, err := policysetcontroller.BulkReorder(ctx, service, d.Get(\"policy_type\").(string), ruleIdToOrder); err != nil {",
+            "deceptionAtOne = true"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
       ]
     },
     "unmanaged-rules-sent-below-managed": {
-      "statement": "So the list sent is: every configured rule in numeric order, then every other rule of the policy type in its current relative order, then `Default_Rule` (placed last even when it is configured with another number). Rules interleaved with configured rules, and any terminal rule not named exactly `Default_Rule`, end up below all configured rules.",
+      "statement": "So the list sent is: every configured rule in numeric order (up to v4.4.15, a configured Deception rule at order 1 goes with the other rules instead), then every other rule of the policy type in its current relative order, then `Default_Rule` (placed last even when it is configured with another number). Rules interleaved with configured rules, and any terminal rule not named exactly `Default_Rule`, end up below all configured rules.",
       "tier": "B",
       "derived_from": [
         "comparator-managed-first",
@@ -323,7 +367,7 @@
         "map-holds-configured-rules",
         "sends-id-list-only"
       ],
-      "conditions": "Follows from the comparator, the name pin and the provider's map as read at the audited refs. The sort is sort.SliceStable, and its fallback for two unmanaged rules compares their current slice positions, so unmanaged rules keep their relative order; read, not run. Applies to whatever list the rules read returned.",
+      "conditions": "Follows from the comparator, the name pin and the provider's map as read at the audited refs. Up to v4.4.15 a configured Deception rule at order 1 was not in the map and so counted among the other rules; from v4.4.16 it is a configured rule. The sort is sort.SliceStable, and its fallback for two unmanaged rules compares their current slice positions, so unmanaged rules keep their relative order; read, not run. Applies to whatever list the rules read returned.",
       "upstream": [
         {
           "status": "unfiled",
@@ -350,7 +394,7 @@
       ]
     },
     "configured-deception-rule-treated-as-unmanaged": {
-      "statement": "If the rule named \"Zscaler Deception\" at order 1 is itself listed in the configuration, it is neither pinned to 1 nor added to the map: the loop skips it. The comparator then treats it as an unmanaged rule.",
+      "statement": "Up to v4.4.15, if the rule named \"Zscaler Deception\" at order 1 is itself listed in the configuration, it is neither pinned to 1 nor added to the map: the loop skips it, and the comparator then treats it as an unmanaged rule. From v4.4.16 the loop has no skip, so a configured Deception rule is neither pinned nor does it trigger the offset, and goes into the map at its configured number like any other configured rule.",
       "tier": "B",
       "derived_from": [
         "comparator-managed-first"
@@ -361,16 +405,52 @@
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.15"
           ],
           "quotes": [
             "_, managedByTerraform := userDefinedRules.Orders[deceptionID]",
             "if id == deceptionID {"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, managedByTerraform := configured.Orders[rule.ID] return rule.ID, !managedByTerraform",
+            "for id, order := range userDefinedRules.Orders { if deceptionAtOne { ruleIdToOrder[id] = order + 1 } else { ruleIdToOrder[id] = order } }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder_unit_test.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "func TestResourcePolicyAccessRuleReorder_ConfiguredDeceptionRuleUsesItsOrder(t *testing.T) {",
+          "quotes": [
+            "got := reorderRequest(t, existing, reorderConfig(\"dec\", \"1\", \"r3\", \"2\", \"r1\", \"3\"))",
+            "if want := []string{\"dec\", \"r3\", \"r1\", \"r2\", \"rd\"}; !reflect.DeepEqual(got, want) {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder_unit_test.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "// A Deception rule that is itself configured is placed at its configured order."
+          ]
         }
       ],
-      "conditions": "Depends on a rule with that exact name at order \"1\" in the list read at update time. Read from the code at the audited refs; not run.",
+      "conditions": "Depends on a rule with that exact name at order \"1\" in the list read at update time. Read from the code at the audited refs; not run. The v4.4.16 changelog describes only the Read offset, not this change to Update; the evidence for it is the code and the unit test.",
       "upstream": [
         {
           "status": "unfiled",
@@ -409,27 +489,56 @@
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.15"
           ],
           "quotes": [
             "existingRules, _, err := policysetcontroller.GetAllByType(ctx, service, d.Get(\"policy_type\").(string))",
             "for _, rule := range existingRules {"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "existingRules, _, err := policysetcontroller.GetAllByType(ctx, service, d.Get(\"policy_type\").(string))",
+            "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules)",
+            "func deceptionRuleAtOrderOne(rules []policysetcontroller.PolicyRule, configured *RulesOrders) (string, bool) { for _, rule := range rules { if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {"
+          ]
         }
       ],
-      "conditions": "An absence: in `resourcePolicyAccessReorderUpdate` at v4.4.10 and at the pin, read in full; `existingRules` is used only in the Deception loop shown."
+      "conditions": "An absence: in `resourcePolicyAccessReorderUpdate` at v4.4.10 and v4.4.15, read in full, `existingRules` is used only in the Deception loop shown. From v4.4.16 that loop is in `deceptionRuleAtOrderOne`, `existingRules` is only passed to it, and the helper reads only each rule's name, order and ID and whether the Deception ID is configured."
     },
     "read-keeps-configured-value-when-id-missing": {
-      "statement": "Read overwrites a configured rule's order only when the rules read from the API contain its ID, and then writes every configured entry back to state. An ID the API no longer has keeps its configured order in state.",
+      "statement": "Read overwrites a configured rule's order only when the rules read from the API contain its ID, and then writes every configured entry back to state. An ID the API no longer has keeps its configured order in state. From v4.4.16 the overwrite also requires the API's order to be above the Deception offset, and stores that order less the offset.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
-            "v4.4.10",
+            "v4.4.16",
             "HEAD"
+          ],
+          "quotes": [
+            "if currentOrder, exists := currentOrderMap[id]; exists && currentOrder > offset {",
+            "\"order\": strconv.Itoa(order),",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists && currentOrder > offset { configuredRules.Orders[id] = currentOrder - offset } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }",
+            "if err := d.Set(\"rules\", rulesMap); err != nil {"
+          ],
+          "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
           ],
           "quotes": [
             "if currentOrder, exists := currentOrderMap[id]; exists {",
@@ -492,7 +601,7 @@
       "conditions": "Follows from the comparator and the bare ID list; the equivalence is read from code, not run."
     },
     "gapped-numbers-drift": {
-      "statement": "Because Read replaces each configured number with the order the API reports, a configuration with gaps (1 and 3) or out-of-range numbers can apply cleanly and then show a difference on every later plan.",
+      "statement": "Because Read replaces each configured number with the order the API reports (less the Deception offset from v4.4.16, when an unconfigured Deception rule is at order 1), a configuration with gaps (1 and 3) or out-of-range numbers can apply cleanly and then show a difference on every later plan.",
       "tier": "C",
       "derived_from": [
         "numbers-are-relative-only",
@@ -603,8 +712,24 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
-            "v4.4.10",
+            "v4.4.16",
             "HEAD"
+          ],
+          "quotes": [
+            "if order, err := strconv.Atoi(rule.RuleOrder); err == nil {",
+            "currentOrderMap[rule.ID] = order",
+            "currentOrderMap := make(map[string]int) for _, rule := range currentRules { if order, err := strconv.Atoi(rule.RuleOrder); err == nil { currentOrderMap[rule.ID] = order } }",
+            "for id := range configuredRules.Orders { if currentOrder, exists := currentOrderMap[id]; exists && currentOrder > offset { configuredRules.Orders[id] = currentOrder - offset } }",
+            "for id, order := range configuredRules.Orders { rulesMap = append(rulesMap, map[string]interface{}{ \"id\": id, \"order\": strconv.Itoa(order), }) }"
+          ],
+          "after": "func resourcePolicyAccessReorderRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.15"
           ],
           "quotes": [
             "if order, err := strconv.Atoi(rule.RuleOrder); err == nil {",
@@ -766,7 +891,7 @@
       ]
     },
     "deception-offset-drift": {
-      "statement": "When the \"Zscaler Deception\" rule sits at order 1, Update sends every configured rule at its configured number plus one, but Read writes back the API's number unchanged. A configuration that numbers its rules from 1 can therefore show a difference on every plan.",
+      "statement": "Up to v4.4.15, when the \"Zscaler Deception\" rule sat at order 1, Update sent every configured rule at its configured number plus one, but Read wrote back the API's number unchanged, so a configuration that numbers its rules from 1 could show a difference on every plan. From v4.4.16 Read subtracts the same offset, and the provider's changelog says such a configuration no longer shows a change in every plan.",
       "tier": "C",
       "evidence": [
         {
@@ -774,22 +899,72 @@
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.15"
           ],
           "quotes": [
             "ruleIdToOrder[id] = order + 1",
             "configuredRules.Orders[id] = currentOrder"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "ruleIdToOrder[id] = order + 1",
+            "offset := 0 if _, shifted := deceptionRuleAtOrderOne(currentRules, configuredRules); shifted { offset = 1 }",
+            "configuredRules.Orders[id] = currentOrder - offset"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "## 4.4.16 (October 26, 2026)",
+          "quotes": [
+            "`zpa_policy_access_rule_reorder`: on a tenant with a `Zscaler Deception` rule at order 1, the configured orders are written one position after it; reading them back now removes that offset again, so a configuration declaring orders `1..N` no longer shows a change in every plan."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder_unit_test.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "func TestResourcePolicyAccessRuleReorder_UpdateWithDeceptionRoundTrips(t *testing.T) {",
+          "quotes": [
+            "d := fx.resourceData(resourcePolicyAccessRuleReorder(), \"\", reorderConfig(\"r3\", \"1\", \"r1\", \"2\"))",
+            "if want := map[string]string{\"r3\": \"1\", \"r1\": \"2\"}; !reflect.DeepEqual(got, want) {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule_reorder.md",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "# Orders start from 1 whether or not a Zscaler Deception rule exists: the",
+            "merge(policy, { rule_number = index(local.policy_config.policies, policy) + 1 })"
+          ]
         }
       ],
-      "conditions": "Depends on the API reporting each rule's position in `RuleOrder` after the reorder (gap api-bulk-reorder-semantics). The offset and the missing reverse offset are read from the code.",
+      "conditions": "Depends on the API reporting each rule's position in `RuleOrder` after the reorder (gap api-bulk-reorder-semantics). The offset and the missing reverse offset up to v4.4.15 are read from the code; the v4.4.16 outcome is stated by the changelog, and the unit tests mock the post-reorder orders.",
       "gaps": [
         "api-bulk-reorder-semantics"
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.16 (PR 699)."
         }
       ]
     },

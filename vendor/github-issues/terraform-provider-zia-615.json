@@ -6,14 +6,20 @@
     "url": "https://github.com/zscaler/terraform-provider-zia/issues/615",
     "repo": "zscaler/terraform-provider-zia",
     "number": 615,
-    "state": "open",
+    "state": "closed",
     "created_at": "2026-10-22",
-    "updated_at": "2026-10-22",
-    "labels": [],
-    "updated": "2026-10-22",
+    "updated_at": "2026-11-02",
+    "labels": [
+      ":bug: type/bug",
+      "⚙️ In development",
+      "🐛 api/issue"
+    ],
+    "state_reason": "completed",
+    "closed_at": "2026-10-29",
+    "updated": "2026-11-02",
     "updated_basis": "issue-updated-at"
   },
-  "captured_at": "2026-10-23",
+  "captured_at": "2026-11-02",
   "blocks": [
     {
       "heading": "# zia_url_categories: removing a URL from `urls` also removes `db_categorized_urls` entries in ZIA (regression from #505)",
@@ -153,6 +159,58 @@
     {
       "item": "**The cache:** `urlsReorderSuppressionCache` is a package-level `sync.Map` keyed by resource ID and never cleared, so the first result for an ID is reused for the rest of the provider process.",
       "depth": 0
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-29)",
+      "level": 2
+    },
+    {
+      "text": "Upgrade to v4.8.16"
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-10-30)",
+      "level": 2
+    },
+    {
+      "text": "Thanks for #618 — clearing ALL urls now works on v4.8.16 (verified: full update sent, db_categorized_urls preserved)."
+    },
+    {
+      "text": "Removing only SOME urls is still broken on v4.8.16. Reproduced on a QA tenant:"
+    },
+    {
+      "text": "Before: urls = [\"partial-a.example.com\", \"partial-b.example.com\"], db_categorized_urls = [\"keep-c.example.net\", \"keep-d.example.net\"]"
+    },
+    {
+      "text": "Change: remove partial-b.example.com from urls only; db_categorized_urls unchanged in config."
+    },
+    {
+      "text": "Request sent: PUT /urlCategories/<id>?action=REMOVE_FROM_LIST with \"urls\": [\"partial-b.example.com\"] and \"dbCategorizedUrls\": [\"keep-c.example.net\", \"keep-d.example.net\"]"
+    },
+    {
+      "text": "Result: urls = [\"partial-a.example.com\"], db_categorized_urls = []"
+    },
+    {
+      "text": "The incremental payloads are still built from the full expandURLCategory(d), so the action is applied to every list in the payload. Sending only urls in the ADD_TO_LIST / REMOVE_FROM_LIST calls — or doing a full update whenever db_categorized_urls is non-empty — would fix it. Could this be reopened?"
+    },
+    {
+      "heading": "Comment (MEMBER, 2026-10-30)",
+      "level": 2
+    },
+    {
+      "text": "Upgrade to v4.8.17"
+    },
+    {
+      "text": "Zscaler DevRel"
+    },
+    {
+      "heading": "Comment (NONE, 2026-11-02)",
+      "level": 2
+    },
+    {
+      "text": "Thanks Team, confirmed 4.8.17 resolves the issue!"
     }
   ]
 }

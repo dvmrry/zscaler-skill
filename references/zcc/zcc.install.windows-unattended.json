@@ -78,7 +78,7 @@
         },
         {
           "label": "Kiosk mode.",
-          "text": "{{kiosk-mode}} The Windows table contradicts itself on the default {{divergence:windows-kioskmode-default}}."
+          "text": "{{kiosk-mode}}"
         },
         {
           "label": "Configuration wait.",
@@ -315,7 +315,7 @@
     "kiosk-mode": {
       "statement": "On Windows from 4.10.0.463, kioskMode (MSI `KIOSKMODE`) lets Client Connector launch without waiting for the Windows desktop; by default it waits for a full-screen app such as Windows Autopilot to finish and the desktop to be visible before enrolling a new user.",
       "tier": "A",
-      "conditions": "The value column's contrary default moved to divergence windows-kioskmode-default after verification, matching how launchTray's is held.",
+      "conditions": "The default rests on the row description, which says Client Connector waits for the desktop by default, and on the value column, which marks Disable as the default; the two agree.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -325,6 +325,14 @@
             "you can enable this option to allow Zscaler Client Connector to launch without waiting for the Windows desktop to display.",
             "This option is available only in Zscaler Client Connector version 4.10.0.463 and later.",
             "MSI: KIOSKMODE EXE: kioskMode"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "supported-parameters-zscaler-client-connector-windows.json",
+          "after": "MSI: KIOSKMODE EXE: kioskMode",
+          "quotes": [
+            "1 = Enable 0= Disable (default)"
           ]
         }
       ]
@@ -401,33 +409,6 @@
         }
       ],
       "impact": "An admin reading the value column may set launchTray to 1 needlessly, or assume macOS installs stay idle until reboot when the key is omitted. The vendor's own Jamf and Intune sample plists set launchTray to 1 explicitly."
-    },
-    "windows-kioskmode-default": {
-      "summary": "The Windows parameter table marks 1 (Enable) as kioskMode's default, while the same row's description says Client Connector by default waits for a full-screen app and the desktop before enrolling, which is the behavior with the option off.",
-      "positions": [
-        {
-          "says": "The value column lists Enable as the default.",
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "supported-parameters-zscaler-client-connector-windows.json",
-            "after": "MSI: KIOSKMODE EXE: kioskMode",
-            "quotes": [
-              "1 = Enable (default) 0= Disable"
-            ]
-          }
-        },
-        {
-          "says": "By default Client Connector waits for a full-screen app such as Windows Autopilot and for the desktop before enrolling a new user, and the option is enabled to change that.",
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "supported-parameters-zscaler-client-connector-windows.json",
-            "quotes": [
-              "By default, Zscaler Client Connector waits for a full-screen app (e.g., Windows Autopilot) to complete and for the Windows desktop to be visible before enrolling a new user."
-            ]
-          }
-        }
-      ],
-      "impact": "An admin cannot tell from the table whether an install without kioskMode waits for the desktop; set the key explicitly on 4.10.0.463 and later."
     }
   },
   "gaps": {

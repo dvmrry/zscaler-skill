@@ -48,7 +48,7 @@
     },
     {
       "label": "Looking one up.",
-      "text": "{{name-lookup-case}} {{protocol-filter-values}} {{endpoint}}"
+      "text": "{{name-lookup-case}} {{protocol-filter-values}} {{endpoint}} {{lookup-single-request}}"
     },
     {
       "label": "Writing one.",
@@ -377,6 +377,38 @@
           "quotes": [
             "networkServicesEndpoint = \"/zia/api/v1/networkServices\""
           ]
+        }
+      ]
+    },
+    "lookup-single-request": {
+      "statement": "From Go SDK v3.8.57, `GetAllNetworkServices` and `GetByName` read `/networkServices` in a single request without `page` or `pageSize`, because the endpoint is not paginated and accepts only `search`, `protocol` and `locale`; some clouds rejected the page size with `INVALID_INPUT_ARGUMENT` `Invalid Page Size 1,000`. The Terraform data source lookup by `name`, `protocol` or `locale` had failed the same way, and provider v4.8.16 retrieves all network services in one request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "ZIA `networkservices`: `GetAllNetworkServices` and `GetByName` now read `/networkServices` in a single request without `page` or `pageSize`.",
+            "The endpoint is not paginated and accepts only `search`, `protocol` and `locale`.",
+            "Some clouds reject the page size with `INVALID_INPUT_ARGUMENT` `Invalid Page Size 1,000`"
+          ],
+          "after": "# 3.8.57 (October 29, 2026)"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/firewallpolicies/networkservices/networkservices.go",
+          "quotes": [
+            "// Single read: the endpoint is not paginated, so no page or pageSize is sent."
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "the data source no longer fails with `INVALID_INPUT_ARGUMENT` `Invalid Page Size` when looking up a network service by `name`, `protocol` or `locale` on clouds that reject a page size for network services.",
+            "The lookup now retrieves all network services in a single request."
+          ],
+          "after": "## 4.8.16 (October 29, 2026)"
         }
       ]
     },

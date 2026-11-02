@@ -689,7 +689,7 @@
       ]
     },
     "custom-category-remove-then-add": {
-      "statement": "When a custom URL category update both removes and adds entries, the provider sends a REMOVE_FROM_LIST write and then an ADD_TO_LIST write, each carrying the desired category with its URL list replaced by the delta. An error from the add is returned after the removals were sent.",
+      "statement": "When a custom URL category update both removes and adds entries, the provider sends a REMOVE_FROM_LIST write and then an ADD_TO_LIST write. Through v4.8.16 each carries the desired category with its URL list replaced by the delta; from v4.8.17 each also empties its `dbCategorizedUrls` and `ipRanges`. An error from the add is returned after the removals were sent. From v4.8.16 the two writes are skipped when every current URL is removed, and from v4.8.17 also when `db_categorized_urls` or `ip_ranges` change or when the current or desired category has keyword-retaining, IP-range-retaining, regex or regex-retaining entries; those updates send the category as a whole.",
       "tier": "A",
       "evidence": [
         {
@@ -697,7 +697,8 @@
           "path": "zia/resource_zia_url_categories.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14",
+            "v4.8.16"
           ],
           "after": "} else if hasBoth {",
           "quotes": [
@@ -707,6 +708,72 @@
             "return diag.FromErr(fmt.Errorf(\"failed to add URLs: %w\", err))",
             "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, id, &removeCategory, \"REMOVE_FROM_LIST\"); err != nil {",
             "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, id, &addCategory, \"ADD_TO_LIST\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
+          "after": "} else if hasBoth {",
+          "quotes": [
+            "// Remove first, then add. Not every URL is removed (removesAllURLs above), // so the category keeps at least one custom URL in between.",
+            "removeCategory := incrementalURLRequest(desiredCategory, urlsToRemove)",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, id, &removeCategory, \"REMOVE_FROM_LIST\"); err != nil {",
+            "addCategory := incrementalURLRequest(desiredCategory, urlsToAdd)",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, id, &addCategory, \"ADD_TO_LIST\"); err != nil {",
+            "return diag.FromErr(fmt.Errorf(\"failed to add URLs: %w\", err))",
+            "func incrementalURLRequest(desired urlcategories.URLCategory, urls []string) urlcategories.URLCategory { req := desired req.Urls = urls req.DBCategorizedUrls = []string{} req.IPRanges = []string{} return req }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "at": [
+            "v4.8.16"
+          ],
+          "quotes": [
+            "removesAllURLs := hasRemoves && len(urlsToRemove) == len(currentUrls)",
+            "if removesAllURLs {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
+          "quotes": [
+            "removesAllURLs := hasRemoves && len(urlsToRemove) == len(currentUrls)",
+            "actionListsChanged := !stringSetsEqual(currentCategory.DBCategorizedUrls, desiredCategory.DBCategorizedUrls) || !stringSetsEqual(currentCategory.IPRanges, desiredCategory.IPRanges)",
+            "return len(c.KeywordsRetainingParentCategory) > 0 || len(c.IPRangesRetainingParentCategory) > 0 || len(c.RegexPatterns) > 0 || len(c.RegexPatternsRetainingParentCategory) > 0"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories.go",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
+          "after": "if removesAllURLs || ((hasAdds || hasRemoves) && (actionListsChanged || hasUnverifiedLists)) {",
+          "quotes": [
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, id, &desiredCategory, \"\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
+          "quotes": [
+            "In both cases the category is now updated as a whole, as in the ZIA Admin Portal.",
+            "Updates that change `urls` together with `db_categorized_urls` or `ip_ranges`, and updates of categories that use `keywords_retaining_parent_category`, `ip_ranges_retaining_parent_category`, `regex_patterns` or `regex_patterns_retaining_parent_category`, now update the category as a whole."
           ]
         },
         {
@@ -735,7 +802,7 @@
       "derived_from": [
         "custom-category-remove-then-add"
       ],
-      "conditions": "Depends on the API applying REMOVE_FROM_LIST immediately and keeping it when a later request fails. How category membership then decides rule matching is in [[zia.url-categories.membership]].",
+      "conditions": "Depends on the API applying REMOVE_FROM_LIST immediately and keeping it when a later request fails. Applies only to updates that still take the two-write path (see the scope in custom-category-remove-then-add). How category membership then decides rule matching is in [[zia.url-categories.membership]].",
       "upstream": [
         {
           "status": "unfiled",
@@ -1148,7 +1215,7 @@
         "delta-partial-apply",
         "custom-category-partial-state"
       ],
-      "conditions": "Describes the server-side object after the second write fails. A following plan starts from that state only if it refreshes the resource from the API before comparing with configuration; the refresh behavior of these resources was not read."
+      "conditions": "Describes the server-side object after the second write fails. A following plan starts from that state only if it refreshes the resource from the API before comparing with configuration; the refresh behavior of these resources was not read. From v4.8.16 it applies only to updates that still take the two-write path (claim custom-category-remove-then-add)."
     },
     "delta-lists-are-commonest-sequence": {
       "statement": "Among the multi-request sequences found in the searched ZIA code, the list-by-delta shape is the most frequent: four sequences send ADD_TO_LIST and REMOVE_FROM_LIST writes (malicious URLs, exempted URLs, custom URL categories, predefined URL categories), two send paired writes to different endpoints (security policy lists, browser control), and Virtual Service Edge cluster deletion, static IP coordinate discovery and user enrollment are one sequence each.",

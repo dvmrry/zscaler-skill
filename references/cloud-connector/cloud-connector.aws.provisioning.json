@@ -343,14 +343,24 @@
       ]
     },
     "cfn-user-data": {
-      "statement": "The CloudFormation launch user data is a [ZSCALER] section with CC_URL (the provisioning URL), SECRET_NAME and HTTP_PROBE_PORT, falling back to ZS/CC/credentials and 50000 when the secret name or probe port is empty.",
+      "statement": "The CloudFormation launch user data is a [ZSCALER] section with CC_URL (the provisioning URL), SECRET_NAME taken directly from the secret-name parameter, HTTP_PROBE_PORT falling back to 50000 when the probe port is empty, and FIPS_ENABLED from the FipsEnabled parameter.",
       "tier": "A",
       "evidence": [
         {
           "source": "cft-aws-cloud-connector",
           "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
           "quotes": [
-            "- '[ZSCALER]' - !Join ['=', [ 'CC_URL', !Ref ZscalerCloudConnectorProvUrl]] - !Join ['=', ['SECRET_NAME', !If [SecretsManagerNameNotEmpty, !Ref ZscalerSecretManagerSecretName, 'ZS/CC/credentials']]] - !Join ['=', ['HTTP_PROBE_PORT', !If [HttpProbePortNotEmpty, !Ref HttpProbePort, '50000']]]"
+            "- '[ZSCALER]' - !Join ['=', [ 'CC_URL', !Ref ZscalerCloudConnectorProvUrl]] - !Join ['=', ['SECRET_NAME', !Ref ZscalerSecretManagerSecretName]] - !Join ['=', ['HTTP_PROBE_PORT', !If [HttpProbePortNotEmpty, !Ref HttpProbePort, '50000']]] - !Join ['=', ['FIPS_ENABLED', !Ref FipsEnabled]]",
+            "HttpProbePortNotEmpty: !Not [!Equals [!Ref HttpProbePort, '']]"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "- - 'SECRET_NAME' - !Ref ZscalerSecretManagerSecretName",
+            "- - 'HTTP_PROBE_PORT' - !If [ZscalerHttpProbePortNotEmpty, !Ref ZscalerHttpProbePort, '50000']",
+            "- - 'FIPS_ENABLED' - !Ref FipsEnabled"
           ]
         }
       ]

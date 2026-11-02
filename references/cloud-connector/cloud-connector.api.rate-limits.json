@@ -50,7 +50,7 @@
       "heading": "Client-side throttling"
     },
     {
-      "text": "The Go SDK's OneAPI client gives ZTW the ZIA limiter: [[shared.oneapi.rate-limits:go-client-limiters]]. {{go-legacy-limiter}} {{go-delete-shares-write-window}}"
+      "text": "The Go SDK's OneAPI client limits ZTW and ZIA separately: [[shared.oneapi.rate-limits:go-client-limiters]]. {{go-legacy-limiter}} {{go-delete-shares-write-window}}"
     },
     {
       "text": "{{go-limits-above-documented}}"
@@ -101,13 +101,20 @@
       ]
     },
     "go-delete-shares-write-window": {
-      "statement": "In the Go limiter a DELETE counts against the same short-window list as POST and PUT; only the hourly cap, when one is set, is tracked separately for DELETE.",
+      "statement": "In the Go limiter's `Wait`, a DELETE is added to the same request list as POST and PUT (`postPutDeleteRequests`) and checked against the same limit; only the hourly cap, when one is set, is tracked separately for DELETE.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "ratelimiter/limiter.go",
-          "after": "case http.MethodDelete:",
+          "quotes": [
+            "func (rl *RateLimiter) Wait(method string) (bool, time.Duration) {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "after": "func (rl *RateLimiter) Wait(method string) (bool, time.Duration) {",
           "quotes": [
             "if rl.deleteHourlyLimit > 0 {",
             "if len(rl.postPutDeleteRequests) >= rl.postPutDeleteLimit {",
@@ -196,7 +203,7 @@
       ]
     },
     "go-limits-above-documented": {
-      "statement": "The Go SDK's ZTW limiters are looser than the documented server limits: they let DELETE run in the 10-per-10-seconds write window rather than 1 a minute, and the OneAPI limiter's hourly caps (380 DELETE, 950 POST or PUT) are above the documented 40 and 400, while the legacy limiter has no hourly cap. A Go client deleting or writing in bulk can therefore draw 429s that its own limiter did not prevent.",
+      "statement": "The Go SDK's ZTW limiters are looser than the documented server limits: they let DELETE run in the 10-per-10-seconds write window rather than 1 a minute, and the OneAPI ZTW limiter's hourly caps (380 DELETE, 950 POST or PUT) are above the documented 40 and 400, while the legacy limiter has no hourly cap. A Go client deleting or writing in bulk can therefore draw 429s that its own limiter did not prevent.",
       "tier": "B",
       "derived_from": [
         "shared.oneapi.rate-limits:cbc-weights",

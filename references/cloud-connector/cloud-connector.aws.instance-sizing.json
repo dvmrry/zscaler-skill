@@ -228,14 +228,14 @@
       "conditions": "Follows from the pairing check being a count on the resources plus an echo in a null_resource provisioner rather than a variable validation; Terraform semantics, not stated by the module."
     },
     "cfn-instance-types": {
-      "statement": "The CloudFormation templates default the EC2 instance type to m6i.large and accept t3.medium, c5a.large, m5n.large, m6i.large, c6i.large, c6in.large, m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge; template rules require one of m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge for the medium and large sizes.",
+      "statement": "The CloudFormation templates default the EC2 instance type to m6i.large and accept t3.medium, c5a.large, m5n.large, m6i.large, c6i.large, c6in.large, m7i.large, m7i-flex.large, m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge; template rules require one of m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge for the medium and large sizes.",
       "tier": "A",
       "evidence": [
         {
           "source": "cft-aws-cloud-connector",
           "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
           "quotes": [
-            "AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge Default: m6i.large",
+            "AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m7i.large - m7i-flex.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge Default: m6i.large",
             "For medium CCInstanceType, the Instance type must be one of m5n.4xlarge, m6i.4xlarge, c6i.4xlarge, c6in.4xlarge",
             "largeCCInstanceType: RuleCondition: !Equals - !Ref CCInstanceType - large Assertions: - Assert: 'Fn::Contains': - - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge"
           ]
@@ -244,7 +244,7 @@
           "source": "cft-aws-cloud-connector",
           "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
           "quotes": [
-            "Default: \"m6i.large\" AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge"
+            "Default: \"m6i.large\" AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m7i.large - m7i-flex.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge"
           ]
         }
       ]
@@ -270,7 +270,7 @@
   },
   "divergences": {
     "small-instance-list": {
-      "summary": "Which EC2 types a Small Cloud Connector may use: the deployment guide lists four, the reference Terraform module accepts twelve and the CloudFormation templates ten.",
+      "summary": "Which EC2 types a Small Cloud Connector may use: the deployment guide lists four, while the reference Terraform module and the CloudFormation templates each accept twelve.",
       "positions": [
         {
           "says": "Small VMs require m5n.large, c5a.large, m6i.large or c6i.large.",
@@ -293,18 +293,18 @@
           }
         },
         {
-          "says": "The CloudFormation templates accept ten types, including t3.medium and c6in.large but not the m7i types.",
+          "says": "The CloudFormation Starter template accepts twelve types, including t3.medium, c6in.large, m7i.large and m7i-flex.large.",
           "evidence": {
             "source": "cft-aws-cloud-connector",
             "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
             "quotes": [
-              "AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge Default: m6i.large",
+              "AllowedValues: - t3.medium - c5a.large - m5n.large - m6i.large - c6i.large - c6in.large - m7i.large - m7i-flex.large - m5n.4xlarge - m6i.4xlarge - c6i.4xlarge - c6in.4xlarge Default: m6i.large",
               "For medium CCInstanceType, the Instance type must be one of m5n.4xlarge, m6i.4xlarge, c6i.4xlarge, c6in.4xlarge"
             ]
           }
         }
       ],
-      "impact": "A module deployment can pass validation on a type the guide does not list (t3.medium, c6in.large, the m7i types), and the guide says Zscaler cannot guarantee unsupported instances work."
+      "impact": "A module or CloudFormation deployment can pass validation on a type the guide does not list (t3.medium, c6in.large, the m7i types), and the guide says Zscaler cannot guarantee unsupported instances work."
     }
   }
 }

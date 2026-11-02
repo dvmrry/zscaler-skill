@@ -29,11 +29,11 @@
     },
     {
       "label": "Shared keys.",
-      "text": "{{registry-key-is-a-string}} {{later-closures-unused}}"
+      "text": "{{registry-key-is-a-string}} {{later-closures-unused}} {{reorder-runs-on-uncancellable-context}}"
     },
     {
       "label": "Traffic capture keys.",
-      "text": "{{traffic-capture-create-uses-firewall-key}} {{traffic-capture-joins-firewall-cycle}}"
+      "text": "{{traffic-capture-create-uses-firewall-key}} {{traffic-capture-joins-firewall-cycle}} {{traffic-capture-create-key-fixed-in-v4-8-15}}"
     },
     {
       "label": "Rule types under one key.",
@@ -41,11 +41,11 @@
     },
     {
       "label": "Races.",
-      "text": "{{done-channel-read-after-unlock}} {{done-channel-read-after-unlock-effect}} {{done-channel-capture-fixed-in-v4-8-7}} {{join-after-final-snapshot}}"
+      "text": "{{done-channel-read-after-unlock}} {{done-channel-read-after-unlock-effect}} {{done-channel-capture-fixed-in-v4-8-7}} {{join-after-final-snapshot}} {{final-snapshot-window-closed-in-v4-8-15}}"
     },
     {
       "label": "Starting-order state.",
-      "text": "{{starting-order-state-read-outside-lock}}"
+      "text": "{{starting-order-state-read-outside-lock}} {{starting-order-read-under-lock-from-v4-8-15}}"
     },
     {
       "label": "Entries that never settle.",
@@ -57,7 +57,7 @@
     },
     {
       "label": "Create-time order allocation.",
-      "text": "{{staging-order-is-occupied-maximum}} {{staging-order-never-reserved}} {{staging-order-collision-effect}} {{create-retry-loses-declared-order}} {{create-retry-loses-declared-order-sites}} The failed-read retry that triggers it is described in [[zia.terraform.error-handling]], as is create order taken from an ignored list error."
+      "text": "{{staging-order-is-occupied-maximum}} {{staging-order-never-reserved}} {{staging-order-advances-after-create}} {{firewall-filtering-create-position-is-atomic}} {{staging-order-collision-effect}} {{create-retry-loses-declared-order}} {{create-retry-loses-declared-order-sites}} The failed-read retry that triggers it is described in [[zia.terraform.error-handling]], as is create order taken from an ignored list error."
     },
     {
       "label": "Rank mismatch.",
@@ -82,7 +82,8 @@
         "traffic-capture-create-uses-firewall-key",
         "cloud-app-control-one-key-for-all-types",
         "mixed-subtype-cycle-skips-rules",
-        "rule-type-order-scope"
+        "rule-type-order-scope",
+        "traffic-capture-create-key-fixed-in-v4-8-15"
       ]
     },
     {
@@ -110,7 +111,9 @@
       "uses": [
         "staging-order-collision-effect",
         "staging-order-never-reserved",
-        "duplicate-order-on-create"
+        "duplicate-order-on-create",
+        "staging-order-advances-after-create",
+        "firewall-filtering-create-position-is-atomic"
       ]
     },
     {
@@ -134,7 +137,7 @@
           ],
           "quotes": [
             "var rules = listrules{",
-            "type listrules struct { orders map[string]map[int]orderWithState orderer map[string]int reorderDone map[string]chan struct{} sync.Mutex }",
+            "type listrules struct { orders map[string]map[int]orderWithState orderer map[string]int reorderDone map[string]chan struct{}",
             "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
             "rules.orders[resourceType][id] = orderWithState{order, false}",
             "default: // Reorder goroutine still running — just register, don't start another shouldCallReorder = false",
@@ -218,7 +221,7 @@
           "path": "zia/common.go",
           "at": [
             "v4.8.7",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
           "quotes": [
@@ -227,12 +230,28 @@
             "case <-rules.reorderDone[resourceType]:",
             "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
+          "quotes": [
+            "// Capture the done channel while still holding the lock: concurrent // registrations write rules.reorderDone under the lock, so reading the // map after Unlock races with them.",
+            "doneCh := rules.reorderDone[resourceType] rules.Unlock()",
+            "case <-rules.reorderDone[resourceType]:",
+            "revision := reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) rules.Lock() if revision != rules.revisions[resourceType] { rules.Unlock() continue }",
+            "// Closing the cycle and checking for new registrations must // be atomic with registration's decision to start a new one. close(doneCh) rules.Unlock() return"
+          ]
         }
       ],
       "conditions": "Established by reading the provider source at v4.8.7, which copies `doneCh` while `rules.Lock()` is held. Ordinary unit coverage is not race-detector proof, and no race-detector run is recorded here."
     },
     "join-after-final-snapshot": {
-      "statement": "A registration decides whether to join a cycle with a non-blocking receive on the done channel under the registry lock. The channel is closed by the goroutine only after `reorderAll` has returned, and the worker's clean exit returns straight after a pass, without re-reading the registry under the lock. So a rule registered after the final pass took its registry snapshot, and before the channel closes, finds an open channel, starts no new worker, and is waited on by a cycle that never evaluated it.",
+      "statement": "Up to v4.8.14 a registration decides whether to join a cycle with a non-blocking receive on the done channel under the registry lock. The channel is closed by the goroutine only after `reorderAll` has returned, and the worker's clean exit returns straight after a pass, without re-reading the registry under the lock. So a rule registered after the final pass took its registry snapshot, and before the channel closes, finds an open channel, starts no new worker, and is waited on by a cycle that never evaluated it.",
       "tier": "B",
       "derived_from": [
         "registry-key-is-a-string",
@@ -244,7 +263,7 @@
           "path": "zia/common.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func reorderAll(",
           "quotes": [
@@ -269,7 +288,7 @@
           "path": "zia/common.go",
           "at": [
             "v4.8.7",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
           "quotes": [
@@ -278,7 +297,7 @@
           ]
         }
       ],
-      "conditions": "Depends on goroutine scheduling: a second registration for the same key must land between the worker's last registry snapshot and close(doneCh). Read from the code; no run reproduced the window. The v4.8.7 channel-capture change does not alter this ordering (see done-channel-capture-fixed-in-v4-8-7).",
+      "conditions": "Depends on goroutine scheduling: a second registration for the same key must land between the worker's last registry snapshot and close(doneCh). Read from the code; no run reproduced the window. The v4.8.7 channel-capture change does not alter this ordering (see done-channel-capture-fixed-in-v4-8-7). From v4.8.15 the window is closed (see final-snapshot-window-closed-in-v4-8-15).",
       "upstream": [
         {
           "status": "unfiled",
@@ -309,10 +328,23 @@
           "path": "zia/common.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "quotes": [
             "go func() { reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) close(doneCh) }()",
+            "ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "revision := reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) rules.Lock() if revision != rules.revisions[resourceType] { rules.Unlock() continue }",
+            "close(doneCh) rules.Unlock() return",
             "ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch }"
           ]
         }
@@ -376,7 +408,7 @@
       "derived_from": [
         "create-registers-before-read-then-marks"
       ],
-      "conditions": "Search at v4.8.3: for every zia/resource_zia_*.go, the line order of reorderWithBeforeReorder( or reorder(, HasError(), markOrderRuleAsDone( and waitForReorder( inside the Create function (git grep -nE with those patterns). Those seven have HasError() between register and mark; cloud app control, endpoint DLP sub-rules, file type, firewall DNS/filtering/IPS, forwarding control, sandbox, SSL inspection, traffic capture and URL filtering do not (18 resource files register in all). Files are unchanged at HEAD except cloud app control. The same seven creates also re-POST after a read error; see zia.terraform.error-handling:create-reposts-after-read-error-sites.",
+      "conditions": "Search at v4.8.3: for every zia/resource_zia_*.go, the line order of reorderWithBeforeReorder( or reorder(, HasError(), markOrderRuleAsDone( and waitForReorder( inside the Create function (git grep -nE with those patterns). Those seven have HasError() between register and mark; cloud app control, endpoint DLP sub-rules, file type, firewall DNS/filtering/IPS, forwarding control, sandbox, SSL inspection, traffic capture and URL filtering do not (18 resource files register in all). The files changed after v4.8.3 (from v4.8.15 creates also record the registered order); the register, read, then mark order still holds at HEAD in the files re-read (NAT control, bandwidth control, firewall filtering, URL filtering and sandbox). The same seven creates also re-POST after a read error; see zia.terraform.error-handling:create-reposts-after-read-error-sites.",
       "upstream": [
         {
           "status": "unfiled",
@@ -439,10 +471,34 @@
           ],
           "after": "func reorderAll(",
           "quotes": [
+            "// Rule POSTed but not yet visible to GetAll // (cache lag / API eventual consistency). // Skip and try next tick.",
+            "cleanPass := putsIssued == 0 && skipped == 0 && puterrs == 0 && size == lastSize"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.14"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
             "cur, exists := current[v.ID]",
             "if !exists {",
-            "skipped++",
-            "cleanPass := putsIssued == 0 && skipped == 0 && puterrs == 0 && size == lastSize"
+            "skipped++"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "if _, exists := current[v.ID]; !exists { skipped++ continue }"
           ]
         }
       ],
@@ -470,7 +526,7 @@
       ]
     },
     "traffic-capture-create-uses-firewall-key": {
-      "statement": "Traffic capture create registers under the firewall-filtering registry key, `firewall_filtering_rules`, while its callbacks list and update traffic-capture rules. Traffic capture update registers under `traffic_capture_rules`, so one resource's create and update use different keys, and its create shares a key with a different resource.",
+      "statement": "Up to v4.8.14, traffic capture create registers under the firewall-filtering registry key, `firewall_filtering_rules`, while its callbacks list and update traffic-capture rules. Traffic capture update registers under `traffic_capture_rules`, so one resource's create and update use different keys, and its create shares a key with a different resource.",
       "tier": "A",
       "evidence": [
         {
@@ -478,7 +534,7 @@
           "path": "zia/resource_zia_traffic_capture_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func resourceFiresourceTrafficCaptureRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
@@ -519,7 +575,7 @@
       ]
     },
     "traffic-capture-joins-firewall-cycle": {
-      "statement": "So a traffic-capture create that runs while a firewall-filtering cycle is open joins that cycle: its rule is judged by the firewall callbacks, which never list it, and it is skipped. If it starts the cycle, the firewall rules registered afterwards are judged by traffic-capture callbacks. Either way the create can return without its order applied, and the entry stays in the shared registry.",
+      "statement": "So up to v4.8.14 a traffic-capture create that runs while a firewall-filtering cycle is open joins that cycle: its rule is judged by the firewall callbacks, which never list it, and it is skipped. If it starts the cycle, the firewall rules registered afterwards are judged by traffic-capture callbacks. Either way the create can return without its order applied, and the entry stays in the shared registry.",
       "tier": "B",
       "derived_from": [
         "traffic-capture-create-uses-firewall-key",
@@ -532,6 +588,39 @@
         {
           "status": "unfiled",
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
+        }
+      ]
+    },
+    "traffic-capture-create-key-fixed-in-v4-8-15": {
+      "statement": "From v4.8.15 traffic capture create registers under `traffic_capture_rules`, the same key as its update, and the changelog says newly created traffic capture rules are ordered together with other traffic capture rules instead of with firewall filtering rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_capture_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceFiresourceTrafficCaptureRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// Same reorder domain as Update: traffic capture rules are ordered // separately from firewall filtering rules.",
+            "resourceType := \"traffic_capture_rules\"",
+            "allRules, err := traffic_capture.GetAll(reorderCtx, service, nil)",
+            "_, err = traffic_capture.Update(reorderCtx, service, id, rule)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.16",
+            "HEAD"
+          ],
+          "after": "## 4.8.15 (October 26, 2026)",
+          "quotes": [
+            "Newly created `zia_traffic_capture_rules` are now ordered together with other traffic capture rules instead of with firewall filtering rules."
+          ]
         }
       ]
     },
@@ -605,7 +694,7 @@
       ]
     },
     "cloud-app-control-key-fixed-per-type-at-pin": {
-      "statement": "From v4.8.7 the cloud app control registry key and starting-order seed are per rule type. The provider's own comment says the API orders rules independently per type. The seed is a map read after the lock is released (see starting-order-state-read-outside-lock).",
+      "statement": "From v4.8.7 the cloud app control registry key and starting-order seed are per rule type. The provider's own comment says the API orders rules independently per type. Up to v4.8.14 the seed is a map read after the lock is released (see starting-order-state-read-outside-lock).",
       "tier": "A",
       "evidence": [
         {
@@ -613,6 +702,7 @@
           "path": "zia/resource_zia_cloud_app_control_rules.go",
           "at": [
             "v4.8.7",
+            "v4.8.14",
             "HEAD"
           ],
           "quotes": [
@@ -640,7 +730,7 @@
       ]
     },
     "casb-rules-one-key-for-all-types": {
-      "statement": "SaaS Security DLP and malware rules still use one registry key and one starting-order scalar each (`casb_dlp_rules`, `casb_malware_rules`), while their callbacks and the SDK list and get functions are scoped by a `ruleType` query parameter taken from the registering rule. Not fixed at v4.8.14, the pin.",
+      "statement": "SaaS Security DLP and malware rules still use one registry key and one starting-order scalar each (`casb_dlp_rules`, `casb_malware_rules`), while their callbacks and the SDK list and get functions are scoped by a `ruleType` query parameter taken from the registering rule. Not fixed at v4.8.17, the pin.",
       "tier": "A",
       "evidence": [
         {
@@ -663,7 +753,7 @@
           ],
           "after": "func resourceCasbDlpRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "list, err := casb_dlp_rules.GetByRuleType(ctx, service, req.Type)"
+            "rules, _ := casb_dlp_rules.GetByRuleType(ctx, service, req.Type)"
           ]
         },
         {
@@ -698,7 +788,7 @@
           ],
           "after": "func resourceCasbMalwareRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "list, err := casb_malware_rules.GetByRuleType(ctx, service, req.Type)"
+            "rules, _ := casb_malware_rules.GetByRuleType(ctx, service, req.Type)"
           ]
         },
         {
@@ -743,7 +833,9 @@
             "markOrderRuleAsDone(resp.ID, \"casb_dlp_rules\")"
           ],
           "at": [
-            "v4.8.14"
+            "v4.8.14",
+            "v4.8.17",
+            "HEAD"
           ]
         },
         {
@@ -754,7 +846,9 @@
             "reorder(OrderRule{Order: intendedOrder, Rank: 0}, req.ID, \"casb_malware_rules\", func() (map[int]OrderRule, error) {"
           ],
           "at": [
-            "v4.8.14"
+            "v4.8.14",
+            "v4.8.17",
+            "HEAD"
           ]
         }
       ],
@@ -786,7 +880,7 @@
       ]
     },
     "starting-order-state-read-outside-lock": {
-      "statement": "In the DLP web, outbound email DLP and endpoint DLP sub-rule creates, the parent-keyed starting-order map is written while the rule lock is held and read into the create's `req.Order` after the lock is released; the per-type cloud app control seed follows the same pattern.",
+      "statement": "Up to v4.8.14, in the DLP web, outbound email DLP and endpoint DLP sub-rule creates, the parent-keyed starting-order map is written while the rule lock is held and read into the create's `req.Order` after the lock is released; the per-type cloud app control seed follows the same pattern.",
       "tier": "A",
       "evidence": [
         {
@@ -794,7 +888,7 @@
           "path": "zia/resource_zia_dlp_web_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
@@ -809,7 +903,7 @@
           "path": "zia/resource_zia_outbound_email_dlp.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func resourceOutboundEmailDLPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
@@ -824,7 +918,7 @@
           "path": "zia/resource_zia_endpoint_dlp_sub_rules.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "quotes": [
             "endpointDlpSubRulesLock.Lock()",
@@ -839,7 +933,7 @@
           "path": "zia/resource_zia_cloud_app_control_rules.go",
           "at": [
             "v4.8.7",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
@@ -919,7 +1013,7 @@
       ]
     },
     "staging-order-never-reserved": {
-      "statement": "Up to v4.8.13 the staging seed was a package-level scalar set once per provider process and never changed by a create. Every later create of that resource in the process posted the same order; no resource reserves the next slot. Firewall filtering and traffic capture add one when they first compute the seed, and also never advance it. From v4.8.14 that still holds for a create the API accepts; in firewall filtering, a create the API rejects with `not allowed at order` clears the scalar and reads it again before retrying, at most three times.",
+      "statement": "Through v4.8.14: up to v4.8.13 the staging seed was a package-level scalar set once per provider process and never changed by a create. Every later create of that resource in the process posted the same order; no resource reserves the next slot. Firewall filtering and traffic capture add one when they first compute the seed, and also never advance it. At v4.8.14 that still holds for a create the API accepts; in firewall filtering, a create the API rejects with `not allowed at order` clears the scalar and reads it again before retrying, at most three times.",
       "tier": "B",
       "derived_from": [
         "staging-order-is-occupied-maximum"
@@ -971,14 +1065,98 @@
         }
       ]
     },
+    "staging-order-advances-after-create": {
+      "statement": "From v4.8.15 NAT control, URL filtering and traffic capture advance the cached starting order by one under its lock after a create. The bandwidth control create carries the comment that the next rule of this type is created after this one, at the end of the list, so creating it does not move the rules already placed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_nat_control_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "natControlRuleLock.Lock() natControlRuleStartingOrder++ natControlRuleLock.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "urlFilteringLock.Lock() urlFilteringStartingOrder++ urlFilteringLock.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_capture_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "trafficCaptureLock.Lock() trafficCaptureStartingOrder++ trafficCaptureLock.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_control_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "// The next rule of this type is created after this one, at the end of // the list, so creating it does not move the rules already placed."
+          ]
+        }
+      ]
+    },
+    "firewall-filtering-create-position-is-atomic": {
+      "statement": "From v4.8.15 firewall filtering create holds its lock while it chooses the append position, POSTs and advances the position, so parallel creates cannot reuse a position. The v4.8.15 changelog says concurrent firewall filtering creates no longer reuse the same insertion position.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceFirewallFilteringRulesCreate(",
+          "quotes": [
+            "// Keep choosing the append position, POSTing, and advancing the // position atomic. Otherwise parallel creates can reuse the same // position and displace rules that have already been placed.",
+            "resp, err = filteringrules.Create(ctx, service, &req) if err == nil { firewallFilteringStartingOrder++ }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.16",
+            "HEAD"
+          ],
+          "after": "## 4.8.15 (October 26, 2026)",
+          "quotes": [
+            "Concurrent firewall filtering creates no longer reuse the same insertion position."
+          ]
+        }
+      ]
+    },
     "staging-order-collision-effect": {
-      "statement": "Concurrent creates can therefore post the same order, and the first create posts an order that an existing rule already holds. Where each lands depends on the API.",
+      "statement": "Through v4.8.14, concurrent creates could therefore post the same order, and the first create posts an order that an existing rule already holds. Where each lands depends on the API.",
       "tier": "C",
       "derived_from": [
         "staging-order-is-occupied-maximum",
-        "staging-order-never-reserved"
+        "staging-order-never-reserved",
+        "staging-order-advances-after-create",
+        "firewall-filtering-create-position-is-atomic"
       ],
-      "conditions": "Depends on how the ZIA API treats a create whose order equals an existing rule's order, or collides with another create (gap duplicate-order-on-create).",
+      "conditions": "Depends on how the ZIA API treats a create whose order equals an existing rule's order, or collides with another create (gap duplicate-order-on-create). From v4.8.15 firewall filtering holds its lock across the position choice, the POST and the increment, so its concurrent creates do not reuse a position; the other resources read the seed under the lock and release it before the POST, a reading of the code that no source states.",
       "gaps": [
         "duplicate-order-on-create"
       ],
@@ -1003,7 +1181,8 @@
           "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "for { bandwidthControlLock.Lock()",
-            "order := req.Order req.Order = bandwidthControlStartingOrder",
+            "order := req.Order",
+            "req.Order = bandwidthControlStartingOrder",
             "if strings.Contains(err.Error(), \"INVALID_INPUT_ARGUMENT\") {",
             "time.Sleep(10 * time.Second) // Wait before retrying continue",
             "OrderRule{Order: order, Rank: req.Rank},"
@@ -1018,6 +1197,7 @@
           ],
           "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "cloudAppRuleLock.Unlock() startWithoutLocking := time.Now() intendedOrder := req.Order",
             "intendedOrder := req.Order",
             "intendedRank := req.Rank if intendedRank < 7 {",
             "req.Rank = 7",
@@ -1094,11 +1274,23 @@
           "path": "zia/common.go",
           "at": [
             "v4.8.3",
-            "HEAD"
+            "v4.8.14"
           ],
           "after": "func reorderAll(",
           "quotes": [
             "if cur.Order == desired.Order && cur.Rank == desired.Rank {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "func atTarget(cur, target OrderRule) bool { return cur.Order == target.Order && cur.Rank == target.Rank }"
           ]
         },
         {
@@ -1116,11 +1308,24 @@
           "source": "tf-zia",
           "path": "zia/common.go",
           "at": [
-            "HEAD"
+            "v4.8.7",
+            "v4.8.14"
           ],
           "after": "func reorderAll(",
           "quotes": [
             "if err := updateOrder(v.ID, desired); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", v.ID, resourceType, err) puterrs++ continue } putDetails = append(putDetails, fmt.Sprintf(\"rule %d (API order %d, declared order %d)\", v.ID, cur.Order, desired.Order)) putsIssued++"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "if err := updateOrder(c.id, c.target); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", c.id, resourceType, err) puterrs++ return } putDetails = append(putDetails, fmt.Sprintf(\"rule %d (API order %d, declared order %d)\", c.id, cur.Order, c.target.Order)) putsIssued++"
           ]
         },
         {
@@ -1132,7 +1337,7 @@
           ],
           "after": "func resourceBandwdithControlRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if rule.Order == order.Order { return nil } // Strip read-only fields that cause \"Request body is invalid\" for predefined rules rule.DefaultRule = false rule.AccessControl = \"\" rule.Order = order.Order _, err = bandwidth_control_rules.Update(ctx, service, id, rule)"
+            "if rule.Order == order.Order { return nil } // Strip read-only fields that cause \"Request body is invalid\" for predefined rules rule.DefaultRule = false rule.AccessControl = \"\" rule.Order = order.Order"
           ]
         },
         {
@@ -1144,7 +1349,7 @@
           ],
           "after": "func resourceCasbDlpRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if rule.Order == order.Order { return nil } // Strip read-only fields that cause \"Request body is invalid\" for predefined rules rule.AccessControl = \"\" rule.Order = order.Order _, err = casb_dlp_rules.Update(ctx, service, id, rule)"
+            "if rule.Order == order.Order { return nil } // Strip read-only fields that cause \"Request body is invalid\" for predefined rules rule.AccessControl = \"\" rule.Order = order.Order"
           ]
         }
       ],
@@ -1243,6 +1448,145 @@
       ],
       "conditions": "Inferred from the Go runtime's handling of unsynchronized map access and from the registration logic: the key's channel is replaced only by a registration that finds the previous cycle's channel closed, and the reading registration's own cycle has not started its goroutine yet. No crash with this message is recorded from a provider run."
     },
+    "final-snapshot-window-closed-in-v4-8-15": {
+      "statement": "From v4.8.15 each registration increments a per-key revision, and the worker records the revision it snapshotted. After `reorderAll` returns, the goroutine compares that revision with the registry under the lock and runs `reorderAll` again if a registration arrived, closing the done channel under the same lock only when the revision is unchanged. The v4.8.15 changelog says a rule registering during final verification is processed before waiting operations return.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderWithBeforeReorder(order OrderRule, id int, resourceType string, getCurrent func() (map[int]OrderRule, error), updateOrder func(id int, order OrderRule) error, beforeReorder func()) {",
+          "quotes": [
+            "rules.orders[resourceType][id] = orderWithState{order, false} rules.revisions[resourceType]++",
+            "revision := reorderAll(resourceType, getCurrent, updateOrder, beforeReorder) rules.Lock() if revision != rules.revisions[resourceType] { rules.Unlock() continue }",
+            "// Closing the cycle and checking for new registrations must // be atomic with registration's decision to start a new one. close(doneCh) rules.Unlock() return"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func reorderAll(",
+          "quotes": [
+            "sorted := sortOrders(rules.orders[resourceType]) revision = rules.revisions[resourceType] rules.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.16",
+            "HEAD"
+          ],
+          "after": "## 4.8.15 (October 26, 2026)",
+          "quotes": [
+            "A rule registering during final verification is processed before waiting operations return."
+          ]
+        }
+      ]
+    },
+    "reorder-runs-on-uncancellable-context": {
+      "statement": "From v4.8.15 the firewall filtering create runs the reorder closures on a context that the request's cancellation does not end, because other rules wait on the reorder. The changelog says shared ordering continues independently of the timeout of the individual rule that started it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceFirewallFilteringRulesCreate(",
+          "quotes": [
+            "// The reorder outlives this request: other rules wait on it, so it must // not be cancelled by this rule's timeout (SUP-4231). reorderCtx := context.WithoutCancel(ctx)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.16",
+            "HEAD"
+          ],
+          "after": "## 4.8.15 (October 26, 2026)",
+          "quotes": [
+            "Shared ordering continues independently of the timeout of the individual rule that started it."
+          ]
+        }
+      ]
+    },
+    "starting-order-read-under-lock-from-v4-8-15": {
+      "statement": "From v4.8.15 the DLP web, outbound email DLP, endpoint DLP sub-rule and cloud app control creates take the lock again to read the starting order into `req.Order`. The provider's guidance says the cached value is read under the lock too, because `-race` flags it otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "dlpWebRulesLock.Lock() req.Order = dlpWebSubRulesStartingOrder[req.ParentRule] dlpWebRulesLock.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_outbound_email_dlp.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceOutboundEmailDLPCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "outboundEmailDlpLock.Lock() req.Order = outboundEmailDlpSubRulesStartingOrder[req.ParentRule] outboundEmailDlpLock.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_endpoint_dlp_sub_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceEndpointDLPSubRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "endpointDlpSubRulesLock.Lock() req.Order = endpointDlpSubRulesStartingOrder[parentID] endpointDlpSubRulesLock.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_app_control_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "cloudAppRuleLock.Lock() req.Order = cloudAppRuleStartingOrder[req.Type] cloudAppRuleLock.Unlock()"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CLAUDE.md",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "Read the cached value under the lock too (`-race` flags it otherwise)."
+          ]
+        }
+      ]
+    },
     "later-closures-unused": {
       "statement": "So within one cycle, the getCurrent and updateOrder closures of every registration after the first are never called: the cycle reads and writes order through the first registration's closures only.",
       "tier": "B",
@@ -1271,7 +1615,7 @@
         "lab-test"
       ],
       "blocks": "stating where a staged create lands and which neighbours move",
-      "detail": "The provider posts new rules at the highest existing order (or at a value reused by earlier creates). No captured source says whether the API rejects, inserts before, or renumbers around an equal order. Test by creating two rules at an existing order in a scratch tenant and listing every rule's order."
+      "detail": "Up to v4.8.14 the provider posted new rules at the highest existing order (or at a value reused by earlier creates); from v4.8.15 it advances the order after each create (claim staging-order-advances-after-create). No captured source says whether the API rejects, inserts before, or renumbers around an equal order. Test by creating two rules at an existing order in a scratch tenant and listing every rule's order."
     }
   }
 }

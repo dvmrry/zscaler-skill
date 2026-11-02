@@ -152,27 +152,62 @@
       ]
     },
     "write-invalidates-but-inflight-get-repopulates": {
-      "statement": "A write clears the cached entries for its URL and parent collection before it is sent, and caching a GET response is unconditional. So a GET that started before the write took effect can store the pre-write response after the invalidation, and that response is then served until it expires.",
+      "statement": "Up to v3.8.57, a write clears the cached entries for its URL and parent collection before it is sent, and caching a GET response is unconditional, so a GET that started before the write took effect can store the pre-write response after the invalidation, and that response is then served until it expires. From v3.8.58 the SDK registers each write and each GET, and a GET that overlaps a write affecting its key is not cached, unless the write starts between the overlap check and the store (gap cache-done-then-set-window).",
       "tier": "B",
-      "conditions": "Needs a GET to start before a write and finish after it. The code allows it; how often it happens depends on timing.",
+      "conditions": "Up to v3.8.57 this needs a GET to start before a write and finish after it; the code allows it, and how often it happens depends on timing. From v3.8.58 the overlap check covers a write in flight when the GET starts or that starts or finishes while it is in flight; the source does not say whether a write that starts between the overlap check and the store is covered (gap cache-done-then-set-window).",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/oneapiconfig.go",
           "at": [
             "v3.8.44",
-            "HEAD"
+            "v3.8.57"
           ],
           "quotes": [
             "// For non-GET requests, invalidate cache",
             "c.oauth2Credentials.CacheManager.Set(key, cache.CopyResponse(resp))"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Register the write before invalidating: a GET of an invalidated key",
+            "// that is in flight now, or that starts before the write finishes, may",
+            "// return the data from before the write and must not be cached. Entries",
+            "defer c.cacheWrites.BeginWrite(prefixes...)()",
+            "cacheRead = c.cacheWrites.BeginRead(key)",
+            "if cacheRead.Done() {",
+            "c.oauth2Credentials.CacheManager.Set(key, cache.CopyResponse(resp))",
+            "not caching response that overlapped a write"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "cache/write_tracker.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "// read whose key starts with one of the prefixes of a write that was in flight",
+            "// when the read started, or that started or finished while the read was in",
+            "// flight, is marked as overlapping, and its response must not be cached.",
+            "return !r.overlapping"
+          ]
         }
+      ],
+      "gaps": [
+        "cache-done-then-set-window"
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 1 (SDK cache contract) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in Go SDK v3.8.58 (PR 475), apart from gap cache-done-then-set-window."
         }
       ]
     },
@@ -185,7 +220,7 @@
           "path": "zscaler/oneapiconfig.go",
           "at": [
             "v3.8.44",
-            "HEAD"
+            "v3.8.57"
           ],
           "quotes": [
             "// Also invalidate the parent collection endpoint so that list",
@@ -198,11 +233,30 @@
             "parentKey := baseKey[:idx]",
             "c.oauth2Credentials.CacheManager.ClearAllKeysWithPrefix(parentKey)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "//   - its parent collection, so list responses (e.g. /sslInspectionRules) are",
+            "//     cleared when a child resource (e.g. /sslInspectionRules/123) is",
+            "//     mutated. Without this, a GET on the collection is served stale from",
+            "//     cache for up to the TTL after a child PUT/POST/DELETE, which breaks any",
+            "//     client logic that mutates and immediately re-reads (e.g.",
+            "//     terraform-provider-zia rule reordering, SUP-3988). Mirrors the legacy",
+            "prefixes := oneAPIWriteInvalidationPrefixes(key)",
+            "prefixes = append(prefixes, baseKey[:idx])",
+            "c.oauth2Credentials.CacheManager.ClearAllKeysWithPrefix(prefix)"
+          ]
         }
       ]
     },
     "prefix-invalidation-over-broad": {
-      "statement": "Invalidation matches cache keys by raw string prefix, and a write's parent key is its URL cut at the last `/`, so a create on a top-level collection such as `/zia/api/v1/firewallFilteringRules` clears every cached read under `/zia/api/v1`. The match only deletes entries, so the cost of the over-broad match is extra API reads.",
+      "statement": "Invalidation matches cache keys by raw string prefix, and a write's parent key is its URL cut at the last `/`, so a create on a top-level collection such as `/zia/api/v1/firewallFilteringRules` clears every cached read under `/zia/api/v1`. Up to v3.8.57 the match only deletes entries; from v3.8.58 the same prefixes are also registered with the write tracker, which matches them by raw string prefix too.",
       "tier": "A",
       "evidence": [
         {
@@ -233,7 +287,7 @@
           "path": "zscaler/oneapiconfig.go",
           "at": [
             "v3.8.44",
-            "HEAD"
+            "v3.8.57"
           ],
           "quotes": [
             "key := cache.CreateCacheKey(req)",
@@ -241,6 +295,33 @@
             "if idx := strings.LastIndex(baseKey, \"/\"); idx > 0 {",
             "parentKey := baseKey[:idx]",
             "c.oauth2Credentials.CacheManager.ClearAllKeysWithPrefix(parentKey)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "key := cache.CreateCacheKey(req)",
+            "baseKey := strings.Split(key, \"?\")[0]",
+            "if idx := strings.LastIndex(baseKey, \"/\"); idx > 0 {",
+            "prefixes = append(prefixes, baseKey[:idx])",
+            "c.oauth2Credentials.CacheManager.ClearAllKeysWithPrefix(prefix)",
+            "defer c.cacheWrites.BeginWrite(prefixes...)()"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "cache/write_tracker.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, p := range prefixes { if strings.HasPrefix(key, p) { r.overlapping = true"
           ]
         },
         {
@@ -286,6 +367,19 @@
           ]
         }
       ]
+    }
+  },
+  "gaps": {
+    "cache-done-then-set-window": {
+      "kind": "semantic",
+      "title": "Is a write that starts between the SDK's overlap check and the cache store covered?",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "saying the v3.8.58 overlap check fully closes the stale-after-write case",
+      "detail": "In v3.8.58 the overlap check (Done) unregisters the read and the cache store follows as a separate step. A code reading found no statement of whether a write that starts between the two is covered, and no test in the SDK covers that ordering. This is a code reading, not verified behaviour."
     }
   }
 }

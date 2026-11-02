@@ -39,7 +39,7 @@
     },
     {
       "label": "In Terraform.",
-      "text": "{{operand-v1}} {{operand-v2}} {{rule-resources}}"
+      "text": "{{operand-v1}} {{operand-v2}} {{rule-resources}} The trusted network data source doc still lists the isolation policy {{divergence:data-source-doc-lists-isolation}}."
     },
     {
       "label": "What the provider checks.",
@@ -121,7 +121,7 @@
       ]
     },
     "operand-v1": {
-      "statement": "In the v1 access, forwarding, inspection and isolation rule resources (`zpa_policy_access_rule`, `zpa_policy_forwarding_rule`, `zpa_policy_inspection_rule`, `zpa_policy_isolation_rule`), a trusted network condition is an operand with `object_type = \"TRUSTED_NETWORK\"`, `lhs` set to the trusted network's `network_id` and `rhs = \"true\"`.",
+      "statement": "In the v1 access, forwarding and inspection rule resources (`zpa_policy_access_rule`, `zpa_policy_forwarding_rule`, `zpa_policy_inspection_rule`), a trusted network condition is an operand with `object_type = \"TRUSTED_NETWORK\"`, `lhs` set to the trusted network's `network_id` and `rhs = \"true\"`. Up to v4.4.15 the `zpa_policy_isolation_rule` doc described it the same way; at v4.4.16 that doc no longer lists it.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks#networkId"
@@ -157,10 +157,35 @@
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "at": [
+            "v4.4.15"
+          ],
           "quotes": [
             "- `lhs` (String) LHS must always carry the string value ``id`` or the attribute ID of the resource being associated with the rule.",
             "| Object Type | LHS| RHS",
             "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``  | ``\"true\"`` |"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "quotes": [
+            "Supported values: `APP`, `APP_GROUP`, `CLIENT_TYPE`, `EDGE_CONNECTOR_GROUP`, `PLATFORM`, `IDP`, `SAML`, `SCIM`, `SCIM_GROUP`, `CHROME_ENTERPRISE`, `CHROME_POSTURE_PROFILE`. The same object types are supported by `zpa_policy_isolation_rule_v2`."
+          ],
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+          "quotes": [
+            "\"conditions\": GetPolicyConditionsSchema([]string{ \"APP\", \"APP_GROUP\", \"CLIENT_TYPE\", \"EDGE_CONNECTOR_GROUP\", \"PLATFORM\", \"IDP\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"CHROME_ENTERPRISE\", \"CHROME_POSTURE_PROFILE\", }),"
+          ],
+          "at": [
+            "v4.4.16",
+            "HEAD"
           ]
         },
         {
@@ -199,7 +224,7 @@
       ]
     },
     "rule-resources": {
-      "statement": "The provider documents `TRUSTED_NETWORK` as an operand for the access, forwarding, inspection and isolation policy rules in their v1 and v2 forms, and for the browser protection rule.",
+      "statement": "At v4.4.16 the provider documents `TRUSTED_NETWORK` as an operand for the access, forwarding and inspection policy rules in their v1 and v2 forms and for the browser protection rule, and no longer for the isolation rule, v1 or v2; up to v4.4.15 it documented it for the isolation rule in both forms as well.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks"
@@ -229,6 +254,9 @@
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_isolation_rule.md",
+          "at": [
+            "v4.4.15"
+          ],
           "quotes": [
             "[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network)"
           ]
@@ -264,14 +292,32 @@
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_isolation_rule_v2.md",
+          "at": [
+            "v4.4.15"
+          ],
           "quotes": [
             "Supported values: `TRUSTED_NETWORK`"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_isolation_rule_v2.md",
+          "quotes": [
+            "Supported values: `APP`, `APP_GROUP`, `CLIENT_TYPE`, `EDGE_CONNECTOR_GROUP`, `IDP`. The same object types are supported by `zpa_policy_isolation_rule`."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "after": "## 4.4.16 (October 26, 2026)",
+          "quotes": [
+            "Policy rule resources: the supported `object_type` values and the LHS/RHS tables now match the resource schemas, and each v1 page lists the same object types as its v2 counterpart."
           ]
         }
       ]
     },
     "v1-lookup": {
-      "statement": "For v1 policy rule resources the provider looks the `lhs` up by `networkId` through the SDK's GetByNetID, so a value that is not a known `networkId` fails validation, and it requires `rhs` to be exactly `\"true\"`.",
+      "statement": "For v1 policy rule resources that accept the operand, the provider looks the `lhs` up by `networkId` through the SDK's GetByNetID, so a value that is not a known `networkId` fails validation, and it requires `rhs` to be exactly `\"true\"`.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks#networkId"
@@ -442,6 +488,32 @@
         }
       ],
       "impact": "The same condition passes plan in a v2 rule and fails in a v1 rule. Neither validator says what the server does with \"false\"."
+    },
+    "data-source-doc-lists-isolation": {
+      "summary": "Whether a trusted network can be a condition of an isolation rule: the trusted network data source doc lists the isolation policy, while the v1 isolation resource schema does not list TRUSTED_NETWORK.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "docs/data-sources/zpa_trusted_network.md",
+            "quotes": [
+              "4. Isolation Policy"
+            ]
+          },
+          "says": "The trusted network data source doc lists the isolation policy among the policies it can be referenced in."
+        },
+        {
+          "evidence": {
+            "source": "tf-zpa",
+            "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
+            "quotes": [
+              "\"conditions\": GetPolicyConditionsSchema([]string{ \"APP\", \"APP_GROUP\", \"CLIENT_TYPE\", \"EDGE_CONNECTOR_GROUP\", \"PLATFORM\", \"IDP\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"CHROME_ENTERPRISE\", \"CHROME_POSTURE_PROFILE\", }),"
+            ]
+          },
+          "says": "The v1 isolation rule schema accepts no TRUSTED_NETWORK condition."
+        }
+      ],
+      "impact": "A configuration that follows the data source doc into an isolation rule uses an object type the rule schema does not list."
     }
   },
   "gaps": {

@@ -84,7 +84,7 @@
       ]
     },
     {
-      "do": "Whether a rule with identity provider or workload tag conditions still holds them, by comparing the stored rule with the configuration after a plan that touches it or a destroy of an object it might reference.",
+      "do": "Which provider version is in use, then whether a rule with identity provider or workload tag conditions still holds them, by comparing the stored rule with the configuration after a plan that touches it or a destroy of an object it might reference.",
       "uses": [
         "v2-conversion-drops-idp-and-workload-tag",
         "idp-condition-lost-from-state-and-cleanup-writes"
@@ -372,7 +372,7 @@
       ]
     },
     "v2-conversion-drops-idp-and-workload-tag": {
-      "statement": "The converter that turns a policy rule read from the API into a v2 request keeps operands only for a fixed list of object types, and has no case for `IDP` or `WORKLOAD_TAG_GROUP`. Both types are accepted by the v2 access rule schema, so a condition built from them is accepted in configuration and then not carried through the converter.",
+      "statement": "Up to v4.4.15 the converter that turns a policy rule read from the API into a v2 request keeps operands only for a fixed list of object types, and has no case for `IDP` or `WORKLOAD_TAG_GROUP`. Both types are accepted by the v2 access rule schema, so a condition built from them is accepted in configuration and then not carried through the converter. v4.4.16 adds `IDP`, `WORKLOAD_TAG_GROUP`, `ENTITY_TAG_GRP` and `ENTITY_TAG_VAL` to the converter's ID and values case, and its changelog says such operands are no longer dropped when the rule is read.",
       "tier": "A",
       "evidence": [
         {
@@ -380,12 +380,37 @@
           "path": "zpa/common.go",
           "at": [
             "v4.4.10",
-            "HEAD"
+            "v4.4.15"
           ],
           "after": "func ConvertV1ResponseToV2Request(v1Response policysetcontrollerv2.PolicyRuleResource) policysetcontrollerv2.PolicyRule {",
           "quotes": [
             "case \"APP\", \"APP_GROUP\", \"CONSOLE\", \"CHROME_POSTURE_PROFILE\", \"MACHINE_GRP\", \"LOCATION\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"CLIENT_TYPE\", \"USER_PORTAL\", \"PRIVILEGE_PORTAL\":",
             "case \"PLATFORM\", \"POSTURE\", \"TRUSTED_NETWORK\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"COUNTRY_CODE\", \"RISK_FACTOR_TYPE\", \"CHROME_ENTERPRISE\":"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "func ConvertV1ResponseToV2Request(v1Response policysetcontrollerv2.PolicyRuleResource) policysetcontrollerv2.PolicyRule {",
+          "quotes": [
+            "case \"APP\", \"APP_GROUP\", \"CONSOLE\", \"CHROME_POSTURE_PROFILE\", \"MACHINE_GRP\", \"LOCATION\", \"BRANCH_CONNECTOR_GROUP\", \"EDGE_CONNECTOR_GROUP\", \"CLIENT_TYPE\", \"USER_PORTAL\", \"PRIVILEGE_PORTAL\", \"IDP\", \"WORKLOAD_TAG_GROUP\", \"ENTITY_TAG_GRP\", \"ENTITY_TAG_VAL\":",
+            "case \"PLATFORM\", \"POSTURE\", \"TRUSTED_NETWORK\", \"SAML\", \"SCIM\", \"SCIM_GROUP\", \"COUNTRY_CODE\", \"RISK_FACTOR_TYPE\", \"CHROME_ENTERPRISE\":"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "## 4.4.16 (October 26, 2026)",
+          "quotes": [
+            "v2 policy rule resources: operands of type `IDP`, `WORKLOAD_TAG_GROUP`, `ENTITY_TAG_GRP` and `ENTITY_TAG_VAL` are no longer dropped when the rule is read, which showed as a change in every plan."
           ]
         },
         {
@@ -403,8 +428,8 @@
       ],
       "upstream": [
         {
-          "status": "unfiled",
-          "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
+          "status": "fixed",
+          "note": "Fixed in provider v4.4.16 (PR 700)."
         }
       ]
     },
@@ -503,10 +528,10 @@
       "derived_from": [
         "v2-conversion-drops-idp-and-workload-tag"
       ],
-      "conditions": "Search: `git -C vendor/terraform-provider-zpa grep -n \"ConvertV1ResponseToV2Request\" v4.4.10 -- 'zpa/*.go' ':!*_test.go'` lists those files; in resource_zpa_app_connector_group.go, resource_zpa_pra_console_controller.go and resource_zpa_segment_group.go the result is passed to policysetcontrollerv2.UpdateRule. No other callers were found at v4.4.10. Not re-run at HEAD (v4.4.11)."
+      "conditions": "Search: `git -C vendor/terraform-provider-zpa grep -n \"ConvertV1ResponseToV2Request\" v4.4.10 -- 'zpa/*.go' ':!*_test.go'` lists those files; in resource_zpa_app_connector_group.go, resource_zpa_pra_console_controller.go and resource_zpa_segment_group.go the result is passed to policysetcontrollerv2.UpdateRule. No other callers were found at v4.4.10. Re-run at v4.4.16 with the same search: the same files."
     },
     "idp-condition-lost-from-state-and-cleanup-writes": {
-      "statement": "So a v2 rule with an `IDP` or `WORKLOAD_TAG_GROUP` condition can refresh to state without that condition, and a delete-time cleanup that touches such a rule can write it back without the condition.",
+      "statement": "So up to v4.4.15 a v2 rule with an `IDP` or `WORKLOAD_TAG_GROUP` condition can refresh to state without that condition, and a delete-time cleanup that touches such a rule can write it back without the condition; v4.4.16 adds those object types to the converter.",
       "tier": "C",
       "derived_from": [
         "v2-conversion-drops-idp-and-workload-tag",
@@ -1121,7 +1146,7 @@
       "resolves_with": [
         "lab-test"
       ],
-      "blocks": "saying that refreshed state loses these conditions rather than the response already omitting them",
+      "blocks": "saying that refreshed state loses these conditions (provider v4.4.15 and earlier) rather than the response already omitting them",
       "detail": "The converter drops operands by object type. Create a v2 rule with an IDP condition and a workload tag group condition in a scratch tenant, read it back with the v2 and v1 endpoints, and compare the operand object types."
     },
     "api-policy-set-types": {

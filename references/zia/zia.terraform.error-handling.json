@@ -294,7 +294,9 @@
             "continue",
             "for { dlpWebRulesLock.Lock() if isSubRule {",
             "if dlpWebStartingOrder == 0 {",
-            "dlpWebRulesLock.Unlock() startWithoutLocking := time.Now() order := req.Order if isSubRule { req.Order = dlpWebSubRulesStartingOrder[req.ParentRule] } else { req.Order = dlpWebStartingOrder } resp, err := dlp_web_rules.Create(ctx, service, &req)",
+            "dlpWebRulesLock.Unlock() startWithoutLocking := time.Now() order := req.Order if isSubRule {",
+            "req.Order = dlpWebSubRulesStartingOrder[req.ParentRule]",
+            "req.Order = dlpWebStartingOrder",
             "d.SetId(strconv.Itoa(resp.ID)) _ = d.Set(\"rule_id\", resp.ID) if diags := resourceDlpWebRulesRead(ctx, d, meta); diags.HasError() { if time.Since(start) < timeout { time.Sleep(10 * time.Second) continue } return diags }"
           ],
           "after": "func resourceDlpWebRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
@@ -351,7 +353,7 @@
       ]
     },
     "create-order-from-ignored-list-error": {
-      "statement": "Bandwidth control create discards the error from listing existing rules, treats an empty list as no rules, falls back to order 1, and POSTs the rule at that order. A failed list is therefore indistinguishable from an empty policy.",
+      "statement": "Bandwidth control create discards the error from listing existing rules, treats an empty list as no rules, falls back to order 1, and POSTs the rule at that order; a failed list is therefore indistinguishable from an empty policy. From v4.8.15 the cached starting order is incremented after each successful POST.",
       "tier": "A",
       "evidence": [
         {
@@ -359,6 +361,7 @@
           "path": "zia/resource_zia_bandwidth_control_rules.go",
           "at": [
             "v4.8.3",
+            "v4.8.14",
             "HEAD"
           ],
           "quotes": [
@@ -367,7 +370,20 @@
             "req.Order = bandwidthControlStartingOrder",
             "for _, r := range list {",
             "if bandwidthControlStartingOrder == 0 { bandwidthControlStartingOrder = 1 }",
-            "req.Order = bandwidthControlStartingOrder resp, err := bandwidth_control_rules.Create(ctx, service, &req)"
+            "resp, err := bandwidth_control_rules.Create(ctx, service, &req)"
+          ],
+          "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_bandwidth_control_rules.go",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ],
+          "quotes": [
+            "bandwidthControlStartingOrder++",
+            "// The next rule of this type is created after this one, at the end of"
           ],
           "after": "func resourceBandwdithControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
@@ -380,7 +396,7 @@
       ]
     },
     "create-order-from-ignored-list-error-sites": {
-      "statement": "Create paths discard the list error the same way in file type control, firewall DNS, firewall IPS, firewall filtering, forwarding control, NAT control, sandbox, SSL inspection, traffic capture, DLP web, endpoint DLP and outbound email DLP (via GetAll), and in CASB DLP, CASB malware and cloud app control (via GetByRuleType). URL filtering did so up to v4.8.13; from v4.8.14 its create gets the starting order through `urlFilteringEndPosition`, which returns the list error.",
+      "statement": "Create paths discard the list error the same way in file type control, firewall DNS, firewall IPS, forwarding control, NAT control, sandbox, SSL inspection, traffic capture, DLP web, endpoint DLP and outbound email DLP (via GetAll), and in CASB DLP, CASB malware and cloud app control (via GetByRuleType). URL filtering did so up to v4.8.13; from v4.8.14 its create gets the starting order through `urlFilteringEndPosition`, which returns the list error. Firewall filtering did so up to v4.8.14; from v4.8.15 its create returns the list error.",
       "tier": "B",
       "derived_from": [
         "create-order-from-ignored-list-error"
@@ -409,9 +425,21 @@
           "at": [
             "v4.8.14"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "list, err := filteringrules.GetAll(ctx, service, nil) if err != nil { firewallFilteringStartingOrder = 0 return OrderRule{}, err }"
+          ],
+          "after": "func resourceFirewallFilteringRulesCreate(",
+          "at": [
+            "v4.8.15",
+            "HEAD"
+          ]
         }
       ],
-      "conditions": "Found by `git grep -nE ', _ :?= \\w+\\.GetAll\\(ctx'` and the `rules, _ := ...GetByRuleType(` variants over zia/resource_zia_*.go at tf-zia v4.8.3 and HEAD: 14 GetAll sites and 3 GetByRuleType sites, the same files at both refs; at v4.8.13 the same grep still finds 14 GetAll sites including URL filtering, and at v4.8.14 it finds 13 because URL filtering no longer matches. Where the first position is later corrected depends on the reorder worker (see zia.terraform.rule-order).",
+      "conditions": "Found by `git grep -nE ', _ :?= \\w+\\.GetAll\\(ctx'` and the `rules, _ := ...GetByRuleType(` variants over zia/resource_zia_*.go at tf-zia v4.8.3: 14 GetAll sites and 3 GetByRuleType sites; at v4.8.13 the same grep still finds 14 GetAll sites including URL filtering, at v4.8.14 it finds 13 because URL filtering no longer matches, and at v4.8.15 and HEAD it finds 12 because firewall filtering no longer matches; the 3 GetByRuleType sites are unchanged. Where the first position is later corrected depends on the reorder worker (see zia.terraform.rule-order).",
       "upstream": [
         {
           "status": "unfiled",

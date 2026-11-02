@@ -58,7 +58,7 @@
     },
     {
       "label": "Standard (no autoscaling) parameters.",
-      "text": "{{probe-port-required}} {{standard-defaults}} {{ha-addon-deprecated}} {{simple-defaults}} {{gwlb-addon-compat}}"
+      "text": "{{probe-port-required}} {{standard-defaults}} {{ha-addon-deprecated}} {{simple-defaults}} {{fips-parameter}} {{secret-name-prefix}} {{gwlb-addon-compat}}"
     },
     {
       "label": "Autoscaling template.",
@@ -321,21 +321,49 @@
       ]
     },
     "template-version": {
-      "statement": "The repository's CloudFormation templates are version 1.3.3, which its changelog dates 2024-08-30.",
+      "statement": "The repository's CloudFormation templates are version 1.3.5, which its changelog dates 2026-09-18.",
       "tier": "A",
       "evidence": [
         {
           "source": "cft-aws-cloud-connector",
           "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
           "quotes": [
-            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3"
+            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.5"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.5"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_gwlb.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Add-on Template with Gateway Load Balancer (GWLB) v.1.3.5"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zpa_r53.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Add-on Template with ZPA (Route 53) v1.3.5"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_zscc_macro.yaml",
+          "quotes": [
+            "Description: Zscaler Cloud Connector Pre-Deployment Macro Template v1.3.5"
           ]
         },
         {
           "source": "cft-aws-cloud-connector",
           "path": "CHANGELOG.md",
           "quotes": [
-            "## 1.3.3 - 2024-08-30"
+            "## 1.3.5 - 2026-09-18"
           ]
         }
       ]
@@ -443,8 +471,64 @@
             "Allowed values are 80, 1024-65535. Defaults to 50000",
             "EbsOptimized: \"true\"",
             "VolumeType: \"gp3\"",
-            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.3",
+            "Description: Zscaler Cloud Connector Starter Deployment Template v1.3.5",
             "BlockDeviceMappings: - DeviceName: \"/dev/sda1\" Ebs: VolumeType: \"gp3\""
+          ]
+        }
+      ]
+    },
+    "fips-parameter": {
+      "statement": "Both the Starter and autoscaling templates take a FipsEnabled parameter, default \"False\" with allowed values \"True\" and \"False\", which the changelog says enables FIPS mode via user data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "Description: \"Select \\\"True\\\" to enable FIPS mode for Cloud Connector provisioning, else \\\"False\\\" (default)\" Default: \"False\" AllowedValues: - \"True\" - \"False\""
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Description: \"Select \\\"True\\\" to enable FIPS mode for Cloud Connector provisioning, else \\\"False\\\" (default)\" Default: \"False\" AllowedValues: - \"True\" - \"False\""
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "* add `FipsEnabled` parameter to simple and ASG CloudFormation templates for enabling FIPS mode via userdata"
+          ]
+        }
+      ]
+    },
+    "secret-name-prefix": {
+      "statement": "Both deployment templates constrain the secret-name parameter, default ZS/CC/credentials, to the pattern ^ZS/CC/[a-zA-Z0-9/_+=.@-]+$: names under the ZS/CC/ path prefix.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "ZscalerSecretManagerSecretName: Type: String Default: 'ZS/CC/credentials' AllowedPattern: '^ZS/CC/[a-zA-Z0-9/_+=.@-]+$'",
+            "Secret name must begin with the ZS/CC/ path prefix (e.g. ZS/CC/credentials)"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "Default: \"ZS/CC/credentials\" AllowedPattern: '^ZS/CC/[a-zA-Z0-9/_+=.@-]+$'",
+            "Secret name must begin with the ZS/CC/ path prefix (e.g. ZS/CC/credentials)"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "* fix: enforce ZS/CC/ path prefix on ZscalerSecretManagerSecretName parameter via AllowedPattern in both deployment templates"
           ]
         }
       ]
@@ -506,7 +590,7 @@
             "is not part of given zones {availability_zones}.",
             "does not have any subnets specified in Vpc Endpoint Subnets if specified or in CloudConnector Subnets",
             "override the CC Subnets. One subnet in each AZ is picked",
-            "Description: Zscaler Cloud Connector Pre-Deployment Macro Template v1.3.3"
+            "Description: Zscaler Cloud Connector Pre-Deployment Macro Template v1.3.5"
           ]
         },
         {
@@ -514,7 +598,7 @@
           "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
           "quotes": [
             "[Optional] A List of comma-separated VPC EP Subnets to create VPC Endpoints in (one per Az). Specifying subnets here will override Cloud-connector subnets being used for VPC Endpoints",
-            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.3"
+            "Description: Zscaler Cloud Connector Starter Deployment Template with Auto Scaling and GWLB v1.3.5"
           ]
         }
       ]
