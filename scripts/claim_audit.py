@@ -484,8 +484,9 @@ def checklists(verdicts: tuple[str, ...], out: Path, sha: str | None = None, rep
     if len(small) > 1:
         by_product["other-products"] = [i for p in sorted(small) for i in by_product.pop(p)]
     out.mkdir(parents=True, exist_ok=True)
-    head = ("Each claim below was judged borderline by the claim audit: a part of its statement, in **bold**, that its "
-            "judges were not confident any quote states (about half such flags are real). Each link opens the claim in "
+    head = ("Each claim below was flagged by the claim audit: a part of its statement, in **bold** where it can be marked, "
+            "that its judges did not find any quote stating. Borderline claims (unmarked) had only low-confidence flags, "
+            "about half of them real; *(overreach)* claims had a confident one. Each link opens the claim in "
             "its subject file, with its `evidence` quotes and any `conditions` just below; the rule is "
             f"[the audit rubric]({repo}/blob/{sha}/references/_meta/evals/claim-audit/rubric.md): every material part "
             "of the statement must be stated by a quote (an absence may rest on the search its conditions record). "
