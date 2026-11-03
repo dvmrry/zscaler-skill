@@ -141,11 +141,14 @@ async function main(argv) {
       if (r.kind === "type" && !g.nodes.has(r.id)) errors.push({ file: r.file, message: `names tenant type ${r.id}, which the graph does not have` });
       if (r.kind === "read" && !resources.has(`${r.product} ${r.resource}`)) errors.push({ file: r.file, message: `names zscalerctl ${r.product} ${r.resource}, which the pinned zscalerctl catalogue does not have` });
     }
-    // The retrieval eval's gold facts (scripts/kb-eval.mjs) each name the claim that holds them.
-    const factsFile = "references/_meta/evals/facts.json";
-    for (const q of JSON.parse(fs.readFileSync(path.join(ROOT, factsFile), "utf8")).questions) {
-      for (const f of q.facts) {
-        if (g.nodes.get(f.claim)?.kind !== "claim") errors.push({ file: factsFile, message: `${q.id} fact ${f.id}: ${f.claim} is not a claim` });
+    // The retrieval eval's gold facts (scripts/kb-eval.mjs), in every question set, each name the claim that holds them.
+    const { setFiles } = await import("./kb-eval.mjs");
+    for (const file of setFiles()) {
+      const factsFile = path.relative(ROOT, file);
+      for (const q of JSON.parse(fs.readFileSync(file, "utf8")).questions) {
+        for (const f of q.facts) {
+          if (g.nodes.get(f.claim)?.kind !== "claim") errors.push({ file: factsFile, message: `${q.id} fact ${f.id}: ${f.claim} is not a claim` });
+        }
       }
     }
     const evalsFile = "references/_meta/evals/evals.json";

@@ -71,8 +71,13 @@ The behavioral specs above say what a correct answer contains. The retrieval eva
 follows `SKILL.md` gets there: each question in `references/_meta/evals/facts.json` lists the gold facts a correct
 answer states and the claim that holds each (`kb.mjs validate` checks those claims exist).
 
+There are two question sets. The default, `facts.json`, is worded the way the graph words things, so its scores top
+out near 90%. `--set users` runs `facts-users.json`, which is worded the way people ask, symptom first. That is the
+set to judge a change by. `run` records the set in `meta.json`, and `judge` and `report` read it from there.
+
 ```bash
 node scripts/kb-eval.mjs run --ref HEAD --out /tmp/kb-eval/head --reps 3   # headless Claude Code sessions
+node scripts/kb-eval.mjs run --ref HEAD --out /tmp/kb-eval/head-users --set users --reps 3
 node scripts/kb-eval.mjs judge --out /tmp/kb-eval/head                      # does each answer state each fact
 node scripts/kb-eval.mjs report /tmp/kb-eval/main /tmp/kb-eval/head         # per rep, side by side
 ```

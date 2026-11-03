@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { approvals, harness, loadQuestions, mismatch, parseRun, reached } from "./kb-eval.mjs";
+import { approvals, harness, loadQuestions, mismatch, parseRun, reached, setFile, setFiles } from "./kb-eval.mjs";
 
 const line = (o) => JSON.stringify(o);
 const TRANSCRIPT = [
@@ -41,9 +41,17 @@ test("runs compare only under the same harness, whatever the ref", () => {
   assert.deepEqual(mismatch(a, harness([{ id: "other" }], "2.1.308 (Claude Code)")), ["facts_sha"]);
 });
 
-test("every gold fact names a claim, and every question has one", () => {
-  for (const q of loadQuestions()) {
-    assert.ok(q.id && q.turn && q.facts.length, q.id);
-    for (const f of q.facts) assert.match(f.claim, /^[a-z0-9.-]+:[a-z0-9-]+$/, `${q.id}/${f.id}`);
+test("every gold fact names a claim, and every question has one, in every set; ids are unique across sets", () => {
+  const ids = new Set();
+  for (const file of setFiles()) {
+    for (const q of loadQuestions(file)) {
+      assert.ok(q.id && q.turn && q.facts.length, q.id);
+      assert.ok(!ids.has(q.id), `${q.id} is in two sets`);
+      ids.add(q.id);
+      for (const f of q.facts) assert.match(f.claim, /^[a-z0-9.-]+:[a-z0-9-]+$/, `${q.id}/${f.id}`);
+    }
   }
+  assert.match(setFile(), /facts\.json$/);
+  assert.match(setFile("users"), /facts-users\.json$/);
+  assert.throws(() => setFile("../x"), /bad question set name/);
 });

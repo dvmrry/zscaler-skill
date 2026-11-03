@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // kb-eval.mjs — the retrieval eval: does an agent that follows SKILL.md reach and state the facts a question needs?
 //
-// Each question in references/_meta/evals/facts.json lists its gold facts, each held by one claim. A run answers
+// Each question in a question set lists its gold facts, each held by one claim. The sets are
+// references/_meta/evals/facts.json (the default, worded as the graph words it) and facts-<name>.json, chosen with
+// --set <name> (`users`: worded as people ask). A run answers
 // every question as a headless Claude Code session in a worktree of the ref under test; `judge` asks a model
 // whether each answer states each fact; `report` prints, per rep: facts stated, holders reached (the holder
 // claim's ID entered the context), context size, and shell calls a corporate runtime would stop to approve
@@ -14,7 +16,7 @@
 // by hand, never in CI. Write results outside the checkout.
 //
 // Usage:
-//   node scripts/kb-eval.mjs run --ref <git ref> --out <dir> [--reps 3] [--jobs 4] [--only q1,q2]
+//   node scripts/kb-eval.mjs run --ref <git ref> --out <dir> [--set <name>] [--reps 3] [--jobs 4] [--only q1,q2]
 //   node scripts/kb-eval.mjs judge --out <dir> [--jobs 4]
 //   node scripts/kb-eval.mjs report <dir> [<dir> ...] [--allow-mismatch]
 import { execFileSync, spawn } from "node:child_process";
@@ -24,7 +26,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const FACTS = path.join(ROOT, "references/_meta/evals/facts.json");
+const EVALS = path.join(ROOT, "references/_meta/evals");
+/** A question set's file: facts.json by default, facts-<name>.json for a named set. */
+export function setFile(name) {
+  if (name !== undefined && !/^[a-z0-9-]+$/.test(name)) throw new Error(`bad question set name: ${name}`);
+  return path.join(EVALS, name ? `facts-${name}.json` : "facts.json");
+}
+/** Every question set file. */
+export const setFiles = () => fs.readdirSync(EVALS).filter((f) => /^facts(-[a-z0-9-]+)?\.json$/.test(f)).map((f) => path.join(EVALS, f));
 export const MODEL = "claude-haiku-5-5";
 export const EFFORT = "high";
 // What a corporate runtime typically allows without asking, plus the KB CLI the skill runs.
@@ -48,7 +57,7 @@ FACTS:
 const READ_ONLY = /^\s*(grep|rg|find|ls|cat|head|tail|sed -n|wc|sort|uniq|cut|echo)\b/;
 const sha = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
 
-export function loadQuestions(file = FACTS) {
+export function loadQuestions(file = setFile()) {
   return JSON.parse(fs.readFileSync(file, "utf8")).questions;
 }
 
@@ -126,10 +135,12 @@ function claude(args, { cwd, stdout }) {
   });
 }
 
-async function run({ ref, out, reps, jobs, only }) {
-  const questions = loadQuestions().filter((q) => !only || only.includes(q.id));
+async function run({ ref, out, reps, jobs, only, set }) {
+  const all = loadQuestions(setFile(set));
+  const questions = all.filter((q) => !only || only.includes(q.id));
   const commit = execFileSync("git", ["-C", ROOT, "rev-parse", ref], { encoding: "utf8" }).trim();
-  const meta = { ref, commit, ...harness(loadQuestions(), claudeVersion()) };
+  // The set is recorded so judge and report read the same questions; the default set records none, as before.
+  const meta = { ref, commit, ...(set ? { set } : {}), ...harness(all, claudeVersion()) };
   const prev = readMeta(out);
   if (prev && (prev.commit !== commit || mismatch(prev, meta).length)) {
     throw new Error(`${out} holds runs of ${prev.commit.slice(0, 8)} under ${JSON.stringify(Object.fromEntries(mismatch(prev, meta).map((k) => [k, prev[k]])))}; use a new --out`);
@@ -151,8 +162,11 @@ async function run({ ref, out, reps, jobs, only }) {
   });
 }
 
+/** The questions a result directory was run with. */
+const questionsOf = (out) => loadQuestions(setFile(readMeta(out)?.set));
+
 async function judge({ out, jobs }) {
-  const byId = new Map(loadQuestions().map((q) => [q.id, q]));
+  const byId = new Map(questionsOf(out).map((q) => [q.id, q]));
   const file = path.join(out, "judged.json");
   const judged = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : {};
   const todo = fs.readdirSync(path.join(out, "runs")).filter((f) => f.endsWith(".jsonl") && !judged[f]);
@@ -175,7 +189,7 @@ async function judge({ out, jobs }) {
 }
 
 /** One result directory's numbers, per rep and overall. */
-export function summarize(out, questions = loadQuestions()) {
+export function summarize(out, questions = questionsOf(out)) {
   const byId = new Map(questions.map((q) => [q.id, q]));
   const judgedFile = path.join(out, "judged.json");
   const judged = fs.existsSync(judgedFile) ? JSON.parse(fs.readFileSync(judgedFile, "utf8")) : {};
@@ -227,13 +241,13 @@ async function main(argv) {
   if (out && !path.relative(ROOT, out).startsWith("..")) throw new Error(`--out must be outside the checkout: ${out}`);
   const jobs = Number(option(args, "--jobs", 4));
   if (cmd === "run" && option(args, "--ref") && out) {
-    return run({ ref: option(args, "--ref"), out, reps: Number(option(args, "--reps", 3)), jobs, only: option(args, "--only")?.split(",") });
+    return run({ ref: option(args, "--ref"), out, reps: Number(option(args, "--reps", 3)), jobs, only: option(args, "--only")?.split(","), set: option(args, "--set") });
   }
   if (cmd === "judge" && out) return judge({ out, jobs });
   if (cmd === "report" && args.filter((a) => !a.startsWith("--")).length) {
     return report(args.filter((a) => !a.startsWith("--")).map((d) => path.resolve(d)), { allowMismatch: args.includes("--allow-mismatch") });
   }
-  console.error("usage: kb-eval.mjs run --ref <ref> --out <dir> [--reps 3] [--jobs 4] [--only q1,q2] | judge --out <dir> | report <dir> ...");
+  console.error("usage: kb-eval.mjs run --ref <ref> --out <dir> [--set <name>] [--reps 3] [--jobs 4] [--only q1,q2] | judge --out <dir> | report <dir> ...");
   process.exitCode = 2;
 }
 
