@@ -34,6 +34,21 @@ def test_a_quote_in_code_carries_its_enclosing_function(monkeypatch):
     assert claim_audit.context("sdk-go", "a.go", "HEAD", 'return post("/status/activate")') == ["func Activate() {"]
 
 
+def test_a_quote_in_a_table_cell_carries_its_row_and_the_header_row(monkeypatch):
+    page = ("# Admin roles\n\n## Permissions\n\n| Module | Full | View Only |\n| --- | --- | --- |\n"
+            "| Users | Assign and remove users | See users |\n| Roles | Assign roles | See roles |\n"
+            "|  | Restricted: assign roles in own tenants | |\n")
+    monkeypatch.setattr(claim_audit, "source_text", lambda *a: page)
+    assert claim_audit.context("zscaler-help", "p.json", "HEAD", "Assign roles") == [
+        "# Admin roles", "## Permissions", "| Module | Full | View Only |", "| Roles | Assign roles | See roles |"]
+    # A row under a spanned label carries the row that holds the label.
+    assert claim_audit.context("zscaler-help", "p.json", "HEAD", "assign roles in own tenants") == [
+        "# Admin roles", "## Permissions", "| Module | Full | View Only |", "| Roles | Assign roles | See roles |",
+        "|  | Restricted: assign roles in own tenants | |"]
+    # A quote from the header row itself carries only the headings.
+    assert claim_audit.context("zscaler-help", "p.json", "HEAD", "View Only") == ["# Admin roles", "## Permissions"]
+
+
 def test_review_marks_the_unstated_parts_and_counts_claims_changed_since_their_audit(monkeypatch):
     kept = {"statement": "Rules stop at the first match, always.", "tier": "A", "evidence": [{"source": "zscaler-help", "path": "p.json", "quotes": ["stops at the first match"]}]}
     edited = {"statement": "Rules run in order.", "tier": "A", "evidence": [{"source": "zscaler-help", "path": "p.json", "quotes": ["in order"]}]}

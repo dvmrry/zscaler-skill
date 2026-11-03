@@ -111,7 +111,16 @@ def context(src: str, path: str, ref: str, quote: str, after: str | None = None,
     if src == "zscaler-help" or path.endswith(".md"):
         cur = qind = indent(lines[qline])
         level, intros = 7, 0
-        for j in range(qline - 1, -1, -1):
+        # A quote from a table cell carries its row and the table's header row, where the row and column labels are;
+        # a row whose first cell is empty (a spanned label) also carries the nearest row above that has one.
+        top = qline
+        while lines[qline].lstrip().startswith("|") and top > 0 and lines[top - 1].lstrip().startswith("|"):
+            top -= 1
+        first_cell = lambda k: lines[k].strip().strip("|").split("|")[0].strip()  # noqa: E731
+        label = next((k for k in range(qline, top, -1) if first_cell(k)), top)
+        table = [lines[k].strip()[:300] for k in dict.fromkeys((qline, label, top)) if top < qline]
+        found += table
+        for j in range(top - 1, -1, -1):
             line = lines[j]
             if not line.strip() or line.lstrip().startswith("|"):
                 continue
@@ -136,7 +145,7 @@ def context(src: str, path: str, ref: str, quote: str, after: str | None = None,
                 if intros < 1:
                     found.append(line.strip()[:200])
                     intros += 1
-            if len(found) >= max_lines + 2:
+            if len(found) >= max_lines + 2 + len(table):
                 break
     else:
         for j in range(qline - 1, -1, -1):
