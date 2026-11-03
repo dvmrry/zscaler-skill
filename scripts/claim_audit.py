@@ -6,7 +6,9 @@ This asks a model, with the rubric in references/_meta/evals/claim-audit/rubric.
 Opus re-judges every "covered" verdict and every low-confidence flag. A claim is `overreach` when either model
 flags it with high confidence, `borderline` when the only flags are low-confidence (a person decides), else
 `covered`. On the 282-claim calibration set beside the rubric (2026-10-31): 1 of 176 overreach verdicts was wrong,
-1 of 191 overreach claims came out covered, and 32 claims were borderline, about half of them real. Each quote is
+1 of 191 overreach claims came out covered, and 32 claims were borderline, about half of them real. Between two full
+runs (2026-11-03) the verdict on an unchanged claim agreed 90% of the time, and only 69% of borderline claims stayed
+borderline: one run's flags are noisy, and a claim flagged in two runs is the one to act on first. Each quote is
 shown with the headings or enclosing function above it, as a reader of the source would see it.
 
 Verdicts are kept in references/_meta/claim-audit.json, keyed by a hash of the statement and evidence, so a claim
@@ -23,6 +25,9 @@ in CI. Run from the repo root; write run directories outside the checkout.
   python3 scripts/claim_audit.py status                               audited, stale and unaudited counts
   python3 scripts/claim_audit.py review [--base <git ref>] [--all]    the flagged claims as Markdown for a PR, those
                                                                       new since the ref; borderline only unless --all
+  python3 scripts/claim_audit.py review --checklists --out <dir>      the same as one checklist per product, sized
+                                                                      for GitHub issues, with links to each claim
+                                                                      [--ids <file>] [--note <text>]
 """
 from __future__ import annotations
 
@@ -169,12 +174,18 @@ def render_evidence(evidence: list[dict]) -> list[dict]:
 
 
 def fingerprint(claim: dict) -> str:
-    """What a verdict is about: the statement and the evidence, so any change to either asks for a new one."""
-    return hashlib.sha256(json.dumps([claim["statement"], claim.get("evidence") or []], sort_keys=True).encode()).hexdigest()[:16]
+    """What a verdict is about: the statement, the evidence and any conditions, so a change to one asks for a new
+    one. A claim without conditions keeps the fingerprint it had before conditions were judged."""
+    parts = [claim["statement"], claim.get("evidence") or []] + ([claim["conditions"]] if claim.get("conditions") else [])
+    return hashlib.sha256(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:16]
 
 
 def task(cid: str, claim: dict) -> dict:
-    return {"id": cid, "sha": fingerprint(claim), "statement": claim["statement"], "evidence": render_evidence(claim.get("evidence") or [])}
+    # Conditions go along because an absence ("has no", "declares no") is backed by the search they record.
+    t = {"id": cid, "sha": fingerprint(claim), "statement": claim["statement"], "evidence": render_evidence(claim.get("evidence") or [])}
+    if claim.get("conditions"):
+        t["conditions"] = claim["conditions"]
+    return t
 
 
 # ------------------------------------------------------------------ which claims
@@ -243,7 +254,7 @@ def build(out: Path, base: str | None, ids: Path | None, unaudited: bool, calibr
 def ask(model: str, batch: list[dict], cwd: Path) -> list[dict]:
     """One model call on a batch: the rubric, then the claims as JSON lines; verdicts parsed from its reply. It runs
     from the run directory, outside the checkout, so no project instructions enter the judgement."""
-    claims = "\n".join(json.dumps({k: t[k] for k in ("id", "statement", "evidence")}, ensure_ascii=False) for t in batch)
+    claims = "\n".join(json.dumps({k: t[k] for k in ("id", "statement", "evidence", "conditions") if k in t}, ensure_ascii=False) for t in batch)
     prompt = f"{(BENCH / 'rubric.md').read_text()}\nCLAIMS:\n{claims}\n"
     r = subprocess.run(["claude", "-p", prompt, "--model", model, "--output-format", "json", "--no-session-persistence", "--tools", ""],
                        capture_output=True, text=True, timeout=1800, cwd=cwd)
@@ -382,11 +393,9 @@ def status() -> int:
     return 0
 
 
-def review(base: str | None, verdicts: tuple[str, ...]) -> str:
-    """The claims a person decides, as Markdown for a pull request: each claim whose current verdict is one of
-    `verdicts` (and, with `base`, whose content is new since that ref), with the parts the audit found unstated
-    marked in the statement, those parts listed, its quotes and its file. A claim changed since its audit has no
-    current verdict and is only counted."""
+def flagged_claims(base: str | None, verdicts: tuple[str, ...]):
+    """Each current claim whose verdict is one of `verdicts` (with `base`, only those new since that ref), as
+    (id, claim, verdict, subject file), and how many claims changed since their audit."""
     rec = record()["claims"]
     files = {}
     now = {}
@@ -403,19 +412,33 @@ def review(base: str | None, verdicts: tuple[str, ...]) -> str:
         if v and v["sha"] != fingerprint(c):
             stale += 1
         elif v and v["verdict"] in verdicts:
-            flagged.append((cid, c, v))
+            flagged.append((cid, c, v, files[cid]))
+    return sorted(flagged), stale
+
+
+def marked(c: dict, v: dict) -> str:
+    """The statement with each part the audit found unstated in bold."""
+    statement = c["statement"]
+    for part in sorted(v.get("uncovered", []), key=len, reverse=True):
+        if part and part in statement and f"**{part}**" not in statement:
+            statement = statement.replace(part, f"**{part}**", 1)
+    return statement
+
+
+def review(base: str | None, verdicts: tuple[str, ...]) -> str:
+    """The claims a person decides, as Markdown for a pull request: each claim whose current verdict is one of
+    `verdicts` (and, with `base`, whose content is new since that ref), with the parts the audit found unstated
+    marked in the statement, those parts listed, its quotes and its file. A claim changed since its audit has no
+    current verdict and is only counted."""
+    flagged, stale = flagged_claims(base, verdicts)
     scope = f"new or changed since `{base}`" if base else "in the graph"
     out = [f"## Claim audit: {len(flagged)} claim(s) to decide ({' and '.join(verdicts)}, {scope})", ""]
     if stale:
         out += [f"{stale} claim(s) changed since their audit have no current verdict: run the audit on them first.", ""]
     out += ["Each part in **bold** is one the audit's judges found no quote stating (borderline: only low-confidence flags,",
             "about half of them real). Decide each: fine as written, narrow the statement, or add the quote that states it.", ""]
-    for cid, c, v in sorted(flagged):
-        statement = c["statement"]
-        for part in sorted(v.get("uncovered", []), key=len, reverse=True):
-            if part and part in statement and f"**{part}**" not in statement:
-                statement = statement.replace(part, f"**{part}**", 1)
-        out += [f"### `{cid}` ({v['verdict']})", f"`{files[cid]}`", "", f"> {statement}", ""]
+    for cid, c, v, file in flagged:
+        out += [f"### `{cid}` ({v['verdict']})", f"`{file}`", "", f"> {marked(c, v)}", ""]
         missing = [p for p in v.get("uncovered", []) if p not in c["statement"]]
         if missing:
             out += [f"Also questioned: {'; '.join(missing)}", ""]
@@ -425,6 +448,62 @@ def review(base: str | None, verdicts: tuple[str, ...]) -> str:
         out += [f"- `{where}`: \"{q}\"" for where, q in quotes] + [f"- `{where}` at `{ptr}`" for where, ptr in pointers]
         out += ["", "</details>", ""]
     return "\n".join(out) + "\n"
+
+
+ISSUE_ROOM = 60000  # a GitHub issue body holds 65,536 characters
+
+
+SMALL = 20  # products with fewer flagged claims share one checklist
+
+
+def checklists(verdicts: tuple[str, ...], out: Path, sha: str | None = None, repo: str | None = None,
+               only: set[str] | None = None, note: str = "") -> int:
+    """The flagged claims as review checklists for GitHub issues, one file per product (split when a product's list
+    outgrows an issue body): a checkbox per claim with its statement, the unstated parts in bold, and a link to the
+    claim in its subject file at the current commit. Ticked means fine as written; a comment asks for a fix."""
+    flagged, stale = flagged_claims(None, verdicts)
+    if stale:
+        raise SystemExit(f"{stale} claim(s) changed since their audit; record a run on them before review")
+    if only is not None:
+        flagged = [f for f in flagged if f[0] in only]
+    sha = sha or subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    repo = repo or subprocess.run(["gh", "repo", "view", "--json", "url", "-q", ".url"], capture_output=True, text=True, cwd=ROOT).stdout.strip()
+    lines_of = {}
+    by_product = collections.defaultdict(list)
+    for cid, c, v, file in flagged:
+        if file not in lines_of:
+            lines_of[file] = (ROOT / file).read_text().splitlines()
+        lines = lines_of[file]
+        local = cid.split(":", 1)[1]
+        start = next((i for i, l in enumerate(lines) if l.strip() == '"claims": {'), 0)
+        at = next((i + 1 for i, l in enumerate(lines[start:], start) if l.strip() == f'"{local}": {{'), None)
+        link = f"{repo}/blob/{sha}/{file}" + (f"#L{at}" if at else "")
+        tag = " *(overreach)*" if v["verdict"] == "overreach" else ""
+        by_product[cid.split(".")[0]].append(f"- [ ] [`{cid}`]({link}){tag} {marked(c, v)}")
+    small = [p for p, items in by_product.items() if len(items) < SMALL]
+    if len(small) > 1:
+        by_product["other-products"] = [i for p in sorted(small) for i in by_product.pop(p)]
+    out.mkdir(parents=True, exist_ok=True)
+    head = ("Each claim below was judged borderline by the claim audit: a part of its statement, in **bold**, that its "
+            "judges were not confident any quote states (about half such flags are real). Each link opens the claim in "
+            "its subject file, with its `evidence` quotes and any `conditions` just below; the rule is "
+            f"[the audit rubric]({repo}/blob/{sha}/references/_meta/evals/claim-audit/rubric.md): every material part "
+            "of the statement must be stated by a quote (an absence may rest on the search its conditions record). "
+            "Tick a claim that is fine as written. Comment with the claim ID and what to change for one to narrow or "
+            f"to quote; it gets fixed in a pull request. Links are at commit {sha[:8]}." + (f" {note}" if note else ""))
+    for product, items in sorted(by_product.items()):
+        parts, cur = [], []
+        for item in items:
+            if cur and len(head) + sum(len(x) + 1 for x in cur) + len(item) > ISSUE_ROOM:
+                parts.append(cur)
+                cur = []
+            cur.append(item)
+        parts.append(cur)
+        for n, part in enumerate(parts, 1):
+            name = product + (f"-{n}" if len(parts) > 1 else "")
+            (out / f"{name}.md").write_text(head + "\n\n" + "\n".join(part) + "\n")
+            print(f"{name}: {len(part)} claims -> {out / (name + '.md')}")
+    return 0
 
 
 def main(argv: list[str]) -> int:
@@ -446,7 +525,11 @@ def main(argv: list[str]) -> int:
     if cmd == "status":
         return status()
     if cmd == "review":
-        sys.stdout.write(review(opt("--base"), ("borderline", "overreach") if "--all" in argv else ("borderline",)))
+        verdicts = ("borderline", "overreach") if "--all" in argv else ("borderline",)
+        if "--checklists" in argv and out:
+            only = {line.strip() for line in Path(opt("--ids")).read_text().splitlines() if line.strip()} if opt("--ids") else None
+            return checklists(verdicts, out, only=only, note=opt("--note") or "")
+        sys.stdout.write(review(opt("--base"), verdicts))
         return 0
     print(__doc__, file=sys.stderr)
     return 2

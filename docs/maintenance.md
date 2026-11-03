@@ -125,7 +125,13 @@ python3 scripts/claim_audit.py review --base origin/main > $TMP/audit/review.md 
 `review` prints the claims a person decides as Markdown for the pull request: each one's statement with the parts
 the judges found unstated in bold, its quotes and its file. Paste it into the description or a comment and settle
 each one in review: fine as written, narrowed, or given the quote that states it. Without `--base` it covers the
-whole graph, and `--all` adds the overreach claims, which are fixed before merge rather than reviewed.
+whole graph, and `--all` adds the overreach claims, which are fixed before merge rather than reviewed. A backlog
+too large for one pull request goes to GitHub issues: `review --checklists --out <dir>` writes one checklist per
+product (split to fit an issue body), each claim a checkbox with its statement and a link to its line at the
+current commit; open each file as an issue labelled `claim-review`. A ticked box is fine as written; a comment
+naming a claim asks for a fix, which lands in a pull request like any other. One run's flags are noisy: two full runs
+agreed on 90% of unchanged claims and on only 69% of borderline ones, so pass `--ids` the claims flagged in two runs
+to review those first.
 
 Verdicts are kept per claim with a hash of its statement and evidence, so `build --unaudited` finds what changed
 since its audit. It runs through the `claude` CLI on a Claude plan's quota, never in CI. Before trusting a
