@@ -69,7 +69,8 @@ needs).
    for example `read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`. An area reads every
    subject under it; take whole areas for the mechanisms the question turns on, and single subjects from areas over
    about 10k tokens (each area's `tokens` in the product spine). For log evidence, name the fields
-   (`zia/web-log#ssldecrypted`) or the log type; each product's spine file lists its log types. Claims arrive inline
+   (`zia/web-log#ssldecrypted`) or the log type; each product's spine file lists its log types. A ZPA LSS status code
+   from a log (`AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`) reads by name. Claims arrive inline
    with their citable ID in brackets (`[zia.url-filtering.rule-order:first-match]`), then further facts, inferred
    (Tier B) claims with their conditions, sources that disagree with each side, and open gaps with what would fill
    them. `read` then walks the graph one hop: the subjects the ones you named link to follow under "Linked

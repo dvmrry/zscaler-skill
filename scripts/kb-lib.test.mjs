@@ -55,6 +55,19 @@ test("schema validator refuses keywords it does not implement", () => {
   assert.throws(() => validate(schemas, "x.schema.json", {}), /unsupported keyword "if"/);
 });
 
+test("a log type's status codes are evidence the validator anchors", () => {
+  const logType = (quote) => ({
+    schema_version: 1, id: "zia/fake-log", kind: "log", product: "zia", title: "Fake log",
+    evidence: [{ source: "fake-help", path: "doc.txt", quotes: ["a fake log format"] }],
+    fields: { action: { type: "string", description: "The action." } },
+    status_codes: { FAKE_DENIED: { name: "Denied", status: "Error", evidence: [{ source: "fake-help", path: "doc.txt", after: "\"FAKE_DENIED\": {", quotes: [quote] }] } },
+  });
+  const doc = "a fake log format\n\"FAKE_DENIED\": {\n\"name\": \"Denied\",\n\"status\": \"Error\"\n}\n";
+  assert.deepEqual(messages(tmpRepo({ "vendor/fake/doc.txt": doc, "references/zia/types/fake-log.json": logType("\"name\": \"Denied\",") })), []);
+  const bad = messages(tmpRepo({ "vendor/fake/doc.txt": doc, "references/zia/types/fake-log.json": logType("\"name\": \"Allowed\",") }));
+  assert.ok(bad.some((m) => /status_codes\.FAKE_DENIED evidence\[0\].*quote not found/.test(m)), bad.join("\n"));
+});
+
 test("a quote must occur exactly once unless an after-anchor sets context", () => {
   const root = tmpRepo({ "vendor/fake/doc.txt": "def a():\n  note: AND\n\ndef b():\n  note: AND\n" });
   const g = graphOf(root);
@@ -506,6 +519,10 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   const fieldsOut = run("--no-overlay", "zia/web-log#ssldecrypted", "zia/web-log#cltsslfailreason");
   assert.match(fieldsOut, /^- ssldecrypted .*\n- cltsslfailreason /m);
   assert.ok(!fieldsOut.includes("- time "), "a field read prints only those fields");
+  // An LSS status code reads by name, once per log type that lists it, with where the response gives it.
+  assert.match(run("--no-overlay", "BRK_MT_TERMINATED"), /^# BRK_MT_TERMINATED: an LSS status code of .*\(zpa\/user-activity-log\)\n- name: SE: Connection closed by Service Edge\n- error type: NA\n- status: Success\n- admin action: NA\n- Source: `vendor\/zscaler-help\/configuring-log-streaming-service-configurations-using-api\.json:\d+/m);
+  assert.equal(run("--no-overlay", "ZPN_STATUS_AUTH_FAILED").match(/^# ZPN_STATUS_AUTH_FAILED: /gm).length, 3);
+  assert.match(run("--no-overlay", "zpa/user-activity-log#InternalReason"), /^- Status codes: 135 listed for this log type .*; read one by its code \(`read [A-Z_]+`\)$/m);
   assert.equal(spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--bogus", "zia"], { encoding: "utf8" }).status, 2);
   const withOverlay = run("--overlay", OVERLAY, "zia/url-filtering-rules");
   assert.match(withOverlay, /^IaC repos: /m);

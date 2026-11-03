@@ -80,7 +80,8 @@ only when the first points at something the answer needs). Many runtimes stop fo
    (`read zia.url-filtering zia.url-categories zia/web-log#urlfilterrulelabel`). Whole areas for the mechanisms
    the question turns on; single subjects from areas over about 10k tokens (each area's `tokens` in the product
    spine). For log evidence, name the fields (`zia/web-log#ssldecrypted`) or the log type; each product's spine
-   file lists its log types. Claims arrive inline with their citable ID in brackets, then further facts, inferred
+   file lists its log types. A ZPA LSS status code from a log (`AST_MT_SETUP_ERR_NO_DNS_TO_SERVER`) reads by name.
+   Claims arrive inline with their citable ID in brackets, then further facts, inferred
    (Tier B) claims with their conditions, sources that disagree with each side, and open gaps with what would
    fill them. `read` then walks the graph one hop: linked subjects follow, the most-linked first, and every other
    link prints as one line with the claim that establishes it (read one by ID only if the answer needs it).

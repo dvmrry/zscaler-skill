@@ -110,6 +110,7 @@ export function buildGraph(loaded) {
     aliases: new Map(), // normalized text -> Set(id)
     formerIds: new Map(), // former id -> current id
     bindsTo: new Map(), // type or field id -> Set(subject or item id) that bind it
+    statusCodes: new Map(), // LSS status code -> [{ type, code, data }] for each log type that lists it
     problems: [...loaded.problems],
   };
   const add = (node, file) => {
@@ -154,6 +155,10 @@ export function buildGraph(loaded) {
     for (const [fpath, f] of Object.entries(t.fields || {})) {
       add({ kind: "field", id: `${t.id}#${fpath}`, type: t.id, path: fpath, data: f }, file);
       if (f.label) alias(f.label, `${t.id}#${fpath}`);
+    }
+    for (const [code, data] of Object.entries(t.status_codes || {})) {
+      g.statusCodes.set(code, [...(g.statusCodes.get(code) || []), { type: t.id, code, data }]);
+      alias(code, t.id);
     }
   };
   for (const { file, data } of loaded.files.generatedTypes) for (const t of Object.values(data.types || {})) addType(t, file, false);
@@ -669,6 +674,11 @@ export function* allEvidence(g) {
     if (node.kind === "gap") for (const [i, ev] of (node.data.evidence || []).entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };
     if (node.kind === "divergence") for (const [i, p] of node.data.positions.entries()) yield { node, ev: p.evidence, where: `${node.id} positions[${i}]` };
     if (node.kind === "type" && node.authored) for (const [i, ev] of (node.data.evidence || []).entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };
+    if (node.kind === "type" && node.authored) {
+      for (const [code, sc] of Object.entries(node.data.status_codes || {})) {
+        for (const [i, ev] of sc.evidence.entries()) yield { node, ev, where: `${node.id} status_codes.${code} evidence[${i}]` };
+      }
+    }
     if (node.kind === "field") for (const [i, ev] of (node.data.evidence || []).entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };
   }
 }

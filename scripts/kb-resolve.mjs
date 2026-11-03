@@ -858,7 +858,27 @@ function readSubject(g, id) {
 function readType(g, id, paths = null) {
   const t = g.nodes.get(id).data;
   const lines = Object.entries(t.fields).filter(([p]) => !paths || paths.includes(p)).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
+  // A log type's status codes are too many to print with its fields; each reads by name.
+  const codes = Object.keys(t.status_codes || {});
+  if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response; read one by its code (\`read ${codes[0]}\`)`);
   return [`# ${t.title || id} (${id})`, ...lines].join("\n");
+}
+
+/** One LSS status code as each log type that lists it gives it: its attributes and where the response says so. */
+function readStatusCode(g, code) {
+  const cache = new Map();
+  return g.statusCodes.get(code).map(({ type, data }) => {
+    const attrs = [["name", data.name], ["error type", data.error_type], ["status", data.status], ["admin action", data.admin_action]];
+    return [
+      `# ${code}: an LSS status code of ${titleOf(g, type)} (${type})`,
+      ...attrs.filter(([, v]) => v !== undefined).map(([k, v]) => `- ${k}: ${v}`),
+      // The attributes above are the quoted lines, so the source is where they are.
+      ...data.evidence.map((ev) => {
+        const lines = [...new Set(anchorEvidence(g, ev, cache).anchors.map((a) => a.line).filter(Boolean))];
+        return `- Source: \`${g.sources.sources[ev.source].root}/${ev.path}${lines.length ? `:${lines.join(",")}` : ""}\``;
+      }),
+    ].join("\n");
+  }).join("\n\n");
 }
 
 /**
@@ -944,6 +964,10 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     // A cited item reads as its subject: a claim, gap or divergence ID as printed (`[gap:<subject>:<id>]`), or an
     // old ledger ID (`zia-02`).
     let arg = given.replace(/^(gap|divergence):/, "");
+    if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
+      out.push(readStatusCode(g, arg));
+      continue;
+    }
     if (!g.nodes.has(arg) && g.formerIds.has(arg)) arg = g.formerIds.get(arg);
     if (g.nodes.get(arg)?.subject) arg = g.nodes.get(arg).subject;
     // A whole product is hundreds of thousands of tokens; its spine says which areas a question needs.

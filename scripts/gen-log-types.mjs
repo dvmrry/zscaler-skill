@@ -13,6 +13,7 @@
 // ZPA LSS types come from one field-table article per log type, plus the default templates in the LSS API
 // article: a field the default template writes gets `default_format` (its json entry and csv token) and
 // its type is what the json template emits; a field only the template writes is added under its JSON key.
+// The same article's status-code example gives a log type its `status_codes`.
 //
 // Usage: node scripts/gen-log-types.mjs [--check]
 
@@ -146,6 +147,49 @@ function templateEvidence(tpl, e) {
 /** How the default template writes a field: its json entry and, when present, its csv token. */
 const defaultFormat = (tpl, e) => ({ json: e.text, ...(tpl.csv[e.variable] ? { csv: tpl.csv[e.variable] } : {}) });
 
+// The status codes: the same article's "Getting Details of All LSS Status Codes" example response lists, per log
+// type, each code with its errorType, name, adminAction and status. A code becomes a `status_codes` entry of the log
+// type it is listed under; the response does not say which field carries it. Its evidence anchors after the code's
+// own line when that line is unique, and otherwise (the same code under several log types) quotes the whole entry
+// after the log type's key.
+const CODE_ATTRS = { errorType: "error_type", name: "name", adminAction: "admin_action", status: "status" };
+
+function statusCodes() {
+  const out = {};
+  let on = false;
+  let depth = 0;
+  let lss = null;
+  let code = null;
+  for (const b of templates.doc.blocks) {
+    if (b.heading !== undefined) { on = b.heading.startsWith("Getting Details of All LSS Status Codes"); continue; }
+    if (!on || b.item === undefined) continue;
+    const t = b.item.trim();
+    const key = t.match(/^"(\w+)":\s*\{$/);
+    if (t === "{") depth++;
+    else if (/^\},?$/.test(t)) depth--;
+    else if (key && depth === 1) { lss = key[1]; out[lss] = { anchor: t, codes: {} }; depth++; }
+    else if (key && depth === 2) { code = key[1]; out[lss].codes[code] = { line: t, attrs: [] }; depth++; }
+    else {
+      const a = t.match(/^"(\w+)":\s*"(.*)",?$/);
+      if (a && depth === 3 && CODE_ATTRS[a[1]]) out[lss].codes[code].attrs.push({ key: CODE_ATTRS[a[1]], value: a[2], line: t });
+    }
+  }
+  const result = {};
+  for (const [name, { anchor, codes }] of Object.entries(out)) {
+    result[name] = {};
+    for (const [c, { line, attrs }] of Object.entries(codes)) {
+      const whole = [line, ...attrs.map((a) => a.line)].join(" - ");
+      const evidence = templatesText.split(line).length === 2
+        ? { source: "zscaler-help", path: FORMATS_SRC, after: line, quotes: attrs.map((a) => a.line) }
+        : whole.length <= 320 && templatesText.split(anchor).length === 2 ? { source: "zscaler-help", path: FORMATS_SRC, after: anchor, quotes: [whole] } : null;
+      if (!evidence) throw new Error(`gen-log-types: status code ${c} under ${name} has no unique anchor`);
+      result[name][c] = { ...Object.fromEntries(attrs.map((a) => [a.key, a.value])), evidence: [evidence] };
+    }
+  }
+  return result;
+}
+const codes = statusCodes();
+
 for (const [name, meta] of Object.entries(ZPA)) {
   const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", meta.src), "utf8"));
   const text = captureText(doc.blocks);
@@ -194,6 +238,7 @@ for (const [name, meta] of Object.entries(ZPA)) {
     aliases: prev.aliases || [meta.lss, ...meta.aliases],
     evidence: [{ source: "zscaler-help", path: meta.src, quotes: [text.split("\n")[0].slice(0, 120).replace(/\s+\S*$/, "")] }],
     fields,
+    ...(codes[meta.lss] ? { status_codes: codes[meta.lss] } : {}),
   }, Object.keys(fields).length, skipped);
 }
 

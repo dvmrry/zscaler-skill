@@ -12,7 +12,9 @@
     "ConnectorZENSetupTime",
     "ServerSetupTime",
     "zpn_trans_log fields",
-    "lss policy field"
+    "lss policy field",
+    "lss status codes",
+    "internal status code"
   ],
   "related": [
     {
@@ -43,7 +45,7 @@
     },
     {
       "label": "Outcome and policy.",
-      "text": "{{policy-field}} {{connection-status-values}} {{internal-reason}} {{connector-fields}} The meanings of the status values and of the internal reason are not sourced {{gap:status-meanings}} {{gap:internal-reason-values}}."
+      "text": "{{policy-field}} {{connection-status-values}} {{internal-reason}} {{connector-fields}} The meanings of the ConnectionStatus values are not sourced {{gap:status-meanings}}. {{status-codes-endpoint}} {{internal-status-code-example}} {{internal-reason-status-codes}} That InternalReason carries these codes is inferred, not stated {{gap:internal-reason-values}}."
     },
     {
       "label": "Destination.",
@@ -91,9 +93,9 @@
       ]
     },
     {
-      "do": "That InternalReason has no published value list, so no single value is a root cause on its own.",
+      "do": "Whether the InternalReason value is listed in the LSS status-codes response and, if it is, the fields its entry gives.",
       "uses": [
-        "internal-reason",
+        "internal-reason-status-codes",
         "internal-reason-values"
       ]
     }
@@ -216,6 +218,70 @@
           ]
         }
       ]
+    },
+    "status-codes-endpoint": {
+      "statement": "The LSS API returns the LSS status codes from GET /mgmtconfig/v2/admin/lssConfig/statusCodes. Its example response groups the codes under the log types zpn_auth_log, zpn_ast_auth_log, zpn_trans_log (the User Activity log type) and zpn_sys_auth_log. Under zpn_trans_log it lists codes such as BRK_MT_TERMINATED, and an entry such as AST_MT_SETUP_ERR_NO_DNS_TO_SERVER carries an errorType, a name, an adminAction and a status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "To get details of all LSS status codes, send a GET request to the following endpoint: /mgmtconfig/v2/admin/lssConfig/statusCodes.",
+            "\"zpn_auth_log\": {",
+            "\"zpn_ast_auth_log\": {",
+            "\"zpn_trans_log\": {",
+            "\"zpn_sys_auth_log\": {",
+            "Supported log type values: zpn_trans_log: Denotes the User Activity log type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "after": "\"AST_MT_SETUP_ERR_NO_DNS_TO_SERVER\": {",
+          "quotes": [
+            "\"errorType\": \"ActionableError\",",
+            "\"name\": \"AC: DNS resolution failed for unmonitored app\",",
+            "\"adminAction\": \"User requested application access is not available due to the connector not able to resolve DNS.",
+            "\"status\": \"Error\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-log-streaming-service-configurations-using-api.json",
+          "quotes": [
+            "\"BRK_MT_TERMINATED\": {"
+          ]
+        }
+      ]
+    },
+    "internal-status-code-example": {
+      "statement": "The User Activity Diagnostics page shows an Internal Status Code. The application segment help says that for ICMP access it can show as successful (e.g., BRK_MT_TERMINATED) after the App Connector is selected \"even though it is unreachable\", which can occur when the App Connector has on-access or no health reporting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "ICMP Access: Enable for various Private Access clients",
+            "the Internal Status Code on the User Activity Diagnostics page shows as successful (e.g., BRK_MT_TERMINATED) after the App Connector is selected, even though it is unreachable",
+            "This can occur if the App Connector is set up to provide on access or no health reporting, as health reporting does not work well with ICMP"
+          ]
+        }
+      ]
+    },
+    "internal-reason-status-codes": {
+      "statement": "InternalReason values appear to be the zpn_trans_log codes of the LSS status-codes response.",
+      "tier": "B",
+      "binds": [
+        "zpa/user-activity-log#InternalReason"
+      ],
+      "derived_from": [
+        "internal-reason",
+        "status-codes-endpoint",
+        "internal-status-code-example"
+      ],
+      "conditions": "No source states that the InternalReason field carries these codes, or that the Internal Status Code on the User Activity Diagnostics page is the InternalReason value; both are assumed. The inference rests on the field's description (the internal reason for the status of the transaction), on the status-codes response listing codes under zpn_trans_log, the User Activity log type, and on the application segment help giving BRK_MT_TERMINATED, a zpn_trans_log code, as an example of the Internal Status Code the User Activity Diagnostics page shows. That every InternalReason value is in the response is not shown."
     }
   },
   "gaps": {
@@ -232,8 +298,8 @@
     "internal-reason-values": {
       "kind": "semantic",
       "title": "InternalReason values",
-      "status": "open",
-      "detail": "The field is described as the internal reason for the status of the transaction and no source enumerates its values. Unverified legacy statement: \"Mapping specific InternalReason values to root causes requires empirical observation or Zscaler Support input. Treat any specific value as undocumented for purposes of automated triage.\" The connector-selection subject holds the session status codes that give a zero connector ID.",
+      "status": "partial",
+      "detail": "The LSS status-codes response lists codes under zpn_trans_log, the User Activity log type (status-codes-endpoint). That InternalReason carries these codes is inferred (internal-reason-status-codes): no source says so directly, nor that the Diagnostics page's Internal Status Code is the InternalReason value. Still unsourced: that every value seen in InternalReason appears in the response, and what a code means beyond the fields its entry lists.",
       "resolves_with": [
         "support-ticket",
         "tenant-data"
