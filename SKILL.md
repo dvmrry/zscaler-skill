@@ -83,8 +83,10 @@ needs).
    (the app, rule, location or category). Give the file's `committed` date.
 
 Run each command bare, from the repo root: no `cd`, no pipe, no redirect. Permission checks approve a bare
-command; a compound one is refused or prompts again. When a command's output is long and the runtime saves it to a
-file, open that file with your file tool, never with `cat`, `grep` or another shell command.
+command; a compound one is refused or prompts again. Read spine files with your file tool, not `ls`, `cat` or
+`node -e`. A refused command says only that its form was wrong, not that the shell is off: run `node scripts/kb.mjs
+read ...` bare next, and never answer from the spine alone. When a command's output is long and the runtime saves
+it to a file, open that file with your file tool, never with `cat`, `grep` or another shell command.
 
 ```bash
 node scripts/kb.mjs map <product> ...                     # the spine as text, when a file read is not available
