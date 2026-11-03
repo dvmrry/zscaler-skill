@@ -21,6 +21,8 @@ in CI. Run from the repo root; write run directories outside the checkout.
   python3 scripts/claim_audit.py grade --out <dir>                    a calibration run against its labels
   python3 scripts/claim_audit.py record --out <dir>                   write the run's verdicts into the record
   python3 scripts/claim_audit.py status                               audited, stale and unaudited counts
+  python3 scripts/claim_audit.py review [--base <git ref>] [--all]    the flagged claims as Markdown for a PR, those
+                                                                      new since the ref; borderline only unless --all
 """
 from __future__ import annotations
 
@@ -380,6 +382,51 @@ def status() -> int:
     return 0
 
 
+def review(base: str | None, verdicts: tuple[str, ...]) -> str:
+    """The claims a person decides, as Markdown for a pull request: each claim whose current verdict is one of
+    `verdicts` (and, with `base`, whose content is new since that ref), with the parts the audit found unstated
+    marked in the statement, those parts listed, its quotes and its file. A claim changed since its audit has no
+    current verdict and is only counted."""
+    rec = record()["claims"]
+    files = {}
+    now = {}
+    for d in subjects():
+        for cid, c in tier_a(d):
+            now[cid] = c
+            files[cid] = f"references/{d['id'].split('.')[0]}/{d['id']}.json"
+    if base:
+        seen = {fingerprint(c) for d in subjects(base) for _, c in tier_a(d)}
+        now = {cid: c for cid, c in now.items() if fingerprint(c) not in seen}
+    flagged, stale = [], 0
+    for cid, c in now.items():
+        v = rec.get(cid)
+        if v and v["sha"] != fingerprint(c):
+            stale += 1
+        elif v and v["verdict"] in verdicts:
+            flagged.append((cid, c, v))
+    scope = f"new or changed since `{base}`" if base else "in the graph"
+    out = [f"## Claim audit: {len(flagged)} claim(s) to decide ({' and '.join(verdicts)}, {scope})", ""]
+    if stale:
+        out += [f"{stale} claim(s) changed since their audit have no current verdict: run the audit on them first.", ""]
+    out += ["Each part in **bold** is one the audit's judges found no quote stating (borderline: only low-confidence flags,",
+            "about half of them real). Decide each: fine as written, narrow the statement, or add the quote that states it.", ""]
+    for cid, c, v in sorted(flagged):
+        statement = c["statement"]
+        for part in sorted(v.get("uncovered", []), key=len, reverse=True):
+            if part and part in statement and f"**{part}**" not in statement:
+                statement = statement.replace(part, f"**{part}**", 1)
+        out += [f"### `{cid}` ({v['verdict']})", f"`{files[cid]}`", "", f"> {statement}", ""]
+        missing = [p for p in v.get("uncovered", []) if p not in c["statement"]]
+        if missing:
+            out += [f"Also questioned: {'; '.join(missing)}", ""]
+        quotes = [(f"{SOURCES.get(e['source'], {}).get('root', e['source'])}/{e['path']}", q) for e in c.get("evidence", []) for q in e.get("quotes", [])]
+        pointers = [(f"{SOURCES.get(e['source'], {}).get('root', e['source'])}/{e['path']}", e["pointer"]) for e in c.get("evidence", []) if "pointer" in e]
+        out += [f"<details><summary>Evidence ({len(quotes) + len(pointers)})</summary>", ""]
+        out += [f"- `{where}`: \"{q}\"" for where, q in quotes] + [f"- `{where}` at `{ptr}`" for where, ptr in pointers]
+        out += ["", "</details>", ""]
+    return "\n".join(out) + "\n"
+
+
 def main(argv: list[str]) -> int:
     def opt(name: str):
         return argv[argv.index(name) + 1] if name in argv else None
@@ -398,6 +445,9 @@ def main(argv: list[str]) -> int:
         return write_record(out)
     if cmd == "status":
         return status()
+    if cmd == "review":
+        sys.stdout.write(review(opt("--base"), ("borderline", "overreach") if "--all" in argv else ("borderline",)))
+        return 0
     print(__doc__, file=sys.stderr)
     return 2
 

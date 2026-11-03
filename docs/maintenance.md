@@ -119,11 +119,18 @@ python3 scripts/claim_audit.py build --base origin/main --out $TMP/audit   # cla
 python3 scripts/claim_audit.py run --out $TMP/audit
 python3 scripts/claim_audit.py record --out $TMP/audit                     # into references/_meta/claim-audit.json
 python3 scripts/claim_audit.py status
+python3 scripts/claim_audit.py review --base origin/main > $TMP/audit/review.md   # the borderline claims, for the PR
 ```
+
+`review` prints the claims a person decides as Markdown for the pull request: each one's statement with the parts
+the judges found unstated in bold, its quotes and its file. Paste it into the description or a comment and settle
+each one in review: fine as written, narrowed, or given the quote that states it. Without `--base` it covers the
+whole graph, and `--all` adds the overreach claims, which are fixed before merge rather than reviewed.
 
 Verdicts are kept per claim with a hash of its statement and evidence, so `build --unaudited` finds what changed
 since its audit. It runs through the `claude` CLI on a Claude plan's quota, never in CI. Before trusting a
-rubric or model change, rerun the calibration set (`build --calibration`, `run`, `grade`).
+rubric or model change, rerun the calibration set (`build --calibration`, `run`, `grade`). A rubric change
+empties the record when the next run is recorded, so record any run in flight first, then re-audit every claim.
 
 ## Weekly knowledge-graph refresh (automated)
 

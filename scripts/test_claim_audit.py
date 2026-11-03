@@ -29,3 +29,16 @@ def test_a_verdict_is_about_the_statement_and_the_evidence():
 def test_a_quote_in_code_carries_its_enclosing_function(monkeypatch):
     monkeypatch.setattr(claim_audit, "source_text", lambda *a: "package x\n\nfunc Activate() {\n\treturn post(\"/status/activate\")\n}\n")
     assert claim_audit.context("sdk-go", "a.go", "HEAD", 'return post("/status/activate")') == ["func Activate() {"]
+
+
+def test_review_marks_the_unstated_parts_and_counts_claims_changed_since_their_audit(monkeypatch):
+    kept = {"statement": "Rules stop at the first match, always.", "tier": "A", "evidence": [{"source": "zscaler-help", "path": "p.json", "quotes": ["stops at the first match"]}]}
+    edited = {"statement": "Rules run in order.", "tier": "A", "evidence": [{"source": "zscaler-help", "path": "p.json", "quotes": ["in order"]}]}
+    monkeypatch.setattr(claim_audit, "subjects", lambda ref=None: iter([{"id": "zia.rules", "claims": {"first": kept, "order": edited}}]))
+    monkeypatch.setattr(claim_audit, "record", lambda: {"claims": {
+        "zia.rules:first": {"sha": claim_audit.fingerprint(kept), "verdict": "borderline", "uncovered": ["always"]},
+        "zia.rules:order": {"sha": "old", "verdict": "borderline"}}})
+    md = claim_audit.review(None, ("borderline",))
+    assert "### `zia.rules:first` (borderline)" in md and "> Rules stop at the first match, **always**." in md
+    assert "`references/zia/zia.rules.json`" in md and '"stops at the first match"' in md
+    assert "zia.rules:order" not in md and "1 claim(s) changed since their audit" in md
