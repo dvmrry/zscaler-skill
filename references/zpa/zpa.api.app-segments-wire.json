@@ -737,8 +737,15 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "def add_segment_provision(self, **kwargs) -> APIResult[dict]:",
-            "/application/provision"
+            "def add_segment_provision(self, **kwargs) -> APIResult[dict]:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/application_segment.py",
+          "after": "def add_segment_provision(",
+          "quotes": [
+            "http_method = \"post\".upper() api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /application/provision \"\"\")"
           ]
         },
         {
@@ -753,7 +760,7 @@
       "conditions": "No path with `/provision` appears among the Go ZPA service packages for application segments: `git grep -n /provision HEAD -- zscaler/zpa` in the Go SDK matched only provisioning-key URLs. Absence in the Go SDK is not evidence that the endpoint does not exist."
     },
     "delete-by-type-request": {
-      "statement": "Deleting a sub-application by type is `DELETE /application/{id}/deleteAppByType` with the application type as a query parameter; the Go function sends only the type and the Microtenant filter, while Go's other segment deletes pass `ForceDelete: true`, and the Python function sends `applicationType` and an optional `microtenantId`.",
+      "statement": "Deleting a sub-application by type is `DELETE /application/{id}/deleteAppByType` with the application type as a query parameter; the Go function sends only the type and the Microtenant filter, while Go's application segment, browser access, inspection and PRA deletes pass `ForceDelete: true`, and the Python function sends `applicationType` and an optional `microtenantId`.",
       "tier": "A",
       "evidence": [
         {
@@ -769,6 +776,27 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "quotes": [
+            "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "quotes": [
+            "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentbrowseraccess/application_segment_browser_access.go",
+          "quotes": [
+            "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
           "quotes": [
             "common.DeleteApplicationQueryParams{ForceDelete: true, MicroTenantID: service.MicroTenantID()}"
           ]

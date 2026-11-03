@@ -106,7 +106,7 @@
       ]
     },
     "country-fuzzy-first-match": {
-      "statement": "`validate_and_convert_country_code` tries `alpha_2`, `alpha_3`, `name`, `common_name` and `official_name` lookups and then `pycountry.countries.search_fuzzy`, and on the fuzzy path returns the first candidate without checking how many matched. Issue #108 reports that `Korea` resolves to `COUNTRY_KP` although `KR` also matches, with no error or warning, and was open when captured.",
+      "statement": "`validate_and_convert_country_code` tries `alpha_2`, `alpha_3`, `name`, `common_name` and `official_name` lookups and then `pycountry.countries.search_fuzzy`, and on the fuzzy path returns `countries[0]`, the first candidate. Issue #108 reports that when the fuzzy search returns several candidates the helper returns the first with no error, no warning and no indication that a choice was made, that it never checks `len(countries)`, and that `Korea` resolves to `COUNTRY_KP` although `KR` also matches; it was open when captured.",
       "tier": "A",
       "evidence": [
         {
@@ -124,7 +124,9 @@
           "quotes": [
             "`validate_and_convert_country_code()` resolves its input through a chain of exact `pycountry` getters",
             "The clearest case is the word `Korea`, which matches both `KP` and `KR` and resolves to `KP`.",
-            "'Korea' -> COUNTRY_KP"
+            "'Korea' -> COUNTRY_KP",
+            "no error, no warning, no indication that a choice was made",
+            "# <-- len(countries) is never checked"
           ]
         },
         {

@@ -207,7 +207,7 @@
       ]
     },
     "post-handling": {
-      "statement": "`post_mcp_tool_use` scans server, tool, arguments and result in one text (each truncated to 20000 characters) and `post_cascade_response` scans the response text truncated the same way; both skip short content and a missing key, exit 0 on scan errors, and on `BLOCK` print an alert saying the content would be blocked.",
+      "statement": "`post_mcp_tool_use` scans server, tool, arguments and result in one text (arguments and result each truncated to 20000 characters) and `post_cascade_response` scans the response text truncated the same way; both skip short content and a missing key, exit 0 on scan errors, and on `BLOCK` print an alert saying the content would be blocked.",
       "tier": "A",
       "evidence": [
         {
@@ -215,6 +215,7 @@
           "path": "Windsurf/.windsurf/hooks/post_mcp_tool_use.py",
           "quotes": [
             "combined = ( f\"MCP server={server} tool={mcp_tool}\\nInput={truncated_in}\\nOutput={truncated_out}\"",
+            "truncated_in = truncate_text(args_json, MAX_POST_CHARS) truncated_out = truncate_text(result_str.replace(\"\\n\", \" \"), MAX_POST_CHARS)",
             "if len(result_str) < 5:",
             "log_message(\"post_mcp_tool_use: AIGUARD_API_KEY not set — skipping\")",
             "log_message(f\"post_mcp_tool_use: API error (audit only): {r['error']}\") return EXIT_ALLOW",

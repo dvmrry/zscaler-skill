@@ -179,7 +179,7 @@
       ]
     },
     "structs-differ": {
-      "statement": "The two SDK structs differ: both carry `dnsGatewayType`, but only the `dns_forwarding_gateway` struct also has a `type` field, whose comment (copied onto most of its fields) says the supported types are ZIA and ECSELF.",
+      "statement": "The two SDK structs differ: both carry `dnsGatewayType`, but only the `dns_forwarding_gateway` struct also has a `type` field, whose comment (repeated above `failureBehavior`, `primaryIp` and `ecDnsGatewayOptionsSecondary` too) says the supported types are ZIA and ECSELF.",
       "tier": "A",
       "evidence": [
         {
@@ -201,7 +201,8 @@
             "LastModifiedBy *common.CommonIDNameExternalID `json:\"lastModifiedBy,omitempty\"` }"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'json:\"type' zscaler/ztw/services/dns_gateway/dns_gateway.go` at Go SDK v3.8.58 finds nothing, so the `dns_gateway` struct has no `type` field."
     },
     "forwarding-resource-sends-no-type": {
       "statement": "The `ztc_dns_forwarding_gateway` request builder sets only the ID, name, failure behavior, primary and secondary IPs and the two Edge Connector DNS options; it sets neither `Type` nor `DNSGatewayType`. The `ztc_dns_gateway` builder sets `DNSGatewayType` from `dns_gateway_type`.",
@@ -222,7 +223,8 @@
             "DNSGatewayType: d.Get(\"dns_gateway_type\").(string),"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: at provider v0.2.0, `expandDNSForwardingGateway` in ztc/resource_ztc_dns_forwarding_gateway.go builds the struct in one composite literal with the seven fields quoted; `grep -n 'DNSGatewayType\\|\\.Type = ' ztc/resource_ztc_dns_forwarding_gateway.go` finds nothing, so no later assignment sets `Type` or `DNSGatewayType`."
     },
     "forwarding-resource-omits-type-keys": {
       "statement": "So a DNS gateway created or updated through `ztc_dns_forwarding_gateway` is sent with no `type` and no `dnsGatewayType` key, because both fields are empty and tagged `omitempty`.",

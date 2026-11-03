@@ -21,7 +21,7 @@
   ],
   "prose": [
     {
-      "text": "The SDK can cache GET responses and collapse identical GETs into one request. Providers that turn this on inherit its behavior on every read. {{zia-provider-enables-cache}}"
+      "text": "The SDK can cache GET responses and collapse identical GETs into one request. Providers that turn this on inherit its behavior on every read. {{zia-provider-enables-cache}} {{expired-entry-survives-cleanup}}"
     },
     {
       "label": "Deduplication.",
@@ -48,7 +48,7 @@
   ],
   "claims": {
     "zia-provider-enables-cache": {
-      "statement": "The ZIA Terraform provider turns on the SDK's response cache for its OneAPI client, with a 10-minute entry lifetime. The provider's \"idle timeout\" setting is actually the cache's cleanup interval, so an expired entry can survive until the next cleanup.",
+      "statement": "The ZIA Terraform provider sets `zscaler.WithCache(true)`, a 10-minute cache lifetime and an 8-minute value it labels the idle timeout on the SDK configuration it builds for its OneAPI client. In the SDK, the first of those two durations is the entry lifetime and the second is the cleanup interval passed to `NewCache`.",
       "tier": "A",
       "evidence": [
         {
@@ -60,8 +60,9 @@
           ],
           "quotes": [
             "zscaler.WithCache(true),",
-            "zia.WithCacheTtl(10 * time.Minute), // Cache entries for 10 minutes",
-            "zia.WithCacheTti(8 * time.Minute),  // Idle timeout of 8 minutes"
+            "zscaler.WithCacheTtl(10 * time.Minute), // Cache entries for 10 minutes",
+            "zscaler.WithCacheTti(8 * time.Minute),  // Idle timeout of 8 minutes",
+            "// Initialize the client with the configuration v3Client, err := zscaler.NewOneAPIClient(config)"
           ]
         },
         {
@@ -73,6 +74,7 @@
           ],
           "quotes": [
             "func NewCache(ttl, cleanWindow time.Duration, maxCacheSizeMB int) (Cache, error) {",
+            "LifeWindow:       ttl,",
             "CleanWindow:      cleanWindow,"
           ]
         },
@@ -367,6 +369,14 @@
           ]
         }
       ]
+    },
+    "expired-entry-survives-cleanup": {
+      "statement": "An entry older than the cache lifetime can still be served until the next cleanup pass, which in the ZIA provider's settings runs on the 8-minute interval.",
+      "tier": "B",
+      "derived_from": [
+        "zia-provider-enables-cache"
+      ],
+      "conditions": "Rests on the cache library's behavior (bigcache's `LifeWindow` marks entries expired and `CleanWindow` sets how often expired entries are removed; a read does not check age). That library is not a registered source and the SDK's own `Get` does not check age either, so the survival of an expired entry between cleanups is an inference from the library, not something any source here states."
     }
   },
   "gaps": {

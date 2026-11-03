@@ -130,7 +130,7 @@
       ]
     },
     "activation-cli-commented": {
-      "statement": "The SDK's `activation_cli/zconActivator.go` declares `package main`, but everything after that line, its imports and `main` included, is one block comment, so it is neither a runnable command nor an importable package.",
+      "statement": "The SDK's `activation_cli/zconActivator.go` declares `package main`, then opens a block comment before its imports; `func main()` and the helper after it sit inside that comment, which closes only after the last `return nil }`.",
       "tier": "A",
       "evidence": [
         {
@@ -138,10 +138,12 @@
           "path": "zscaler/ztw/services/activation_cli/zconActivator.go",
           "quotes": [
             "package main /* import (",
+            "func main() {",
             "zconClient.Logout(context.Background()) return nil } */"
           ]
         }
-      ]
+      ],
+      "conditions": "Search at v3.8.58: `grep -n '/\\*\\|\\*/' zscaler/ztw/services/activation_cli/zconActivator.go` returns one `/*` (right after `package main`) and one `*/` (the last line of the file), so the file has no other comment delimiter and nothing outside the comment but `package main`."
     },
     "no-auto-activation": {
       "statement": "The Go SDK's ZTW create, update and delete functions do not activate; staged changes take effect only when the caller calls `activation.UpdateActivationStatus` or `activation.ForceActivationStatus`.",
@@ -176,7 +178,7 @@
           ]
         }
       ],
-      "conditions": "The six function signatures quoted are every func declaration in ecgroup.go at the pin."
+      "conditions": "At v3.8.58, `grep -n \"^func\" zscaler/ztw/services/ecgroup/ecgroup.go` returns exactly the six signatures quoted; `grep -n \"Endpoint *=\"` returns only `ecGroupEndpoint` and `ecGroupLiteEndpoint`; and `grep -n \"Create\\|Update\\|Post\\|Put\\|http.Method\"` returns nothing, so no function creates or updates a group."
     },
     "bulk-vm-ops-not-in-go": {
       "statement": "So the bulk VM status, release-channel and upgrade-metrics operations of the group API have no Go SDK function; a Go program reaches them only with raw requests.",

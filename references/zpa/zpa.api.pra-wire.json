@@ -67,7 +67,7 @@
       "heading": "Credentials"
     },
     {
-      "text": "{{credential-type-values}} {{credential-move}}"
+      "text": "{{credential-type-values}} {{credential-move}} {{credential-move-zero-string}}"
     },
     {
       "text": "Whether a credential read returns its secrets is open {{gap:credential-secrets-on-read}}."
@@ -549,7 +549,7 @@
       ]
     },
     "credential-move": {
-      "statement": "POST /credential/{id}/move has no request body and returns 204; the destination is the targetMicrotenantId query parameter, where 0 means the Default microtenant. The Python SDK raises an error when target_microtenant_id is falsy, so the integer 0 is rejected and only the string \"0\" passes; the Go SDK appends the parameter only when the string is non-empty. The contract also takes an optional source microtenantId query parameter. The Python SDK forwards microtenant_id as microtenantId; Go's CredentialMove has no per-call source parameter and ignores the service's microtenant, so the source microtenantId reaches the request only from the ZPA_MICROTENANT_ID environment variable or the client's configured microtenant.",
+      "statement": "POST /credential/{id}/move has no request body and returns 204; the destination is the targetMicrotenantId query parameter, where 0 means the Default microtenant. The Python SDK raises an error when target_microtenant_id is falsy; the Go SDK appends the parameter only when the string is non-empty. The contract also takes an optional source microtenantId query parameter. The Python SDK forwards microtenant_id as microtenantId; Go's CredentialMove has no per-call source parameter and ignores the service's microtenant, so the source microtenantId reaches the request only from the ZPA_MICROTENANT_ID environment variable or the client's configured microtenant.",
       "conditions": "Added the source microtenantId parameter (a legacy divergence the earlier statement lost); the Go part follows the OneAPI client's NewRequestDo, which injects microtenantId from the body, then the environment variable, then the client config, and CredentialMove passes no options and no body.",
       "tier": "A",
       "evidence": [
@@ -641,6 +641,14 @@
           ]
         }
       ]
+    },
+    "credential-move-zero-string": {
+      "statement": "A Python caller moving a credential to the Default microtenant passes the string \"0\" for target_microtenant_id: the integer 0 is falsy and is rejected, while the non-empty string \"0\" passes the check.",
+      "tier": "B",
+      "derived_from": [
+        "credential-move"
+      ],
+      "conditions": "Follows from the quoted `if not target_microtenant_id:` check and Python truthiness (integer 0 is falsy, the non-empty string \"0\" is truthy). No source shows a call with either value."
     },
     "credential-type-values": {
       "statement": "The specification's credentialType values are USERNAME_PASSWORD, SSH_KEY and PASSWORD. The Python SDK validates exactly those on create, requires the fields each type needs, and accepts an SSH private key only if it contains an OpenSSH, RSA or EC PEM header.",

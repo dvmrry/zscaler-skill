@@ -132,7 +132,8 @@
           ],
           "quotes": [
             "if diags := config.loadClients(); diags.HasError() {",
-            "client, err := config.Client()"
+            "client, err := config.Client()",
+            "apiSemaphore = make(chan struct{}, 1) } return client, nil"
           ],
           "after": "func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, diag.Diagnostics) {"
         },
@@ -175,7 +176,8 @@
           "status": "unfiled",
           "note": "Filing 12 (ZTC provider behavior) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'zscalerSDKClientV3' ztc/config.go` at provider v0.2.0 finds the struct field, the two assignments in `loadClients` and one read in `SelectClient`; none is inside the body of `Client()`, which builds its client from `zscalerSDKV2Client` or `zscalerSDKV3Client` alone, and `grep -n 'SelectClient' -r ztc` finds only its definition."
     },
     "sdk-construction-authenticates": {
       "statement": "Unless the legacy client is configured, constructing a OneAPI client in the Go SDK authenticates immediately, requesting a token over HTTP when the configuration holds no valid one, and starts a token-renewal ticker goroutine when the token expires more than a minute later. Construction is therefore a network call with a background effect, not a cheap object build.",

@@ -958,7 +958,7 @@
       ]
     },
     "error-json-content-type": {
-      "statement": "`CheckErrorInResponse` extracts `code`, `message`, `id`, `reason` and `exception` from an error body only when the `Content-Type` header contains the literal `application/json` (a case-sensitive substring match); for any other content type the raw body text becomes the message.",
+      "statement": "`CheckErrorInResponse` extracts `code`, `message`, `id`, `reason` and `exception` from an error body only when the `Content-Type` header contains the literal `application/json` (a case-sensitive substring match); for any other content type the trimmed body text becomes the message, except that a non-JSON body containing \"only through zscaler oneapi\" (compared in lower case) returns a OneAPI fallback error instead.",
       "tier": "A",
       "evidence": [
         {
@@ -971,7 +971,10 @@
             "if msg, ok := jsonBody[\"message\"].(string); ok {",
             "if id, ok := jsonBody[\"id\"].(string); ok {",
             "if reason, ok := jsonBody[\"reason\"].(string); ok {",
-            "if ex, ok := jsonBody[\"exception\"].(string); ok {"
+            "if ex, ok := jsonBody[\"exception\"].(string); ok {",
+            "msg := strings.TrimSpace(string(bodyBytes))",
+            "if !isJSON && strings.Contains(strings.ToLower(msg), \"only through zscaler oneapi\") {",
+            "} else { parsed.Message = msg }"
           ]
         }
       ]
@@ -985,6 +988,8 @@
           "path": "zscaler/oneapiconfig.go",
           "after": "func (c *Client) ExecuteRequest(",
           "quotes": [
+            "// Surface the API's own explanation for the last attempt rather than",
+            "if resp != nil { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"max retries exceeded\")) } return nil, resp, nil, fmt.Errorf(\"max retries exceeded\")",
             "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"max retries exceeded\"))",
             "return nil, resp, nil, fmt.Errorf(\"max retries exceeded\")",
             "return nil, resp, nil, fmt.Errorf(\"request timeout exceeded after %v (excluding %v of rate limit waits)\",",
@@ -995,7 +1000,8 @@
             "if code, ok := jsonBody[\"code\"].(string); ok && code == \"LIMIT_EXCEEDED\" {",
             "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"limit exceeded\"))",
             "// Handle non-retryable client errors (4xx except 401, 409, 429 which are handled above) if resp.StatusCode >= 400 && resp.StatusCode < 500 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))",
-            "if resp.StatusCode >= 300 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))"
+            "if resp.StatusCode >= 300 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))",
+            "// Handle 403 LIMIT_EXCEEDED immediately — tenant resource capacity exhausted, non-retryable"
           ]
         }
       ]

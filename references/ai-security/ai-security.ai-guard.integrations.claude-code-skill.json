@@ -119,7 +119,7 @@
       ]
     },
     "config": {
-      "statement": "`scan.py` reads `AIGUARD_API_KEY` (required), `AIGUARD_CLOUD` (default `us1`), `AIGUARD_TIMEOUT` (default 30) and an optional `AIGUARD_POLICY_ID` from the process environment only; the policy ID is quote-stripped and a value `int()` rejects is treated as unset, so the call goes to `resolve_and_execute_policy`.",
+      "statement": "`scan.py` reads `AIGUARD_API_KEY` (required), `AIGUARD_CLOUD` (default `us1`), `AIGUARD_TIMEOUT` (default 30) and an optional `AIGUARD_POLICY_ID` from the process environment; the policy ID is quote-stripped and a value `int()` rejects is treated as unset, so the call goes to `resolve_and_execute_policy`.",
       "tier": "A",
       "evidence": [
         {
@@ -131,7 +131,13 @@
             "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
             "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
             "except ValueError: return None",
-            "client.aiguard.policy_detection.resolve_and_execute_policy("
+            "client.aiguard.policy_detection.resolve_and_execute_policy(",
+            "AIGUARD_API_KEY: Required - API key from AI Guard Console",
+            "\"\"\"Load configuration from environment variables.\"\"\"",
+            "\"\"\"Get policy ID from environment.\"\"\"",
+            "\"error\": \"AIGUARD_API_KEY environment variable not set\",",
+            "if policy_id: api_result, response, error = ( client.aiguard.policy_detection.execute_policy(",
+            "else: api_result, response, error = ( client.aiguard.policy_detection.resolve_and_execute_policy("
           ]
         }
       ]

@@ -349,7 +349,7 @@
       "conditions": "Follows from Python int() semantics on the unguarded call in response-policy-id-unguarded. The hooks' .env loader strips surrounding quotes, so a quoted value in .env does not trigger it. What Claude Code does with the tool result when a PostToolUse hook crashes is not in the sources (parent gap fail-posture). A read of main() at the pin shows its only try wraps the stdin json.load, so the get_policy_id call sits outside any try."
     },
     "config": {
-      "statement": "The hooks read `AIGUARD_API_KEY`, `AIGUARD_CLOUD` (default `us1`) and `AIGUARD_TIMEOUT` (default 30 seconds) from the environment, first loading a `.env` beside the hook or in its parent directory without overriding variables already set, and log to `SECURITY_LOG_PATH` (default `~/.claude/hooks/aiguard/security.log`).",
+      "statement": "The hooks read `AIGUARD_API_KEY`, `AIGUARD_CLOUD` (default `us1`) and `AIGUARD_TIMEOUT` (default 30) from the environment, first loading a `.env` beside the hook or in its parent directory without overriding variables already set, and log to `SECURITY_LOG_PATH` (default `~/.claude/hooks/aiguard/security.log`).",
       "tier": "A",
       "evidence": [
         {
@@ -363,6 +363,42 @@
             "env_file = Path(__file__).parent.parent / \".env\"",
             "if key and value and key not in os.environ:",
             "\"SECURITY_LOG_PATH\", os.path.expanduser(\"~/.claude/hooks/aiguard/security.log\")"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
+          "quotes": [
+            "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
+            "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
+            "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "quotes": [
+            "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
+            "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
+          "quotes": [
+            "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
+            "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
           ]
         }
       ]
@@ -500,6 +536,7 @@
           "source": "zguard-integrations",
           "path": "Anthropic/claude-code-aiguard/hooks/scan_user_input.py",
           "quotes": [
+            "action = str(result.action or \"\").upper()",
             "if action == \"BLOCK\":",
             "# Allow with warning",
             "# ALLOW if detectors_str:",
@@ -510,6 +547,7 @@
           "source": "zguard-integrations",
           "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
           "quotes": [
+            "action = str(result.action or \"\").upper()",
             "if action == \"BLOCK\":",
             "log_message(f\"ALLOWED URL: {url} (txn:{transaction_id})\")",
             "return True, message, {} else: log_message(f\"ALLOWED URL: {url} (txn:{transaction_id})\") return False, None, {}"
@@ -519,6 +557,7 @@
           "source": "zguard-integrations",
           "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
           "quotes": [
+            "action = str(result.action or \"\").upper()",
             "if action == \"BLOCK\":",
             "log_message(f\"ALLOWED MCP REQUEST {tool_name} (txn:{transaction_id})\")",
             "return True, message, {} else: log_message(f\"ALLOWED MCP REQUEST {tool_name} (txn:{transaction_id})\") return False, None, {}"
@@ -528,6 +567,7 @@
           "source": "zguard-integrations",
           "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
           "quotes": [
+            "action = str(result.action or \"\").upper()",
             "if action == \"BLOCK\":",
             "log_message(f\"ALLOWED {tool_name} response (txn:{txn_id})\")",
             "sys.exit(0) else: log_message(f\"ALLOWED {tool_name} response (txn:{txn_id})\")"
@@ -537,6 +577,7 @@
           "source": "zguard-integrations",
           "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
           "quotes": [
+            "action = str(result.action or \"\").upper()",
             "if action == \"BLOCK\":",
             "# Allow with warning",
             "elif action == \"DETECT\": if detectors_str: log_message( f\"WARNING FILE READ {filepath}: severity={severity} policy={policy_name} detectors=[{detectors_str}] (txn:{transaction_id})\""
@@ -570,6 +611,8 @@
           "source": "zguard-integrations",
           "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
           "quotes": [
+            "\"continue\": False,",
+            "\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\"},",
             "sys.exit(0)  # Exit 0 with JSON response (not exit 2)"
           ]
         },
@@ -580,6 +623,15 @@
             "\"continue\": False,",
             "\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\"},",
             "output_block_response( \"Zscaler AI Guard blocked tool response\", \"Operation blocked by Zscaler AI Guard security policy\", ) sys.exit(0)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
+          "quotes": [
+            "\"continue\": False,",
+            "\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\"},",
+            "sys.exit(0)  # Exit 0 with JSON response"
           ]
         }
       ]

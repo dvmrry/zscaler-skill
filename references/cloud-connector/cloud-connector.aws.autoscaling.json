@@ -224,7 +224,9 @@
           "quotes": [
             "policy_type = \"TargetTrackingScaling\"",
             "namespace = \"Zscaler/CloudConnectors\" metric_name = \"smedge_cpu_utilization\" metric_dimension { name = \"AutoScalingGroupName\"",
-            "statistic = \"Average\" unit = \"Percent\" } target_value = var.target_cpu_util_value"
+            "statistic = \"Average\" unit = \"Percent\" } target_value = var.target_cpu_util_value",
+            "count = length(aws_autoscaling_group.cc_asg[*].id) name = \"${var.name_prefix}-cc-asg-${count.index + 1}-avg-cpu-policy-${var.resource_tag}\"",
+            "autoscaling_group_name = aws_autoscaling_group.cc_asg[count.index].name"
           ]
         },
         {

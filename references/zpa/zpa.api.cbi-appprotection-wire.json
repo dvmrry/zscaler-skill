@@ -47,7 +47,7 @@
       "text": "{{profile-id-uuid}} {{create-200}}"
     },
     {
-      "text": "{{cbi-profile-id-only-writes}} {{cbi-user-experience-omitempty}} {{cbi-zpa-profile-no-omitempty}} {{python-cbi-profile-microtenant-keys}}"
+      "text": "{{cbi-profile-id-only-writes}} {{cbi-user-experience-omitempty}} {{cbi-zpa-profile-no-omitempty}} {{cbi-zpa-profile-tags-inert}} {{python-cbi-profile-microtenant-keys}}"
     },
     {
       "heading": "Browser protection"
@@ -193,7 +193,7 @@
       ]
     },
     "cbi-lists-are-flat-arrays": {
-      "statement": "The Go CBI region, ZPA profile and cbiprofilecontroller isolation profile lists decode the response directly into a slice with no totalPages or list envelope, and the region and ZPA profile lookups by name or ID list everything and match client-side because the code states the API does not seem to support search; the isolationprofile package instead uses the standard ZPA paging helpers.",
+      "statement": "The Go CBI region, ZPA profile and cbiprofilecontroller isolation profile lists decode the response directly into a slice with no totalPages or list envelope, and the region lookup by name and the ZPA profile lookups by ID and by name list everything and match client-side because the code states the API does not seem to support search; the isolationprofile package instead uses the standard ZPA paging helpers.",
       "tier": "A",
       "evidence": [
         {
@@ -201,7 +201,8 @@
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbiregions/cbiregions.go",
           "quotes": [
             "// The current API does not seem to support search by Name",
-            "var list []CBIRegions resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)"
+            "var list []CBIRegions resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)",
+            "list, resp, err := GetAll(ctx, service) if err != nil { return nil, nil, err } for _, app := range list { if strings.EqualFold(app.Name, cbiRegionName) {"
           ]
         },
         {
@@ -209,7 +210,10 @@
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go",
           "quotes": [
             "// The current API does not seem to support search by ID",
-            "var list []ZPAProfiles resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)"
+            "var list []ZPAProfiles resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)",
+            "profiles, resp, err := GetAll(ctx, service)",
+            "if profile.ID == profileID {",
+            "list, resp, err := GetAll(ctx, service) if err != nil { return nil, nil, err } for _, app := range list { if strings.EqualFold(app.Name, profileName) {"
           ]
         },
         {
@@ -232,7 +236,7 @@
       ]
     },
     "cbi-zpa-profile-no-omitempty": {
-      "statement": "The Go ZPAProfiles struct tags enabled and cbiUrl without omitempty, but the cbizpaprofile package has only Get, GetByName and GetAll and no write path, so the tags never affect a request.",
+      "statement": "The Go ZPAProfiles struct tags enabled and cbiUrl without omitempty, and the cbizpaprofile package has only Get, GetByName and GetAll and no write path.",
       "tier": "A",
       "evidence": [
         {
@@ -247,7 +251,7 @@
           ]
         }
       ],
-      "conditions": "Statement changed per verifier: it said false and an empty string are sent on writes, but the package has no write function (read from every `func` in the file at HEAD)."
+      "conditions": "Absence claim from a search: `grep -n '^func ' zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go` in the Go SDK at v3.8.58 lists only Get, GetByName and GetAll. Earlier statement changed per verifier: it said false and an empty string are sent on writes, but the package has no write function."
     },
     "cbi-singular-create-path": {
       "statement": "Creating a CBI banner or certificate is a POST to the singular /banner or /certificate path, while get, update, delete and list use the plural /banners or /certificates; the OpenAPI document shows the same split.",
@@ -510,7 +514,7 @@
           "note": "the module's complete import list; it takes only ZPACBIProfile from models/cbi_zpa_profile.py"
         }
       ],
-      "conditions": "No SDK call uses this class: cbi_zpa_profile.py imports only ZPACBIProfile from this model file, and the CBI profile methods in cbi_profile.py use the CBIProfile in models/cbi_profile.py (read from the imports under zscaler/ at HEAD). The snake-case keys therefore reach the wire only if a caller sends this class's request_format, and the executor would camel-case them ([[shared.sdk-python.request-handling:body-camel-case]])."
+      "conditions": "Absence claim from a search: `git -C vendor/zscaler-sdk-python grep -n 'models.cbi_zpa_profile' -- zscaler` at 4f8f54df (v1.11.3 plus one commit) matches only `from zscaler.zpa.models.cbi_zpa_profile import ZPACBIProfile` in cbi_zpa_profile.py, and `git grep -n 'import CBIProfile$' -- zscaler/zpa` matches only the import from models.cbi_profile in cbi_profile.py. No SDK call uses this class, so the snake-case keys reach the wire only if a caller sends this class's request_format, and the executor would camel-case them ([[shared.sdk-python.request-handling:body-camel-case]])."
     },
     "browser-protection-operations": {
       "statement": "The Go browser protection service reads the active profile from activeBrowserProtectionProfile and all profiles from browserProtectionProfile, and its only write is a PUT to browserProtectionProfile/setActive/{profileID}; it has no create or delete.",
@@ -744,6 +748,24 @@
             "format": "uuid",
             "type": "string"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1profiles~1{profileId}/put/parameters/[name=profileId]/schema",
+          "expect": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1cbiconfig~1cbi~1api~1customers~1{customerId}~1profiles~1{profileId}/delete/parameters/[name=profileId]/schema",
+          "expect": {
+            "format": "uuid",
+            "type": "string"
+          }
         }
       ],
       "conditions": "The Postman collection (09_29_2026 release) no longer carries this: profileId is described only as \"profileId\" and the add request has no example response. Previously \"The :profileId path parameter on the CBI isolation profile endpoints is a UUID string, in both the OpenAPI document and the Postman collection.\""
@@ -770,6 +792,14 @@
         }
       ],
       "conditions": "The Postman collection (09_29_2026 release) no longer carries this: profileId is described only as \"profileId\" and the add request has no example response. Previously \"Creating a CBI isolation profile returns 200 OK in both the OpenAPI document and the Postman collection, not 201 Created.\""
+    },
+    "cbi-zpa-profile-tags-inert": {
+      "statement": "The tags on `enabled` and `cbiUrl` in the Go ZPAProfiles struct never affect a request the cbizpaprofile package sends.",
+      "tier": "B",
+      "derived_from": [
+        "cbi-zpa-profile-no-omitempty"
+      ],
+      "conditions": "Follows from the package having only Get, GetByName and GetAll, which send no request body, so the struct is only decoded. Whether another package marshals ZPAProfiles was not searched."
     }
   },
   "divergences": {

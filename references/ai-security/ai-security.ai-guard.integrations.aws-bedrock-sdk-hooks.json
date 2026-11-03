@@ -77,7 +77,7 @@
   ],
   "claims": {
     "registration": {
-      "statement": "`protect_client` (one client) or `protect_session` (every bedrock-runtime client later created from the session) registers before-call and after-call handlers for Converse, ConverseStream, InvokeModel and InvokeModelWithResponseStream under fixed unique IDs, so protecting twice registers one set; other clients, processes and raw HTTPS calls are not covered.",
+      "statement": "`protect_client` (one client) or `protect_session` (every bedrock-runtime client created from the session afterwards) registers before-call and after-call handlers for Converse, ConverseStream, InvokeModel and InvokeModelWithResponseStream under fixed unique IDs; protecting the same client or session twice is a no-op, not a double scan; other clients, processes and raw HTTPS calls are not covered.",
       "tier": "A",
       "evidence": [
         {
@@ -103,7 +103,10 @@
           "source": "zguard-integrations",
           "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
           "quotes": [
-            "def protect_client(client, **config):"
+            "def protect_client(client, **config):",
+            "created from it afterwards is protected.",
+            "Protecting the same client twice is a no-op, not a double scan;",
+            "Protecting the same session twice is a no-op, not a double scan."
           ]
         }
       ]

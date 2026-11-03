@@ -219,12 +219,12 @@
           "after": "## 1.11.2 (October 7 2026)"
         }
       ],
-      "conditions": "Absence of such code rests on reading the function; the only other mention of override_version_profile in the file is the docstring. Changed upstream in v1.11.2 (checked 2026-10-18): previously \"The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function sends the keyword arguments unchanged and contains no code that sets it.\""
+      "conditions": "Absence of such code rests on reading the function; at v1.11.3, `grep -n \"override_version_profile\" zscaler/zpa/app_connector_groups.py` finds only docstring lines, and within `add_connector_group` `grep -n \"body\"` finds `body = kwargs`, the `microtenant_id` read, the `enrollment_cert_id` fill and the `create_request` call; at v1.10.0 the same search finds no `enrollment_cert_id` fill, so the body is passed unchanged. Changed upstream in v1.11.2 (checked 2026-10-18): previously \"The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function sends the keyword arguments unchanged and contains no code that sets it.\""
     },
     "version-profile-docstring-diverges": {
-      "statement": "The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and nothing maps them to the `versionProfileId` that the App Connector group model carries; the executor sends `version_profile` camel-cased as `versionProfile`, a key the model does not have.",
+      "statement": "The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and `add_connector_group` does not map them to the `versionProfileId` that the App Connector group model carries; the executor sends `version_profile` camel-cased as `versionProfile`, a key the model does not have.",
       "tier": "A",
-      "conditions": "Corrected because \"numeric IDs\" was unsourced; the model's key is versionProfileId. That nothing maps the names and that the model has no versionProfile key rest on reading the function and the model. Previously \"The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and does not map them to the numeric version profile IDs the API object carries.\"",
+      "conditions": "Corrected because \"numeric IDs\" was unsourced; the model's key is versionProfileId. At v1.11.3, `grep -rn \"pick_version_profile\" --include='*.py' .` returns only its definition in zscaler/utils.py, which does map the three names to IDs 0, 1 and 2 but has no caller, and the group module imports only `format_url` from zscaler.utils; `grep -n '\"versionProfile\"' zscaler/zpa/models/app_connector_groups.py` returns nothing, so the model has no `versionProfile` key. Previously \"The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and does not map them to the numeric version profile IDs the API object carries.\"",
       "evidence": [
         {
           "source": "sdk-python",
@@ -258,6 +258,13 @@
             "body = convert_keys_to_camel_case(body)"
           ],
           "after": "# Preserve existing logic for other services"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "quotes": [
+            "from zscaler.utils import format_url"
+          ]
         }
       ]
     },

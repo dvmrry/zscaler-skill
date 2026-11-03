@@ -44,11 +44,11 @@
     },
     {
       "label": "Writes.",
-      "text": "{{enrollment-cert-allow-signing-omitempty}} {{python-validity-window-checks}} {{go-no-validity-checks}} {{python-delete-dry-run}}"
+      "text": "{{enrollment-cert-allow-signing-omitempty}} {{python-validity-window-checks}} {{python-update-enrollment-raw-window}} {{go-no-validity-checks}} {{python-delete-dry-run}}"
     },
     {
       "label": "Python model.",
-      "text": "{{python-enrollment-model-gaps}}"
+      "text": "{{python-enrollment-model-gaps}} {{python-enrollment-empty-request-format}}"
     },
     {
       "heading": "Browser Access certificates"
@@ -275,7 +275,7 @@
       ]
     },
     "python-enrollment-model-gaps": {
-      "statement": "The Python EnrollmentCertificate model never reads `description` from a response and does not emit it in request_format, so a caller who serializes a model instance with request_format and sends the result loses the description; the SDK's own add and update methods send their keyword arguments as the body. Its no-config branch also names an attribute `zrsaencryptedprivate_key`, which differs from the `zrsaencryptedprivatekey` that request_format reads, so request_format on an empty instance raises AttributeError.",
+      "statement": "The Python EnrollmentCertificate model never reads `description` from a response and does not emit it in request_format, so a caller who serializes a model instance with request_format and sends the result loses the description; the SDK's own add and update methods send their keyword arguments as the body. Its no-config branch also names an attribute `zrsaencryptedprivate_key`, which differs from the `zrsaencryptedprivatekey` that request_format reads.",
       "tier": "A",
       "evidence": [
         {
@@ -342,6 +342,24 @@
       ],
       "conditions": "Statement changed per verifier: it said any description sent through the model is dropped, but add_enrollment_cert and update_enrollment build the body from keyword arguments, and no call in enrollment_certificates.py uses request_format (read from the whole file). The absence of description from the config branch and from request_format was read from the whole model; a quote cannot prove an absence. The Go struct and the OpenAPI schema both define description."
     },
+    "python-enrollment-empty-request-format": {
+      "statement": "Calling request_format on an EnrollmentCertificate built without a config raises AttributeError.",
+      "tier": "B",
+      "derived_from": [
+        "python-enrollment-model-gaps"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/enrollment_certificates.py",
+          "quotes": [
+            "self.zrsaencryptedprivate_key = None",
+            "\"zrsaencryptedprivatekey\": self.zrsaencryptedprivatekey,"
+          ]
+        }
+      ],
+      "conditions": "Rests on Python attribute semantics: the no-config branch assigns `zrsaencryptedprivate_key` and request_format reads `self.zrsaencryptedprivatekey`, which that branch never assigns (`grep -n 'zrsaencryptedprivate' zscaler/zpa/models/enrollment_certificates.py` at Python SDK commit 4f8f54d (one commit after v1.11.3) finds the config-branch assignment, this no-config assignment and the request_format read). No source states the error and the call was not run."
+    },
     "go-no-validity-checks": {
       "statement": "The Go SDK has no such validity-window or time-zone checks: its enrollment certificate writes send whatever the struct holds.",
       "tier": "B",
@@ -351,7 +369,7 @@
       "conditions": "Rests on the three Go write functions opening with the NewRequestDo call and on a read of the whole enrollmentcert package at the pin, which converts and validates nothing; a quote cannot pin the absence."
     },
     "python-validity-window-checks": {
-      "statement": "The Python SDK checks valid_from, valid_to and time_zone, rejecting a start more than one hour in the past, a range over 365 days, and a time zone not in the pytz list. The Go SDK's `Create`, `Update` and self-signed generate functions open by passing the certificate struct to `NewRequestDo`, with nothing before the call but allocating the response or building the path. add_enrollment_cert and generate_self_signed send the body as the keyword arguments, so the window goes out as epoch seconds in strings. update_enrollment copies the keyword arguments into a new body before converting, so it sends the raw valid_from, valid_to and time_zone and no epoch values.",
+      "statement": "The Python SDK checks valid_from, valid_to and time_zone, rejecting a start more than one hour in the past, a range over 365 days, and a time zone not in the pytz list. The Go SDK's `Create`, `Update` and self-signed generate functions open by passing the certificate struct to `NewRequestDo`, with nothing before the call but allocating the response or building the path. add_enrollment_cert and generate_self_signed send the body as the keyword arguments, so the window goes out as epoch seconds in strings. update_enrollment copies the keyword arguments into a new body before converting, then writes the epoch values into the keyword arguments and removes the raw valid_from, valid_to and time_zone from them, not from the body.",
       "tier": "A",
       "evidence": [
         {
@@ -414,6 +432,27 @@
         }
       ],
       "conditions": "Statement changed per verifier: it said all Python writes send the epoch values; update_enrollment converts into kwargs after body has already copied them, and pops the raw keys from kwargs only, so its body keeps them (camel-cased by the executor, [[shared.sdk-python.request-handling:body-camel-case]]). generate_self_signed was added because it converts like add_enrollment_cert. The Go statement rests on reading the enrollmentcert package, which converts nothing and validates nothing before the request. The OpenAPI schema says validFromInEpochSec is not applicable for put and post calls because the value is extracted from the certificate."
+    },
+    "python-update-enrollment-raw-window": {
+      "statement": "update_enrollment sends the raw valid_from, valid_to and time_zone and no epoch values in the request body.",
+      "tier": "B",
+      "derived_from": [
+        "python-validity-window-checks"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/enrollment_certificates.py",
+          "after": "def update_enrollment(",
+          "quotes": [
+            "body = {}",
+            "body.update(kwargs)",
+            "kwargs.pop(key, None)",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
+          ]
+        }
+      ],
+      "conditions": "Rests on the order of the code: `body` is filled from the keyword arguments before the conversion writes the epoch values into `kwargs` and before the loop pops the raw keys from `kwargs`, so the body keeps the raw keys and never gets the epoch keys. No source states the outcome and the call was not run."
     },
     "python-delete-dry-run": {
       "statement": "The Python enrollment certificate delete sends the dryRun query parameter only when dry_run is truthy, so dry_run=False is the same as omitting it.",

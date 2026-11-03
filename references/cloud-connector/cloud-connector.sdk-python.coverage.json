@@ -73,7 +73,7 @@
       ]
     },
     "dest-workload-groups-wire-key": {
-      "statement": "`add_rule` and `update_rule` pass their keyword arguments through `transform_common_id_fields` with the shared `reformat_params` table, which maps `dest_workload_groups_ids` to the wire key `destWorkloadGroups`.",
+      "statement": "`add_rule` and `update_rule` in the Python ZTW forwarding-rules module build `local_reformat_params` from `reformat_params`, minus its `url_categories` entry, and pass it to `transform_common_id_fields`; `reformat_params` maps `dest_workload_groups_ids` to the wire key `destWorkloadGroups`.",
       "tier": "A",
       "evidence": [
         {
@@ -88,7 +88,8 @@
           "path": "zscaler/ztw/forwarding_rules.py",
           "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
           "quotes": [
-            "transform_common_id_fields(local_reformat_params, body, body)"
+            "transform_common_id_fields(local_reformat_params, body, body)",
+            "local_reformat_params = [param for param in reformat_params if param[0] != \"url_categories\"]"
           ]
         },
         {
@@ -96,7 +97,8 @@
           "path": "zscaler/ztw/forwarding_rules.py",
           "after": "def update_rule(self, rule_id: str, **kwargs) -> APIResult[dict]:",
           "quotes": [
-            "transform_common_id_fields(local_reformat_params, body, body)"
+            "transform_common_id_fields(local_reformat_params, body, body)",
+            "local_reformat_params = [param for param in reformat_params if param[0] != \"url_categories\"]"
           ]
         }
       ]
@@ -133,6 +135,23 @@
           "path": "zscaler/ztw/services/partner_integrations/partner_integrations.go",
           "quotes": [
             "func UpdateDiscoveryPermissions(ctx context.Context, service *zscaler.Service, awsAccountID int, permissions *DiscoveryPermissions) error {"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/discovery_service.py",
+          "after": "def update_discovery_service_permissions(",
+          "quotes": [
+            "http_method = \"put\".upper()"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/partner_integrations.go",
+          "after": "func UpdateDiscoveryPermissions(",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"/ztw/api/v1/discoveryService/%d/permissions\", awsAccountID)",
+            "service.Client.UpdateWithPutResource(ctx, endpoint, *permissions)"
           ]
         }
       ]

@@ -374,7 +374,8 @@
             "NetworkInterfaceId: Ref: ServiceXface3 DeviceIndex: 3",
             "NetworkInterfaceId: Ref: ServiceXface4 DeviceIndex: 4",
             "NetworkInterfaceId: Ref: ServiceXface5 DeviceIndex: 5",
-            "ServiceXface5: Condition: CreateCCLargeServiceXfaces Type: 'AWS::EC2::NetworkInterface' Properties: SubnetId: !Ref CCSubnetID Description: !Join - \" \" - - Interface for internal LB VIP"
+            "ServiceXface5: Condition: CreateCCLargeServiceXfaces Type: 'AWS::EC2::NetworkInterface' Properties: SubnetId: !Ref CCSubnetID Description: !Join - \" \" - - Interface for internal LB VIP",
+            "ServiceXface4: Condition: CreateCCMediumServiceXfaces Type: 'AWS::EC2::NetworkInterface' Properties: SubnetId: !Ref CCSubnetID Description: !If - CreateCCLargeServiceXfaces - !Join [' ', ['Interface for service 3 traffic for CC', !Ref CCInstanceType, 'Instance Type']] - 'Interface for internal lb vip'"
           ]
         }
       ]

@@ -307,7 +307,9 @@
           "path": "zscaler/zpa/lss.py",
           "quotes": [
             "{self._zpa_base_endpoint_v1}",
-            "/policySet/policyType/SIEM_POLICY"
+            "/policySet/policyType/SIEM_POLICY",
+            "http_method = \"get\".upper()",
+            "The LSS payload's ``policyRuleResource`` must include ``policySetId``"
           ],
           "after": "def _get_siem_policy_set_id(self):"
         },
@@ -326,6 +328,17 @@
             "accessPolicySet, _, err := policysetcontroller.GetByPolicyType(context.Background(), service, policyType)",
             "PolicySetID: accessPolicySet.ID,",
             "createdResource, _, err := Create(context.Background(), service, lssConfig)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/lss.py",
+          "after": "def add_lss_config(",
+          "quotes": [
+            "http_method = \"post\".upper()",
+            "self._zpa_lss_base_endpoint_v2} /lssConfig",
+            "policy_set_id, err = self._get_siem_policy_set_id()",
+            "\"policySetId\": policy_set_id,"
           ]
         }
       ]

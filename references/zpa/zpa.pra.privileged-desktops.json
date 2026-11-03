@@ -116,18 +116,17 @@
       ]
     },
     "policy-parameters": {
-      "statement": "The step 1 template takes TargetAccountId (the AWS account where resources will be managed) and TargetRegion (the AWS Region) as parameters, and names the policy ZPA-PRA-Cross-Account-Policy-<TargetRegion>, so the policy is region-specific; it outputs PolicyArn.",
+      "statement": "The step 1 template takes TargetAccountId (the AWS account where resources will be managed) and TargetRegion (the AWS Region) as parameters, names the policy ZPA-PRA-Cross-Account-Policy-<TargetRegion>, and outputs PolicyArn.",
       "tier": "A",
       "evidence": [
         {
           "source": "zpa-privileged-desktops",
           "path": "permissions_policy_step_1.yml",
           "quotes": [
-            "The AWS Account ID where the resources will be managed.",
-            "The AWS Region where the resources will be managed.",
+            "TargetAccountId: Type: String Description: The AWS Account ID where the resources will be managed.",
+            "TargetRegion: Type: String Description: The AWS Region where the resources will be managed.",
             "ManagedPolicyName: !Sub \"ZPA-PRA-Cross-Account-Policy-${TargetRegion}\"",
-            "Value: !Ref PrivilegedDesktopsIAMPolicy",
-            "The ARN of the created IAM policy."
+            "PolicyArn: Description: \"The ARN of the created IAM policy.\" Value: !Ref PrivilegedDesktopsIAMPolicy"
           ]
         }
       ]
@@ -140,10 +139,10 @@
           "source": "zpa-privileged-desktops",
           "path": "create_iam_role_and_trust_step_2.yml",
           "quotes": [
-            "A comma-separated list of AWS principal ARNs that are allowed to assume this role.",
-            "A comma-separated list of managed policy ARNs to attach to the role.",
-            "The ARN of the created DJB-Cross-Account-Role.",
-            "The stable and unique ID of the created role."
+            "TrustedPrincipals: Type: CommaDelimitedList Description: A comma-separated list of AWS principal ARNs that are allowed to assume this role.",
+            "ManagedPolicyArnsList: Type: CommaDelimitedList Description: A comma-separated list of managed policy ARNs to attach to the role.",
+            "RoleArn: Description: \"The ARN of the created DJB-Cross-Account-Role.\"",
+            "RoleId: Description: \"The stable and unique ID of the created role.\""
           ]
         }
       ]
@@ -165,7 +164,7 @@
           "quotes": [
             "- \"iam:GetRole\"",
             "- \"iam:ListAttachedRolePolicies\"",
-            "role/DJB-Cross-Account-Role"
+            "!Sub \"arn:aws:iam::${TargetAccountId}:role/DJB-Cross-Account-Role\""
           ]
         }
       ]

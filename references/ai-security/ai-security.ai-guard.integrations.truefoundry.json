@@ -164,7 +164,7 @@
       ]
     },
     "scan-error-raises": {
-      "statement": "When the SDK reports an error, `_scan` logs it at ERROR and raises a plain Exception, which neither endpoint catches, so the endpoint returns no verdict body.",
+      "statement": "When the SDK reports an error, `_scan` logs it at ERROR and raises a plain Exception; both endpoints call `_scan` without a surrounding try block.",
       "tier": "A",
       "evidence": [
         {
@@ -191,7 +191,8 @@
             "result = _scan( content, \"OUT\", txn_id, user=_extract_user(request.context),"
           ]
         }
-      ]
+      ],
+      "conditions": "The absence of any handler is a search result: `grep -n \"try:\\|except\\|exception_handler\" vendor/zguard-ai-integrations/TrueFoundry/examples/main.py` returns nothing at v0.2.0-11-g70d5c9c (commit 70d5c9c), so no code in the file catches the Exception."
     },
     "error-posture": {
       "statement": "An AI Guard error therefore reaches TrueFoundry as a non-2xx guardrail failure, so whether the request is blocked or passed is decided by the TrueFoundry guardrail mode, and under Enforce But Ignore On Error or Audit it passes.",
@@ -254,7 +255,10 @@
             "\"end-user identity resolved: source=%s value=%s\",",
             "# Log every candidate, not just the winner",
             "A human subject (``subjectType: \"user\"``)\n    carries ``email``, and its ``subjectSlug`` is that same email.",
-            "# A human subject carries its email directly."
+            "# A human subject carries its email directly.",
+            "candidates = ( # A human subject carries its email directly. (\"user.email\", subject.email if subject else None),",
+            "logger.info( \"identity candidate: source=%s value=%s\",",
+            "if value: logger.info( \"end-user identity resolved: source=%s value=%s\", source, value, ) return value"
           ]
         }
       ]

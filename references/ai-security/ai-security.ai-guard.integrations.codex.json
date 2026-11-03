@@ -218,11 +218,18 @@
           "quotes": [
             "MIN_SCAN_CHARS = 5"
           ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/scan_stop_response.py",
+          "quotes": [
+            "Scans the assistant's final message with direction=OUT after streaming completes,"
+          ]
         }
       ]
     },
     "content": {
-      "statement": "Every hook truncates content to 20000 characters; tool input is the first non-empty of command, query, prompt, message, content, body and url, else the whole input as JSON; tool output is the first of output, stdout, content, text, result and data with at least 5 characters, else every string in it (up to 50, depth 6), else the raw JSON; post-tool output under 5 characters is not scanned.",
+      "statement": "Each of the six hook scripts (user input, Bash command, Bash response, MCP request, MCP response, stop response) truncates content to 20000 characters; tool input is the first non-empty of command, query, prompt, message, content, body and url, else the whole input as JSON; tool output is the first of output, stdout, content, text, result and data with at least 5 characters, else every string in it (up to 50, depth 6), else the raw JSON; Bash and MCP response output under 5 characters is not scanned.",
       "tier": "A",
       "evidence": [
         {
@@ -238,7 +245,9 @@
             "return stringify(tool_input)",
             "if isinstance(value, str) and len(value.strip()) >= MIN_SCAN_CHARS: return value",
             "harvested = collect_strings(response) return harvested if harvested else stringify(response)",
-            "return json.dumps(value, separators=(\",\", \":\"), ensure_ascii=False)"
+            "return json.dumps(value, separators=(\",\", \":\"), ensure_ascii=False)",
+            "MIN_SCAN_CHARS = 5",
+            "def truncate(text: str) -> str:"
           ]
         },
         {

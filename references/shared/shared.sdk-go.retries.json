@@ -506,16 +506,21 @@
       "conditions": "Arithmetic over the two loop caps; assumes the response is one the inner policy retries and the outer loop continues on (such as 429 or a retryable 5xx)."
     },
     "zcc-handler-conditional": {
-      "statement": "The ZCC client builds its retrying HTTP client, with the error handler that hands the final response back on exhaustion, only when no custom HTTP client is configured and `BackoffConf` is present and enabled; otherwise that retry transport is not used.",
+      "statement": "The ZCC client's `getHTTPClient` builds its retrying HTTP client, with the error handler that hands the final response back on exhaustion, only when no custom HTTP client is configured and `BackoffConf` is present and enabled; otherwise this function does not build it and returns `cfg.HTTPClient` as it is.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/v2_client.go",
           "quotes": [
+            "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {",
             "if cfg.HTTPClient == nil {",
             "if cfg.ZCC.Client.RateLimit.BackoffConf != nil && cfg.ZCC.Client.RateLimit.BackoffConf.Enabled {",
-            "retryableClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {"
+            "retryableClient := retryablehttp.NewClient()",
+            "retryableClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {",
+            "err is nil only when the retry budget ran out while CheckRetry // still wanted to retry.",
+            "l.Printf(\"[WARN] giving up after %d attempt(s); surfacing API response status %d\", numTries, resp.StatusCode) return resp, nil",
+            "cfg.HTTPClient = retryableClient.StandardClient() } } return cfg.HTTPClient"
           ]
         }
       ]

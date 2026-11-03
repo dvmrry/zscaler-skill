@@ -148,8 +148,24 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
           "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, rule, v)"
+          ],
+          "after": "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
             "path := fmt.Sprintf(mgmtConfigV2+service.Client.GetCustomerID()+\"/policySet/%s/rule/%s\", policySetID, ruleId)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, policySetRule, nil)"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
         },
         {
           "source": "sdk-go",
@@ -584,7 +600,7 @@
       "conditions": "The 200 that the Go request helper reports for a 204 is covered in shared.sdk-go.request-handling."
     },
     "rule-mutex-coverage": {
-      "statement": "Up to v3.8.50 the Go v2 package takes its own package-level `ruleMutex` in create, update, delete, reorder and `BulkReorder`, and the v1 package takes a separate one in create, update, delete and reorder, so a v1 write and a v2 write to the same policy set can run concurrently. From v3.8.51 (#466) both packages take one shared `common.PolicyRuleMutex` in those functions instead. Both before and after that change the v1 `BulkReorder` starts without taking a lock. Reads do not lock. The Python SDK wraps its rule add, update, delete and reorder methods, including `bulk_reorder_rules`, in one module-level lock, except the v1 `add_app_protection_rule`, which carries no lock decorator.",
+      "statement": "Up to v3.8.50 the Go v2 package takes its own package-level `ruleMutex` in create, update, delete, reorder and `BulkReorder`, and the v1 package takes a separate one in create, update, delete and reorder, so a v1 write and a v2 write to the same policy set can run concurrently. From v3.8.51 (#466) both packages take one shared `common.PolicyRuleMutex` in those functions instead. Both before and after that change the v1 `BulkReorder` starts without taking a lock. Reads do not lock. The Python SDK wraps `add_access_rule`, `update_access_rule`, `add_access_rule_v2`, `delete_rule`, `reorder_rule` and `bulk_reorder_rules` in one module-level lock; its `add_app_protection_rule` carries no lock decorator, unlike `add_app_protection_rule_v2`.",
       "tier": "A",
       "evidence": [
         {
@@ -610,6 +626,124 @@
           "quotes": [
             "// Only CREATE/UPDATE/DELETE need the ruleMutex due to API restrictions"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "var ruleMutex sync.Mutex"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, policySetID, ruleId string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "var ruleMutex sync.Mutex"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, policySetID, ruleId string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.48",
+            "v3.8.50"
+          ],
+          "quotes": [
+            "ruleMutex.Lock()"
+          ],
+          "after": "func Reorder(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, order int) (*http.Response, error) {"
         },
         {
           "source": "sdk-go",
@@ -670,7 +804,8 @@
             "@synchronized(global_rule_lock) def add_access_rule_v2(",
             "@synchronized(global_rule_lock) def delete_rule(self, policy_type: str, rule_id: str, microtenant_id: str = None)",
             "@synchronized(global_rule_lock) def reorder_rule(self, policy_type: str, rule_id: str, rule_order: str, **kwargs)",
-            "return (result, response, None) def add_app_protection_rule("
+            "return (result, response, None) def add_app_protection_rule(",
+            "@synchronized(global_rule_lock) def add_app_protection_rule_v2("
           ]
         }
       ],

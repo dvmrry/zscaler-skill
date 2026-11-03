@@ -462,7 +462,7 @@
       ]
     },
     "total-count": {
-      "statement": "A list's `total_count` is filled only on the first page and is 0 on later pages; the first-page value is an estimate that concurrent changes can make drift, so paging continues until `next_cursor` is empty rather than by count.",
+      "statement": "On the agents list and the issues list, `total_count` is filled only on the first page and is 0 on later pages; the first-page value is an estimate that concurrent changes can make drift, so paging continues until `next_cursor` is empty rather than by count.",
       "tier": "A",
       "evidence": [
         {
@@ -471,6 +471,14 @@
           "pointer": "/paths/~1v1~1assets~1agents/get",
           "expect": {
             "description": "Returns a paginated list of AI agents discovered across cloud environments\nand source code repositories.\n\n**Note on `total_count`:** The `total_count` field is populated only on the\nfirst page of results. Subsequent pages return `total_count` as `0` to avoid\nthe performance cost of counting on every request. Treat the first-page value\nas an **estimate** — concurrent changes (creates, deletes, status transitions)\nmay cause it to drift. Do not use `total_count` to control pagination; instead,\ncontinue fetching pages until `next_cursor` is empty."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1issues/get",
+          "expect": {
+            "description": "Returns a paginated list of security findings across all asset types.\n\n**Note on `total_count`:** The `total_count` field is populated only on the\nfirst page of results. Subsequent pages return `total_count` as `0` to avoid\nthe performance cost of counting on every request. Treat the first-page value\nas an **estimate** — concurrent changes (creates, deletes, status transitions)\nmay cause it to drift. Do not use `total_count` to control pagination; instead,\ncontinue fetching pages until `next_cursor` is empty."
           }
         }
       ]

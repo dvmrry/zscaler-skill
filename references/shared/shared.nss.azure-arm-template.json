@@ -256,9 +256,8 @@
         {
           "source": "nss-azure-deploy",
           "path": "azuredeploy.json",
-          "after": "\"name\": \"[variables('publicIPAddress1name')]\",\n      \"location\": \"[parameters('location')]\",",
           "quotes": [
-            "\"publicIPAllocationMethod\": \"Dynamic\""
+            "\"name\": \"[variables('publicIPAddress1name')]\", \"location\": \"[parameters('location')]\", \"properties\": { \"publicIPAllocationMethod\": \"Dynamic\" } },"
           ]
         },
         {
@@ -294,7 +293,8 @@
             "state": "open"
           }
         }
-      ]
+      ],
+      "conditions": "Absence claim from the quoted resource: it runs from its name to its closing brace with only `location` and `properties` between, so it carries no `sku`. Search: `grep -n '\"sku\"' azuredeploy.json` in nss-azure-deploy at cc58148 lists sku entries only at other resources (the service public IP among them)."
     }
   },
   "gaps": {

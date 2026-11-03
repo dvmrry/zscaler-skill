@@ -245,7 +245,7 @@
       ]
     },
     "provider-sends-wan-selection": {
-      "statement": "The forwarding rule resource accepts `wan_selection` (validated against five SMRULEF_ and _RULE values), describes it as applicable only to a hardware device in gateway mode, and copies it into every create and update request.",
+      "statement": "The forwarding rule resource accepts `wan_selection` (validated against five values: `SMRULEF_ZPA_BROKERS_RULE`, `SMRULEF_APPC_DYNAMIC_SRC_IPGROUP`, `SMRULEF_EXCL_SRC_IP`, `BALANCED_RULE` and `BESTLINK_RULE`), describes it as applicable only to a hardware device in gateway mode, and copies it into the request through `expandForwardingControlRule`, which both create and update call.",
       "tier": "A",
       "evidence": [
         {
@@ -253,8 +253,11 @@
           "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
           "quotes": [
             "Description: \"WAN selection is only applicable when configuring a hardware device deployed in gateway mode.\",",
+            "ValidateFunc: validation.StringInSlice([]string{ \"SMRULEF_ZPA_BROKERS_RULE\",",
             "\"SMRULEF_ZPA_BROKERS_RULE\", \"SMRULEF_APPC_DYNAMIC_SRC_IPGROUP\", \"SMRULEF_EXCL_SRC_IP\", \"BALANCED_RULE\", \"BESTLINK_RULE\",",
-            "WanSelection: d.Get(\"wan_selection\").(string),"
+            "WanSelection: d.Get(\"wan_selection\").(string),",
+            "req := expandForwardingControlRule(d) log.Printf(\"[INFO] Creating ztc traffic forwarding rule",
+            "log.Printf(\"[INFO] Updating traffic forwarding rule ID: %v\\n\", id) req := expandForwardingControlRule(d)"
           ]
         }
       ]

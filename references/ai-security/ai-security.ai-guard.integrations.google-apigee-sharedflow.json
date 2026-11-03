@@ -248,6 +248,7 @@
             "if (!aiguardIsBlank(aiguardHeader('x-claude-code-session-id'))) { isCC = true; }",
             "else if (aiguardHeader('x-app') === 'cli') { isCC = true; }",
             "if (toolCount === 0 || (maxTokens > 0 && maxTokens <= 4096)) { return true; }",
+            "Marker check is on the LAST user message",
             "if (text.indexOf('[SUGGESTION MODE:') !== -1) { return true; }",
             "if (isCC && isAgentHarnessBackground()) { return false; }"
           ]
@@ -256,7 +257,8 @@
           "source": "zguard-integrations",
           "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/aiguard-lib.js",
           "quotes": [
-            "var AIGUARD_SYSREMINDER_RE = /<system-reminder>[\\s\\S]*?<\\/system-reminder>/gi;"
+            "var AIGUARD_SYSREMINDER_RE = /<system-reminder>[\\s\\S]*?<\\/system-reminder>/gi;",
+            "try { return String(text).replace(AIGUARD_SYSREMINDER_RE, '').replace(/^\\s+|\\s+$/g, ''); }"
           ]
         },
         {
@@ -279,6 +281,14 @@
           "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/init-config.js",
           "quotes": [
             "aiguardTruthy(cfg('forceAgentHarness', false)) ? 'true' : 'false');"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
+          "quotes": [
+            "buf.push(isCC ? aiguardStripReminders(content) : content);",
+            "buf.push(isCC ? aiguardStripReminders(blk.text || '') : (blk.text || ''));"
           ]
         }
       ]

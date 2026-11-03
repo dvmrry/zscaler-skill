@@ -99,17 +99,20 @@
       ]
     },
     "toolset-flags": {
-      "statement": "`--toolsets` (`ZSCALER_MCP_TOOLSETS`) enables toolsets and `--disabled-toolsets` (`ZSCALER_MCP_DISABLED_TOOLSETS`) excludes them; both take exact toolset IDs with no wildcards, and the disabled list wins when both name a toolset.",
+      "statement": "`--toolsets` (`ZSCALER_MCP_TOOLSETS`) enables toolsets and `--disabled-toolsets` (`ZSCALER_MCP_DISABLED_TOOLSETS`) excludes them; both take exact toolset IDs with no wildcards (`--toolsets` also takes the keywords `all` and `default`, meaning every toolset), and the disabled list wins when both name a toolset.",
       "tier": "A",
       "evidence": [
         {
           "source": "mcp-server",
           "path": "src/zscaler_mcp/server.py",
           "quotes": [
-            "default=os.getenv(\"ZSCALER_MCP_TOOLSETS\", \"\"),",
-            "default=os.getenv(\"ZSCALER_MCP_DISABLED_TOOLSETS\", \"\"),",
+            "\"--toolsets\", default=os.getenv(\"ZSCALER_MCP_TOOLSETS\", \"\"), help=\"Comma-separated toolset ids to enable (default: all).\",",
+            "\"--disabled-toolsets\", default=os.getenv(\"ZSCALER_MCP_DISABLED_TOOLSETS\", \"\"),",
+            "Comma-separated toolset ids to exclude (e.g. 'zia_ssl_inspection,zia_admin').",
             "Exact ids only (no wildcards); wins over --toolsets when both name a \"",
-            "\"toolset (env: ZSCALER_MCP_DISABLED_TOOLSETS).\""
+            "\"toolset (env: ZSCALER_MCP_DISABLED_TOOLSETS).\"",
+            "Toolset ids are exact (no globbing), so a typo would otherwise be silent",
+            "v1 treats ``all`` and ``default`` as special keywords meaning \"every toolset\""
           ]
         }
       ]

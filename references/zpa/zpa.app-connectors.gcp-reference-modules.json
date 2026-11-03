@@ -577,7 +577,7 @@
       ]
     },
     "asg-owns-size": {
-      "statement": "In the autoscaling module the autoscaler owns the group size: target_size is left unset on each MIG and ignored in lifecycle changes so Terraform does not fight the autoscaler, and one MIG plus one autoscaler is created per zone.",
+      "statement": "In the autoscaling module the autoscaler owns the group size: target_size is left unset on each MIG and ignored in lifecycle changes so Terraform does not fight the autoscaler, and one MIG is created per zone with one autoscaler per MIG.",
       "tier": "A",
       "evidence": [
         {
@@ -588,7 +588,17 @@
             "autoscaler is the sole authority on group size.",
             "ignore_changes = [target_size]",
             "# Once the autoscaler attaches, target_size is owned by it.",
-            "count   = length(var.zones)"
+            "count   = length(var.zones)",
+            "resource \"google_compute_instance_group_manager\" \"ac_instance_group_manager\" {",
+            "resource \"google_compute_autoscaler\" \"ac_asg\" {"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "modules/terraform-zsac-asg-gcp/main.tf",
+          "after": "resource \"google_compute_autoscaler\" \"ac_asg\" {",
+          "quotes": [
+            "count   = length(google_compute_instance_group_manager.ac_instance_group_manager[*].instance_group)"
           ]
         }
       ]

@@ -220,8 +220,10 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
           "quotes": [
-            "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {"
-          ]
+            "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {",
+            "if _, err := segmentgroup.Delete(ctx, service, d.Id()); err != nil {"
+          ],
+          "after": "func resourceSegmentGroupDelete("
         },
         {
           "source": "sdk-go",
@@ -234,11 +236,13 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/segment_groups.py",
           "quotes": [
-            "http_method = \"delete\".upper()"
+            "http_method = \"delete\".upper()",
+            "request, error = self._request_executor.create_request(http_method, api_url, params=params)"
           ],
           "after": "def delete_group(self, group_id: str, microtenant_id: str = None)"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -niE \"detach|policyset|policy\" zscaler/zpa/services/segmentgroup/zpa_segment_group.go` in the Go SDK at v3.8.58 matched only the `PolicyMigrated` struct field, and the same search over zscaler/zpa/segment_groups.py in the Python SDK at v1.11.3-1-g4f8f54df matched only `policy_migrated` docstring lines, so neither delete function touches policy rules."
     },
     "sdk-delete-leaves-operands": {
       "statement": "A segment group deleted through the SDK or the API directly can leave `APP_GROUP` operands for its ID in policy rules, because the cleanup that removes them exists only in the Terraform delete path.",

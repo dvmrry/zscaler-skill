@@ -252,12 +252,26 @@
       ]
     },
     "python-strips-prefix": {
-      "statement": "The Python SDK's service modules build ZPA paths with a /zpa/mgmtconfig/v1/admin/customers/{customer_id} base, and its executor removes /zpa from the URL when the legacy client is in use.",
+      "statement": "Some of the Python SDK's ZPA modules (for example `oauth2_user_code`, `machine_groups` and `idp`) build ZPA paths with a /zpa/mgmtconfig/v1/admin/customers/{customer_id} base, and its executor removes /zpa from the URL when the legacy client is in use.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/oauth2_user_code.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/machine_groups.py",
+          "quotes": [
+            "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/idp.py",
           "quotes": [
             "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
@@ -280,7 +294,7 @@
       ]
     },
     "v2-packages": {
-      "statement": "The Go SDK reaches the mgmtconfig v2 base, not only for log receivers, for posture profiles, identity providers, SAML attributes, trusted networks, enrollment certificates, Browser Access certificates, segment group update, user portal link bulk update and v2 policy rule create and update.",
+      "statement": "The Go SDK reaches the mgmtconfig v2 base from more than the LSS configuration (`/lssConfig`) package: the posture profile, identity provider, SAML attribute, trusted network, enrollment certificate and Browser Access certificate packages contain the v2 base path, and so do the segment group package (`UpdateV2`, `UpdateV2Changes`), the user portal link package (`CreatePortalLinkBulk`, `/bulk`) and the v2 policy package (`CreateRule`, `UpdateRule`).",
       "tier": "A",
       "evidence": [
         {
@@ -329,28 +343,37 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
           "quotes": [
-            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+            "func UpdateV2(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup) (*http.Response, error) { path := fmt.Sprintf(\"%v/%v\", mgmtConfigV2+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)",
+            "func UpdateV2Changes(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroupV2Update) (*http.Response, error) { path := fmt.Sprintf(\"%v/%v\", mgmtConfigV2+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/userportal/portal_link/portal_link.go",
           "quotes": [
-            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+            "\"/zpa/mgmtconfig/v2/admin/customers/\"",
+            "func CreatePortalLinkBulk(ctx context.Context, service *zscaler.Service, portalBulk []UserPortalLink) ([]UserPortalLink, *http.Response, error) {",
+            "relativeURL := mgmtConfigV2 + service.Client.GetCustomerID() + userPortalLinkEndpoint + \"/bulk\""
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
           "quotes": [
-            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+            "\"/zpa/mgmtconfig/v2/admin/customers/\"",
+            "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {",
+            "path := fmt.Sprintf(mgmtConfigV2+service.Client.GetCustomerID()+\"/policySet/%s/rule\", rule.PolicySetID)",
+            "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
+            "path := fmt.Sprintf(mgmtConfigV2+service.Client.GetCustomerID()+\"/policySet/%s/rule/%s\", policySetID, ruleId)"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/lssconfigcontroller/zpa_lss_config_controller.go",
           "quotes": [
-            "\"/zpa/mgmtconfig/v2/admin/customers/\""
+            "\"/zpa/mgmtconfig/v2/admin/customers/\"",
+            "lssConfigEndpoint         = \"/lssConfig\"",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+lssConfigEndpoint, nil, lssConfig, &v)"
           ]
         }
       ]
@@ -458,14 +481,18 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/customer_domain_controller/customer_domain_controller.go",
           "quotes": [
-            "customerDomainControllerEndpoint = \"/v2/associationtype\""
+            "mgmtConfig                       = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "customerDomainControllerEndpoint = \"/v2/associationtype\"",
+            "mgmtConfig+service.Client.GetCustomerID()+customerDomainControllerEndpoint"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/admin_sso_controller/admin_sso_controller.go",
           "quotes": [
-            "ssoLoginEndpoint = \"/v2/ssoLoginOptions\""
+            "mgmtConfig       = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "ssoLoginEndpoint = \"/v2/ssoLoginOptions\"",
+            "mgmtConfig + service.Client.GetCustomerID() + ssoLoginEndpoint"
           ]
         }
       ]

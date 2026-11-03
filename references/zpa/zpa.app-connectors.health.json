@@ -61,7 +61,7 @@
     },
     {
       "label": "Status names across tools.",
-      "text": "{{control-channel-field}} {{control-channel-status-values}} {{mcp-status-table}} {{no-runtime-status-field}} {{lss-status-set-differs}} {{lss-codes-fetched}} Whether PENDING exists, and how it differs from NOT_ENROLLED, are open {{gap:status-pending-unverified}} {{gap:not-enrolled-vs-pending}}."
+      "text": "{{control-channel-field}} {{control-channel-status-values}} {{mcp-status-table}} {{no-runtime-status-field}} {{lss-status-set-differs}} {{lss-codes-fetched}} {{lss-codes-not-in-sdk-source}} Whether PENDING exists, and how it differs from NOT_ENROLLED, are open {{gap:status-pending-unverified}} {{gap:not-enrolled-vs-pending}}."
     },
     {
       "label": "Version and connection fields.",
@@ -302,7 +302,7 @@
       "conditions": "Compares the two code lists; no source states how the MCP field maps to LSS. Statement changed from 'different families of codes' because the lists overlap."
     },
     "lss-codes-fetched": {
-      "statement": "The Python SDK retrieves LSS session status codes from the API, filtered by log type, rather than defining them as constants, so the full set cannot be listed from SDK source.",
+      "statement": "The Python SDK's `get_status_codes` returns LSS session status codes read from the `/statusCodes` endpoint, filtered by log type when a `log_type` is given.",
       "tier": "A",
       "evidence": [
         {
@@ -310,7 +310,9 @@
           "path": "zscaler/zpa/lss.py",
           "quotes": [
             "Returns a list of LSS Session Status Codes filtered by log type.",
-            "def get_status_codes(self, log_type: str = \"all\") -> dict:"
+            "def get_status_codes(self, log_type: str = \"all\") -> dict:",
+            "{self._zpa_base_lss_url_v2} /statusCodes",
+            "if log_type_key in details.get(\"log_types\", [])"
           ]
         }
       ]
@@ -486,6 +488,14 @@
           ]
         }
       ]
+    },
+    "lss-codes-not-in-sdk-source": {
+      "statement": "The full set of LSS session status codes cannot be listed from the Python SDK's source, because the SDK holds no list of them.",
+      "tier": "B",
+      "derived_from": [
+        "lss-codes-fetched"
+      ],
+      "conditions": "Rests on `get_status_codes` returning whatever the endpoint sends. The absence of a constant list is a search result: `grep -rn \"statusCodes\\|status_codes\\|StatusCode\" zscaler/zpa/*.py zscaler/zpa/models/*.py | grep -v filter_status_codes` in zscaler-sdk-python at v1.11.3-1-g4f8f54df returns only `get_status_codes` and its use of the endpoint response. No source states the codes the endpoint returns."
     }
   },
   "gaps": {

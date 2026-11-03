@@ -239,6 +239,30 @@
             "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
             "print(json.dumps({\"continue\": True})) return 0 if __name__ == \"__main__\":"
           ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_submit_prompt.py",
+          "quotes": [
+            "print(json.dumps({\"continue\": False, \"stopReason\": \"Zscaler AI Guard is not configured \" \"(AIGUARD_API_KEY missing) — blocking.\"}))"
+          ],
+          "after": "if not get_client_config().get(\"api_key\"):"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_submit_prompt.py",
+          "quotes": [
+            "print(json.dumps({\"continue\": False, \"stopReason\": \"Zscaler AI Guard: scan did not complete — blocking (fail-closed)\"}))"
+          ],
+          "after": "if r.get(\"error\"):"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Cursor/hooks/pre_submit_prompt.py",
+          "quotes": [
+            "print(json.dumps({\"continue\": False, \"stopReason\": \"Zscaler AI Guard: scan did not complete — blocking (fail-closed)\"}))"
+          ],
+          "after": "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):"
         }
       ]
     },

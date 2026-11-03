@@ -142,6 +142,17 @@
             "HEAD"
           ],
           "quotes": [
+            "TotalPages interface{} `json:\"totalPages\"` List []T `json:\"list\"` } // Build pagination struct with search filter"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
             "pages := fmt.Sprintf(\"%v\", paged.TotalPages)",
             "totalPages, _ := strconv.Atoi(pages)",
             "// Even if totalPages == 0, return list to prevent fallback to raw array",
@@ -493,7 +504,7 @@
       ]
     },
     "ztw-stops-on-page-shorter-than-1000": {
-      "statement": "The ZTC (ztw) list helper always requests `pageSize=1000` and stops at the first page with fewer than 1000 items.",
+      "statement": "The ZTC (ztw) `ReadAllPages` helper requests `pageSize=1000` on every page and stops at the first page with fewer than 1000 items.",
       "tier": "A",
       "evidence": [
         {
@@ -505,6 +516,7 @@
           ],
           "quotes": [
             "const pageSize = 1000",
+            "err := client.ReadResource(ctx, fmt.Sprintf(\"%s&pageSize=%d&page=%d\", endpoint, pageSize, page), &pageItems)",
             "if len(pageItems) < pageSize {"
           ]
         },

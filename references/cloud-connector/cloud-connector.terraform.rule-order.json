@@ -351,7 +351,7 @@
       ]
     },
     "create-list-error-seeds-order-1": {
-      "statement": "On create, the error from listing existing rules is discarded. An unavailable inventory is treated as an empty policy: the staging order falls back to 1 and the new rule is submitted at order 1.",
+      "statement": "On create, the error from listing existing rules is discarded. After scanning that list the staging order is set to 1 if it is still 0, and the rule is submitted with `req.Order` set to the staging order.",
       "tier": "A",
       "evidence": [
         {
@@ -365,7 +365,8 @@
           "quotes": [
             "list, _ := traffic_dns_rules.GetAll(ctx, service)",
             "trafficForwardingDNSStartingOrder = 1",
-            "req.Order = trafficForwardingDNSStartingOrder"
+            "req.Order = trafficForwardingDNSStartingOrder",
+            "if trafficForwardingDNSStartingOrder == 0 { trafficForwardingDNSStartingOrder = 1 }"
           ]
         },
         {
@@ -379,7 +380,8 @@
           "quotes": [
             "list, _ := forwarding_rules.GetAll(ctx, service)",
             "forwardingControlStartingOrder = 1",
-            "req.Order = forwardingControlStartingOrder"
+            "req.Order = forwardingControlStartingOrder",
+            "if forwardingControlStartingOrder == 0 { forwardingControlStartingOrder = 1 }"
           ]
         },
         {
@@ -393,7 +395,8 @@
           "quotes": [
             "list, _ := traffic_log_rules.GetAll(ctx, service)",
             "trafficForwardingLogStartingOrder = 1",
-            "req.Order = trafficForwardingLogStartingOrder"
+            "req.Order = trafficForwardingLogStartingOrder",
+            "if trafficForwardingLogStartingOrder == 0 { trafficForwardingLogStartingOrder = 1 }"
           ]
         }
       ],

@@ -141,7 +141,8 @@
           ],
           "after": "func DetachRuleIDNameExtensions("
         }
-      ]
+      ],
+      "conditions": "Absence claim from a search: `git -C vendor/terraform-provider-ztc grep -n 'GetAll' v0.2.0 -- ztc/utils.go` returns one line, the `forwarding_rules.GetAll` call in `DetachRuleIDNameExtensions` quoted here; the quoted function body makes no other list call, and no DNS rule or log rule package is referenced in that file."
     },
     "rule-types-are-separate-endpoints": {
       "statement": "In the Go SDK, forwarding rules, DNS rules and log rules are three separate endpoints, so listing forwarding rules does not return the other two rule types.",
@@ -298,7 +299,7 @@
       ]
     },
     "service-group-delete-follows-detach": {
-      "statement": "The network service group delete removes the group whenever the helper returns no error.",
+      "statement": "The network service group delete calls `DeleteNetworkServiceGroups` only after the helper returns no error; a helper error is returned first and the delete call is not reached.",
       "tier": "A",
       "evidence": [
         {
@@ -309,7 +310,7 @@
             "HEAD"
           ],
           "quotes": [
-            "if _, err := networkservicegroups.DeleteNetworkServiceGroups(ctx, service, id); err != nil {"
+            "if err != nil { return diag.FromErr(err) } if _, err := networkservicegroups.DeleteNetworkServiceGroups(ctx, service, id); err != nil {"
           ],
           "after": "func resourceNetworkServiceGroupsDelete("
         }

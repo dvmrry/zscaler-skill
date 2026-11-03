@@ -161,7 +161,8 @@
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
             "the `operator` inside each `conditions` block.** This joins the",
-            "Entries within a single operand are **always OR'd** together"
+            "Entries within a single operand are **always OR'd** together",
+            "`operands` *within that one block* and may be `AND` or `OR`. It is managed per block, so different blocks can use different operators."
           ]
         }
       ]
@@ -815,7 +816,7 @@
           "after": "ResourcesMap: map[string]*schema.Resource{"
         }
       ],
-      "conditions": "That no resource is registered under a variant name rests on the provider's resource map, whose zpa_policy_access_rule entries are only the base, v2 and reorder resources."
+      "conditions": "Absence claim: `grep -oE '\"zpa_policy_access_rule[a-z_0-9]*\"' zpa/provider.go` in the ZPA provider at v4.4.16 returns three names, `zpa_policy_access_rule`, `zpa_policy_access_rule_v2` and `zpa_policy_access_rule_reorder`, and `grep -rlE \"zpa_policy_access_rule_(saml|posture|scim|trusted|risk|browser|application)\" zpa` returns no file, so no resource is registered under a variant name."
     },
     "device-posture-notification-request-674": {
       "statement": "Provider issue #674 reported that before v4.4.9 a Terraform update of an access rule sent a full object without `devicePostureFailureNotificationEnabled`, so a rule with it enabled in the Admin Portal was silently reverted to disabled by any unrelated update. It was closed as completed on 2026-07-24 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v4.4.9, adding that the feature is not available to all customers and is enabled on a tenant only on explicit request.",

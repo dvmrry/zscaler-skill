@@ -345,7 +345,13 @@
           "source": "zguard-integrations",
           "path": "AWS/strands-agents/aiguard_strands.py",
           "quotes": [
-            "verdict, error = await asyncio.get_running_loop().run_in_executor("
+            "The callbacks are coroutines. Strands dispatches these five events only through",
+            "handed to that loop's default executor instead.",
+            "event loop, so it goes to that loop's default executor: the leg still",
+            "awaits the verdict before returning, ordering and enforcement unchanged,",
+            "but nothing else on the loop is frozen for the duration of the call.",
+            "verdict, error = await asyncio.get_running_loop().run_in_executor(",
+            "None, _scan, endpoint, api_key, payload, self.timeout, self.policy_id)"
           ]
         }
       ]

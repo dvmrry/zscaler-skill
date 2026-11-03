@@ -304,6 +304,7 @@
           "path": "examples/zsec",
           "quotes": [
             "elif [[ \"$dtype\" == *\"ilb\"* || \"$dtype\" == *\"glb\"* ]]; then",
+            "Enter how many Cloud Connectors to deploy in each zone? [Default=$cc_count_default]",
             "if ((cc_count >= 1 && cc_count <= 10)); then",
             "invalid cc_count value. Must be a number between 1 and 20"
           ]
@@ -391,7 +392,7 @@
           "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
           "quotes": [
             "description = \"Triggers health monitoring every minute\" schedule = \"* * * * *\" time_zone = \"UTC\"",
-            "http_method = \"POST\" uri = google_cloudfunctions2_function.health_monitor_function.service_config[0].uri oidc_token {"
+            "http_method = \"POST\" uri = google_cloudfunctions2_function.health_monitor_function.service_config[0].uri oidc_token { service_account_email = local.function_sa_email"
           ]
         },
         {
@@ -471,8 +472,24 @@
           "quotes": [
             "entry_point = \"resource_sync_entry\" source { storage_source {"
           ]
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "quotes": [
+            "object = try(data.google_storage_bucket_object.existing_cloud_function_zip_object[0].name"
+          ],
+          "after": "entry_point = \"resource_sync_entry\""
+        },
+        {
+          "source": "tfmod-gcp-cloud-connector",
+          "path": "modules/terraform-zscc-cloud-function-gcp/main.tf",
+          "quotes": [
+            "# Upload Cloud Function zip file to newly created or existing Storage Bucket"
+          ]
         }
-      ]
+      ],
+      "conditions": "The Terraform source of the module has no function code. Search at v0.4.1-10-g40c6da5: `grep -rn \"resource_sync_entry\" vendor/terraform-gcp-cloud-connector-modules` returns only the `entry_point` line in `modules/terraform-zscc-cloud-function-gcp/main.tf`, and `find vendor/terraform-gcp-cloud-connector-modules -name \"*.py\" -o -name \"*.zip\"` returns nothing."
     },
     "function-zip": {
       "statement": "Each Cloud Function is packaged as a ZIP in Cloud Storage, uploaded to a bucket created during deployment or to an existing one, and the functions read their code from that bucket.",
@@ -489,7 +506,7 @@
       ]
     },
     "functions-via-api": {
-      "statement": "The functions talk to the Cloud Connector API endpoint over HTTPS and do not interact with individual connector VMs.",
+      "statement": "The Resource Sync function talks to the Cloud Connector API endpoint over HTTPS, and the functions do not interact directly with individual connector VMs.",
       "tier": "A",
       "evidence": [
         {

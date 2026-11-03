@@ -325,7 +325,7 @@
       "conditions": "The retry is made for any error from the first request, not only a not-found or search error. Which ZPA responses reject a multi-word search is not established."
     },
     "python-search-no-retry": {
-      "statement": "The Python SDK has no such retry: list_machine_groups, for example, sends one request with the caller's query parameters and returns the executor's error to the caller.",
+      "statement": "The Python SDK does not retry a failed list request with a shortened search: list_machine_groups, for example, sends one request with the caller's query parameters and returns the executor's error to the caller.",
       "tier": "A",
       "evidence": [
         {
@@ -339,7 +339,7 @@
           "after": "def list_machine_groups(self, query_params: Optional[dict] = None)"
         }
       ],
-      "conditions": "Added for the legacy multi-word search heading's Python half. That no ZPA module in the Python SDK retries with a shortened search is read from a search of zscaler/zpa at v1.11.2 (no partial-search code), not quoted."
+      "conditions": "Absence claim: `grep -rnE \"tokens\\[:2\\]|split\\(\\)\\[:2\\]|first two words\" zscaler/zpa` in the Python SDK at v1.11.3-1-g4f8f54df returned no matches (a search for \"partial\" matched only two comments about `workingHours` in pra_approval.py), so no ZPA module shortens a search; `list_machine_groups` itself is quoted."
     },
     "remove-cloud-suffix-whitespace": {
       "statement": "RemoveCloudSuffix drops a trailing parenthesised token of letters, digits, hyphen, underscore and dot when it is preceded by one or more whitespace characters of any kind (tab included) and followed by optional whitespace, then trims only literal spaces from the result.",

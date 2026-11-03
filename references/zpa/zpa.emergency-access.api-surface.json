@@ -39,7 +39,7 @@
     },
     {
       "label": "Create and activate.",
-      "text": "{{activate-now}} {{sdk-go-create-clears-activate-now}} {{send-email}} {{add-user-drops-microtenant}}"
+      "text": "{{activate-now}} {{sdk-go-create-clears-activate-now}} {{sdk-go-create-cannot-activate-now}} {{send-email}} {{add-user-drops-microtenant}}"
     },
     {
       "label": "Paging.",
@@ -490,7 +490,7 @@
       ]
     },
     "sdk-go-create-clears-activate-now": {
-      "statement": "The ZPA SDK's emergency-access `Create` sets `ActivateNow` to false on the caller's struct before posting, so a caller cannot create a user that is activated immediately. The field is `omitempty`, so it is not sent at all.",
+      "statement": "The ZPA SDK's emergency-access `Create` sets `ActivateNow` to false on the caller's struct, then posts that struct. The field is `omitempty`, so it is not sent at all.",
       "tier": "A",
       "evidence": [
         {
@@ -502,7 +502,8 @@
           ],
           "after": "func Create(",
           "quotes": [
-            "emergencyAccess.ActivateNow = false"
+            "emergencyAccess.ActivateNow = false",
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, emergencyAccess, v)"
           ]
         },
         {
@@ -523,6 +524,28 @@
           "note": "Filing 13 (ZCC provider fidelity) of the 2026-08 provider audit."
         }
       ]
+    },
+    "sdk-go-create-cannot-activate-now": {
+      "statement": "A caller of the SDK's emergency-access `Create` cannot create a user that is activated immediately: the request never carries `activateNow: true`.",
+      "tier": "B",
+      "derived_from": [
+        "sdk-go-create-clears-activate-now"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/emergencyaccess/emergencyaccess.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "emergencyAccess.ActivateNow = false"
+          ],
+          "after": "func Create("
+        }
+      ],
+      "conditions": "Rests on Create overwriting `ActivateNow` before the POST and on the field being `omitempty`, so false is not sent. No source states what the API does when the field is absent, and the SDK's `Update` was not examined for a way to activate afterwards."
     }
   },
   "divergences": {

@@ -228,6 +228,8 @@
             "values = condition[1:]",
             "elif object_type in [\"app\", \"app_group\"]:",
             "# Handle individual conditions (each in their own block) elif object_type in [\"console\", \"location\", \"machine_grp\", \"client_type\", \"user_portal\"]: individual_conditions.append( { \"operator\": operator, \"operands\": [ {",
+            "# Handle app and app_group conditions (grouped together)",
+            "if app_and_app_group_conditions: result.append({\"operands\": app_and_app_group_conditions})",
             "for lhs, rhs in values[0]:",
             "criteria_conditions.setdefault(key, []).append({\"lhs\": lhs, \"rhs\": rhs})",
             "result.extend(individual_conditions)",
@@ -686,7 +688,7 @@
       ]
     },
     "fixed-type-writes": {
-      "statement": "The add and update rule methods named for a policy type resolve their policy set with a fixed type, for example `add_access_rule` with `get_policy(\"access\", ...)`.",
+      "statement": "Several add and update rule methods resolve their policy set with a fixed type: `add_access_rule` and `update_access_rule` with `get_policy(\"access\", ...)`, `add_timeout_rule` and `update_timeout_rule` with `get_policy(\"timeout\", ...)`, and `update_app_protection_rule` with `get_policy(\"inspection\")`.",
       "tier": "A",
       "evidence": [
         {
@@ -747,7 +749,7 @@
       ]
     },
     "lock-add-update": {
-      "statement": "The decorator is applied to the v1 and v2 add and update rule methods, for example `add_access_rule`, `update_access_rule_v2` and `add_browser_protection_rule_v2`.",
+      "statement": "The decorator is applied to the v1 method `add_access_rule` and to the v2 methods `update_access_rule_v2` and `add_browser_protection_rule_v2`.",
       "tier": "A",
       "evidence": [
         {

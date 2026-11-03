@@ -141,6 +141,13 @@
             "if on_unscannable == \"block\":"
           ],
           "after": "elif not isinstance(extracted, str) or not extracted.strip():"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/lambda-decorator/aiguard_decorator.py",
+          "quotes": [
+            "on_unscannable=\"block\","
+          ]
         }
       ]
     },
@@ -290,7 +297,7 @@
       ]
     },
     "strict-verdict-errormsg": {
-      "statement": "Under `strict_verdict=True` the decorator rejects an allow verdict only when it carries an `errorMsg`; it reads no other degradation signal from the verdict.",
+      "statement": "Under `strict_verdict=True` the decorator treats an allow verdict that carries an `errorMsg` as a degraded scan and handles it per `on_error`.",
       "tier": "A",
       "evidence": [
         {
@@ -298,7 +305,9 @@
           "path": "AWS/lambda-decorator/aiguard_decorator.py",
           "quotes": [
             "if error is None and strict_verdict and action == \"allow\" and verdict.get(\"error_msg\"):",
-            "\"error_msg\": parsed.get(\"errorMsg\"),"
+            "\"error_msg\": parsed.get(\"errorMsg\"),",
+            "error = \"degraded scan under strict_verdict (errorMsg=%s)\" % verdict.get(\"error_msg\")",
+            "return {\"action\": \"block\", \"reason\": \"scan_error\", \"error\": error} if on_error == \"block\" else None"
           ]
         }
       ]

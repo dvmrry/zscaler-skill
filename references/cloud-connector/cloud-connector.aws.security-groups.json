@@ -107,7 +107,7 @@
       ]
     },
     "tcp-udp-443": {
-      "statement": "Help's checks for an inactive Cloud Connector or an unestablished tunnel include that no security group or network ACL blocks TCP/UDP 443, outbound to the Internet & SaaS cloud.",
+      "statement": "Help's troubleshooting for an AWS Cloud Connector in an inactive state includes that the security group or network ACL is not blocking the Cloud Connector's TCP/UDP 443; its checks on the connectivity from Cloud Connector to Internet & SaaS include that no security group or network ACL blocks outbound TCP/UDP 443 to the Internet & SaaS cloud.",
       "tier": "A",
       "evidence": [
         {
@@ -116,7 +116,9 @@
           "quotes": [
             "The security group or network ACL is not blocking the Cloud Connector TCP/UDP 443.",
             "The security group is not blocking outbound TCP/UDP 443 access to Internet & SaaS cloud.",
-            "The network ACL does not block outbound TCP/UDP 443 access to the Internet & SaaS cloud."
+            "The network ACL does not block outbound TCP/UDP 443 access to the Internet & SaaS cloud.",
+            "AWS Cloud Connector is in an inactive state.",
+            "The connectivity from Cloud Connector to Internet & SaaS."
           ]
         }
       ]
@@ -180,7 +182,8 @@
           "source": "tfmod-aws-cloud-connector",
           "path": "modules/terraform-zscc-sg-aws/main.tf",
           "quotes": [
-            "count = var.byo_security_group == false && var.support_access_enabled == true ? var.sg_count : 0 description = \"Recommended: CC Mgmt outbound Zscaler Remote Support TCP/12002\""
+            "count = var.byo_security_group == false && var.support_access_enabled == true ? var.sg_count : 0 description = \"Recommended: CC Mgmt outbound Zscaler Remote Support TCP/12002\"",
+            "security_group_id = aws_security_group.cc_mgmt_sg[count.index].id cidr_ipv4 = var.zssupport_server from_port = 12002 ip_protocol = \"tcp\" to_port = 12002"
           ]
         },
         {
@@ -218,7 +221,8 @@
           "after": "resource \"aws_vpc_security_group_ingress_rule\" \"ingress_cc_service_all\" {",
           "quotes": [
             "count = var.byo_security_group == false ? var.sg_count : 0 description = \"Optional: Permit All Intra-VPC Traffic / Ensure CC Service Interfaces are able to communicate with each other freely\"",
-            "ip_protocol = \"-1\""
+            "ip_protocol = \"-1\"",
+            "security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = data.aws_vpc.selected.cidr_block ip_protocol = \"-1\""
           ]
         },
         {
@@ -246,7 +250,8 @@
           "path": "modules/terraform-zscc-sg-aws/main.tf",
           "quotes": [
             "count = var.byo_security_group == false && var.gwlb_enabled ? var.sg_count : 0 description = \"Required: CC GENEVE encapsulation traffic to CC Service from GWLB\" security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = data.aws_vpc.selected.cidr_block from_port = 6081 ip_protocol = \"udp\"",
-            "description = \"Required: CC GENEVE encapsulation traffic to GWLB from CC Service\""
+            "description = \"Required: CC GENEVE encapsulation traffic to GWLB from CC Service\"",
+            "resource \"aws_vpc_security_group_egress_rule\" \"egress_cc_service_geneve\" { count = var.byo_security_group == false && var.gwlb_enabled ? var.sg_count : 0"
           ]
         },
         {
@@ -254,6 +259,14 @@
           "path": "modules/terraform-zscc-sg-aws/variables.tf",
           "quotes": [
             "Default is true which creates ingress/egress rules only for GENEVE traffic."
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-sg-aws/main.tf",
+          "after": "resource \"aws_vpc_security_group_egress_rule\" \"egress_cc_service_geneve\" {",
+          "quotes": [
+            "security_group_id = aws_security_group.cc_service_sg[count.index].id cidr_ipv4 = data.aws_vpc.selected.cidr_block from_port = 6081 ip_protocol = \"udp\""
           ]
         }
       ]
