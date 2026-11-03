@@ -140,7 +140,7 @@
       ]
     },
     "location-ip-or-vpn": {
-      "statement": "The provider documents `ip_addresses` as required if `vpn_credentials` are not defined and `vpn_credentials` as required if `ip_addresses` are not defined; the schema marks both Optional, so the either-or rule is documentation, not a plan-time validation.",
+      "statement": "The provider documents `ip_addresses` as required if `vpn_credentials` are not defined and `vpn_credentials` as required if `ip_addresses` are not defined; the schema marks both Optional and declares no cross-field constraint on them.",
       "tier": "A",
       "evidence": [
         {
@@ -167,7 +167,8 @@
           ],
           "after": "\"vpn_credentials\": {"
         }
-      ]
+      ],
+      "conditions": "Absence claim. Search at terraform-provider-zia v4.8.17: `grep -n \"ExactlyOneOf\\|AtLeastOneOf\\|RequiredWith\\|ConflictsWith\" zia/resource_zia_location_management.go` returns nothing; the resource's one `CustomizeDiff` checks only `static_location_groups` against `exclude_from_manual_groups`; `checkVPNCredentials` checks only that a credential of type IP has an `ip_address`."
     },
     "sub-location-needs-ips": {
       "statement": "Creating a sub-location (a non-zero `parent_id`) fails when `ip_addresses` is empty.",

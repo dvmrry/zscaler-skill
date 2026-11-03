@@ -38,7 +38,7 @@
     },
     {
       "label": "Empty replies.",
-      "text": "{{empty-body-nil-nil}} {{rule-update-panics-on-empty-body}} Whether the rule update endpoint ever answers with an empty body is open {{gap:rule-update-empty-body}}."
+      "text": "{{empty-body-nil-nil}} {{rule-update-panics-on-empty-body}} {{rule-update-empty-body-panics}} Whether the rule update endpoint ever answers with an empty body is open {{gap:rule-update-empty-body}}."
     }
   ],
   "checks": [
@@ -46,6 +46,7 @@
       "do": "Before calling a rule update panic an observed failure, whether the server answers an update with an empty body. Until then it is a certain consequence of an empty body, not an observed failure.",
       "uses": [
         "rule-update-panics-on-empty-body",
+        "rule-update-empty-body-panics",
         "rule-update-empty-body"
       ]
     }
@@ -153,6 +154,7 @@
             "HEAD"
           ],
           "quotes": [
+            "// URLAdvancedPolicySettings is the full set of advanced URL filtering and cloud",
             "// The booleans deliberately omit omitempty: a caller disabling a setting sends",
             "// false, and dropping that false from the body would leave the setting enabled.",
             "EnableDynamicContentCat bool `json:\"enableDynamicContentCat\"`",
@@ -189,7 +191,7 @@
       ]
     },
     "rule-update-panics-on-empty-body": {
-      "statement": "URL Filtering `Update` ignores the result of its type assertion and then reads the rule's ID, so if the server answers an update with an empty body, the call panics with a nil pointer dereference instead of returning an error.",
+      "statement": "URL Filtering `Update` ignores the result of its type assertion and then reads the rule's ID from the asserted value.",
       "tier": "A",
       "binds": [
         "zia/url-filtering-rules"
@@ -219,6 +221,21 @@
           "note": "Filing 1 (SDK response contract) of the 2026-08 provider audit."
         }
       ]
+    },
+    "rule-update-empty-body-panics": {
+      "statement": "If the server answers a URL Filtering rule update with an empty body, `Update` panics with a nil pointer dereference instead of returning an error.",
+      "tier": "B",
+      "binds": [
+        "zia/url-filtering-rules"
+      ],
+      "gaps": [
+        "rule-update-empty-body"
+      ],
+      "derived_from": [
+        "zia.sdk-go.write-encoding:empty-body-nil-nil",
+        "zia.sdk-go.write-encoding:rule-update-panics-on-empty-body"
+      ],
+      "conditions": "Rests on Go semantics no source states: `updateGeneric` returns a nil result for an empty body, the unchecked assertion `resp.(*URLFilteringRule)` on a nil interface yields a nil pointer, and reading `.ID` through it panics. Whether the endpoint ever answers an update with an empty body is not stated (gap rule-update-empty-body)."
     }
   },
   "gaps": {
@@ -244,7 +261,7 @@
         "lab-test"
       ],
       "blocks": "saying whether the update panic happens in practice",
-      "detail": "The panic is certain if the body is empty (claims empty-body-nil-nil and rule-update-panics-on-empty-body). Whether the URL Filtering rules endpoint ever answers an update that way is server behavior that code cannot show."
+      "detail": "The panic is certain if the body is empty (claims empty-body-nil-nil, rule-update-panics-on-empty-body and rule-update-empty-body-panics). Whether the URL Filtering rules endpoint ever answers an update that way is server behavior that code cannot show."
     }
   }
 }

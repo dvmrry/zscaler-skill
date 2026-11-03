@@ -372,7 +372,7 @@
       ]
     },
     "camel-case-body": {
-      "statement": "A ZIA request body takes the executor's generic path: its dictionary keys are camel-cased, except that keys inside `featurePermissions` are left as they are. The conversion maps keys listed in an exceptions table and otherwise lower-cases the first segment of a snake_case key and capitalizes each later segment; a key with no underscore is returned unchanged.",
+      "statement": "In the executor's `_prepare_body`, a dictionary request body for an endpoint that is not a ZDX, ZEASM, ZTB or ZCC one takes the generic path: its keys are camel-cased, except that keys inside `featurePermissions` are left as they are. The conversion maps keys listed in an exceptions table and otherwise lower-cases the first segment of a snake_case key and capitalizes each later segment; a key with no underscore is returned unchanged.",
       "tier": "A",
       "evidence": [
         {
@@ -392,6 +392,24 @@
             "\"enable_poe_prompt\": \"enablePOEPrompt\",",
             "if k == \"featurePermissions\" and isinstance(v, dict): result[k] = v # Don't convert the keys inside featurePermissions",
             "if string in FIELD_EXCEPTIONS: return FIELD_EXCEPTIONS[string] if not string or \"_\" not in string:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Special handling for ZDX endpoints - keep snake_case format",
+            "# Special handling for ZEASM endpoints - keep snake_case format",
+            "# Special handling for ZTB endpoints - keep snake_case format",
+            "# Special handling for ZCC service - use selective conversion"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "lower = comp.lower() if i == 0: converted.append(lower)"
           ]
         }
       ]
@@ -420,7 +438,15 @@
             "\"enableMetaPrompt\": self.enable_meta_prompt,",
             "\"enablePerPlexityPrompt\": self.enable_perplexity_prompt,",
             "\"enableGoogleAIPrompt\": self.enable_google_ai_prompt,",
-            "\"enableQuillbotAIPrompt\": self.enable_quillbot_ai_prompt,"
+            "\"enableQuillbotAIPrompt\": self.enable_quillbot_ai_prompt,",
+            "self.enable_chat_gpt_prompt = config[\"enableChatGptPrompt\"] if \"enableChatGptPrompt\" in config else False",
+            "self.enable_microsoft_copilot_prompt = ( config[\"enableMicrosoftCoPilotPrompt\"] if \"enableMicrosoftCoPilotPrompt\" in config else False",
+            "self.enable_gemini_prompt = config[\"enableGeminiPrompt\"] if \"enableGeminiPrompt\" in config else False",
+            "self.enable_poe_prompt = config[\"enablePOEPrompt\"] if \"enablePOEPrompt\" in config else False",
+            "self.enable_meta_prompt = config[\"enableMetaPrompt\"] if \"enableMetaPrompt\" in config else False",
+            "self.enable_perplexity_prompt = config[\"enablePerPlexityPrompt\"] if \"enablePerPlexityPrompt\" in config else False",
+            "self.enable_google_ai_prompt = config[\"enableGoogleAIPrompt\"] if \"enableGoogleAIPrompt\" in config else False",
+            "self.enable_quillbot_ai_prompt = config[\"enableQuillbotAIPrompt\"] if \"enableQuillbotAIPrompt\" in config else False"
           ]
         }
       ]

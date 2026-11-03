@@ -394,7 +394,7 @@
       ]
     },
     "automate-capture-availableactions-only": {
-      "statement": "The captured Automate OpenAPI document describes one action-discovery operation, POST /webApplicationRules/{rule_type}/availableActions (\"Fetches the granular actions supported for the applications\"), and lists no allAvailableActions path.",
+      "statement": "The captured Automate OpenAPI document describes POST /webApplicationRules/{rule_type}/availableActions (\"Fetches the granular actions supported for the applications\") and lists no allAvailableActions path.",
       "tier": "A",
       "evidence": [
         {
@@ -467,7 +467,7 @@
       ]
     },
     "mcp-skill-per-tuple-validation": {
-      "statement": "The MCP create workflow skill says the create endpoint validates each `(rule_type, app, action)` tuple, that a multi-app create is frequently rejected with `INVALID_INPUT_ARGUMENT: \"Invalid action provided for selected applications\"`, that the first incompatible pair fails the entire create, and that one rule per app is the safe pattern. The executable create tool does no such validation: it assembles the payload and calls the SDK `add_rule`.",
+      "statement": "The MCP create workflow skill says the create endpoint validates each `(rule_type, app, action)` tuple, that a multi-app create is frequently rejected with `INVALID_INPUT_ARGUMENT: \"Invalid action provided for selected applications\"`, that the first incompatible pair fails the entire create, and that one rule per app is the safe pattern. The executable create tool builds its payload with `build_rule_payload` and calls the SDK `add_rule`; it does no such validation.",
       "tier": "A",
       "evidence": [
         {
@@ -484,13 +484,15 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
           "quotes": [
+            "\"\"\"Create a ZIA Cloud App Control rule (write). Activate after.\"\"\" payload = build_rule_payload( scalars={ \"name\": args.name, \"action\": args.action, \"description\": args.description, \"enabled\": args.enabled, \"order\": apply_default_order(args.order), \"rank\": apply_default_rank(args.rank), }, advanced=args.advanced, )",
             "rule, _, err = client.zia.cloudappcontrol.add_rule(args.rule_type, **payload)"
           ]
         }
-      ]
+      ],
+      "conditions": "The no-validation half is an absence claim from reading the create tool at zscaler-mcp-server v0.15.4: between `build_rule_payload` and `add_rule` it calls only `apply_default_order` and `apply_default_rank`. `grep -n \"list_available_actions\\|validate\" src/zscaler_mcp/tools/zia/cloud_app_control.py` returns the list-actions tool's call and the `validate_order`/`validate_rank` calls in the update tool, none in the create tool. Whether the API itself rejects the tuple is the gap per-tuple-validation-contract."
     },
     "issue-522-actions-endpoint-omits-actions": {
-      "statement": "Provider issues #522 and #570 reported that the actions the `zia_cloud_app_control_rule_actions` data source returns do not include every action the API accepts. In #522 a repository member confirmed that ALLOW_FILE_SHARE_UPLOAD and ALLOW_FILE_SHARE_VIEW are not returned by that endpoint, said an internal bug would be raised with the API team, and advised listing the actions manually in `actions` to stop the drift; in #570 the member called it an API issue under investigation, not addressable in the provider. Both issues were closed as completed, #522 with a reply to upgrade to v4.8.6 that does not say what that release changed.",
+      "statement": "Provider issues #522 and #570 concern the actions the `zia_cloud_app_control_rule_actions` data source returns not including every action the API accepts. In #522 the reporter wrote that the call was not returning all the actions that can be used in a specific Cloud App, and a MEMBER commenter confirmed that ALLOW_FILE_SHARE_UPLOAD and ALLOW_FILE_SHARE_VIEW are not returned by that endpoint, said an internal bug would be raised with the API team, and advised listing the actions manually in `actions` to stop the drift. In #570 the reporter quoted the documentation note that some new actions may not be returned in the API response, and a MEMBER commenter called it an API issue under investigation, not addressable in the provider. Both issues were closed as completed, #522 with a MEMBER reply to upgrade to v4.8.6 that does not say what that release changed.",
       "tier": "A",
       "evidence": [
         {
@@ -501,16 +503,41 @@
             "We'll raise an internal BUG with the API team to address that.",
             "Alternatively, you can manually pass the list of actions directly in the `actions` list attribute temporarily to prevent the drift.",
             "Please upgrade to the latest version v4.8.6 which addresses the problem in quesiton.",
-            "The problem is related to the API used to retrieve the available actions for each rule type via the data source `zia_cloud_app_control_rule_actions`"
+            "The problem is related to the API used to retrieve the available actions for each rule type via the data source `zia_cloud_app_control_rule_actions`",
+            "## Comment (MEMBER, 2026-08-13)"
           ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "quotes": [
+            "API call is not returning all the actions that can be used in a specific Cloud App."
+          ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-522.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-02-12)"
+          ],
+          "after": "that's what I did. It is in the example configuration I added in this bug description."
         },
         {
           "source": "github-issues",
           "path": "terraform-provider-zia-570.json",
           "quotes": [
             "This is a known issue, and is being investigated via the following issue ONEAPI-2421.",
-            "As you already outlined this is a API issue and is being investigated. This isn't an issue addressable at the provider level."
+            "As you already outlined this is a API issue and is being investigated. This isn't an issue addressable at the provider level.",
+            "Note that some new actions may not be returned in the API response."
           ]
+        },
+        {
+          "source": "github-issues",
+          "path": "terraform-provider-zia-570.json",
+          "quotes": [
+            "## Comment (MEMBER, 2026-05-13)"
+          ],
+          "after": "Yet, I'm not sure, if this is related to this note"
         },
         {
           "source": "github-issues",

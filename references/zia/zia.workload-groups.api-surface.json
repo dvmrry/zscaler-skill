@@ -246,7 +246,8 @@
           "path": "src/zscaler_mcp/tools/zia/workload_groups.py",
           "quotes": [
             "page: Annotated[Optional[int], Field(default=None, description=\"Page number (1-based).\")] = None",
-            "page_size: Annotated[Optional[int], Field(default=None, description=\"Items per page.\")] = None"
+            "page_size: Annotated[Optional[int], Field(default=None, description=\"Items per page.\")] = None",
+            "class ListInput(BaseModel): page: Annotated[Optional[int], Field(default=None, description=\"Page number (1-based).\")] = None page_size: Annotated[Optional[int], Field(default=None, description=\"Items per page.\")] = None"
           ]
         },
         {
@@ -263,7 +264,8 @@
             "`zia_list_workload_groups(query=\"[?name=='<exact>']\")`"
           ]
         }
-      ]
+      ],
+      "conditions": "The list tool's input model holds two fields. Search at v0.15.4: `grep -n -A4 \"class ListInput\" src/zscaler_mcp/tools/zia/workload_groups.py` shows class ListInput declaring only page and page_size, and zia_list_workload_groups copies only those two into the query parameters."
     },
     "mcp-query-one-page": {
       "statement": "A name lookup through the MCP `query` therefore filters only the page the API call returned, not the whole tenant, unless the caller pages through the results.",

@@ -304,14 +304,14 @@
       "conditions": "The second half is an absence in the spec's property list."
     },
     "put-replaces-whole-object": {
-      "statement": "The Python update_atp_settings builds its request body from the keyword arguments alone, with no read and merge, and sends them verbatim as JSON keys. The MCP server describes the input as the complete ATP policy and tells callers to fetch and merge first.",
+      "statement": "The Python update_atp_settings builds its request body from the keyword arguments alone, with no read and merge, and passes that body to the request. The MCP server describes the input as the complete ATP policy and tells callers to fetch and merge first.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/atp_policy.py",
           "quotes": [
-            "body = {} body.update(kwargs)"
+            "body = {} body.update(kwargs) request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
           ]
         },
         {

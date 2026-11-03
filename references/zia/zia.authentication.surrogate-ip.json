@@ -165,6 +165,7 @@
           "path": "about-surrogate-ip.json",
           "quotes": [
             "With surrogate IP, a user can authenticate to the service in one web browser and does not have to authenticate again if they open another web browser or use non-browser applications.",
+            "If you disable this feature, Zscaler cannot tag all user traffic as authenticated after the user has authenticated successfully in at least one web browser.",
             "For example, if the user authenticates to the Zscaler service in Chrome and opens Firefox, then the user is prompted to authenticate again in Firefox.",
             "Zscaler recommends that you enable surrogate IP for non-browser apps, such as Windows Store apps."
           ]
@@ -346,7 +347,7 @@
       ]
     },
     "provider-checks": {
-      "statement": "On create and update, before any API call, the provider rejects: surrogate_ip without an idle time; surrogate_ip without auth_required; enforcing for known browsers without surrogate_ip; and enforcing for known browsers when both the refresh minutes are 0 and the refresh unit is empty.",
+      "statement": "On create and update, the provider rejects: surrogate_ip without an idle time; surrogate_ip without auth_required; enforcing for known browsers without surrogate_ip; and enforcing for known browsers when both the refresh minutes are 0 and the refresh unit is empty.",
       "tier": "A",
       "evidence": [
         {
@@ -358,6 +359,22 @@
             "surrogate IP must be enabled, when enforcing surrogate IP for known browsers",
             "enforcing surrogate IP for known browsers requires setting of refresh timeout",
             "loc.SurrogateRefreshTimeInMinutes == 0 && loc.SurrogateRefreshTimeUnit == \"\""
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementCreate(ctx context.Context",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "after": "func resourceLocationManagementUpdate(ctx context.Context",
+          "quotes": [
+            "if err := checkSurrogateIPDependencies(req); err != nil {"
           ]
         }
       ]

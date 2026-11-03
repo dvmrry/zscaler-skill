@@ -94,7 +94,7 @@
     },
     {
       "label": "Objects the API did not send.",
-      "text": "{{value-structs-flattened-into-present-blocks}} {{browser-control-pin-skips-empty-profile}}"
+      "text": "{{value-structs-flattened-into-present-blocks}} {{browser-control-pin-skips-empty-profile}} {{browser-control-empty-block-fixed-at-v4-8-17}}"
     },
     {
       "heading": "Fields declared but not returned"
@@ -484,7 +484,7 @@
       ]
     },
     "flatten-schema-shape-mismatch-elsewhere": {
-      "statement": "The DLP dictionary, SSL inspection rule and Cloud App Control rule data sources each hand a checked `d.Set` a shape its schema does not declare. The DLP dictionary data source declares `primary_field` (an int) under `exact_data_match_details` but its flattener emits `primary_fields` carrying the SDK's `[]int`. SSL inspection `proxy_gateways` declares `id` as an int but its flattener returns one object whose `id` is a slice of ints. Cloud App Control `cbi_profile` is a `TypeList` but its flattener returns a single map, with an extra `profile_seq` key.",
+      "statement": "The DLP dictionary, SSL inspection rule and Cloud App Control rule data sources each hand a checked `d.Set` a shape its schema does not declare. The DLP dictionary data source declares `primary_field` (an int) under `exact_data_match_details` but its flattener emits `primary_fields` carrying the SDK's `[]int`. SSL inspection `proxy_gateways` declares `id` as an int but its flattener returns one object whose `id` is a slice of ints. Cloud App Control `cbi_profile` is a `TypeList` but its flattener returns a single map, whose keys include `profile_seq`.",
       "tier": "A",
       "evidence": [
         {
@@ -704,7 +704,7 @@
       ]
     },
     "endpoint-tag-id-lookup-uses-association-endpoint": {
-      "statement": "When `id` is given, the same data source passes it to the SDK's `GetResourceGroupTag`, which the SDK documents as taking a DLP resource ID and which requests `/dlpEndpointResource/{id}/groups`. The data source describes the value as a tag ID; the tag catalog is read by a different function from a different endpoint.",
+      "statement": "When `id` is given, the same data source passes it to the SDK's `GetResourceGroupTag`, which the SDK documents as returning the tags with which a specified DLP resource is associated and which requests `/dlpEndpointResource/{id}/groups`. The data source describes the value as a tag ID; the tag catalog is read by a different function from a different endpoint.",
       "tier": "A",
       "evidence": [
         {
@@ -726,6 +726,7 @@
             "HEAD"
           ],
           "quotes": [
+            "GetResourceTags retrieves the list of tags, in name-ID pairs, to which the",
             "specified DLP resource is associated.",
             "endpoint := fmt.Sprintf(\"%s/%d/groups\", dlpEndpointResourceEndpoint, id)",
             "endPointDlpResourceGroupsEndpoint = \"/zia/api/v1/endPointDlpResourceGroups\"",
@@ -1341,13 +1342,14 @@
       ]
     },
     "browser-control-pin-skips-empty-profile": {
-      "statement": "At the pinned provider commit the browser control flattener returns no block when the profile has no ID, name or URL, so the empty-block case above is fixed there for this data source.",
+      "statement": "At v4.8.17 the browser control flattener returns no block when the profile has no ID, name or URL.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/data_source_zia_browser_control_policy.go",
           "at": [
+            "v4.8.17",
             "HEAD"
           ],
           "quotes": [
@@ -1355,6 +1357,15 @@
           ]
         }
       ]
+    },
+    "browser-control-empty-block-fixed-at-v4-8-17": {
+      "statement": "At v4.8.17 the empty-block case described above (a response that omits the smart isolation profile shown as a present block of empty values) does not occur for the browser control data source.",
+      "tier": "B",
+      "derived_from": [
+        "zia.terraform.data-source-fidelity:value-structs-flattened-into-present-blocks",
+        "zia.terraform.data-source-fidelity:browser-control-pin-skips-empty-profile"
+      ],
+      "conditions": "Rests on the flattener's early return covering the zero value the earlier claim describes; no source states that the call site at v4.8.17 still passes the address of the value field `SmartIsolationProfile`, since that claim's quote is at v4.8.3."
     },
     "url-filtering-criteria-dropped": {
       "statement": "The SDK URL filtering rule model carries `sourceCountries`, `userRiskScoreLevels`, `httpHeaderProfiles` and `httpHeaderActionProfiles`. The URL filtering rules data source declares none of them and never sets them, although its documentation lists `source_countries` and `user_risk_score_levels`. A rule restricted by source country or user risk is returned without that restriction.",

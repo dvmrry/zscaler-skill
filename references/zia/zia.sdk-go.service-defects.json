@@ -357,11 +357,12 @@
             "if rule.Action == \"ISOLATE\" && rule.CBIProfile == nil && rule.CBIProfileID != 0 {",
             "allRules, getAllErr := GetAll(ctx, service) if getAllErr == nil {",
             "if allRules[i].ID == ruleID && allRules[i].CBIProfile != nil { rule.CBIProfile = allRules[i].CBIProfile",
-            "break } } } } service.Client.GetLogger().Printf(\"[DEBUG]Returning url filtering rules from Get: %d\", rule.ID) return &rule, nil }"
+            "break } } } } service.Client.GetLogger().Printf(\"[DEBUG]Returning url filtering rules from Get: %d\", rule.ID) return &rule, nil }",
+            "// API bug workaround: GET by ID does not return the cbiProfile object for ISOLATE rules,"
           ]
         }
       ],
-      "conditions": "The fallback runs only when the rule's action is ISOLATE, `CBIProfile` is nil, and `CBIProfileID` is non-zero. The first, per the SDK's own comment, depends on the API omitting the profile from GET by ID; that is server behavior this file does not establish. See [[zia.url-filtering]] for the rule model.",
+      "conditions": "The fallback runs only when the rule's action is ISOLATE, `CBIProfile` is nil, and `CBIProfileID` is non-zero. The first, per the SDK's own comment, depends on the API omitting the profile from GET by ID; that is server behavior this file does not establish. That the error is not examined was checked at v3.8.58: `grep -c getAllErr zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go` returns 2, the declaration and the `== nil` test, and the `if` has no else branch. See [[zia.url-filtering]] for the rule model.",
       "upstream": [
         {
           "status": "unfiled",

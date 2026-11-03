@@ -67,7 +67,7 @@
     },
     {
       "label": "User authentication enrollment.",
-      "text": "{{user-auth-enrollment-error-logged}} {{user-auth-empty-set-sends-nothing}} {{user-auth-validator-basic-only}} {{user-auth-methods-not-in-request-or-state}}"
+      "text": "{{user-auth-enrollment-error-logged}} {{user-auth-empty-set-sends-nothing}} {{user-auth-validator-basic-only}} {{user-auth-digest-rejected-at-plan}} {{user-auth-methods-not-in-request-or-state}}"
     },
     {
       "label": "Custom category deletion.",
@@ -433,7 +433,7 @@
       ]
     },
     "vzen-delete-is-detach-update-delete": {
-      "statement": "Deleting a Virtual Service Edge cluster through the SDK is three requests: a GET of the cluster, a PUT of a payload whose node list is the empty slice, and a DELETE. The provider's delete handler calls this function and then clears the ID and optionally activates. A failure of the PUT or the DELETE is returned with the earlier steps already sent.",
+      "statement": "Deleting a Virtual Service Edge cluster through the SDK is three requests: a GET of the cluster, a PUT of an update payload whose node list is the empty slice, and a DELETE. The provider's delete handler calls this function and then clears the ID and optionally activates. A failed PUT returns an error reading \"failed to update VZEN cluster ... before deletion\" and a failed DELETE one reading \"failed to delete VZEN cluster\".",
       "tier": "A",
       "evidence": [
         {
@@ -448,7 +448,21 @@
             "// Step 1: Fetch the current cluster",
             "VirtualZenNodes: []common.IDNameExternalID{}, // Detach all service edges",
             "_, _, err = Update(ctx, service, clusterID, updatePayload)",
-            "err = service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", vzenClusterEndpoint, clusterID))"
+            "err = service.Client.Delete(ctx, fmt.Sprintf(\"%s/%d\", vzenClusterEndpoint, clusterID))",
+            "failed to update VZEN cluster %d before deletion: %w",
+            "failed to delete VZEN cluster %d: %w"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/vzen_clusters/vzen_clusters.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, clusterID int, vzenClusters *VZENClusters) (*VZENClusters, *http.Response, error) {",
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", vzenClusterEndpoint, clusterID), *vzenClusters)"
           ]
         },
         {
@@ -923,7 +937,7 @@
       ]
     },
     "user-auth-validator-basic-only": {
-      "statement": "The resource's `auth_methods` validator accepts only `BASIC`, while the SDK's enrollment function accepts `BASIC` and `DIGEST`. A configuration that sets `DIGEST` is rejected at plan time.",
+      "statement": "The resource's `auth_methods` element validator is a `StringInSlice` over `BASIC` alone, while the SDK's enrollment function accepts `BASIC` and `DIGEST`.",
       "tier": "A",
       "evidence": [
         {
@@ -935,7 +949,7 @@
           ],
           "after": "\"auth_methods\": {",
           "quotes": [
-            "\"BASIC\","
+            "ValidateFunc: validation.StringInSlice([]string{ \"BASIC\", }, false),"
           ]
         },
         {
@@ -957,6 +971,14 @@
           "note": "Filing 19 (multi-step writes) of the 2026-08 provider audit."
         }
       ]
+    },
+    "user-auth-digest-rejected-at-plan": {
+      "statement": "A configuration that sets `DIGEST` in `auth_methods` is rejected during plan-time validation.",
+      "tier": "B",
+      "derived_from": [
+        "zia.terraform.multi-step-writes:user-auth-validator-basic-only"
+      ],
+      "conditions": "Rests on the Terraform plugin SDK running a schema `ValidateFunc` during validation, before apply; no source here states it, and the validator was not run against a configuration."
     },
     "user-auth-methods-not-in-request-or-state": {
       "statement": "The user request builder does not carry `auth_methods`, and the user Read never sets it, so the attribute exists only as input to the separate enrollment call. State cannot show what the tenant has enrolled, and a failed or skipped enrollment is not visible as drift.",

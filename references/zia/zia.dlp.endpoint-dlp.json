@@ -69,7 +69,7 @@
   ],
   "claims": {
     "families": {
-      "statement": "The Go SDK manages Endpoint DLP as separate families, each with its own path: the application catalog and custom applications (`/endPointApplications`), application groups (`/endPointApplicationGroups`), endpoint resources (`/dlpEndpointResource`), resource groups (`/endPointDlpResourceGroups`), and rules with their exception (sub) rules (`/endPointDlpRules`).",
+      "statement": "The Go SDK manages Endpoint DLP as separate families, each with its own path: the application catalog (`/endPointApplications`) and custom applications (under `/endPointApplications/customApps`), application groups (`/endPointApplicationGroups`), endpoint resources (`/dlpEndpointResource`), resource groups (`/endPointDlpResourceGroups`), and rules with their exception (sub) rules (`/endPointDlpRules`).",
       "tier": "A",
       "evidence": [
         {
@@ -77,6 +77,14 @@
           "path": "zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go",
           "quotes": [
             "endPointApplicationsEndpoint = \"/zia/api/v1/endPointApplications\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_custom_apps/endpoint_custom_apps.go",
+          "quotes": [
+            "endPointApplicationsEndpoint = \"/zia/api/v1/endPointApplications\"",
+            "endpoint := endPointApplicationsEndpoint + \"/customApps\""
           ]
         },
         {
@@ -205,7 +213,25 @@
           "quotes": [
             "def get_custom_app(self, app_id: int) -> APIResult[EndpointApplicationsCustomApps]:",
             "def add_custom_app(self, **kwargs) -> APIResult[DlpEndpointResource]:",
-            "def update_custom_app(self, app_id: int, **kwargs) -> APIResult[DlpEndpointResource]:"
+            "def update_custom_app(self, app_id: int, **kwargs) -> APIResult[DlpEndpointResource]:",
+            "def list_custom_apps(self, query_params: Optional[dict] = None) -> APIResult[List[EndpointApplicationsCustomApps]]:",
+            "response, error = self._request_executor.execute(request, EndpointApplicationsCustomApps)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/endpoint_custom_apps.py",
+          "after": "def add_custom_app(self, **kwargs) -> APIResult[DlpEndpointResource]:",
+          "quotes": [
+            "response, error = self._request_executor.execute(request, DlpEndpointResource)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/endpoint_custom_apps.py",
+          "after": "def update_custom_app(self, app_id: int, **kwargs) -> APIResult[DlpEndpointResource]:",
+          "quotes": [
+            "response, error = self._request_executor.execute(request, DlpEndpointResource)"
           ]
         }
       ]
