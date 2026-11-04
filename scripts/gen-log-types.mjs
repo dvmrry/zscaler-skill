@@ -4,7 +4,8 @@
 //
 // Zscaler publishes each NSS feed format as a help article ("NSS Feed Output Format: Web Logs") whose
 // tables list Field, Description, Example and Insights Logs, one table per field category under its own
-// heading. scripts/help_capture.py keeps the article as vendor/zscaler-help/nss-feed-output-format-<feed>-logs.json.
+// heading. scripts/help_capture.py keeps the article as vendor/zscaler-help/nss-feed-output-format-<feed>-logs.json
+// (zia-nss-feed-output-format-<feed>-logs.json for the feeds captured later).
 // Each table row becomes a field of references/zia/types/<feed>-log.json, keyed by the NSS token name
 // (`%s{action}` -> `action`), with the Insights column as its label and the row as its evidence, so the
 // validator re-anchors every field against the capture. Type-level metadata (title, names, aliases) is
@@ -31,29 +32,75 @@ const FEEDS = {
   dns: { title: "ZIA DNS log (NSS DNS feed)", aliases: ["nss dns log", "zia dns logs", "dns insights logs"] },
   "admin-audit": { title: "ZIA admin audit log (NSS admin audit feed)", aliases: ["nss admin audit log", "zia admin audit logs", "zia audit log", "zscalernss-audit"] },
 };
+// The feeds captured since, under the help capture's section prefix. The SaaS Security article has one table per
+// application category and the tunnel article one per record type, with many fields in several, so their fields
+// name the tables they are in.
+const zia = (feed, title, extra = {}) => ({ src: `zia-nss-feed-output-format-${feed}-logs.json`, title: `ZIA ${title} log (NSS ${title} feed)`,
+  aliases: [`nss ${title.toLowerCase()} log`, `zia ${title.toLowerCase()} logs`], ...extra });
+Object.assign(FEEDS, {
+  tunnel: zia("tunnel", "tunnel", { sections: true, aliases: ["nss tunnel log", "zia tunnel logs", "tunnel insights logs"] }),
+  "saas-security": zia("saas-security", "SaaS Security", { sections: true }),
+  "saas-security-activity": zia("saas-security-activity", "SaaS Security Activity"),
+  "endpoint-dlp": zia("endpoint-dlp", "Endpoint DLP"),
+  "email-dlp": zia("email-dlp", "Email DLP"),
+  "sandbox-verdict": zia("sandbox-verdict", "Sandbox Verdict"),
+  authentication: zia("authentication", "authentication"),
+  scim: zia("scim", "SCIM"),
+  "3rd-party-app-governance": zia("3rd-party-app-governance", "3rd-Party App Governance"),
+  "posture-management": zia("posture-management", "Posture Management"),
+});
 
 /** The article's table rows, each with the heading of the table it is in. */
 function tableRows(doc) {
   const rows = [];
   let heading = null;
   for (const b of doc.blocks) {
-    if (b.heading !== undefined) heading = b.heading;
+    if (b.heading !== undefined) heading = b;
     if (!b.table) continue;
     const [header, ...body] = b.table;
-    for (const cells of body) rows.push({ heading, cells: Object.fromEntries(header.map((h, i) => [h.trim(), cells[i] ?? ""])), row: cells });
+    for (const cells of body) {
+      rows.push({ heading: heading?.heading ?? null, headingLine: heading && `${"#".repeat(heading.level)} ${heading.heading}`,
+        cells: Object.fromEntries(header.map((h, i) => [h.trim(), cells[i] ?? ""])), row: cells });
+    }
   }
   return rows;
 }
 
 const TYPES = { s: "string", d: "integer", ld: "integer", f: "number" };
 
-/** A quote from the row as the anchoring text writes it: the start of the row, unique in the text. */
-function quoteFor(row, text) {
+/** The start of the row as the anchoring text writes it. */
+function rowQuote(row) {
   const line = `| ${row.map((c) => c.replaceAll("|", "\\|")).join(" | ")} |`;
   let q = line.slice(0, 90);
   if (q.length === 90) q = q.slice(0, q.lastIndexOf(" ") > 20 ? q.lastIndexOf(" ") : 90);
-  q = q.replace(/[\s|]+$/, "");
+  return q.replace(/[\s|]+$/, "");
+}
+
+/** A quote from the row, unique in the text. */
+function quoteFor(row, text) {
+  const q = rowQuote(row);
   return text.split(q).length === 2 ? q : null;
+}
+
+/** A table's heading as a unique anchor; one shorter than an anchor may be ("# CRM") runs on through the next line. */
+function headingAnchor(headingLine, text) {
+  const at = headingLine ? text.indexOf(`${headingLine}\n`) : -1;
+  if (at === -1) return null;
+  let anchor = headingLine;
+  if (anchor.length < 8) {
+    const end = text.indexOf("\n", at + headingLine.length + 1);
+    anchor = text.slice(at, end === -1 ? undefined : end).slice(0, 320);
+  }
+  return text.split(anchor).length === 2 ? anchor : null;
+}
+
+/** Evidence for a row: its quote, or, where the same row is in several tables, its quote after its table's heading. */
+function rowEvidence(src, row, headingLine, text) {
+  const q = rowQuote(row);
+  if (text.split(q).length === 2) return { source: "zscaler-help", path: src, quotes: [q] };
+  const after = headingAnchor(headingLine, text);
+  if (after && text.indexOf(q, text.indexOf(after)) !== -1) return { source: "zscaler-help", path: src, after, quotes: [q] };
+  return null;
 }
 
 // ZPA Log Streaming Service types: one help article per log type, one Field / Description / Supported
@@ -243,18 +290,24 @@ for (const [name, meta] of Object.entries(ZPA)) {
 }
 
 for (const [feed, meta] of Object.entries(FEEDS)) {
-  const src = `nss-feed-output-format-${feed}-logs.json`;
+  const src = meta.src || `nss-feed-output-format-${feed}-logs.json`;
   const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", src), "utf8"));
   const text = captureText(doc.blocks);
   const fields = {};
   const skipped = [];
-  for (const { cells, row } of tableRows(doc)) {
+  const sections = {}; // name -> the headings it is under, and each distinct description with its row's evidence
+  for (const { heading, headingLine, cells, row } of tableRows(doc)) {
     const token = cells.Field?.trim();
     const m = token?.match(/^%(\d*)([a-z]+)\{([^}]+)\}$/);
     if (!m) { skipped.push(token); continue; }
     const name = m[3];
-    if (fields[name]) { skipped.push(token); continue; } // one entry per token; the first row is the field
-    const quote = quoteFor(row, text);
+    const evidence = meta.sections ? rowEvidence(src, row, headingLine, text) : (q => q && { source: "zscaler-help", path: src, quotes: [q] })(quoteFor(row, text));
+    if (meta.sections) {
+      const s = (sections[name] ??= { in: [], variants: [] });
+      if (!s.in.includes(heading)) s.in.push(heading);
+      if (!s.variants.some((v) => v.description === cells.Description.trim())) s.variants.push({ heading, description: cells.Description.trim(), evidence });
+    }
+    if (fields[name]) { if (!meta.sections) skipped.push(token); continue; } // one entry per token; the first row is the field
     // The Insights column holds the console column name, or a note ("This field is ...") when there is none.
     const insights = cells["Insights Logs"]?.trim() || "";
     const note = /^This field\b/.test(insights);
@@ -262,8 +315,18 @@ for (const [feed, meta] of Object.entries(FEEDS)) {
       type: TYPES[m[2]] || "string",
       ...(insights && !note ? { label: insights } : {}),
       description: cells.Description.trim() + (note ? ` (Insights: ${insights})` : ""),
-      ...(quote ? { evidence: [{ source: "zscaler-help", path: src, quotes: [quote] }] } : {}),
+      ...(evidence ? { evidence: [evidence] } : {}),
     };
+  }
+  // A field under several headings names them; one described differently under some says how, under each.
+  for (const [name, s] of Object.entries(sections)) {
+    const f = fields[name];
+    if (s.variants.length > 1) {
+      f.description = s.variants.map((v) => `${v.heading}: ${v.description}`).join("; ");
+      const evidence = s.variants.map((v) => v.evidence).filter(Boolean);
+      if (evidence.length) f.evidence = evidence;
+    }
+    f.description += ` [${s.in.join(", ")}]`;
   }
   const target = path.join(ROOT, "references/zia/types", `${feed}-log.json`);
   const prev = fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : {};
