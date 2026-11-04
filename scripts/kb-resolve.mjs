@@ -860,18 +860,19 @@ function readType(g, id, paths = null) {
   const lines = Object.entries(t.fields).filter(([p]) => !paths || paths.includes(p)).map(([p, f]) => `- ${p}${f.label ? ` (${f.label})` : ""}${f.type ? ` ${f.type}` : ""}${f.description ? `: ${f.description}` : ""}`);
   // A log type's status codes are too many to print with its fields; each reads by name.
   const codes = Object.keys(t.status_codes || {});
-  if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response; read one by its code (\`read ${codes[0]}\`)`);
+  if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response${Object.values(t.status_codes).some((c) => c.help) ? " and the session status codes help article" : ""}; read one by its code (\`read ${codes[0]}\`)`);
   return [`# ${t.title || id} (${id})`, ...lines].join("\n");
 }
 
-/** One LSS status code as each log type that lists it gives it: its attributes and where the response says so. */
+/** One status code as each log type that lists it gives it: its LSS API attributes, the help article's rows, and where each says so. */
 function readStatusCode(g, code) {
   const cache = new Map();
   return g.statusCodes.get(code).map(({ type, data }) => {
     const attrs = [["name", data.name], ["error type", data.error_type], ["status", data.status], ["admin action", data.admin_action]];
     return [
-      `# ${code}: an LSS status code of ${titleOf(g, type)} (${type})`,
+      `# ${code}: a status code of ${titleOf(g, type)} (${type})`,
       ...attrs.filter(([, v]) => v !== undefined).map(([k, v]) => `- ${k}: ${v}`),
+      ...(data.help || []).map((h) => `- Help article (${h.class} codes): ${h.session_status}. ${h.description}${h.resolution ? ` Resolution: ${h.resolution}` : ""}`),
       // The attributes above are the quoted lines, so the source is where they are.
       ...data.evidence.map((ev) => {
         const lines = [...new Set(anchorEvidence(g, ev, cache).anchors.map((a) => a.line).filter(Boolean))];

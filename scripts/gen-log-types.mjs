@@ -237,6 +237,41 @@ function statusCodes() {
 }
 const codes = statusCodes();
 
+// The Private Access session status codes article: the codes the User Activity Diagnostics page shows, in one table
+// per class (Error, Info, Policy Block) of Session Status, Internal Reason (the code), Description and Resolution.
+// Each row becomes a `help` entry of the user activity log's code, beside what the LSS API example gives, so where
+// the two disagree on a name or class both are kept; a code the API example lacks is added from the article alone. A
+// code can have more than one row. Each row's evidence anchors after its own status and code cells.
+const SESSION_CODES = { src: "zpa-understanding-private-access-session-status-codes.json", lss: "zpn_trans_log" };
+
+function sessionCodes() {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", SESSION_CODES.src), "utf8"));
+  const text = captureText(doc.blocks);
+  const cell = (c) => c.replaceAll("|", "\\|"); // as the anchoring text writes a cell
+  const clip = (s) => (s.length <= 320 ? s : s.slice(0, s.lastIndexOf(" ", 320)));
+  const out = {};
+  let cls = null;
+  for (const b of doc.blocks) {
+    const m = b.item?.match(/^The following is a list of (.+) status codes:$/);
+    if (m) { cls = m[1]; continue; }
+    if (!b.table) continue;
+    for (const row of b.table.slice(1)) {
+      const [status, code, description, resolution] = row.map((c) => c.trim());
+      const after = `| ${cell(status)} | ${cell(code)} |`;
+      if (!cls || text.split(after).length !== 2) throw new Error(`gen-log-types: session status code ${code} has no class or no unique anchor`);
+      (out[code] ??= []).push({
+        help: { class: cls, session_status: status, description, ...(resolution ? { resolution } : {}) },
+        evidence: { source: "zscaler-help", path: SESSION_CODES.src, after, quotes: [description, resolution].filter((q) => q.length >= 8).map((q) => clip(cell(q))) },
+      });
+    }
+  }
+  return out;
+}
+for (const [code, rows] of Object.entries(sessionCodes())) {
+  const { evidence = [], ...attrs } = codes[SESSION_CODES.lss][code] ?? {};
+  codes[SESSION_CODES.lss][code] = { ...attrs, help: rows.map((r) => r.help), evidence: [...evidence, ...rows.map((r) => r.evidence)] };
+}
+
 for (const [name, meta] of Object.entries(ZPA)) {
   const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", meta.src), "utf8"));
   const text = captureText(doc.blocks);

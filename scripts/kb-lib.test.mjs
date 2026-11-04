@@ -519,10 +519,11 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   const fieldsOut = run("--no-overlay", "zia/web-log#ssldecrypted", "zia/web-log#cltsslfailreason");
   assert.match(fieldsOut, /^- ssldecrypted .*\n- cltsslfailreason /m);
   assert.ok(!fieldsOut.includes("- time "), "a field read prints only those fields");
-  // An LSS status code reads by name, once per log type that lists it, with where the response gives it.
-  assert.match(run("--no-overlay", "BRK_MT_TERMINATED"), /^# BRK_MT_TERMINATED: an LSS status code of .*\(zpa\/user-activity-log\)\n- name: SE: Connection closed by Service Edge\n- error type: NA\n- status: Success\n- admin action: NA\n- Source: `vendor\/zscaler-help\/configuring-log-streaming-service-configurations-using-api\.json:\d+/m);
+  // A status code reads by name, once per log type that lists it: the LSS API's attributes, the session status codes
+  // article's rows, and where each says so.
+  assert.match(run("--no-overlay", "BRK_MT_TERMINATED"), /^# BRK_MT_TERMINATED: a status code of .*\(zpa\/user-activity-log\)\n- name: SE: Connection closed by Service Edge\n- error type: NA\n- status: Success\n- admin action: NA\n- Help article \(Info codes\): SE: Connection closed by Service Edge\. .+\n- Source: `vendor\/zscaler-help\/configuring-log-streaming-service-configurations-using-api\.json:[\d,]+`\n- Source: `vendor\/zscaler-help\/zpa-understanding-private-access-session-status-codes\.json:\d+/m);
   assert.equal(run("--no-overlay", "ZPN_STATUS_AUTH_FAILED").match(/^# ZPN_STATUS_AUTH_FAILED: /gm).length, 3);
-  assert.match(run("--no-overlay", "zpa/user-activity-log#InternalReason"), /^- Status codes: 135 listed for this log type .*; read one by its code \(`read [A-Z_]+`\)$/m);
+  assert.match(run("--no-overlay", "zpa/user-activity-log#InternalReason"), /^- Status codes: 201 listed for this log type in the LSS API's status-codes response and the session status codes help article; read one by its code \(`read [A-Z_]+`\)$/m);
   assert.equal(spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--bogus", "zia"], { encoding: "utf8" }).status, 2);
   const withOverlay = run("--overlay", OVERLAY, "zia/url-filtering-rules");
   assert.match(withOverlay, /^IaC repos: /m);

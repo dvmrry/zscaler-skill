@@ -193,6 +193,12 @@ verifier and the claim audit found in writer output:
   v3.8.58"), not "the pinned release" or "at the pin": the pin moves.
 - **Labels are quoted.** A setting name, tab or console path in the statement
   appears in a quote, not only its description.
+- **An example is not a rule.** "For example, filtering on both a user and a
+  location matches only records with both" backs that example; "filters on
+  different fields must all match" needs a source that says so.
+- **A divergence is not settled in passing.** A `checks` entry, prose sentence
+  or new claim that rests on a value two sources disagree on uses the
+  divergence, not one side of it.
 
 Then run `node scripts/kb.mjs check <subject-id> ...` for every subject you
 edited, when your runtime lets you, and fix what it reports: it anchors their
