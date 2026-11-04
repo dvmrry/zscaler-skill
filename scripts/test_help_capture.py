@@ -70,6 +70,21 @@ def test_blocks_inside_a_table_cell_stay_separate():
     assert blocks == [{"table": [["MSI: HIDEAPPUIONLAUNCH EXE: hideAppUIOnLaunch", "1 = Enable 0 = Disable", "a b"]]}]
 
 
+def test_a_toggled_block_moves_under_its_link_and_a_commented_out_one_is_dropped():
+    _, blocks = render(
+        '<h3>T</h3><p><a href="#x">Steps</a></p><p>After.</p>'
+        '<div class="subc"><a class="ck-anchor" id="x"></a><p>Step one.</p></div>'
+        '<!-- <div class="subc"><a class="ck-anchor" id="y"></a><p>Draft.</p> -->'
+    )
+    assert blocks == [{"text": "Steps"}, {"text": "Step one."}, {"text": "After."}]
+
+
+def test_a_toggled_block_that_never_closes_runs_to_the_end():
+    _, blocks = render('<h3>T</h3><p><a href="#x">Steps</a></p><p>After.</p>'
+                       '<div class="subc"><a class="ck-anchor" id="x"></a><p>Step one.')
+    assert blocks == [{"text": "Steps"}, {"text": "Step one."}, {"text": "After."}]
+
+
 def test_lists_nest_and_the_anchoring_text_keeps_one_row_per_line():
     _, blocks = render(ARTICLE)
     assert {"item": "Nested detail", "depth": 1} in blocks

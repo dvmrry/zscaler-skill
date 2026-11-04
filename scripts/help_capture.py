@@ -188,11 +188,12 @@ def _tidy(text: str) -> str:
 
 
 def _blocks(html_text: str, cls: str) -> list[tuple[int, int]]:
-    """Spans of top-level `<div class="{cls}">` blocks, matched by balanced div tags."""
+    """Spans of top-level `<div class="{cls}">` blocks, matched by balanced div tags; one never closed runs to the
+    end of the text, as a browser closes it."""
     spans, start = [], 0
     opener = f'<div class="{cls}">'
     while (i := html_text.find(opener, start)) != -1:
-        depth, j = 0, i
+        depth, j = 0, len(html_text)
         for m in re.finditer(r"<div\b|</div>", html_text[i:]):
             depth += 1 if m.group(0) != "</div>" else -1
             if depth == 0:
@@ -207,8 +208,10 @@ def inline_toggles(html_text: str) -> str:
     """Put each expandable block back under the link that toggles it, as the help site's script does.
 
     The article payload keeps expandable content in `<div class="subc">` blocks after the main text;
-    each starts with `<a class="ck-anchor" id="X">` and is opened by a link `href="#X"`.
+    each starts with `<a class="ck-anchor" id="X">` and is opened by a link `href="#X"`. Commented-out markup
+    never renders, so it is dropped first: a block or link inside a comment is not one.
     """
+    html_text = re.sub(r"<!--.*?-->", "", html_text, flags=re.S)
     blocks: dict[str, str] = {}
     keep: list[str] = []
     last = 0
