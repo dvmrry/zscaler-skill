@@ -62,6 +62,11 @@ CHROME = re.compile(r"^(Ask Zscaler|Ask ZscalerPreview|Close|Was this article he
 STOP = re.compile(r"^(Was this article helpful|Related Articles)")
 
 
+# A page's own asterisk while rendering: `**` in the buffer is the bold marker, so text that contains `**` (a path
+# wildcard) would otherwise read as bold and vanish. _structure puts the asterisk back.
+LITERAL_STAR = "\ue000"  # private use: no render step treats it as space or markup
+
+
 class _Renderer(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -170,7 +175,7 @@ class _Renderer(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self.skip:
             return
-        (self.cell if self.cell is not None else self.buf).append(data)
+        (self.cell if self.cell is not None else self.buf).append(data.replace("*", LITERAL_STAR))
 
     def _emit_table(self, rows: list[list[str]]) -> None:
         width = max(len(r) for r in rows)
@@ -250,13 +255,13 @@ def _structure(block: dict) -> dict:
             cells = []
             for c, cell in enumerate(row):
                 plain, spans = _strong(html.unescape(cell))
-                cells.append(plain)
+                cells.append(plain.replace(LITERAL_STAR, "*"))
                 strong += [[r, c, *span] for span in spans]
             rows.append(cells)
         return {"table": rows, **({"strong": strong} if strong else {})}
     key = "heading" if "heading" in block else "item" if "item" in block else "text"
     plain, spans = _strong(html.unescape(block[key]))
-    out = {key: plain, **{k: v for k, v in block.items() if k not in (key,)}}
+    out = {key: plain.replace(LITERAL_STAR, "*"), **{k: v for k, v in block.items() if k not in (key,)}}
     return {**out, **({"strong": spans} if spans else {})}
 
 
@@ -289,7 +294,7 @@ def render(article_html: str) -> tuple[str, list[dict]]:
     title = heading["heading"] if heading else ""
     if heading:
         out = out[out.index(heading) + 1:]
-    return html.unescape(title), [_structure(b) for b in out]
+    return html.unescape(title).replace(LITERAL_STAR, "*"), [_structure(b) for b in out]
 
 
 def text_of(blocks: list[dict]) -> str:

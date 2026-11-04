@@ -46,7 +46,7 @@
     },
     {
       "label": "On Windows.",
-      "text": "{{process-windows-path}} The console location for adding a process-based application is named differently by two pages {{divergence:process-console-location}}. {{process-windows-matching}} {{process-windows-wfp}} The two-asterisk wildcard is open {{gap:two-asterisk-capture}}."
+      "text": "{{process-windows-path}} The console location for adding a process-based application is named differently by two pages {{divergence:process-console-location}}. {{process-windows-matching}} {{process-windows-wfp}}"
     },
     {
       "label": "On macOS.",
@@ -159,9 +159,8 @@
       ]
     },
     "process-windows-path": {
-      "statement": "On Windows (Infrastructure > Client Connector > Process Bypass), the Path field takes the executable file names for the application: a single asterisk matches any full single path component, a wildcard cannot be used for partial components, two asterisks match any number of consecutive path components, environment variables such as %APPDATA%\\Zoom\\bin can be used, and several entries can be added at once separated by commas.",
+      "statement": "On Windows (Infrastructure > Client Connector > Process Bypass), the Path field takes the executable file names for the application: a single asterisk matches any full single path component, a wildcard cannot be used for partial components, two asterisks (**) match any number of consecutive path components (the page's example is **\\ms-teams.exe), environment variables such as %APPDATA%\\Zoom\\bin can be used, and several entries can be added at once separated by commas.",
       "tier": "A",
-      "conditions": "The two-asterisk rule rests on two quotes of the capture's sentence that have lost the literal characters (see the gap two-asterisk-capture); the capture's example for it is not used.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -178,8 +177,8 @@
             "Path: Enter the executable file names for the application. You can use wildcards or environment variables as follows:",
             "Use a single asterisk (*) to match any full single path component.",
             "You can’t use a wildcard for partial components.",
-            "Use two asterisks",
-            "to match any number of consecutive path components.",
+            "Use two asterisks (**) to match any number of consecutive path components.",
+            "For example: **\\ms-teams.exe.",
             "The following example shows how to use environment variables in a path: %APPDATA%\\Zoom\\bin."
           ],
           "after": "- Windows"
@@ -282,11 +281,12 @@
     "two-asterisk-capture": {
       "kind": "semantic",
       "title": "What the two-asterisk Path wildcard looks like on the process-based page",
-      "status": "open",
+      "status": "resolved",
       "detail": "Capture defect, not a vendor fact: in the capture of Adding Process-Based Applications to Bypass Traffic the literal two-asterisk wildcard characters in the Windows Path rule and in the example that follows it were taken as bold markers and are missing from the text, so the rule is readable only as matching any number of consecutive path components and the example is not usable. The single-asterisk rule and its example are intact. Re-rendering the capture (help_capture.py rerender) or reading the live page settles it.",
       "resolves_with": [
         "source-read"
-      ]
+      ],
+      "resolution": "The capture was re-rendered after the help capture renderer stopped reading a page's literal ** as bold: it now reads \"Use two asterisks (**) to match any number of consecutive path components. For example: **\\ms-teams.exe.\", which process-windows-path quotes."
     },
     "predefined-and-limits": {
       "kind": "semantic",

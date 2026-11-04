@@ -62,6 +62,15 @@ def test_bold_marks_a_recommended_table_value_by_cell():
     assert blocks == [{"table": [["DPD", "Enabled Disabled"]], "strong": [[0, 1, 0, 7]]}]
 
 
+def test_a_page_asterisk_is_text_not_bold():
+    # A path wildcard is a literal `**`; it must not read as the renderer's bold marker and vanish.
+    _, blocks = render("<h3>T</h3><ul><li>Use two asterisks (**) to match. For example: **\\a.exe or a * b.</li></ul>"
+                       "<table><tr><td>a**b</td><td><strong>x</strong></td></tr></table>")
+    assert blocks[0]["item"] == "Use two asterisks (**) to match. For example: **\\a.exe or a * b."
+    assert "strong" not in blocks[0]
+    assert blocks[1] == {"table": [["a**b", "x"]], "strong": [[0, 1, 0, 1]]}
+
+
 def test_blocks_inside_a_table_cell_stay_separate():
     _, blocks = render(
         "<h3>T</h3><table><tr><td><p>MSI: HIDEAPPUIONLAUNCH</p><p>EXE: hideAppUIOnLaunch</p></td>"
