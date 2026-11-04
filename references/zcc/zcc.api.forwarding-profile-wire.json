@@ -294,7 +294,7 @@
     "same-as-trusted-pointer": {
       "statement": "`isSameAsOnTrustedNetwork` is a plain boolean on the Go read types, with `omitempty` on the ZIA action and without it on the ZPA action, but a pointer to a boolean with `omitempty` on the ZIA and ZPA action write types, so a write can send an explicit false and leaves the key out only when the pointer is nil. The provider's comment says the API omits the key from the GET response entirely.",
       "tier": "A",
-      "conditions": "Narrowed per verifier: the read-side `omitempty` is on the ZIA action read type only. The recorded forwarding-profile listing (one test tenant, recorded with SDK 1.9.13, Python SDK cassette TestForwardingProfile.yaml) has no `isSameAsOnTrustedNetwork` key, consistent with the provider comment; that absence was checked by search, not cited.",
+      "conditions": "The read-side `omitempty` is on the ZIA action read type only. The recorded forwarding-profile listing (one test tenant, recorded with SDK 1.9.13, Python SDK cassette TestForwardingProfile.yaml) has no `isSameAsOnTrustedNetwork` key, consistent with the provider comment; that absence was checked by search, not cited.",
       "evidence": [
         {
           "source": "sdk-go",
@@ -414,7 +414,7 @@
     },
     "provider-doc-codes": {
       "statement": "The Terraform provider's resource documentation gives these codes: `condition_type` 0 for OR (ANY) and 1 for AND (ALL); `network_type` 0 off-trusted and 1 on-trusted; `action_type` 0 direct, 1 tunnel, 2 none; `primary_transport` 0 TLS and 1 DTLS; the `network_type`, `action_type` and `primary_transport` lists each end with \"etc.\".",
-      "conditions": "Reworded per verifier: the `condition_type` description has no \"etc.\".",
+      "conditions": "The `condition_type` description has no \"etc.\".",
       "tier": "A",
       "evidence": [
         {
@@ -529,7 +529,7 @@
     "go-request-omissions": {
       "statement": "The Go write type has no field for `trustedNetworks` or `trustedNetworkIdsSelected` on the profile, or for `systemProxy`, `sendAllDNSToTrustedServer`, `optimiseForUnstableConnections` or `dropIpv6TrafficInIpv6Network` on a ZIA action, although the read type carries them all.",
       "tier": "A",
-      "conditions": "Absence: the request types in forwarding_profile_request.go have none of those fields at the pin; the read-type fields are quoted. Changed per verifier from Tier B, which had no derived_from.",
+      "conditions": "Absence: the request types in forwarding_profile_request.go have none of those fields at the pin; the read-type fields are quoted.",
       "evidence": [
         {
           "source": "sdk-go",
@@ -580,7 +580,7 @@
     "python-keys-only": {
       "statement": "The Python SDK's `update_forwarding_profile` renames keys the model declares to their wire keys, keeps wire-form keys and the legacy snake_case set (`WebPolicy.SNAKE_CASE_KEYS`) unchanged, camel-cases any other key, and stores each value under its new key without converting its type; only the keys inside a nested dict or list value are rewritten.",
       "tier": "A",
-      "conditions": "Corrected per verifier: unknown snake_case keys are not passed through but camel-cased by `to_lower_camel_case`; the module docstring's \"unknown keys pass through unchanged\" holds only for keys without an underscore.",
+      "conditions": "Unknown snake_case keys are not passed through but camel-cased by `to_lower_camel_case`; the module docstring's \"unknown keys pass through unchanged\" holds only for keys without an underscore.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -612,7 +612,7 @@
     "python-model-coverage": {
       "statement": "The Python model has no attribute for `optimiseForUnstableConnections` or `sendAllDNSToTrustedServer` on an action or for `trustedNetworkIdsSelected` on the profile; such keys are dropped when a response is read into the model. A caller who passes them by wire name sends them unchanged, but a snake_case name is camel-cased word by word, so `send_all_dns_to_trusted_server` goes out as `sendAllDnsToTrustedServer`, not the wire key `sendAllDNSToTrustedServer`.",
       "tier": "B",
-      "conditions": "Rests on the absence of the three keys from the model file at the pin, and on the serializer keeping keys without an underscore and camel-casing other unknown keys (python-keys-only). Extended per verifier with the snake_case case; not sent.",
+      "conditions": "Rests on the absence of the three keys from the model file at the pin, and on the serializer keeping keys without an underscore and camel-casing other unknown keys (python-keys-only). The snake_case case is traced, not sent.",
       "derived_from": [
         "python-keys-only"
       ],

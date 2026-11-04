@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { lintClaim } from "./kb-lint.mjs";
+import { lintClaim, lintHistory } from "./kb-lint.mjs";
 
 const claim = (statement, evidence, extra = {}) => ({ tier: "A", statement, evidence, ...extra });
 const checks = (c) => lintClaim(c).map((f) => [f.check, f.missing]);
@@ -50,6 +50,17 @@ test("a statement placed relative to the pin is an error; one naming the release
   assert.deepEqual(checks(claim("At the pinned release the provider calls x.", ev)), [["pin", ["At the pinned release"]]]);
   assert.deepEqual(checks(claim("Not fixed at the pin.", ev)), [["pin", ["at the pin"]]]);
   assert.deepEqual(checks(claim("The provider calls x.", ev)), []);
+});
+
+test("review history in authored text is an error; vendor text and quotes are not", () => {
+  const found = (data) => lintHistory(data).flatMap((f) => f.missing);
+  assert.deepEqual(found({ statement: "x", conditions: "Narrowed per verifier: the page names one cloud." }), ["per verifier"]);
+  assert.deepEqual(found({ detail: "Quote added for the location clause (verifier w2 E8)." }), ["Quote added for", "(verifier"]);
+  assert.deepEqual(found({ conditions: "Added from the verifier's finding that the help documents it." }), ["from the verifier's"]);
+  assert.deepEqual(found({ positions: [{ says: "Narrowed per review: one page." }] }), ["per review"]);
+  // Vendor names and evidence are the source's words.
+  assert.deepEqual(found({ statement: "ZSAUpdater and the checksum verifier; the PKCE code_verifier." }), []);
+  assert.deepEqual(found({ statement: "x", evidence: [{ quotes: ["added per verifier"] }], upstream: [{ status: "unfiled", note: "per review" }] }), []);
 });
 
 test("a changelog quote's release heading counts as evidence; a heading in other files does not", async () => {

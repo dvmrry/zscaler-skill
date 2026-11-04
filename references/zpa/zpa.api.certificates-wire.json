@@ -341,7 +341,7 @@
           ]
         }
       ],
-      "conditions": "Statement changed per verifier: it said any description sent through the model is dropped, but add_enrollment_cert and update_enrollment build the body from keyword arguments, and no call in enrollment_certificates.py uses request_format (read from the whole file). The absence of description from the config branch and from request_format was read from the whole model; a quote cannot prove an absence. The Go struct and the OpenAPI schema both define description. Absence claim: `grep -n description zscaler/zpa/models/enrollment_certificates.py` at v1.11.3-1-g4f8f54df returns one line, `self.description = None` in the no-config branch, and `grep -n request_format zscaler/zpa/enrollment_certificates.py` returns nothing."
+      "conditions": "add_enrollment_cert and update_enrollment build the body from keyword arguments, and no call in enrollment_certificates.py uses request_format (read from the whole file). The absence of description from the config branch and from request_format was read from the whole model; a quote cannot prove an absence. The Go struct and the OpenAPI schema both define description. Absence claim: `grep -n description zscaler/zpa/models/enrollment_certificates.py` at v1.11.3-1-g4f8f54df returns one line, `self.description = None` in the no-config branch, and `grep -n request_format zscaler/zpa/enrollment_certificates.py` returns nothing."
     },
     "python-enrollment-empty-request-format": {
       "statement": "Calling request_format on an EnrollmentCertificate built without a config raises AttributeError.",
@@ -435,7 +435,7 @@
           "note": "the Go write functions pass the struct straight to the request with no validation"
         }
       ],
-      "conditions": "Statement changed per verifier: it said all Python writes send the epoch values; update_enrollment converts into kwargs after body has already copied them, and pops the raw keys from kwargs only, so its body keeps them (camel-cased by the executor, [[shared.sdk-python.request-handling:body-camel-case]]). generate_self_signed was added because it converts like add_enrollment_cert. The Go statement rests on reading the enrollmentcert package, which converts nothing and validates nothing before the request. The OpenAPI schema says validFromInEpochSec is not applicable for put and post calls because the value is extracted from the certificate."
+      "conditions": "update_enrollment converts into kwargs after body has already copied them, and pops the raw keys from kwargs only, so its body keeps them (camel-cased by the executor, [[shared.sdk-python.request-handling:body-camel-case]]). generate_self_signed converts like add_enrollment_cert. The Go statement rests on reading the enrollmentcert package, which converts nothing and validates nothing before the request. The OpenAPI schema says validFromInEpochSec is not applicable for put and post calls because the value is extracted from the certificate."
     },
     "python-update-enrollment-raw-window": {
       "statement": "update_enrollment sends the raw valid_from, valid_to and time_zone and no epoch values in the request body.",
@@ -810,7 +810,7 @@
           "after": "def list_issued_certificates(self, query_params"
         }
       ],
-      "conditions": "Statement changed per verifier: it said the contract names certificate/issued as the path to use, but the deprecated operation's text names no replacement. That the two 200 responses are identical was read by comparing the two response objects in the OpenAPI document."
+      "conditions": "The deprecated operation's text names no replacement. That the two 200 responses are identical was read by comparing the two response objects in the OpenAPI document."
     },
     "ba-delete-then-get-400": {
       "statement": "The Go integration test expects a Get of a Browser Access certificate after its deletion to fail with an error containing 400.",

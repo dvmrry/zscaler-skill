@@ -106,7 +106,6 @@
     "v1-criteria-strings": {
       "statement": "In v1 each criterion of a trusted network (`dnsServers`, `dnsSearchDomains`, `hostnames`, `resolvedIpsForHostname`, `ssids`, `trustedDhcpServers`, `trustedGateways`, `trustedSubnets`, `trustedEgressIps`) is one comma-separated string, not a list: the contract and the Go SDK type them as strings, the Python SDK's examples pass values such as '10.11.12.13, 10.11.12.14' and '' for unused criteria, and the Terraform provider's v1 adapter splits and joins them on commas, noting that the v1 API returns values like \"10.0.0.5, 10.0.0.6\".",
       "tier": "A",
-      "conditions": "Merged per verifier with the former claim csv-strings, which stated the same point; its binding and its Python and provider quotes came with it.",
       "binds": [
         "zcc/trusted-networks#dnsServers"
       ],
@@ -378,7 +377,7 @@
     "mutation-response": {
       "statement": "The Go SDK documents that v1 create and edit return only a status such as {\"success\":\"true\",\"errorCode\":\"0\"}, not the trusted network, so it resolves the record by name after create and by ID after update. Recorded responses from one test tenant agree that neither returns the record, but differ on the create: there the API answered `{\"conditionType\" : 0, \"active\" : false}`, while the edit answered `{\"success\" : \"true\", \"errorCode\" : \"0\"}`.",
       "tier": "A",
-      "conditions": "Qualified per verifier with recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette).",
+      "conditions": "From recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette).",
       "evidence": [
         {
           "source": "sdk-python",
@@ -463,7 +462,7 @@
     "delete-missing-silent": {
       "statement": "Deleting a v1 trusted network ID that does not exist returned HTTP 200 with `{\"success\" : \"false\", \"errorCode\" : \"3005\"}` in a recorded response, and the Go `DeleteTrustedNetwork` passes no response target and returns success whenever the request itself did not fail.",
       "tier": "A",
-      "conditions": "Added per verifier from recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette); the HTTP 200 is the recording's status line. The Go half is read from the code, not run.",
+      "conditions": "From recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette); the HTTP 200 is the recording's status line. The Go half is read from the code, not run.",
       "evidence": [
         {
           "source": "sdk-python",

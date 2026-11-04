@@ -409,7 +409,7 @@
     "details-extra-keys-recorded": {
       "statement": "A recorded `getDeviceDetails` response carries keys that only the Python model reads, among them `serialNumber`, `ziaEnabled`, `deviceTrust` and `logFetchInfo`, and also `lastLocationSourceUsed`, which neither SDK models.",
       "tier": "A",
-      "conditions": "Added per verifier from recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette). Absence claim: `grep -rniI \"lastLocationSourceUsed\\|last_location_source\" zscaler/zcc` in the Python SDK (at v1.11.3-1-g4f8f54df) and in the Go SDK (at v3.8.58) returned nothing, so neither models the key. `grep -rnIE 'json:\"(serialNumber|ziaEnabled|deviceTrust|logFetchInfo)[\",]' zscaler/zcc` in the Go SDK at v3.8.58 returns nothing, so the Go `DeviceDetails` struct (which ends at `ZappArch`) carries none of the four.",
+      "conditions": "From recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette). Absence claim: `grep -rniI \"lastLocationSourceUsed\\|last_location_source\" zscaler/zcc` in the Python SDK (at v1.11.3-1-g4f8f54df) and in the Go SDK (at v3.8.58) returned nothing, so neither models the key. `grep -rnIE 'json:\"(serialNumber|ziaEnabled|deviceTrust|logFetchInfo)[\",]' zscaler/zcc` in the Go SDK at v3.8.58 returns nothing, so the Go `DeviceDetails` struct (which ends at `ZappArch`) carries none of the four.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -474,7 +474,7 @@
     "python-internal-model-never-read": {
       "statement": "The Python details call camel-cases every response key before building `DeviceDetails`, but the model looks `internal_model` up in snake_case, so that attribute is always None; a recorded details response carries the key as `internal_model`, which the camel-casing renames before the model sees it.",
       "tier": "A",
-      "conditions": "Extended per verifier with recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette).",
+      "conditions": "From recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette).",
       "evidence": [
         {
           "source": "sdk-python",

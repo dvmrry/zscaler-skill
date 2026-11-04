@@ -13,6 +13,9 @@
 //               count of a quoted list, or a status code a quoted constant implies, is fine.
 //   pin         the statement places itself relative to the checked-out pin ("the pinned release", "at the pin"),
 //               which goes stale at the next bump; name the release instead.
+//   history     authored text (any claim, gap, divergence, prose block or check, never a quote) records how it was
+//               edited ("narrowed per verifier", "(verifier w2 E9)"): that is the review's history, not the source's,
+//               and it reads as a statement about the source. State what the source says instead.
 //
 // Matching ignores case, whitespace and Markdown bold, as quote anchoring does.
 
@@ -29,7 +32,10 @@ const CHANGELOG = /(?:^|\/)(?:changelog|changes|history|release[-_]?notes)[^/]*\
 // "has no `a` or `b`", "lacks the `c`".
 const ABSENCE = /\b(?:without|no|not|lacks?|lacking|omits?|missing|never)\b(?:\s|,|\b(?:or|and|nor|a|an|the|any)\b|`[^`]*`)*$/i;
 
-export const CHECKS = { version: "error", identifier: "error", number: "warning", pin: "error" };
+// Review wording, not vendor wording: "checksum verifier" (a ZCC process) and "code_verifier" (PKCE) do not match.
+const HISTORY = /\b(?:per|from) (?:the |two |a )?(?:verifiers?|reviewers?|review)(?:'s)?\b|\(verifier\b|\bverifier w\d|\bquote added for\b/gi;
+
+export const CHECKS = { version: "error", identifier: "error", number: "warning", pin: "error", history: "error" };
 
 function flat(s) {
   return String(s).replace(/\*\*/g, "").toLowerCase().replace(/[\s\\]+/g, "");
@@ -78,9 +84,30 @@ export function lintClaim(claim, context = []) {
   return out;
 }
 
+/** The authored text of a claim, gap, divergence or subject: every string but evidence, which is the source's. */
+function authored(data) {
+  const out = [];
+  const walk = (v, key) => {
+    if (key === "evidence" || key === "upstream") return;
+    if (typeof v === "string") out.push(v);
+    else if (Array.isArray(v)) for (const x of v) walk(x, key);
+    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, k);
+  };
+  walk(data, "");
+  return out;
+}
+
+/** Review-history phrases in a node's authored text: [{ check, level, missing }] or []. */
+export function lintHistory(data) {
+  const missing = authored(data).flatMap((t) => [...t.matchAll(HISTORY)].map((m) => m[0]));
+  return missing.length ? [{ check: "history", level: CHECKS.history, missing: [...new Set(missing)] }] : [];
+}
+
 /** One finding as a line of text. */
 export function describe(f) {
-  return f.check === "pin" ? `statement is relative to the pin (${f.missing.join(", ")}); name the release` : `${f.check} not in evidence: ${f.missing.join(", ")}`;
+  if (f.check === "pin") return `statement is relative to the pin (${f.missing.join(", ")}); name the release`;
+  if (f.check === "history") return `review history in the text (${f.missing.join(", ")}); state what the source says`;
+  return `${f.check} not in evidence: ${f.missing.join(", ")}`;
 }
 
 /** Findings for every claim in the graph, or with `only` (a set of subject IDs) for those subjects' claims. */
@@ -88,9 +115,14 @@ export function lintGraph(g, { only = null } = {}) {
   const findings = [];
   const cache = new Map();
   for (const node of g.nodes.values()) {
-    if (node.kind !== "claim" || (only && !only.has(node.subject))) continue;
-    const context = (node.data.evidence || []).filter((ev) => CHANGELOG.test(ev.path || "")).flatMap((ev) => headingsAbove(g, ev, cache));
-    for (const f of lintClaim(node.data, context)) findings.push({ id: node.id, file: node.file, ...f });
+    if (only && !only.has(node.kind === "subject" ? node.id : node.subject)) continue;
+    if (node.kind === "claim") {
+      const context = (node.data.evidence || []).filter((ev) => CHANGELOG.test(ev.path || "")).flatMap((ev) => headingsAbove(g, ev, cache));
+      for (const f of lintClaim(node.data, context)) findings.push({ id: node.id, file: node.file, ...f });
+    }
+    // A subject's own text is its prose and checks; its claims, gaps and divergences are nodes of their own.
+    const own = node.kind === "subject" ? { prose: node.data.prose, checks: node.data.checks, title: node.data.title } : node.data;
+    if (["claim", "gap", "divergence", "subject"].includes(node.kind)) for (const f of lintHistory(own)) findings.push({ id: node.id, file: node.file, ...f });
   }
   return findings;
 }

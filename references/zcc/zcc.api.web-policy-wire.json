@@ -254,7 +254,7 @@
     "edit-group-user-asymmetry": {
       "statement": "The Python SDK's 1.9.25 release notes describe the edit endpoint as asymmetric: requests carry flat `groupIds` and `userIds` lists, while responses return nested `groups` and `users` objects. The Python model nonetheless sends a caller's `group_ids` and `user_ids` under the keys `groups` and `users`, and reads the response's `groups` as group objects.",
       "tier": "A",
-      "conditions": "Narrowed per verifier: the release note predates the model's current `request_format` mapping, which sends the flat ID lists as `groups`/`users` (sdk-python commit 197867f5, PR #502, after 1.9.25).",
+      "conditions": "The release note predates the model's current `request_format` mapping, which sends the flat ID lists as `groups`/`users` (sdk-python commit 197867f5, PR #502, after 1.9.25).",
       "evidence": [
         {
           "source": "sdk-python",
@@ -574,7 +574,7 @@
     "ios-comment-vs-tags": {
       "statement": "The Go SDK's iOS block comment says the password fields are serialized in snake_case, but its struct tags send them in camelCase (`disablePassword`, `logoutPassword`, `uninstallPassword`). The Python SDK's iOS UI capture uses the snake_case key `disable_password` in `iosPolicy`, as the comment says.",
       "tier": "A",
-      "conditions": "Extended per verifier with the iOS UI capture shipped as an SDK test fixture.",
+      "conditions": "The iOS UI capture is shipped as an SDK test fixture.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -618,7 +618,7 @@
     "ios-only-blocks": {
       "statement": "The Go SDK's model says its iOS UI capture carries a `notificationTemplateContract` block at the web policy root, with its 0/1 flags as quoted strings and its counters as numbers, and that the macOS capture omits it, so the SDK sends the block only when set. The Python SDK's iOS UI capture has no such block.",
       "tier": "A",
-      "conditions": "Narrowed per verifier: the iOS shape is the Go model's account of its own capture; the Python iOS capture (a UI capture shipped as an SDK test fixture) lacks the block.",
+      "conditions": "The iOS shape is the Go model's account of its own capture; the Python iOS capture (a UI capture shipped as an SDK test fixture) lacks the block.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -653,7 +653,7 @@
     "python-per-class-serializer": {
       "statement": "On the OneAPI client, the Python SDK's web policy write converts snake_case input to the wire key each nested model class declares, so the same attribute can leave in different casings depending on the block, and it keeps keys listed in `WebPolicy.SNAKE_CASE_KEYS` in snake_case when the model does not declare them.",
       "tier": "A",
-      "conditions": "Narrowed per verifier to the OneAPI client: the executor sends the serialized body unchanged only when the endpoint still contains `/zcc/`, which the legacy client strips (python-legacy-camelcases-web-policy).",
+      "conditions": "Applies to the OneAPI client: the executor sends the serialized body unchanged only when the endpoint still contains `/zcc/`, which the legacy client strips (python-legacy-camelcases-web-policy).",
       "evidence": [
         {
           "source": "sdk-python",
@@ -693,7 +693,7 @@
         "python-per-class-serializer",
         "zcc.api.conventions:python-body-casing"
       ],
-      "conditions": "Added per verifier, traced and run through the serializer in a scratch environment, not sent: the legacy client strips the `/zcc` prefix before the body is prepared, so the ZCC branch is skipped and the generic full camel-casing runs over the serialized body.",
+      "conditions": "Traced and run through the serializer in a scratch environment, not sent: the legacy client strips the `/zcc` prefix before the body is prepared, so the ZCC branch is skipped and the generic full camel-casing runs over the serialized body.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -726,7 +726,7 @@
       "derived_from": [
         "zcc.api.forwarding-profile-wire:python-keys-only"
       ],
-      "conditions": "Added per verifier: the serializer stores a value without converting its type (python-keys-only), and with the decorator commented out nothing maps the name to a code; not sent.",
+      "conditions": "The serializer stores a value without converting its type (python-keys-only), and with the decorator commented out nothing maps the name to a code; not sent.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -838,7 +838,7 @@
     "snake-case-top-level": {
       "statement": "The contract's edit body defines three snake_case top-level keys, `pac_url`, `reauth_period` and `device_type`. The Go struct sends these and nine more at the top level that the contract lacks (`exit_password`, `billing_day`, `allowed_apps`, `custom_text`, `bypass_mms_apps`, `quota_in_roaming`, `wifi_ssid`, `bypass_android_apps` and `install_ssl_certs`), and the Python SDK keeps the same keys in snake_case: its `SNAKE_CASE_KEYS` lists the other eleven, and its key converter maps `exit_password` to itself.",
       "tier": "A",
-      "conditions": "Restated per verifier: the earlier statement said the contract and Go agree on three keys, but Go and Python send more. Python's preservation applies on the OneAPI client only (python-legacy-camelcases-web-policy). Absence claim (the contract's only snake_case top-level keys): `jq -r '.paths[\"/papi/public/v1/web/policy/edit\"].put.requestBody.content[\"application/json\"].schema.properties | keys[] | select(test(\"_\"))' automate-zscaler/openapi/zcc.openapi.json` returns exactly three keys, `device_type`, `pac_url` and `reauth_period`.",
+      "conditions": "Go and Python send more snake_case top-level keys than the contract's three. Python's preservation applies on the OneAPI client only (python-legacy-camelcases-web-policy). Absence claim (the contract's only snake_case top-level keys): `jq -r '.paths[\"/papi/public/v1/web/policy/edit\"].put.requestBody.content[\"application/json\"].schema.properties | keys[] | select(test(\"_\"))' automate-zscaler/openapi/zcc.openapi.json` returns exactly three keys, `device_type`, `pac_url` and `reauth_period`.",
       "binds": [
         "zcc/application-profiles#pac_url",
         "zcc/application-profiles#reauth_period"
@@ -985,7 +985,7 @@
     "ios-top-level": {
       "statement": "The Go SDK's model says its iOS UI capture carries `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` and related keys at the top level as well as inside `iosPolicy`, with `useTunnelSDK4_3` a JSON number at the top level and a quoted string inside `iosPolicy`. The Python SDK's iOS web policy payload fixture (`ios_policy.json`, one of the real payloads its serializer tests use) has none of `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` or `deviceType` at the top level.",
       "tier": "A",
-      "conditions": "Narrowed per verifier: restated as the Go model's account of its capture, and the Python iOS capture (a UI capture shipped as an SDK test fixture) added; which of the two the API requires is not shown. Narrowed per review: no source calls the Python fixture a UI capture; the SDK's serializer test calls its fixtures real payloads.",
+      "conditions": "The iOS shape is the Go model's account of its capture. No source calls the Python fixture a UI capture; the SDK's serializer test calls its fixtures real payloads. Which of the two the API requires is not shown.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -1121,7 +1121,7 @@
     "read-back": {
       "statement": "The Go SDK calls no get-by-ID endpoint: `GetWebPolicyByID` lists the platform's policies and matches the id, and when a field's JSON type does not fit its struct it returns only id, name, description, device type and active, with a partial-decode error. Its comment says the listing sometimes drops the numeric id of an entry that came from a fresh `/edit` write, and the SDK then fills in the id it was asked for.",
       "tier": "A",
-      "conditions": "Restated per verifier: the Go code, not a quoted source, is what lacks a get-by-ID call; the dropped-id remark is the Go comment's, not observed (gap list-id-encoding). Absence claim: `grep -n baseWebPolicyEndpoint zscaler/zcc/services/web_policy/web_policy.go` in the Go SDK at v3.8.58 returns the constant (`/zcc/papi/public/v1/web/policy`) and four uses only, `/listByCompany`, `/activate`, `/edit` and `/%d/delete`, and `grep -rn web/policy zscaler/zcc` finds no other endpoint.",
+      "conditions": "The Go code, not a quoted source, is what lacks a get-by-ID call; the dropped-id remark is the Go comment's, not observed (gap list-id-encoding). Absence claim: `grep -n baseWebPolicyEndpoint zscaler/zcc/services/web_policy/web_policy.go` in the Go SDK at v3.8.58 returns the constant (`/zcc/papi/public/v1/web/policy`) and four uses only, `/listByCompany`, `/activate`, `/edit` and `/%d/delete`, and `grep -rn web/policy zscaler/zcc` finds no other endpoint.",
       "evidence": [
         {
           "source": "sdk-go",
@@ -1174,7 +1174,7 @@
     "cli-password-toggles": {
       "statement": "The Go SDK's model says the API expects all four toggles of `policyExtension.generateCliPasswordContract` (`enableCli` and the ZPA, ZIA and ZDX disable-without-password switches) to be present even when CLI disable is off, and that the UI capture always emits them; the Go struct also sends top-level copies of the ZPA and ZIA switches. The contract's object defines only `enableCli`, `allowZpaDisableWithoutPassword` and `policyId`.",
       "tier": "A",
-      "conditions": "Added per verifier: these switches govern disabling services without a password. The contract object's properties are exactly `allowZpaDisableWithoutPassword`, `enableCli` and `policyId` (read from the document).",
+      "conditions": "These switches govern disabling services without a password. The contract object's properties are exactly `allowZpaDisableWithoutPassword`, `enableCli` and `policyId` (read from the document).",
       "evidence": [
         {
           "source": "sdk-go",
@@ -1387,7 +1387,6 @@
     "dr-flag-types": {
       "statement": "The contract and the Go SDK type the disaster-recovery switches (`enableZiaDR`, `enableZpaDR`, `allowZiaTest`, `allowZpaTest`, `useZiaGlobalDb`) as JSON booleans and Go types the DR method as an integer, while the Python `DisasterRecovery` model stores whatever value it is given.",
       "tier": "A",
-      "conditions": "Merged per verifier with the former claim dr-booleans, which stated the same typing; `useZiaGlobalDb` and its binding came from it.",
       "binds": [
         "zcc/application-profiles#disasterRecovery"
       ],
