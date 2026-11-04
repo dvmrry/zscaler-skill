@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.endpoint-enforcement",
+  "title": "How Endpoint DLP reaches the endpoint: prerequisites, policy delivery, offline enforcement, scans, and what the vendor says about evaluating all rules and exception rules",
+  "aliases": [
+    "endpoint dlp prerequisites",
+    "endpoint dlp offline",
+    "endpoint dlp most restrictive",
+    "endpoint dlp exception rules",
+    "endpoint dlp policy enforcement",
+    "endpoint dlp rule selection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{scope-channels}} {{delivery-and-offline}} {{policy-pull-interval}} Whether that pull also covers rules activated in ZIA is open {{gap:policy-pull-vs-activation}}."
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{prerequisites}} {{vdi-support}} {{data-scan-allowlist-urls}}"
+    },
+    {
+      "label": "Scans.",
+      "text": "{{startup-and-change-scans}}"
+    },
+    {
+      "label": "Logs.",
+      "text": "{{nss-feed}}"
+    },
+    {
+      "label": "Choosing a rule.",
+      "text": "{{all-rules-most-restrictive}} What counts as the highest rule order, and how the actions rank, is open {{gap:highest-rule-order-direction}} and {{gap:action-ranking}}. {{tie-break-example}} {{exception-rules-replace-parent}} {{exception-still-competes}} Which criteria an exception may change is open {{gap:exception-rule-criteria}}."
+    },
+    {
+      "text": "The inline pipeline is in [[zia.dlp.evaluation]]; the rule fields are in [[zia.dlp.endpoint-rules]] and the settings in [[zia.dlp.endpoint-settings]]."
+    }
+  ],
+  "claims": {
+    "scope-channels": {
+      "statement": "Endpoint DLP policy complements Zscaler DLP policy by extending the monitoring of sensitive data to the activities end users take on endpoints: printing, saving to removable storage devices, saving to network shares, or uploading to personal cloud storage accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-dlp.json",
+          "quotes": [
+            "Endpoint DLP policy complements Zscaler DLP policy by extending the monitoring of sensitive data to the activities that end users take on endpoints (i.e., printing, saving to removable storage devices, saving to network shares, or uploading to personal cloud storage accounts)."
+          ]
+        }
+      ]
+    },
+    "delivery-and-offline": {
+      "statement": "When Endpoint DLP policy is configured and activated in Internet & SaaS (ZIA), endpoints automatically use Zscaler Client Connector to retrieve the policy from the Zscaler cloud. After that, the policy is enforced and incidents are logged even if endpoints have no network connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-dlp.json",
+          "quotes": [
+            "When you configure and activate Endpoint DLP policy in Internet & SaaS (ZIA), endpoints automatically use Zscaler Client Connector to retrieve the policy from the Zscaler cloud.",
+            "After that, the DLP policy is enforced and incidents are logged even if endpoints don't have a network connection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-by-step-endpoint-dlp.json",
+          "quotes": [
+            "you can silently deploy the policy to Zscaler Client Connector on users' devices so that endpoints automatically retrieve the policy from the Zscaler cloud"
+          ]
+        }
+      ]
+    },
+    "policy-pull-interval": {
+      "statement": "The device control activation article (activating device control policy rules, configuration and indexed documents changes) states that Endpoint Data Loss Prevention (DLP) pulls the policy every 15 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-activating-device-control-policy-rules-configuration-indexed-documents-changes.json",
+          "quotes": [
+            "Endpoint Data Loss Prevention (DLP) pulls the policy every 15 minutes."
+          ]
+        }
+      ],
+      "gaps": [
+        "policy-pull-vs-activation"
+      ]
+    },
+    "prerequisites": {
+      "statement": "The Endpoint DLP step-by-step article lists endpoints running Windows 11 or Windows 10 version 2004 (Build 19041) or later (64-bit), and endpoints running macOS 14, 15, or 26 (Sonoma, Sequoia, or Tahoe). It lists Zscaler Client Connector version 4.3.0 or later on Windows and 4.2.0 or later on macOS, and Endpoint DLP file paths included in the allowlist for Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-by-step-endpoint-dlp.json",
+          "quotes": [
+            "Endpoints running Windows 11 or Windows 10, version 2004 (Build 19041) or later (64-bit)",
+            "Endpoints running macOS 14, 15, or 26 (Sonoma, Sequoia, or Tahoe)",
+            "Windows: Version 4.3.0 or later",
+            "macOS: Version 4.2.0 or later",
+            "Endpoint DLP file paths included in the allowlist for Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "vdi-support": {
+      "statement": "The prerequisites list virtual desktop infrastructure (VDI) support for VMware vSphere-hosted VDI and Amazon WorkSpaces VDI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-by-step-endpoint-dlp.json",
+          "quotes": [
+            "Virtual desktop infrastructure (VDI) support:",
+            "VMware vSphere-hosted VDI",
+            "Amazon WorkSpaces VDI"
+          ]
+        }
+      ]
+    },
+    "data-scan-allowlist-urls": {
+      "statement": "For Endpoint Data Scan to properly scan all the endpoints connected to the organization's traffic, five URLs must be on the allowlist: endpoints.prod.us-east-1.m0.dataprotection.zscaler.net, endpoints.prod.us-east-1.w1.dataprotection.zscaler.net, endpoints.prod.eu-central-1.w2.dataprotection.zscaler.net, storage.prod.eu-central-1.w2.dataprotection.zscaler.net and storage.prod.us-east-1.w1.dataprotection.zscaler.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-by-step-endpoint-dlp.json",
+          "quotes": [
+            "To ensure that Endpoint Data Scan properly scans all the endpoints connected to your organization's traffic, you must place the following URLs on the allowlist:",
+            "endpoints.prod.us-east-1.m0.dataprotection.zscaler.net",
+            "endpoints.prod.us-east-1.w1.dataprotection.zscaler.net",
+            "endpoints.prod.eu-central-1.w2.dataprotection.zscaler.net",
+            "storage.prod.eu-central-1.w2.dataprotection.zscaler.net",
+            "storage.prod.us-east-1.w1.dataprotection.zscaler.net"
+          ]
+        }
+      ]
+    },
+    "nss-feed": {
+      "statement": "Nanolog Streaming Service (NSS) feeds can be configured to specify the data from the Endpoint DLP logs that the NSS sends to the organization's security information and event management (SIEM) system.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-by-step-endpoint-dlp.json",
+          "quotes": [
+            "You can configure Nanolog Streaming Service (NSS) feeds to specify the data from the Endpoint DLP logs that the NSS sends to your security information and event management (SIEM) system."
+          ]
+        }
+      ]
+    },
+    "startup-and-change-scans": {
+      "statement": "At startup, Endpoint DLP runs inventory and classification scans on an endpoint, and classification scans always run after inventory scans. Each time the Endpoint DLP policy changes, an inventory and classification scan runs on the endpoint, and whenever the DLP engines or dictionaries are modified, a classification scan is applied on the endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-endpoint-policy-enforcement.json",
+          "quotes": [
+            "At startup, Endpoint DLP runs inventory and classification scans on an endpoint to identify and categorize data. Classification scans always run after inventory scans.",
+            "Each time the Endpoint DLP policy changes, an inventory and classification scan runs on the endpoint."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+          "quotes": [
+            "Whenever the DLP engines or dictionaries are modified, a classification scan is applied on the endpoint."
+          ]
+        }
+      ]
+    },
+    "all-rules-most-restrictive": {
+      "statement": "When a user performs a monitored activity that involves sensitive data, the Endpoint DLP rule engine evaluates all rules; if multiple rules match, it selects the rule with the most restrictive action and the highest rule order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-endpoint-policy-enforcement.json",
+          "quotes": [
+            "When a user performs a monitored activity that involves sensitive data, the rule engine evaluates all rules. If multiple rules match, the rule engine selects the rule with the most restrictive action and the highest rule order."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "All parent rules are evaluated. If multiple rules match, the rule with the most restrictive action and highest rule order is applied."
+          ]
+        }
+      ],
+      "gaps": [
+        "highest-rule-order-direction",
+        "action-ranking"
+      ]
+    },
+    "tie-break-example": {
+      "statement": "In the vendor's Example 1, R1 (order 1, Confirm), R2 (order 2, Block, Engineering) and R3 (order 3, Block) all match; R2 and R3 have the most restrictive action, R2 is described as having the higher rule order and is executed with severity Medium and no email notification, and R1 and R3 are logged as having matched. This supports only the example.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-endpoint-policy-enforcement.json",
+          "after": "## Example 1 (Rules)",
+          "quotes": [
+            "| R1 | 1 | Removable Storage | Request user confirmation when copying files that contain Payment Card Industry (PCI) data | Any | Confirm | Low | Yes |",
+            "| R2 | 2 | Removable Storage | Block copying of source code | Engineering | Block | Medium | No |",
+            "| R3 | 3 | Removable Storage | Block copying of HIPAA information | Any | Block | High | No |",
+            "All three rules match, but R2 and R3 have the most restrictive action.",
+            "R2 has a higher rule order, so the service executes that rule, with a severity of Medium and no email notification.",
+            "R1 and R3 are logged as having matched."
+          ]
+        }
+      ]
+    },
+    "exception-rules-replace-parent": {
+      "statement": "Before executing a matching rule, the Endpoint DLP rule engine looks for exception rules, which inherit rule order from their parent rules. It evaluates exception rules according to rule order and selects the first matching exception rule, which takes the place of the parent rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-endpoint-policy-enforcement.json",
+          "quotes": [
+            "Before executing the matching rule, however, the rule engine looks for exception rules, which inherit rule order from parent rules. The engine evaluates exception rules according to rule order and selects the first matching exception rule, which then takes the place of the parent rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match."
+          ]
+        }
+      ],
+      "gaps": [
+        "exception-rule-criteria"
+      ]
+    },
+    "exception-still-competes": {
+      "statement": "In the vendor's exception example, R2.1 (Confirm, for Director or VP) replaces R2 when the user is a Director of Engineering, the matched rules are R1, R2.1 and R3, and the engine executes R3 because it has the most restrictive action; R1 and R2.1 are logged as having matched. This supports only the example.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-endpoint-policy-enforcement.json",
+          "quotes": [
+            "| R2.1 | 2.1 | Removable Storage | Request user confirmation if Director or VP | Director or VP | Confirm | Medium | No |",
+            "R2.1 matches (user is Director of Engineering), so R2.1 replaces R2.",
+            "The matched rules are R1, R2.1, and R3; however, R3 has the most restrictive action, so the engine executes R3.",
+            "Rules R1 and R2.1 are logged as having matched."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "highest-rule-order-direction": {
+      "kind": "semantic",
+      "title": "Which rule order counts as the highest",
+      "status": "open",
+      "detail": "The articles say the rule with the most restrictive action and the highest rule order wins, and the vendor's only worked example treats order 2 as higher than order 3. No sentence defines the highest rule order as the smaller or the larger number. The Endpoint DLP policy page article says DLP policy rules are evaluated in ascending numerical order, which bears on the reading.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-dlp.json",
+          "quotes": [
+            "DLP policy rules are evaluated in ascending numerical order"
+          ]
+        }
+      ],
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "action-ranking": {
+      "kind": "semantic",
+      "title": "How Allow, Confirm, Block and Protect rank by restrictiveness",
+      "status": "open",
+      "detail": "No captured article ranks the Endpoint DLP actions. The vendor's examples show only that Block is chosen over Confirm.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "exception-rule-criteria": {
+      "kind": "semantic",
+      "title": "Which criteria and actions an exception rule may change",
+      "status": "open",
+      "detail": "The articles show exception rules with their own action and severity. They do not say which criteria an exception may change, or whether an exception can be broader than its parent.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "policy-pull-vs-activation": {
+      "kind": "semantic",
+      "title": "Whether the 15-minute pull covers Endpoint DLP rules activated in ZIA",
+      "status": "open",
+      "detail": "Only the article on activating device control policy rules, configuration and indexed documents states the 15-minute pull. It does not say whether the pull also covers Endpoint DLP policy rules activated in ZIA.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

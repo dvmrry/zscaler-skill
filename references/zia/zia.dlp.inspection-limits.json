@@ -27,6 +27,10 @@
     {
       "rel": "see-also",
       "to": "zia.dlp.rule-wire-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-rules"
     }
   ],
   "prose": [
@@ -49,7 +53,7 @@
       "text": "{{evidence-file-cap}} Timeouts on large uploads are open {{gap:large-upload-timeout}}."
     },
     {
-      "text": "If the file was never decrypted, or an upstream policy blocked it first, see [[zia.dlp.evaluation]]. The rule-side minimum data size and file type criteria are in [[zia.dlp.rules]]."
+      "text": "If the file was never decrypted, or an upstream policy blocked it first, see [[zia.dlp.evaluation]]. The rule-side minimum data size and file type criteria are in [[zia.dlp.rules]]. The Endpoint DLP rule article's figure is [[zia.dlp.endpoint-rules:file-size-limit]], and it is one of the positions in the file size divergence above."
     }
   ],
   "checks": [
@@ -144,9 +148,16 @@
       ]
     },
     "evidence-file-cap": {
-      "statement": "DLP incident evidence files are capped at 100 MB, and larger files are replaced with a `.txt` placeholder.",
+      "statement": "DLP incident evidence files are capped at 100 MB, and larger files are replaced with a `.txt` placeholder. The Azure Incident Receiver deployment page also says the policy-violating files can be a maximum of 100 MB.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "The policy-violating files can be a maximum of 100 MB."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
@@ -228,10 +239,41 @@
             "after": "# Policy Execution"
           },
           "says": "The engines can scan files of up to 100 MB (File Type field)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-dlp-engines.json",
+            "quotes": [
+              "Zscaler DLP engines can scan files with a maximum size of 400 MB."
+            ]
+          },
+          "says": "The engines article gives 400 MB for Zscaler DLP engines, with no per-product limit."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+            "quotes": [
+              "The Zscaler DLP engines support files up to 100 MB. The maximum size also applies to files extracted from archive files."
+            ]
+          },
+          "says": "The Endpoint DLP policy rules article says the Zscaler DLP engines support files up to 100 MB."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-outbound-email-policy-rules.json",
+            "after": "- 6. Define your policy rules.",
+            "quotes": [
+              "Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB."
+            ]
+          },
+          "says": "The Outbound Email policy rules article says the engines can scan files of up to 100 MB."
         }
       ],
-      "impact": "Whether a 100-400 MB file is content-inspected by a file-type DLP rule in Evaluate All Rules mode is unclear.",
-      "summary": "Whole-file DLP scan limit: 400 MB versus 100 MB in the Evaluate All Rules article"
+      "impact": "Whether a 100-400 MB file is content-inspected by a file-type DLP rule, an Endpoint DLP rule or an Outbound Email rule is unclear; the engines article states 400 MB without a per-product limit.",
+      "summary": "Whole-file DLP scan limit: 400 MB in the engines and content-inspection articles versus 100 MB in the Evaluate All Rules File Type field, the Endpoint DLP rule article and the Outbound Email rule article"
     }
   },
   "gaps": {
@@ -244,7 +286,17 @@
         "support-ticket"
       ],
       "blocks": "stating a single whole-file cap",
-      "detail": "The default-mode DLP article and the engines article give 400 MB as the file limit and 100 MB for extracted text. The Evaluate All Rules article says the same in its limits notes but its File Type field still says the engines \"can scan files of up to 100 MB\". No source settles which figure applies to file-type rules in that mode."
+      "detail": "The default-mode DLP article and the engines article give 400 MB as the file limit and 100 MB for extracted text. The Evaluate All Rules article says the same in its limits notes but its File Type field still says the engines \"can scan files of up to 100 MB\". No source settles which figure applies to file-type rules in that mode. The Endpoint DLP policy rules article also says the DLP engines support files up to 100 MB (zia.dlp.endpoint-rules:file-size-limit), and the engines article gives 400 MB with no per-product limit; both are positions of the file-size-conflict divergence. The Outbound Email policy rule article also says the DLP engines can scan files of up to 100 MB, and that for an archived file the size of individual files when decompressed can also be a maximum of 100 MB, so a second article still gives 100 MB for the whole file.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "after": "- 6. Define your policy rules.",
+          "quotes": [
+            "Zscaler DLP engines can scan files of up to 100 MB. For an archived file, the size of individual files when decompressed can also be a maximum of 100 MB."
+          ]
+        }
+      ]
     },
     "over-limit-behavior": {
       "kind": "semantic",

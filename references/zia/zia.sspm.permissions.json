@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "id": "zia.sspm.permissions",
+  "title": "Permissions and admin roles needed to onboard each SaaS application for SSPM",
+  "aliases": [
+    "sspm permissions",
+    "onboarding permissions",
+    "scope requested",
+    "sspm remediation support"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.sspm" },
+    { "rel": "see-also", "to": "zia.sspm.policies" },
+    { "rel": "see-also", "to": "zia.casb.tenants" }
+  ],
+  "prose": [
+    {
+      "text": "{{read-only-basis}} The application lists differ between the vendor's pages, see [[zia.sspm]]."
+    },
+    {
+      "label": "Onboarding roles.",
+      "text": "{{onboarding-roles}}"
+    },
+    {
+      "label": "Per application.",
+      "items": [
+        { "label": "GitHub.", "text": "{{github-non-read-only}}" },
+        { "label": "Google Workspace.", "text": "{{google-write-scopes}}" },
+        { "label": "Jira and Confluence.", "text": "{{jira-confluence-full-scope}}" },
+        { "label": "Microsoft 365.", "text": "{{m365-non-read-only}}" },
+        { "label": "Okta.", "text": "{{okta-manage-for-remediation}}" },
+        { "label": "Salesforce.", "text": "{{salesforce-inevitable-write}}" },
+        { "label": "ServiceNow.", "text": "{{servicenow-acls}}" },
+        { "label": "Zoom and Twilio.", "text": "{{zoom-and-twilio}}" }
+      ]
+    },
+    {
+      "label": "DLP scopes in the same tables.",
+      "text": "{{tables-include-dlp-scopes}} Whether the access granted exceeds what Data at Rest scanning needs is not answered by these tables {{gap:dlp-scopes-compared}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a scope is needed for the SSPM scan or only for remediation, taken from the application's own table row rather than from a rule across applications.",
+      "uses": [
+        "read-only-basis",
+        "m365-non-read-only",
+        "github-non-read-only"
+      ]
+    }
+  ],
+  "claims": {
+    "read-only-basis": {
+      "statement": "SaaS applications can be onboarded for the SSPM scan with read-only permissions, and the page says SSPM typically requires read-only access for posture assessments. The page's tables give the scope requested, the onboarding user role, whether the scope is read-only, and whether it is required for onboarding validation, the SSPM scan and SSPM remediation support. The Okta table has no read-only column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "You can onboard Software as a Service (SaaS) applications for the SaaS Security Posture Management (SSPM) scan with read-only permissions. SSPM typically requires read-only access to perform posture assessments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "| Scope Requested | Onboarding User Role | Read-Only Scope | Required for Onboarding Validation | Required for SSPM Scan | Required for SSPM Remediation Support | Why do we need the permissions? |"
+          ],
+          "after": "The following tables list the permissions required for SaaS apps:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "| Scope Requested | Onboarding User Role | Required for Onboarding Validation | Required for SSPM Scan | Required for SSPM Remediation Support | Why do we need the permissions? |"
+          ],
+          "after": "A user with Super Administrator privileges is required to onboard Okta for SSPM."
+        }
+      ]
+    },
+    "onboarding-roles": {
+      "statement": "The onboarding role differs per application: GitHub needs an Authenticated User, Repository Owner or Organization Owner; Google Workspace a Super Administrator; Jira/Confluence an Administrator to create the Organization API Key; Microsoft 365 a Global Administrator; Okta a Super Administrator; Salesforce a System Administrator User; Workday an Integration System User; Box, Twilio and Trello a user with Administrator privileges; ServiceNow a System Administrator User to configure the ACLs; Webex Teams an Organization Admin with the Full Admin, Compliance Officer and Webex Site Admin roles; Zoom the account owner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "The user must be an Authenticated User, Repository Owner, or Organization Owner to onboard GitHub for SSPM.",
+            "A user with Super Administrator privileges is required to onboard Google Workspace for SSPM.",
+            "A user with an Administrator role is required to create the Organization API Key for Jira/Confluence for SSPM scans.",
+            "A user with Global Administrator privileges is required to onboard Microsoft 365 for SSPM.",
+            "A user with Super Administrator privileges is required to onboard Okta for SSPM.",
+            "A System Administrator User is required to onboard Salesforce for SSPM.",
+            "An Integration System User is required to onboard Workday for SSPM.",
+            "A user with Administrator privileges is required to onboard Box for SSPM.",
+            "A user with Administrator privileges is required to onboard Twilio for SSPM.",
+            "A System Administrator User is required to configure the mentioned Access Control Lists (ACLs) to onboard ServiceNow for SSPM.",
+            "A user with Administrator privileges is required to onboard Trello for SSPM.",
+            "An Organization Admin with Full Admin, Compliance Officer, and Webex Site Admin roles is required to onboard Webex Teams for SSPM.",
+            "An account owner is required to onboard Zoom for SSPM."
+          ]
+        }
+      ]
+    },
+    "jira-confluence-full-scope": {
+      "statement": "For Jira/Confluence the page marks scoped permissions as not valid for SSPM, since an Organization API Key with FULL scope is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "Not valid for SSPM, since the Organization API Key with FULL scope is required."
+          ],
+          "after": "A user with an Administrator role is required to create the Organization API Key for Jira/Confluence for SSPM scans."
+        }
+      ]
+    },
+    "github-non-read-only": {
+      "statement": "GitHub's repo scope is not read-only: it requires write, maintain or admin privileges for the authenticated user and is required for onboarding validation, the SSPM scan and remediation (as write). The admin:org_hook scope, used to create webhooks, needs admin permissions for orgs and is marked not required for validation, the scan or remediation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "The user must be an Authenticated User, Repository Owner, or Organization Owner to onboard GitHub for SSPM.",
+            "| repo | The authenticated user must have write, maintain, or admin privileges. | No | Yes | Yes | Yes (write) | To fetch the list of repositories |",
+            "| admin:org_ hook | The authenticated user must have admin permissions for orgs. | No | No | No | No | To create webhooks |"
+          ]
+        }
+      ]
+    },
+    "google-write-scopes": {
+      "statement": "For Google Workspace the page marks read-only equivalents when read-only mode is chosen. The drive scope is marked required for onboarding validation when write scopes are chosen (and not for the scan or remediation), and serves an unsupported policy. The https://mail.google.com/ scope, whose read-only equivalent is gmail.readonly, fetches Gmail auto-forward, IMAP and POP policies and is required for remediation support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "Yes (Read-Only equivalent when choosing read-only mode)",
+            "| https://www.googleapis.com/auth/drive | Super Admin | N/A | Yes (when choosing write scopes) | No | No | To fetch drive information. (Unsupported policy) |",
+            "| https://mail.google.com/ | Super Admin | https://www.googleapis.com/auth/gmail.readonly | Yes | N/A | Yes | To fetch Gmail auto-forward, IMAP, and POP policies |"
+          ]
+        }
+      ]
+    },
+    "m365-non-read-only": {
+      "statement": "For Microsoft 365, Exchange.ManageAsApp, Sites.ReadWrite.All and Sites.FullControl.All are Application (Admin) permissions that are not read-only and are required for both the SSPM scan and remediation; Sites.FullControl.All is for PowerShell access to attributes not available through the API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "A user with Global Administrator privileges is required to onboard Microsoft 365 for SSPM.",
+            "| Exchange.ManageAsApp | Application (Admin) | No | No | Yes | Yes | To access all config options in Exchange and provide management |",
+            "| Sites.ReadWrite.All | Application (Admin) | No | No | Yes | Yes | To scan and remediate SharePoint/ OneDrive SSPM |",
+            "| Sites.FullControl.All | Application (Admin) | No | No | Yes | Yes | To enable product functionality via powershell usage to access additional attributes not available via API |"
+          ]
+        }
+      ]
+    },
+    "okta-manage-for-remediation": {
+      "statement": "For Okta, the okta.threats.manage, okta.policies.manage and okta.roles.manage scopes are listed with the Super Admin role, each marked No for the SSPM scan and Yes for remediation support, to manage threat insights configurations, policies and role assignments in the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "| okta.threats. manage | Super Admin | N/A | No | Yes | To manage all threat insights configurations in the organization |",
+            "| okta.policies. manage | Super Admin | N/A | No | Yes | To manage policies in the organization |",
+            "| okta.roles. manage | Super Admin | N/A | No | Yes | To manage role assignments in the organization |"
+          ]
+        }
+      ]
+    },
+    "salesforce-inevitable-write": {
+      "statement": "For Salesforce the page says Manage Sharing and Manage Certificates are not read-only and inevitable because Salesforce has no granular permission for them, and that the Metadata API permission is inevitable because no read-only equivalent exists. Modify All Data is marked required only for remediation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "Manage Sharing, Manage Certificates are not read only and inevitable since Salesforce does not have any granular permission related to them due to the permission model of Salesforce.",
+            "This permission is inevitable since there is no read-only equivalent permission to access metadata API.",
+            "| Permission Sets > System Permissions: Modify All Data | User with License: Salesforce/Salesforce API Integration Profile: System Administrator/Minimum Access - API Only Integrations | No | No | No | Yes | To perform remediation |"
+          ]
+        }
+      ]
+    },
+    "servicenow-acls": {
+      "statement": "ServiceNow is onboarded through table ACLs that require a role such as zscaler_admin. The page's read ACLs include those on the v_plugin and ip_access tables, and a write ACL is listed to update configurations as per policy recommendation during remediation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "A System Administrator User is required to configure the mentioned Access Control Lists (ACLs) to onboard ServiceNow for SSPM.",
+            "Table: v_plugin ACL: read Type: record Operation: read Name: v_plugin Requires role: zscaler_admin",
+            "Table: ip_access ACL: read Type: record Operation: read Name: ip_access Requires role: zscaler_admin",
+            "To update configurations as per policy recommendation during remediation"
+          ]
+        }
+      ]
+    },
+    "zoom-and-twilio": {
+      "statement": "Zoom's account:read:settings:admin scope (Owner) is for the SSPM scan to get SSPM settings, and account:update:settings:admin updates SSPM settings and is marked required for the scan and remediation. For Twilio the page lists a check that the Account Sid and Secret can fetch the account details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "An account owner is required to onboard Zoom for SSPM.",
+            "A user with Administrator privileges is required to onboard Twilio for SSPM.",
+            "| account:read:settings:admin | Owner | N/A | No | Yes | No | To get SSPM settings |",
+            "| account:update:settings:admin | Owner | N/A | No | Yes | Yes | To update SSPM settings |",
+            "To verify if the Account Sid and Secret are able to fetch the account details"
+          ]
+        }
+      ]
+    },
+    "tables-include-dlp-scopes": {
+      "statement": "The same tables list scopes whose stated purpose is DLP or message deletion rather than SSPM, for example Webex scopes marked as required for inline DLP, a ServiceNow scope used during DLP scanning, and a Zoom scope to delete user messages as part of the Delete Message policy action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-permissions-onboarding-saas-apps-SSPM.json",
+          "quotes": [
+            "An Organization Admin with Full Admin, Compliance Officer, and Webex Site Admin roles is required to onboard Webex Teams for SSPM.",
+            "A System Administrator User is required to configure the mentioned Access Control Lists (ACLs) to onboard ServiceNow for SSPM.",
+            "An account owner is required to onboard Zoom for SSPM.",
+            "Required for Webex inline DLP",
+            "during DLP scanning required for collaboration, identification, etc.",
+            "To delete user messages as part of the Delete Message policy action"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dlp-scopes-compared": {
+      "kind": "semantic",
+      "title": "Whether the access granted exceeds what Data at Rest scanning needs",
+      "status": "partial",
+      "detail": "The SSPM permissions page marks each scope as read-only or not and as required for the SSPM scan or only for remediation, and includes scopes whose stated purpose is DLP. It does not compare the access to what Data at Rest DLP scanning needs. This bears on the open question about OAuth scope in zia.casb.tenants.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

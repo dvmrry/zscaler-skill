@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.policy-objects",
+  "title": "VPN access policy objects: IP address objects and IdP attribute objects",
+  "aliases": [
+    "ip address object",
+    "ip address objects",
+    "idp attribute object",
+    "idp attribute objects",
+    "address book",
+    "vpn address book"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.access-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.user-enablement"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ip-object}} {{idp-object}}"
+    },
+    {
+      "label": "IP address objects.",
+      "text": "{{ip-object-fields}} Whether an IP address object can hold FQDNs differs between the two pages {{divergence:ip-object-fqdn}}."
+    },
+    {
+      "label": "IdP attribute objects.",
+      "text": "{{idp-object-fields}}"
+    },
+    {
+      "text": "The rules that use these objects are in [[zpa.vpn.access-policy]] and the hub is [[zpa.vpn]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an answer that puts FQDNs in an IP address object rests on the pages that disagree.",
+      "uses": [
+        "ip-object-fqdn"
+      ]
+    }
+  ],
+  "claims": {
+    "ip-object": {
+      "statement": "IP address objects are reusable components that organize network resources and, according to the About page, can contain IP addresses, CIDRs and FQDNs. A single-named object can be the source or destination criteria when configuring VPN access policies, and if an IP address changes only the object needs updating, so all policies that reference it are updated automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-IP-address-object.json",
+          "quotes": [
+            "IP address objects are reusable components that allow you to organize your network resources. These objects can contain IP addresses, Classless Inter-Domain Routings (CIDRs), and FQDNs.",
+            "They allow you to use a single-named object as the source or destination criteria when configuring VPN access policies.",
+            "If an IP address changes, you only need to update the object, and all policies that reference it are automatically updated."
+          ]
+        }
+      ]
+    },
+    "ip-object-fields": {
+      "statement": "The Configuring page says an IP address object groups and manages static IP addresses and subnets under a single name. It takes IP addresses, at most 64 IP addresses or IP subnets, which can be imported with Import LAN/Client Subnets, and a Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-IP-address-objects.json",
+          "quotes": [
+            "You can use an IP address object to group and manage static IP addresses and subnets under a single name.",
+            "A maximum of 64 IP addresses or IP subnets is allowed. You can also click Import LAN/Client Subnets to define destinations from a predefined list.",
+            "Name: Enter name of the IP address object."
+          ]
+        }
+      ]
+    },
+    "idp-object": {
+      "statement": "IdP attribute objects are reusable components that use SAML attributes and SCIM data sourced from the identity provider to define specific user populations. A named object can define the user identity criteria when configuring VPN access policies, and if the attributes defining a user group change only the object needs updating, so all policies that reference it are updated automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-attribute-objects.json",
+          "quotes": [
+            "These objects use SAML attributes and SCIM data sourced from your identity provider (IdP) to define specific user populations.",
+            "IdP attribute objects allow you to use a named object to define the user identity criteria when configuring VPN access policies.",
+            "If the attributes defining a user group change, you only need to update the object, and all policies that reference it are automatically updated."
+          ]
+        }
+      ]
+    },
+    "idp-object-fields": {
+      "statement": "An IdP attribute object can be built on a single attribute or multiple attributes from the same IdP, or a combination of attributes spanning different IdPs, and takes a Name and a Description. Creating an object for identity rules lets those rules be applied across multiple policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-attribute-objects.json",
+          "quotes": [
+            "You can build rules that rely on a single attribute or multiple attributes from the same IdP, or you use a combination of attributes spanning different IdPs.",
+            "Name: Enter a name for the IdP attribute object.",
+            "Description: Enter a description.",
+            "By creating an object for your identity rules, you can apply those rules across multiple policies."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "ip-object-fqdn": {
+      "summary": "The About page says IP address objects can contain FQDNs; the Configuring page describes them as grouping static IP addresses and subnets.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-IP-address-object.json",
+            "quotes": [
+              "These objects can contain IP addresses, Classless Inter-Domain Routings (CIDRs), and FQDNs."
+            ]
+          },
+          "says": "IP address objects can contain IP addresses, CIDRs and FQDNs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-IP-address-objects.json",
+            "quotes": [
+              "You can use an IP address object to group and manage static IP addresses and subnets under a single name."
+            ]
+          },
+          "says": "An IP address object groups static IP addresses and subnets under a single name; the sentence does not name FQDNs."
+        }
+      ],
+      "impact": "Whether an FQDN can be entered in an IP address object is unconfirmed; the pages do not say which governs."
+    }
+  }
+}

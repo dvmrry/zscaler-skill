@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.vdi.forwarding-profiles",
+  "title": "VDI forwarding profiles: include and exclude lists, refresh, Private Access and DNS inclusion, Azure, FSLogix and Citrix bypasses",
+  "aliases": [
+    "vdi forwarding profile",
+    "vdi forwarding profiles",
+    "zscaler vdi agent forwarding profile",
+    "168.63.129.16",
+    "fslogix bypass"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.vdi.groups-and-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.azure.network"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose-and-refresh}} {{entry-formats}} The profile a VDI group applies is chosen on the group: [[cloud-connector.vdi.groups-and-templates]]. This is a different object from the network-type profiles of the standard Client Connector: [[zcc.forwarding-profiles]]."
+    },
+    {
+      "heading": "Internet & SaaS"
+    },
+    {
+      "text": "{{internet-recommendation}} Whether the list the guide calls RFC 1918 matches that standard is open {{gap:rfc-1918-list}}."
+    },
+    {
+      "text": "{{conditional-access}} {{azure-bypasses}}"
+    },
+    {
+      "heading": "Private Access and DNS"
+    },
+    {
+      "text": "{{private-access-include}} {{azure-dns}} {{custom-dns}} {{dns-direct-rule}} Cloud Connector's own forwarding rules are in [[cloud-connector.forwarding]]."
+    },
+    {
+      "heading": "Azure addresses"
+    },
+    {
+      "text": "{{azure-168-bypass}} The three places the guide puts the bypass for that address differ {{divergence:azure-168-placement}}. {{azure-imds-bypass}} Whether that range is the one intended is open {{gap:imds-range}}."
+    },
+    {
+      "heading": "FSLogix and Citrix"
+    },
+    {
+      "text": "{{fslogix-storage}} {{fslogix-dns-resolution}} {{connector-nsg-storage}} Cloud Connector's Azure network security groups for the Terraform module are in [[cloud-connector.azure.network]]."
+    },
+    {
+      "text": "{{citrix-bypasses}}"
+    }
+  ],
+  "claims": {
+    "purpose-and-refresh": {
+      "statement": "VDI forwarding profiles let admins create rules that include or exclude destinations from being encapsulated in the tunnels Client Connector for VDI creates, apply similar forwarding rules to multiple VDI groups in multiregion deployments, and view the default VDI forwarding profile. Client Connector for VDI automatically fetches VDI forwarding profile policies every 60 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-vdi-forwarding-profiles.json",
+          "quotes": [
+            "Zscaler Client Connector for VDI automatically fetches VDI forwarding profile policies every 60 minutes.",
+            "Create rules to include or exclude destinations from being encapsulated in the tunnels that Zscaler Client Connector for VDI creates.",
+            "Apply similar forwarding rules to multiple VDI groups in multiregion deployments.",
+            "View the default VDI forwarding profile."
+          ]
+        }
+      ]
+    },
+    "entry-formats": {
+      "statement": "Include IP Addresses and Exclude IP Addresses each accept an IP address, an IP address with a netmask, an IP address:port range (or the bare IP address for all ranges), and an IP address:port:protocol (or IP address:port for all protocols), such as 192.0.2.1/24:80-100:UDP; including IP addresses is not required to create a VDI forwarding profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-forwarding-profiles.json",
+          "quotes": [
+            "Include IP Addresses: Enter IP addresses to include traffic from the tunnel to the Cloud Connector or Branch Connector.",
+            "Exclude IP Addresses: Enter IP addresses to exclude traffic from the tunnel to the Cloud Connector or Branch Connector. You can enter IP addresses in the following formats:",
+            "Including IP addresses is not required to create a VDI forwarding profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-forwarding-profiles.json",
+          "quotes": [
+            "An IP address, such as 198.51.100.100",
+            "An IP address with a netmask, such as 203.0.113.0/24",
+            "An IP address:port range, such as 192.0.2.1:80 or 192.0.2.1 for all ranges",
+            "An IP address:port:protocol, such as 192.0.2.1:80:TCP, 192.0.2.1/24:80-100:UDP, or 192.0.2.1:80 for all protocols"
+          ],
+          "after": "Include IP Addresses: Enter IP addresses to include traffic"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-forwarding-profiles.json",
+          "quotes": [
+            "An IP address, such as 198.51.100.100",
+            "An IP address with a netmask, such as 203.0.113.0/24",
+            "An IP address:port range, such as 192.0.2.1:80 or 192.0.2.1 for all ranges",
+            "An IP address:port:protocol, such as 192.0.2.1:80:TCP, 192.0.2.1/24:80-100:UDP, or 192.0.2.1:80 for all protocols"
+          ],
+          "after": "Exclude IP Addresses: Enter IP addresses to exclude traffic"
+        }
+      ]
+    },
+    "internet-recommendation": {
+      "statement": "For Internet & SaaS, Zscaler recommends a single 0.0.0.0/0 inclusion rule. The guide says the application automatically excludes \"RFC 1918 traffic (i.e., 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/24, and 224.0.0.0/4)\" and that the exclusion list can be adjusted to add additional private ranges; Microsoft Azure users might choose to include the APIPA address range of 169.254.0.0/16 and Microsoft's dedicated 168.63.129.16/32 IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "To configure VDI forwarding profiles with Internet & SaaS, Zscaler recommends configuring a single 0.0.0.0/0 inclusion rule.",
+            "The application automatically excludes RFC 1918 traffic (i.e., 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/24, and 224.0.0.0/4).",
+            "You can adjust the exclusion list to add additional private ranges.",
+            "Microsoft Azure users might choose to include the Automatic Private IP Addressing (APIPA) address range of 169.254.0.0/16 and Microsoft's dedicated 168.63.129.16/32 IP."
+          ]
+        }
+      ]
+    },
+    "conditional-access": {
+      "statement": "If implementing Conditional Access policies in Azure, the guide says to consider the URL-based bypasses Microsoft recommends for Microsoft 365 and Azure Virtual Desktop, and to execute the bypasses in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "If you are implementing Conditional Access policies in Azure, consider the URL-based bypasses that Microsoft recommends for Microsoft 365 and Azure Virtual Desktop to function correctly. Execute the bypasses in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "azure-bypasses": {
+      "statement": "Zscaler recommends bypassing certain IP addresses and FQDNs so that traffic remains local to environments such as Microsoft Azure rather than being forwarded to Internet & SaaS; services such as monitoring agents and login functionalities should remain local to Azure. For Azure Virtual Desktop, the article says to bypass the required FQDNs, endpoints and destination IP addresses referred to in the Microsoft documentation, and the guide says that if using AVDs, search for WindowsVirtualDesktop in the JSON file for the region to receive the IP addresses to bypass.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-forwarding-profiles.json",
+          "quotes": [
+            "Zscaler recommends bypassing certain IP addresses and FQDNs to ensure that traffic remains local to environments such as Microsoft Azure, rather than being forwarded to Internet & SaaS.",
+            "Services such as monitoring agents and login functionalities should remain local to Azure.",
+            "For Azure Virtual Desktop (AVD), bypass required FQDNs, endpoints, and destination IP addresses referred to in the Microsoft documentation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "If you are using AVDs, search for WindowsVirtualDesktop in the JSON file for your region to receive the IP addresses to bypass."
+          ]
+        }
+      ]
+    },
+    "private-access-include": {
+      "statement": "For Private Access, Zscaler recommends adding the synthetic IP ranges (10.254.0.0/19 by default, on the IP Pool page) to the inclusion list of the forwarding profile, and including the DNS server IP addresses because DNS requests must traverse the Cloud Connector or Branch Connector when leveraging Private Access. If the profile excludes the Private Access synthetic IP pools, some Private Access functionalities might be unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Zscaler recommends adding your synthetic IP ranges, set to 10.254.0.0/19 by default, to the inclusion list of your Zscaler VDI Agent forwarding profile to ensure that the traffic is properly tunneled to the Cloud Connector or Branch Connector.",
+            "If your VDI forwarding profile excludes Private Access synthetic IP pools, then some Private Access functionalities might be unavailable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-vdi-forwarding-profiles.json",
+          "quotes": [
+            "Include DNS server IP addresses in the Zscaler Client Connector for VDI forwarding profile because DNS requests must traverse the Cloud Connector or Branch Connector when leveraging Private Access.",
+            "Similarly, configure Private Access synthetic IP addresses, which are located on the IP Pool page, in the inclusion list."
+          ]
+        }
+      ]
+    },
+    "azure-dns": {
+      "statement": "In Azure, Client Connector for VDI uses the Azure DNS server 168.63.129.16 by default. If that address is in the VDI forwarding profile Include list, DNS queries are handled by Cloud Connector; if it is in the Exclude list, the guide says to ensure the DNS request is sent toward Cloud Connector. If 168.63.129.16 is the primary DNS server for the Azure VNet, the private Azure outbound DNS resolver can route specific domains, such as Private Access applications, to Cloud Connector for resolution.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "In Azure, Zscaler Client Connector for VDI uses the Azure DNS server with the IP address 168.63.129.16 by default.",
+            "If this IP address is included in the VDI forwarding profile Include list, DNS queries are handled by Cloud Connector.",
+            "If it is in the VDI forwarding profile Exclude list, ensure that the DNS request is sent toward Cloud Connector.",
+            "If 168.63.129.16 is the primary DNS server for the Azure virtual network (VNet), you can use the private Azure outbound DNS resolver to route specific domains, such as Private Access applications, to the Cloud Connector for resolution."
+          ]
+        }
+      ]
+    },
+    "custom-dns": {
+      "statement": "If the Azure VNet uses a custom DNS server, adding it to the VDI forwarding profile Include list forwards DNS requests to Cloud Connector by default; if it is added to the Exclude list, a route toward Cloud Connector must be configured on the AVD subnet, and if the AVD subnet does not send the default route to Cloud Connector, DNS traffic must be directed toward Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "If the Azure VNet uses a custom DNS server, you can add the DNS server to the VDI forwarding profile Include list, and DNS requests are forwarded to Cloud Connector by default.",
+            "If you add a custom DNS server to the VDI forwarding profile Exclude list, ensure that a route toward the Cloud Connector is configured on the Azure Virtual Desktop (AVD) subnet.",
+            "If the AVD subnet is not configured to send the default route to the Cloud Connector, ensure that DNS traffic is directed toward the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "dns-direct-rule": {
+      "statement": "A default Cloud Connector rule sends all traffic to Internet & SaaS; to keep DNS traffic from being sent to Internet & SaaS, the guide says to add a direct traffic forwarding rule to the Cloud Connector cluster so that this traffic bypasses Internet & SaaS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "A default rule is configured to send all traffic to Internet & SaaS. If you do not want the DNS traffic to be sent to Internet & SaaS, add a direct traffic forwarding rule to the Cloud Connector cluster so that this traffic bypasses Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "azure-168-bypass": {
+      "statement": "The guide describes 168.63.129.16 as the default DNS server for all Azure instances and the gateway to other Azure resources such as the Azure Windows VM Agent, and says traffic to it must be bypassed \"latest\" on the Cloud Connector traffic forwarding profile for UDP/53, TCP/53, TCP/80, TCP/443 and TCP/32526. To prepare for enrollment, it says to bypass the address in Cloud Connector traffic forwarding rules and not in Client Connector for VDI itself; Microsoft owns the address, and if Microsoft changes it the guide says to update it to match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "It is the default DNS server for all Azure instances and the gateway to other Azure resources such as the Azure Windows VM Agent.",
+            "Traffic to the IP address must be bypassed latest on the Cloud Connector traffic forwarding profile for the following ports:",
+            "- UDP/53",
+            "- TCP/53",
+            "- TCP/80",
+            "- TCP/443",
+            "TCP/32526",
+            "To prepare for enrollment, bypass the DNS server IP address, 168.63.129.16, in Cloud Connector traffic forwarding rules, and not in Zscaler Client Connector for VDI itself.",
+            "Microsoft owns the IP address 168.63.129.16. If Microsoft changes this IP address, update it to match."
+          ]
+        }
+      ]
+    },
+    "azure-imds-bypass": {
+      "statement": "Under its Azure Instance Metadata Service item, the guide says Azure instances communicate with the hypervisor host through 169.254.0.0/19, which should be bypassed in Client Connector for VDI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Azure Instance Metadata Service: Azure instances communicate with the hypervisor host through 169.254.0.0/19, which should be bypassed in Zscaler Client Connector for VDI."
+          ]
+        }
+      ]
+    },
+    "fslogix-storage": {
+      "statement": "Among the FSLogix best practices, Zscaler recommends using an Azure Private Link and bypassing the Azure storage account IP address in the VDI forwarding profile so traffic can go directly from the Windows session host to the FSLogix storage account. Azure storage accounts are protected by firewall policies and everything from outside the Azure VNet is dropped by default, so depending on the designated traffic flow the firewall policy allows the Cloud Connector service interface IP address, the NAT gateway public IP address, or the Zscaler Public Service Edge IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "The following best practices apply to FSLogix:",
+            "Zscaler recommends using an Azure Private Link.",
+            "Bypass the Azure storage account IP address in the VDI forwarding profile so the traffic can go directly from the Windows session host to the FSLogix storage account.",
+            "Azure storage accounts are protected by firewall policies, and everything from outside the Azure VNet is dropped by default.",
+            "Depending on the designated traffic flow, you can decide whether the firewall policy allows the Cloud Connector service interface IP address, the NAT gateway public IP address, or the Zscaler Public Service Edge IP address."
+          ]
+        }
+      ]
+    },
+    "fslogix-dns-resolution": {
+      "statement": "When the FSLogix storage account is a default account, its FQDN is always resolved as a public IP address; when it uses a private link connection, DNS requests for the FQDN from Azure networks resolve to the private IP address assigned to the private link, while external requests, such as those from the Zscaler Public Service Edge, resolve to the storage account's public IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "When the FSLogix storage account is a default account, the FQDN of the account is always resolved as a public IP address.",
+            "When the FSLogix storage account is using a private link connection, DNS requests for the FQDN from Azure networks are resolved into the private IP address assigned to the private link.",
+            "External requests, such as requests from the Zscaler Public Service Edge, are resolved with the storage accounts' public IP address."
+          ]
+        }
+      ]
+    },
+    "connector-nsg-storage": {
+      "statement": "In the FSLogix best practices, the guide says the default Cloud Connector network security group deployed within the Azure Marketplace only allows TCP/443, UDP/443 and TCP/80, and that for storage accounts it says to enable the account IP address with TCP/443, UDP/443, TCP/80, UDP/53, TCP/53, TCP/445 and UDP/445.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Cloud Connector Network Security Group: The default network security group deployed within the Azure Marketplace only allows TCP/443, UDP/443, and TCP/80.",
+            "For storage accounts, enable the account IP address with TCP/443, UDP/443, TCP/80, UDP/53, TCP/53, TCP/445, and UDP/445."
+          ]
+        }
+      ]
+    },
+    "citrix-bypasses": {
+      "statement": "If a Citrix environment uses any of the Rendezvous protocols, it might need them bypassed from Cloud Connector; the article says to add Citrix's connectivity requirements to the bypass list or allow them through Internet & SaaS; and if using Citrix Profile Management or any separate storage account for profile management, it says to ensure it bypasses Cloud Connector traffic forwarding. The guide separately says to bypass Citrix Profile Management and Citrix Rendezvous protocols for them to function correctly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-vdi-forwarding-profiles.json",
+          "quotes": [
+            "If your Citrix environment uses any of the Rendezvous protocols, then it might need to be bypassed from Cloud Connector.",
+            "Ensure that Citrix's connectivity requirements are added to the bypass list or allow them to go through Internet & SaaS to reach their destinations.",
+            "If you are using Citrix Profile Management or any separate storage account for profile management, ensure it bypasses Cloud Connector traffic forwarding."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+          "quotes": [
+            "Bypass Citrix Profile Management and Citrix Rendezvous protocols for them to function correctly."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "azure-168-placement": {
+      "summary": "The configuration guide treats 168.63.129.16 in three places: as something Azure users might choose to include in the passage on the exclusion list, as an address whose DNS is handled by Cloud Connector when it is in the VDI forwarding profile Include list, and as an address to bypass in Cloud Connector traffic forwarding rules and not in Client Connector for VDI.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+            "quotes": [
+              "You can adjust the exclusion list to add additional private ranges.",
+              "Microsoft Azure users might choose to include the Automatic Private IP Addressing (APIPA) address range of 169.254.0.0/16 and Microsoft's dedicated 168.63.129.16/32 IP."
+            ]
+          },
+          "says": "In the passage on adjusting the exclusion list, Azure users might choose to include 168.63.129.16/32."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+            "quotes": [
+              "If this IP address is included in the VDI forwarding profile Include list, DNS queries are handled by Cloud Connector."
+            ]
+          },
+          "says": "If 168.63.129.16 is in the VDI forwarding profile Include list, DNS queries are handled by Cloud Connector."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-client-connector-vdi.json",
+            "quotes": [
+              "To prepare for enrollment, bypass the DNS server IP address, 168.63.129.16, in Cloud Connector traffic forwarding rules, and not in Zscaler Client Connector for VDI itself."
+            ]
+          },
+          "says": "For enrollment, bypass 168.63.129.16 in Cloud Connector traffic forwarding rules and not in Client Connector for VDI."
+        }
+      ],
+      "impact": "The guide does not say which of the three treatments applies to which situation, so where to put 168.63.129.16 is not settled by it."
+    }
+  },
+  "gaps": {
+    "rfc-1918-list": {
+      "kind": "semantic",
+      "title": "Whether the list the guide calls RFC 1918 matches RFC 1918",
+      "status": "open",
+      "detail": "The guide calls 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/24 and 224.0.0.0/4 RFC 1918 traffic, kept verbatim in the claim. No captured source states the ranges RFC 1918 defines, so whether the vendor's list matches the standard is not settled here and is not written as a correction or as a second quoted position.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "imds-range": {
+      "kind": "semantic",
+      "title": "Whether 169.254.0.0/19 is the intended Azure metadata bypass range",
+      "status": "open",
+      "detail": "The guide's Azure Instance Metadata Service item names 169.254.0.0/19, a block of 169.254.0.0 to 169.254.31.255, while the same article names 169.254.0.0/16 for APIPA. No source in the graph confirms the /19; the graph's only mention of the metadata address 169.254.169.254 is an unverified legacy statement in other subjects. Whether the /19 is intended or a defect needs a Microsoft or Zscaler source.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

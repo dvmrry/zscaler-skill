@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.cloud-to-cloud-forwarding",
+  "title": "Cloud-to-Cloud Incident Forwarding: storage onboarding for AWS, Google Cloud and Azure",
+  "aliases": [
+    "cloud-to-cloud incident forwarding",
+    "c2c incident forwarding",
+    "c2c incident receiver",
+    "dlp incident forwarding to s3",
+    "dlp evidence bucket",
+    "Zscaler_GCP_SMIR_Role",
+    "zscaler connector user arn"
+  ],
+  "binds": [
+    "zia/c2c-incident-receivers"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-receiver"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.icap-receivers"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/c2c-incident-receivers"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{config-fields}} How a rule selects it and its API surface are in [[zia.dlp.incident-forwarding]]."
+    },
+    {
+      "label": "Across the three providers.",
+      "text": "{{providers}} {{one-account-per-cloud}} {{two-buckets-naming}}"
+    },
+    {
+      "label": "AWS.",
+      "text": "{{aws-buckets}} {{aws-iam-trust}} {{aws-kms-variant}} {{aws-registration-fields}} The KMS sample on the AWS page is malformed {{gap:vendor-defects}}."
+    },
+    {
+      "label": "Google Cloud.",
+      "text": "{{gcp-enterprise-id}} {{gcp-custom-role}} The role and file names the page uses differ {{divergence:gcp-role-names}}. {{gcp-service-account}} {{gcp-connector-types}}"
+    },
+    {
+      "label": "Microsoft Azure.",
+      "text": "{{azure-storage}} {{azure-zscaler-defined}} {{azure-custom-connector}} Which roles the Custom connector needs is unclear {{divergence:azure-role-assignment}}. {{azure-zwa}}"
+    },
+    {
+      "label": "Open.",
+      "text": "What the pages leave out is open {{gap:not-described}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether two tenants on the same Zscaler cloud are being onboarded with one public cloud account, which Cloud-to-Cloud Incident Forwarding does not support.",
+      "uses": [
+        "one-account-per-cloud"
+      ]
+    },
+    {
+      "do": "Which provider page the setup followed, and whether a malformed sample on that page was copied.",
+      "uses": [
+        "aws-kms-variant",
+        "vendor-defects",
+        "gcp-role-names",
+        "azure-role-assignment"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Cloud-to-Cloud Incident Forwarding sends information about transactions that violate DLP policy rules directly to public cloud storage accounts defined in the Admin Console, without deploying appliances. The storage accounts are set up first, and DLP policy rules are then configured to use it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "With Cloud-to-Cloud Incident Forwarding, you can send information about transactions that violate Data Loss Prevention (DLP) policy rules directly to public cloud storage accounts you defined in the Zscaler Admin Console.",
+            "After you set up your storage accounts, you can then configure your DLP policy rules to use Cloud-to-Cloud Incident Forwarding.",
+            "Send information about transactions that violate DLP policy rules directly to public cloud storage accounts without deploying appliances."
+          ]
+        }
+      ]
+    },
+    "config-fields": {
+      "statement": "A Cloud-to-Cloud Incident Forwarding configuration has a configuration name, a cloud storage tenant name, the SaaS application that hosts the public cloud storage, a bucket name for evidence, a bucket name for metadata JSON, and a status that shows whether it is enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Configuration Name: The name of the Cloud-to-Cloud Incident Forwarding configuration. You can sort this column.",
+            "Tenant Name: The name of the cloud storage tenant. You can sort this column.",
+            "Application: The SaaS application that hosts the public cloud storage.",
+            "Bucket Name for Evidence: The storage container for evidence data about the DLP policy violation.",
+            "Bucket Name for Metadata JSON: The storage container for metadata JSON associated with the DLP policy violation.",
+            "Status: Indicates whether the configuration is enabled or disabled."
+          ]
+        }
+      ]
+    },
+    "providers": {
+      "statement": "The SaaS Application Provider chosen when configuring Cloud-to-Cloud Incident Forwarding is Amazon S3 for AWS, Google Cloud Platform for Google Cloud and Microsoft Azure for Azure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+          "quotes": [
+            "Choose Amazon S3 for the SaaS Application Provider and click Next."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+          "quotes": [
+            "choose Google Cloud Platform for Choose the SaaS Application Provider and click Next."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "Choose Microsoft Azure for the SaaS Application Provider and click Next."
+          ]
+        }
+      ]
+    },
+    "one-account-per-cloud": {
+      "statement": "The AWS, Google Cloud and Azure pages each say Cloud-to-Cloud Incident Forwarding does not support using the same public cloud account to onboard multiple tenants hosted on the same Zscaler cloud. The AWS page's example is that pre-production and production tenants hosted on the same Zscaler cloud cannot use the same Azure account to onboard both, and all three pages say that to use the same Azure account each tenant must be hosted on a separate Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+          "quotes": [
+            "Cloud-to-Cloud Incident Forwarding does not support using the same public cloud account to onboard multiple tenants that are hosted on the same Zscaler cloud.",
+            "For example, suppose your pre-production and production tenants are hosted on the same Zscaler cloud. In that case, you cannot use the same Azure account to onboard both tenants.",
+            "To use the same Azure account, you must ensure that each tenant is hosted on a separate Zscaler cloud."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+          "quotes": [
+            "Cloud-to-Cloud Incident Forwarding does not support using the same public cloud account to onboard multiple tenants that are hosted on the same Zscaler cloud.",
+            "To use the same Azure account, you must ensure that each tenant is hosted on a separate Zscaler cloud."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "Cloud-to-Cloud Incident Forwarding does not support using the same public cloud account to onboard multiple tenants that are hosted on the same Zscaler cloud.",
+            "To use the same Azure account, you must ensure that each tenant is hosted on a separate Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "two-buckets-naming": {
+      "statement": "Each provider page creates one bucket or container for evidence data and one for metadata, named <bucketNamePrefix>-data and <bucketNamePrefix>-metadata, and the pages say no periods can be used in the name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+          "quotes": [
+            "create one bucket for evidence data and one bucket for metadata.",
+            "Bucket name: Enter the name of the bucket as <bucketNamePrefix>-data (e.g., zscaler-dlp-data). No periods can be used in the name.",
+            "Bucket name: Enter the name of the bucket as <bucketNamePrefix>-metadata (e.g., zscaler-dlp-metadata). No periods can be used in the name."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+          "quotes": [
+            "enter a name for your evidence data bucket as <bucketNamePrefix>-data (e.g., zscaler-dlp-data). No periods can be used in the name.",
+            "enter a name for your Metadata bucket as <bucketNamePrefix>-metadata (e.g., zscaler-dlp-metadata). No periods can be used in the name."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "enter the name for your evidence data container as <bucketNamePrefix>-data then click Create. No periods can be used in the name.",
+            "enter the name for your metadata container as <bucketNamePrefix>-metadata then click Create. No periods can be used in the name."
+          ]
+        }
+      ]
+    },
+    "aws-buckets": {
+      "statement": "On the AWS page, in the Block Public Access settings for this bucket section, the Block all public access checkbox is selected. When the AWS storage account is configured with Workflow Automation, two separate S3 buckets are created during the creation of the CloudFormation stack in AWS, and when the Incident Receiver is not used with Workflow Automation, a single S3 bucket can hold data and JSON files or separate buckets can be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+          "quotes": [
+            "In the Block Public Access settings for this bucket section, select the Block all public access checkbox.",
+            "If you are configuring your AWS storage account with Workflow Automation, two separate S3 buckets are created for you during the creation of the CloudFormation stack in AWS.",
+            "If you are not using your Incident Receiver with Workflow Automation, you can use a single S3 bucket for data and JSON files, or you can use separate buckets."
+          ]
+        }
+      ]
+    },
+    "aws-iam-trust": {
+      "statement": "AWS authorization uses the Zscaler Connector Account Number, Zscaler Connector User ARN and External ID from the Admin Console. The IAM role is created for Another AWS account with Require external ID checked and no permissions policy attached, an inline policy grants s3:ListBucket on both buckets and s3:PutObject on each bucket's /* resource, and the trust policy's Principal AWS is the Zscaler Connector User ARN with sts:AssumeRole conditioned on sts:ExternalId. The Role ARN is entered in the Admin Console when registering the SaaS application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+          "quotes": [
+            "You need your Zscaler Connector Account Number, Zscaler Connector User ARN, and External ID to authorize the SaaS Application in the AWS Management console.",
+            "In the An AWS account section, select Another AWS account and check Require external ID.",
+            "In Attach permissions policies, do not select permissions. Click Next.",
+            "Create inline policy",
+            "\"Action\": [ \"s3:ListBucket\" ], \"Resource\": [ \"arn:aws:s3:::<metadata-bucket-name>\", \"arn:aws:s3:::<evidence-data-bucket-name>\" ]",
+            "{ \"Sid\": \"AllowPutObject\", \"Effect\": \"Allow\", \"Action\": [ \"s3:PutObject\" ], \"Resource\": [ \"arn:aws:s3:::<metadata-bucket-name>/*\", \"arn:aws:s3:::<evidence-data-bucket-name>/*\" ] }",
+            "In the Principal AWS field, delete the existing AWS value, and enter the Zscaler Connector User ARN (the number you copied from the Zscaler Admin Console).",
+            "In the External ID field, enter the External ID (copied from the Zscaler Admin Console).",
+            "\"Action\": \"sts:AssumeRole\", \"Condition\": { \"StringEquals\": { \"sts:ExternalId\":",
+            "On the Summary page, copy the Role ARN. You must enter it into the Zscaler Admin Console when you register the SaaS application."
+          ]
+        }
+      ]
+    },
+    "aws-kms-variant": {
+      "statement": "When using Workflow Automation and KMS keys, the AWS page gives an alternative JSON string whose Action is kms:Decrypt and kms:GenerateDataKey* and whose Resource is the bucket KMS key ARN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+          "quotes": [
+            "Alternatively, if you are using Workflow Automation and KMS keys, enter the following JSON string:",
+            "\"Action\": [ \"kms:Decrypt\", \"kms:GenerateDataKey*\" ], \"Resource\": [ \"<bucket kms key arn>\" ]"
+          ]
+        }
+      ],
+      "gaps": [
+        "vendor-defects"
+      ]
+    },
+    "aws-registration-fields": {
+      "statement": "Registering the AWS storage in the Admin Console takes the AWS Account ID and the IAM Role ARN of the role just created, and the region must match the region the created bucket is in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-aws.json",
+          "quotes": [
+            "AWS Account ID: Enter your AWS Account ID.",
+            "IAM Role ARN: Enter the role you just created (Role ARN) in step 1.",
+            "Your region must match the region your bucket created is in."
+          ]
+        }
+      ]
+    },
+    "gcp-enterprise-id": {
+      "statement": "Google Cloud onboarding has an Enterprise ID step that takes the Google Cloud Admin Email ID used to log in to the Google Admin console. If the Google Cloud Platform account is already used with Workflow Automation, the necessary resources were already created when the DLP Application Integration was configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+          "quotes": [
+            "In the Enterprise ID step, enter the Google Cloud Admin Email ID that you use to log in to the Google Admin console.",
+            "If you are using your Google Cloud Platform account with Workflow Automation, you already created the necessary resources when you configured the DLP Application Integration."
+          ]
+        }
+      ]
+    },
+    "gcp-custom-role": {
+      "statement": "The Google Cloud page gives a custom role titled Zscaler_GCP_SMIR_Role with the permissions storage.objects.create, storage.multipartUploads.create and storage.objects.delete, and says to use the role name exactly as provided without modifying or renaming it. An Organization-level role can be granted to resources in any project of the organization and is recommended if the role may be needed in other projects, while a Project-level role is confined to a single project and is recommended for more scoped access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+          "quotes": [
+            "title: Zscaler_GCP_SMIR_Role description: Role Supporting Zscaler SMIR to GCP stage: ALPHA includedPermissions: - storage.objects.create - storage.multipartUploads.create - storage.objects.delete",
+            "Use the role name exactly as provided and do not modify or rename the role.",
+            "Organization-Level Role: Role can be granted to resources in any project within your entire organization. Zscaler recommends creating the role at the Organization-level if there is any possibility that this role is needed in other projects.",
+            "Project-Level Role: Role is confined to a single project and can only be granted on resources (like storage buckets) that exist within that same project. Zscaler recommends this role to provide more scoped access."
+          ]
+        }
+      ]
+    },
+    "gcp-service-account": {
+      "statement": "On the Google Cloud page the service account is created without granting access or permissions to the project, and its private key is downloaded as a JSON key because it is required later for fetching the OAuth token. The service account must be added as an IAM member in the organization set up for storage scan, the remaining steps must be completed for the Metadata JSON bucket as well, and the Cloud Storage API is enabled with gcloud services enable storage.googleapis.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+          "quotes": [
+            "In addition to creating the service account, you also download your private key, which is required later for fetching the OAuth token.",
+            "Click Continue without granting access or permissions to the project, then click Done.",
+            "In the Create private key for \"<service account>\" window, select the Key type as JSON and click Create.",
+            "This service account must be added as an IAM member in the organization you are setting up for storage scan.",
+            "You must complete the remaining steps for the Metadata JSON bucket as well.",
+            "gcloud services enable storage.googleapis.com"
+          ]
+        }
+      ]
+    },
+    "gcp-connector-types": {
+      "statement": "On the Google Cloud page the Admin Console step selects the type of SaaS Connector, and a later step enters the Organization ID and uploads the Private Key JSON file downloaded when creating a service account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+          "quotes": [
+            "In the Zscaler Admin Console select the type of SaaS Connector.",
+            "Enter the Organization ID.",
+            "Upload the Private Key JSON file that you downloaded when creating a service account."
+          ]
+        }
+      ]
+    },
+    "azure-storage": {
+      "statement": "The Azure page says the storage account must be accessible to the necessary IP addresses, set under Security + networking > Networking, and points to Zscaler Hub IP Addresses to learn which IP addresses to connect to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "You need to make sure your storage account is accessible to the necessary IP addresses. To do so, go to Security + networking > Networking.",
+            "To learn which IP addresses to connect to, see Zscaler Hub IP Addresses."
+          ]
+        }
+      ],
+      "gaps": [
+        "config-pages-not-captured"
+      ]
+    },
+    "azure-zscaler-defined": {
+      "statement": "On the Azure page, the admin clicks Provide Admin Credentials and signs in with Microsoft Azure account credentials, copies the application name matching the Zscaler SaaS Connector ID, and adds it as a member to Storage Blob Data Contributor and Storage Account Contributor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "Click Provide Admin Credentials, and sign in with your Microsoft Azure account credentials.",
+            "Copy the application name matching the Zscaler SaaS Connector ID.",
+            "Click Select members and add the application name as a member to Storage Blob Data Contributor and Storage Account Contributor."
+          ]
+        }
+      ]
+    },
+    "azure-custom-connector": {
+      "statement": "For the Azure Custom connector the app registration's supported account types must be Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant), and the Application (client) ID and Directory (tenant) ID from the Overview page are saved for the Admin Console. The app needs two permissions, Azure Storage and Azure Service Management, each mapping to the user_impersonation permission. The Admin Console Add page asks for an Application Type: one path enters the Client ID, Client Secret and Tenant ID, and another uploads the Private Key Certificate File and enters the Client ID and Tenant ID. For the private key, the page's file table lists private_key.pem as an AES-256 encrypted RSA private key, certificate.pem as a self-signed certificate to upload on the Azure portal, and combined.pem as the combined key and certificate to upload on the Internet & SaaS onboarding page. A bucket name is entered as the container URL https://<storage_account>.blob.core.windows.net/<container_name>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "Supported account types: Ensure that this option is set to the Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) value.",
+            "Copy the Application (client) ID and Directory (tenant) ID values from the Overview page and save them to enter your Client ID and Tenant ID into the Zscaler Admin Console to complete the configuration process.",
+            "In the Zscaler Admin Console, on the Add page, select the Application Type you would like to integrate with:",
+            "You need to assign two permissions: Azure Storage and Azure Service Management. Each one maps to the user_impersonation permission.",
+            "Enter the Client ID, Client Secret, and the Tenant ID.",
+            "Upload the Private Key Certificate File.",
+            "Enter the Client ID and Tenant ID.",
+            "| certificate.pem | Self-signed certificate | Upload on Azure portal. |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "after": "For Windows users",
+          "quotes": [
+            "| private_key.pem | AES-256 encrypted RSA private key | Used to create combined.pem. |",
+            "| combined.pem | Combined PEM file containing the private key and certificate | Upload on Internet & SaaS onboarding page. |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "after": "If you selected Client Secret:",
+          "quotes": [
+            "https://<storage_account>.blob.core.windows.net/<container_name>"
+          ]
+        }
+      ]
+    },
+    "azure-zwa": {
+      "statement": "Azure onboarding has an optional Workflow Automation checkbox. If the Azure application tenant is onboarded for Workflow Automation and a private key is used, a new DLP Azure integration in disabled state is automatically added in Workflow Automation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+          "quotes": [
+            "Ensure the Cloud-to-Cloud Incident Forwarding checkbox is checked and click Next.",
+            "(Optional) To onboard with Workflow Automation, select the Workflow Automation checkbox.",
+            "If you have onboarded the Azure application tenant for Workflow Automation, and used a private key, a new DLP Azure integration in disabled state is automatically added for you in Workflow Automation."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "gcp-role-names": {
+      "summary": "The Google Cloud page names the role and its file differently in different steps.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+            "quotes": [
+              "nano Zscaler_GCP_SMIR_role.yaml"
+            ]
+          },
+          "says": "The role file is created as Zscaler_GCP_SMIR_role.yaml."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+            "quotes": [
+              "--file=zscaler_readwrite_role.yaml"
+            ],
+            "after": "nano Zscaler_GCP_SMIR_role.yaml"
+          },
+          "says": "The create command reads the file zscaler_readwrite_role.yaml."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-google-cloud-0.json",
+            "quotes": [
+              "Click Select a role and select Custom, then select Zscaler_ReadWrite_Role."
+            ]
+          },
+          "says": "The bucket grant selects a custom role named Zscaler_ReadWrite_Role."
+        }
+      ],
+      "impact": "The page says to use the role name exactly as provided, but the file and role names it gives differ between steps, so which name the role should carry is not settled by the page."
+    },
+    "azure-role-assignment": {
+      "summary": "The Zscaler Defined path adds the application to two roles, while the Custom path's steps search for one role and add the application to the other.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+            "quotes": [
+              "Click Select members and add the application name as a member to Storage Blob Data Contributor and Storage Account Contributor."
+            ]
+          },
+          "says": "The Zscaler Defined connector's application is added as a member to Storage Blob Data Contributor and Storage Account Contributor."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+            "quotes": [
+              "Search for Storage Account Contributor. Select Storage Account Contributor then click Next."
+            ]
+          },
+          "says": "The Custom connector steps search for and select Storage Account Contributor."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure.json",
+            "quotes": [
+              "then add it as a member to Storage Blob Data Contributor."
+            ]
+          },
+          "says": "The same Custom connector steps then add the application as a member to Storage Blob Data Contributor only."
+        }
+      ],
+      "impact": "Whether the Custom connector needs both roles, as the Zscaler Defined path assigns, or only one is not clear from the page."
+    }
+  },
+  "gaps": {
+    "not-described": {
+      "kind": "semantic",
+      "title": "What the Cloud-to-Cloud articles do not describe",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test",
+        "support-ticket"
+      ],
+      "detail": "The metadata JSON format, evidence file size limits, delivery failure or retry behaviour, and what the type fields lastValidationMsg and lastTenantValidationTime report are not described in the captured articles. The AWS and Google Cloud pages list Configuring the Data at Rest Scanning Malware Detection Policy among their follow-up links, but the About page's channel list does not include it, so whether that policy can use Cloud-to-Cloud Incident Forwarding is not stated."
+    },
+    "vendor-defects": {
+      "kind": "semantic",
+      "title": "Defects in the provider pages' samples",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "copying the AWS KMS policy sample or the Azure Windows script as written",
+      "detail": "In the capture the AWS KMS policy sample is malformed: one statement object repeats Sid, Effect and Action and mixes s3:ListBucket with KMS actions. The Azure Windows script for the private key says it combines the decrypted key and the certificate but writes $EncryptedKey into combined.pem, while the Mac script combines the encrypted key by design according to its own comment. Both come from the capture text only and were not otherwise verified. Neither is a policy or script to copy as written."
+    },
+    "config-pages-not-captured": {
+      "kind": "semantic",
+      "title": "The Zscaler Hub IP Addresses page",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "The Azure page points to Zscaler Hub IP Addresses for the addresses the storage account must accept; that config.zscaler.com page is not captured."
+    }
+  }
+}

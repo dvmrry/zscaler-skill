@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.icap-receivers",
+  "title": "ICAP receivers for DLP: secure and unencrypted ICAP, the FCC cloud and mTLS",
+  "aliases": [
+    "icap receiver",
+    "dlp icap server",
+    "secure icap",
+    "unencrypted icap",
+    "stunnel",
+    "icap fcc cloud",
+    "icap mtls ca certificate",
+    "dlp server icap"
+  ],
+  "binds": [
+    "zia/dlp-icap-servers"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-receiver"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rule-wire-shape"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-icap-servers"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{secure-or-unencrypted}} {{receiver-fields}} Where an ICAP receiver sits among the other places a DLP match can go is in [[zia.dlp.incident-forwarding]]."
+    },
+    {
+      "label": "The receiver URI.",
+      "text": "{{uri-format}} The recommended port is stated inconsistently {{divergence:secure-icap-port}}."
+    },
+    {
+      "label": "How the information reaches the DLP server.",
+      "text": "{{second-service-edge}} {{what-is-sent}} {{dmz-public-ip}} Which kind of Service Edge must reach the server differs between the two enabling pages {{divergence:reaching-service-edge}}."
+    },
+    {
+      "label": "Secure and unencrypted.",
+      "text": "{{stunnel}} {{unencrypted-mode}} {{servers-per-policy}}"
+    },
+    {
+      "label": "Rules on both sides.",
+      "text": "{{two-forwarding-rule-kinds}} {{matching-third-party-rules}} The wire shape of a rule without content inspection is in [[zia.dlp.rule-wire-shape]]."
+    },
+    {
+      "label": "Mutual authentication.",
+      "text": "{{mtls-ca}}"
+    },
+    {
+      "label": "Open.",
+      "text": "The ICAP X-header names are open {{gap:x-header-names}}, and the config.zscaler.com ICAP page is not captured {{gap:config-pages-not-captured}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the firewall port, the console URI port and the stunnel or DLP server port are the same value, before relying on a recommended port.",
+      "uses": [
+        "uri-format",
+        "stunnel",
+        "secure-icap-port"
+      ]
+    },
+    {
+      "do": "Whether the third-party DLP product has rules for the same data types (rules with content inspection) or file types (rules without), since information without a matching rule does not appear as an incident.",
+      "uses": [
+        "matching-third-party-rules",
+        "two-forwarding-rule-kinds"
+      ]
+    }
+  ],
+  "claims": {
+    "secure-or-unencrypted": {
+      "statement": "Secure or unencrypted ICAP receivers can be configured on the DLP Incident Receiver page for Inline Web DLP policy rule violations, and Zscaler recommends sending transaction information via secure ICAP. ICAP receivers for web traffic filtering are a separate feature, described in About ICAP Receivers for URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-icap-receivers-dlp.json",
+          "quotes": [
+            "You can configure secure or unencrypted ICAP receivers on the DLP Incident Receiver page. Zscaler recommends sending transaction information via secure ICAP.",
+            "If you want to use ICAP receivers for web traffic filtering, see About ICAP Receivers for URL Filtering.",
+            "Securely forward information about transactions that violate Inline Web Data Loss Prevention (DLP) policy rules to ICAP receivers."
+          ]
+        }
+      ]
+    },
+    "receiver-fields": {
+      "statement": "An ICAP receiver has a name, a status that shows whether it is enabled or disabled, and a DLP server URI. If a receiver is disabled, the Service Edge cannot send information to it.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-icap-servers#name",
+        "zia/dlp-icap-servers#status",
+        "zia/dlp-icap-servers#url"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-icap-receivers-dlp.json",
+          "quotes": [
+            "Name: The name of the ICAP receiver. You can sort this column.",
+            "Status: Displays whether the ICAP receiver is enabled or disabled. You can sort this column.",
+            "URI: The DLP server URI. You can sort this column."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-secure-icap.json",
+          "quotes": [
+            "If you disable a receiver, the Service Edge cannot send information to that receiver."
+          ]
+        }
+      ]
+    },
+    "uri-format": {
+      "statement": "The Receiver URI must follow the format icap://<FQDN or IP address>:<port number>/<servicepath>, and the Unencrypted ICAP page gives the same format. The field is prepopulated with icaps:// because Zscaler recommends secure ICAP, and icap:// can be used where plain text is preferable, for example for debugging. FQDNs and IP addresses of DLP servers and load balancers are accepted. A port number must be included and must match the port on which the network firewall accepts ICAP traffic from the service. The service path specifies whether the DLP server monitors outgoing or incoming traffic, and for Vontu the example is reqmod (Request Mode) for outgoing traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-secure-icap.json",
+          "quotes": [
+            "The URI must follow the format: icap://<FQDN or IP address>:<port number>/<servicepath>",
+            "By default, the Receiver URI field is prepopulated with icaps:// because Zscaler recommends sending transaction information via secure ICAP.",
+            "For scenarios where it is preferable to send unencrypted ICAP over plain text (for example, for debugging purposes), you can use icap://.",
+            "FQDNs and IP addresses of DLP servers and load balancers are accepted.",
+            "A <port number> must be included and must match the port on which you’ve configured your network firewall to accept ICAP traffic from the service.",
+            "The <servicepath> specifies whether the DLP server monitors outgoing traffic or incoming traffic.",
+            "if you are using Vontu, you would use the servicepath reqmod (for Request Mode) to indicate that the server monitors outgoing traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-unencrypted-icap.json",
+          "quotes": [
+            "The URI must follow the format: icap://<FQDN or IP address>:<port number>/<servicepath>"
+          ]
+        }
+      ]
+    },
+    "second-service-edge": {
+      "statement": "The Service Edge that inspected a transaction does not send the information to the DLP server itself; it forwards it to a Service Edge on a different cloud, called the FCC cloud, which sends it to the DLP server. The network firewall must accept communications from the Service Edges on the FCC cloud, on a designated port that must match the port specified in the Admin Console when the DLP servers are defined, and https://config.zscaler.com/zscaler.net/icap has the traffic details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-icap-communication-between-zscaler-and-dlp-servers.json",
+          "quotes": [
+            "When the Zscaler service sends information to your DLP server, it does not do so from a Public Service Edge for Internet & SaaS (ZIA) on the cloud that initially inspects your users' transaction.",
+            "that Service Edge forwards the transaction information to another Service Edge.",
+            "The second Service Edge is on a different cloud that the service uses for sending communications to your DLP servers.",
+            "You must configure your organization's firewall to allow communications from the second Service Edge."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-secure-icap.json",
+          "quotes": [
+            "So, it forwards the transaction information to a Service Edge on a different cloud (called the FCC cloud), which sends that information to your DLP server.",
+            "Your network firewall must be configured so that it also accepts communications from the Service Edges on the FCC cloud.",
+            "For detailed information about the traffic your firewall must allow, see https://config.zscaler.com/zscaler.net/icap.",
+            "You must configure your network firewall to accept communications from a specific set of Service Edge IP addresses on the FCC cloud on a designated port.",
+            "This designated port must match the port you specify in the Zscaler Admin Console (when you define your DLP servers)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-unencrypted-icap.json",
+          "quotes": [
+            "Your network firewall must be configured so that it also accepts communications from the Service Edges on the FCC cloud."
+          ]
+        }
+      ],
+      "gaps": [
+        "config-pages-not-captured"
+      ]
+    },
+    "what-is-sent": {
+      "statement": "The second Service Edge sends the client IP and username via ICAP X-headers, a copy of the HTTP POST request that contains the file that violated the DLP policy (or, for HTTP Forms data, a copy of the violating content), and the host URL the user was sending to. The service can send the information to an on-premises or cloud-based DLP server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-icap-communication-between-zscaler-and-dlp-servers.json",
+          "quotes": [
+            "Client IP and username via ICAP X-headers.",
+            "A copy of the HTTP POST request that contains the file that violated the DLP policy, or if the content is from HTTP Forms data, a copy of the content that violated the DLP policy.",
+            "The host URL to which the user was attempting to send content would also be included here.",
+            "you can specify whether you want the Zscaler service to send information about policy violations via ICAP to your organization's on-premises or cloud-based DLP server."
+          ]
+        }
+      ]
+    },
+    "stunnel": {
+      "statement": "Because most DLP servers can only read unencrypted information, Zscaler recommends installing the open-source stunnel application on the DLP server to decrypt the transaction information for secure ICAP. The Secure ICAP page says the stunnel port is usually 11344 and the DLP server's accepting port is usually 1344, a successful configuration shows \"Configuration successful\" in the stunnel console or debug logs, and the certificate generated by stunnel does not need to be imported into the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-icap-communication-between-zscaler-and-dlp-servers.json",
+          "quotes": [
+            "because most DLP servers can only read unencrypted information, Zscaler recommends installing an open-source application called the stunnel application on your DLP server.",
+            "The stunnel application then decrypts the transaction information for the DLP server."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-secure-icap.json",
+          "quotes": [
+            "The port is that which stunnel listens on and is usually 11344.",
+            "The port is where the DLP server accepts communications from and is usually 1344.",
+            "check if the stunnel console or the debug logs includes the message, \"Configuration successful\"",
+            "You do not need to import the certificate generated by the stunnel application to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "unencrypted-mode": {
+      "statement": "With unencrypted ICAP, the second Service Edge does not encrypt the transaction information it sends to the DLP server, so the stunnel application is not needed and the DLP server can accept the information as is.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-icap-communication-between-zscaler-and-dlp-servers.json",
+          "quotes": [
+            "The second Service Edge does not encrypt the transaction information it sends to your DLP server.",
+            "You do not need to install the stunnel application. The DLP server can accept the information from the Service Edge as is."
+          ]
+        }
+      ]
+    },
+    "dmz-public-ip": {
+      "statement": "The Secure ICAP page says to place the DLP server in a DMZ where it can have a public IP address. The Adding an ICAP Receiver page defines the receiver by providing the DLP server's public IP address with the port number on which the network firewall initially accepts the secure ICAP traffic sent by the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-secure-icap.json",
+          "quotes": [
+            "Ensure that you place your DLP server in a DMZ, where it can have a public IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-icap-receiver-dlp.json",
+          "quotes": [
+            "by providing the public IP address of your DLP server with the port number on which your network firewall initially accepts the secure ICAP traffic sent by the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "servers-per-policy": {
+      "statement": "The Unencrypted ICAP page says as many DLP servers as needed can be configured, but only one server needs to be specified for each DLP policy, and load balancers in front of a DLP server can be configured as well.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-unencrypted-icap.json",
+          "quotes": [
+            "You can configure as many DLP servers as you need. However, you only need to specify one server for each DLP policy. If your DLP server is behind a load balancer, you can configure the load balancers as well."
+          ]
+        }
+      ]
+    },
+    "matching-third-party-rules": {
+      "statement": "The organization's DLP product must have rules that detect the same data type as the DLP rules with content inspection, or the information sent for a rule violation is not reported as an incident in that product. It must have rules that detect the same file types as the DLP rules without content inspection, or the information for a rule violation does not appear in it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-secure-icap.json",
+          "quotes": [
+            "Your organization's DLP product must have rules that detect the same data type as your DLP rules with content inspection.",
+            "Otherwise, the information that the Zscaler service sends to your server about a particular DLP rule violation is not reported as an incident in your DLP product.",
+            "Your organization's DLP product must have rules that detect the same file types as your DLP rules without content inspection.",
+            "Otherwise, the information that the Zscaler service sends to your DLP server regarding a particular rule violation does not appear in your DLP product."
+          ]
+        }
+      ]
+    },
+    "two-forwarding-rule-kinds": {
+      "statement": "Two kinds of DLP rule forward transaction information to the organization's DLP server. Rules with content inspection use Zscaler's DLP engines to scan content before forwarding. Rules without content inspection bypass scanning by the DLP engines and filter content on the specified criteria, which for that option must include one or more file types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enabling-secure-icap.json",
+          "quotes": [
+            "DLP rules with content inspection that allow you to leverage Zscaler's DLP engines for scanning content before forwarding transaction information to your organization's DLP server.",
+            "DLP rules without content inspection that allow you to bypass scanning by Zscaler's DLP engines and instead have the service filter content based on criteria you specify, then forward the transaction information to your organization's DLP server.",
+            "With this option, you must specify one or more file types among your criteria."
+          ]
+        }
+      ]
+    },
+    "mtls-ca": {
+      "statement": "The MTLS CA certificate that the ICAP receivers article offers for download is optional and only required if the ICAP server uses mutual authentication, and it is installed in the ICAP server's tunnel configuration. It is a root CA certificate, not a server certificate. Client certificate verification is part of the SSL server configuration on the customer's side, and if the SSL server does not request it the Zscaler SSL client does not send a certificate. The client certificate is signed with an intermediate CA certificate that is signed with the root and is sent with the client certificate during the SSL handshake. The SSL server must use the root CA certificate to send the acceptable CA names, and a minimal set of root CA certificates is recommended for the ICAP SSL server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-icap-receivers-dlp.json",
+          "quotes": [
+            "Download the Mutual Transport Layer Security (MTLS) Certificate Authority (CA) Certificate that is used when the ICAP server requests client authentication.",
+            "The use of this certificate is optional and is only required if the ICAP server is using mutual authentication.",
+            "After you download the certificate, install the certificate in your ICAP server's tunnel configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-icap-server-mtls-certificate.json",
+          "quotes": [
+            "This root CA certificate is not a server certificate used for the SSL server.",
+            "The client certification verification is optional and is part of the SSL server configuration on your side.",
+            "If the SSL server does not request the verification, then the Zscaler SSL client does not send it.",
+            "This client certificate is signed with an intermediate CA certificate which is signed with the downloaded root CA certificate.",
+            "This intermediate CA certificate is also sent with the client certificate during the SSL handshake and verified through the SSL CA chain.",
+            "The SSL server must also use the root CA certificate to send the acceptable CA names to the Zscaler SSL ICAP client so that the client can send back the proper client certification.",
+            "It is also recommended that you create a minimal set of root CA certificates for the ICAP SSL server so that the SSL connection is only established if the client is verified with the expected set of root CA certificates."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "secure-icap-port": {
+      "summary": "The Secure ICAP page recommends 11344 for secure ICAP and 1344 for ICAP, and the Incident Receiver URI defaults to 1344; the Unencrypted ICAP page recommends 1344.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-enabling-secure-icap.json",
+            "quotes": [
+              "For secure ICAP, Zscaler recommends using port number 11344, as is standard practice."
+            ]
+          },
+          "says": "For secure ICAP the recommended port is 11344."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-enabling-secure-icap.json",
+            "quotes": [
+              "Zscaler recommends using port number 1344 for ICAP, per standard practice."
+            ]
+          },
+          "says": "The same page's URI bullet, which says the URI port must match the firewall's ICAP port, recommends 1344 for ICAP."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-enabling-unencrypted-icap.json",
+            "quotes": [
+              "For ICAP, Zscaler recommends using port number 1344, as is standard practice."
+            ]
+          },
+          "says": "The Unencrypted ICAP page recommends 1344."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-zscaler-incident-receiver.json",
+            "quotes": [
+              "A <port number> must be included. The default port number is 1344."
+            ]
+          },
+          "says": "The Incident Receiver URI defaults to port 1344."
+        }
+      ],
+      "impact": "The page text leaves open whether 11344 is only the stunnel listening port while the URI port is 1344, or whether the console URI port for secure ICAP is 11344, so a port cannot be read off one sentence."
+    },
+    "reaching-service-edge": {
+      "summary": "The Secure ICAP page says the Public Service Edge must reach the DLP server, and the Unencrypted ICAP page says Private Service Edges must, while both pages say elsewhere that a Service Edge on the FCC cloud sends the information.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-enabling-secure-icap.json",
+            "quotes": [
+              "The Public Service Edge must be able to reach your DLP server using its public IP address."
+            ]
+          },
+          "says": "The Public Service Edge must be able to reach the DLP server using its public IP address."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-enabling-unencrypted-icap.json",
+            "quotes": [
+              "Private Service Edges for Internet & SaaS (ZIA) must be able to reach your DLP server using its public IP address."
+            ]
+          },
+          "says": "Private Service Edges for Internet & SaaS (ZIA) must be able to reach the DLP server using its public IP address."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-enabling-secure-icap.json",
+            "quotes": [
+              "So, it forwards the transaction information to a Service Edge on a different cloud (called the FCC cloud), which sends that information to your DLP server."
+            ]
+          },
+          "says": "A Service Edge on the FCC cloud sends the information to the DLP server."
+        }
+      ],
+      "impact": "Which kind of Service Edge to allow through the firewall to the DLP server is not settled by the two pages; the FCC cloud's Service Edges are the sender both pages describe."
+    }
+  },
+  "gaps": {
+    "x-header-names": {
+      "kind": "semantic",
+      "title": "The ICAP X-header names for the client IP and username",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "detail": "The communication article says the client IP and username are sent via ICAP X-headers but does not give the header names."
+    },
+    "config-pages-not-captured": {
+      "kind": "semantic",
+      "title": "The config.zscaler.com ICAP page",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "The page at https://config.zscaler.com/zscaler.net/icap that lists the traffic the firewall must allow is referenced by the ICAP articles but is not captured."
+    }
+  }
+}

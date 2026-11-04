@@ -1,0 +1,876 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.incident-receiver",
+  "title": "Zscaler Incident Receiver: requirements per platform, storage, health check and VM commands",
+  "aliases": [
+    "zscaler incident receiver",
+    "dlp incident receiver",
+    "incident receiver vm",
+    "zirsvr",
+    "incident receiver ec2",
+    "incident receiver azure",
+    "incident receiver health check",
+    "incident receiver sftp",
+    "incident receiver mtls"
+  ],
+  "binds": [
+    "zia/dlp-incident-receiver-servers"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.icap-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.cloud-to-cloud-forwarding"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-incident-receiver-servers"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{what-it-sends}} Where it sits among the other places a DLP match can go is in [[zia.dlp.incident-forwarding]]."
+    },
+    {
+      "label": "Storage.",
+      "text": "{{no-local-storage}} {{storage-layout}} The JSON metadata schema is open {{gap:metadata-schema}}."
+    },
+    {
+      "label": "The console object.",
+      "text": "{{object-fields}} {{uri-format}} {{port-must-match-vm}} {{certificate-lifecycle}}"
+    },
+    {
+      "label": "On-premises VM.",
+      "text": "{{os-version}} {{onprem-vm-spec}} {{onprem-storage}} {{onprem-network}}"
+    },
+    {
+      "label": "AWS EC2.",
+      "text": "{{ec2-ami}} {{ec2-spec}} {{ec2-s3-iam}} {{hub-ip-list}} The capture of the EC2 page has headings with no body {{gap:ec2-collapsed-steps}}."
+    },
+    {
+      "label": "Azure VM.",
+      "text": "{{azure-sas-token}} {{azure-spec}} {{azure-vhd-sources}} {{azure-network}} {{azure-sftp-storage}} {{azure-ready-signal}} {{azure-evidence-file-max}}"
+    },
+    {
+      "label": "Differences between the three pages.",
+      "text": "The three deployment pages differ in what each states {{gap:family-absences}}."
+    },
+    {
+      "label": "On the VM.",
+      "text": "{{initial-login}} {{sftp-settings}} {{s3-settings}} {{startup-and-update}}"
+    },
+    {
+      "label": "Health check.",
+      "text": "{{health-check}} What the health check notes and how a failure surfaces is open {{gap:health-check-detail}}."
+    },
+    {
+      "label": "Network modes and authentication.",
+      "text": "{{explicit-proxy}} The command that sets the proxy differs between the pages {{divergence:explicit-proxy-command}}. {{mtls}}"
+    },
+    {
+      "label": "SFTP throughput.",
+      "text": "{{sftp-connections}}"
+    },
+    {
+      "label": "Maintenance.",
+      "text": "{{support-access}} {{ssh-key-ed25519}} {{expired-server-cert}}"
+    },
+    {
+      "label": "Commands.",
+      "text": "{{commands-update}} {{commands-diagnostics}} {{syslog-forwarding}} The meaning of the `flags` field on the receiver type is open {{gap:flags-field}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which deployment page (on-premises, AWS EC2 or Azure) the receiver was built from before reading a specification or command off one of them, since the pages state different requirements.",
+      "uses": [
+        "onprem-vm-spec",
+        "ec2-spec",
+        "azure-spec",
+        "explicit-proxy-command",
+        "family-absences"
+      ]
+    },
+    {
+      "do": "Whether the console URI port and the port configured on the VM are the same value.",
+      "uses": [
+        "uri-format",
+        "port-must-match-vm"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "The Zscaler Incident Receiver is a tool for receiving information about DLP policy violations securely. The Zscaler service sends the information to it via ICAP, and it can run on an AWS EC2 instance, an Azure VM or on-premises.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "The Zscaler Incident Receiver is a tool that allows you to receive information about DLP policy violations securely.",
+            "It can run on an EC2 instance on Amazon Web Services (AWS), on an Azure virtual machine (VM), or on-premises.",
+            "The Zscaler service sends information about policy violations via ICAP to the Incident Receiver."
+          ]
+        }
+      ]
+    },
+    "what-it-sends": {
+      "statement": "The Incident Receiver tool sends the policy-violating content and a JSON file with the metadata of the inline web and CASB DLP policy scan, for example the URL, collaborators, DLP dictionaries and DLP engines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "This tool sends the policy-violating content and a JSON file containing the metadata for the inline web and CASB DLP policy scan (e.g., the URL, Collaborators, DLP dictionaries, DLP engines)."
+          ]
+        }
+      ]
+    },
+    "no-local-storage": {
+      "statement": "The Incident Receiver does not store files locally. The About page says it requires an S3 storage bucket or a storage server, and the EC2 page says an S3 bucket or an SFTP server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "The Zscaler Incident Receiver does not store files locally and requires either an S3 storage bucket or a storage server or to store data."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-for-ec2.json",
+          "quotes": [
+            "Because the Zscaler Incident Receiver does not store files locally, it requires either an S3 bucket or an SFTP server to store incident data."
+          ]
+        }
+      ]
+    },
+    "storage-layout": {
+      "statement": "On the on-premises deployment page, for each policy violation the storage server creates a directory containing the policy-violating file and a JSON file for the DLP policy scan metadata. The on-premises deployment page offers sample JSON files for Endpoint DLP, DLP with and without content inspection, Evaluate All Rules mode, and Data at Rest Scanning DLP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "For each policy violation, the storage server creates a directory containing the policy-violating file and a JSON file for the DLP policy scan metadata.",
+            "Download a sample JSON file for Endpoint DLP policy",
+            "Download a sample JSON file for DLP policy with and without content inspection",
+            "Download a sample JSON file for DLP policy with Evaluate All Rules mode enabled",
+            "Download a sample JSON file for Data at Rest Scanning DLP policy"
+          ]
+        }
+      ]
+    },
+    "object-fields": {
+      "statement": "An Incident Receiver has a unique name, a URI, a status that shows whether it is enabled or disabled, and a certificate that can be downloaded. If it is set to Disabled, the Public Service Edge cannot send information to it. The page also offers adding a new client certificate.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-incident-receiver-servers#name",
+        "zia/dlp-incident-receiver-servers#status",
+        "zia/dlp-incident-receiver-servers#url"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-zscaler-incident-receiver.json",
+          "quotes": [
+            "Incident Receiver Name: Enter a unique name for the Zscaler Incident Receiver.",
+            "If you select Disabled, the Public Service Edge cannot send information to the receiver."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "URI: The Incident Receiver URI.",
+            "Status: Displays whether the Incident Receiver is enabled or disabled.",
+            "Certificate: Displays a link that allows you to download the certificate used by the Incident Receiver.",
+            "Add a new client certificate."
+          ]
+        }
+      ]
+    },
+    "uri-format": {
+      "statement": "The Incident Receiver URI must follow the format icaps://<FQDN or IP address>:<port number>/. The field is prepopulated with icaps:// because Zscaler recommends secure ICAP, an FQDN or IP address is accepted, a port number must be included (the default is 1344, and changing it also needs the port configuration in the Incident Receiver updated to match), and the URI must end with a forward slash.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-zscaler-incident-receiver.json",
+          "quotes": [
+            "The URI must follow the format: icaps://<FQDN or IP address>:<port number>/",
+            "By default, this field is prepopulated with icaps:// because Zscaler recommends sending transaction information via secure ICAP.",
+            "The <FQDN or IP address> for the Zscaler Incident Receiver is accepted.",
+            "A <port number> must be included. The default port number is 1344.",
+            "If you change the port number, you must also update the port number configuration in the Zscaler Incident Receiver to match.",
+            "You must include a forward slash (/) at the end of the URI."
+          ]
+        }
+      ]
+    },
+    "port-must-match-vm": {
+      "statement": "On the on-premises VM, icaps_port is the Incident Receiver port number previously added to the receiver URI in the Admin Console, and a port changed on the VM requires the receiver's URI in the Admin Console to be updated to the new port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "For icaps_port, enter the Zscaler Incident Receiver port number that you’ve previously added to the Zscaler Incident Receiver URI in the Zscaler Admin Console.",
+            "You can enter a different port number to change the Incident Receiver’s port number. However, you must also update the Incident Receiver’s URI in the Zscaler Admin Console to include the new port number."
+          ]
+        }
+      ]
+    },
+    "certificate-lifecycle": {
+      "statement": "After the Incident Receiver is saved, its certificate is downloaded from the Zscaler Incident Receiver page or from the Edit window. If the URI is changed, the Incident Receiver VM must be updated, and if the certificate is regenerated, the VM must be updated with the new file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-zscaler-incident-receiver.json",
+          "quotes": [
+            "After you save the Zscaler Incident Receiver, download the certificate for the Incident Receiver from the Zscaler Incident Receiver page or from the Edit Zscaler Incident Receiver window."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-modifying-zscaler-incident-receiver.json",
+          "quotes": [
+            "If you change the URI, make sure you update the Incident Receiver virtual machine (VM).",
+            "Certificate: Download or regenerate the certificate. If you regenerate the certificate, make sure you update the Incident Receiver VM with the new file."
+          ]
+        }
+      ]
+    },
+    "os-version": {
+      "statement": "The on-premises deployment page says a new or clean deployment of a Zscaler Incident Receiver requires a VM image running on Zscaler OS version 24.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "New or clean deployment of a Zscaler Incident Receiver requires a virtual machine (VM) image running on Zscaler OS version 24."
+          ]
+        }
+      ]
+    },
+    "onprem-vm-spec": {
+      "statement": "An on-premises VM needs a hypervisor of VMware ESX/ESXi version 6.0 or later or Oracle VM VirtualBox, 4 CPUs, 8 GB RAM, a 600 GB disk and 1 virtual NIC. The image is an OVA downloaded from the Incident Receiver page, and the page lists f6793ec81fa7bcb3cd128ce37ced6fa9 as the official MD5 for /sc/adp/vm/adp_client.ova.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "Hypervisor: VMware ESX/ESXi version 6.0 or later, Oracle VM VirtualBox",
+            "CPUs: 4 CPUs",
+            "RAM: 8 GB",
+            "Disk: 600 GB",
+            "VM Network: 1 Virtual NIC",
+            "Official MD5 for /sc/adp/vm/adp_client.ova: f6793ec81fa7bcb3cd128ce37ced6fa9"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "Download the VM (.ova) for the Zscaler Incident Receiver."
+          ]
+        }
+      ]
+    },
+    "onprem-storage": {
+      "statement": "On-premises storage is either a server that supports SFTP/SCP and public key authentication, with a preconfigured account that has write access to the intended directory, or an Amazon S3 bucket. Zscaler recommends an SFTP storage server for on-premises Incident Receiver VMs, and to use S3 from an on-premises VM a /root/.aws/credentials file and a /home/zsroot/.aws/credentials file must be created manually on the VM with the aws_access_key_id and aws_secret_access_key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "A storage server that supports SFTP/SCP and public key authentication. You must also have a preconfigured account that allows write access to the server’s intended directory.",
+            "An Amazon S3 storage bucket where the Incident Receiver can store data.",
+            "Zscaler recommends using an SFTP storage server to store data for on-premises Incident Receiver VMs.",
+            "manually create a /root/.aws/credentials file and a /home/zsroot/.aws/credentials file with the proper aws_access_key_id and aws_secret_access_key on the VM"
+          ]
+        }
+      ]
+    },
+    "onprem-network": {
+      "statement": "An on-premises Incident Receiver VM needs a static public IP address and a firewall rule allowing inbound ICAP messages from the FCC cloud to the correct TCP port (for example, port 1344), and a direct IP-based connection to the Zscaler Hub IP addresses must be allowed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "A static public IP address for the Incident Receiver VM. Additionally, you need a firewall rule configured to allow inbound ICAP messages from the FCC cloud to the correct TCP port on the Incident Receiver VM (e.g., port 1344).",
+            "You must allow a direct IP-based connection to the Zscaler Hub IP addresses so the Incident Receiver can connect to the IP address directly."
+          ]
+        }
+      ]
+    },
+    "ec2-ami": {
+      "statement": "For AWS, the Incident Receiver AMI is requested from Zscaler Support for the customer's shared AWS account and region, and Support provides the shared AMI ID and description to use when launching the EC2 instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-for-ec2.json",
+          "quotes": [
+            "you must contact Zscaler Support and request the Zscaler Incident Receiver AMI for your shared AWS account and region.",
+            "Zscaler Support then provides you with the shared AMI ID and description to use when launching the EC2 instance that hosts the Zscaler Incident Receiver VM."
+          ]
+        }
+      ]
+    },
+    "ec2-spec": {
+      "statement": "The EC2 page requires a minimum t2.large or t3.large instance type with 8GB RAM, a security group allowing inbound ICAP messages from the FCC cloud to the correct TCP port (for example, port 1344), and an Incident Receiver already added in the Admin Console. A static public IP is optional but recommended, and the IP address can alternatively be associated with an FQDN used in the Admin Console. The AMI includes minimum specifications that can be increased.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-for-ec2.json",
+          "quotes": [
+            "A minimum t2.large or t3.large EC2 instance type.",
+            "RAM: 8GB",
+            "The AMI deployment includes minimum specifications for various settings (e.g., disk size and network interface). You can increase those specifications as needed.",
+            "(Optional) A static public IP address for the VM.",
+            "Zscaler recommends using a static IP address to ensure that the IP address does not change when the VM is rebooted. Alternatively, you can associate the IP address with a FQDN and then use the FQDN when configuring the Incident Receiver in the Zscaler Admin Console.",
+            "A security group configured on the EC2 instance to allow inbound ICAP messages from the FCC cloud to the correct TCP port on the Incident Receiver VM (e.g., port 1344).",
+            "A Zscaler Incident Receiver added in the Zscaler Admin Console. You need this configuration to complete the VM setup."
+          ]
+        }
+      ]
+    },
+    "ec2-s3-iam": {
+      "statement": "For S3 storage on EC2, the instance has list and write access (ListBucket and PutObject) to the S3 storage volume. With Zscaler Workflow Automation, two separate S3 buckets are created during the creation of the CloudFormation stack in AWS, and without it a single S3 bucket can hold data and JSON files or separate buckets can be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-for-ec2.json",
+          "quotes": [
+            "so that the instance has list and write access (ListBucket and PutObject, respectively) to the S3 storage volume.",
+            "If you are using your Incident Receiver with Zscaler Workflow Automation, two separate S3 buckets are created for you during the creation of the CloudFormation stack in AWS.",
+            "If you are not using your Incident Receiver with Zscaler Workflow Automation, you can use a single S3 bucket for data and JSON files, or you can use separate buckets."
+          ]
+        }
+      ]
+    },
+    "hub-ip-list": {
+      "statement": "On the EC2 page, the addresses to allow are found on config.zscaler.com by selecting DLP Incident Receiver and clicking the Zscaler Hub IP Addresses link in the Source column, then copying IPs from the Required, Recommended and Combined columns as needed for the security group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-for-ec2.json",
+          "quotes": [
+            "Browse to config.zscaler.com",
+            "Select DLP Incident Receiver in the left-side navigation, then click the Zscaler Hub IP Addresses link in the Source column of the table.",
+            "Click Copy IPs in the Required, Recommended, and Combined columns as needed so you can add them to the security group."
+          ]
+        }
+      ],
+      "gaps": [
+        "config-pages-not-captured"
+      ]
+    },
+    "azure-sas-token": {
+      "statement": "For Azure, the Incident Receiver virtual hard disk (VHD) shared access signature (SAS) token must be obtained from Zscaler Support before deployment, and without it the Incident Receiver cannot be set up.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "Before you begin deployment, contact Zscaler Support to obtain the Incident Receiver virtual hard disk (VHD) shared access signature (SAS) token. Without it, you cannot set up the Incident Receiver."
+          ]
+        }
+      ]
+    },
+    "azure-spec": {
+      "statement": "The Azure page requires a VM with a minimum of two CPUs and 8 GB of RAM (for example a D2as v4, and the steps select D2as_v4). Zscaler supports only Linux and only Generation 1 VMs for Azure instances. The steps select the Premium SSD (locally-redundant storage) storage type, a custom disk size of 500 GiB, Disable public and private access, and no public inbound ports. All resources for the Incident Receiver must use the region selected, and the VHD includes minimum specifications that can be increased.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "An Azure VM with a minimum of two CPUs and 8 GB of RAM (e.g., a D2as v4 Azure instance) to host the Incident Receiver VM.",
+            "Select D2as_v4 from the list, then click Select.",
+            "Zscaler supports only Linux as the operating system for Azure instances of the Incident Receiver.",
+            "Zscaler supports only Generation 1 VMs for Azure instances of the Incident Receiver.",
+            "From the Storage type drop-down menu, select Premium SSD (locally-redundant storage).",
+            "In the Custom disk size (GiB) field, enter 500.",
+            "Select Disable public and private access.",
+            "On the Create a virtual machine page, in the Public inbound ports section, select None.",
+            "All resources that you create for the Incident Receiver must use the region you select here.",
+            "The VHD file includes minimum specifications for various settings (e.g., disk size and network interface). You can increase those specifications as needed."
+          ]
+        }
+      ]
+    },
+    "azure-vhd-sources": {
+      "statement": "The Azure page gives regional Zscaler storage URLs for the VHD: USA, Europe and Australia.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "USA: https://zirsvrazureprod.blob.core.windows.net/",
+            "Europe: https://zirsvrazureprodeu.blob.core.windows.net/",
+            "Australia: https://zirsvrazureprodau.blob.core.windows.net/"
+          ]
+        }
+      ]
+    },
+    "azure-network": {
+      "statement": "On Azure, a security group must allow inbound ICAP messages from the Feed Central Cloud (FCC) cloud to the correct TCP port on the Incident Receiver VM (for example, port 1344), and the inbound rule's destination port range is TCP port 1344. The Networking tab step says to ensure the Enable public access from all networks option is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "A security group configured on the Azure instance to allow inbound Internet Content Adaptation Protocol (ICAP) messages from the Feed Central Cloud (FCC) cloud to the correct TCP port on the Incident Receiver VM (e.g., port 1344).",
+            "Destination port ranges: Enter the TCP port 1344 for inbound traffic for the Incident Receiver.",
+            "On the Networking tab, ensure that the Enable public access from all networks option is selected."
+          ]
+        }
+      ]
+    },
+    "azure-sftp-storage": {
+      "statement": "The Azure page's prerequisite is access to a storage server that supports SFTP/SCP and public key authentication, and its steps specify that the Azure Incident Receiver uses SFTP storage. With Workflow Automation, the Filewatcher VM's information is used when configuring the SFTP storage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "Access to a storage server that supports Secure File Transfer Protocol (SFTP)/Secure Copy Protocol (SCP) and public key authentication.",
+            "Specify that your Azure Incident Receiver uses SFTP storage, then configure the storage server and public key authentication:",
+            "When you are using your Incident Receiver with Workflow Automation, use the information for your Filewatcher VM when configuring the SFTP storage."
+          ]
+        }
+      ]
+    },
+    "azure-ready-signal": {
+      "statement": "On Azure, when a prompt to change the zsroot password appears in the serial console output, the Incident Receiver is ready to be configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "When a prompt to change the zsroot password appears in the serial console output, the Incident Receiver is ready to be configured."
+          ]
+        }
+      ]
+    },
+    "azure-evidence-file-max": {
+      "statement": "The Azure deployment page says the policy-violating files can be a maximum of 100 MB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "The policy-violating files can be a maximum of 100 MB."
+          ]
+        }
+      ],
+      "gaps": [
+        "family-absences"
+      ]
+    },
+    "initial-login": {
+      "statement": "On the on-premises VM, the first login is as user zsroot, whose initial root password is randomly generated, and the password is changed with the sudo zirsvr change-password command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "Log in to the VM as user zsroot. The initial root password for this user is randomly generated.",
+            "sudo zirsvr change-password"
+          ]
+        }
+      ]
+    },
+    "sftp-settings": {
+      "statement": "On the on-premises VM, SFTP storage takes storage_sftp_fqdn (the storage server FQDN), storage_sftp_port (the upload port of the SFTP server), storage_dir (the storage server directory) and storage_sftp_username. The password is used temporarily and is not saved. If the SFTP server does not allow password-based authentication, an error says the service cannot update the public key on the server, and the contents of the file /.ssh/id_ed25519.pub are added to the end of /.ssh/authorized_keys on the SFTP server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "For storage_sftp_fqdn, enter the FQDN for the storage server.",
+            "For storage_sftp_port, enter the upload port of the SFTP server.",
+            "For storage_dir, enter the storage server directory.",
+            "For storage_sftp_username, enter a username for storage server login.",
+            "This password is used temporarily and is not saved.",
+            "If the SFTP server doesn't allow password-based authentication, you receive an error that the service is unable to update the public key on the server.",
+            "Copy the contents from the file /.ssh/id_ed25519.pub.",
+            "On the SFTP server, add the copied content to the end of the following file: /.ssh/authorized_keys."
+          ]
+        }
+      ]
+    },
+    "s3-settings": {
+      "statement": "On the on-premises VM, S3 setup asks whether the organization uses Zscaler Workflow Automation (y/n). It takes storage_s3_region_name, storage_s3_data_bucket_name and storage_s3_data_dir for data, and storage_s3_json_bucket_name and storage_s3_json_bucket_dir for the JSON files that contain incident details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "Specify whether your organization uses Zscaler Workflow Automation (y/n).",
+            "For storage_s3_region_name, enter the region where the S3 server resides (e.g., ap-east-1).",
+            "For storage_s3_data_bucket_name, enter the name of the S3 bucket where the Incident Receiver can store data.",
+            "For storage_s3_data_dir, enter the directory within the S3 bucket where the Incident Receiver can store data.",
+            "For storage_s3_json_bucket_name, enter the name of the S3 bucket where the Incident Receiver can store JSON files that contain incident details.",
+            "For storage_s3_json_bucket_dir, enter the directory within the S3 bucket where the Incident Receiver can store JSON files that contain incident details."
+          ]
+        }
+      ]
+    },
+    "startup-and-update": {
+      "statement": "On the on-premises page, if the service was configured successfully it automatically downloads the latest build before it starts. If it was configured properly it installs the specified certificate and checks whether the service is configured correctly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "If you have successfully configured the service, the service automatically downloads the latest build before it starts.",
+            "If the Zscaler Incident Receiver was configured properly, it performs the following actions:",
+            "Installs the certificate you specified",
+            "Checks if the service is configured correctly"
+          ]
+        }
+      ]
+    },
+    "health-check": {
+      "statement": "On the on-premises page the Incident Receiver Health Check is enabled by default and set to 5-minute intervals. A Health Status JSON file named <systmld>_<iphash>_ir_health_status_timestamp.json in the evidence folder verifies it, and disabling it requires contacting Zscaler Support. The page's example file has the keys ipAddress, version, updatedAt, systemId, lastIncidentReceivedAt, lastFileUploadSuccessAt, storageType, storageLocation and healthcheckIntervalInSec. The Azure page also sets the health check to 5 minute intervals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "By default, the Incident Receiver Health Check is enabled. The health check notes if there are any changes in behavior and is set to 5-minute intervals.",
+            "To verify the health check is working, you receive the Health Status JSON file <systmld>_<iphash>_ir_health_status_timestamp.json in your evidence folder.",
+            "If you would like to disable the health check, contact Zscaler Support.",
+            "{ \"ipAddress\":\"10.66.103.169\", \"version\":\"6.3.2404\", \"updatedAt\":\"1726848892\", \"systemId\":\"65533\", \"lastIncidentReceivedAt\":\"1726828921\", \"lastFileUploadSuccessAt\":\"1726828921\", \"storageType\": \"SFTP\", \"storageLocation\":\"/sc/temp\", \"healthcheckIntervalInSec\":\"300\" }"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "The health check notes if there are any changes in behavior and is set to 5 minute intervals."
+          ]
+        }
+      ]
+    },
+    "explicit-proxy": {
+      "statement": "On the on-premises page, in explicit proxy mode DNS and NTP connections are not tunneled, so an internal DNS server is needed. The Incident Receiver needs DNS resolution for the current Master CA IP address, the update server and the NTP server, and the host must resolve smcacluster.<cloudname>, update1.<cloudname>, update2.<cloudname> and zdistribute.<cloudname>. By default the VM has the FQDNs 0.freebsd.pool.ntp.org, 1.freebsd.pool.ntp.org and 2.freebsd.pool.ntp.org configured for NTP. Since the proxy configuration does not allow authentication, the proxy server must allow specific IP/MAC addresses without user and password authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode.",
+            "The Zscaler Incident Receiver needs to have DNS resolution for the current Master CA IP address, update server, and the NTP server.",
+            "smcacluster.<cloudname>",
+            "update1.<cloudname>",
+            "update2.<cloudname>",
+            "zdistribute.<cloudname>",
+            "By default, the VM has the following FQDNs for NTP servers configured:",
+            "0.freebsd.pool.ntp.org",
+            "1.freebsd.pool.ntp.org",
+            "2.freebsd.pool.ntp.org",
+            "since the proxy configuration doesn't allow authentication, you need to configure the proxy server to allow specific IP/MAC addresses without user and password authentication."
+          ]
+        }
+      ]
+    },
+    "mtls": {
+      "statement": "On the on-premises page, mutual authentication for the Incident Receiver is optional and uses an MTLS CA Certificate provided by Zscaler for client authentication. It is enabled by setting icap_mtls_enabled to 1, and by default this parameter is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "Zscaler provides the MTLS CA Certificate for the Zscaler Incident Receiver and you have the option to enable mutual authentication for the Zscaler Incident Receiver, which then uses this certificate for client authentication.",
+            "Enable MTLS by updating the icap_mtls_enabled parameter to 1 (icap_mtls_enabled=1). By default, this parameter is disabled."
+          ]
+        }
+      ]
+    },
+    "sftp-connections": {
+      "statement": "On the on-premises page, multiple simultaneous SFTP connections can be allowed if SFTP upload is slower than expected or the Incident Receiver internal queue is full, whose logs are at /sc/log/zirsvr.log. The storage_sftp_conn_max parameter takes a value from 1-16 and is 1 by default, and the page advises thorough end-to-end testing before enabling it in production. If that does not stop the queue filling up, the SFTP server may need higher specifications or multiple Incident Receivers may need to be configured with load balancing. The Azure page also gives the range one to 16 and the default of 1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "You can configure the Zscaler Incident Receiver VM to allow multiple simultaneous SFTP connections if you notice that SFTP upload is slower than expected or if you notice that the Zscaler Incident Receiver internal queue is full.",
+            "You can find the logs for the Incident Receiver internal queue at /sc/log/zirsvr.log.",
+            "Specify the number of simultaneous SFTP connections by updating the storage_sftp_conn_max parameter to a value from 1-16 (e.g., storage_sftp_conn_max=2). This parameter has a value of 1 by default.",
+            "Be sure to conduct thorough end-to-end testing before enabling this setting in your production environment.",
+            "If changing this setting does not solve the problem of the Zscaler Incident Receiver internal queue filling up, you might also need to increase the specifications on your SFTP server to ensure faster throughput, or you might need to configure multiple Incident Receivers with load balancing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+          "quotes": [
+            "Specify the number of simultaneous SFTP connections by updating the storage_sftp_conn_max parameter to a value from one to 16 (e.g., storage_sftp_conn_max=2). By default, this parameter has a value of 1."
+          ]
+        }
+      ]
+    },
+    "support-access": {
+      "statement": "On the on-premises page, an admin can allow Zscaler Support to log in to an Incident Receiver without opening a firewall connection for inbound traffic. The feature is disabled by default and must be enabled explicitly for the duration remote support assistance is required. sudo zirsvr support-access-start creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding, and sudo zirsvr support-access-stop and sudo zirsvr support-access-status stop it and check its status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "An admin can request remote assistance and allow Zscaler Support to log in to an Incident Receiver without having to open a firewall connection for inbound traffic.",
+            "This feature is disabled by default and must be enabled explicitly for the duration that remote support assistance is required.",
+            "sudo zirsvr support-access-start",
+            "This command creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding.",
+            "sudo zirsvr support-access-stop",
+            "sudo zirsvr support-access-status"
+          ]
+        }
+      ]
+    },
+    "ssh-key-ed25519": {
+      "statement": "On the on-premises page, sudo zirsvr troubleshoot can warn that SFTP is configured with the older key type rsa, and sudo zirsvr update-sshkey then creates an SSH key with ED25519 in the file authorized_keys under /home/zsroot/.ssh and adjusts /sc/conf/sc.conf to use it. If the SFTP server does not support ssh-copy-id, a message says the operation was unsuccessful, and updating the public key then requires contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "If you see the following warning, you must update your SSH key:",
+            "Warning: SFTP is configured with older key type \"rsa\", consider upgrading it to newer keytype \"ed25519\" using command \"sudo zirsvr update-sshkey\".",
+            "It creates an SSH key with ED25519 to the file authorized_keys under the directory /home/zsroot/.ssh.",
+            "It adjusts the file /sc/conf/sc.conf to use the new ED25519 key.",
+            "If your SFTP server doesn't support ssh-copy-id, you receive a message that the operation was unsuccessful. To update the SSH public key with the new ED25519 key, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "after": "Upgrade SSH Key to ED25519",
+          "quotes": [
+            "sudo zirsvr troubleshoot"
+          ]
+        }
+      ]
+    },
+    "expired-server-cert": {
+      "statement": "On the on-premises page, an expired-certificate error is fixed by installing a new server certificate: create a certificate signing request with sudo zirsvr create-server-cert-csr, send it to a well-known CA for signing, install it with sudo zirsvr install-server-cert, and restart the Incident Receiver with sudo zirsvr restart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "If you receive an error for an expired certificate, you must install a new server certificate.",
+            "| sudo zirsvr create-server-cert-csr | Creates a new server certificate to be downloaded to the Incident Receiver. |",
+            "Send the certificate to a well-known CA for signing.",
+            "| sudo zirsvr install-server-cert | Installs server certificates. |",
+            "Run the following command to restart the Incident Receiver and update the server certificate:",
+            "| sudo zirsvr restart | Restarts the Zscaler Incident Receiver service. |"
+          ]
+        }
+      ]
+    },
+    "commands-update": {
+      "statement": "In the on-premises page's command table, sudo zirsvr update-now updates the service and requires the service to be stopped first, while sudo zirsvr force-update-now forces an update to the latest version regardless of the version on the VM and stops the service automatically before the update begins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "| sudo zirsvr update-now | Updates the Zscaler Incident Receiver service. The service must be stopped before you can run this command. |",
+            "| sudo zirsvr force-update-now | Forces the Zscaler Incident Receiver service to update to the latest version regardless of what version is on the VM. The service is automatically stopped before the update begins. |"
+          ]
+        }
+      ]
+    },
+    "commands-diagnostics": {
+      "statement": "In the on-premises page's command table, sudo zirsvr troubleshoot runs checks such as the installed certificate, the zcloud server configuration, all services and whether an update is needed, and sudo zirsvr collect-diagnostics creates a file with diagnostic information to send to Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "| sudo zirsvr troubleshoot | Runs a series of checks to help troubleshoot issues, such as checking the installed certificate, the zcloud server configuration, all services, and whether or not an update is needed. |",
+            "| sudo zirsvr collect-diagnostics | Creates a file with diagnostic information to send to Zscaler Support for troubleshooting purposes. |"
+          ]
+        }
+      ]
+    },
+    "syslog-forwarding": {
+      "statement": "In the on-premises page's command table, sudo zirsvr configure-syslog-server configures external syslog server forwarding of SFTP file events and critical changes to the configuration files the Incident Receiver monitors, and the forwarding happens over UDP port 514, which cannot be modified. The EC2 page's command table also lists sudo zirsvr configure-s3, which updates the S3 bucket the Incident Receiver uses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver.json",
+          "quotes": [
+            "| sudo zirsvr configure-syslog-server | Configures external syslog server forwarding on the Zscaler Incident Receiver to forward file SFTP events",
+            "to log any critical changes to the configuration files monitored by the Incident Receiver.",
+            "The external syslog server forwarding happens over UDP port 514, which cannot be modified."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-incident-receiver-for-ec2.json",
+          "quotes": [
+            "| sudo zirsvr configure-s3 | Updates the S3 bucket used by the Incident Receiver. |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "explicit-proxy-command": {
+      "summary": "The on-premises page sets the explicit proxy with one command, while the EC2 and Azure pages use another.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-zscaler-incident-receiver.json",
+            "quotes": [
+              "sudo zirsvr configure-network"
+            ],
+            "after": "Run the Incident Receiver VM in Explicit Proxy Mode"
+          },
+          "says": "The on-premises page runs sudo zirsvr configure-network for explicit proxy mode, and its command table does not list a configure-proxy command."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-zscaler-incident-receiver-for-ec2.json",
+            "quotes": [
+              "sudo zirsvr configure-proxy"
+            ],
+            "after": "Run the Incident Receiver VM in Explicit Proxy Mode"
+          },
+          "says": "The EC2 page runs sudo zirsvr configure-proxy."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-zscaler-incident-receiver-azure-vms.json",
+            "quotes": [
+              "sudo zirsvr configure-proxy"
+            ],
+            "after": "Run the Incident Receiver VM in Explicit Proxy Mode"
+          },
+          "says": "The Azure page runs sudo zirsvr configure-proxy."
+        }
+      ],
+      "impact": "Which command sets an explicit proxy depends on which page is followed, and the on-premises command table does not list the EC2 and Azure command, so which platform accepts which command is unstated."
+    }
+  },
+  "gaps": {
+    "metadata-schema": {
+      "kind": "semantic",
+      "title": "The schema of the JSON scan-metadata file",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "listing the fields of the metadata JSON file",
+      "detail": "The deployment page links sample JSON files for several policy types, but the links were not captured, and no captured article describes the file's fields beyond naming the URL, collaborators, DLP dictionaries and DLP engines as examples."
+    },
+    "health-check-detail": {
+      "kind": "semantic",
+      "title": "What changes in behavior the health check notes and how a failed check surfaces",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying how a failed health check is detected",
+      "detail": "The page says the health check notes changes in behavior and writes a Health Status JSON file, but does not say what counts as a change or what happens when the check fails."
+    },
+    "flags-field": {
+      "kind": "semantic",
+      "title": "What the flags field of the Incident Receiver server type means",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/dlp-incident-receiver-servers#flags"
+      ],
+      "detail": "The help articles do not name or describe a flags property on the receiver object."
+    },
+    "ec2-collapsed-steps": {
+      "kind": "semantic",
+      "title": "The EC2 VM configuration steps",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "stating how the EC2 VM is launched and configured",
+      "detail": "In the capture of the EC2 page, the SFTP storage section and the steps to launch the instance, configure the VM and add an optional load balancer are headings with no body, probably collapsed content, so those steps cannot be stated from the capture."
+    },
+    "family-absences": {
+      "kind": "semantic",
+      "title": "Which deployment-page facts apply to the other platforms",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "extending a fact from one deployment page to the others",
+      "detail": "In the captures, only the on-premises page gives the Zscaler OS version 24 requirement, the remote Support access commands and the OVA MD5, only the Azure page gives the 100 MB maximum for violating files, and only the EC2 command table lists configure-s3, sudo zadp install-config and sudo zadp show-prov-blob. This was found by comparing the three captured pages; whether the other platforms share these facts is not stated."
+    },
+    "config-pages-not-captured": {
+      "kind": "semantic",
+      "title": "The config.zscaler.com pages the deployment pages point to",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "detail": "The Zscaler Hub IP address list under DLP Incident Receiver on config.zscaler.com and the DLP Incident Receiver Connections article are referenced by the deployment pages but are not captured."
+    }
+  }
+}

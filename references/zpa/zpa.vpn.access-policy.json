@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.access-policy",
+  "title": "VPN access policy rules: source, destination, default block, rule order and limits",
+  "aliases": [
+    "vpn access policy",
+    "vpn policy rules",
+    "vpn for legacy apps access policy",
+    "specific-match principle"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.policy-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.user-enablement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.access-rule-order"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} The application access policy is a different rule set: [[zpa.policy]]."
+    },
+    {
+      "label": "Evaluation.",
+      "text": "{{evaluation-and-default}} The first-match rule order of the application access policy is in [[zpa.policy.access-rule-order]]; the VPN page's term is open {{gap:specific-match-undefined}}. {{rule-order}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{rule-limit}}"
+    },
+    {
+      "label": "Writing a rule.",
+      "text": "{{source-destination}} Whether IdP attributes can also be a destination differs between the pages {{divergence:idp-as-destination}}. {{rule-fields}} The protocol choices are open {{gap:protocol-choices}}."
+    },
+    {
+      "text": "The reusable objects are in [[zpa.vpn.policy-objects]], the users in [[zpa.vpn.user-enablement]], the segments in [[zpa.vpn.network-segments]], the traffic counted per rule in [[zpa.vpn.diagnostics]] and the hub is [[zpa.vpn]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a new deployment has a rule that allows traffic through the VPN tunnel, since traffic that matches no rule is blocked by default.",
+      "uses": [
+        "evaluation-and-default"
+      ]
+    },
+    {
+      "do": "Whether an answer that puts IdP attributes in a destination rests on the pages that disagree.",
+      "uses": [
+        "idp-as-destination"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "VPN access policy rules enable allowing or blocking network traffic on VPN Service Edges. For the source, rules can be based on user identity by configuring client IP pools that are mapped to identity provider (IdP) attributes; for the destination, IP address objects can group CIDR blocks, IP addresses and FQDNs for use in multiple policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-access-policy.json",
+          "quotes": [
+            "VPN access policy rules enable you to allow or block network traffic on VPN Service Edges.",
+            "For the source, you can define rules based on user identity by configuring client IP pools that are mapped to identity provider (IdP) attributes.",
+            "For the destination, consider configuring IP address objects and grouping Classless Inter-Domain Routing (CIDR) blocks, IP addresses, and FQDNs that can be used in multiple policy rules to help organize network resources."
+          ]
+        }
+      ]
+    },
+    "evaluation-and-default": {
+      "statement": "VPN (for Legacy Apps) evaluates access policy rules using a top-down, specific-match principle. Traffic that doesn't match any access policy rule is blocked by default, so a new deployment must create a policy rule to allow traffic through the VPN tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-access-policy.json",
+          "quotes": [
+            "VPN (for Legacy Apps) evaluates access policy rules using a top-down, specific-match principle.",
+            "Traffic that doesn't match any access policy rule is blocked by default.",
+            "If you are new to VPN (for Legacy Apps), you must create a policy rule to allow traffic through the VPN tunnel."
+          ]
+        }
+      ]
+    },
+    "rule-limit": {
+      "statement": "VPN (for Legacy Apps) supports a maximum of 1,000 policy rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-access-policies.json",
+          "quotes": [
+            "VPN (for Legacy Apps) supports a maximum of 1,000 policy rules."
+          ]
+        }
+      ]
+    },
+    "source-destination": {
+      "statement": "For Source Networks, a rule takes either up to 64 IP addresses or IP subnets, which can be imported with Import LAN/Client Subnets or Address Book, or IdP attributes: a single attribute or multiple attributes from the same IdP, or a combination spanning different IdPs, which can be imported with Import IdP Attribute Object. For Destination Networks, the page lists IP addresses, where up to 64 IP addresses or IP subnets can be entered and Import LAN/Client Subnets or Address Book defines destinations from a predefined list, and it also lists IdP Attributes under Destination Networks (see the divergence idp-as-destination).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-access-policies.json",
+          "quotes": [
+            "A maximum of 64 IP addresses or IP subnets is allowed.",
+            "You can also click Import LAN/Client Subnets or Address Book to define sources from a predefined list.",
+            "You can build rules that rely on a single attribute or multiple attributes from the same IdP, or you use a combination of attributes spanning different IdPs.",
+            "You can also click Import IdP Attribute Object to apply a preconfigured set of IdP criteria."
+          ],
+          "after": "For Source Networks, choose one of the following:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-access-policies.json",
+          "quotes": [
+            "A maximum of 64 IP addresses or IP subnets is allowed.",
+            "You can also click Import LAN/Client Subnets or Address Book to define destinations from a predefined list.",
+            "You can build rules that rely on a single attribute or multiple attributes from the same IdP, or you use a combination of attributes spanning different IdPs."
+          ],
+          "after": "For Destination Networks, choose one of the following:"
+        }
+      ]
+    },
+    "rule-fields": {
+      "statement": "A rule takes an IP protocol (Protocols), an action of Allow, which allows access to the network, or Block, which blocks access to it, a name that cannot contain special characters except periods, hyphens and underscores, and a Rule Status of Enabled or Disabled. The rule table shows Source Ports and Destination Ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-access-policies.json",
+          "quotes": [
+            "Protocols: Select an IP protocol for communication.",
+            "Allow: Allows access to the network.",
+            "Block: Blocks access to the network.",
+            "Rule Status: Select Enabled or Disabled to activate or deactivate the rule.",
+            "The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-access-policy.json",
+          "quotes": [
+            "Source Ports: The port information of the source network.",
+            "Destination Ports: The port information of the destination network."
+          ]
+        }
+      ]
+    },
+    "rule-order": {
+      "statement": "Rule Order is the policy evaluation order number for the rule, and it can be changed by clicking the number and manually entering a new value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-access-policy.json",
+          "quotes": [
+            "Rule Order: The policy evaluation order number for the rule.",
+            "You can change the rule order by clicking the number and manually entering a new value."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "idp-as-destination": {
+      "summary": "The About page gives IdP attributes for the source and IP address objects for the destination; the Configuring page lists IdP Attributes under both Source Networks and Destination Networks.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-vpn-access-policy.json",
+            "quotes": [
+              "For the source, you can define rules based on user identity by configuring client IP pools that are mapped to identity provider (IdP) attributes."
+            ]
+          },
+          "says": "User identity through IdP attributes is given for the source; the destination text names IP address objects."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-vpn-access-policies.json",
+            "quotes": [
+              "You can build rules that rely on a single attribute or multiple attributes from the same IdP, or you use a combination of attributes spanning different IdPs."
+            ],
+            "after": "For Destination Networks, choose one of the following:"
+          },
+          "says": "The Configuring page repeats the IdP attribute text under Destination Networks."
+        }
+      ],
+      "impact": "Whether IdP attributes can be a destination is unconfirmed; the About page's destination guidance does not mention them."
+    }
+  },
+  "gaps": {
+    "specific-match-undefined": {
+      "kind": "semantic",
+      "title": "What the top-down, specific-match principle means for VPN access policy",
+      "status": "open",
+      "detail": "The About page says rules are evaluated top-down on a specific-match principle but does not define specific-match, and it is not stated whether this equals first match as in the application access policy.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "protocol-choices": {
+      "kind": "semantic",
+      "title": "Which IP protocols a VPN access policy rule can select",
+      "status": "open",
+      "detail": "The Configuring page says to select an IP protocol for communication without listing the choices; the Diagnostics pages show only TCP or UDP for traffic.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

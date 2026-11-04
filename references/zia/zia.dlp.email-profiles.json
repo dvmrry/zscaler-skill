@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.email-profiles",
+  "title": "DLP domain profiles and recipient profiles",
+  "aliases": [
+    "domain profile",
+    "domain profiles",
+    "recipient profile",
+    "recipient profiles",
+    "email profiles"
+  ],
+  "binds": [],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email-tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Domain profiles and recipient profiles are reusable groupings that DLP policy rules include or exclude. {{domain-profile-what}} {{domain-profile-fields}} {{recipient-profile-what}} {{recipient-profile-fields}} {{email-profiles-term}} Outbound email rules take up to 8 of each, in [[zia.dlp.outbound-email-policy]]. No limit on the number of profiles or entries per profile is stated {{gap:profile-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a domain profile that a rule uses includes the Organization Profile domains, since that option adds them automatically.",
+      "uses": [
+        "domain-profile-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "domain-profile-what": {
+      "statement": "Domain profiles are used as part of Zscaler's Data Loss Prevention tools to detect and take action on sensitive data across multiple channels. They group organizational domains, custom domains and personal email providers into a single entity that is applied to policy rules, and editing a profile updates all policy rules where it is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-domain-profiles.json",
+          "quotes": [
+            "Domain profiles let you create and manage profiles that can be used as part of Zscaler's Data Loss Prevention (DLP) tools to detect and take action on sensitive data across multiple channels.",
+            "Domain profiles let you group organizational domains, custom domains, and personal email providers into a single entity that can then be applied to policy rules.",
+            "Easily edit domain profiles to update all policy rules where the profiles are used."
+          ]
+        }
+      ]
+    },
+    "domain-profile-fields": {
+      "statement": "A domain profile has a Profile Name, Top Personal Email Service Providers chosen from a list, and Custom Domains entered separated by line breaks. Enabling Include Organizational Domains automatically includes the domains in the Organization Profile. An optional description cannot exceed 256 characters. The list shows each profile's recipient domains, and profiles can be edited, duplicated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-domain-profiles.json",
+          "quotes": [
+            "Profile Name: Enter a name for the domain profile.",
+            "Top Personal Email Service Providers: Select from a list of email service providers to include.",
+            "Include Organizational Domains: Enabling this option automatically includes the domains listed in your Organization Profile.",
+            "Custom Domains: Enter one or more domain names separated by line breaks, then click Add.",
+            "Description (Optional): Enter additional notes or information. The description cannot exceed 256 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-domain-profiles.json",
+          "quotes": [
+            "Recipient Domains: The recipient domains associated with each profile.",
+            "Edit, duplicate, or delete a domain profile."
+          ]
+        }
+      ]
+    },
+    "recipient-profile-what": {
+      "statement": "Recipient profiles help detect and manage sensitive data being sent to specific people, and are part of Zscaler's Data Loss Prevention tools for policy rules across multiple channels. The page says they manage individual users and groups to include in or exclude from outbound email policy rules, and editing one updates all policy rules where it is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-recipient-profiles.json",
+          "quotes": [
+            "Recipient profiles help your organization detect and manage sensitive data being sent to specific people.",
+            "They are part of Zscaler's Data Loss Prevention (DLP) tools to use in policy rules that detect and take action on sensitive data across multiple channels.",
+            "Manage individual users and groups that you want to include or exclude from outbound email policy rules.",
+            "Easily edit recipient profiles to update all policy rules where the profiles are used."
+          ]
+        }
+      ]
+    },
+    "recipient-profile-fields": {
+      "statement": "A recipient profile has recipient email addresses entered separated by line breaks, and an optional description that cannot exceed 256 characters. Editing offers deleting a recipient email address, and profiles can be edited, duplicated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-recipient-profiles.json",
+          "quotes": [
+            "Recipients: Enter one or more recipient email addresses separated by line breaks, then click Add.",
+            "Description (Optional): Enter additional notes or information. The description cannot exceed 256 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-recipient-profiles.json",
+          "quotes": [
+            "Recipient Emails: Delete a recipient email address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-recipient-profiles.json",
+          "quotes": [
+            "Edit, duplicate, or delete a recipient profile."
+          ]
+        }
+      ]
+    },
+    "email-profiles-term": {
+      "statement": "The Outbound Email DLP configuration guide calls domain profiles and recipient profiles together email profiles, which give the flexibility to apply policy actions to specific domains, users, groups and departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-step-step-configuration-guide-zscaler-outbound-email-dlp.json",
+          "quotes": [
+            "Email profiles, which consist of domain profiles and recipient profiles, give you the flexibility to apply policy actions to specific domains, users, groups, and departments."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "profile-limits": {
+      "kind": "semantic",
+      "title": "Limits on domain and recipient profiles",
+      "status": "open",
+      "detail": "The profile articles give no limit on the number of profiles or on domains or recipients per profile, and do not describe the includeSubdomains type field on the domain profile object. The profile articles name Data at Rest Scanning DLP and Outbound Email Policy as users of domain profiles; other uses are not listed.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

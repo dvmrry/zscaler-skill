@@ -1,0 +1,357 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.network-connectors.deployment",
+  "title": "Network Connector platforms, sizing, prerequisites, firewall and install (VPN for Legacy Apps)",
+  "related": [
+    { "rel": "see-also", "to": "zpa.vpn" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors.enrollment" },
+    { "rel": "see-also", "to": "zpa.vpn.redundancy" },
+    { "rel": "see-also", "to": "zpa.app-connectors.deployment" }
+  ],
+  "prose": [
+    {
+      "text": "{{platforms}} {{sizing}} The recommended memory and the minimum AWS instance size on the same page do not obviously agree {{gap:memory-sizing}}. {{vmware-reservation}} {{aws-minimum-instance}}"
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{platform-prereqs}} {{tunnels-and-ports}} {{security}}"
+    },
+    {
+      "label": "Firewall.",
+      "text": "{{firewall}}"
+    },
+    {
+      "label": "Install.",
+      "text": "{{rpm-install}} {{static-ip}} {{esxi-version}} The Linux guide's step headings and intro sentence lose the component name in the capture {{gap:component-names-missing}}."
+    },
+    {
+      "label": "VMware.",
+      "text": "{{vmware-vcenter}} {{vmware-standalone}}"
+    },
+    {
+      "label": "AWS.",
+      "text": "{{aws-placement}} {{aws-ssh}} {{aws-autoscaling}}"
+    },
+    {
+      "label": "Other platforms.",
+      "text": "GCP and Azure marketplace images are listed, but the area has no deployment guide for either {{gap:gcp-azure-guides}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before quoting a Network Connector memory requirement, give the 4 GB recommendation, the 8 GB VMware reservation and the 32 GiB AWS minimum instance together, and note the page does not reconcile them.",
+      "uses": ["sizing", "vmware-reservation", "aws-minimum-instance", "memory-sizing"]
+    },
+    {
+      "do": "Before advising on the firewall in front of a Network Connector, check TLS interception is off and *.prod.zpath.net is in the SSL bypass list.",
+      "uses": ["firewall"]
+    }
+  ],
+  "claims": {
+    "platforms": {
+      "statement": "The software-by-platform page says Network Connectors are supported on Linux operating systems. It lists a VMware OVA, and Private Access marketplace entries for AWS, GCP and Microsoft Azure. It says an RPM package is supported for RHEL 9-based Network Connector deployments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-software-platform.json",
+          "quotes": [
+            "Network Connectors are supported on Linux operating systems.",
+            "| VMware | OVA OVA checksum |",
+            "| Amazon Web Services (AWS) | Private Access - AWS Marketplace |",
+            "| Google Cloud Platform (GCP) | Private Access - GCP Marketplace |",
+            "| Microsoft Azure | Private Access - Azure Marketplace |",
+            "The following RPM package is supported for RHEL 9-based Network Connector deployments:"
+          ]
+        }
+      ]
+    },
+    "sizing": {
+      "statement": "The prerequisites article says Zscaler recommends, for each Network Connector, 4 GB RAM and 2 CPU cores (Xeon E5 class) for physical machines without hyperthreading. For virtual machines with hyperthreading it recommends 8 cores (Xeon E5 class), with a minimum of 4. It recommends a minimum CPU benchmark score of 2640 with the Intel AES-NI instruction set enabled, 64 GB thin-provisioned disk for all deployment platforms, and a minimum of 1 NIC. With these specifications each Network Connector supports up to 500 Mbps of throughput.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Memory: 4 GB RAM",
+            "2 CPU cores (Xeon E5 class) for physical machines without hyperthreading",
+            "8 CPU cores (Xeon E5 class) recommended for virtual machines (VMs) with hyperthreading; minimum 4 CPU cores (Xeon E5 class) for VMs with hyperthreading",
+            "Zscaler recommends using a minimum CPU benchmark score of 2640 when choosing a CPU processor.",
+            "The Intel Advanced Encryption Standard New Instructions (AES-NI)",
+            "set must also be enabled on the CPU processor.",
+            "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+            "Network Card: 1 NIC (minimum)",
+            "Using these specifications, each Network Connector supports up to 500 Mbps of throughput."
+          ]
+        }
+      ]
+    },
+    "vmware-reservation": {
+      "statement": "For VMware platform deployment, the prerequisites article says the default configuration that lets the host allocate VM resources dynamically is not recommended. The VM setting should reserve 8 GB RAM and a total CPU GHz equal to the number of cores (2 or 8) multiplied by the GHz per core.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "For VMware platform deployment, the default configuration to allow the host to dynamically allocate VM resources is not recommended.",
+            "Memory: 8 GB RAM",
+            "CPU: total CPU GHz (the number of cores (2 or 8 cores) multiplied by the GHz per core)"
+          ]
+        }
+      ]
+    },
+    "aws-minimum-instance": {
+      "statement": "The prerequisites article says the minimum instance size can support an AWS instance size of 8 vCPU, 32 GiB memory, EBS-only instance storage and up to 10 Gbps network bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Network Connector is sized appropriately. The minimum instance size can support an AWS instance size of:",
+            "- vCPU: 8",
+            "Memory (GiB): 32",
+            "Instance Storage (GB): EBS-Only",
+            "Network Bandwidth (Gbps): Up to 10"
+          ]
+        }
+      ]
+    },
+    "tunnels-and-ports": {
+      "statement": "After a Network Connector is enrolled, an outbound TLS tunnel over port 443 is established to the Private Access cloud, and outbound VPN tunnels to the VPN Service Edge use the port range 51820 to 53000; software upgrades are completed on a weekly schedule. The prerequisites require TCP 443 to all Public Service Edges and an outbound connection to the VPN Service Edge's IP address on UDP 51820 to 53000 that is not blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "After a Network Connector is enrolled, an outbound TLS tunnel over port 443 is established to the Private Access (ZPA) cloud infrastructure. Outbound VPN tunnels establish a gateway to VPN Service Edge using a port range from 51820 to 53000.",
+            "(upgrades are completed based on a weekly schedule)",
+            "Network Connector can connect to the Zero Trust Network Access Service Edge - TCP port 443 for all Public Service Edges",
+            "An outbound connection to the VPN Service Edges IP address on the UDP port range from 51820 to 53000 must be allowed, not blocked."
+          ]
+        }
+      ]
+    },
+    "platform-prereqs": {
+      "statement": "The prerequisites list an Intel x86_64/AMD64-based architecture, systemd, root or sudo access to configure a new package repository and install packages, DNS resolution and network access, a static MAC address, and either an OAuth 2.0 enrollment token or a Network Connector provisioning key. The gateway IP address is available in the Admin Console after a gateway instance is instantiated in VPN Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Intel x86_64/AMD64-based architecture",
+            "- systemd",
+            "Root or sudo access to the system to configure a new package repository and install packages",
+            "DNS resolution and network access",
+            "A static MAC address",
+            "An OAuth 2.0 enrollment token obtained from a hyperscaler marketplace or virtual image provided by Zscaler, or a Network Connector provisioning key obtained from the Zscaler Admin Console",
+            "Gateway IP address is available in the Zscaler Admin Console after you instantiate a gateway instance in VPN Service Edges."
+          ]
+        }
+      ]
+    },
+    "security": {
+      "statement": "Zscaler recommends treating access to Network Connectors as privileged so only authorized personnel can reach a connector's console, and patching the OS regularly or protecting Network Connectors with firewall policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends treating access to Network Connectors as privileged, so only authorized personnel can access a Network Connector's console.",
+            "Zscaler recommends patching the OS on a regular basis or protecting Network Connectors using firewall policies."
+          ]
+        }
+      ]
+    },
+    "firewall": {
+      "statement": "All Zscaler data centers containing Public Service Edges must be allowed, because a partial firewall configuration can cause connectivity problems for end users, and Zscaler's policy is a 90-day notice for activating additional IP CIDR ranges. Because the service enforces TLS certificate pinning, all inline or man-in-the-middle TLS interception must be disabled, Network Connectors do not function if the certificates the Service Edges present do not verify against Zscaler-trusted public keys, and *.prod.zpath.net should be in the SSL bypass list for traffic from the Network Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "All Zscaler data centers containing Public Service Edges must be allowed. A partial firewall configuration can result in connectivity problems for end users.",
+            "Zscaler's policy is to provide a 90-day notice for activating additional IP CIDR ranges",
+            "Because the service enforces TLS certificate pinning for both client and server certificates, all forms of inline or man-in-the-middle TLS interception or inspection must be disabled.",
+            "Network Connectors do not function if the TLS certificates presented by the Public Service Edges or Private Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+            "So ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the Network Connector."
+          ]
+        }
+      ]
+    },
+    "rpm-install": {
+      "statement": "The Linux guide's RPM install configures a repository at https://yum.private.zscaler.com/yum/el9 with gpgcheck=1, installs the np-connector package with yum, and has the reader check that the GPG fingerprint matches a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd. It says a proxy environment needs the proxy server IP address and port configured in /etc/yum.conf, and its steps include setting net.ipv4.ip_forward = 1 and adding the npwg0 interface to the public firewalld zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-linux.json",
+          "quotes": [
+            "[zscaler] name=Zscaler Private Access Repository baseurl=https://yum.private.zscaler.com/yum/el9 enabled=1 gpgcheck=1 gpgkey=https://yum.private.zscaler.com/yum/el9/gpg",
+            "[admin@np-connector ~]$ sudo yum install np-connector"
+          ],
+          "after": "If the can download the RPM package:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-linux.json",
+          "quotes": [
+            "ensure that the GPG fingerprint matches, a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd",
+            "If you have a proxy environment, you need to configure the proxy server IP address and proxy port in /etc/yum.conf.",
+            "net.ipv4.ip_forward = 1",
+            "sudo firewall-cmd --zone=public --permanent --add-interface=npwg0"
+          ]
+        }
+      ]
+    },
+    "static-ip": {
+      "statement": "The VMware guide says the Network Connector must be configured with a static private IP address and cannot be configured with a dynamic one. The Linux guide's networking section lists DHCP IP addressing for the App Connector, Private Service Edge or Private Cloud Controller, and static IP addressing for all software components.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "The Network Connector must be configured with a static private IP address.",
+            "You cannot configure a Network Connector with a dynamic IP address."
+          ],
+          "after": "Deploying on VMware vCenter"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-linux.json",
+          "quotes": [
+            "Configure DHCP IP Addressing (App Connector, Private Service Edge, or Private Cloud Controller)",
+            "Configure Static IP Addressing (all software components)"
+          ]
+        }
+      ]
+    },
+    "esxi-version": {
+      "statement": "The Linux guide says RHEL 9 deployments are only supported on ESXi 7.0 Update 2 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-linux.json",
+          "quotes": [
+            "RHEL 9 deployments are only supported on ESXi 7.0 Update 2 or later."
+          ]
+        }
+      ]
+    },
+    "vmware-vcenter": {
+      "statement": "For VMware vCenter, the VMware guide requires vCenter version ESXi 7.0 Update 2 or later. The OVA is deployed with Thin Provision as the virtual disk format and with Power on after deployment not selected. Before powering on, the vApp Options set OVF environment transport to the VMware Tools checkbox and Installation boot to Enable, and the guide says to verify the VMware machine's local time and update it with Network Time Protocol if wrong.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "VMware vCenter version ESXi 7.0 Update 2 or later.",
+            "choose Thin Provision for the virtual disk format",
+            "ensure that the Power on after deployment checkbox is not selected, then click Finish.",
+            "After the deployment has successfully completed, ensure that the VM has not been powered on before proceeding to the next step.",
+            "In the Edit Settings window, select the vApp Options tab.",
+            "For OVF environment transport, select the VMware Tools checkbox.",
+            "For Installation boot, select the Enable checkbox.",
+            "Verify the local time on the VMware machine is correct. If not, update the time using Network Time Protocol."
+          ],
+          "after": "Deploying on VMware vCenter"
+        }
+      ]
+    },
+    "vmware-standalone": {
+      "statement": "For VMware vSphere Hypervisor (ESXi), the VMware guide says the standalone vSphere Hypervisor edition is not able to parse the extended OVF attributes that allow the provisioning key to be provided during deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "the standalone vSphere Hypervisor edition is not able to parse the extended OVF attributes that allow you to provide the Network Connector provisioning key during deployment."
+          ],
+          "after": "Deploying on VMware vSphere Hypervisor (ESXi)"
+        }
+      ]
+    },
+    "aws-placement": {
+      "statement": "The AWS guide says Network Connectors must be deployed in the customer's Virtual Private Clouds, with a pair per VPC for resilience and scalability, deployed across availability zones, and that Zscaler automatically load balances across them. Their security group should accept incoming connections from Client Connector and the VPN Service Edge, permit inbound and outbound access on port 443, and allow inbound SSH. Choosing Disable for Auto-assign Public IP, which assigns a private IP address, is recommended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "For AWS, you must deploy Network Connectors in your Virtual Private Clouds (VPCs). For each VPC, there should be a pair of Network Connectors deployed for resilience and scalability.",
+            "The Network Connectors should be deployed across availability zones to ensure continuity of service in the event of an incident. Zscaler automatically load balances across the Network Connectors.",
+            "Network Connectors should be in appropriate security groups to accept incoming connections from Zscaler Client Connector and VPN Service Edge. The Network Connector's security group should permit inbound and outbound access on port 443.",
+            "The security group should allow inbound SSH to the AWS EC2 instance.",
+            "Auto-assign Public IP: Choose Disable to assign a private IP address (recommended) to the Network Connector."
+          ]
+        }
+      ]
+    },
+    "aws-ssh": {
+      "statement": "The AWS guide has the reader update the Network Connector's security group to temporarily allow inbound access on port 22, and then disable inbound access on port 22 for that security group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Update the security group associated with the Network Connector to temporarily allow inbound access on port 22",
+            "In AWS, make sure you disable inbound access on port 22 for the security group associated with the Network Connector."
+          ]
+        }
+      ]
+    },
+    "aws-autoscaling": {
+      "statement": "The AWS guide's auto scaling example selects 2 subnets, a desired capacity of 2, and a metric of Average CPU Utilization with a target value of 50. It says each Network Connector is capable of passing 400 to 500 Mbps, and that this limit is reached at about 50% CPU utilization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Availability Zones and subnet: Select 2 subnets from the drop-down menu.",
+            "Desired capacity: Enter 2 for the initial number of instances to launch.",
+            "Metric type: Select Average CPU Utilization from the drop-down menu.",
+            "Target value: Enter 50.",
+            "Each Network Connector is capable of passing 400 to 500 Mbps traffic. An additional Network Connector can be added when this limit is reached, which occurs when the Network Connector runs at about 50% CPU utilization."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "memory-sizing": {
+      "kind": "semantic",
+      "title": "How the 4 GB RAM recommendation relates to the 32 GiB minimum AWS instance",
+      "status": "open",
+      "detail": "The prerequisites article recommends 4 GB RAM and a VMware reservation of 8 GB RAM, and in the same article says the minimum instance size can support an AWS instance of 8 vCPU and 32 GiB memory. The page does not say whether the instance figure is a sizing minimum or an example, or how it relates to the recommended specification.",
+      "resolves_with": ["support-ticket", "source-read"]
+    },
+    "component-names-missing": {
+      "kind": "semantic",
+      "title": "Which component the Linux guide's intro and Step 3 name",
+      "status": "open",
+      "detail": "The captured Linux guide reads 'how to deploy a on Red Hat Enterprise Linux 9.x' and 'Step 3: Deploy the on Red Hat Enterprise Linux 9', with the component name missing, presumably a help-site variable. The text is not filled in here. The same captures show a corrupted word in the AES-NI sentence of the sizing text.",
+      "resolves_with": ["source-read"]
+    },
+    "gcp-azure-guides": {
+      "kind": "semantic",
+      "title": "Network Connector deployment guides for GCP and Azure",
+      "status": "open",
+      "detail": "The software-by-platform page lists GCP and Azure marketplace entries, but no captured article in the VPN (for Legacy Apps) category deploys a Network Connector on either. For Azure, the redundancy guide gives only an IP forwarding setting.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

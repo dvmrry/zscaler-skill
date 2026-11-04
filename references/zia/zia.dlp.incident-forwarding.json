@@ -50,6 +50,18 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.dlp.incident-receiver"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.icap-receivers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.cloud-to-cloud-forwarding"
+    },
+    {
+      "rel": "see-also",
       "to": "zia.terraform.data-source-fidelity"
     },
     {
@@ -67,11 +79,11 @@
     },
     {
       "label": "Third-party DLP over ICAP.",
-      "text": "{{icap-one-way}} {{icap-needs-matching-rule}}"
+      "text": "{{icap-one-way}} {{icap-needs-matching-rule}} The ICAP URI, the FCC cloud and mTLS are in [[zia.dlp.icap-receivers]]."
     },
     {
       "label": "Incident Receiver and Cloud-to-Cloud.",
-      "text": "{{incident-receiver}} {{cloud-to-cloud}} {{c2c-api}} The rule's `receiver` field carries which of these a rule uses ([[zia.dlp.rule-wire-shape]]). The Cloud-to-Cloud data source exposes credentials as plain strings, covered in [[shared.terraform.credential-handling]]."
+      "text": "{{destinations-by-rule-type}} {{incident-receiver}} {{ir-only-without-icap-server}} Its deployment on a VM is in [[zia.dlp.incident-receiver]]. {{cloud-to-cloud}} Onboarding AWS, Google Cloud and Azure storage is in [[zia.dlp.cloud-to-cloud-forwarding]]. {{c2c-api}} The rule's `receiver` field carries which of these a rule uses ([[zia.dlp.rule-wire-shape]]). The Cloud-to-Cloud data source exposes credentials as plain strings, covered in [[shared.terraform.credential-handling]]."
     },
     {
       "label": "Supporting objects.",
@@ -135,10 +147,73 @@
         }
       ]
     },
-    "incident-receiver": {
-      "statement": "A Zscaler Incident Receiver is another optional destination, for content that triggers an outbound email policy rule, reached via secure ICAP, and Zscaler does not take ICAP responses from it either.",
+    "destinations-by-rule-type": {
+      "statement": "ICAP receivers are specified on Inline Web DLP policy rules. A Zscaler Incident Receiver can be added to a DLP policy rule with content inspection, without content inspection, or Data at Rest Scanning DLP, and an outbound email policy rule can select one. Cloud-to-Cloud Incident Forwarding configurations apply to policy rules for Inline Web DLP, Data at Rest Scanning DLP, Outbound Email DLP and Endpoint DLP.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-icap-receivers-dlp.json",
+          "quotes": [
+            "Specify ICAP receivers on your Inline Web DLP policy rules."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "you can add it to a DLP policy rule (with content inspection, without content inspection, or Data at Rest Scanning DLP) as a DLP Incident Receiver."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "after": "- 6. Define your policy rules.",
+          "quotes": [
+            "Zscaler Incident Receiver: Select the applicable Zscaler Incident Receiver from the drop-down menu. You must configure your Zscaler Incident Receivers to complete this step."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-cloud-incident-forwarding.json",
+          "quotes": [
+            "Apply Cloud-to-Cloud Incident Forwarding configurations to policy rules for Inline Web DLP, Data at Rest Scanning DLP, Outbound Email DLP, and Endpoint DLP."
+          ]
+        }
+      ]
+    },
+    "ir-only-without-icap-server": {
+      "statement": "The Zscaler Incident Receiver is only available for organizations that do not already own an ICAP server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "The Incident Receiver is only available for organizations that do not already own an ICAP server."
+          ]
+        }
+      ]
+    },
+    "incident-receiver": {
+      "statement": "A Zscaler Incident Receiver can be added to a DLP policy rule as a DLP Incident Receiver, and the web DLP article also offers it as an optional destination for content that triggers an outbound email policy rule, reached via secure ICAP. Zscaler does not take ICAP responses from it either.",
+      "tier": "A",
+      "conditions": "The web DLP content-inspection article's Incident Receiver sentence and the outbound email rule article's step carry the same sentence, so the web DLP article may be a copy of the outbound step rather than independent support for outbound email scope.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-zscaler-incident-receiver.json",
+          "quotes": [
+            "you can add it to a DLP policy rule (with content inspection, without content inspection, or Data at Rest Scanning DLP) as a DLP Incident Receiver."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-outbound-email-policy-rules.json",
+          "quotes": [
+            "Zscaler does not take ICAP responses from your Incident Receiver; instead, the service only monitors or blocks content according to the policy you configure, then forwards information about activities so that your organization can take necessary remediation steps."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-content-inspection.json",

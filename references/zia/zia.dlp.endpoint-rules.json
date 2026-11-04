@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.endpoint-rules",
+  "title": "Endpoint DLP policy rules: channels, criteria, actions (Allow, Block, Confirm, Protect) and notifications",
+  "aliases": [
+    "endpoint dlp rule",
+    "endpoint dlp channel",
+    "endpoint dlp confirm action",
+    "endpoint dlp protect",
+    "zenc",
+    "lost and found",
+    "application file access",
+    "endpoint dlp clipboard"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-forwarding"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.engines",
+      "because": "zia.dlp.endpoint-rules:content-matching"
+    },
+    {
+      "rel": "depends-on",
+      "to": "zia.dlp.endpoint-resources",
+      "because": "zia.dlp.endpoint-resources:resource-types"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{channels}} {{policy-page-columns}}"
+    },
+    {
+      "label": "Who and where.",
+      "text": "{{who-criteria}} {{user-risk-levels}} {{where-criteria}}"
+    },
+    {
+      "label": "Content.",
+      "text": "{{content-matching}} {{file-size-limit}} {{minimum-data-size}}"
+    },
+    {
+      "label": "Channel targets.",
+      "text": "{{channel-target-fields}} {{application-file-access-semantics}} Which direction a Clipboard rule monitors is disputed {{divergence:clipboard-direction}}. Resources and tags are in [[zia.dlp.endpoint-resources]]."
+    },
+    {
+      "label": "Actions.",
+      "text": "{{actions-allow-block-confirm}} {{block-without-source-path}} {{protect-action}} {{protect-decrypt-paths}} How the actions rank is open {{gap:action-ranking-ref}}, and so are the API wire values for the newer channels and these actions {{gap:wire-values}}."
+    },
+    {
+      "label": "Details and notifications.",
+      "text": "{{details-limits}} {{notifications}}"
+    },
+    {
+      "text": "Rule selection when several rules match is in [[zia.dlp.endpoint-enforcement]]. Forwarding after a match is in [[zia.dlp.incident-forwarding]]."
+    }
+  ],
+  "claims": {
+    "channels": {
+      "statement": "An Endpoint DLP rule's Channel selects whether the rule applies to Printing, Removable Storage, Network Share, Personal Cloud Storage, Application File Access, or Clipboard. To access the Application File Access and Clipboard features, the page says to contact the Zscaler Account team. An exception rule's Channel is inherited from the parent rule and cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "quotes": [
+            "Channel: Select whether the rule applies to Printing, Removable Storage, Network Share, Personal Cloud Storage, Application File Access, or Clipboard.",
+            "To access the Application File Access and Clipboard features, contact your Zscaler Account team.",
+            "Channel: This field is inherited from the parent rule and cannot be changed."
+          ]
+        }
+      ]
+    },
+    "policy-page-columns": {
+      "statement": "The Endpoint DLP policy page describes its Channel column as the rule's resource channel (Printing, Removable Storage Devices, Network Share, or Personal Cloud Storage), its Exceptions column as the number of exceptions associated with the rule, its Action column as Allow, Block, or Confirm, and its Severity column as High, Medium, Low, or Information. One or more labels can be selected from the Rule Label drop-down menu to filter the table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-dlp.json",
+          "quotes": [
+            "Channel: The policy rule's resource channel (i.e., Printing, Removable Storage Devices, Network Share, or Personal Cloud Storage).",
+            "Exceptions: The number of exceptions associated with the rule.",
+            "Action: The action taken when the rule is triggered (i.e., Allow, Block, or Confirm).",
+            "Severity: The severity assigned to the rule (i.e., High, Medium, Low, or Information).",
+            "Select one or more labels from the Rule Label drop-down menu to filter results in the table."
+          ]
+        }
+      ]
+    },
+    "who-criteria": {
+      "statement": "For the DLP rule to trigger, the Zscaler service must detect at least one of the rule's selected users, groups, or departments. For User Risk Profile, selecting no value ignores the criterion in the policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments.",
+            "User Risk Profile: Select the user risk score levels to which the rule applies. Selecting no value ignores this criterion in the policy evaluation."
+          ]
+        }
+      ]
+    },
+    "user-risk-levels": {
+      "statement": "The User Risk Profile levels are Low (user risk scores 0 to 29), Medium (30 to 59), High (60 to 79) and Critical (80 to 100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Low: Level with user risk scores ranging from 0 to 29",
+            "Medium: Level with user risk scores ranging from 30 to 59",
+            "High: Level with user risk scores ranging from 60 to 79",
+            "Critical: Level with user risk scores ranging from 80 to 100"
+          ]
+        }
+      ]
+    },
+    "where-criteria": {
+      "statement": "A rule selects Devices and Device Groups (Any includes all) and Device Trust Level (High Trust, Medium Trust, Low Trust, or Unknown); the trust levels assigned to the devices are based on the posture configurations in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Devices: From the drop-down menu, select one or more devices that the rule applies to. To include all devices, select Any.",
+            "Device Groups: From the drop-down menu, select one or more device groups that the rule applies to. To include all device groups, select Any.",
+            "Device Trust Level: Select the necessary device trust levels (High Trust, Medium Trust, Low Trust, or Unknown). The trust levels assigned to the devices are based on your posture configurations in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "content-matching": {
+      "statement": "Content Matching selects up to 4 DLP engines. If None is selected, the Zscaler service does not use DLP engines to scan the content and instead functions as a filter, only flagging content based on the criteria specified. The list of available file types changes based on whether DLP engines are used for content inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Content Matching: Choose Select DLP Engines to select up to 4 engines.",
+            "If you select None, then the Zscaler service doesn't use DLP engines to scan the content; instead, the service functions as a filter, only flagging content based on the criteria you specify.",
+            "The list of available file types changes based on whether you're using DLP engines for content inspection."
+          ]
+        }
+      ]
+    },
+    "file-size-limit": {
+      "statement": "The Endpoint DLP policy rules article says the Zscaler DLP engines support files up to 100 MB, and that the maximum size also applies to files extracted from archive files. The other articles' figures are in zia.dlp.inspection-limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "quotes": [
+            "The Zscaler DLP engines support files up to 100 MB. The maximum size also applies to files extracted from archive files."
+          ]
+        }
+      ]
+    },
+    "minimum-data-size": {
+      "statement": "The default minimum data size, 0 KB, means there is no minimum data size requirement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "The default minimum data size, 0 KB, means there is no minimum data size requirement."
+          ]
+        }
+      ]
+    },
+    "actions-allow-block-confirm": {
+      "statement": "Allow allows and logs the activity and Block blocks and logs it. With Confirm the user can either justify the activity to continue or cancel it, and the service logs the activity in both cases. Confirm is supported only for the Removable Storage, Network Share, Printing, and Personal Cloud Storage channels; with the Printing channel, end users on macOS get a prompt to justify the activity but cannot cancel it, and the service monitors and reports the activity instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Allow: The service allows and logs the activity.",
+            "Block: The service blocks and logs the activity.",
+            "Confirm: The user can either justify the activity to continue, or cancel the activity altogether; in both cases, the Zscaler service logs the activity accordingly.",
+            "The Confirm action is supported only for the Removable Storage, Network Share, Printing, and Personal Cloud Storage channels.",
+            "If you select the Confirm action when the Channel is Printing, end users on macOS receive a prompt to justify the activity, but they can't cancel the action. Instead, the Zscaler service monitors and reports the activity."
+          ]
+        }
+      ]
+    },
+    "block-without-source-path": {
+      "statement": "On Removable Storage and Network Share, if a user saves a file directly to a destination without a detectable source path (for example with Save As in Word), the service does not block the operation. It creates a placeholder file and notifies the user that the original is in a Lost & Found location: /ProgramData/Zscaler/ZDP/User Files/<username>/Lost and Found/ on Windows or /Library/Application Support/Zscaler/ZDP/User Files/<username>/Lost and Found/ on macOS. For Personal Cloud Storage the placeholder ensures the service does not repeatedly block the sync attempts for the original file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Removable Storage and Network Share: If a user saves a file directly to a destination without a detectable source path (e.g., a user in Microsoft Word uses Save As to save the file), the Zscaler service doesn't block the operation, as that would lose the copy of the file being exfiltrated.",
+            "Instead, the Zscaler service creates a placeholder file and notifies the user that the original file is located in one of the following Lost & Found locations:",
+            "Windows: /ProgramData/Zscaler/ZDP/User Files/<username>/Lost and Found/",
+            "macOS: /Library/Application Support/Zscaler/ZDP/User Files/<username>/Lost and Found/",
+            "In this case, however, the placeholder file ensures that the Zscaler service doesn't repeatedly block attempts by the personal cloud storage service to sync the original file."
+          ]
+        }
+      ]
+    },
+    "protect-action": {
+      "statement": "Protect appears only when the Channel is Removable Storage. It encrypts only the affected files, not the removable storage device, saving a separate encrypted (.zenc) file on the device without altering the original file or its path. After encryption the file can only be decrypted by members of the same organization running Endpoint DLP, no additional key management is needed because the key is unique to each organization, and it is designed for short-term file transfers, not long-term backup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Protect: This option appears only when the Channel is Removable Storage.",
+            "When this setting is enabled, the Zscaler service applies encryption only to affected files, not to the removable storage device itself. After it is encrypted, the file can only be decrypted by members of the same organization who are running Endpoint DLP on their device.",
+            "It is designed specifically for short-term file transfers and should not be used to encrypt files for long-term backup.",
+            "The encryption applied by the Zscaler service does not require additional key management because the encryption key is unique to each organization.",
+            "When a file that contains sensitive data is saved to a removable storage device, the Zscaler service saves only a separate encrypted (.zenc) file on the removable storage device. The Zscaler service does not alter the original file or file path."
+          ]
+        }
+      ]
+    },
+    "protect-decrypt-paths": {
+      "statement": "Users who receive an encrypted file on a removable storage device must right-click it and select Decrypt. Decrypted files are placed in /ProgramData/Zscaler/ZDP/Decrypted Files/<username>/ on Windows or /Library/Application Support/Zscaler/ZDP/Decrypted Files/<username>/ on macOS. When the file is cut and pasted onto the device, the service saves the .zenc file to the device and a copy of the decrypted file in a directory the page names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "To configure an Endpoint DLP policy rule:",
+          "quotes": [
+            "Users who receive the encrypted file via a removable storage device must right-click the file and select Decrypt to use the Zscaler service to decrypt the file.",
+            "Windows: /ProgramData/Zscaler/ZDP/Decrypted Files/<username>/",
+            "macOS: /Library/Application Support/Zscaler/ZDP/Decrypted Files/<username>/",
+            "(i.e., the file is cut and pasted onto the removable storage device), then the Zscaler service saves the .zenc file to the removable storage device and saves a copy of the decrypted file in the following directory:"
+          ]
+        }
+      ]
+    },
+    "channel-target-fields": {
+      "statement": "The rule fields that name targets appear by channel: Printers and Printer Tag only for Printing, Removable Storage Device Tags only for Removable Storage, Network Share Tags only for Network Share, and Personal Clouds only for Personal Cloud Storage (iCloud is supported only for macOS). Application File Access takes up to 8 Applications or up to 8 Application Tags and requires an application or application tag. Clipboard takes up to 8 Destination Applications or up to 8 Destination Application Tags, and selecting Any applies the rule to all destination applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "Channel: Select whether the rule applies to Printing, Removable Storage, Network Share, Personal Cloud Storage, Application File Access, or Clipboard.",
+          "quotes": [
+            "Printers: This field appears only when the Channel is Printing.",
+            "Printer Tag: This field appears only when the Channel is Printing.",
+            "Removable Storage Device Tags: This field appears only when the Channel is Removable Storage.",
+            "Network Share Tags: This field appears only when the Channel is Network Share.",
+            "Personal Clouds: This field appears only when the Channel is Personal Cloud Storage.",
+            "iCloud is supported only for macOS.",
+            "Applications: This field appears only when the Channel is Application File Access. Select up to 8 applications from the drop-down menu, then click Done.",
+            "If you select Application File Access as the Channel for your rule, you must specify an application or an application tag for the policy rule.",
+            "Application Tags: This field appears only when the Channel is Application File Access. Select up to 8 application tags from the drop-down menu, then click Done.",
+            "Destination Application: This field appears only when the Channel is Clipboard. Select up to 8 destination applications from the drop-down menu, then click Done.",
+            "If you select Any, the Zscaler service applies the rule to all destination applications.",
+            "Destination Application Tags: This field appears only when the Channel is Clipboard. Select up to 8 destination application tags from the drop-down menu, then click Done."
+          ]
+        }
+      ]
+    },
+    "application-file-access-semantics": {
+      "statement": "The service enforces Application File Access rules when users open files that contain sensitive information, and does not monitor activity the application takes after opening the file (for example sending or transferring). Zscaler recommends not using an Application File Access rule with browsers or email clients, because the service cannot distinguish some necessary destinations and blocks legitimate transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "Channel: Select whether the rule applies to Printing, Removable Storage, Network Share, Personal Cloud Storage, Application File Access, or Clipboard.",
+          "quotes": [
+            "The Zscaler service enforces Application File Access rules when users open files that contain sensitive information. However, the service doesn't monitor activity the application takes after opening the file (e.g., sending, transferring, etc.).",
+            "Zscaler recommends that you do not use an Application File Access rule with browsers or email clients, as the service can't distinguish some necessary destinations and blocks legitimate transactions."
+          ]
+        }
+      ]
+    },
+    "details-limits": {
+      "statement": "A rule's description cannot exceed 10,240 characters. A disabled rule is not actively enforced but keeps its place in the rule order; the service skips it and moves to the next rule. Severity is High, Medium, Low, or Information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "Channel: Select whether the rule applies to Printing, Removable Storage, Network Share, Personal Cloud Storage, Application File Access, or Clipboard.",
+          "quotes": [
+            "The description cannot exceed 10,240 characters.",
+            "A disabled rule is not actively enforced but does not lose its place in the rule order; the service skips it and moves to the next rule.",
+            "Severity: Select the severity of the violation from the drop-down menu (i.e., High, Medium, Low, or Information)."
+          ]
+        }
+      ]
+    },
+    "notifications": {
+      "statement": "If no auditor and notification template are selected, no notification is sent for the rule. Email Auditor Type is Hosted database or External to the organization. End User Notification is Show or Hide, and the Notification Message is the channel's default EUN message or a custom one; the type of EUN messages on the endpoint depends on the rule's Action, and custom messages can be configured for the Allow, Block, and Protect actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+          "after": "Channel: Select whether the rule applies to Printing, Removable Storage, Network Share, Personal Cloud Storage, Application File Access, or Clipboard.",
+          "quotes": [
+            "If you do not select an auditor and notification template, a notification is not sent for this rule.",
+            "Email Auditor Type: Select whether the auditor is from a Hosted database or External to your organization.",
+            "The type of EUN messages that appear on the endpoint depends on the Action configured for the rule.",
+            "End User Notification: Select Show to show an EUN message on endpoints when a user's activity triggers the Endpoint DLP policy rule, or select Hide if you don't want an EUN message to appear.",
+            "Notification Message: Select Default to use the default EUN message configured for the channel, or select a custom EUN message from the drop-down menu.",
+            "To learn about configuring custom messages for the Allow, Block, and Protect actions, see Configuring EUNs for Endpoint DLP."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "clipboard-direction": {
+      "summary": "The rule article describes a Clipboard rule as monitoring content pasted into the destination applications; the resources article describes applications as the source content is copied from.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-endpoint-dlp-policy-rules.json",
+            "after": "Channel: Select whether the rule applies to Printing, Removable Storage, Network Share, Personal Cloud Storage, Application File Access, or Clipboard.",
+            "quotes": [
+              "This setting monitors for sensitive content pasted from users' clipboards into the specified applications."
+            ]
+          },
+          "says": "This setting monitors for sensitive content pasted from users' clipboards into the specified applications."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-dlp-and-endpoint-resources.json",
+            "quotes": [
+              "You can then use applications to create rules that prevent users from copying sensitive content to their clipboard from the applications."
+            ]
+          },
+          "says": "You can then use applications to create rules that prevent users from copying sensitive content to their clipboard from the applications."
+        }
+      ],
+      "impact": "Whether a Clipboard rule's applications are the paste destination or the copy source is unclear; the rule article's fields are named Destination Application, and the pages do not say which direction governs."
+    }
+  },
+  "gaps": {
+    "action-ranking-ref": {
+      "kind": "semantic",
+      "title": "How Allow, Confirm, Block and Protect rank by restrictiveness",
+      "status": "open",
+      "detail": "No captured article ranks the Endpoint DLP actions; the ranking question is tracked as action-ranking in zia.dlp.endpoint-enforcement, where the most-restrictive selection is described.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "wire-values": {
+      "kind": "semantic",
+      "title": "API wire values for the Application File Access and Clipboard channels and the Confirm and Protect actions",
+      "status": "open",
+      "detail": "These findings come from help articles only. The SDK, Terraform and Automate API sources were not checked here, and zia.dlp.endpoint-dlp notes the Endpoint DLP families are outside the Automate capture.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

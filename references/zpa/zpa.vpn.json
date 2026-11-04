@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn",
+  "title": "ZPA VPN (for Legacy Apps): what it is, its components and where each question goes",
+  "aliases": [
+    "vpn for legacy apps",
+    "zpa vpn",
+    "zpa layer 3 vpn",
+    "network connector vpn tunnel",
+    "voip over zpa",
+    "active ftp over zpa",
+    "real ip address binding"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-connectors.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.network-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.user-enablement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.access-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.policy-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.bgp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.redundancy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.support-information"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.bypasses"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{definition}} {{components}}"
+    },
+    {
+      "label": "Requirements.",
+      "text": "{{return-route}} {{key-pairs}} {{client-platforms}} The macOS Client Connector version is in [[zcc.install.macos-extensions]]; the Windows minimum is open {{gap:windows-client-version}}."
+    },
+    {
+      "label": "Scope and roles.",
+      "text": "The Default Microtenant restriction is in [[zpa.microtenants.limits:default-only-features]] and the admin role feature in [[shared.admin-rbac.zpa:feature-list]]."
+    },
+    {
+      "steps": [
+        {
+          "label": "What must exist before it is enabled, and in what order is it configured?",
+          "text": "[[zpa.vpn.setup]]; the Client Connector bypass step links to [[zcc.z-tunnel.bypasses]]."
+        },
+        {
+          "label": "What is a VPN Service Edge?",
+          "text": "[[zpa.vpn.service-edges]]."
+        },
+        {
+          "label": "What is a Network Connector and its group?",
+          "text": "[[zpa.vpn.network-connectors]]; enrollment in [[zpa.vpn.network-connectors.enrollment]] and platforms, sizing, firewall and install in [[zpa.vpn.network-connectors.deployment]]."
+        },
+        {
+          "label": "Which traffic goes through the tunnel?",
+          "text": "[[zpa.vpn.network-segments]]."
+        },
+        {
+          "label": "Who may open a tunnel, and what may the tunnel carry?",
+          "text": "[[zpa.vpn.user-enablement]] for users, [[zpa.vpn.access-policy]] for traffic, and [[zpa.vpn.policy-objects]] for the reusable objects. The application access policy is a different rule set: [[zpa.policy]]."
+        },
+        {
+          "label": "How does it survive a failure?",
+          "text": "[[zpa.vpn.bgp]] and [[zpa.vpn.redundancy]]."
+        },
+        {
+          "label": "How is it monitored and diagnosed?",
+          "text": "[[zpa.vpn.dashboards]], [[zpa.vpn.diagnostics]] and [[zpa.vpn.support-information]]; the App Connector and Private Service Edge counterparts start at [[zpa.troubleshooting]]."
+        },
+        {
+          "label": "How does it differ from the other connector and Service Edge types?",
+          "text": "[[zpa.app-connectors]] and [[zpa.private-service-edges]]."
+        }
+      ]
+    },
+    {
+      "label": "Open.",
+      "text": "The limits the pages point to are open {{gap:ranges-limitations}}. The provisioning key pages are in [[zpa.vpn.network-connectors.enrollment]]."
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "With VPN (for Legacy Apps), Private Access can natively support a secondary Layer 3 network-based VPN tunnel for applications and services, such as VoIP or server-to-client, that require Layer 3 IP-based connectivity. It enables support for legacy applications that require server-to-client traffic using real IP address binding, such as VoIP or Active FTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-vpn-legacy-apps.json",
+          "quotes": [
+            "With VPN (for Legacy Apps), Private Access (ZPA) can natively support a secondary Layer 3 network-based VPN tunnel for applications and services (e.g., VoIP or server-to-client) that require Layer 3 IP-based connectivity"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "VPN (for Legacy Apps) enables support for legacy applications that require server-to-client traffic using real IP address binding (e.g., VoIP or Active FTP)."
+          ]
+        }
+      ]
+    },
+    "components": {
+      "statement": "The service uses VPN Service Edges, Network Connectors, Network segments and Zscaler Client Connector. A VPN Service Edge manages the connections between Client Connector and Network Connectors, the Network Connector is deployed within the application server's data center and connects to all known VPN Service Edges, and Network segments define which traffic flows through the VPN tunnel from Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "This service uses VPN Service Edges, Network Connectors, Network segments, and Zscaler Client Connector.",
+            "The Network Connector is deployed within your application server's data center, and connects to all known VPN Service Edges."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-service-edges.json",
+          "quotes": [
+            "A VPN Service Edge manages the connections between Zscaler Client Connector and Network Connectors."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-segments.json",
+          "quotes": [
+            "Network segments define which traffic flows through the VPN tunnel from Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "return-route": {
+      "statement": "Organizations must configure the route to the client IP pool using the Network Connector's IP address as the next hop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Organizations must configure the route to the client IP pool using the Network Connector's IP address as the next hop."
+          ]
+        }
+      ]
+    },
+    "key-pairs": {
+      "statement": "VPN (for Legacy Apps) connections are only established if each entity (Network Connectors, VPN Service Edges and Zscaler Client Connector) has the public and private key pairs of the other entities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "VPN (for Legacy Apps) connections are only established if each entity (Network Connectors, VPN Service Edges, and Zscaler Client Connector) has the public and private key pairs of the other entities."
+          ]
+        }
+      ]
+    },
+    "client-platforms": {
+      "statement": "Private Access supports Windows and macOS platforms for VPN (for Legacy Apps), and the feature is available to users running supported Zscaler Client Connector versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-network-connectors.json",
+          "quotes": [
+            "Private Access (ZPA) supports Windows and macOS platforms for VPN (for Legacy Apps)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-vpn-legacy-apps.json",
+          "quotes": [
+            "VPN (for Legacy Apps) is available to users running supported Zscaler Client Connector versions."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "windows-client-version": {
+      "kind": "semantic",
+      "title": "Minimum Client Connector version for VPN (for Legacy Apps) on Windows",
+      "status": "open",
+      "detail": "The captured pages in this area say Windows and macOS are supported on supported Client Connector versions but give no Windows minimum. The macOS minimum is in zcc.install.macos-extensions.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "ranges-limitations": {
+      "kind": "semantic",
+      "title": "The Ranges & Limitations values for VPN (for Legacy Apps)",
+      "status": "open",
+      "detail": "The VPN Service Edge, Network segment, user enablement, access policy and Network Connector pages point to a Ranges & Limitations page that is not captured. None of the captured pages states the number of Network segments per tenant or group, user enablement rules per tenant, the client IP pool size, or Network Connectors and groups per tenant.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

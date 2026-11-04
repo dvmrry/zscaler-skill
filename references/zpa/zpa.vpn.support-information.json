@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.support-information",
+  "title": "VPN Support Information: diagnostic sessions and commands on VPN Service Edges and Network Connectors",
+  "aliases": [
+    "vpn support information",
+    "vpn diagnostic session",
+    "vpn diagnostic sessions",
+    "crypto ping",
+    "vpn pcap",
+    "bgp diagnostic commands"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.bgp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.support-information"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.signals"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{min-version}} The App Connector, Private Service Edge and Private Cloud Controller counterpart is [[zpa.troubleshooting.support-information]]."
+    },
+    {
+      "label": "Sessions.",
+      "text": "{{time-range}} {{session-status}} The App Connector page's session statuses are in [[zpa.troubleshooting.support-information:session-statuses]]. {{targets}}"
+    },
+    {
+      "label": "Basic commands.",
+      "text": "{{basic-commands}} {{crypto-ping}}"
+    },
+    {
+      "label": "BGP commands.",
+      "text": "{{bgp-control}} {{bgp-show}} {{bgp-config}} {{command-options}}"
+    },
+    {
+      "label": "PCAP.",
+      "text": "{{pcap}}"
+    },
+    {
+      "label": "JOURNALCTL.",
+      "text": "{{journalctl}} The compression and upload of the output is in [[zpa.troubleshooting.support-information:journalctl-output]]."
+    },
+    {
+      "label": "Open.",
+      "text": "The per-session limits, concurrent sessions and retention are open {{gap:session-limits}}, and the page carries wording for other components {{gap:copied-component-names}}."
+    },
+    {
+      "text": "BGP is in [[zpa.vpn.bgp]], the components in [[zpa.vpn.service-edges]], the console logs in [[zpa.vpn.diagnostics]] and the hub is [[zpa.vpn]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the VPN Service Edge and Network Connector are at version 26.46.3 or later before a VPN diagnostic session is expected to run.",
+      "uses": [
+        "min-version"
+      ]
+    },
+    {
+      "do": "Whether a restart command is queued with a DNS lookup or another restart, since they cannot run at the same time.",
+      "uses": [
+        "basic-commands"
+      ]
+    },
+    {
+      "do": "Whether CRYPTO PING is selected alone and from a VPN Service Edge.",
+      "uses": [
+        "crypto-ping"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "VPN Support Information allows creating VPN diagnostic sessions that run commands on VPN Service Edges, Network Connectors and Network Connector groups, and then filtering and viewing the outputs of these sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-support-information.json",
+          "quotes": [
+            "VPN Support Information allows you to create VPN diagnostic sessions that run commands on VPN Service Edges, Network Connectors, and Network Connector groups."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "You can then filter and view the outputs of these sessions to assist in troubleshooting."
+          ]
+        }
+      ]
+    },
+    "min-version": {
+      "statement": "VPN diagnostics are supported on VPN Service Edge and Network Connector version 26.46.3 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "VPN diagnostics are supported on VPN Service Edge and Network Connector version 26.46.3 and later."
+          ]
+        }
+      ]
+    },
+    "time-range": {
+      "statement": "By default the data for all users is displayed for diagnostic sessions that occurred in the last 14 days. If the Custom Range option is used, the start date must be within the last 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-support-information.json",
+          "quotes": [
+            "By default, the data for all users is displayed for diagnostic sessions that occurred in the last 14 days.",
+            "If you use the Custom Range option, the start date must be within the last 6 months."
+          ]
+        }
+      ]
+    },
+    "session-status": {
+      "statement": "A VPN diagnostic session's status is Completed, Failed, Pending or Processing. Sessions with a Pending or Processing status auto-refresh every 60 seconds, statuses in the VPN Support Information table refresh every 45 seconds, and a JSON file of the session results can be downloaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-support-information.json",
+          "quotes": [
+            "Status: Displays the status of the VPN diagnostic session (Completed, Failed, Pending, or Processing). Sessions with a Pending or Processing status auto-refresh every 60 seconds to reflect the most current status. Statuses in the VPN Support Information table refresh every 45 seconds.",
+            "Download a JSON file of the VPN diagnostic session results."
+          ]
+        }
+      ]
+    },
+    "targets": {
+      "statement": "For Targets, the destination FQDN or IP address of the session is entered, with multiple hostnames separated by a comma and ports by a colon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "Targets: Enter the destination FQDN or IP address of the session. Separate multiple hostnames with a comma (,) and ports with a colon (:)"
+          ]
+        }
+      ]
+    },
+    "basic-commands": {
+      "statement": "DNSLOOKUP A RECORD, AAAA RECORD and SRV RECORD resolve the respective record, and ports are not specified in DNS lookup commands. ICMP PING tests reachability of a host, TCP PING tests reachability to a port or range of ports for a list of hostnames or IP addresses, RESTART PROCESS restarts the VPN Service Edge or Network Connector process, and RESTART SYSTEM restarts the VPN Service Edge or Network Connector. Canceling a restart command in a Processing state is not supported, and restart commands cannot be run at the same time as a DNS lookup command or another restart command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "| DNSLOOKUP AAAA RECORD | The DNS lookup command to resolve the AAAA record. Ports are not specified in DNS lookup commands.",
+            "| DNSLOOKUP A RECORD | The DNS lookup command to resolve the A record. Ports are not specified in DNS lookup commands.",
+            "| DNSLOOKUP SRV RECORD | The DNS lookup command to resolve the SRV record. Ports are not specified in DNS lookup commands.",
+            "| ICMP PING | The Internet Control Message Protocol (ICMP) ping command to test reachability of a host on an Internet Protocol (IP) network.",
+            "| TCP PING | The Transmission Control Protocol (TCP) ping command to test reachability to a port, or range of ports, for a list of hostnames or IP addresses.",
+            "| RESTART PROCESS | The command to restart the VPN Service Edge or Network Connector process. Canceling a restart command that is in a Processing state is not supported.",
+            "| RESTART SYSTEM | The command to restart the VPN Service Edge or Network Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "Restart commands cannot be run at the same time as a DNS lookup command or another restart command."
+          ],
+          "after": "| RESTART PROCESS | The command to restart the VPN Service Edge or Network Connector process."
+        }
+      ]
+    },
+    "crypto-ping": {
+      "statement": "CRYPTO PING verifies connectivity between a VPN Service Edge and one or more Network Connectors. It is exclusive and cannot be run with other commands, and it can only be run from a VPN Service Edge. With it selected, the Targets field changes to NP Target Connector, where the destination Network Connector is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "The crypto ping command verifies connectivity between your VPN Service Edge and one or more Network Connector. This command is exclusive and cannot be run with other commands. This command can only be run from a VPN Service Edge.",
+            "The Targets field changes to NP Target Connector. Select the destination Network Connector."
+          ]
+        }
+      ]
+    },
+    "bgp-control": {
+      "statement": "START BGP starts BGP for the selected VPN Service Edge or Network Connector. STOP BGP and RESTART BGP stop and restart BGP for the VPN (for Legacy Apps) feature, STATUS BGP fetches the service status of BGP, RELOAD BGP CONFIG reloads the BGP configuration, and CLEAR BGP resets all BGP sessions, or a specific peer BGP session, forcing a BGP reconnection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "| START BGP | The command to start the Border Gateway Protocol (BGP) for the selected VPN Service Edge or Network Connector.",
+            "| STOP BGP | The command to stop the BGP for the VPN (for Legacy Apps) feature.",
+            "| RESTART BGP | The command to restart the BGP for the VPN (for Legacy Apps) feature.",
+            "| STATUS BGP | The command to fetch the service status of the BGP for the VPN (for Legacy Apps) feature.",
+            "| RELOAD BGP CONFIG | The command to reload the BGP configuration for the VPN (for Legacy Apps) feature.",
+            "| CLEAR BGP | The command to reset all BGP sessions, or a specific peer BGP session, forcing a BGP reconnection."
+          ]
+        }
+      ]
+    },
+    "bgp-show": {
+      "statement": "SHOW ROUTE displays all the routes, or routes for a target network, seen by the BGP service, with an optional argument of a valid IPv4 address with an optional CIDR range. SHOW INTERFACES displays all the interfaces or a specific target interface seen by the BGP service. SHOW BGP displays all routes, or routes for a specific target network, learned through the BGP service. SHOW BGP NEIGHBORS displays BGP neighbors with the status, connection details and prefixes exchanged, and SHOW BGP SUMMARY displays a summary of BGP sessions with connection state, uptime and prefixes advertised.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "| SHOW ROUTE | The command to display all the routes or routes for a target network seen by the BGP service for the VPN (for Legacy Apps) feature.",
+            "| SHOW INTERFACES | The command to display all the interfaces or a specific target interface, seen by the BGP service for the VPN (for Legacy Apps) feature.",
+            "| SHOW BGP | The command to display all routes, or routes for a specific target network, learned through the BGP service.",
+            "| SHOW BGP NEIGHBORS | The command to display all BGP neighbors, or a specific target neighbor, configured on the device. It provides information about the status, connection details, and prefixes exchanged with the neighbor.",
+            "| SHOW BGP SUMMARY | The command to display a summary of BGP sessions, including connection state, uptime, and prefixes advertised, for monitoring BGP peers."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "Any valid IPv4 address with an optional CIDR range"
+          ],
+          "after": "| SHOW ROUTE |"
+        }
+      ]
+    },
+    "bgp-config": {
+      "statement": "RUNNING CONFIG displays the currently running BGP configuration, FAILED CONFIG displays the last generated BGP configuration that failed to apply to the BGP service, and GENERATED CONFIG displays the last generated configuration. CONFIG VALIDATE triggers validation of the selected config mode (Generated or Override), CONFIG STATUS triggers the validation and provides the config status, CONFIG STATUS DETAILS triggers validation based on the current config mode and provides the detailed output, and GET LOGS fetches the logs of the BGP service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "| RUNNING CONFIG | The command to display the currently running BGP configuration for the VPN (for Legacy Apps) feature.",
+            "| FAILED CONFIG | The command to display the last generated BGP configuration that failed to apply to the BGP service.",
+            "| GENERATED CONFIG | The command to display the last generated configuration of the BGP service.",
+            "| CONFIG VALIDATE | The command to trigger the BGP config validation of the selected config mode (Generated or Override) and provide the validation output.",
+            "| CONFIG STATUS | The command to trigger the BGP config validation and provide the config status of BGP for the VPN (for Legacy Apps) feature.",
+            "| CONFIG STATUS DETAILS | The command to trigger the BGP config validation based on current config mode and provide the detailed validation output.",
+            "| GET LOGS | The command to fetch the logs of the BGP service."
+          ]
+        }
+      ]
+    },
+    "command-options": {
+      "statement": "RELOAD BGP CONFIG shows a Force option, with Disabled selected by default. CONFIG VALIDATE shows a Configuration Mode of Generated or Override, with Override selected by default. GET LOGS shows a Number of Lines field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "Force: Select Enabled if you want the VPN diagnostic session to be activated during the selected time range. Select Disabled if you want the VPN session to be inactive. Disabled is selected by default. This field appears only when a RELOAD BGP CONFIG command is selected.",
+            "Configuration Mode: Select Generated to generate the commands. Select Override to override the commands. Override is selected by default. This field only appears if the CONFIG VALIDATE command is selected.",
+            "Number of Lines: Enter the number of command lines you want to set for this VPN diagnostic session. This field only appears if the GET LOGS command is selected."
+          ]
+        }
+      ]
+    },
+    "pcap": {
+      "statement": "A maximum of one PCAP command per session is allowed, the maximum PCAP file size for a single session is 1 GB, and the maximum size of the individual PCAP files is 100 MB. For an FQDN argument the maximum allowed characters is 51. The Duration field, which appears only when a PCAP command is selected, takes a minimum of 30 seconds and a maximum of 5 minutes, with a default of 1 minute if no value is entered, and an Interface field limits the capture to a particular network interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "A maximum of one PCAP command per session is allowed. The maximum PCAP file size for a single session is 1 GB, while the maximum size of the individual PCAP files is 100 MB",
+            "FQDN: Fully resolvable by the device as done by tcpdump. The maximum allowed characters is 51.",
+            "The minimum duration is 30 seconds, and the maximum duration is 5 minutes. If no value is entered, the default duration is 1 minute. This field appears only when a PCAP command is selected.",
+            "Interface: Enter a network interface name to limit the PCAP command to capture packets on a particular interface (e.g., eth0, eth1, eno)."
+          ]
+        }
+      ]
+    },
+    "journalctl": {
+      "statement": "For JOURNALCTL, the Log Type selects whether to return Service Logs or Full System Logs, Max Log Lines has a default of 1,000 and a maximum value of 100,000, and the maximum date and time is 4 hours from the current date and time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-diagnostic-sessions.json",
+          "quotes": [
+            "Max Log Lines: Enter the maximum number of log lines to return. This setting has a default of 1,000 and a maximum value of 100,000. This field appears only when a JOURNALCTL command is selected.",
+            "Log Type: Select whether to return Service Logs or Full System Logs. This field appears only when the JOURNALCTL command is selected.",
+            "For JOURNALCTL, the maximum date and time is 4 hours from the current date and time."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "session-limits": {
+      "kind": "semantic",
+      "title": "Per-session limits, concurrent sessions and retention of VPN Support Information",
+      "status": "open",
+      "detail": "The App Connector Support Information page states these, but the VPN pages as captured do not; the Ranges & Limitations page they may point to is not captured.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "copied-component-names": {
+      "kind": "semantic",
+      "title": "App Connector wording on the VPN diagnostic sessions page",
+      "status": "open",
+      "detail": "The Configuring VPN Diagnostic Sessions page's PCAP description speaks of troubleshooting connectivity between an App Connector and a Public Service Edge, its PCAP download steps name the App Connector or Private Service Edge, and its JOURNALCTL description names an App Connector, Private Service Edge or Private Cloud Controller, while the session targets on the page are VPN Service Edges, Network Connectors and Network Connector groups. Whether this is copied wording or applies to VPN components is not stated, and the component names are not carried into VPN claims here.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

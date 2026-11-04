@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.redundancy",
+  "title": "VPN redundancy: failure scenarios, BGP group settings, platform settings, replacing and migrating Network Connectors",
+  "related": [
+    { "rel": "see-also", "to": "zpa.vpn" },
+    { "rel": "see-also", "to": "zpa.vpn.bgp" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors.deployment" },
+    { "rel": "see-also", "to": "zpa.vpn.network-connectors.enrollment" },
+    { "rel": "see-also", "to": "zpa.app-connectors.provisioning-keys" }
+  ],
+  "prose": [
+    {
+      "text": "{{failure-scenarios}} {{ecmp-scaling}} What a group's Redundant Mode means differs between the help pages, as recorded in [[zpa.vpn.network-connectors]]."
+    },
+    {
+      "label": "Order.",
+      "text": "{{order}} The routes the BGP routers advertise must match the network segments, per [[zpa.vpn.network-segments:bgp-routes-match]]."
+    },
+    {
+      "label": "Group settings.",
+      "text": "{{group-settings}} The option that turns BGP on is named and described differently across the pages, as recorded in [[zpa.vpn.bgp]]. {{manager-version}}"
+    },
+    {
+      "label": "Platform settings.",
+      "text": "{{platform-settings}} {{frr-package}} {{firewalld}}"
+    },
+    {
+      "label": "Replacing or migrating.",
+      "text": "{{enablement}} {{replace-path}} {{client-switch}} {{migrate-path}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before telling an operator which group option turns BGP on, give the option's name and purpose as each page states them (see [[zpa.vpn.bgp]]).",
+      "uses": ["group-settings"]
+    },
+    {
+      "do": "Before describing what Redundant Mode does in normal operation, give both the standby description and the ECMP load balancing description (see [[zpa.vpn.network-connectors]]).",
+      "uses": ["ecmp-scaling"]
+    },
+    {
+      "do": "Before replacing connectors, check no older gateway holding the client subnet runs in the same region, and that the old group mappings are kept until the new group works.",
+      "uses": ["replace-path"]
+    }
+  ],
+  "claims": {
+    "failure-scenarios": {
+      "statement": "The redundancy guide says Network Connectors that support redundancy within a Network Connector group solve these failures: a Network Connector link failure, an internal link failure towards a customer router, an external link failure towards the VPN Service Edge, a complete Network Connector node failure, and a data center failure with traffic being rerouted towards another data center. The replace article says the redundancy design is based on External Border Gateway Protocol (EBGP) routing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "This guide explains how to configure VPN redundancy for your organization's traffic using Network Connectors that support redundancy within a Network Connector group.",
+            "A Network Connector link failure",
+            "An internal link failure towards a customer router",
+            "An external link failure towards the VPN Service Edge",
+            "A complete Network Connector node failure",
+            "A data center failure with traffic being rerouted towards another data center"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+          "quotes": [
+            "The redundancy design is based on External Border Gateway Protocol (EBGP) routing."
+          ]
+        }
+      ]
+    },
+    "ecmp-scaling": {
+      "statement": "The redundancy guide says that with the help of BGP, the network can be scaled with Equal-Cost Multi-Path (ECMP) to load balance traffic to the Network Connectors from the VPN Service Edges, and the traffic from the routers to the Network Connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "With the help of Border Gateway Protocol (BGP), you can scale your network with Equal-Cost Multi-Path (ECMP) to load balance traffic to the Network Connectors from the VPN Service Edges, and the traffic from the routers to the Network Connectors."
+          ]
+        }
+      ]
+    },
+    "order": {
+      "statement": "With a BGP router, the redundancy guide gives these steps in order: add VPN Service Edges, configure BGP for VPN Service Edges, add external routers, add Network Connectors, deploy Network Connectors by platform, configure BGP for Network Connectors, add network segments, view the BGP dashboard, and add access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "Step 1: Add VPN Service Edges",
+            "Step 2: Configure BGP for VPN Service Edges",
+            "Step 3: Add External Routers",
+            "Step 4: Add Network Connectors",
+            "Step 5: Deploy Network Connectors by Platform",
+            "Step 6: Configure BGP for Network Connectors",
+            "Step 7: Add Network Segments",
+            "Step 8: View the BGP Dashboard",
+            "Step 9: Add Access Policies"
+          ]
+        }
+      ]
+    },
+    "group-settings": {
+      "statement": "For BGP, the redundancy guide says to ensure these Network Connector group settings: External Routers (the routers to associate with the group), Keepalive (the frequency and wait time for the keepalive message, in seconds, before a session times out), Enable Multi-Hop (to allow BGP sessions with external routers that are not directly connected on the same network subnet) and Interface (the interface name that has connectivity to the BGP router).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "External Routers: Select the routers you want to associate with the Network Connector group.",
+            "Keepalive: Select the frequency and wait time for the keepalive message (in seconds) for BGP before a session times out.",
+            "Enable Multi-Hop: Enable this option to allow BGP sessions to be established between Network Connectors and the external routers that are not directly connected on the same network subnet.",
+            "Interface: Enter the interface name that has connectivity to the BGP router."
+          ]
+        }
+      ]
+    },
+    "manager-version": {
+      "statement": "The redundancy guide says to ensure the Manager software version for the new Network Connectors is 25.46.2 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "Ensure that the Manager software version for the new Network Connectors is 25.46.2 or later."
+          ]
+        }
+      ]
+    },
+    "platform-settings": {
+      "statement": "Under its list of settings to ensure based on the platform, the redundancy guide's VMware entry says to assign a static private IP address, use only one network interface and use VMware ESXi 7.0 Update 2 or later. The same list also says to ensure, for the deployed Network Connector instance, that the Source / destination checking option is disabled, and, for the deployed Network Connector VMs, that the IP forwarding option is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "Assign a static private IP address.",
+            "Use only one network interface.",
+            "Use version VMware ESXi 7.0 Update 2 or later."
+          ],
+          "after": "Ensure the following based on the platform:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "For the deployed Network Connector instance, ensure that the Source / destination checking option is disabled",
+            "For the deployed Network Connector VMs, ensure that the IP forwarding option is enabled"
+          ],
+          "after": "Ensure the following based on the platform:"
+        }
+      ]
+    },
+    "frr-package": {
+      "statement": "The redundancy guide says that when Network Connectors are installed without the prebuilt virtual image from Zscaler, the Zscaler repository must be configured so the Network Connector can download and install the FRR package, which is essential for BGP to work.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-vpn-redundancy-deployment-guide.json",
+          "quotes": [
+            "If you are installing Network Connectors without using the prebuilt virtual image from Zscaler, make sure you configure the Zscaler repository so the Network Connector can download and install the FRR package, which is essential for BGP to work."
+          ]
+        }
+      ]
+    },
+    "firewalld": {
+      "statement": "The prerequisites article says that if a Network Connector is installed from an RPM and firewalld is used on a Network Connector using VPN redundancy, extra steps modify the firewall filter rule. They are to ensure NftablesTableOwner is set to no in firewalld.conf, and to create a systemd service file at /etc/systemd/system/network-connector-firewall.service. Its script adds UDP ports 51820, 3784 and 4784 with firewall-cmd and inserts nftables rules allowing all traffic in both directions on the npwg0 interface, and the page says the script reapplies these configurations after any firewalld reload event.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-network-connector-deployment-prerequisites.json",
+          "quotes": [
+            "If you install a Network Connector from an RPM and plan to use firewalld on a Network Connector that's using VPN redundancy, you must perform additional steps to modify the firewall filter rule so VPN redundancy can work properly.",
+            "Ensure that NftablesTableOwner is set to no in firewalld.conf.",
+            "Create a systemd service file at /etc/systemd/system/network-connector-firewall.service",
+            "Open specific ports. Adds UDP ports (51820, 3784, 4784) using the firewall-cmd tool",
+            "Inserts Nftables rules to allow all traffic in both directions on the npwg0 interface (iifname npwg0 for incoming traffic, and oifname npwg0 for outgoing traffic).",
+            "The script ensures that these firewall configurations persist and are reapplied dynamically after any firewalld reload event."
+          ]
+        }
+      ]
+    },
+    "enablement": {
+      "statement": "The replace article says that if BGP is enabled on the tenant, the tenant is running the latest version of VPN Service Edges and a BGP Configuration tab appears on the VPN Service Edges page; if that tab appears, new VPN Service Edges are added and the old VPN Service Edges deleted. If BGP is not enabled, Zscaler Support or the Zscaler Account team is contacted to enable the redundancy capability, and the VPN (for Legacy Apps) redundancy flag must be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+          "quotes": [
+            "If BGP is enabled on your tenant, you are running the latest version of VPN Service Edges. When enabled, a BGP Configuration tab appears on the VPN Service Edges page in the ZPA Admin Portal. If you see a BGP Configuration tab, you need to add new VPN Service Edges and delete the old VPN Service Edges.",
+            "If BGP is not enabled on your tenant, contact Zscaler Support or your Zscaler Account team to have the redundancy capability enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+          "quotes": [
+            "Contact Zscaler Support or your Zscaler Account team and make sure that the VPN (for Legacy Apps) redundancy flag is enabled."
+          ],
+          "after": "Step 1: Make Sure That Redundancy Is Enabled"
+        }
+      ]
+    },
+    "replace-path": {
+      "statement": "To replace existing Network Connectors, the replace article has the admin create a new Network Connector group and a new provisioning key associated with it for redundancy, edit the existing network segments to map them to the new group without deleting the mapping to the old groups, and add the new BGP-capable VPN Service Edges without a client subnet. The existing client subnet is then moved from the old VPN Service Edge to the new one, and additional Network Connectors and VPN Service Edges are deployed until the original configuration is replicated, after which the originals are deprecated. To force the client to reconnect to the new gateway, no older gateway with the client subnet may run in the same region, otherwise the client might switch to the older gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+          "quotes": [
+            "A new Network Connector group to use for redundancy.",
+            "A new provisioning key and associate it with a new Network Connector group to use for redundancy.",
+            "edit existing network segments and map them to the new redundancy Network Connector group.",
+            "Do not delete the mapping to the old Network Connector groups.",
+            "Add the new BGP-capable VPN Service Edges without a client subnet.",
+            "Move the existing client subnet from the old VPN Service Edge to the new VPN Service Edge.",
+            "To force the client to reconnect to the new gateway, ensure that no older gateway is running in the same region that has the client subnet, otherwise the client might switch to the older gateway instead.",
+            "Deploy additional Network Connectors and VPN Service Edges until the original configuration is replicated, and then deprecate the original Network Connectors and VPN Service Edges."
+          ]
+        }
+      ]
+    },
+    "client-switch": {
+      "statement": "The replace article says the clients previously connected to the old VPN Service Edge automatically switch to the new VPN Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+          "quotes": [
+            "The clients previously connected to the old VPN Service Edge automatically switch to the new VPN Service Edge."
+          ]
+        }
+      ]
+    },
+    "migrate-path": {
+      "statement": "To migrate existing Network Connectors, the replace article says not to delete any Network Connectors, only the Network Connector groups; to delete all VPN Service Edges and add new ones based on them; and to create a new Network Connector group and provisioning key. On the connector it has the admin remove the old provisioning key file with sudo bash -c \"rm -rf /opt/zscaler/var/*\", reboot the appliance, create a new provisioning key file with 644 permissions at /opt/zscaler/var/provision_key, and update the Manager software and Network Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-replacing-or-migrating-network-connectors-support-redundancy.json",
+          "quotes": [
+            "Do not delete any Network Connectors; only delete the Network Connector groups.",
+            "Delete all your VPN Service Edges.",
+            "Add new VPN Service Edges based on the ones you deleted in the previous step.",
+            "Make sure you create a new Network Connector group and a new provisioning key.",
+            "sudo bash -c \"rm -rf /opt/zscaler/var/*\"",
+            "Reboot the Network Connector appliance:",
+            "Create a new provisioning key file with 644 permissions at /opt/zscaler/var/provision_key.",
+            "Update the Manager software and Network Connector using the following command:"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

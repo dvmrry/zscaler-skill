@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "id": "zpa.vpn.service-edges",
+  "title": "VPN Service Edges: what they are, statuses, client IP pools, update schedule, BGP configuration mode and China",
+  "aliases": [
+    "vpn service edge",
+    "vpn service edges",
+    "client ip pool",
+    "client networks",
+    "bgp configuration tab",
+    "vpn service edge in china"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.bgp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.redundancy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.public-service-edges"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} The other Service Edge types are [[zpa.public-service-edges]] and [[zpa.private-service-edges]]."
+    },
+    {
+      "label": "Count and pools.",
+      "text": "{{count-and-pools}} Which of the two numbers is the default or the limit is open {{gap:service-edge-count}}."
+    },
+    {
+      "label": "Table and statuses.",
+      "text": "{{table-fields}} {{statuses}}"
+    },
+    {
+      "label": "Adding and editing.",
+      "text": "{{create-fields}} The listener port value is open {{gap:default-udp-port}}."
+    },
+    {
+      "label": "Updates.",
+      "text": "{{update-schedule}}"
+    },
+    {
+      "label": "BGP configuration.",
+      "text": "{{bgp-config-mode}} {{reload-configuration}} BGP itself is in [[zpa.vpn.bgp]] and redundancy in [[zpa.vpn.redundancy]]."
+    },
+    {
+      "label": "China.",
+      "text": "{{china}} The component name is missing from the capture's wording of the other conditions {{gap:china-names-missing}}."
+    },
+    {
+      "text": "The hub is [[zpa.vpn]], the configuration order in [[zpa.vpn.setup]] and the dashboard in [[zpa.vpn.dashboards]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a tenant's VPN Service Edge count rests on the ambiguous configuration-guide sentence.",
+      "uses": [
+        "count-and-pools",
+        "service-edge-count"
+      ]
+    },
+    {
+      "do": "Whether a software update window is set, since the device reboots during a software update.",
+      "uses": [
+        "update-schedule"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "VPN Service Edges are a single-tenant instance deployed in the Zscaler cloud, and are managed and maintained by Zscaler. A VPN Service Edge assigns Zscaler Client Connector the region and an IP address based on the client IP address pool assigned to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-service-edges.json",
+          "quotes": [
+            "VPN Service Edges are a single-tenant instance, deployed in the Zscaler cloud. They are managed and maintained by Zscaler.",
+            "The VPN Service Edge assigns Zscaler Client Connector the region and an IP address based on the client IP address pool that is assigned to the VPN Service Edge."
+          ]
+        }
+      ]
+    },
+    "count-and-pools": {
+      "statement": "The configuration guide says: \"You can use one VPN Service Edge for a tenant, with a default of three VPN Service Edges. Each VPN Service Edge requires a different client IP pool.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-vpn-legacy-apps.json",
+          "quotes": [
+            "You can use one VPN Service Edge for a tenant, with a default of three VPN Service Edges. Each VPN Service Edge requires a different client IP pool."
+          ]
+        }
+      ]
+    },
+    "statuses": {
+      "statement": "Operational Status is Down when the VPN Service Edge is off and Up when it is on. The status values are Disabled, Enrolling, Enrolled, Online, Unenrolling and Unhealthy, where Unhealthy means the connection is online but new clients cannot use it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-service-edges.json",
+          "quotes": [
+            "Operational Status: If the status shown is Down, the VPN Service Edge is off. If the status shown is Up, the VPN Service Edge is on.",
+            "Disabled: The VPN Service Edge connection is disabled.",
+            "Enrolling: The VPN Service Edge connection is enrolling.",
+            "Enrolled: The VPN Service Edge connection is enrolled.",
+            "Online: The VPN Service Edge connection is online.",
+            "Unenrolling: The VPN Service Edge connection is unenrolling.",
+            "Unhealthy: The VPN Service Edge connection is online but new clients cannot use this connection."
+          ]
+        }
+      ]
+    },
+    "table-fields": {
+      "statement": "The VPN Service Edges table includes Region (where the instance is hosted), IP Address, Client Networks (the range the VPN Service Edge assigns to Client Connector), Listener Port (the port it listens on for connection requests from clients and Network Connectors), Local Router ID, and Redundant Mode (the BGP redundancy mode, Enabled or Disabled).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-service-edges.json",
+          "quotes": [
+            "Region: This is the location where the VPN Service Edge instance is hosted.",
+            "IP Address: The IP address of the VPN Service Edge.",
+            "Client Networks: The IP address range that the VPN Service Edge uses to assign to Zscaler Client Connector.",
+            "Listener Port: The listener port number that the VPN Service Edge listens on for connection requests from clients and Network Connectors.",
+            "Local Router ID: The local router ID assigned to the VPN Service Edge.",
+            "Redundant Mode: The BGP redundancy mode (Enabled or Disabled)."
+          ]
+        }
+      ]
+    },
+    "update-schedule": {
+      "statement": "If an update window is not set, the VPN Service Edge software updates on Sunday at 2:00 AM UTC. Zscaler strongly recommends scheduling updates to avoid service interruption when the device reboots during a software update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-service-edges.json",
+          "quotes": [
+            "If an update window is not set, the software updates on Sunday at 2:00 AM UTC.",
+            "Zscaler strongly recommends scheduling updates to avoid service interruption when the device reboots during a software update."
+          ]
+        }
+      ]
+    },
+    "create-fields": {
+      "statement": "A new VPN Service Edge takes a name, which cannot contain special characters except periods, hyphens and underscores, a Region, and a client IP pool used to assign the IP address to Client Connector. The Default UDP Listen Port is viewed, not entered, and cannot be edited later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-service-edges.json",
+          "quotes": [
+            "The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores (_).",
+            "Region: Select the region that you want to designate to the VPN Service Edge.",
+            "Default UDP Listen Port: View the default UDP port.",
+            "This IP pool is used to assign the IP address to Zscaler Client Connector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-vpn-service-edges.json",
+          "quotes": [
+            "You cannot edit the Default UDP Listen Port."
+          ]
+        }
+      ]
+    },
+    "bgp-config-mode": {
+      "statement": "The BGP config file lists the BGP peers (the Network Connectors) and their config parameters, such as remote IP, ASN and session keepalive timers, and feeds the FRR daemon, which is essential for BGP peering. For Configuration Mode, Generated has the Zscaler service create the file, and Override, which is shown when the file was manually uploaded, is intended for emergency procedures only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-service-edges.json",
+          "quotes": [
+            "The file contains the list of BGP peers (i.e., Network Connectors) and their config parameters (e.g., remote IP, ASN, session keepalive timers). This config file feeds to the FRR daemon, and is essential for BGP peering to work.",
+            "Generated: Select for the Zscaler service to create the config file.",
+            "Override: This option is intended for emergency procedures only. Avoid selecting this option.",
+            "This option is grayed out if you select Override for Configuration Mode."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-vpn-service-edges.json",
+          "quotes": [
+            "If the mode shown is Override, the file was manually uploaded."
+          ]
+        }
+      ]
+    },
+    "reload-configuration": {
+      "statement": "Reload Configuration is Incremental, which updates only the specific parts of the configuration that have changes, or Full, which updates the entire configuration file. The option is grayed out if Override is selected for Configuration Mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-vpn-service-edges.json",
+          "quotes": [
+            "Incremental: Updates only the specific parts of the configuration that have changes.",
+            "Full: Updates the entire configuration file.",
+            "This option is grayed out if you select Override for Configuration Mode."
+          ]
+        }
+      ]
+    },
+    "china": {
+      "statement": "Private Access supports deploying a VPN Service Edge in Beijing, China, for specific use cases, and only when all the listed conditions are met, which include that the user is located in China, connects to the VPN Service Edge in China, and the target application is hosted in China. Users outside China cannot connect to applications in China via it, users in China cannot access applications hosted outside China via it, and Zscaler reserves the right to delete any VPN Service Edge in China that violates these terms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-vpn-service-edges-china.json",
+          "quotes": [
+            "Private Access (ZPA) supports deploying a VPN Service Edge in Beijing, China, for specific use cases.",
+            "VPN Service Edge in China is only supported when all the following conditions are met:",
+            "The user is located in China.",
+            "The user connects to the VPN Service Edge in China.",
+            "The target application is hosted in China",
+            "Users located outside of China cannot connect to applications in China via the VPN Service Edge in China.",
+            "Users located in China cannot access applications hosted outside of China via the VPN Service Edge.",
+            "Zscaler reserves the right to delete any VPN Service Edge in China that violates these terms."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "service-edge-count": {
+      "kind": "semantic",
+      "title": "How many VPN Service Edges a tenant can have, and which number is the default",
+      "status": "open",
+      "detail": "The configuration guide says one VPN Service Edge can be used for a tenant, with a default of three. It does not say whether one or three is the default, or which is the limit.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "default-udp-port": {
+      "kind": "semantic",
+      "title": "The value of the Default UDP Listen Port",
+      "status": "open",
+      "detail": "The pages say the default UDP port is viewed and cannot be edited, and give UDP 51820 to 53000 as the range from the Network Connector to the VPN Service Edge, but no captured page says which port the listener uses.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "china-names-missing": {
+      "kind": "semantic",
+      "title": "Which component is deployed in China",
+      "status": "open",
+      "detail": "The China page's wording of the other conditions about the component deployed in China is missing the component's name in the capture (\"The is deployed in China and establishes an outbound connection to the VPN Service Edge in China.\"). The name is not filled in here.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}
