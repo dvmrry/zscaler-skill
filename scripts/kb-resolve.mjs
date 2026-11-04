@@ -419,9 +419,14 @@ const STOP = new Set(("a an and are as at be but by can do does for from has hav
   + "my not of on or our should so than that the their them then there these they this to was we what when where "
   + "which who why will with would you your yes no any all some only also use used using get set").split(" "));
 
-/** Query and index words: lower case, letters and digits, no stop words, a plural `s` dropped. */
+/**
+ * Query and index words: lower case, letters and digits, no stop words, a plural `s` dropped. A hyphenated name
+ * also counts as one word ("Z-Tunnel" is `ztunnel` as well as `tunnel`): its parts are common, the name is not.
+ */
 function words(text) {
-  return normalizeText(text).split(/[^a-z0-9]+/).filter((w) => w.length > 1 && !STOP.has(w))
+  const norm = normalizeText(text);
+  const joined = [...norm.matchAll(/[a-z0-9]+(?:-[a-z0-9]+)+/g)].map((m) => m[0].replaceAll("-", ""));
+  return [...norm.split(/[^a-z0-9]+/), ...joined].filter((w) => w.length > 1 && !STOP.has(w))
     .map((w) => (w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w));
 }
 
@@ -444,7 +449,7 @@ function rankIndex(g, overlay = null) {
   };
   for (const n of g.nodes.values()) {
     if (n.kind === "subject" || n.kind === "type") {
-      add(n.id, n.id.replace(/[./-]/g, " "), 4);
+      add(n.id, n.id.replace(/[./]/g, " "), 4);
       add(n.id, `${n.data.title || ""} ${(n.data.aliases || []).join(" ")}`, 3);
       if (n.kind === "subject") {
         add(n.id, JSON.stringify(n.data.prose || []).replace(/\{\{[^}]*\}\}|\[\[[^\]]*\]\]/g, " "), 1);
