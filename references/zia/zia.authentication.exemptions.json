@@ -45,6 +45,10 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.advanced-settings"
+    },
+    {
+      "rel": "see-also",
       "to": "zia.authentication.methods"
     },
     {
@@ -70,7 +74,7 @@
     },
     {
       "label": "Per-method exemptions in advanced settings.",
-      "text": "{{bypass-by-method}} Category-based exemptions rely on category membership, which is covered in [[zia.url-filtering]] and the category subjects it links."
+      "text": "{{bypass-by-method}} {{per-method-console}} {{exemption-list-limits}} The page that holds these sections is routed in [[zia.advanced-settings]]. Category-based exemptions rely on category membership, which is covered in [[zia.url-filtering]] and the category subjects it links."
     },
     {
       "text": "Traffic that skips the challenge is attributed to the location: [[zia.authentication.unauthenticated-traffic]]."
@@ -240,6 +244,63 @@
         }
       ],
       "conditions": "Absence claim (no Basic URL list). Search at terraform-provider-zia v4.8.17: `grep -n \"basic_bypass\" zia/resource_zia_advanced_settings.go` returns only `basic_bypass_apps` and `basic_bypass_url_categories` (schema, `d.Set` and expand lines); `grep -rn \"basic_bypass_urls\\|BasicBypassUrls\" zia` returns nothing. The same search over zscaler-sdk-go v3.8.58 `zscaler/zia/services/advanced_settings` for `BasicBypassUrls` returns nothing."
+    },
+    "per-method-console": {
+      "statement": "The service can exempt specific URL categories, URLs, cloud app categories or specific cloud apps from cookie authentication, Kerberos authentication and digest authentication; for Basic authentication and JSON Web Token (JWT) authentication it can exempt specific URL categories, cloud app categories or specific cloud apps. For Basic, the page says specific URLs can be exempted by adding them to a custom category and exempting the category. For Basic and JWT, the page says the feature is not enabled by default and to contact the Zscaler Account team to have it enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "The service can exempt specific URL categories, URLs, cloud app categories, or specific cloud apps from cookie authentication:",
+            "The service can exempt specific URL categories, URLs, cloud app categories, or specific cloud apps from Kerberos authentication:",
+            "The service can exempt specific URL categories, cloud app categories, or specific cloud apps from Basic authentication:",
+            "The service can exempt specific URL categories, URLs, cloud app categories, or specific cloud apps from digest authentication:",
+            "The service can exempt specific URL categories, cloud app categories, or specific cloud apps from JSON Web Token (JWT) authentication:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "This feature is not enabled by default. To have this feature enabled for your organization, contact your Zscaler Account team.",
+            "If you want to exempt specific URLs, you can add them to a custom category and exempt the category."
+          ],
+          "after": "Basic Authentication Exemption"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "This feature is not enabled by default. To have this feature enabled for your organization, contact your Zscaler Account team."
+          ],
+          "after": "JWT Authentication Exemptions"
+        }
+      ]
+    },
+    "exemption-list-limits": {
+      "statement": "For the cookie authentication exemptions, by default up to 64 custom categories can be added to Exempted URL Categories and up to 25K custom URLs (across all categories) to Exempted URLs. For item lists, up to 500 items can be viewed on a page, the list can be filtered by searching, and the first 25K items (Remove 25K Items) or only items from a specific page (Remove Page) can be removed, with a confirmation window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Exempted URL Categories: Select the URL categories you want to exempt from cookie authentication. By default, you can add up to 64 custom categories.",
+            "If you select Remove 25K Items or Remove Page, a confirmation window appears."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "By default, you can add up to 25K custom URLs (across all categories).",
+            "For item lists, you can view up to 500 items on a page; filter the list by searching for a word, phrase, or number contained in an item; and remove the first 25K items from the list (Remove 25K Items) or only items from a specific page (Remove Page)."
+          ],
+          "after": "Exempted URLs: Enter the URLs you want to exempt from cookie authentication"
+        }
+      ]
     },
     "global-exempt-categories": {
       "statement": "Exempted URL Categories are a global exemption and the Exempted URLs list is a local one; traffic to either is marked against the location, not the user.",

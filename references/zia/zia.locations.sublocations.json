@@ -84,11 +84,15 @@
     },
     {
       "label": "Auto-created `other`.",
-      "text": "{{other-auto-created}} {{other-takes-parent-rules}} {{other-is-a-policy-gap}} How the default rule catches traffic no rule matches is in [[zia.url-filtering.rule-order]]."
+      "text": "{{other-auto-created}} {{ipv6-other6-only}} {{other-takes-parent-rules}} {{other-is-a-policy-gap}} How the default rule catches traffic no rule matches is in [[zia.url-filtering.rule-order]]."
     },
     {
       "label": "Names and limits.",
       "text": "{{cap-2000}} {{name-in-use-error}}"
+    },
+    {
+      "label": "The console list.",
+      "text": "{{view-page}}"
     },
     {
       "label": "Finding and changing sublocations.",
@@ -303,11 +307,44 @@
         "reparenting-rules"
       ],
       "conditions": "Derived from the SDK's documented keyword list; the SDK does not validate and the API's behavior is untested."
+    },
+    "view-page": {
+      "statement": "The View Sublocation page lists up to 100 sublocations per page. Its Proxy Ports and Use XFF from Client Request columns show the parent location's values; Authentication shows the sublocation's setting and, with Enable IP Surrogates, its Idle Time to Disassociation; Bandwidth shows the sublocation's download and upload limits in Mbps when Enforce Bandwidth Control is enabled for it; Firewall Filtering is described as whether Firewall Control is enabled for the location; and Scope Type is available only for the Workload traffic type location type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "viewing-sublocations.json",
+          "quotes": [
+            "You can view up to 100 sublocations per page.",
+            "Proxy Ports: The subscribed proxy ports for the parent location, if applicable.",
+            "Use XFF from Client Request: Whether the XFF header is enabled for the parent location.",
+            "Authentication: Whether the Authentication feature is enabled for the sublocation. If you are also using the Enable IP Surrogates feature, this column displays the specified Idle Time to Disassociation.",
+            "Firewall Filtering: Whether the Firewall Control feature is enabled for the location.",
+            "Bandwidth: Bandwidth limitations for the sublocation. If the Enforce Bandwidth Control option is enabled for the sublocation, the download and upload bandwidth limits are displayed in Mbps.",
+            "Scope Type: The scope type of the sublocation. This field is only available for the Workload traffic type location type."
+          ]
+        }
+      ],
+      "conditions": "The Firewall Filtering description says \"for the location\" without saying whether that is the parent or the sublocation, so it does not settle zia.locations.inheritance:sublocation-firewall-source."
+    },
+    "ipv6-other6-only": {
+      "statement": "With IPv6 enabled on a location, adding a sublocation creates Other6 for all IPv6 addresses that connect to the service from that location; creating sublocations for specific IPv6 addresses or networks is currently not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "When you add a sublocation to the location, the Zscaler service automatically creates a new sublocation, namely Other6, for all IPv6 addresses that connect to the Zscaler service from that location. Creating sublocations for specific IPv6 addresses or networks is currently not supported."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
     "default-cap": {
-      "summary": "The default number of sublocations per location is 2,000 in the limits table and 16K in the Configuring Sublocations article.",
+      "summary": "Sublocations per location: the limits table gives 2,000 by default, which Support can raise to 16K, while the Configuring Sublocations and CSV import articles give up to 16K with no mention of a default or of a Support request.",
       "positions": [
         {
           "evidence": {
@@ -328,6 +365,16 @@
             ]
           },
           "says": "Up to 16K per location, with no mention of a default or of a Support request."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-importing-locations-using-a-csv.json",
+            "quotes": [
+              "You can add up to 32,000 locations and 16K sublocations per location."
+            ]
+          },
+          "says": "The CSV import article says an import can add up to 16K sublocations per location, with no mention of a default or of a Support request."
         }
       ],
       "impact": "Planning a large branch design against 16K may hit a 2,000 limit that needs a Support ticket first.",

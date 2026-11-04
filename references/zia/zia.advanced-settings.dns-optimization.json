@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "zia.advanced-settings.dns-optimization",
+  "title": "DNS optimization: proxy-side DNS lookup that overrides the client-resolved IP",
+  "aliases": [
+    "DNS optimization",
+    "Optimize DNS Resolution",
+    "Prefer SNI over CONNECT Host for DNS Resolution",
+    "Optimize All for IPv6",
+    "Do Not Optimize These FQDN"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings.http-tunnel-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.dns-resolution"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.advanced-settings-wire"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what}} {{mechanism}} {{scope}}"
+    },
+    {
+      "label": "Lists.",
+      "text": "{{lists}}"
+    },
+    {
+      "label": "SNI instead of the CONNECT host.",
+      "text": "{{prefer-sni}} The block that compares the two is in [[zia.advanced-settings.http-tunnel-control]]."
+    },
+    {
+      "label": "IPv6.",
+      "text": "{{ipv6}}"
+    },
+    {
+      "text": "This is not the DNS Control policy ([[zia.dns-control]]); the settings page is routed in [[zia.advanced-settings]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the traffic is Z-Tunnel 2.0 or transparent-mode traffic, since DNS optimization applies only to those.",
+      "uses": [
+        "scope"
+      ]
+    },
+    {
+      "do": "Whether the internal domains are in the Do Not Optimize These FQDN list.",
+      "uses": [
+        "lists"
+      ]
+    }
+  ],
+  "claims": {
+    "what": {
+      "statement": "DNS optimization lets Zscaler perform a DNS lookup and override the externally resolved IP addresses in outbound HTTP or HTTPS connections, to establish a connection to a destination server geographically closer to the Service Edge (Public, Private or Virtual). The page says it ensures reduced latency and increased performance efficiency, is an effective technique to mitigate ECH-based domain fronting evasions, and prevents DNS spoofing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "You can configure DNS optimization settings to allow Zscaler to perform a DNS lookup and override the externally resolved IP addresses in the outbound HTTP or HTTPS connections",
+            "to establish a connection to the destination server that is geographically closer to the Service Edge for Internet & SaaS (Public, Private, or Virtual).",
+            "DNS optimization ensures reduced latency and increased performance efficiency, and it's also an effective technique to mitigate ECH-based domain fronting evasions.",
+            "Additionally, it prevents DNS spoofing and provides an extra layer of security, eliminating concerns around the client machine's DNS being compromised."
+          ]
+        }
+      ]
+    },
+    "mechanism": {
+      "statement": "DNS optimization does not affect the DNS resolution process configured for the organization and does not operate on DNS packets, but on the HTTP header of unencrypted HTTP traffic or the SNI field in the TLS hello for HTTPS. After DNS resolution, when the client makes its initial HTTP or HTTPS request to the IP address in the DNS response, the Zscaler proxy intercepts the request and performs a DNS lookup, and overrides the externally resolved IP address if the lookup returns a different one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "DNS optimization does not affect the DNS resolution process that is configured for your organization. It does not operate on the DNS packets but rather on the HTTP header of unencrypted HTTP traffic or the SNI field in the TLS hello if the traffic is encrypted (HTTPS).",
+            "After DNS resolution is performed and when the client makes its initial HTTP or HTTPS request to the IP address returned in the DNS response, the Zscaler proxy intercepts the request and performs a DNS lookup.",
+            "If this lookup fetches an IP address that is different from the externally resolved IP address, the proxy overrides the externally resolved IP address."
+          ]
+        }
+      ]
+    },
+    "scope": {
+      "statement": "DNS optimization applies only to Z-Tunnel 2.0 and transparent mode traffic (for example, traffic via GRE or IPSec tunnels without a PAC file). Using authentication bypass or SSL/TLS bypass does not affect it because the domain name is still visible in the SNI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "DNS optimization applies only to Z-Tunnel 2.0 and transparent mode traffic (e.g., traffic via GRE or IPSec tunnels without a PAC file).",
+            "Using auth bypass or SSL/TLS bypass does not affect DNS optimization as the domain name would still be visible in the SNI."
+          ]
+        }
+      ]
+    },
+    "lists": {
+      "statement": "DNS optimization is enabled with the Optimize DNS Resolution checkbox and configured individually for URL categories, cloud applications (Optimize These Cloud Applications requires Advanced Firewall) and FQDNs (Optimize These FQDN accepts IP addresses or FQDNs). The page also says you can add up to 25,000 custom URLs (across all categories). The Do Not Optimize These URL Categories and Do Not Optimize These FQDN fields exclude entries by overriding the include list, and the page says to add the internal domains prod.zpath.net, gateway.<cloud>.net, ecservice.<cloud>.net and ecgw.<cloud>.net to the Do Not Optimize These FQDN field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "To enable and configure DNS optimization, select the Optimize DNS Resolution checkbox and configure the DNS optimization settings individually for URL categories, cloud applications, and FQDNs using the following options:",
+            "Optimize These Cloud Applications: (Requires Advanced Firewall) Select the cloud applications that the DNS optimization must apply.",
+            "Optimize These FQDN: Enter the IP addresses or FQDNs that the DNS optimization must apply.",
+            "You can add up to 25,000 custom URLs (across all categories).",
+            "Do Not Optimize These URL Categories: If you want to exclude specific URL categories from DNS optimization by overriding the include list, specify the categories in this field.",
+            "Do Not Optimize These FQDN: If you want to exclude specific IP addresses or FQDNs from DNS optimization by overriding the include list, specify the IP addresses or FQDNs and add the following internal domains to this field:",
+            "prod.zpath.net",
+            "gateway.<cloud>.net",
+            "ecservice.<cloud>.net",
+            "ecgw.<cloud>.net"
+          ]
+        }
+      ]
+    },
+    "prefer-sni": {
+      "statement": "Prefer SNI over CONNECT Host for DNS Resolution uses the SSL/TLS client hello SNI for DNS resolution instead of the CONNECT host for forward proxy connections. It works only if the CONNECT host is not part of an SSL/TLS policy, and it handles exceptions such as a malformed but valid SNI server name that is not parsable to the actual resolvable domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Prefer SNI over CONNECT Host for DNS Resolution: Enable to use the SSL/TLS client hello SNI for DNS resolution instead of the CONNECT host for forward proxy connections.",
+            "This works only if the CONNECT host is not part of an SSL/TLS policy.",
+            "This handles exceptions such as a malformed but valid SNI server name that isn't parsable to the actual resolvable domain."
+          ]
+        }
+      ]
+    },
+    "ipv6": {
+      "statement": "When IPv6 support is enabled for the organization, DNS optimization for IPv6 connections is automatically enabled for all URL categories and cloud applications; the service might override externally resolved IPv6 addresses to establish an IPv6 or IPv4 connection to a destination server geographically closer to the Service Edge. Optimize All for IPv6 applies it to all URL categories and cloud applications, and Optimize These Cloud Applications for IPv6 (requires Advanced Firewall) selects specific applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "The Zscaler service performs a DNS lookup and might override the externally resolved IPv6 addresses in the outbound HTTP or HTTPS connections to establish an IPv6 or IPv4 connection to the destination server that is geographically closer to the Service Edge.",
+            "When IPv6 support is enabled for your organization, DNS optimization for IPv6 connections is automatically enabled for all URL categories and cloud applications.",
+            "Optimize All for IPv6: Enable this option to apply DNS optimization to all URL categories and cloud applications.",
+            "Optimize These Cloud Applications for IPv6: (Requires Advanced Firewall) If you want to enable DNS optimization for specific cloud applications, select the applications using this field."
+          ]
+        }
+      ]
+    }
+  }
+}

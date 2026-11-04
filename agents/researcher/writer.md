@@ -193,6 +193,11 @@ verifier and the claim audit found in writer output:
   v3.8.58"), not "the pinned release" or "at the pin": the pin moves.
 - **Labels are quoted.** A setting name, tab or console path in the statement
   appears in a quote, not only its description.
+- **A short scope is an anchor.** A platform or section the page names only in
+  a heading or list item too short to quote ("Windows", "API") is carried by
+  an `after` anchor written as the anchoring text writes it, marker included
+  (`"after": "- Windows"`, `"after": "## Inline"`), on the evidence whose
+  quotes sit under it. Do not drop the scope because it cannot be quoted.
 - **An example is not a rule.** "For example, filtering on both a user and a
   location matches only records with both" backs that example; "filters on
   different fields must all match" needs a source that says so.

@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.portals-policy",
+  "title": "PRA portals policy: file, inspection and approval permissions in the PRA Portal",
+  "aliases": [
+    "portals policy",
+    "pra portal policy",
+    "portal configuration delete files",
+    "access uninspected files",
+    "upload inspection sandbox scan",
+    "request approvals review approvals",
+    "privileged portal policy"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.pra"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.consoles-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.portals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A portals policy decides what users of a privileged portal can do in the PRA Portal. {{scope}}"
+    },
+    {
+      "label": "Before creating one.",
+      "text": "{{prerequisites}}"
+    },
+    {
+      "label": "Rule options.",
+      "text": "{{rule-name}} {{options-and-defaults}} The defaults of Request Approvals and Review Approvals are open {{gap:approval-option-defaults}}, and so is what the Scan option inspects with {{gap:scan-option}}."
+    },
+    {
+      "label": "Criteria.",
+      "text": "{{criteria}} {{saml-scim-evaluation}} The access-policy version of these rules is [[zpa.policy.criteria:idp-policy-setting-disabled]]."
+    },
+    {
+      "label": "The page.",
+      "text": "{{table-columns}} {{subscription-visibility}}"
+    },
+    {
+      "label": "Open.",
+      "text": "A legacy API article describes the portals policy payload and is not yet read into the graph {{gap:legacy-api-capture}}."
+    },
+    {
+      "text": "The permissions this policy gives for file transfer and approvals are used in [[zpa.pra.file-transfer]] and [[zpa.pra.approvals]]; the sibling policy for consoles is [[zpa.pra.consoles-policy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a portals policy rule exists for the portal and the user's country, IdP or attributes before blaming the console, since file and approval pages come from it.",
+      "uses": [
+        "scope",
+        "criteria"
+      ]
+    },
+    {
+      "do": "Whether an option is on, noting that Request Approvals and Review Approvals have no stated default.",
+      "uses": [
+        "options-and-defaults",
+        "approval-option-defaults"
+      ]
+    },
+    {
+      "do": "Whether a SAML or SCIM criterion is skipped or blocks the rule because the IdP's policy setting is disabled.",
+      "uses": [
+        "saml-scim-evaluation"
+      ]
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "Portals policy rules allow deleting uploaded files, uploading inspected files, uploading inspected Internet & SaaS Sandbox files, accessing uninspected files in the PRA File Transfer System pages, and requesting and reviewing privileged approvals on the My Approvals and My Requests pages. Portals policies allow users to access the PRA File Transfer System and My Approvals pages in the PRA Portal they assign the rule to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-portals-policy.json",
+          "quotes": [
+            "Portals policy rules allow you to delete uploaded files, upload inspected files, upload inspected Internet & SaaS Sandbox files, access uninspected files in the Privileged Remote Access (PRA) File Transfer System pages, and request and review privileged approvals on the My Approvals and My Requests pages.",
+            "Portals policies allow users to access the Privileged Remote Access (PRA) File Transfer System and My Approvals pages in the PRA Portal they assign the rule to."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "The privileged portals a portals policy will control must be created first, and the Configuring page also names the privileged console the rule applies to. A portals policy for the File Transfer System needs the Internet & SaaS (ZIA) Sandbox integration parameters set up before the policy is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-portals-policy.json",
+          "quotes": [
+            "If you want to configure portals policies, you must first create the privileged portals that you want to assign control to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-portals-policies.json",
+          "quotes": [
+            "After you have created a privileged portal and the privileged console that this policy rule applies to, you need to create a portals policy.",
+            "If you are creating a portal policy for the File Transfer System, you have to set up the parameters for the Internet & SaaS (ZIA) Sandbox integration prior to creating a portals policy."
+          ]
+        }
+      ]
+    },
+    "rule-name": {
+      "statement": "A portals policy rule's name cannot contain special characters other than periods, hyphens and underscores, and its description is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-portals-policies.json",
+          "quotes": [
+            "Rule Name: Enter a portals policy name. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+            "Description: (Optional) Enter a description."
+          ]
+        }
+      ]
+    },
+    "options-and-defaults": {
+      "statement": "A rule's Portal Configuration has Delete Files, Access Uninspected Files (shows uninspected files in the PRA Portal) and Upload Inspection (Sandbox for Internet & SaaS Sandbox inspection, or Scan for inspection other than that), each disabled by default, plus Request Approvals (approval requests can be created in the PRA Portal) and Review Approvals (requests can be reviewed, approved and rejected).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-portals-policies.json",
+          "quotes": [
+            "Delete Files: Enable to allow deletion of files. By default, this field is disabled.",
+            "Access Uninspected Files: Enable to allow uninspected files to be displayed in the PRA Portal. By default, this field is disabled.",
+            "Upload Inspection: Select Sandbox to allow Internet & SaaS (ZIA) Sandbox integration inspection of the file. Select Scan to allow inspection via another format other than Internet & SaaS Sandbox. By default, this field is disabled.",
+            "Request Approvals: Enable to allow privileged approval requests to be created in the PRA Portal.",
+            "Review Approvals: Enable to allow privileged approval requests to be reviewed, approved, and rejected."
+          ]
+        }
+      ],
+      "conditions": "The page states a default only for Delete Files, Access Uninspected Files and Upload Inspection; none is stated for Request Approvals or Review Approvals."
+    },
+    "criteria": {
+      "statement": "A portals policy rule's criteria include a choice of countries, an external IdP attribute configured in Authentication Service (supported only for IdPs created in Authentication Service), at least one required privileged portal, and SAML and SCIM Attributes with SCIM groups, where SAML and SCIM Attributes becomes Session and User Attributes for a tenant subscribed to Authentication Service for users. The criteria drop-down shows only criteria not already in use by the rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-portals-policies.json",
+          "quotes": [
+            "Choose the countries to which this rule applies.",
+            "This criteria is the external IdP attribute configured in Authentication Service and is only supported for IdPs created in Authentication Service.",
+            "You need to select at least one privileged portal to create the portals policy.",
+            "If you are subscribed to Authentication Service for users, the SAML and SCIM Attributes criteria is replaced with Session and User Attributes.",
+            "Choose a specific SCIM group from the drop-down menu to apply the rule action to a specific group:",
+            "The drop-down menu only displays criteria that are not already in use by the rule."
+          ]
+        }
+      ]
+    },
+    "saml-scim-evaluation": {
+      "statement": "For Private Access to process SAML and SCIM criteria in a portals policy rule, the SAML Attributes for Policy setting (SAML) and the SCIM Attributes and Groups for Policy setting (SCIM) must be enabled on the IdP. The SAML Attributes rule defaults to Any SAML attribute, and multiple attributes, groups or IdPs are joined by OR by default, which can be toggled to AND. If the IdP setting is disabled but the rule has criteria of that kind, OR skips those criteria and evaluates the others, while AND makes Private Access not evaluate the rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-portals-policies.json",
+          "quotes": [
+            "For Private Access (ZPA) to process SAML and SCIM criteria in a rule, you must enable the SAML Attributes for Policy setting for SAML and the SCIM Attributes and Groups for Policy setting for SCIM when configuring an IdP.",
+            "By default, the policy rule for SAML Attributes is set to Any SAML attribute.",
+            "If you added multiple attributes or groups to the policy rule, Private Access uses an OR Boolean operator between them by default.",
+            "If you selected multiple IdPs for the policy rule, Private Access uses an OR Boolean operator between them by default.",
+            "If the corresponding IdP setting (SAML Attributes for Policy) is disabled for SAML, but the policy rule has criteria for SAML attributes, Private Access evaluates the rule differently depending on the Boolean operator between the criteria:",
+            "OR: Private Access skips evaluating the criteria for SAML attributes, but continues to evaluate the criteria for SCIM attributes and SCIM groups.",
+            "AND: Private Access does not evaluate this policy rule. You must remove the criteria under SAML Attributes for Private Access to process the policy rule.",
+            "If the corresponding IdP setting (SCIM Attributes and Groups for Policy) is disabled for SCIM, but the policy rule has criteria for SCIM attributes or SCIM groups, Private Access evaluates the rule differently depending on the Boolean operator between the criteria:",
+            "OR: Private Access skips evaluating the criteria for SCIM attributes and SCIM groups, but continues to evaluate the criteria for SAML attributes.",
+            "AND: Private Access does not evaluate this policy rule. You must remove the criteria for SCIM attributes and SCIM groups for Private Access to process the policy rule.",
+            "If your IdP configuration for SSO includes SAML attributes or SCIM attributes from multiple IdPs, Zscaler recommends that you do not use the AND Boolean operator between policy rules."
+          ]
+        }
+      ]
+    },
+    "table-columns": {
+      "statement": "The Portals Policy page lists each rule's Rule Order, which is the evaluation order (ZPA applies rules in the listed order, and the number can be edited by entering a new value), and its Portal Configuration, the options set for that rule shown as enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-portals-policy.json",
+          "quotes": [
+            "Rule Order: The policy evaluation order number for the rule. ZPA applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering a new value.",
+            "Portal Configuration: The portal configuration you have set for that specific policy rule, with the following options enabled or disabled:",
+            "Upload Inspected Sandbox",
+            "Upload Inspected Scan"
+          ]
+        }
+      ]
+    },
+    "subscription-visibility": {
+      "statement": "Which privileged policy options appear alongside the Portals Policy depends on the tenant's Privileged Remote Access subscriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-portals-policy.json",
+          "quotes": [
+            "Depending on your Privileged Remote Access (PRA) subscriptions, you will see the following privileged policy options:"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "approval-option-defaults": {
+      "kind": "semantic",
+      "title": "The defaults of Request Approvals and Review Approvals",
+      "status": "open",
+      "detail": "The Configuring Portals Policies page states a disabled default for Delete Files, Access Uninspected Files and Upload Inspection but states none for Request Approvals or Review Approvals. A lab test of a new rule would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "scan-option": {
+      "kind": "semantic",
+      "title": "What the Upload Inspection Scan option inspects with",
+      "status": "open",
+      "detail": "Scan is described only as inspection via another format other than Internet & SaaS Sandbox, and the File Transfer System page says an inspected upload is by DI scan (zpa.pra.file-transfer:fts-portals-policy). Neither page says what performs the scan. A Zscaler statement would resolve it.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "legacy-api-capture": {
+      "kind": "semantic",
+      "title": "The legacy API article on configuring privileged policies is not cited by any subject",
+      "status": "open",
+      "detail": "The capture legacy-api-configuring-privileged-policies-using-api.json (vendor/zscaler-help) has no citing subject. Per the extraction pass it maps the portals policy to a PRIVILEGED_PORTAL_POLICY policy type with capabilities including DELETE_FILE, ACCESS_UNINSPECTED_FILE, UPLOAD_INSPECTED_SCAN, REQUEST_APPROVALS and REVIEW_APPROVALS, names its action CHECK_PRIVILEGED_PORTAL_POLICIES in the parameter text but CHECK_PRIVILEGED_PORTAL_CAPABILITIES in its payloads, and shows no Sandbox capability value to match the Upload Inspected Sandbox option. It also covers credentials-policy and consoles-policy rules. It needs its own extraction pass; no claim here rests on it.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

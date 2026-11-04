@@ -54,7 +54,15 @@
     },
     {
       "label": "Data Protection.",
-      "text": "{{data-protection-window}} {{dlp-policy-and-quarantine}}"
+      "text": "{{data-protection-window}} {{dlp-data-protection-page}} {{dlp-policy-and-quarantine}}"
+    },
+    {
+      "label": "Endpoint DLP requirements.",
+      "text": "{{dlp-integration-versions}} The macOS floor is given two ways {{divergence:endpoint-dlp-macos-floor}}."
+    },
+    {
+      "label": "Endpoint DLP notifications.",
+      "text": "{{dlp-notifications}} The page introduces the Block notification with the trigger it gives the Allow notification {{divergence:dlp-block-trigger}}. {{dlp-mute}}"
     },
     {
       "label": "Exemption.",
@@ -286,6 +294,68 @@
         }
       ]
     },
+    "dlp-integration-versions": {
+      "statement": "The Client Connector Endpoint DLP integration page says the feature is supported on devices running Client Connector 4.3 and later for Windows and 4.2 and later for macOS, and that it is only supported on macOS Monterey (12) and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+          "quotes": [
+            "This feature is supported on devices running Zscaler Client Connector version 4.3 and later for Windows and Zscaler Client Connector version 4.2 and later for macOS.",
+            "The Endpoint DLP feature is only supported on devices running macOS Monterey (12) and later versions."
+          ]
+        }
+      ]
+    },
+    "dlp-data-protection-page": {
+      "statement": "An admin can enable Endpoint DLP using the Client Connector Portal; the page points to Configuring Client Connector Profiles for the steps to enable the Install Endpoint DLP feature. In the app, the Data Protection page refers to the Endpoint DLP feature, where end users can view the connection status of the service and perform troubleshooting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+          "quotes": [
+            "Admin can enable Zscaler Endpoint DLP using the Zscaler Client Connector Portal.",
+            "For steps to enable the Install Endpoint DLP feature, see Configuring Zscaler Client Connector Profiles.",
+            "On Zscaler Client Connector, the Data Protection page refers to the Zscaler Endpoint DLP feature.",
+            "On the Data Protection page, the end-users can view the connection status of the service and perform troubleshooting."
+          ]
+        }
+      ]
+    },
+    "dlp-notifications": {
+      "statement": "When a user violates an Endpoint DLP rule and user notifications are enabled, the user receives a message on the endpoint based on the triggered rule. For the Allow notification the user can click Learn more or Do Not Disturb, and it disappears automatically in 10 seconds; for the Block notification the user can click Learn more and then, under the More options drop-down menu, choose Do Not Disturb or Request Exemption; if the admin has set rules with a confirm action, end users receive a Confirm notification requesting action, and the user has 5 minutes to select an option, after which Zscaler blocks the activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+          "quotes": [
+            "When a user violates an Endpoint DLP rule, and the user notifications are enabled, they receive a message on the endpoint based on the triggered rule.",
+            "The user can click Learn more for more details about the notification or click Do Not Disturb to prevent the notification from reappearing. The allow notification automatically disappears in 10 seconds.",
+            "The user can click Learn more to understand why their activity was blocked, and then click the More options drop-down menu and choose Do Not Disturb or Request Exemption.",
+            "Confirm notification",
+            "If the admin has set rules with a confirm action, end users receive a notification requesting action.",
+            "The user has 5 minutes to select an option. If the user doesn’t provide input within the time period, Zscaler blocks the user activity."
+          ]
+        }
+      ]
+    },
+    "dlp-mute": {
+      "statement": "Users can turn off Endpoint DLP user notifications under Zscaler Client Connector > More > Settings > Show all notifications; even then the Endpoint DLP notifications are still logged on the Notifications page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+          "quotes": [
+            "Users can turn off Endpoint DLP user notifications on the Zscaler Client Connector > More > Settings >Show all notifications.",
+            "Even if this setting is turned off, the Endpoint DLP notifications are still logged on the Notifications page."
+          ]
+        }
+      ]
+    },
     "dlp-exemption": {
       "statement": "A user blocked by Endpoint DLP for a rule violation can request an exemption from the block action and be monitored instead. In the Classic UI, Request exemption prompts for a password, the one-time password also works in offline mode, and the page says exemptions are granted for 12 hours. In the Modern UI the user enables the option, enters a Disable Reason on the Request exemption window and clicks Continue, might be prompted for a password, and a granted exemption shows a message that traffic is monitored but not blocked with an expiration time that the page gives as 12 hours after the exemption is granted.",
       "tier": "A",
@@ -365,6 +435,58 @@
     }
   },
   "divergences": {
+    "endpoint-dlp-macos-floor": {
+      "summary": "The Client Connector Endpoint DLP integration page says Endpoint DLP is only supported on macOS Monterey (12) and later; the ZIA step-by-step Endpoint DLP page lists endpoints running macOS 14, 15 or 26.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+            "quotes": [
+              "The Endpoint DLP feature is only supported on devices running macOS Monterey (12) and later versions."
+            ]
+          },
+          "says": "Endpoint DLP is only supported on devices running macOS Monterey (12) and later versions."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-step-by-step-endpoint-dlp.json",
+            "quotes": [
+              "Endpoints running macOS 14, 15, or 26 (Sonoma, Sequoia, or Tahoe)"
+            ]
+          },
+          "says": "The prerequisites list endpoints running macOS 14, 15, or 26 (Sonoma, Sequoia, or Tahoe) (existing claim zia.dlp.endpoint-enforcement:prerequisites)."
+        }
+      ],
+      "impact": "The oldest macOS release Endpoint DLP supports is Monterey (12) on one page and 14 on the other; the pages do not say whether the second is a list of tested releases or a floor."
+    },
+    "dlp-block-trigger": {
+      "summary": "Inside the Endpoint DLP integration page, the Allow notification and the Block notification are each introduced with the same trigger, a rule configured for the Allow action.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+            "quotes": [
+              "When a user violates or triggers an Endpoint DLP rule that is configured for the Allow action and the End User Notification is selected as Show, the Allow notification is displayed."
+            ]
+          },
+          "says": "The Allow notification is displayed for a rule configured for the Allow action with the End User Notification set to Show."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+            "quotes": [
+              "When a user violates or triggers an Endpoint DLP rule that is configured for the Allow action and the End User Notification is selected as Show, the Block notification is displayed."
+            ]
+          },
+          "says": "The Block notification is displayed for a rule configured for the Allow action with the End User Notification set to Show, which repeats the Allow notification's trigger."
+        }
+      ],
+      "impact": "The page does not state what rule configuration produces the Block notification, so it cannot be used to say when a user sees it."
+    },
     "exemption-duration": {
       "summary": "The Classic and Modern end-user Endpoint DLP pages give the exemption as 12 hours, while the Endpoint Data Scan settings page makes the Exemption Duration selectable from 5 minutes to 12 hours.",
       "positions": [

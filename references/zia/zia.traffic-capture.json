@@ -1,0 +1,1284 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-capture",
+  "title": "Traffic Capture Essentials and Traffic Capture for NDR: storage, rules, limits and obfuscation",
+  "aliases": [
+    "traffic capture",
+    "traffic capture essentials",
+    "traffic capture for ndr",
+    "traffic capture policy",
+    "pcap",
+    "pcapng",
+    "packet capture",
+    "trafficCaptureRules",
+    "pcapSettings",
+    "capture limit",
+    "txnSizeLimit",
+    "txnSampling",
+    "traffic capture settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.malware-protection.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.rule-usage"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{two-offerings}} {{essentials-policies}} Where Traffic Capture is switched on differs between pages {{divergence:capture-enablement}}."
+    },
+    {
+      "label": "Essentials storage and options.",
+      "text": "{{essentials-s3}} {{s3-url-format}} {{per-occurrence-limits}} The defaults and ranges of these limits are open {{gap:limit-defaults}}. {{obfuscation}}"
+    },
+    {
+      "label": "NDR storage destinations.",
+      "text": "{{ndr-enable}} {{ndr-destinations}} {{ndr-permissions}} Which other storage options exist is open {{gap:storage-options}}."
+    },
+    {
+      "label": "NDR policy rules.",
+      "text": "{{ndr-policy}} {{criteria-logic}} {{identity-limits}} The two-interval limit is one side of [[zia.time-intervals.rule-usage:time-intervals-per-rule]]. {{empty-none-vs-any}} {{device-groups}} {{ipv6-criteria}} {{countries}} {{fqdn-matching}} Whether the rule form has a device trust criterion is open {{gap:device-trust-criterion}}."
+    },
+    {
+      "label": "Rule action and details.",
+      "text": "{{actions}} The unit of Capture Limit is given two ways {{divergence:capture-limit-unit}}. {{rule-details}}"
+    },
+    {
+      "label": "Rule API.",
+      "text": "{{rule-api-values}} {{rule-api-endpoints}} The captured OpenAPI document has no Traffic Capture path: [[zia.time-intervals.rule-usage:traffic-capture-rules]]."
+    },
+    {
+      "label": "Settings API.",
+      "text": "{{settings-api-endpoints}} {{settings-storage}} {{settings-limits}} {{settings-obfuscation-headers}} Whether the API lists or downloads captures is open {{gap:capture-retrieval-api}}, and how it relates to the NDR destination is open {{gap:offering-scope}}. What the aggregation limits do is open {{gap:agg-limits-meaning}}."
+    },
+    {
+      "label": "Licensing and data handling.",
+      "text": "{{licensing}} The per-seat allocation is open {{gap:licensing-allocation}}. {{capture-modes}} {{delivery-no-disk}} Whether Zscaler stores capture files is disputed {{divergence:pcap-storage}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Capture Limit value was read from the console's MB label or from the API enumeration, since the API values include KB sizes and Unlimited.",
+      "uses": [
+        "capture-limit-unit",
+        "actions",
+        "rule-api-values"
+      ]
+    },
+    {
+      "do": "Whether an answer that says Zscaler holds no copy of capture files accounts for the API's storage location values.",
+      "uses": [
+        "pcap-storage",
+        "delivery-no-disk",
+        "settings-storage"
+      ]
+    },
+    {
+      "do": "Whether a bucket URL is the general-purpose form, since custom and directory-style bucket URLs are not supported.",
+      "uses": [
+        "s3-url-format"
+      ]
+    },
+    {
+      "do": "Whether Traffic Capture is switched on, and which page shows the switch, before concluding a Capture action has no effect.",
+      "uses": [
+        "capture-enablement",
+        "ndr-enable"
+      ]
+    }
+  ],
+  "claims": {
+    "two-offerings": {
+      "statement": "With Traffic Capture Essentials, traffic is captured as PCAP files that can be accessed later through an Amazon S3 bucket the organization manages, for supported actions in policies. With Traffic Capture for Network Detection and Response (NDR), traffic is captured as PCAPNG files with the Traffic Capture policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-traffic-capture-essentials.json",
+          "quotes": [
+            "With Zscaler Traffic Capture Essentials, you can capture traffic as PCAP files, which can be accessed later through an Amazon S3 bucket managed by your organization, for supported actions with the following policies:",
+            "If your organization has Traffic Capture for Network Detection and Response (NDR), you can capture traffic as PCAPNG files with the Traffic Capture policy."
+          ]
+        }
+      ]
+    },
+    "essentials-policies": {
+      "statement": "The Capture option for Traffic Capture Essentials is in Advanced Threat Protection, File Type Control, Firewall Filtering, DNS Filtering, IPS Control, Malware Protection and URL Filtering policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-traffic-capture-essentials.json",
+          "quotes": [
+            "Advanced Threat Protection",
+            "File Type Control",
+            "Firewall Filtering",
+            "DNS Filtering",
+            "IPS Control",
+            "Malware Protection",
+            "URL Filtering"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-essentials.json",
+          "quotes": [
+            "For the following policies that allow Traffic Capture Essentials, you can enable the Capture option:"
+          ]
+        }
+      ]
+    },
+    "essentials-s3": {
+      "statement": "Traffic Capture Essentials needs an S3 bucket configured to store capture data, with permissions that let capture files be uploaded and ingested; Zscaler recommends dual-stack storage endpoints for all cloud destinations. An optional HTTP header with a case-sensitive key adds metadata to the Amazon S3 REST request, for example for server-side encryption with customer-provided keys (SSE-C).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-essentials.json",
+          "quotes": [
+            "Your organization must have an S3 bucket configured to store capture data for Traffic Capture Essentials.",
+            "Your Amazon S3 bucket configuration must have the appropriate permissions to ensure that capture files are uploaded and ingested properly.",
+            "When configuring your S3 bucket, Zscaler recommends using dual-stack storage endpoints for all cloud destinations.",
+            "HTTP Header: (Optional) Enter a string to add metadata to the Amazon S3 REST request:",
+            "Key: The case-sensitive name of the HTTP header.",
+            "For example, you can use HTTP headers to include the information necessary for configuring server-side encryption with customer-provided keys (SSE-C)."
+          ]
+        }
+      ]
+    },
+    "s3-url-format": {
+      "statement": "The Essentials settings page and the NDR settings page each say the service does not support custom or directory-style bucket URLs (non-standard prefixes, additional subdomains such as s3express, or unconventional naming patterns such as double dashes) and require a general-purpose S3 bucket URL in the form https://<bucket-name>.s3.<region>.amazonaws.com/<path>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-essentials.json",
+          "quotes": [
+            "The Zscaler service does not support custom or directory-style bucket URLs that include non-standard prefixes, additional subdomains (e.g., s3express), or unconventional naming patterns (such as double dashes).",
+            "You must use a general purpose S3 bucket URL following the standard format: https://<bucket-name>.s3.<region>.amazonaws.com/<path>."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-settings-traffic-capture-policy.json",
+          "quotes": [
+            "The Zscaler service does not support custom or directory-style bucket URLs that include non-standard prefixes, additional subdomains (e.g., s3express), or unconventional naming patterns (such as double dashes).",
+            "You must use a general purpose S3 bucket URL following the standard format: https://<bucket-name>.s3.<region>.amazonaws.com/<path>."
+          ]
+        }
+      ]
+    },
+    "per-occurrence-limits": {
+      "statement": "Traffic Capture Essentials has optional Per Occurrence Limits, to be set or left at the defaults: Storage Limit, the maximum amount of data kept in the file when a policy configured for Traffic Capture Essentials triggers, and Sampling, the percentage of traffic sampled for capturing when it is triggered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-essentials.json",
+          "quotes": [
+            "(Optional) in the Per Occurrence Limits section, set limits or use the defaults:",
+            "Storage Limit: The maximum amount of data to be kept in the file when a policy configured for Traffic Capture Essentials triggers.",
+            "Sampling: The percentage of traffic that is sampled for capturing when Traffic Capture Essentials is triggered."
+          ]
+        }
+      ]
+    },
+    "obfuscation": {
+      "statement": "Traffic Capture Essentials lets an admin choose whether usernames and device information in created PCAP files are Visible or Obfuscated; the NDR settings offer the same choice for user names and device information in created PCAPNG files. The Essentials page names the aims of keeping capture data to admins with the necessary privileges and limiting exposure of personally identifiable information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-essentials.json",
+          "quotes": [
+            "Usernames: Choose whether usernames in created PCAP files are Visible or Obfuscated.",
+            "Devices: Choose whether device information in created PCAP files is Visible or Obfuscated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-settings-traffic-capture-policy.json",
+          "quotes": [
+            "Users: Choose whether the names of users in created PCAPNG files are Visible or Obfuscated.",
+            "Devices: Choose whether device information in created PCAPNG files is Visible or Obfuscated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-traffic-capture-essentials.json",
+          "quotes": [
+            "Keep capture data secure and limited to those who have the necessary administrative privileges.",
+            "Limit exposure of personally identifiable information (PII) with information obfuscation."
+          ]
+        }
+      ]
+    },
+    "ndr-enable": {
+      "statement": "The NDR settings page is reached from the navigation menu at Internet Access > Traffic Capture > Settings, where Status enables Traffic Capture for NDR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-settings-traffic-capture-policy.json",
+          "quotes": [
+            "From the navigation menu, go to Internet Access > Traffic Capture > Settings.",
+            "Status: Select to enable Traffic Capture for NDR."
+          ]
+        }
+      ]
+    },
+    "ndr-destinations": {
+      "statement": "For NDR, Traffic Capture must be enabled and a cloud storage destination configured before the Traffic Capture policy is configured. A destination is AWS S3 storage or Azure storage (Azure takes a Tenant ID, Client ID and Client Secret), and Use Default Storage sets a destination as the organization's default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-settings-traffic-capture-policy.json",
+          "quotes": [
+            "Before configuring the Traffic Capture policy, you must enable Traffic Capture and configure a cloud storage destination.",
+            "AWS S3 Storage: If AWS S3 is your chosen cloud destination, provide the following information in the Add AWS S3 Storage drawer:",
+            "Azure Storage: If Azure is your chosen cloud destination, provide the following information in the Add Azure Storage drawer:",
+            "Tenant ID: Enter the Tenant ID associated with your organization's Azure cloud storage destination.",
+            "Client ID: Enter the Client ID associated with your organization's Azure cloud storage destination.",
+            "Client Secret: Enter the Client Secret associated with your organization's Azure cloud storage destination.",
+            "Select Use Default Storage to set the cloud storage destination as the default for your organization."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-traffic-capture-policy.json",
+          "quotes": [
+            "Before using the Traffic Capture policy, you must enable Traffic Capture and configure a cloud storage destination to forward captured traffic to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "Before configuring rules for the Traffic Capture policy, you must enable Traffic Capture and configure a cloud storage destination."
+          ]
+        }
+      ]
+    },
+    "ndr-permissions": {
+      "statement": "The NDR settings page lists the container permissions needed for the test connection and for Traffic Capture: for AWS S3, s3:PutObject and s3:GetObject for the test connection and s3:PutObject for Traffic Capture; for Microsoft Azure, Blob write and read data actions for the test connection and Blob write data actions for Traffic Capture. The page says the permissions needed only for testing should be removed once the connection is tested and established.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-settings-traffic-capture-policy.json",
+          "quotes": [
+            "| Cloud Storage Provider | Permissions Needed for Test Connection | Permissions Needed for Traffic Capture |",
+            "| AWS S3 | s3:PutObject s3:GetObject | s3:PutObject |",
+            "| Microsoft Azure | Blob write and read data actions | Blob write data actions |",
+            "Certain permissions are only necessary when testing the connection between the Zscaler service and the cloud storage container; these permissions should be removed after the connection has been tested and established."
+          ]
+        }
+      ]
+    },
+    "ndr-policy": {
+      "statement": "With Traffic Capture for NDR, Traffic Capture policy rules capture network traffic as PCAPNG files with granular control of match criteria and of how much traffic is captured. Traffic Capture policy rules can only be used on locations that have Firewall enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-traffic-capture-policy.json",
+          "quotes": [
+            "With Zscaler Traffic Capture for Network Detection and Response (NDR), you can create Traffic Capture policy rules to capture network traffic in PCAPNG file format with granular control of match criteria and how much traffic is captured.",
+            "Traffic Capture policy rules can only be used on locations that have Firewall enabled."
+          ]
+        }
+      ]
+    },
+    "criteria-logic": {
+      "statement": "In Traffic Capture policy rules the criteria on each tab have their own operators: Who, Where, & When is [(Users OR Groups OR Departments) AND (Locations OR Location Groups) AND Time]; Devices is (Devices OR Device Groups OR Workload Groups); Services is (Network Service Groups OR Network Services); Applications is [(Network Application Groups OR Network Applications) AND (Application Service Groups)]; Source IP is (Source IPv4 Groups OR Source IPv6 Groups OR IP Addresses OR Countries); Destination IP is (Destination IPv4 Groups OR Destination IPv6 Groups OR IP Address or FQDN OR Countries). The relationship between tabs is AND. Within an AND bracket, the rule bypasses fields set to Any when any one of the OR fields has criteria set, and triggers for all values if every OR field in the bracket is Any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "There is a series of logical operators between the criteria in Traffic Capture policy rules. The criteria on each tab have their own set of logical operators.",
+            "Who, Where, & When: [(Users OR Groups OR Departments) AND (Locations OR Location Groups) AND Time]",
+            "Devices: (Devices OR Device Groups OR Workload Groups)",
+            "Services: (Network Service Groups OR Network Services)",
+            "Applications: [(Network Application Groups OR Network Applications) AND (Application Service Groups)]",
+            "Source IP: (Source IPv4 Groups OR Source IPv6 Groups OR IP Addresses OR Countries)",
+            "Destination IP: (Destination IPv4 Groups OR Destination IPv6 Groups OR IP Address or FQDN OR Countries)",
+            "In addition to the logical operators between criteria, the relationship between tabs is AND.",
+            "The rule bypasses the fields that are set to Any, when any one of the fields has set criteria among the OR fields within an AND bracket.",
+            "The rule triggers for all the values in the fields if you set Any for all the fields that have an OR relation together within an AND bracket."
+          ]
+        }
+      ]
+    },
+    "identity-limits": {
+      "statement": "On the Traffic Capture rule form, Users, Groups, Departments, Locations and Location Groups each take up to 32 selections (no users or no locations means Any), Zscaler Support can raise the limit for Users, Groups, Departments and Locations, Time takes up to two time intervals (none means Always), and Workload Groups take up to 8. Any rule that applies to unauthenticated traffic must apply to all groups and departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "Users: Select up to 32 users from the drop-down menu. Selecting no users sets the field to Any, which applies the rule to all users.",
+            "Groups: Select up to 32 groups from the drop-down menu.",
+            "Departments: Select up to 32 departments from the drop-down menu.",
+            "Contact Zscaler Support to increase the limit of Users, Groups, or Departments.",
+            "Locations: Select up to 32 locations from the drop-down menu. Selecting no locations sets the field to Any, which applies the rule to all locations. Contact Zscaler Support to increase the limit of locations.",
+            "Location Groups: Select up to 32 location groups from the drop-down menu.",
+            "Time: Select up to two time intervals during which the rule applies. Selecting no time intervals sets the field to Always, which applies the rule at all times.",
+            "Workload Groups: Select up to 8 workload groups for which you want to apply the rule.",
+            "Any rule that applies to unauthenticated traffic must apply to all groups and departments."
+          ]
+        }
+      ]
+    },
+    "empty-none-vs-any": {
+      "statement": "What an empty field means differs by field on the rule form: selecting no network service groups, network application groups, application service groups, source IPv4 groups or destination IPv4 groups sets the field to None, which ignores the criterion during policy evaluation; selecting no network services, applications, devices or device groups sets it to Any, which applies the rule to all of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "Selecting no network service groups sets the field to None, which ignores this criterion during policy evaluation.",
+            "Selecting no network application groups sets the field to None, which ignores this criterion during policy evaluation.",
+            "Selecting no application service groups sets the field to None, which ignores this criterion during policy evaluation.",
+            "Source IPv4 Groups: Select the source IPv4 groups that you want to control with this rule. Selecting no groups sets the field to None, which ignores this criterion during policy evaluation.",
+            "Destination IPv4 Groups: Select the destination IPv4 groups that you want to control with this rule. Selecting no groups sets the field to None, which ignores this criterion during policy evaluation.",
+            "Selecting no network services sets the field to Any, which applies the rule to all network services.",
+            "Selecting no applications sets the field to Any, which applies the rule to all applications.",
+            "Selecting no devices sets the field to Any, which applies the rule to all devices.",
+            "Selecting no device groups sets the field to Any, which applies the rule to all device groups."
+          ]
+        }
+      ]
+    },
+    "device-groups": {
+      "statement": "For Client Connector traffic, the Device Groups field selects the group matching the device platform; Cloud Browser Isolation or No Client Connector applies the rule to isolation traffic or to traffic not tunneled through Client Connector, respectively. The Cloud Browser Isolation group is available only if Zero Trust Browser (formerly Isolation) is enabled for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "For Zscaler Client Connector traffic, select the appropriate group based on the device platform.",
+            "Select Cloud Browser Isolation or No Client Connector to apply the rule to isolation traffic or to traffic that is not tunneled through Zscaler Client Connector, respectively.",
+            "The Cloud Browser Isolation group is available only if Zero Trust Browser (formerly Isolation) is enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "ipv6-criteria": {
+      "statement": "For IPv6, the source and destination groups on the rule form are the predefined All IPv6 groups, and custom source and destination IPv6 groups are not currently supported. The IP Addresses and IP Address or Wildcard FQDN fields take IPv4 only, and individual, subnet or range IPv6 addresses are not currently supported. In the API, user-defined IPv6 groups are not supported in `srcIpv6Groups` and `destIpv6Groups`, and `srcIps` holds IPv4 addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "Source IPv6 Groups: To control source IPv6 addresses with this rule, select the All IPv6 group, which is the predefined source IPv6 group for all IPv6 addresses.",
+            "Custom source IPv6 groups are currently not supported.",
+            "Destination IPv6 Groups: To control destination IPv6 addresses with this rule, select the All IPv6 Group, which is the default destination IPv6 group for all IPv6 addresses.",
+            "Custom destination IPv6 groups are currently not supported.",
+            "IP Addresses: Enter addresses (IPv4 only) in any of the following formats:",
+            "IP Address or Wildcard FQDN: Enter addresses (IPv4 only) in any of the following formats:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "after": "IP Addresses: Enter addresses (IPv4 only) in any of the following formats:",
+          "quotes": [
+            "Specifying an individual, subnet, or range of IPv6 addresses is currently not supported."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "after": "IP Address or Wildcard FQDN: Enter addresses (IPv4 only) in any of the following formats:",
+          "quotes": [
+            "Specifying individual, subnet, or range of IPv6 addresses is currently not supported."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/srcIpv6Groups",
+          "expect": {
+            "description": "<p>Name-ID pairs of source IPv6 groups to which the rule applies. If no specific value is set, the rule is not restricted to specific source IPv6 groups.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/destIpv6Groups",
+          "expect": {
+            "description": "<p>Name-ID pairs of destination IPv6 groups to which the rule applies. If no specific value is set, the rule is not restricted to specific destination IPv6 groups.</p><p><b>Note</b>: User-defined groups for IPv6 addresses are currently not supported.</p>"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/srcIps",
+          "expect": {
+            "description": "Source IP addresses (IPv4) to which the rule applies. Each entry can be an individual IP address (e.g., 192.0.2.1), a subnet or CIDR (e.g., 192.0.2.0/24), or an address range (e.g., 192.0.2.1 - 192.0.2.5). If no specific value is set, the rule is not restricted to a specific source IP address."
+          }
+        }
+      ]
+    },
+    "countries": {
+      "statement": "A Traffic Capture rule's source country is determined from the geolocation of the client's IP address, and its destination country from the geolocation of the server's IP address. Countries take an Include option, matching the specified countries, or an Exclude option, matching all countries except those selected, and selecting countries is mandatory with Exclude. In the API, `excludeSrcCountries` set to true excludes the countries in `sourceCountries`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "The traffic's country of origin is determined using the geolocation of the client's IP address.",
+            "you can either use the Include option to match the rule on the specified countries or use the Exclude option to match the rule on all countries except those that are selected.",
+            "However, selecting countries is mandatory when using the Exclude option.",
+            "The country where the destination server is placed is determined using the geolocation of the server's IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/excludeSrcCountries",
+          "expect": {
+            "type": "boolean",
+            "description": "Indicates whether the countries specified in the <b>sourceCountries</b> field are included or excluded from the rule. A true value denotes that the specified source countries are excluded from the rule. A false value denotes that the rule is applied to the source countries if there is a match."
+          }
+        }
+      ]
+    },
+    "fqdn-matching": {
+      "statement": "For FQDN criteria on the Traffic Capture rule form, including wildcard FQDNs written with an asterisk, FQDNs are resolved to IP addresses when the rule is activated and stored by the service. DNS queries are made until two consecutive DNS responses return no new IP addresses, and the resolved addresses are stored for twice the DNS record's TTL. The service matches non-web traffic by IP address and web traffic by FQDN against the HTTP/FTP hostname or the HTTPS SNI. Configuring wildcard FQDNs in policies needs all DNS traffic forwarded to the Zscaler service and a subscription or Internet & SaaS edition with DNS Control, included in Advanced Firewall and DNS Control and Internet & SaaS editions; the page says wildcard FQDN matching against web traffic can work without meeting these conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "Wildcard FQDNs are also supported with an asterisk (*) as the wildcard character.",
+            "When the rule is activated, FQDNs are resolved to their corresponding IP addresses and stored by the Zscaler service.",
+            "To obtain the IP address of a domain, DNS queries are made until no new IP addresses are returned in two consecutive DNS responses.",
+            "The resolved IP addresses are then stored for a period of twice the Time to Live (TTL) value in the DNS record.",
+            "The Zscaler service employs an IP address match when evaluating non-web traffic using this criterion, whereas the web traffic evaluation relies on an FQDN match against the hostname in the HTTP/FTP header or Server Name Indication (SNI) for HTTPS.",
+            "To ensure this, forward all of your DNS traffic to the Zscaler service if you intend to configure wildcard FQDNs in policies. Additionally, a subscription or Internet & SaaS edition with DNS Control is required.",
+            "This functionality is included in Advanced Firewall and DNS Control and Internet & SaaS editions.",
+            "Wildcard FQDN match against web traffic (HTTP and TLS/SNI) can function without meeting these conditions."
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "On the Traffic Capture rule form, Capture set to Enabled captures traffic matching the rule and Disabled skips it; Sampling is the percentage of connections sampled each time the rule is triggered; Capture Limit is the maximum amount of traffic data, in MB, captured per connection. The rule table's Action column shows the action (Capture or Skip) or that the rule is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "Capture: Select Enabled to capture traffic that matches the rule. If you select Disabled, the policy skips the traffic designated by the rule.",
+            "Sampling: Select the percentage of connections sampled for capturing each time the rule is triggered.",
+            "Capture Limit: Select the maximum amount of traffic data (in MB) to capture per connection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-traffic-capture-policy.json",
+          "quotes": [
+            "Action: Displays either the action for the policy rule (Capture or Skip), or that the rule is disabled."
+          ]
+        }
+      ]
+    },
+    "rule-details": {
+      "statement": "A Traffic Capture rule's name must be unique or the default name is used, and its description cannot exceed 10,240 characters. Rules are evaluated in ascending numerical order and the default rule is evaluated last. An admin cannot select a rank higher than their own, and a rule's Admin Rank determines the rule order value that can be selected so that a higher admin rank always precedes a lower one. A disabled rule keeps its place in the order and is skipped. In the API, `timeWindows` defaults to Always.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-traffic-capture-policy.json",
+          "quotes": [
+            "Rule Name: Enter a unique name for the Traffic Capture rule, or use the default name.",
+            "The description cannot exceed 10,240 characters.",
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order.",
+            "You cannot select a rank that is higher than your own.",
+            "The rule's Admin Rank determines the value you can select in the rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank.",
+            "A disabled rule is not actively enforced and doesn't lose its place in the rule order scheme. The Zscaler service simply skips it and moves to the next rule."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-traffic-capture-policy.json",
+          "quotes": [
+            "The default rule is evaluated last."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/timeWindows",
+          "expect": {
+            "description": "Time intervals during which the rule applies. By default, this field is set to Always, making the rule applicable at all times."
+          }
+        }
+      ]
+    },
+    "rule-api-values": {
+      "statement": "In the legacy API's Traffic Capture rule, a rule requires `action`, `name`, `order` and `rank`; `action` is CAPTURE or SKIP and `state` is DISABLED or ENABLED; `txnSizeLimit`, the maximum size captured per connection, is NONE, UNLIMITED, THIRTY_TWO_KB, TWO_FIFTY_SIX_KB, TWO_MB, FOUR_MB, THIRTY_TWO_MB or SIXTY_FOUR_MB; `txnSampling`, the percentage of connections sampled each time the rule is triggered, is NONE or ONE, TWO, FIVE, TEN, TWENTY_FIVE or HUNDRED_PERCENT; `predefined` and `defaultRule` are Boolean fields marking predefined and default rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule",
+          "expect": {
+            "required": [
+              "action",
+              "name",
+              "order",
+              "rank"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/action",
+          "expect": {
+            "enum": [
+              "CAPTURE",
+              "SKIP"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/state",
+          "expect": {
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/txnSizeLimit",
+          "expect": {
+            "description": "The maximum size of traffic to capture per connection",
+            "enum": [
+              "NONE",
+              "UNLIMITED",
+              "THIRTY_TWO_KB",
+              "TWO_FIFTY_SIX_KB",
+              "TWO_MB",
+              "FOUR_MB",
+              "THIRTY_TWO_MB",
+              "SIXTY_FOUR_MB"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/txnSampling",
+          "expect": {
+            "description": "The percentage of connections sampled for capturing each time the rule is triggered",
+            "enum": [
+              "NONE",
+              "ONE_PERCENT",
+              "TWO_PERCENT",
+              "FIVE_PERCENT",
+              "TEN_PERCENT",
+              "TWENTY_FIVE_PERCENT",
+              "HUNDRED_PERCENT"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/defaultRule",
+          "expect": {
+            "type": "boolean",
+            "description": "A Boolean field that indicates whether this is a default rule by using the true value"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/definitions/TrafficCaptureRule/properties/predefined",
+          "expect": {
+            "description": "A Boolean field that indicates whether this is a predefined rule by using the true value"
+          }
+        }
+      ]
+    },
+    "rule-api-endpoints": {
+      "statement": "The legacy ZIA API (host `zsapi.[zscaler-cloud-name]`, base path `/api/v1`) manages Traffic Capture rules at `/trafficCaptureRules`: GET lists rules, taking a `deviceTrustLevel` parameter among others, and pages with `page` (default 1) and `pageSize` (default 5000); POST creates a rule; GET `/count` counts the rules matching the criteria or all rules when none are given; GET `/order` returns the admin rank and rule order mappings and the maximum configured rule order; GET `/ruleLabels` lists the rules' labels, with a `pageSize` default of 1024; GET, PUT and DELETE `/{ruleId}` read, update and delete one rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec",
+          "expect": {
+            "host": "zsapi.[zscaler-cloud-name]",
+            "basePath": "/api/v1"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules/get/parameters/[name=page]",
+          "expect": {
+            "default": 1
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules/get/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size. Default size is 5000.",
+            "default": 5000
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules/get/parameters/[name=deviceTrustLevel]",
+          "expect": {
+            "description": "Filter based on the device trust level criteria used in the rules"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules/post",
+          "expect": {
+            "description": "Creates a new Traffic Capture policy rule. To learn more about rule configuration, see <a href=\"/zia/configuring-traffic-capture-policy\" target=\"_blank\">Configuring the Traffic Capture Policy</a>."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules~1count/get",
+          "expect": {
+            "summary": "Retrieves the rule count for the Traffic Capture policy based on the specified search criteria. If no search criteria are specified, the total number of Traffic Capture policy rules is retrieved by default."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules~1order/get",
+          "expect": {
+            "description": "Retrieves the rule order information for the Traffic Capture policy, including the admin rank and rule order mappings and the maximum configured rule order."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules~1ruleLabels/get",
+          "expect": {
+            "description": "Retrieves the list of rule labels associated with the Traffic Capture policy rules"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules~1ruleLabels/get/parameters/[name=pageSize]",
+          "expect": {
+            "description": "Specifies the page size. Default size is 1024.",
+            "default": 1024
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules~1{ruleId}/get",
+          "expect": {
+            "description": "Retrieves the Traffic Capture policy rule based on the specified rule ID"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules~1{ruleId}/put",
+          "expect": {
+            "description": "Updates information for the Traffic Capture policy rule based on the specified rule ID. To learn more about rule configuration, see <a href=\"/zia/configuring-traffic-capture-policy\" target=\"_blank\">Configuring the Traffic Capture Policy</a>."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-policy.json",
+          "pointer": "/spec/paths/~1trafficCaptureRules~1{ruleId}/delete",
+          "expect": {
+            "description": "Deletes the Traffic Capture policy rule based on the specified rule ID"
+          }
+        }
+      ]
+    },
+    "settings-api-endpoints": {
+      "statement": "The legacy API's `/pcapSettings` holds an organization's Traffic Capture settings (cloud storage destination, file limits and data obfuscation), applicable when traffic is captured as PCAP files: GET reads them, POST creates them and a PUT by ID updates them. POST `/testConnection` validates connectivity to a cloud storage provider with given credentials before the settings are created or updated; its body is used only for that one-time test and is not saved, `cloudProvider` is S3 (the default), AZURE or GCS, and the response carries a `status` (for example SUCCESS or FAILURE) and `details`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/paths/~1pcapSettings/get",
+          "expect": {
+            "description": "Retrieves the Traffic Capture settings configured for an organization. This is applicable when you capture traffic as PCAP files. These settings define the configuration for storing captured traffic, including the cloud storage destination, file limits, and data obfuscation options. To learn more, see <a href=\"/zia/about-traffic-capture-settings\" target=\"_blank\">About Traffic Capture Settings</a>."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/paths/~1pcapSettings/post",
+          "expect": {
+            "description": "Creates Traffic Capture settings for an organization. To learn more, see <a href=\"/zia/configuring-traffic-capture-settings\" target=\"_blank\">Configuring Traffic Capture Settings</a>."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/paths/~1pcapSettings~1{id}/put",
+          "expect": {
+            "description": "Updates the Traffic Capture settings for an organization"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/paths/~1pcapSettings~1testConnection/post",
+          "expect": {
+            "description": "Validates connectivity to a cloud storage provider using a given set of credentials and configuration settings. You can use this endpoint to test and verify the storage settings before creating or updating your organization's Traffic Capture settings."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/paths/~1pcapSettings~1testConnection/post/parameters/[name=body]",
+          "expect": {
+            "description": "Information about the settings to validate. These settings are used only for this one-time connection test and are not saved to your organization's configuration."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/paths/~1pcapSettings~1testConnection/post/parameters/[name=cloudProvider]",
+          "expect": {
+            "default": "S3",
+            "enum": [
+              "S3",
+              "AZURE",
+              "GCS"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PcapTestConnectionResponse/properties/status",
+          "expect": {
+            "description": "The test connection status (e.g., SUCCESS, FAILURE)"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PcapTestConnectionResponse/properties/details",
+          "expect": {
+            "description": "Detailed information about the result, especially in case of failure."
+          }
+        }
+      ]
+    },
+    "settings-storage": {
+      "statement": "A Traffic Capture settings record in the legacy API requires `masterKnob` (whether the master knob for Traffic Capture is enabled) and `storageLocation` (the cloud storage location for the produced PCAP files: NONE, ZSCALER, AWS_S3, AZURE or GCP). `accessId` and `secretKey` are write-only and not returned in responses, and the read-only `secretKeyPresent` indicates whether a secret key is stored. `folderUrl` is the folder inside the bucket where PCAP files are written and `bucketName` the bucket name; `accountName`, `containerName` and `tenantId` are required when `storageLocation` is AZURE; `gcpClientEmail` is a service account client email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings",
+          "expect": {
+            "required": [
+              "masterKnob",
+              "storageLocation"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/masterKnob",
+          "expect": {
+            "description": "A Boolean value that indicates whether the master knob for Traffic Capture is enabled"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/storageLocation",
+          "expect": {
+            "description": "Cloud storage location for the produced PCAP files",
+            "enum": [
+              "NONE",
+              "ZSCALER",
+              "AWS_S3",
+              "AZURE",
+              "GCP"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/accessId",
+          "expect": {
+            "description": "Access key or ID for the cloud bucket. This is a write-only field and is not returned in responses."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/secretKey",
+          "expect": {
+            "description": "Secret key for the cloud bucket. This is a write-only field and is not returned in responses."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/secretKeyPresent",
+          "expect": {
+            "description": "A Boolean value that indicates whether a secret key is currently present and stored",
+            "readOnly": true
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/folderUrl",
+          "expect": {
+            "description": "The folder URL inside the bucket where PCAP files are written"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/bucketName",
+          "expect": {
+            "description": "Storage bucket name"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/accountName",
+          "expect": {
+            "description": "Azure storage account name. This field is required when <b>storageLocation</b> is </b>AZURE</b>."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/containerName",
+          "expect": {
+            "description": "Azure storage container name. This field is required when <b>storageLocation</b> is </b>AZURE</b>."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/tenantId",
+          "expect": {
+            "description": "Azure tenant ID. This field is required when <b>storageLocation</b> is </b>AZURE</b>."
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/gcpClientEmail",
+          "expect": {
+            "description": "Service account client email"
+          }
+        }
+      ]
+    },
+    "settings-limits": {
+      "statement": "A Traffic Capture settings record in the legacy API has four limits, each an enum: `aggTimeLimit`, the aggregation time window for the produced PCAP files (NONE, SEVEN_DAYS, FIFTEEN_DAYS, THIRTY_DAYS, FOURTY_FIVE_DAYS, SIXTY_DAYS); `aggSizeLimit`, the maximum aggregated PCAP file size (NONE, TWO_FIFTY_SIX_GB, FIVE_TWELVE_GB, ONE_TB, TWO_TB, FIVE_TB); `txnSizeLimit`, the maximum size captured per transaction (NONE, FOUR_KB through TWO_FIFTY_SIX_KB); and `txnSampling`, the transaction sampling ratio (NONE, ONE_PERCENT through HUNDRED_PERCENT).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/aggTimeLimit",
+          "expect": {
+            "description": "Aggregation time window for the produced PCAP files",
+            "enum": [
+              "NONE",
+              "SEVEN_DAYS",
+              "FIFTEEN_DAYS",
+              "THIRTY_DAYS",
+              "FOURTY_FIVE_DAYS",
+              "SIXTY_DAYS"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/aggSizeLimit",
+          "expect": {
+            "description": "Maximum aggregated PCAP file size",
+            "enum": [
+              "NONE",
+              "TWO_FIFTY_SIX_GB",
+              "FIVE_TWELVE_GB",
+              "ONE_TB",
+              "TWO_TB",
+              "FIVE_TB"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/txnSizeLimit",
+          "expect": {
+            "description": "Maximum size captured per transaction",
+            "enum": [
+              "NONE",
+              "FOUR_KB",
+              "EIGHT_KB",
+              "SIXTEEN_KB",
+              "THIRTY_TWO_KB",
+              "SIXTY_FOUR_KB",
+              "ONE_TWENTY_EIGHT_KB",
+              "TWO_FIFTY_SIX_KB"
+            ]
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/txnSampling",
+          "expect": {
+            "description": "Transaction sampling ratio",
+            "enum": [
+              "NONE",
+              "ONE_PERCENT",
+              "TWO_PERCENT",
+              "FIVE_PERCENT",
+              "TEN_PERCENT",
+              "TWENTY_FIVE_PERCENT",
+              "HUNDRED_PERCENT"
+            ]
+          }
+        }
+      ]
+    },
+    "settings-obfuscation-headers": {
+      "statement": "In the legacy API's Traffic Capture settings record, `userObfuscated` indicates whether the end-user identity in captured packets is obfuscated, `deviceObfuscated` whether the device identity in captured packets is obfuscated, and `httpHeaders` holds custom HTTP headers attached to the upload requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/userObfuscated",
+          "expect": {
+            "description": "A Boolean value that indicates whether the end-user identity in captured packets is obfuscated"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/deviceObfuscated",
+          "expect": {
+            "description": "A Boolean value that indicates whether the device identity in captured packets is obfuscated"
+          }
+        },
+        {
+          "source": "zscaler-help",
+          "path": "legacy-api-traffic-capture-settings.json",
+          "pointer": "/spec/definitions/PacketCaptureSettings/properties/httpHeaders",
+          "expect": {
+            "description": "Custom HTTP headers attached to the upload requests"
+          }
+        }
+      ]
+    },
+    "licensing": {
+      "statement": "Zscaler Traffic Capture is a SaaS product licensed by the number of seats and the amount of data captured. A seat is a subscription license for an individual authorized user; captured data is measured in aggregate monthly against the number of seats and the data allocated per seat; the seats required are the unique individual users of Traffic Capture over the previous rolling 90-day period. Zscaler monitors and periodically reviews seats and data usage for compliance, and use is expected to follow the Acceptable Use Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-traffic-capture-licensing-and-fair-use.json",
+          "quotes": [
+            "Zscaler Traffic Capture is a Software as a Service (SaaS) product that is licensed by the number of seats and amount of data captured.",
+            "A seat is a subscription license for the Traffic Capture service for an individual authorized user.",
+            "The amount of data captured is measured in aggregate on a monthly basis based on the number of seats and allocated amount of data captured per seat.",
+            "The number of seats required is determined by counting the total number of unique individual users of Zscaler Traffic Capture over the previous rolling 90-day period.",
+            "Zscaler monitors and periodically reviews the number of seats and their data usage to ensure license compliance.",
+            "The usage of Zscaler Traffic Capture is expected to be in accordance with the Acceptable Use Policy."
+          ]
+        }
+      ]
+    },
+    "capture-modes": {
+      "statement": "The Traffic Capture logs page says that using the service gives Zscaler the right to create PCAP files based on traffic and optionally decrypted content processed by ZIA. It names event-based capture, available for supported actions in ZIA policies when a violation is matched, and capture-control, available for Internet Access traffic based on the organization's criteria. A PCAP file holds the captured packet data, including headers and payload, for a specific policy criteria match, up to the connection depth created from a matching policy, and the data captured per matched policy and the capture frequency can be limited (for example sampling 1 out of 10 or 100 transactions).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-traffic-capture-logs.json",
+          "quotes": [
+            "By accessing the Zscaler Traffic Capture service, you provide Zscaler the right to create PCAP files based on traffic and optionally decrypted content processed by Zscaler Internet Access (ZIA).",
+            "Event-based capture: Available for supported actions in ZIA policies when a violation is matched.",
+            "Capture-control: Available for Internet Access traffic based on your specific criteria.",
+            "A PCAP file contains captured network packet data, including headers and payload, associated with a specific policy criteria match, up to and including the specific connection depth that is created from a matching policy.",
+            "You can limit the amount of data captured per matched policy and limit the frequency of capture (e.g., sampling 1 out of 10 or 100 transactions)."
+          ]
+        }
+      ]
+    },
+    "delivery-no-disk": {
+      "statement": "The Traffic Capture logs page says PCAP files are delivered directly to an external storage location provided by the organization, that Zscaler retains the files in Streaming SIMD Extensions (SSE) memory for a limited period of time to ensure continuous delivery, and that Zscaler does not write PCAP files to disk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-traffic-capture-logs.json",
+          "quotes": [
+            "PCAP files are delivered directly to an external storage location provided by you.",
+            "In order to ensure continuous delivery of the PCAP files, Zscaler retains the files in Streaming SIMD Extensions (SSE) memory for a limited period of time.",
+            "Zscaler does not write PCAP files to disk."
+          ]
+        }
+      ],
+      "conditions": "The page gives no value for the limited period."
+    }
+  },
+  "divergences": {
+    "pcap-storage": {
+      "summary": "Whether Zscaler stores PCAP files: the Traffic Capture logs page says files go to the organization's external storage and Zscaler does not write them to disk, the Settings API offers a ZSCALER storage location, and the web log format says a PCAP file is downloaded from the Capture column of Web Insights Logs.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "logs-fair-use-zscaler-traffic-capture-logs.json",
+            "quotes": [
+              "PCAP files are delivered directly to an external storage location provided by you.",
+              "In order to ensure continuous delivery of the PCAP files, Zscaler retains the files in Streaming SIMD Extensions (SSE) memory for a limited period of time.",
+              "Zscaler does not write PCAP files to disk."
+            ]
+          },
+          "says": "PCAP files are delivered to the organization's external storage; Zscaler retains them in SSE memory for a limited period to ensure delivery and does not write them to disk."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-api-traffic-capture-settings.json",
+            "pointer": "/spec/definitions/PacketCaptureSettings/properties/storageLocation",
+            "expect": {
+              "description": "Cloud storage location for the produced PCAP files",
+              "enum": [
+                "NONE",
+                "ZSCALER",
+                "AWS_S3",
+                "AZURE",
+                "GCP"
+              ]
+            }
+          },
+          "says": "The settings API's `storageLocation` for the produced PCAP files can be ZSCALER as well as AWS_S3, AZURE or GCP."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-web-logs.json",
+            "quotes": [
+              "The directory is the log type. To download the PCAP file, go to the Capture column on the Web Insights Logs page."
+            ]
+          },
+          "says": "The PCAP file is downloaded from the Capture column on the Web Insights Logs page."
+        }
+      ],
+      "impact": "Whether Zscaler keeps a copy of a capture, and where an admin retrieves it, differs by page; the pages do not say whether the ZSCALER value, the console download and the external bucket are the same offering."
+    },
+    "capture-limit-unit": {
+      "summary": "The unit of the per-connection Capture Limit: the rule form labels it in MB, while the API enumeration includes 32 KB, 256 KB and Unlimited as well as MB values.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-traffic-capture-policy.json",
+            "quotes": [
+              "Capture Limit: Select the maximum amount of traffic data (in MB) to capture per connection."
+            ]
+          },
+          "says": "Capture Limit is the maximum amount of traffic data, in MB, captured per connection."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-api-traffic-capture-policy.json",
+            "pointer": "/spec/definitions/TrafficCaptureRule/properties/txnSizeLimit",
+            "expect": {
+              "description": "The maximum size of traffic to capture per connection",
+              "enum": [
+                "NONE",
+                "UNLIMITED",
+                "THIRTY_TWO_KB",
+                "TWO_FIFTY_SIX_KB",
+                "TWO_MB",
+                "FOUR_MB",
+                "THIRTY_TWO_MB",
+                "SIXTY_FOUR_MB"
+              ]
+            }
+          },
+          "says": "The API's `txnSizeLimit` values are NONE, UNLIMITED, 32 KB, 256 KB, 2 MB, 4 MB, 32 MB and 64 MB."
+        }
+      ],
+      "impact": "A limit read from the console label would miss the KB and Unlimited values the API accepts; the pages do not say how the console choices map to the API values."
+    },
+    "capture-enablement": {
+      "summary": "Where Traffic Capture is enabled: the IPS Control page says in Advanced Settings, while the Essentials and NDR settings pages go to Internet Access > Traffic Capture > Settings.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ips-control-policy.json",
+            "quotes": [
+              "The Capture action requires Traffic Capture to be enabled in Advanced Settings."
+            ]
+          },
+          "says": "The IPS Control page says the Capture action requires Traffic Capture to be enabled in Advanced Settings."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-traffic-capture-essentials.json",
+            "quotes": [
+              "From the navigation menu, go to Internet Access > Traffic Capture > Settings.",
+              "Click Enable Traffic Capture Essential to enable configuration for Traffic Capture Essentials."
+            ]
+          },
+          "says": "The Essentials settings page goes to Internet Access > Traffic Capture > Settings and enables it with Enable Traffic Capture Essential."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-settings-traffic-capture-policy.json",
+            "quotes": [
+              "From the navigation menu, go to Internet Access > Traffic Capture > Settings.",
+              "Status: Select to enable Traffic Capture for NDR."
+            ]
+          },
+          "says": "The NDR settings page enables Traffic Capture for NDR with Status at Internet Access > Traffic Capture > Settings."
+        }
+      ],
+      "impact": "Which console page holds the enabling switch for the IPS rule's Capture action is not settled; the settings API's `masterKnob` puts a master switch in the settings object but does not name a console page."
+    }
+  },
+  "gaps": {
+    "limit-defaults": {
+      "kind": "semantic",
+      "title": "Defaults and ranges of the Essentials Storage Limit and Sampling",
+      "status": "open",
+      "detail": "The Essentials page says to set the Per Occurrence Limits or use the defaults but gives neither the defaults nor the ranges. The APIs enumerate the allowed values for the rule and settings objects but carry no default, and no source says that the Essentials Storage Limit and Sampling are the settings object's `txnSizeLimit` and `txnSampling`.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "agg-limits-meaning": {
+      "kind": "semantic",
+      "title": "What the aggregation time and size limits do",
+      "status": "open",
+      "detail": "The settings API describes `aggTimeLimit` as an aggregation time window and `aggSizeLimit` as the maximum aggregated PCAP file size. No source says whether they roll files over or cap retention, or how they relate to the limited period the logs page says files spend in memory.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "offering-scope": {
+      "kind": "semantic",
+      "title": "How Essentials, NDR and the settings API relate",
+      "status": "open",
+      "detail": "The settings API says it applies when traffic is captured as PCAP files; whether it also configures the NDR destination that produces PCAPNG is not stated. The logs page's event-based capture reads like the per-policy Capture option and capture-control like the Traffic Capture policy, but it does not name Essentials or NDR, and whether the two offerings can run together is not stated.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "storage-options": {
+      "kind": "semantic",
+      "title": "Storage destinations beyond AWS S3 and Azure",
+      "status": "open",
+      "detail": "The help pages name AWS S3 for Essentials and AWS S3 or Azure for NDR. ZSCALER and GCP appear as storage locations and GCS as a test-connection provider only in the API, and how the NDR page's Azure Client ID and Client Secret map onto the API's `accessId` and `secretKey` is not stated.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "licensing-allocation": {
+      "kind": "semantic",
+      "title": "The data allocated per seat and which offering the license covers",
+      "status": "open",
+      "detail": "The licensing page gives no value for the data allocated per seat and does not say whether the license covers Essentials, NDR or both.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "device-trust-criterion": {
+      "kind": "semantic",
+      "title": "Whether Traffic Capture rules take a device trust criterion",
+      "status": "open",
+      "detail": "The rule API has a `deviceTrustLevel` list filter and a device trust level field on the rule, but the rule form page lists no device trust criterion. The absence comes from comparing the page's criteria list with the API.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "capture-retrieval-api": {
+      "kind": "semantic",
+      "title": "Whether an API lists or downloads captures",
+      "status": "open",
+      "detail": "The two legacy specs document the rule and settings paths; reading both path lists found no path that lists or downloads captures, but no source states that none exists. The Terraform, Ansible and Go SDK sources for Traffic Capture rules were not read for this subject, and no SDK or provider was found for `/pcapSettings`.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

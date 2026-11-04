@@ -1,0 +1,406 @@
+{
+  "schema_version": 1,
+  "id": "zia.forwarding-control.third-party-proxies",
+  "title": "Third-Party Proxy Chaining from ZIA: proxies, proxy gateways and fail-close",
+  "aliases": [
+    "third-party proxy chaining",
+    "zia third-party proxy",
+    "proxy gateway",
+    "gateway for proxies",
+    "fail close proxy gateway",
+    "insert x-authenticated-user",
+    "forward to third-party proxy",
+    "zia downstream proxy",
+    "zia as child proxy"
+  ],
+  "binds": [
+    "zia/proxies",
+    "zia/proxy-gateways",
+    "zia/forwarding-rules#proxyGateway"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.proxy-chaining"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.zia-integration"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/proxies"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/proxy-gateways"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} The opposite direction, a customer's proxy chaining into ZIA, is in [[zia.traffic-forwarding.proxy-chaining]]."
+    },
+    {
+      "label": "Setup.",
+      "text": "{{setup-order}} The rule criteria are the Proxy Chaining forwarding method covered in [[zia.forwarding-control.rules]] and [[zia.forwarding-control.methods]]."
+    },
+    {
+      "label": "Proxies.",
+      "text": "{{proxy-object}} {{proxy-root-certificate}} The two proxy pages describe the root certificate's use differently {{divergence:proxy-root-cert-role}}; the root certificate's Type is in [[zia.ssl-inspection.certificates:root-certs-proxy-chaining]]. {{x-authenticated-user}} Whether the Base64 option for that header appears in the console is open {{gap:base64-header}}. {{proxy-limit}}"
+    },
+    {
+      "label": "Gateways.",
+      "text": "{{gateway-object}} {{gateway-limit}} The gateway limit differs between pages {{divergence:proxy-gateway-limit}}. The overview says a gateway can also define SSL/TLS inspection of the proxy chain traffic, but no field is listed {{gap:gateway-ssl-inspection}}. How unreachable is detected is open {{gap:unreachable-detection}}."
+    },
+    {
+      "label": "Scope.",
+      "text": "Whether chaining carries only web traffic is open {{gap:chaining-scope}}. What the `type` values on proxies and gateways mean is open {{gap:proxy-type-values}}, and whether gateways can be created through the API or Terraform is open {{gap:gateway-api-creation}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the proxy gateway named by the Proxy Chaining forwarding rule exists and has both a primary and a secondary proxy.",
+      "uses": [
+        "setup-order",
+        "gateway-object"
+      ]
+    },
+    {
+      "do": "What the gateway's Fail Close setting is, since it decides whether traffic is dropped or goes directly to the web server when both proxies are unreachable.",
+      "uses": [
+        "gateway-object"
+      ]
+    },
+    {
+      "do": "Which page a proxy or gateway limit or the root certificate's role is read from, since the pages disagree.",
+      "uses": [
+        "proxy-gateway-limit",
+        "proxy-root-cert-role"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Third-Party Proxy Chaining sends selected outbound web traffic from Zscaler on to a third-party proxy service, for example for extra security layers or compliance. Forwarding rules decide which traffic goes, Zscaler forwards matching web traffic to the proxies in the policy, and Zscaler acts as a child (downstream) proxy to the third-party service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-third-party-proxy-chaining.json",
+          "quotes": [
+            "organizations that require Zscaler’s security service for all of their outbound traffic might still want to use third-party services for additional layers of security or compliance purposes.",
+            "This feature uses forwarding policies, which allow you to define what traffic needs to be forwarded to a third-party proxy service.",
+            "Based on the forwarding rules configured, Zscaler forwards the matching web traffic to the proxies specified in the policy for further processing. Zscaler functions as a child proxy or a downstream proxy to the third-party service."
+          ]
+        }
+      ],
+      "gaps": [
+        "chaining-scope"
+      ]
+    },
+    "setup-order": {
+      "statement": "Setup is three steps: configure proxies for the third-party service, create a gateway for those proxies, then add a Forwarding rule with the Proxy Chaining method whose Forward to Gateway is that proxy gateway.",
+      "tier": "A",
+      "binds": [
+        "zia/forwarding-rules#proxyGateway"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-third-party-proxy-chaining.json",
+          "quotes": [
+            "1. Configure proxies for the third-party proxy service.",
+            "2. Create a gateway for the proxies configured.",
+            "3. Configure the Forwarding policies for third-party proxy chaining using the gateways created.",
+            "Forwarding Method: From the drop-down menu, choose Proxy Chaining to forward the traffic to a third-party proxy service.",
+            "Forward to Gateway: Choose the appropriate proxy gateway."
+          ]
+        }
+      ]
+    },
+    "proxy-object": {
+      "statement": "A proxy object has a name, the third-party service's IP address or FQDN, the port on which it listens for requests forwarded from Zscaler, an optional root certificate, and an optional description of up to 256 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/proxies#name",
+        "zia/proxies#address",
+        "zia/proxies#port",
+        "zia/proxies#cert",
+        "zia/proxies#description"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-third-party-proxies.json",
+          "quotes": [
+            "Proxy Name: Enter a name for the third-party proxy that you are defining.",
+            "IP Address / FQDN: Enter the IP address or the FQDN of the third-party proxy service.",
+            "Port: Enter the port number on which the third-party proxy service listens to the requests forwarded from Zscaler.",
+            "Proxy's Root Certificate: (Optional) Select the root certificate used by the third-party proxy to perform SSL/TLS inspection.",
+            "Description: (Optional) Enter additional notes or information. The description cannot exceed 256 characters."
+          ]
+        }
+      ]
+    },
+    "proxy-root-certificate": {
+      "statement": "The Configuring Third-Party Proxies page says the proxy's root certificate is the one the third-party proxy uses to perform SSL/TLS inspection, that Zscaler uses it to validate the SSL leaf certificates signed by the upstream proxy, and that it appears in the drop-down list only if it is uploaded from the Internet Access > Resources > Root Certificates page.",
+      "tier": "A",
+      "binds": [
+        "zia/proxies#cert"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-third-party-proxies.json",
+          "quotes": [
+            "Proxy's Root Certificate: (Optional) Select the root certificate used by the third-party proxy to perform SSL/TLS inspection. This root certificate is used by Zscaler to validate the SSL leaf certificates signed by the upstream proxy.",
+            "The required root certificate appears in this drop-down list only if it is uploaded from the Internet Access > Resources > Root Certificates page."
+          ]
+        }
+      ]
+    },
+    "x-authenticated-user": {
+      "statement": "Insert X-Authenticated-User, disabled by default, puts the authenticated user ID in the X-Authenticated-User HTTP header so upstream proxies need not re-authenticate users. For unauthenticated traffic the header value is Unknown, and the third-party proxies should be set to reauthenticate users when they see Unknown.",
+      "tier": "A",
+      "binds": [
+        "zia/proxies#insertXauHeader"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-third-party-proxies.json",
+          "quotes": [
+            "Insert X-Authenticated-User: Enable to automatically insert authenticated user ID to the HTTP header, X-Authenticated-User.",
+            "This allows the upstream proxies to consume authenticated user ID information from the X-Authenticated-User header value, avoiding re-authentication of users. This field is disabled by default.",
+            "For unauthenticated user traffic, the service inserts the value Unknown to the X-Authenticated-User header. Ensure that the third-party proxy servers are configured to reauthenticate the users if the user ID value is Unknown in the HTTP header request."
+          ]
+        }
+      ],
+      "gaps": [
+        "base64-header"
+      ]
+    },
+    "proxy-limit": {
+      "statement": "The default limit is 8 third-party proxies, raisable to 255 through Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-third-party-proxies.json",
+          "quotes": [
+            "The default limit for third-party proxies is 8. To increase the limit to a maximum of 255 proxies for your organization, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-third-party-proxies.json",
+          "quotes": [
+            "You can configure up to 8 proxy objects."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Third-Party Proxies | 8 proxies | The default limit for third-party proxies is 8. Contact Zscaler Support to increase the limit to a maximum of 255 proxies. |"
+          ]
+        }
+      ]
+    },
+    "gateway-object": {
+      "statement": "A proxy gateway names a primary proxy and a secondary proxy, used when the primary is unreachable, and a Fail Close setting for when both are unreachable: Enable (the default) drops the traffic, Disable sends it directly to the web server without the proxy service. Its description is optional and cannot exceed 256 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/proxy-gateways#primaryProxy",
+        "zia/proxy-gateways#secondaryProxy",
+        "zia/proxy-gateways#failClosed",
+        "zia/proxy-gateways#description"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gateways-proxies.json",
+          "quotes": [
+            "A proxy gateway allows you to define a primary proxy and a secondary proxy to which the traffic can be forwarded from Zscaler and define how traffic should be handled when both the proxies are not reachable.",
+            "Enable: (Default) Drops the traffic when both proxies are unreachable.",
+            "Disable: Allows the traffic directly to the web server without forwarding it to the proxy service when both proxies are unreachable.",
+            "Secondary Proxy: Select the secondary proxy for the gateway. This is used when the primary proxy is unreachable.",
+            "Description: (Optional) Enter additional notes or information. The description cannot exceed 256 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-gateways-proxies.json",
+          "quotes": [
+            "Configure two proxies, primary and secondary proxy, for a gateway object to support failover to the secondary proxy when the primary proxy is unreachable.",
+            "Fail Close: Indicates whether the fail close is enabled to drop the traffic or disabled to allow the traffic when both primary and secondary proxies defined in this gateway are unreachable."
+          ]
+        }
+      ],
+      "gaps": [
+        "unreachable-detection"
+      ]
+    },
+    "gateway-limit": {
+      "statement": "The Configuring Gateways for Proxies and Configuring Third-Party Proxy Chaining pages say up to 32 gateway objects can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gateways-proxies.json",
+          "quotes": [
+            "You can create up to 32 gateway objects."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-third-party-proxy-chaining.json",
+          "quotes": [
+            "You can create up to 32 gateway objects."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "proxy-gateway-limit": {
+      "summary": "The configure pages give 32 as the gateway object limit, while Ranges and Limitations gives 8 by default and 255 at most.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-gateways-proxies.json",
+            "quotes": [
+              "You can create up to 32 gateway objects."
+            ]
+          },
+          "says": "The Configuring Gateways for Proxies page (and the Configuring Third-Party Proxy Chaining page) say up to 32 gateway objects can be created."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Gateways for Third-Party Proxies | 8 gateways | The default limit for third-party proxy gateways is 8. Contact Zscaler Support to increase the limit to a maximum of 255 gateways. |"
+            ]
+          },
+          "says": "The Ranges and Limitations page gives a default of 8 gateways, raisable to 255 through Zscaler Support."
+        }
+      ],
+      "impact": "How many proxy gateways a tenant can create cannot be stated as one number; the pages do not say which is current."
+    },
+    "proxy-root-cert-role": {
+      "summary": "The two proxy pages describe the proxy's root certificate as used for different things: Zscaler performing inspection, or Zscaler validating leaf certificates signed by the upstream proxy.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-third-party-proxies.json",
+            "quotes": [
+              "Proxy's Root Certificate: The root certificate in this proxy which is used by Zscaler to perform SSL/TLS inspection on the traffic being forwarded by Zscaler."
+            ]
+          },
+          "says": "The About Third-Party Proxies page says the root certificate is used by Zscaler to perform SSL/TLS inspection on the traffic it forwards."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-third-party-proxies.json",
+            "quotes": [
+              "This root certificate is used by Zscaler to validate the SSL leaf certificates signed by the upstream proxy."
+            ]
+          },
+          "says": "The Configuring Third-Party Proxies page says Zscaler uses it to validate the SSL leaf certificates signed by the upstream proxy."
+        }
+      ],
+      "impact": "Which party inspects the proxied traffic, and what Zscaler does with the certificate, depends on the page read."
+    }
+  },
+  "gaps": {
+    "gateway-ssl-inspection": {
+      "kind": "semantic",
+      "title": "Whether a proxy gateway has an SSL/TLS inspection setting",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "saying a gateway can turn SSL/TLS inspection on or off for proxy chain traffic",
+      "detail": "The Configuring Gateways for Proxies overview says \"You can also define if SSL/TLS inspection should be performed on the proxy chain traffic or not.\" Neither configure page lists a field for it."
+    },
+    "unreachable-detection": {
+      "kind": "semantic",
+      "title": "How a proxy is judged unreachable for failover and fail close",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "saying when failover to the secondary proxy or fail close takes effect",
+      "detail": "The pages describe behavior when the primary or both proxies are unreachable but not how unreachable is detected (a probe or a timeout)."
+    },
+    "chaining-scope": {
+      "kind": "semantic",
+      "title": "Whether chaining carries only web traffic",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "saying which protocols or ports can be chained",
+      "detail": "The Understanding page says Zscaler forwards the matching web traffic to the proxies; no page gives a port or protocol scope."
+    },
+    "base64-header": {
+      "kind": "semantic",
+      "title": "Whether the console offers Base64 encoding of the X-Authenticated-User value",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/proxies#base64EncodeXauHeader"
+      ],
+      "blocks": "describing a Base64 option on the proxy object",
+      "detail": "The proxy API object carries base64EncodeXauHeader, and the AI Guard integration subject quotes a console setting named Enable Base64 Encoding for X-Authenticated-User value. The Configuring Third-Party Proxies capture does not show that option."
+    },
+    "proxy-type-values": {
+      "kind": "semantic",
+      "title": "What the type values on proxies and proxy gateways mean",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "code-read"
+      ],
+      "blocks": "explaining the type field",
+      "detail": "Proxies and proxy gateways both carry a type with the values PROXYCHAIN, ZIA and ECSELF in the API reference; the help does not define them."
+    },
+    "gateway-api-creation": {
+      "kind": "semantic",
+      "title": "Whether proxy gateways can be created through the API or Terraform",
+      "status": "open",
+      "resolves_with": [
+        "code-read",
+        "source-read"
+      ],
+      "blocks": "saying how to create a gateway as code",
+      "detail": "The endpoint inventory shows /proxies with GET and POST and /proxies/{proxyId} with PUT and DELETE, but /proxyGateways and /proxyGateways/lite with GET only, and the Terraform provider has a resource for proxies but only a data source for proxy gateways. The SDKs were not checked, so whether gateways are creatable by API is not established."
+    }
+  }
+}

@@ -43,7 +43,15 @@
     },
     {
       "label": "Configuration.",
-      "text": "{{configuration}} {{required-settings}}"
+      "text": "{{configuration}} {{required-settings}} {{subscribe-and-associate}} {{setup}} The port number ranges, the number of ports a location can take and the name of the external-IP mapping setting are open {{gap:port-details}}."
+    },
+    {
+      "label": "What the port gives remote users.",
+      "text": "{{ssl-and-saml}} {{ftp-and-logo}} {{location-policy-for-unauthenticated}} {{external-ip-mapping}}"
+    },
+    {
+      "label": "Authentication and precedence.",
+      "text": "{{auth-enforced}} {{known-location-wins}}"
     },
     {
       "text": "Surrogate IP is covered in the legacy [[shared.source-ip-anchoring]]. Forwarding rules for such traffic: [[zia.forwarding-control.methods]]."
@@ -108,6 +116,129 @@
             "NAT Disable Surrogate IP Enable Authentication at location Enable"
           ]
         }
+      ]
+    },
+    "subscribe-and-associate": {
+      "statement": "An organization can subscribe to one or more ports, associate them with a location, and forward remote user traffic to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "Your organization can subscribe to one or more ports, associate them with a location, and then forward your remote user traffic to those ports."
+          ]
+        }
+      ]
+    },
+    "ssl-and-saml": {
+      "statement": "With SSL Inspection enabled at the location, the service can apply all the SSL settings, including URL category and custom domain decryption exclusions, to remote user traffic on the port, whereas remote user traffic typically goes to port 9443, where the SSL exclusion settings are not applied. The port also lets remote users authenticate automatically with the SAML IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "When SSL Inspection is enabled at the location, the service can apply all the SSL settings to remote user traffic, including the ability to exclude URL categories and custom domains from decryption.",
+            "Typically, the traffic of remote users is forwarded to port 9443 where the service does not apply the SSL exclusion settings.",
+            "Additionally, this allows remote users to automatically authenticate using your SAML ID provider."
+          ]
+        }
+      ]
+    },
+    "location-policy-for-unauthenticated": {
+      "statement": "The port can apply the location's policies, instead of the default policy, to remote user traffic that cannot be authenticated, such as transactions that use unknown agents or non-HTTP protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "Apply the location's policies, instead of the default policy, to remote user traffic that cannot be authenticated, such as transactions that use unknown agents or non-HTTP protocols."
+          ]
+        }
+      ]
+    },
+    "ftp-and-logo": {
+      "statement": "The port supports FTP over HTTP for remote users and lets the service identify a remote user's organization and show its logo on the login page; with SAML authentication, remote users are not prompted for their login name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "Support FTP over HTTP for remote users",
+            "Identify a remote user's organization and display its logo on the login page. In addition, if SAML authentication is used, remote users are not prompted to enter their login name."
+          ]
+        }
+      ]
+    },
+    "auth-enforced": {
+      "statement": "Authentication must be enforced on the location associated with the ports; the service blocks traffic it cannot authenticate (an unknown user-agent or a non-HTTP protocol) if it is from an IP address that an authenticated user has not used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "For enhanced security and to prevent unauthorized use of the subscribed ports, authentication must be enforced for the location associated with the ports.",
+            "The service blocks traffic that it cannot authenticate, such as transactions that have an unknown user-agent or a non-HTTP protocol, if it is from an IP address that an authenticated user has not used."
+          ]
+        }
+      ]
+    },
+    "known-location-wins": {
+      "statement": "Traffic from a known location that arrives at a subscribed proxy port gets the known location's policies, not those of the location associated with the port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "When traffic from a known location arrives at a subscribed proxy port, the service applies the policies of the known location and not the location associated with the subscribed port."
+          ]
+        }
+      ]
+    },
+    "external-ip-mapping": {
+      "statement": "The service can also be enabled to map users to their external IP addresses, so it can apply user-level policies to remote user traffic it cannot authenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "Additionally, you can enable the service to map users to their external IP addresses as well, so it can apply user-level policies to remote user traffic that it cannot authenticate."
+          ]
+        }
+      ],
+      "conditions": "The article does not name the setting; zia.authentication.surrogate-ip:dedicated-port describes Surrogate IP on dedicated-port locations, but the setting is not named from this quote."
+    },
+    "setup": {
+      "statement": "Zscaler Support is contacted to subscribe to the proxy ports; Enforce Authentication is selected under Gateway Options; and after the ports are configured in the Admin Console, remote users' PAC files are edited to forward their traffic to the subscribed ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "Contact Zscaler Support to subscribe to the proxy ports.",
+            "Under Gateway Options, select Enforce Authentication.",
+            "After you configure the proxy ports on the Zscaler Admin Console, edit the PAC file for your remote users in order to forward their traffic to the subscribed proxy ports."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "port-details": {
+      "kind": "semantic",
+      "title": "Proxy port number ranges, per-location count and the external-IP mapping setting",
+      "status": "open",
+      "detail": "The Configuring Dedicated Proxy Ports article does not give the port number ranges, how many ports a location can take, or the name of the setting that maps users to their external IP addresses (likely Surrogate IP per zia.authentication.surrogate-ip:dedicated-port, but this article does not name it).",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
       ]
     }
   }

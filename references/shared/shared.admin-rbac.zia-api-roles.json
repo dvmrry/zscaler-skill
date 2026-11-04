@@ -51,6 +51,10 @@
     {
       "label": "SD-WAN partner API clients.",
       "text": "{{sdwan-client}} Limits on roles and clients, and how a client authenticates to the API, are open {{gap:sdwan-limits-auth}}."
+    },
+    {
+      "label": "SD-WAN partner keys.",
+      "text": "{{sdwan-partner-key-scope}} {{sdwan-partner-key-prereqs}} {{sdwan-partner-key-rules}} {{sdwan-partner-key-list}}"
     }
   ],
   "checks": [
@@ -267,6 +271,86 @@
         }
       ]
     }
+    ,
+    "sdwan-partner-key-scope": {
+      "statement": "An SD-WAN partner key enables partner access to the following resources within the cloud service API: Locations, where the partner can export all attributes of a service-defined location and make requests to add, update and delete locations, and VPN Credentials, where the partner can configure IPSec tunnel parameters including pre-shared keys, FQDNs and their associated location names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-partner-integrations.json",
+          "quotes": [
+            "An SD-WAN partner key enables partner access to the following resources within the cloud service API:",
+            "Locations: Allows an SD-WAN partner to export all attributes of a Zscaler service-defined location as a request.",
+            "Partners can also make resource requests to add, update, and delete locations instead of manually adding them or importing them via CSV file to the Zscaler Admin Console.",
+            "VPN Credentials: Allows an SD-WAN partner to configure IPSec tunnel parameters including pre-shared keys, FQDNs, and their associated location names as a request."
+          ]
+        }
+      ]
+    },
+    "sdwan-partner-key-prereqs": {
+      "statement": "Before adding a partner key an SD-WAN partner API role with SD-WAN partner access enabled is configured, an SD-WAN partner API client with the proper partner role is configured, and the configured locations and VPN credentials are assigned to the proper partner, whose name then shows in the Managed By column. The partner is then given its SD-WAN partner API client credentials and the partner key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Configure a SD-WAN partner API role with SD-WAN partner access enabled.",
+            "Configure a SD-WAN partner API client for the SD-WAN partner, and make sure to apply the proper partner role.",
+            "Review your configured locations and VPN credentials and assign the proper partner to manage them.",
+            "The partner's name should be displayed in the Managed By column for the location or VPN credential."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Their SD-WAN partner API client credentials",
+            "The partner key"
+          ],
+          "after": "make sure that you provide the following information to your SD-WAN partner:"
+        }
+      ]
+    },
+    "sdwan-partner-key-rules": {
+      "statement": "An organization can only have one partner key per SD-WAN partner, and the existing key must be deleted before a new one is added; the partners in the Add Partner Key list are Cisco Viptela, VMware SD-WAN, Citrix SD-WAN, CloudGenix, HPE Aruba, ngena, Riverbed SteelConnect, Silver Peak, VMware VeloCloud and Nile Secure, and for VMware SD-WAN an SSO URL must also be entered. A new key is immediately valid; an edited key must be alphanumeric (A-Z, a-z, 0-9), exactly 12 characters and different from the Current Partner Key, and after confirmation the old key is immediately invalidated. Regenerating gives a random key string and invalidates the old one, and deleting immediately removes and invalidates the key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Your organization can only have one partner key per SD-WAN partner.",
+            "You must delete the existing key before you can add a new key.",
+            "- Cisco Viptela - VMware SD-WAN - Citrix SD-WAN - CloudGenix - HPE Aruba - ngena - Riverbed SteelConnect - Silver Peak - VMware VeloCloud - Nile Secure",
+            "For VMware SD-WAN, you must also enter an SSO URL.",
+            "The new partner key is immediately valid and displayed on the Partner Integrations page.",
+            "The new key must be alphanumeric (A-Z, a-z, 0-9) and exactly 12 characters in length.",
+            "The new key cannot be the same as the Current Partner Key.",
+            "After confirmation, the old partner key is immediately invalidated.",
+            "After confirmation, a random partner key string is immediately generated and the old string is invalidated.",
+            "After confirmation, the partner key is immediately removed and invalidated."
+          ]
+        }
+      ]
+    },
+    "sdwan-partner-key-list": {
+      "statement": "The partner key list shows the Partner Name, the Key string, Last Modified By (the admin that last modified the key) and Last Modified On (the date and time it was last modified).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sd-wan-partner-keys.json",
+          "quotes": [
+            "Partner Name: The name of the partner.",
+            "Key: The partner key string.",
+            "Last Modified By: Admin that last modified the partner key",
+            "Last Modified On: The date and time the partner key was last modified."
+          ]
+        }
+      ]
+    }
   },
   "gaps": {
     "form-differences": {
@@ -282,8 +366,8 @@
     "sdwan-limits-auth": {
       "kind": "semantic",
       "title": "Limits on SD-WAN partner API roles and clients, and client authentication",
-      "status": "open",
-      "detail": "No limit on SD-WAN partner API roles or clients is stated in the captured pages, and neither is how an SD-WAN partner API client authenticates to the API.",
+      "status": "partial",
+      "detail": "No limit on SD-WAN partner API roles or clients is stated in the captured pages. The partner key page says the partner is given its API client credentials and the partner key (sdwan-partner-key-prereqs), but not how a client presents them to the API.",
       "resolves_with": [
         "source-read",
         "support-ticket"

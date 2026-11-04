@@ -40,6 +40,10 @@
       "text": "{{core-attributes}} {{hosting-security-characteristics}} {{risk-index-overrides}}"
     },
     {
+      "label": "Cloud application tags.",
+      "text": "{{tags-what}} {{tags-limit}} {{tags-page}} Whether predefined tags exist and how a tag is attached to an application are open {{gap:tag-association}}."
+    },
+    {
       "text": "A rule that selects a profile applies to every matching app, so one rule can account for many blocks: [[zia.cloud-app-control.rule-criteria]]. {{attribute-sources-3p}} Where the other attribute values come from is open {{gap:attribute-sources}}. The Application Information page itself is in [[portfolio.saas-security-report]]."
     }
   ],
@@ -201,6 +205,59 @@
         }
       ]
     },
+    "tags-what": {
+      "statement": "A cloud application tag groups cloud applications (custom, predefined or both, across categories) to the organization's needs. The feature has three parts: creating the tag, associating it with cloud applications, and creating risk profiles with it, so Cloud App Control policies can act on tag-based risk profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-application-tags.json",
+          "quotes": [
+            "Zscaler's cloud application tag allows you to logically group cloud applications based on your organization's requirements.",
+            "Group cloud applications (i.e., custom or predefined applications or both) from different categories based on your organization's requirements.",
+            "Creating a cloud application tag.",
+            "Associating the tag with the cloud application.",
+            "Creating risk profiles with this tag.",
+            "Handle traffic to specific cloud applications by applying cloud app control policies with tag-based risk profiles."
+          ]
+        }
+      ]
+    },
+    "tags-limit": {
+      "statement": "An organization can create at most 16 cloud application tags, each up to 127 characters, and a tag is created by entering a Tag Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-application-tag.json",
+          "quotes": [
+            "You can create a maximum of 16 tags.",
+            "In the Add Cloud Application Tag drawer, enter a name for the cloud application tag in the Tag Name field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Cloud Application Tags per Organization | 16 tags | Each tag can have up to 127 characters. |"
+          ]
+        }
+      ]
+    },
+    "tags-page": {
+      "statement": "Tags are managed on the Cloud Application Tags page (Data Security > Inline CASB > Application Tags), whose columns are not editable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-application-tags.json",
+          "quotes": [
+            "On the Cloud Application Tags page (Data Security > Inline CASB > Application Tags), you can do the following:",
+            "The columns are not editable."
+          ]
+        }
+      ]
+    },
     "risk-index-overrides": {
       "statement": "Applications with risk index overrides set on the Application Information page are evaluated in the policy when the Risk Index criterion matches.",
       "tier": "A",
@@ -216,6 +273,16 @@
     }
   },
   "gaps": {
+    "tag-association": {
+      "kind": "semantic",
+      "title": "Whether predefined cloud application tags exist and how a tag is attached to an application",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "explaining how an application comes to carry a tag",
+      "detail": "The Cloud Application Tags articles describe creating a tag and list associating it with the cloud application as a step, but the association step is on the About Cloud Applications and Application Information pages, which are outside the captured set. The Add drawer shows only a Tag Name; no captured page says whether predefined tags exist."
+    },
     "attribute-sources": {
       "kind": "data",
       "title": "Who supplies each risk attribute value",
@@ -225,7 +292,7 @@
         "operator-experience"
       ],
       "blocks": "explaining why an app's attribute value differs from expectation",
-      "detail": "Partly answered by attribute-sources-3p: six Application Information fields are stated as populated by Zscaler 3rd-Party App Governance; the other attribute values remain unattributed. The captures say the Risk Index is a score assigned from risk attribute values, that Application Status and Tags have their own pages, and that the Risk Index can be overridden per app. They do not say which attribute values Zscaler maintains and which the customer sets. The earlier ledger named Zscaler ThreatLabz as the maintainer; no registered source says so, so that is not carried as a claim.",
+      "detail": "Partly answered by attribute-sources-3p: six Application Information fields are stated as populated by Zscaler 3rd-Party App Governance; and by tags-what and tags-limit, which show that the Tags attribute is a grouping the organization creates (up to 16). The other attribute values remain unattributed. The captures say the Risk Index is a score assigned from risk attribute values, that Application Status and Tags have their own pages, and that the Risk Index can be overridden per app. They do not say which attribute values Zscaler maintains and which the customer sets. The earlier ledger named Zscaler ThreatLabz as the maintainer; no registered source says so, so that is not carried as a claim.",
       "resolvable_by": [
         "operator"
       ]

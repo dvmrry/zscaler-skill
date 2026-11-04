@@ -40,7 +40,7 @@
     },
     {
       "label": "Across updates.",
-      "text": "{{update-retains}} Whether a parameter can be changed after installation without reinstalling is open {{gap:change-after-install}}."
+      "text": "{{update-retains}} {{reinstall-to-change}} Whether a parameter can be changed after installation by any other route is open {{gap:change-after-install}}."
     }
   ],
   "checks": [
@@ -131,6 +131,27 @@
         }
       ]
     },
+    "reinstall-to-change": {
+      "statement": "The MSI and EXE install-options pages each say that modifying any of the listed install parameters after installation requires reinstalling the app with the new values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-exe.json",
+          "quotes": [
+            "To modify any of these parameters post-installation, app reinstallation with the new values is required."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "after": "Zscaler recommends using the MST file",
+          "quotes": [
+            "To modify any of these parameters post-installation, app reinstallation with the new values is required."
+          ]
+        }
+      ]
+    },
     "update-retains": {
       "statement": "An app update configured in the Client Connector App Store keeps the installation parameters already set on the device, such as strictEnforcement or policyToken.",
       "tier": "A",
@@ -149,8 +170,8 @@
     "change-after-install": {
       "kind": "semantic",
       "title": "Whether an install parameter can be changed without reinstalling",
-      "status": "open",
-      "detail": "Unverified legacy statement: Parameters are read at install time, most are stored locally and persist across upgrades, and changing them typically requires reinstalling ZCC (or at minimum a silent reinstall passing the new values); profile.json, the downloaded app policy bundle, is populated from the admin console, not the installer. The captures confirm only that an App Store update keeps existing parameters; they do not say how a parameter is changed on an installed device or where it is stored.",
+      "status": "partial",
+      "detail": "The Windows MSI and EXE pages now say changing a parameter after installation requires reinstalling with the new values (claim reinstall-to-change). Still open: whether that holds on macOS, iOS, Android and Linux, whether any parameter can be changed on an installed device another way, and where parameters are stored; the captures confirm otherwise only that an App Store update keeps existing parameters.",
       "blocks": "advice on changing a parameter such as cloudName or useLWFDriver across a fleet",
       "resolves_with": [
         "lab-test",

@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.azure-vwan",
+  "title": "Azure Virtual WAN integration: prerequisites, limitations, service principal, hub sync and errors",
+  "aliases": [
+    "Azure Virtual WAN",
+    "Azure VWAN",
+    "Azure vwan hub",
+    "Partner Integrations - SDWAN"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.vpn-credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what}} {{azure-vwan}} {{azure-vwan-status}}"
+    },
+    {
+      "label": "Prerequisites and limitations.",
+      "text": "{{prerequisites}} {{single-tunnel-no-failover}} {{scope-limits}} {{cloud-tenant-cardinality}} {{static-routes-bgp}}"
+    },
+    {
+      "label": "Service principal.",
+      "text": "{{service-principal}} {{application-key}} What happens when the secret expires, and whether a role narrower than Contributor works, are open {{gap:secret-and-role}}."
+    },
+    {
+      "label": "Console setup and sync.",
+      "text": "{{console-setup}} {{synced-hubs-initial}} {{test-failure}}"
+    },
+    {
+      "label": "Errors.",
+      "text": "{{auth-errors}} How to tell the two ACCESS FAILURE causes apart is open {{gap:access-failure-causes}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the design needs failover to another Zscaler data center, since an Azure VWAN hub supports one outbound tunnel to a Zscaler tenant.",
+      "uses": [
+        "single-tunnel-no-failover"
+      ]
+    },
+    {
+      "do": "Whether the Zscaler VWAN Hub is configured as a Security Partner Provider in Azure when the sync or Test fails.",
+      "uses": [
+        "prerequisites",
+        "test-failure"
+      ]
+    }
+  ],
+  "claims": {
+    "what": {
+      "statement": "The integration uses Microsoft's Azure Virtual WAN APIs to discover and configure Azure hubs. When it is configured the Zscaler service can sync hub information from Azure, and a one-click process then creates outbound IPSec tunnels from any hub to the nearest Zscaler data center, configuring the hubs and provisioning Locations and VPN Credentials for them in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "Zscaler's integration leverages Microsoft's Azure Virtual WAN (VWAN) APIs to discover and configure Azure hubs, including querying and configuring Azure VWAN.",
+            "When the integration is configured, the Zscaler service can sync hub information from Azure.",
+            "After hub information is synced to Zscaler, outbound IPSec tunnels from any of the hubs to the nearest Zscaler data center can be created using a one-click configuration process.",
+            "The one-click process automatically configures the Azure hubs, and provisions Locations and VPN Credentials for these hubs, within the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Setup needs a valid Azure VWAN subscription, which is an additional cost, at least one configured Azure hub, and Zscaler added as a Security Partner Provider. If the Zscaler VWAN Hub is not configured as a Security Partner Provider in Microsoft Azure, it fails to sync with the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "A valid subscription for Azure VWAN which is an additional cost.",
+            "At least one Azure hub configured.",
+            "Added Zscaler as a Security Partner Provider.",
+            "You must configure the Zscaler VWAN Hub as a Security Partner Provider in Microsoft Azure, or it fails to sync with the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "single-tunnel-no-failover": {
+      "statement": "Redundant tunnels are not supported: only one outbound tunnel from an Azure VWAN hub to a Zscaler tenant is supported, so there is no failover to another Zscaler data center based on unavailability or load.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "Redundant tunnels are not supported. Only one outbound tunnel from an Azure VWAN hub to a Zscaler tenant is supported.",
+            "No failover to another Zscaler data center based on unavailability or load. This is due to redundant tunnels not being supported."
+          ]
+        }
+      ]
+    },
+    "scope-limits": {
+      "statement": "Azure Government is not supported. Sublocations are not supported; only Zscaler locations are. There is no multi-tenancy: traffic from multiple VNETs belonging to the same organization goes through the same VWAN hub to the Zscaler tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "Azure Government isn't supported.",
+            "No support for sublocations. Only Zscaler locations are supported.",
+            "No multi-tenancy. Traffic from multiple VNETs belonging to the same organization goes through the same VWAN hub to the Zscaler tenant."
+          ]
+        }
+      ]
+    },
+    "cloud-tenant-cardinality": {
+      "statement": "Each Azure VWAN hub supports one Zscaler cloud, so multiple clouds, including beta and production, need additional VWAN hubs. The page gives the current VWAN hub limit as one hub per region per subscription and refers to Azure documentation for updates. Each Zscaler cloud supports one Azure tenant, and tunnels cannot be terminated to multiple Azure VWAN hubs across multiple subscriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "Support for one Zscaler cloud per Azure VWAN hub. Multiple clouds, including beta and production, need additional VWAN hubs.",
+            "The current VWAN hub limit is one hub per region, per subscription. Refer to the Azure documentation for any updates to this.",
+            "Support for one Azure tenant per Zscaler cloud. You cannot terminate tunnels to multiple Azure VWAN hubs across multiple subscriptions."
+          ]
+        }
+      ]
+    },
+    "static-routes-bgp": {
+      "statement": "In Azure VWAN environments, routes defined in the default route table as static routes do not propagate as expected, and the page recommends BGP peering instead of static route configurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "In Azure VWAN environments, a limitation exists for static routes where routes defined statistically in the default route table do not propagate as expected.",
+            "To avoid this limitation, use Border Gateway Protocol (BGP) peering instead of static route configurations."
+          ]
+        }
+      ]
+    },
+    "service-principal": {
+      "statement": "Step 1 collects the Application ID, Application Key, Tenant ID and Subscription ID for Step 2 of the integration procedure. The registered Zscaler application must be assigned a role to access resources in Azure VWAN; the procedure selects the resource group set up for Azure VWAN and the Contributor role, and Zscaler recommends a separate resource group for Azure VWAN to reduce the scope of the changes the service principal can perform. The app registration's supported account types is Accounts in this organizational directory only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "During setup, you must obtain the Application ID, Application Key, Tenant ID, and Subscription ID to complete Step 2 of the integration procedure:",
+            "You must assign the registered Zscaler application to a role to access resources in Azure VWAN.",
+            "Find and select the resource group that you set up for Azure VWAN.",
+            "For Role, select Contributor.",
+            "Zscaler recommends that you use a separate resource group for Azure VWAN to reduce the scope of the changes that can be performed by the service principal.",
+            "For Supported account types, select Accounts in this organizational directory only."
+          ]
+        }
+      ]
+    },
+    "application-key": {
+      "statement": "The Application Key is the key value of a service principal authentication key; its Value appears after saving, must be copied then, and cannot be retrieved later. The Zscaler service uses the Application ID and the key Value to authenticate to Azure. The Tenant ID is the Directory ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "Create a service principal authentication key and obtain the key value (i.e., Application Key)",
+            "The key’s Value appears within the panel after you save. You must copy the key value now. You can't retrieve the key later.",
+            "The Zscaler service uses the Application ID and the key Value to authenticate to Azure.",
+            "Obtain the Tenant ID (i.e., Directory ID)"
+          ]
+        }
+      ]
+    },
+    "console-setup": {
+      "statement": "The integration is configured in the Admin Console under Internet Access > Partner Integrations - SDWAN, on the Azure Virtual WAN tab, with the credentials entered under Azure AD Authentication Credentials. Test reports whether the Azure integration with Zscaler succeeded. When the credentials are validated, Sync syncs the Azure hubs, and the Azure Hub Locations Sync section then shows the last sync timestamp and the number of hub sites successfully synced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "From the navigation menu, go to Internet Access > Partner Integrations - SDWAN.",
+            "In the Azure Virtual WAN tab, under Azure AD Authentication Credentials:",
+            "Click Test to be notified if your Azure integration with Zscaler succeeded or not.",
+            "When your Azure AD authentication credentials are validated, click Sync. This syncs your Azure hubs to the Zscaler service.",
+            "The Azure Hub Locations Sync section updates, showing the last sync timestamp and the number of hub sites that were successfully synced."
+          ]
+        }
+      ]
+    },
+    "synced-hubs-initial": {
+      "statement": "The Azure Virtual WAN Locations tab lists all Azure hub locations with their Azure Region. Initially the tunnel configuration is Not Configured and the Azure Sites, Zscaler Location, IP Address and VPN Connection columns are empty; editing each location starts its tunnel configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "On the Azure Virtual WAN Locations tab, all Azure Hub locations, along with the associated Azure Region, are displayed.",
+            "Initially, the tunnel configuration is set to Not Configured, and the Azure Sites, Zscaler Location, IP Address, and VPN Connection columns are empty.",
+            "Review the table and then edit each location to start the tunnel configuration."
+          ]
+        }
+      ]
+    },
+    "test-failure": {
+      "statement": "If Test is unsuccessful, the page says to ensure the Zscaler VWAN Hub is properly configured as a Security Partner Provider to avoid sync failures with the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "If the test was unsuccessful, ensure that Zscaler VWAN Hub is properly configured as a Security Partner Provider to avoid any sync failures with the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "auth-errors": {
+      "statement": "Azure Virtual WAN authentication errors: INVALID CREDENTIALS when any of Tenant ID, Subscription ID, Application ID and Application Secret is not configured; DUPLICATE ITEM when the Subscription ID is already associated with another organization; ACCESS FAILURE when the Subscription ID is not available for the account, likely entered incorrectly; NOT AUTHORIZED when an Azure API called by the Zscaler UI returned 401 or 403 (contact Azure support); ACCESS FAILURE when authenticating with the Azure portal returned 404 (contact Azure support); and UNEXPECTED ERROR (contact the Zscaler Support Engineer).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-azure-virtual-wan.json",
+          "quotes": [
+            "INVALID CREDENTIALS: Tenant ID, Subscription ID, Application ID, and Application Secret are all required. If one of these is not configured, you see this error.",
+            "DUPLICATE ITEM: The entered Subscription ID is already associated with another organization.",
+            "ACCESS FAILURE: The Subscription ID is not available for this account. This likely means that the Subscription ID was entered incorrectly.",
+            "NOT AUTHORIZED: Got 401 or 403 from an Azure API that is called by Zscaler UI. Contact your Azure support representative for assistance.",
+            "ACCESS FAILURE: Got 404 when authenticating with Azure portal. Contact your Azure support representative for assistance.",
+            "UNEXPECTED ERROR: Contact your Zscaler Support Engineer for assistance."
+          ]
+        }
+      ]
+    },
+    "azure-vwan": {
+      "statement": "For Azure Virtual WAN, the Integrating with Microsoft Azure Virtual WAN procedure must be completed before hubs can be synced and tunnels configured. The configuration steps are to find the closest Zscaler data center and configure the hub to create an outbound tunnel to it, fetch the IPSec pre-shared key for the VPN site from the hub, provision the hub's IP address for the Zscaler cloud and organization, create the VPN credentials from that key and the hub's IP address, and create a Zscaler location for the hub with those credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-azure-vwan-locations.json",
+          "quotes": [
+            "You must complete the procedure for Integrating with Microsoft Azure Virtual WAN before you can sync and configure tunnels for your Azure hubs.",
+            "Find the closest Zscaler data center (DC) and configure the hub to create an outbound tunnel to that DC.",
+            "Fetch the IPSec pre-shared key for the VPN site from the hub.",
+            "Provision the hub's IP address for the proper Zscaler cloud and organization.",
+            "Create the VPN credentials using the IPSec pre-shared key associated to the VPN site and the hub's IP address.",
+            "Create a new Zscaler location for the hub and associate the VPN credentials to it."
+          ]
+        }
+      ]
+    },
+    "azure-vwan-status": {
+      "statement": "When an Azure hub's configuration completes the Tunnel Status is Configured and the IP Address is shown, while VPN Connection is unlisted or unknown at that point; the VPN Connection column shows the primary tunnel status of configured hub locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-azure-vwan-locations.json",
+          "quotes": [
+            "After the configuration completes, the Tunnel Status changes to Configured and the IP Address displays the relevant information for that IP address. However, VPN Connection will remain unlisted, or is set as unknown, at this time.",
+            "The VPN Connection column displays the primary tunnel status for the configured Azure hub locations."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "secret-and-role": {
+      "kind": "semantic",
+      "title": "Secret expiry and whether a role narrower than Contributor works",
+      "status": "open",
+      "detail": "The procedure sets an expiration period for the key, with 1 year as its example, and does not say what happens when the key expires. It assigns the Contributor role and does not say whether a narrower role works.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "access-failure-causes": {
+      "kind": "semantic",
+      "title": "Telling the two ACCESS FAILURE causes apart",
+      "status": "open",
+      "detail": "ACCESS FAILURE is listed for an unavailable Subscription ID and for a 404 when authenticating with the Azure portal, so the code alone does not identify the problem. The error list says Application Secret where Steps 1 and 2 say Application Key; whether they are the same is not stated. The legacy API capture legacy-api-azure-integration.json and the Zscaler and Azure Traffic Forwarding Deployment Guide were not read for this subject.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

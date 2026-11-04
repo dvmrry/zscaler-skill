@@ -37,7 +37,7 @@
     },
     {
       "label": "Two interception modes.",
-      "text": "{{interception-modes}} {{trp-support}}"
+      "text": "{{interception-modes}} The Workspace ONE guide words the inbound firewall benefit differently {{divergence:trp-inbound-rules-qualifier}}. {{trp-support}}"
     },
     {
       "label": "Profiles for Transparent Proxy-based Interception.",
@@ -45,11 +45,11 @@
     },
     {
       "label": "Private Access VPN for legacy apps.",
-      "text": "{{legacy-apps-vpn}}"
+      "text": "{{legacy-apps-vpn}} {{older-than-sequoia}}"
     },
     {
       "label": "Full Disk Access.",
-      "text": "{{fda-dlp}} The two vendor guides disagree on one code requirement {{divergence:dlp-agent-code-requirement}}. Whether any other feature needs Full Disk Access is open {{gap:full-disk-access-scope}}."
+      "text": "{{fda-dlp}} {{fda-before-dlp}} The macOS versions Endpoint DLP supports are in [[zcc.end-user.service-windows]]. The two vendor guides disagree on one code requirement {{divergence:dlp-agent-code-requirement}}. Whether any other feature needs Full Disk Access is open {{gap:full-disk-access-scope}}."
     },
     {
       "label": "Keeping it running.",
@@ -57,11 +57,11 @@
     },
     {
       "label": "Process-based bypass.",
-      "text": "{{process-bypass}}"
+      "text": "{{process-bypass}} {{process-path-versions}}"
     },
     {
       "label": "Open points.",
-      "text": "What happens when the extension is not pre-approved is open {{gap:unapproved-extension}}, and so is profile timing {{gap:profile-timing}}. Whether Client Connector registers a content filter is open {{gap:content-filter}}. The Team ID and bundle identifiers are no longer open {{gap:team-and-bundle-ids}}."
+      "text": "What happens when the extension is not pre-approved is open {{gap:unapproved-extension}}, and so is profile timing {{gap:profile-timing}}. The firewall's content filter payload is in [[zcc.install.macos-firewall]]; whether anything else registers a content filter is open {{gap:content-filter}}. The Team ID and bundle identifiers are no longer open {{gap:team-and-bundle-ids}}."
     }
   ],
   "checks": [
@@ -214,6 +214,62 @@
         }
       ]
     },
+    "older-than-sequoia": {
+      "statement": "For devices running macOS releases older than macOS Sequoia, the Workspace ONE guide says to review the commented sections and edit as required in both the ZCC-TRP-CONFIG mobileconfig file and the mobileconfig file for the Private Access VPN for Legacy Apps custom VPN profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+          "after": "Download the ZCC-TRP-CONFIG mobileconfig file.",
+          "quotes": [
+            "If you are deploying Zscaler Client Connector to devices running macOS releases older than macOS Sequoia, review the commented sections in the file and edit as required."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+          "after": "You can use the provided mobileconfig file to configure a custom VPN profile for Private Access VPN (for Legacy Apps):",
+          "quotes": [
+            "If you are deploying Zscaler Client Connector to devices running macOS releases older than macOS Sequoia, review the commented sections in the file and edit as required."
+          ]
+        }
+      ]
+    },
+    "fda-before-dlp": {
+      "statement": "Endpoint DLP requires Full Disk Access, and the MDM profiles that grant it must be deployed to endpoints before Endpoint DLP is installed; the Workspace ONE guide also says any existing Endpoint DLP MDM profiles must be removed before uploading a new profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-endpoint-data-loss-prevention-dlp-integration-zscaler-client-connector.json",
+          "quotes": [
+            "Endpoint DLP requires Full Disk Access for proper operation. MDM profiles that grant Full Disk Access must be deployed to endpoints prior to Endpoint DLP installation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+          "quotes": [
+            "You must remove any existing Endpoint DLP MDM profiles before uploading a new profile."
+          ]
+        }
+      ]
+    },
+    "process-path-versions": {
+      "statement": "With Transparent Proxy-based Traffic Interception, the Workspace ONE guide says process paths can also be used for application identification in the MDM mobileconfig, applying only to Client Connector 4.5.2.121 and later and 4.7.0.87 and later for macOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+          "quotes": [
+            "If you use Transparent Proxy-based Traffic Interception, you can also use process paths for application identification (e.g., /opt/homebrew/Cellar/podman/5.7.0/libexec/podman/gvproxy).",
+            "Applies only to Zscaler Client Connector version 4.5.2.121 and later for macOS and Zscaler Client Connector version 4.7.0.87 and later for macOS."
+          ]
+        }
+      ]
+    },
     "managed-login-items": {
       "statement": "Managed login items stop users disabling Client Connector on their devices: rules for bundle identifier and label `com.zscaler.tray`, and bundle identifier and label prefix `com.zscaler`, with Team Identifier PCBCQZJ7S7.",
       "tier": "A",
@@ -256,6 +312,32 @@
     }
   },
   "divergences": {
+    "trp-inbound-rules-qualifier": {
+      "summary": "The Jamf Pro guide says Transparent Proxy-based Interception removes the need for inbound firewall rules if not using machine tunnels; the Workspace ONE UEM macOS guide lists the benefit without the machine-tunnel qualifier.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+            "quotes": [
+              "Removes the need for inbound firewall rules if not using machine tunnels"
+            ]
+          },
+          "says": "It removes the need for inbound firewall rules if not using machine tunnels."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+            "quotes": [
+              "Removes the need for inbound firewall rules"
+            ]
+          },
+          "says": "It removes the need for inbound firewall rules, with no machine-tunnel qualifier."
+        }
+      ],
+      "impact": "Read without the qualifier, the Workspace ONE wording suggests no inbound firewall rules are ever needed; the Jamf Pro wording limits that to deployments without machine tunnels, and the pages do not say whether the omission is intentional."
+    },
     "dlp-agent-code-requirement": {
       "summary": "For the Endpoint DLP agent identifier `com.zscaler.zdp.agent`, the Jamf Pro guide's code requirement names the same identifier, while the Intune guide's code requirement names `com.zscaler.zep.at`.",
       "positions": [
@@ -340,8 +422,17 @@
     "content-filter": {
       "kind": "semantic",
       "title": "Whether Client Connector registers a network content filter",
-      "status": "open",
-      "detail": "Unverified legacy statement: ZCC's SSL inspection and traffic-interception component registers as a Content Filter Provider; the System Extension Policy profile (AllowedSystemExtensions and AllowedSystemExtensionTypes keyed by Team ID) covers it with NetworkExtension, or needs ContentFilter in a granular type list. The guides describe an App-proxy (TRPTunnel) and a Packet-tunnel (pktfilter) provider and no content filter.",
+      "status": "partial",
+      "detail": "The firewall guide describes a Content Filter payload for Client Connector's macOS firewall, with a socket filter bundle identifier com.zscaler.zscaler.pktfilter (zcc.install.macos-firewall:content-filter). It says nothing about SSL inspection or traffic interception registering as a content filter, and the deployment guides describe an App-proxy (TRPTunnel) and a Packet-tunnel (pktfilter) provider for those.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "Socket Filter Bundle Identifier: Enter com.zscaler.zscaler.pktfilter"
+          ]
+        }
+      ],
       "blocks": "building a system extension profile by hand instead of from the vendor mobileconfig",
       "resolves_with": [
         "source-read",

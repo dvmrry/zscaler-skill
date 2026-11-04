@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.detectors.pii",
+  "title": "The AI Guard PII detector: categories, what it catches and misses, masking, entities and threshold",
+  "aliases": [
+    "personally identifiable information detector",
+    "pii detector runbook",
+    "ai guard pii threshold",
+    "ai guard allow masking"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.observability"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-flags}} This subject is the PII detector runbook; the detector list is in [[ai-security.ai-guard.detectors]] and the settings every detector shares are in [[ai-security.ai-guard.policies]]."
+    },
+    {
+      "label": "Categories.",
+      "text": "{{categories}}"
+    },
+    {
+      "label": "What it catches.",
+      "text": "{{what-it-catches}}"
+    },
+    {
+      "label": "What it misses.",
+      "text": "{{misses}}"
+    },
+    {
+      "label": "Document position.",
+      "text": "{{start-null}}"
+    },
+    {
+      "label": "Settings.",
+      "text": "{{settings}} {{threshold}} The detector's own language support is open {{gap:language-support}}."
+    },
+    {
+      "label": "Unexpected triggers.",
+      "text": "{{false-positive-check}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an unexpected PII trigger, the Detection Summary in the dashboard's transaction details for the categories detected; for a missed value, the runbook's list of what the detector does not trigger on.",
+      "uses": [
+        "false-positive-check",
+        "misses"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-flags": {
+      "statement": "The Personally Identifiable Information (PII) detector flags user prompts that contain real personal information (the runbook lists credit card numbers, SSNs, emails, phone numbers, government IDs and bank identifiers) and ignores look-alike content that carries no real identifying data, such as test card numbers or fake SSNs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "The Personally Identifiable Information (PII) Detector flags user prompts that contain real personal information (such as: credit card numbers, SSNs, emails, phone numbers, government IDs, bank identifiers) and ignores look-alike content that doesn't carry real identifying data (i.e.: test card numbers or fake SSNs)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "The Personally Identifiable Information (PII) Detector flags user prompts that contain real personal information (such as: credit card numbers, SSNs, emails, phone numbers, government IDs, bank identifiers) and ignores look-alike content that doesn't carry real identifying data (i.e.: test card numbers or fake SSNs)."
+          ]
+        }
+      ]
+    },
+    "categories": {
+      "statement": "The runbook's table lists these PII categories, each with an example value: Credit Card, Email, Phone, IP Address, IBAN, SWIFT Code, Date of Birth, US SSN, US ITIN, US Passport and US Bank Number.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "| Credit Card | 4532-1234-5678-9010 |",
+            "| Email | pat.doe@example.com |",
+            "| Phone | 555-019-9999 |",
+            "| IP Address | 192.168.1.1 |",
+            "| IBAN | GB29 NWBK 6016 1331 9268 19 |",
+            "| SWIFT Code | CHASUS33 |",
+            "| Date of Birth | DOB: March 15, 1985 |",
+            "| US SSN | 234-56-7891 |",
+            "| US ITIN | 912-79-1234 |",
+            "| US Passport | T12345678 |",
+            "| US Bank Number | 123456789012 |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "| Credit Card | 4532-1234-5678-9010 |",
+            "| Email | pat.doe@example.com |",
+            "| Phone | 555-019-9999 |",
+            "| IP Address | 192.168.1.1 |",
+            "| IBAN | GB29 NWBK 6016 1331 9268 19 |",
+            "| SWIFT Code | CHASUS33 |",
+            "| Date of Birth | DOB: March 15, 1985 |",
+            "| US SSN | 234-56-7891 |",
+            "| US ITIN | 912-79-1234 |",
+            "| US Passport | T12345678 |",
+            "| US Bank Number | 123456789012 |"
+          ]
+        }
+      ]
+    },
+    "what-it-catches": {
+      "statement": "The runbook says the detector catches valid PII in plain prose, JSON, XML, SQL, log lines and code, with or without surrounding context, each of several values in one prompt independently, a value that is not a perfect format match (typo, missing digit, slight formatting issue) when the surrounding context clearly identifies it as PII, and masked card references such as ---1234 or card ending in 5904, which are flagged intentionally.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Valid PII across formats: Plain prose, JSON, XML, SQL, log lines, code. The container format doesn't matter.",
+            "PII with or without surrounding context.",
+            "Multiple PII in a single prompt, each is detected independently.",
+            "Even when the value isn't a perfect format match (typo, missing digit, slight formatting issue), the model-based signal can still trigger if the surrounding context clearly identifies it as PII.",
+            "Masked card references: ---1234 or card ending in 5904.",
+            "Masked references are intentionally flagged."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Valid PII across formats: Plain prose, JSON, XML, SQL, log lines, code. The container format doesn't matter.",
+            "PII with or without surrounding context.",
+            "Multiple PII in a single prompt, each is detected independently.",
+            "Even when the value isn't a perfect format match (typo, missing digit, slight formatting issue), the model-based signal can still trigger if the surrounding context clearly identifies it as PII.",
+            "Masked card references: ---1234 or card ending in 5904.",
+            "Masked references are intentionally flagged."
+          ]
+        }
+      ]
+    },
+    "start-null": {
+      "statement": "A result containing start: null, end: null, which can appear when AI is used to analyze a document, means the PII detector found PII but could not determine its position in the document.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "This can appear when using AI to analyze a document. If an error message contains start: null, end: null, the PII detector has found PII, but its position within the document couldn't be determined."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "This can appear when using AI to analyze a document. If an error message contains start: null, end: null, the PII detector has found PII, but its position within the document couldn't be determined."
+          ]
+        }
+      ]
+    },
+    "settings": {
+      "statement": "The PII tile adds Allow Masking, which when enabled masks the PII information when shown in the dashboard, and Entities, the list of PII labels to watch for, each with its own Action override (Detect, Allow, Block or Disabled); the runbook advises starting with three to five high-value PII labels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Allow Masking: When enabled, this will mask the PII information when shown in the dashboard.",
+            "Entities: The list of PII labels to watch for. Each entry has its own Action override (Detect / Allow / Block / Disabled). Start with three to five high-value PII labels."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Allow Masking: When enabled, this will mask the PII information when shown in the dashboard.",
+            "Entities: The list of PII labels to watch for. Each entry has its own Action override (Detect / Allow / Block / Disabled). Start with three to five high-value PII labels."
+          ]
+        }
+      ]
+    },
+    "threshold": {
+      "statement": "The PII threshold defaults to 0.5, chosen on Zscaler's internal validation set of 28 languages and roughly 9,000 labeled prompts, and Zscaler strongly recommends leaving it at 0.5; the runbook's ranges are 0.7 to 1.00 (stricter, only high-confidence matches trigger, for sensitivity to noise from the extended PERSON, LOCATION and DATE/TIME categories), 0.5 to 0.69 (the default band, for production deployments) and 0.3 to 0.49 (more permissive, best when extended categories are restricted via entity).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "The default for PII is 0.5. This was chosen based on Zscaler's internal validation set, a benchmark spanning 28 languages and roughly 9,000 labeled prompts covering PII mentions.",
+            "Zscaler strongly recommends that you leave the threshold at 0.5.",
+            "| 0.7 to 1.00 | Stricter. Only high-confidence matches trigger. | If you are sensitive to noise from extended categories (PERSON, LOCATION, DATE/TIME). |",
+            "| 0.5 to 0.69 | Default sweet spot. Catches supported PII. | Production deployments. Start here unless you need tighter or looser behavior. |",
+            "| 0.3 to 0.49 | More permissive. | Within the focused PII categories, false positives are currently very low. Best used when extended categories are restricted via entity. |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "The default for PII is 0.5. This was chosen based on Zscaler's internal validation set, a benchmark spanning 28 languages and roughly 9,000 labeled prompts covering PII mentions.",
+            "Zscaler strongly recommends that you leave the threshold at 0.5.",
+            "| 0.7 to 1.00 | Stricter. Only high-confidence matches trigger. | If you are sensitive to noise from extended categories (PERSON, LOCATION, DATE/TIME). |",
+            "| 0.5 to 0.69 | Default sweet spot. Catches supported PII. | Production deployments. Start here unless you need tighter or looser behavior. |",
+            "| 0.3 to 0.49 | More permissive. | Within the focused PII categories, false positives are currently very low. Best used when extended categories are restricted via entity. |"
+          ]
+        }
+      ]
+    },
+    "misses": {
+      "statement": "The runbook's list of reasons PII does not trigger includes invalid SSNs (area 000, area 900+) and similar government-ID values, which are rejected on purpose even with strong context; heavy obfuscation (base64, hex, reversed digits, zero-width characters); PII split across labels; unusual separators (pipe, comma, slash, parenthesis), where separator handling beyond - and space is in active development; and too many individual PII categories disabled in the policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Invalid SSNs (area 000, area 900+) and similar government-ID values are rejected on purpose, even with strong context.",
+            "Too many individual PII categories have been disabled in the policy.",
+            "The PII is heavily obfuscated (base64, hex, reversed digits, zero-width characters).",
+            "PII information is split across labels (Area: ..., Group: ..., Serial: ...).",
+            "The separators may be unusual (pipe, comma, slash, parenthesis).",
+            "Separator handling beyond - and space is in active development."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Invalid SSNs (area 000, area 900+) and similar government-ID values are rejected on purpose, even with strong context.",
+            "Too many individual PII categories have been disabled in the policy.",
+            "The PII is heavily obfuscated (base64, hex, reversed digits, zero-width characters).",
+            "PII information is split across labels (Area: ..., Group: ..., Serial: ...).",
+            "The separators may be unusual (pipe, comma, slash, parenthesis).",
+            "Separator handling beyond - and space is in active development."
+          ]
+        }
+      ]
+    },
+    "false-positive-check": {
+      "statement": "The runbook points to Dashboard > Transaction Details > Detection Summary for which specific PII categories were detected, so the policy can be updated accordingly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Check Dashboard > Transaction Details > Detection Summary for which specific PII categories were detected and update your policy accordingly."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Check Dashboard > Transaction Details > Detection Summary for which specific PII categories were detected and update your policy accordingly."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "language-support": {
+      "kind": "semantic",
+      "title": "Which languages the PII detector supports",
+      "status": "open",
+      "detail": "The runbook gives its validation set as spanning 28 languages (threshold) but does not state the PII detector's own supported languages, and the Multilingual Support page lists six languages for AI Guard as a whole (see the supported-languages divergence in ai-security.ai-guard.detectors). The hover on the Multilingual badge of the PII tile would show them; no capture does.",
+      "blocks": "answers on PII detection in a given language",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -111,6 +111,7 @@ export function buildGraph(loaded) {
     formerIds: new Map(), // former id -> current id
     bindsTo: new Map(), // type or field id -> Set(subject or item id) that bind it
     statusCodes: new Map(), // LSS status code -> [{ type, code, data }] for each log type that lists it
+    policyReasons: new Map(), // lowercased ZIA policy reason -> [{ type, reason, data }] for each log type that lists it
     problems: [...loaded.problems],
   };
   const add = (node, file) => {
@@ -159,6 +160,13 @@ export function buildGraph(loaded) {
     for (const [code, data] of Object.entries(t.status_codes || {})) {
       g.statusCodes.set(code, [...(g.statusCodes.get(code) || []), { type: t.id, code, data }]);
       alias(code, t.id);
+    }
+    // A reason string reads by its text; only one of three words or more is an alias, so "Allowed" does not pull
+    // every question that says allowed to the web log.
+    for (const [reason, data] of Object.entries(t.policy_reasons || {})) {
+      const key = reason.toLowerCase();
+      g.policyReasons.set(key, [...(g.policyReasons.get(key) || []), { type: t.id, reason, data }]);
+      if (reason.split(/\s+/).length >= 3) alias(reason, t.id);
     }
   };
   for (const { file, data } of loaded.files.generatedTypes) for (const t of Object.values(data.types || {})) addType(t, file, false);
@@ -677,6 +685,9 @@ export function* allEvidence(g) {
     if (node.kind === "type" && node.authored) {
       for (const [code, sc] of Object.entries(node.data.status_codes || {})) {
         for (const [i, ev] of sc.evidence.entries()) yield { node, ev, where: `${node.id} status_codes.${code} evidence[${i}]` };
+      }
+      for (const [reason, pr] of Object.entries(node.data.policy_reasons || {})) {
+        for (const [i, ev] of pr.evidence.entries()) yield { node, ev, where: `${node.id} policy_reasons.${reason} evidence[${i}]` };
       }
     }
     if (node.kind === "field") for (const [i, ev] of (node.data.evidence || []).entries()) yield { node, ev, where: `${node.id} evidence[${i}]` };

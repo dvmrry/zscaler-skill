@@ -41,11 +41,11 @@
     },
     {
       "label": "The package.",
-      "text": "{{pkg-source}} {{min-macos}} {{intune-detection}} {{jamf-reinstall}}"
+      "text": "{{pkg-source}} {{workspace-one}} {{min-macos}} {{intune-detection}} {{jamf-reinstall}}"
     },
     {
       "label": "Install parameters.",
-      "text": "{{preference-domain}} {{plist-shape}} The keys themselves are described in [[zcc.install.enrollment]], [[zcc.install.strict-enforcement]] and [[zcc.install.windows-unattended]]."
+      "text": "{{preference-domain}} {{plist-shape}} {{workspace-one-plist}} The keys themselves are described in [[zcc.install.enrollment]], [[zcc.install.strict-enforcement]] and [[zcc.install.windows-unattended]]."
     },
     {
       "label": "Tunnel parameters.",
@@ -61,7 +61,7 @@
     },
     {
       "label": "Uninstall.",
-      "text": "{{uninstall}} What an uninstall leaves behind is open {{gap:uninstall-residue}}."
+      "text": "{{uninstall}} {{system-extension-residue}} What else an uninstall leaves behind is open {{gap:uninstall-residue}}."
     },
     {
       "label": "Open points.",
@@ -143,6 +143,50 @@
           "path": "deploying-zscaler-client-connector-microsoft-intune-macos.json",
           "quotes": [
             "Zscaler Client Connector versions 4.5.2 and later support macOS Sonoma 14.0 and later."
+          ]
+        }
+      ]
+    },
+    "workspace-one": {
+      "statement": "In the Workspace ONE UEM guide the .pkg is taken from the New Releases tab (macOS), and the Workspace ONE Admin Assistant creates .pkg, property list (PLIST) and image files for uploading; the guide clicks Cancel to not assign the app at that time, because other MDM payloads must first be deployed to the devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+          "quotes": [
+            "On the New Releases tab, select macOS.",
+            "The Workspace ONE Admin Assistant creates .pkg, property list (PLIST), and image files for uploading to the portal.",
+            "Click Cancel to not assign the app at this time (because you must first deploy other MDM payloads to the devices) and then click Save."
+          ]
+        }
+      ]
+    },
+    "workspace-one-plist": {
+      "statement": "The Workspace ONE custom settings profile uses PayloadType com.zscaler.installparams with the keys inside installation-parameters; in its sample hideAppUIOnLaunch is the string 0, externalRedirect the string false, launchTray the string 1 and enableFips the string 0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+          "quotes": [
+            "<key>PayloadType</key> <string>com.zscaler.installparams</string>",
+            "<key>installation-parameters</key> <dict> <key>hideAppUIOnLaunch</key> <string>0</string>",
+            "<key>externalRedirect</key> <string>false</string>",
+            "<key>launchTray</key> <string>1</string> <key>enableFips</key> <string>0</string>"
+          ]
+        }
+      ]
+    },
+    "system-extension-residue": {
+      "statement": "If the system extension feature is activated using a command line, it must be deactivated manually. Uninstallation of Client Connector does not remove the system extension feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "If the system extension feature is activated using a command line, you must deactivate it manually. Uninstallation of Zscaler Client Connector does not remove the system extension feature."
           ]
         }
       ]
@@ -412,8 +456,17 @@
     "uninstall-residue": {
       "kind": "semantic",
       "title": "What remains on a Mac after uninstall",
-      "status": "open",
-      "detail": "Unverified legacy statement: residual files may remain in ~/Library/Application Support/Zscaler/, /Library/Application Support/Zscaler/, /var/log/, /Library/LaunchDaemons/ and /Library/LaunchAgents/; on macOS 12 and later a system extension that is not deactivated stays listed by `systemextensionsctl list` and is removed with `sudo systemextensionsctl uninstall <team-id> <bundle-id>`, usually without a reboot. No captured article lists residue or extension cleanup.",
+      "status": "partial",
+      "detail": "Narrowed: a system extension activated from a command line stays and must be deactivated manually (claim system-extension-residue). Unverified legacy statement for the rest: residual files may remain in ~/Library/Application Support/Zscaler/, /Library/Application Support/Zscaler/, /var/log/, /Library/LaunchDaemons/ and /Library/LaunchAgents/; on macOS 12 and later a system extension that is not deactivated stays listed by `systemextensionsctl list` and is removed with `sudo systemextensionsctl uninstall <team-id> <bundle-id>`, usually without a reboot. No captured article lists residue beyond the command-line-activated extension.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "Uninstallation of Zscaler Client Connector does not remove the system extension feature."
+          ]
+        }
+      ],
       "blocks": "clean-removal procedures before a reinstall",
       "resolves_with": [
         "lab-test"

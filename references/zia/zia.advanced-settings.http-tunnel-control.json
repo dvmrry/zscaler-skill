@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "zia.advanced-settings.http-tunnel-control",
+  "title": "HTTP CONNECT tunnel control and the domain fronting blocks in Advanced Settings",
+  "aliases": [
+    "HTTP Tunnel Control",
+    "Inspect Tunneled HTTP Traffic",
+    "Block Tunneling to Non-HTTP/HTTPS Ports",
+    "Block Non-RFC Compliant HTTP Traffic on HTTP/HTTPS Ports",
+    "Block Domain Fronting",
+    "Block CONNECT Host and SNI Mismatch"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings.dns-optimization"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.advanced-settings-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.proxy-mode.explicit"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-field-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.traffic-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{connect-tunnels}}"
+    },
+    {
+      "label": "The three tunnel options.",
+      "text": "{{inspect-tunneled-http}} {{block-non-http-ports}} {{block-non-rfc}}"
+    },
+    {
+      "label": "Domain fronting blocks.",
+      "text": "{{block-domain-fronting}} {{connect-sni-mismatch}} The related DNS option is in [[zia.advanced-settings.dns-optimization]]."
+    },
+    {
+      "text": "The settings page is routed in [[zia.advanced-settings]]; the API fields and the log fields are in [[zia.api.advanced-settings-wire]] and [[zia.logs.web-field-semantics]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Block Tunneling to Non-HTTP/HTTPS Ports is on before explaining a refused CONNECT to a port other than 80 or 443.",
+      "uses": [
+        "block-non-http-ports"
+      ]
+    },
+    {
+      "do": "Whether an upstream proxy puts an IP address in the CONNECT host before explaining a CONNECT host and SNI mismatch block.",
+      "uses": [
+        "connect-sni-mismatch"
+      ]
+    }
+  ],
+  "claims": {
+    "connect-tunnels": {
+      "statement": "A client can send an HTTP CONNECT method request to establish a tunnel connection to a remote server through the Zscaler service, which then tunnels the traffic to the destination server on behalf of the client. The HTTP CONNECT method is typically used to initiate an SSL/TLS connection, but it can be used for tunneling purposes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "A client can send an HTTP CONNECT method request in order to establish a tunnel connection to a remote server through the Zscaler service.",
+            "When the connection is established, the service then tunnels the traffic to the destination server on behalf of the client.",
+            "The HTTP CONNECT method is typically used to initiate an SSL/TLS connection, but it can be used for tunneling purposes."
+          ]
+        }
+      ]
+    },
+    "inspect-tunneled-http": {
+      "statement": "Inspect Tunneled HTTP Traffic, enabled by default, lets the service enforce configured policies on tunneled HTTP traffic sent via a CONNECT request: for example, with it enabled and a CONNECT request to www.cnn.com:80, the service applies the configured web policies to the HTTP traffic it forwards to www.cnn.com. With it disabled, the service does not apply the policies to that traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Inspect Tunneled HTTP Traffic: Enable to allow the Zscaler service to enforce configured policies on tunneled HTTP traffic that is sent via a CONNECT method request.",
+            "For example, if this option is enabled and the service receives a CONNECT request to www.cnn.com:80, the service applies the configured web policies to HTTP traffic that it forwards to www.cnn.com.",
+            "If this option is disabled, then the service doesn't apply the policies to HTTP traffic that it forwards to www.cnn.com."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "By default, this option is enabled."
+          ],
+          "after": "Inspect Tunneled HTTP Traffic"
+        }
+      ]
+    },
+    "block-non-http-ports": {
+      "statement": "Block Tunneling to Non-HTTP/HTTPS Ports, enabled by default, lets the service restrict HTTP CONNECT requests to the standard ports 80 and 443. Disabling it allows CONNECT requests to non-standard ports in addition to 80 and 443: for example, a CONNECT request for SSH to port 22 is allowed when it is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Block Tunneling to Non-HTTP/HTTPS Ports: Enable to allow the service to restrict HTTP CONNECT method requests to the standard HTTP/HTTPS ports 80 and 443.",
+            "You can disable this option to allow all HTTP CONNECT requests to non-standard HTTP/HTTPS ports, in addition to ports 80 and 443.",
+            "For example, if this option is disabled, a CONNECT request for SSH to port 22 is allowed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "By default, this option is enabled."
+          ],
+          "after": "Block Tunneling to Non-HTTP/HTTPS Ports"
+        }
+      ]
+    },
+    "block-non-rfc": {
+      "statement": "Block Non-RFC Compliant HTTP Traffic on HTTP/HTTPS Ports, disabled by default, lets the service block traffic that is not compliant with HTTP RFC standards: for example, binary traffic or other non-RFC compliant traffic such as HTTP/0.9 is blocked through ports 80 and 443. Disabling it allows non-RFC compliant traffic over HTTP/HTTPS ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Block Non-RFC Compliant HTTP Traffic on HTTP/HTTPS Ports: Enable to allow the service to block traffic that isn't compliant with Request for Comments (RFC) HTTP protocol standards.",
+            "For example, binary traffic or other non-RFC compliant traffic, such as HTTP/0.9, is blocked through standard HTTP/HTTPS ports 80 and 443.",
+            "You can disable this option to allow any non-RFC compliant traffic over HTTP/HTTPS ports. By default, this option is disabled."
+          ]
+        }
+      ]
+    },
+    "block-domain-fronting": {
+      "statement": "Block Domain Fronting lets the service block HTTP or HTTPS transactions that have an FQDN mismatch between the request URL and the request's host header, or between the SNI (Server Name Indication) and the inner request's host header. The service does not consider it a mismatch if either of the fields (host header and FQDN URL, or host header and SNI) is empty. URL Category Exemptions and Exempted Cloud Applications for Block Domain Fronting can be configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Block Domain Fronting: Enable to allow the service to block HTTP or HTTPS transactions that have an FQDN mismatch between:",
+            "The request URL and the request's host header.",
+            "The SNI (Server Name Indication) and the inner request's host header.",
+            "The service doesn't consider it a mismatch if either of the fields, host header, or FQDN URL is empty.",
+            "The service doesn't consider it a mismatch if either of the fields, host header, or SNI is empty.",
+            "URL Category Exemptions for Block Domain Fronting:",
+            "Exempted Cloud Applications for Block Domain Fronting:"
+          ]
+        }
+      ]
+    },
+    "connect-sni-mismatch": {
+      "statement": "Block CONNECT Host and SNI Mismatch blocks forward proxy connections where the CONNECT host does not match the SSL/TLS client hello SNI; on a mismatch, the SNI is logged into the URL web log field and the CONNECT host into the Domain fronted host header web log field. URL Category Exemptions and Exempted Cloud Applications for it can be configured. Where an upstream proxy puts the IP into the CONNECT host name received by Zscaler, that results in a mismatch and the traffic is blocked; the page says that in this case you can enable the Prefer SNI over CONNECT Host for DNS option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Block CONNECT Host and SNI Mismatch: Enable to block forward proxy connections where the CONNECT host doesn't match the SSL/TLS client hello SNI.",
+            "When there is a mismatch, SNI is logged into the URL weblog field and the CONNECT host is logged into the existing weblog field, Domain fronted host header.",
+            "URL Category Exemptions for Block CONNECT Host and SNI Mismatch:",
+            "Exempted Cloud Applications for Block CONNECT Host and SNI Mismatch:",
+            "You can enable the Block CONNECT Host and SNI Mismatch option, but if you have a use case where an upstream proxy puts the IP into the CONNECT host name received by Zscaler, that results in a mismatch (so traffic is blocked).",
+            "In this case, you can enable the Prefer SNI over CONNECT Host for DNS option."
+          ]
+        }
+      ]
+    }
+  }
+}

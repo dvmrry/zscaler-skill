@@ -67,7 +67,7 @@
           ],
           [
             "macOS",
-            "{{big-sur}} {{macos-mdm-profile}}"
+            "{{big-sur}} {{macos-mdm-profile}} {{workspace-one-macos}}"
           ],
           [
             "Android",
@@ -75,11 +75,11 @@
           ],
           [
             "iOS",
-            "{{ios}} Which MDM payload the vendor recommends is open {{gap:ios-payload}}."
+            "{{ios}} {{ios-intune-profile}} Which MDM payload the vendor recommends for other MDMs is open {{gap:ios-payload}}."
           ],
           [
             "ChromeOS",
-            "Only user traffic can be inspected: [[zia.ssl-inspection.certificates:chromeos]]."
+            "Only user traffic can be inspected: [[zia.ssl-inspection.certificates:chromeos]]. {{chromeos-flex}}"
           ]
         ]
       }
@@ -235,6 +235,65 @@
         }
       ]
     },
+    "ios-intune-profile": {
+      "statement": "For iOS, the Intune guide pushes the CA certificate for SSL inspection with a certificate profile for the iOS/iPadOS platform using the Trusted Certificate template and the uploaded .crt file; the certificate is the default Zscaler Central Authority certificate (found under Internet Access > Resources > SSL Intermediate Certificate, in the ZscalerRootCerts.zip file to unzip) or a custom Root CA certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "If you use Internet & SaaS and you want to perform SSL inspection, you must configure a certificate profile to push the Certificate Authority certificate required for SSL inspection.",
+            "You can use the default Zscaler Central Authority (CA) certificate or a custom Root CA certificate.",
+            "From the navigation menu, go to Internet Access > Resources > SSL Intermediate Certificate.",
+            "Template name: Select Trusted Certificate.",
+            "On the Configuration Settings tab, upload the .crt file to Intune and click Next.",
+            "Navigate to the ZscalerRootCerts.zip file and unzip it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "after": "Step 3: (Optional) Configure a Certificate Configuration Profile",
+          "quotes": [
+            "Platform: Select iOS/iPadOS."
+          ]
+        }
+      ]
+    },
+    "workspace-one-macos": {
+      "statement": "In the Workspace ONE UEM macOS guide, the unzipped root certificate file is renamed to a .crt extension, uploaded and attached in the profile, and Allow access to all applications is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-macos.json",
+          "quotes": [
+            "Navigate to the ZscalerRootCerts.zip file, unzip it, and rename the file extension to .crt.",
+            "Select Choose File, upload the ZscalerRootCerts.crt file, and click Attach Certificate.",
+            "Enable the Allow access to all applications setting."
+          ]
+        }
+      ]
+    },
+    "chromeos-flex": {
+      "statement": "The ChromeOS Flex guide says the certificates must be installed manually on ChromeOS Flex, Android and iOS devices, or using the Google Admin console; for ChromeOS Flex, the certificate is uploaded in the Google Admin console under Devices > Networks for an organizational unit, in the Certificates section, selecting the platform for which the certificate acts as a certificate authority.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-chromeos-flex.json",
+          "quotes": [
+            "The certificates must be installed manually on ChromeOS Flex, Android, and iOS devices, or using the Google Admin console.",
+            "For ChromeOS Flex, the certificate can be installed on the Google Admin console.",
+            "Go to Devices > Networks.",
+            "Under Organization units, select the organizational unit where you want to apply the certificate.",
+            "In the Certificates section, click Upload Certificate.",
+            "Select the platform (e.g., ChromeOS Flex) for which this certificate acts as a certificate authority."
+          ]
+        }
+      ]
+    },
     "install-events": {
       "statement": "The certificate is imported on enrollment, when the admin modifies the app profile and the device checks in for it, when Client Connector updates, and when the user clicks Update Policy; each time, Client Connector gets the certificate link from the Admin Console and attempts the installation.",
       "tier": "A",
@@ -273,7 +332,7 @@
       "kind": "semantic",
       "title": "Which MDM payload installs the root on iOS",
       "status": "open",
-      "detail": "The SSL inspection article recommends the MDM for iOS but names no payload type or certificate identifier; only the macOS guides describe the certificate profile.",
+      "detail": "The SSL inspection article recommends the MDM for iOS but names no payload type or certificate identifier. The Intune iOS guide describes a certificate profile (ios-intune-profile); no source read here gives the payload for other MDMs on iOS.",
       "blocks": "step-by-step certificate deployment for iOS fleets",
       "resolves_with": [
         "source-read"

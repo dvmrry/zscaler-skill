@@ -61,6 +61,10 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.advanced-settings"
+    },
+    {
+      "rel": "see-also",
       "to": "zia.terraform.field-fidelity"
     }
   ],
@@ -85,8 +89,8 @@
       "text": "{{provider-checks}} {{provider-checks-apply-time}} Other provider behavior for locations is in [[zia.terraform.field-fidelity]]."
     },
     {
-      "label": "Client Connector.",
-      "text": "{{windows-app-flag}}"
+      "label": "Windows app traffic.",
+      "text": "{{windows-app-flag}} {{windows-app-setting}} {{windows-app-flag-is-metro}} The page that holds the setting is routed in [[zia.advanced-settings]]."
     },
     {
       "text": "{{fixed-site-recommendation}}"
@@ -395,6 +399,31 @@
         "windows-app-scope"
       ]
     },
+    "windows-app-setting": {
+      "statement": "In Advanced Settings, under Windows App Traffic Authentication, Enforce Surrogate IP Authentication exists because some Windows 8 Metro apps use Internet Explorer as their user agent but do not support cookies or redirects, so the service does not allow traffic to these sites. Enabling the option allows the service to use the user-to-device mappings to apply the appropriate user policies to the traffic of the top Windows 8 Metro apps, and the Surrogate IP feature must be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Windows App Traffic Authentication",
+            "Enforce Surrogate IP Authentication: Some Windows 8 Metro apps use Internet Explorer as their user agent but do not support cookies or redirects, so the service does not allow traffic to these sites.",
+            "Enable this option to allow the service to use the user-to-device mappings to apply the appropriate user policies to the traffic of the top Windows 8 Metro apps.",
+            "The Surrogate IP feature must be enabled."
+          ]
+        }
+      ]
+    },
+    "windows-app-flag-is-metro": {
+      "statement": "The provider's enforce_surrogate_ip_for_windows_app flag corresponds to the console's Enforce Surrogate IP Authentication option under Windows App Traffic Authentication, which the page describes for Windows 8 Metro apps.",
+      "tier": "B",
+      "derived_from": [
+        "windows-app-flag",
+        "windows-app-setting"
+      ],
+      "conditions": "Rests on the provider flag's description, Enforce Surrogate IP authentication for Windows app traffic, matching the console section name Windows App Traffic Authentication; no captured source states the mapping between the flag and the console option. The chain gives only that the option is described for Windows 8 Metro apps; it does not establish whether the flag also covers other Windows traffic such as Client Connector."
+    },
     "provider-checks-apply-time": {
       "statement": "The Surrogate IP dependency checks run inside the provider's location create and update functions, not in a plan-time diff hook; the plan-time CustomizeDiff on the location resource checks only the manual group exclusion.",
       "tier": "A",
@@ -458,8 +487,9 @@
     "windows-app-scope": {
       "kind": "semantic",
       "title": "What enforce_surrogate_ip_for_windows_app covers and how it relates to the per-location switch",
-      "status": "open",
-      "detail": "Unverified legacy statement: The flag extends IP Surrogate attribution to Zscaler Client Connector Windows app traffic, independent of the per-location toggle. No registered source states this. The provider text says only 'Windows app traffic'. A vendor statement on which client is meant and whether the per-location setting must also be on would settle it.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: The flag extends IP Surrogate attribution to Zscaler Client Connector Windows app traffic, independent of the per-location toggle. No registered source states this. The provider text says only 'Windows app traffic'.",
+      "resolution": "Partly answered: the Advanced Settings page (windows-app-setting) places the option under Windows App Traffic Authentication and describes Windows 8 Metro apps that use Internet Explorer as their user agent without cookie or redirect support; it says the Surrogate IP feature must be enabled. The flag-to-option mapping is a Tier B inference (windows-app-flag-is-metro). Still open: whether the Surrogate IP feature there means the per-location toggle, and whether the flag covers any Client Connector traffic.",
       "resolves_with": [
         "support-ticket",
         "lab-test"

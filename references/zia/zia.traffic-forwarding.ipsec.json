@@ -68,7 +68,23 @@
     },
     {
       "label": "Negotiation.",
-      "text": "{{ike-versions}} {{ikev1-modes}} {{ikev2-parameters}} Whether the IPSec protocol is ESP only or also AH is described two ways {{divergence:ipsec-protocol}}. {{nat-traversal}} {{dpd}} {{local-id}}"
+      "text": "{{ike-versions}} {{ikev1-modes}} {{ikev2-parameters}} The Juniper SRX guide's lifetimes differ from the supported-parameters table {{divergence:srx-sa-lifetimes}}. Whether the IPSec protocol is ESP only or also AH is described two ways {{divergence:ipsec-protocol}}. {{nat-traversal}} {{dpd}} The device guides' own DPD settings differ from that recommendation {{divergence:dpd-device-guides}}. {{local-id}}"
+    },
+    {
+      "label": "Rules shared by the device configuration guides.",
+      "text": "{{device-guides-rfc1918}} {{no-esn}} {{phase2-sa-count}} {{main-mode-source-ip}}"
+    },
+    {
+      "label": "Cisco guides.",
+      "text": "{{asa-specifics}} {{one-tunnel-active}} {{pac-and-ip-sla}} {{ikev2-device-versions}}"
+    },
+    {
+      "label": "Other device guides.",
+      "text": "{{no-lifesize}} {{ping-both-edges}} {{pan-monitoring}} {{device-failover}} {{fortinet-np-offload}} {{srx-ecmp}}"
+    },
+    {
+      "label": "Destinations and Azure Virtual WAN.",
+      "text": "{{finding-vpn-hosts}} Azure Virtual WAN locations and their tunnels are in [[zia.traffic-forwarding.azure-vwan]]."
     },
     {
       "label": "MTU and IPv6.",
@@ -296,9 +312,455 @@
           ]
         }
       ]
+    },
+    "device-guides-rfc1918": {
+      "statement": "Each of the seven IPSec device guides (Cisco ASA 55xx, Cisco 881 ISR, Juniper SRX, Juniper SSG 20, FortiGate, Palo Alto Networks, SonicWall TZ 350) says tunnel interface configuration must use RFC 1918 addresses, not APIPA addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-asa-55xx.json",
+          "quotes": [
+            "For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-881-isr.json",
+          "quotes": [
+            "For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-srx.json",
+          "quotes": [
+            "For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-ssg-20.json",
+          "quotes": [
+            "For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-fortigate-firewall.json",
+          "quotes": [
+            "For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-palo-alto-networks-firewall.json",
+          "quotes": [
+            "For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-sonicwall-tz-350.json",
+          "quotes": [
+            "For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+          ]
+        }
+      ]
+    },
+    "no-esn": {
+      "statement": "All seven device guides say Zscaler does not support Extended Sequence Number (ESN) based proposals in IPSec tunnel negotiation; one section of the Cisco ASA guide says \"configuration\" where another says \"negotiations\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-asa-55xx.json",
+          "quotes": [
+            "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiations.",
+            "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-881-isr.json",
+          "quotes": [
+            "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-srx.json",
+          "quotes": [
+            "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-ssg-20.json",
+          "quotes": [
+            "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-fortigate-firewall.json",
+          "quotes": [
+            "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-palo-alto-networks-firewall.json",
+          "quotes": [
+            "Zscaler does not support Extended Sequence Number (ESN)-based proposals during IPSec tunnel negotiations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-sonicwall-tz-350.json",
+          "quotes": [
+            "Zscaler does not support Extended Sequence Number (ESN)-based proposals during IPSec tunnel negotiation."
+          ]
+        }
+      ]
+    },
+    "phase2-sa-count": {
+      "statement": "The Cisco ASA guide says Zscaler supports up to 8 Phase 2 SAs: one is used for the connection between the ASA's public IP address and the Public Service Edges, leaving seven for subnets that flow through the tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-asa-55xx.json",
+          "quotes": [
+            "Zscaler supports up to 8 Phase 2 SAs, as shown in the preceding example for version 9.6. One SA is used for the connection between the Cisco ASA’s public IP address and the Public Service Edges. You can then configure seven subnets to flow through the tunnel, forming the remaining seven SAs."
+          ]
+        }
+      ]
+    },
+    "main-mode-source-ip": {
+      "statement": "The Cisco ASA guide says the public source IP address is required only to set up an IPSec tunnel in Phase 1 main mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-asa-55xx.json",
+          "quotes": [
+            "The public source IP address is only required if you want to set up an IPSec tunnel in phase one main mode."
+          ]
+        }
+      ]
+    },
+    "asa-specifics": {
+      "statement": "In the Cisco ASA guide's section for version 9.6, the policy numbered #1 must be the Zscaler policy or the tunnel negotiations fail; the ASA's default Phase 2 SA lifetime of 8 hours (28800 seconds) equals Zscaler's recommended value; and traffic through the tunnel must keep its source IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-asa-55xx.json",
+          "quotes": [
+            "This policy is defined as #1, which can conflict with an existing policy. If so, Zscaler recommends changing your existing policy number because the #1 policy must be the Zscaler policy. Otherwise, the tunnel negotiations fail.",
+            "You don't need to change the default SA lifetime value, which is 8 hours (28800 seconds), because it is the same as the Zscaler recommended value for Phase 2.",
+            "Traffic that flows through the tunnel must maintain its source IP address."
+          ],
+          "after": "- To configure the IPSec VPN tunnel on Cisco ASA 55xx firewall running version 9.6:"
+        }
+      ]
+    },
+    "one-tunnel-active": {
+      "statement": "The Cisco 881 ISR guide says both tunnels are configured at the gateway but only one is operational at a time; the second is a backup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-881-isr.json",
+          "quotes": [
+            "Both tunnels must be configured at your gateway. Only a single tunnel is operational at any time. The second tunnel acts as a backup tunnel."
+          ]
+        }
+      ]
+    },
+    "no-lifesize": {
+      "statement": "The Palo Alto Networks guide says to keep the Enable option unchecked because Zscaler does not support life size; the Juniper SSG 20 guide enters 0 bytes for the Phase 2 lifetime in Kbytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-palo-alto-networks-firewall.json",
+          "quotes": [
+            "Keep the Enable option unchecked because Zscaler does not support life size."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-ssg-20.json",
+          "quotes": [
+            "In Kbytes: Enter 0 bytes."
+          ]
+        }
+      ]
+    },
+    "ping-both-edges": {
+      "statement": "The Cisco 881 ISR and Palo Alto Networks guides say to contact Zscaler Support if the admin is unable to ping both Public Service Edge IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-881-isr.json",
+          "quotes": [
+            "If you are unable to ping both Public Service Edge IP addresses, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-palo-alto-networks-firewall.json",
+          "quotes": [
+            "If you are unable to ping both Public Service Edge IP addresses, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "pan-monitoring": {
+      "statement": "The Palo Alto Networks guide says the Public Service Edge VIP locations must correspond to the Public Service Edge IP locations, that PAN-OS uses ICMP probes for tunnel and policy-based forward monitoring, and that the destination IP is the Virtual IP address of the primary tunnel (165.225.80.34 in the example).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-palo-alto-networks-firewall.json",
+          "quotes": [
+            "Ensure that the locations of the Public Service Edge Virtual IP addresses correspond to the locations of the Public Service Edge IP addresses.",
+            "Palo Alto Networks uses ICMP probes for tunnel and policy-based forward monitoring.",
+            "Destination IP: Enter the Virtual IP address of your primary tunnel. In this example, it's 165.225.80.34."
+          ]
+        }
+      ]
+    },
+    "pac-and-ip-sla": {
+      "statement": "The Cisco 881 ISR guide says that when PAC files forward traffic through the tunnel, IP SLA monitoring and the PAC files must use different Global Public Service Edge IP addresses; with the same ones, the PAC files send all packets through the same tunnel whatever the tunnel interface state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-881-isr.json",
+          "quotes": [
+            "If you use PAC files to forward traffic through the tunnel, ensure that you use different Global Public Service Edge IP addresses for IP SLA monitoring and your PAC files.",
+            "Using the same Global Public Service Edge IP addresses causes the PAC files to send all packets through the same tunnel regardless of the tunnel interface state."
+          ]
+        }
+      ]
+    },
+    "ikev2-device-versions": {
+      "statement": "IKEv2 needs Cisco IOS 15.1.1T or later on a Cisco 881 ISR, and version 19.2R2.7 or later on a Juniper SRX 300.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-cisco-881-isr.json",
+          "quotes": [
+            "You must have a Cisco 881 ISR running Cisco IOS version 15.1.1T or later to configure IKEv2."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-srx.json",
+          "quotes": [
+            "You must have a Juniper SRX 300 router running version 19.2R2.7 or later to configure IKEv2."
+          ]
+        }
+      ]
+    },
+    "device-failover": {
+      "statement": "The Juniper SRX guide requires both DPD and VPN monitoring for failover; the Juniper SSG 20 and SonicWall TZ 350 guides require DPD, and the SonicWall TZ 350 does not support VPN monitoring and relies on DPD for failover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-srx.json",
+          "quotes": [
+            "Dead Peer Detection (DPD) and VPN monitoring must be enabled so the firewall can detect if one VPN goes offline and moves the internet-bound traffic to the other VPN."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-ssg-20.json",
+          "quotes": [
+            "Dead Peer Detection (DPD) must be enabled, so the firewall can detect if a VPN is offline."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-sonicwall-tz-350.json",
+          "quotes": [
+            "Dead Peer Detection (DPD) must be enabled, so the firewall can detect if a VPN is offline.",
+            "SonicWall TZ 350 firewall doesn't support VPN monitoring. It relies on DPD for failover."
+          ]
+        }
+      ]
+    },
+    "fortinet-np-offload": {
+      "statement": "The FortiGate guide says the network processor of some Fortinet devices does not support offloading VPN phase one traffic, which causes an unacceptable drop in tunnel performance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-fortigate-firewall.json",
+          "quotes": [
+            "The network processor (NP) of some Fortinet devices doesn’t support offloading VPN phase one traffic, resulting in an unacceptable drop in VPN tunnel performance."
+          ]
+        }
+      ]
+    },
+    "srx-ecmp": {
+      "statement": "The Juniper SRX guide says ECMP flow-based forwarding can optionally be configured to load-balance the tunnels if multiple virtual IP addresses are configured in the Zscaler data center for the VPN tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-ipsec-vpn-configuration-guide-juniper-srx.json",
+          "quotes": [
+            "You can optionally configure ECMP flow-based forwarding on your Juniper SRX router to enable load balancing for your tunnels if multiple virtual IP addresses are configured in your Zscaler data center for the VPN tunnels."
+          ]
+        }
+      ],
+      "conditions": "How to obtain multiple virtual IP addresses in a Zscaler data center is not stated."
+    },
+    "finding-vpn-hosts": {
+      "statement": "Under VPN Host Name, the admin finds the two data centers closest to the organization's location and chooses one as the destination of the primary tunnel and the other as that of the backup, and the hostnames of those destinations are resolved when IP addresses are needed. The cloud name is in the URL admins use to log in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-locating-hostnames-and-ip-addresses-zia-public-service-edges.json",
+          "quotes": [
+            "Under VPN Host Name, find the two data centers closest to the organization's location. Choose one as the destination for your primary IPSec VPN tunnel and the other as the destination for your backup IPSec VPN tunnel.",
+            "If you need the IP addresses of the Public Service Edges, resolve the hostnames of your primary and backup destinations.",
+            "You can find the name of your cloud in the URL your admins used to log in to the Zscaler service."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
+    "dpd-device-guides": {
+      "summary": "Zscaler recommends DPD intervals of 10 to 20 seconds with at least 3 retries, but the device guides use values inside, below and above that range, and one uses on-demand DPD.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-ipsec-vpns.json",
+            "quotes": [
+              "Zscaler recommends a minimum of 10-second to a maximum of 20-second DPD intervals with at least 3 retries.",
+              "If the periodic liveliness check is not supported (i.e., only on-demand check is supported), you must ensure to allowlist the Zscaler IP address so that DPD initiated by Zscaler is not blocked, and a response is received."
+            ]
+          },
+          "says": "DPD intervals of 10 to 20 seconds with at least 3 retries; on-demand-only devices must allowlist the Zscaler IP address."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-cisco-881-isr.json",
+            "quotes": [
+              "crypto ikev2 dpd 10 5 periodic"
+            ]
+          },
+          "says": "The Cisco 881 ISR guide configures `crypto ikev2 dpd 10 5 periodic`: periodic DPD with an interval of 10 (inside the recommended range)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-juniper-srx.json",
+            "quotes": [
+              "set security ike gateway <Primary IKE Gateway Name> dead-peer-detection interval 20",
+              "set security ike gateway <Primary IKE Gateway Name> dead-peer-detection threshold 5"
+            ]
+          },
+          "says": "The Juniper SRX guide sets interval 20 and threshold 5 (inside the recommended range)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-juniper-ssg-20.json",
+            "quotes": [
+              "Select DPD under Peer Status Detection.",
+              "Interval: Enter 5 seconds.",
+              "Retry: Enter 5 seconds."
+            ]
+          },
+          "says": "The Juniper SSG 20 guide enables DPD with an interval of 5 seconds (below 10)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-palo-alto-networks-firewall.json",
+            "quotes": [
+              "Liveness Check: Select this checkbox.",
+              "Interval: Enter 5."
+            ]
+          },
+          "says": "The Palo Alto Networks guide enables the liveness check with an interval of 5 (below 10)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-sonicwall-tz-350.json",
+            "quotes": [
+              "Dead Peer Detection Interval (seconds): Enter 60.",
+              "Failure Trigger Level (missed heartbeats): Enter 3."
+            ]
+          },
+          "says": "The SonicWall TZ 350 guide sets a DPD interval of 60 seconds with a failure trigger level of 3 (above 20)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-fortigate-firewall.json",
+            "quotes": [
+              "Dead Peer Detection: Select On Demand."
+            ]
+          },
+          "says": "The FortiGate guide selects On Demand DPD."
+        }
+      ],
+      "impact": "Copying a device guide can leave a device outside Zscaler's stated DPD expectation; under dpd, Zscaler cleans up a connection that gets no DPD response."
+    },
+    "srx-sa-lifetimes": {
+      "summary": "The Juniper SRX guide sets IKE and IPSec proposal lifetimes of 3600 seconds, while the IKEv2 table lists SA lifetimes of 24 hours for Phase 1 and 8 hours for Phase 2, and the Cisco ASA guide says its 8-hour default equals Zscaler's recommended Phase 2 value.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-juniper-srx.json",
+            "quotes": [
+              "set security ike proposal <IKE Proposal Name> lifetime-seconds 3600",
+              "set security ipsec proposal <IPSec Proposal Name> lifetime-seconds 3600"
+            ]
+          },
+          "says": "The Juniper SRX example sets both proposal lifetimes to 3600 seconds."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-ipsec-vpns.json",
+            "quotes": [
+              "| SA Lifetime | 24 Hours | 8 Hours |"
+            ],
+            "after": "| IKEv2 Supported Parameters |  |  |"
+          },
+          "says": "The IKEv2 table lists an SA lifetime of 24 hours for Phase 1 and 8 hours for Phase 2."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-ipsec-vpn-configuration-guide-cisco-asa-55xx.json",
+            "quotes": [
+              "You don't need to change the default SA lifetime value, which is 8 hours (28800 seconds), because it is the same as the Zscaler recommended value for Phase 2."
+            ],
+            "after": "- To configure the IPSec VPN tunnel on Cisco ASA 55xx firewall running version 9.6:"
+          },
+          "says": "The Cisco ASA guide leaves its 8-hour default because it matches Zscaler's recommended Phase 2 value."
+        }
+      ],
+      "impact": "Low: the table may give Zscaler's own lifetimes, which a shorter peer value negotiates under, but no page says whether 3600 seconds is acceptable."
+    },
     "ipsec-protocol": {
       "summary": "The NSS tunnel output format says Zscaler only supports ESP for the IPSec tunnel protocol, while the IKEv2 supported parameters table lists AH and ESP.",
       "positions": [

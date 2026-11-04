@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "zia.sandbox.edr-integrations",
+  "title": "CrowdStrike and Microsoft Defender for Endpoint integrations and the endpoint hits reports",
+  "aliases": [
+    "crowdstrike integration",
+    "microsoft defender for endpoint integration",
+    "endpoint hits report",
+    "view crowdstrike endpoint hits",
+    "edr integration",
+    "contain endpoint"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.report"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The EDR integrations extend Sandbox detections to the endpoints exposed to the malicious file. {{what-crowdstrike}} {{what-defender}}"
+    },
+    {
+      "label": "CrowdStrike setup.",
+      "text": "{{crowdstrike-prereqs-and-credentials}}"
+    },
+    {
+      "label": "Microsoft Defender for Endpoint setup.",
+      "text": "{{defender-prereqs}}"
+    },
+    {
+      "label": "Endpoint hits reports.",
+      "text": "{{endpoint-hits-report}} {{crowdstrike-statuses}} {{defender-statuses}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "What cadence the endpoint hits are refreshed at, and what is audited in ZIA, is open {{gap:edr-cadence-audit}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant has Advanced Sandbox and the partner product before expecting an endpoint hits report.",
+      "uses": [
+        "crowdstrike-prereqs-and-credentials",
+        "defender-prereqs"
+      ]
+    },
+    {
+      "do": "Whether a Contain or Isolate action is available, since each appears only for an endpoint in the Normal or Active status.",
+      "uses": [
+        "crowdstrike-statuses",
+        "defender-statuses"
+      ]
+    }
+  ],
+  "claims": {
+    "what-crowdstrike": {
+      "statement": "The CrowdStrike integration leverages CrowdStrike APIs to provide endpoint detection and response (EDR) visibility for Sandbox-detected malware: after it is configured the service calls the CrowdStrike Falcon API and requests information for endpoints exposed to the malicious file, and CrowdStrike uses the new file signature to detect compromised points throughout the organization's network. Information about the affected endpoints is in the Sandbox logs and reports of the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-crowdstrike.json",
+          "quotes": [
+            "Zscaler's integration leverages CrowdStrike APIs to provide endpoint detection and response (EDR) visibility for Sandbox-detected malware.",
+            "After the integration is configured, the Zscaler service calls the CrowdStrike Falcon API and requests information for endpoints that have been exposed to the malicious file.",
+            "CrowdStrike uses the new file signature to detect compromised points throughout your organization's network.",
+            "You can view information about the affected endpoints in the Sandbox logs and reports of the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "what-defender": {
+      "statement": "The Microsoft Defender for Endpoint integration leverages Microsoft Defender for Endpoint APIs to provide EDR visibility for Sandbox-detected malware: when configured the service calls the Defender API and requests information for endpoints exposed to the malicious file. Endpoints can also be isolated, automated investigation and remediation (AIR) started and malicious file executions stopped from the Admin Console, and the service creates an indicator of compromise (IOC) in Defender to prevent future executions of the file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-defender-endpoint.json",
+          "quotes": [
+            "Zscaler's integration leverages Microsoft Defender for Endpoint APIs to provide endpoint detection and response (EDR) visibility for Sandbox-detected malware.",
+            "When the integration is configured, the Zscaler service calls the Microsoft Defender for Endpoint API and requests information for endpoints that have been exposed to the malicious file.",
+            "You can also isolate endpoints, start automated investigation and remediation (AIR), and stop malicious file executions from the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-partner-integrations.json",
+          "quotes": [
+            "The Zscaler service creates an indicator of compromise (IOC) in Microsoft Defender for Endpoint to prevent future executions of the file."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-prereqs-and-credentials": {
+      "statement": "The CrowdStrike integration requires CrowdStrike Falcon, a CrowdStrike admin account with the Falcon Administrator role and Zscaler Advanced Sandbox. The API client's scopes are Detections read only, Hosts read and write and IOCs (Indicators of Compromise) read only; the client secret cannot be retrieved later. The API Auth FQDN is typically api.crowdstrike.com, and only alphanumeric symbols are accepted for the Customer ID, with any dashes removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-crowdstrike.json",
+          "quotes": [
+            "- CrowdStrike Falcon",
+            "A CrowdStrike admin account with the Falcon Administrator role",
+            "- Zscaler Advanced Sandbox",
+            "Detections: Read only",
+            "Hosts: Read and Write",
+            "IOCs (Indicators of Compromise): Read only",
+            "You must copy the client Secret now. You aren't able to retrieve the client secret later.",
+            "API Auth FQDN: The fully qualified domain name (FQDN) for the CrowdStrike OAuth API. It's typically api.crowdstrike.com.",
+            "Only alphanumeric symbols are accepted for the Customer ID. Remove any dashes from the value you enter."
+          ]
+        }
+      ]
+    },
+    "defender-prereqs": {
+      "statement": "The Microsoft Defender for Endpoint integration requires a Defender for Endpoint admin account, able to grant the required permissions (a global admin account or any admin account with that ability), and Zscaler Advanced Sandbox. After authorization the Zscaler SaaS Connector and Directory (Tenant) ID appear.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-integrating-microsoft-defender-endpoint.json",
+          "quotes": [
+            "A Microsoft Defender for Endpoint admin account",
+            "- Zscaler Advanced Sandbox",
+            "The Microsoft Defender for Endpoint admin account must be able to grant the required permissions to integrate with Zscaler.",
+            "You can use either a global admin account, or any admin account with the ability to grant the necessary permissions.",
+            "After the authorization is complete, the Zscaler SaaS Connector and Directory (Tenant) ID appear."
+          ]
+        }
+      ]
+    },
+    "endpoint-hits-report": {
+      "statement": "After the Sandbox analyzes a file, clicking the MD5 hash offers View CrowdStrike Endpoint Hits or View Microsoft Defender Endpoint Hits. The CrowdStrike report shows the file's Sandbox Category (Sandbox Malware/Botnet, Sandbox P2P/Anonymizer or Sandbox Adware), Sandbox Score, Threat Name, File Type, File Size, MD5, SHA-1, SHA-256 and SSDEEP, then per endpoint the CrowdStrike Agent ID, Hostname, Internal IP, External IP, OS Version, First Seen, Last Seen, File Status and Endpoint Status; the Defender report names its identifier Microsoft Defender Agent ID. The page lists uses as tracing patient 0 events if the service is configured to allow unknown files while sandboxing, threat hunting, and incident responses from an infection caused by lateral movement or an out-of-band channel (for example USB).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-crowdstrike-endpoint-hits-report.json",
+          "quotes": [
+            "After the Sandbox analyzes a file, you can click the MD5 hash and choose View CrowdStrike Endpoint Hits.",
+            "Sandbox Malware/Botnet: Files that behave like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware.",
+            "Sandbox P2P/Anonymizer: Files that contain anonymizers and P2P clients.",
+            "Sandbox Adware: Files that automatically render advertisements/install adware.",
+            "Sandbox Score: The threat score determined from the Sandbox analysis.",
+            "Threat Name: The threat name of the file.",
+            "File Type: The type of file (e.g., Windows Executable).",
+            "File Size: The total bytes of the file.",
+            "MD5: The MD5 hash of the file.",
+            "SHA-1: The SHA-1 hash of the file.",
+            "SHA-256: The SHA-256 hash of the file.",
+            "SSDEEP: The ssdeep hash of the file.",
+            "CrowdStrike Agent ID: The Agent ID (aid) on CrowdStrike.",
+            "Hostname: The name of the host.",
+            "Internal IP: The internal IP address of the host.",
+            "External IP: The external IP address of the host.",
+            "OS Version: The operating system and version of the host.",
+            "First Seen: The first time the file was detected on the endpoint.",
+            "Last Seen: The last time the file was detected on the endpoint.",
+            "File Status: The status of the file.",
+            "Endpoint Status: The status of the endpoint.",
+            "Tracing patient 0 events if the Zscaler service is configured to allow unknown files while sandboxing.",
+            "Threat hunting to prevent attackers from spreading malware and moving laterally across your network.",
+            "Incident responses from an infection caused by lateral movement or an out-of-band channel (e.g., USB)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-microsoft-defender-endpoint-hits-report.json",
+          "quotes": [
+            "After the Sandbox analyzes a file, you can click the MD5 hash and choose View Microsoft Defender Endpoint Hits.",
+            "Microsoft Defender Agent ID: The ID of Microsoft Defender agent installed on the host."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-statuses": {
+      "statement": "In the CrowdStrike report File Status is Seen (the CrowdStrike Falcon agent saw the file on the host), Detected (it triggered a detection based on a process or operation associated with the file) or Prevented (it blocked such a process or operation). Endpoint Status is Normal (active and not quarantined), Contained (quarantined), Containment Pending (being quarantined) or Lift Containment Pending (being removed from quarantine). Contain calls the CrowdStrike API to quarantine the endpoint and appears only if the endpoint status is Normal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-crowdstrike-endpoint-hits-report.json",
+          "quotes": [
+            "Seen: The CrowdStrike Falcon agent saw the file on the host.",
+            "Detected: The CrowdStrike Falcon agent triggered a detection based on a process or an operation associated with the file.",
+            "Prevented: The CrowdStrike Falcon agent blocked a process or an operation associated with the file.",
+            "Normal: The endpoint is active and not quarantined.",
+            "Click Contain to call the CrowdStrike API to quarantine the endpoint. This action only appears if the endpoint status is Normal.",
+            "Contained: The endpoint is quarantined.",
+            "Containment Pending: The endpoint is being quarantined.",
+            "Lift Containment Pending: The endpoint is being removed from quarantine."
+          ]
+        }
+      ]
+    },
+    "defender-statuses": {
+      "statement": "In the Microsoft Defender report File Status is Seen, Detected, Quarantined (the agent stopped the ongoing processes of the file and removed it from the host) or Remediated (the agent used automated investigation and remediation (AIR) to remediate the file). Endpoint Status is Active (not quarantined) or Isolated (quarantined). Isolate appears only if the endpoint status is Active; Stop Current Executions stops ongoing processes of the file on the endpoint, Trigger Alert & Start AIR triggers an alert and starts AIR, and Prevent Future Executions stops future processes of the file on all endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-microsoft-defender-endpoint-hits-report.json",
+          "quotes": [
+            "Seen: The Microsoft Defender agent saw the file on the host.",
+            "Detected: The Microsoft Defender agent triggered a detection based on a process or an operation associated with the file.",
+            "Quarantined: The Microsoft Defender agent stopped the ongoing processes of the file and removed it from the host.",
+            "Remediated: The Microsoft Defender agent used automated investigation and remediation (AIR) capabilities to remediate the file.",
+            "Active: The endpoint is not quarantined.",
+            "Isolated: The endpoint is quarantined.",
+            "Isolate: Click to quarantine the endpoint. This option only appears if the endpoint status is Active.",
+            "Stop Current Executions: Click to stop any ongoing processes associated with the file on the endpoint.",
+            "Trigger Alert & Start AIR: Click to trigger an alert and start AIR on the endpoint.",
+            "Prevent Future Executions: Click to stop any future processes of the file on all endpoints."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "edr-cadence-audit": {
+      "kind": "semantic",
+      "title": "Endpoint hits cadence, Defender consent permissions and auditing of containment",
+      "status": "open",
+      "detail": "No captured page gives how often endpoint hits are refreshed, which Defender permissions are granted at consent, or whether containment and isolation actions are audited in ZIA.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

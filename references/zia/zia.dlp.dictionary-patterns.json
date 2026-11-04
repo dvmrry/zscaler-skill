@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.dictionary-patterns",
+  "title": "Custom Patterns & Phrases dictionaries: pattern syntax, phrase matching, match types and sub-dictionaries",
+  "aliases": [
+    "dlp regex syntax",
+    "custom dictionary pattern",
+    "dlp phrase matching",
+    "match any patterns and any phrases",
+    "near not near proximity",
+    "dlp sub-dictionary",
+    "parent dictionary",
+    "lookaround dlp pattern",
+    "count unique"
+  ],
+  "binds": [
+    "zia/dlp-dictionaries#patterns",
+    "zia/dlp-dictionaries#phrases",
+    "zia/dlp-dictionaries#customPhraseMatchType",
+    "zia/dlp-dictionaries#proximity",
+    "zia/dlp-dictionaries#hierarchicalDictionary",
+    "zia/dlp-dictionaries#hierarchicalIdentifiers"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.engines"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-dlp"
+    },
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-dictionaries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} The dictionary kinds and the predefined and clone model are in [[zia.dlp.dictionaries]]."
+    },
+    {
+      "label": "Patterns.",
+      "text": "{{pattern-limits}} {{pattern-metacharacters}} {{pattern-shorthand-classes}} {{nested-repeats-and-base-tokens}} {{lookaround-requirements}}"
+    },
+    {
+      "label": "Count actions.",
+      "text": "{{count-actions}}"
+    },
+    {
+      "label": "Phrases.",
+      "text": "{{phrase-limits-and-matching}} {{fuzzy-matching}} Whether a quoted phrase still matches across punctuation is open {{gap:fuzzy-quoted-example}}. {{unicode-non-delimited}}"
+    },
+    {
+      "label": "Match types and proximity.",
+      "text": "{{match-types}} {{proximity-for-match-types}} How the help's four match types map to the API's `customPhraseMatchType` is open {{gap:match-type-wire-form}}. The size of the Near and Not Near phrase groups is open {{gap:near-group-limits}}."
+    },
+    {
+      "label": "Parent and sub-dictionaries.",
+      "text": "{{parent-and-sub-dictionaries}} How an engine evaluates them is in [[zia.dlp.engines:parent-sub-in-engines]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a pattern that uses lookaround is in a dictionary whose Match Type is Match Any Patterns and Any Phrases and that has at least one phrase.",
+      "uses": [
+        "lookaround-requirements"
+      ]
+    },
+    {
+      "do": "Whether a phrase false positive comes from fuzzy matching, which quotes around the phrase turn off.",
+      "uses": [
+        "fuzzy-matching"
+      ]
+    },
+    {
+      "do": "Whether the dictionary is a parent or sub-dictionary when it is meant for Endpoint DLP, which does not support them.",
+      "uses": [
+        "parent-and-sub-dictionaries"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Custom phrases and alphanumeric patterns can be added as a standalone custom dictionary, one of the kinds alongside EDM index templates, IDM index templates and MIP labels.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#patterns",
+        "zia/dlp-dictionaries#phrases"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-dictionary.json",
+          "quotes": [
+            "You can add Exact Data Match (EDM) index templates, Indexed Document Match (IDM) index templates, Microsoft Information Protection (MIP) labels, or custom phrases and alphanumeric patterns as standalone custom dictionaries that the dictionary detects and protects."
+          ]
+        }
+      ]
+    },
+    "pattern-limits": {
+      "statement": "A custom dictionary can contain up to 8 patterns, each at most 256 bytes, and the tokens (?i and ?-i) switch case-insensitive matching.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#patterns"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-patterns-custom-dictionaries.json",
+          "quotes": [
+            "A dictionary can contain up to 8 patterns.",
+            "Each pattern can have a maximum of 256 bytes.",
+            "You can use tokens (?i and ?-i) for case-insensitive matches."
+          ]
+        }
+      ]
+    },
+    "pattern-metacharacters": {
+      "statement": "Patterns use POSIX ERE metacharacters. The table marks . [] [^ ] ^ $ * ? + and | supported; capture groups are not supported (parentheses may bound subexpressions) and capture-group references (\\n) are not supported. For {m,n}, Zscaler recommends a range as small as possible on the most specific preceding characters, and a range that is too wide might not be accepted.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#patterns"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-patterns-custom-dictionaries.json",
+          "quotes": [
+            "| Metacharacter (POSIX ERE) | Definition | Supported by Zscaler? |",
+            "| . | Matches any single character | Supported |",
+            "| [] | Matches a single character from those given between the brackets, matches character ranges (e.g., [a–z]) | Supported |",
+            "| [^ ] | Matches a single character not from those given between ^ and ] | Supported |",
+            "| ^ | Matches the starting position within the string | Supported |",
+            "| $ | Matches the ending position within the string | Supported |",
+            "| * | Repeats the preceding element 0 or more times | Supported |",
+            "| ? | Repeats the preceding element 0 or 1 times | Supported |",
+            "| + | Repeats the preceding element 1 or more times | Supported |",
+            "| \\| | Matches either the expression before or the expression after the operator (e.g., \"abc\\|def\" matches \"abc\" or \"def\") | Supported |",
+            "Capture groups are not supported. Parentheses can be used for bounding subexpressions.",
+            "| \\n | References a capture group | Not Supported |",
+            "Zscaler recommends specifying a range as small as possible with m and n.",
+            "you should use the {m,n} construct to quantify the most specific preceding characters (e.g., [a-z]{3,5} instead of .{3,100}.",
+            "If you provide a range that is too wide, the pattern might not be accepted."
+          ]
+        }
+      ]
+    },
+    "pattern-shorthand-classes": {
+      "statement": "The shorthand classes \\d, \\D, \\s, \\S, \\w, \\W and \\b are listed as supported; \\s matches a single horizontal whitespace character on one line (a space or tab), and \\w matches ASCII word characters [a–zA–Z0–9_].",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#patterns"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-patterns-custom-dictionaries.json",
+          "quotes": [
+            "| \\d | Matches any single character that is a digit (i.e., [0–9]) | Supported |",
+            "| \\D | Matches any single character that is a non-digit | Supported |",
+            "Matches any single horizontal whitespace character across a single line (i.e., a space \" \" or tab) | Supported |",
+            "| \\S | Matches any single non-whitespace character | Supported |",
+            "| \\w | Matches any single word character (i.e., ASCII characters [a–zA–Z0–9_]) | Supported |",
+            "| \\W | Matches any single non-word character | Supported |",
+            "| \\b | Matches any single word boundary | Supported |"
+          ]
+        }
+      ]
+    },
+    "nested-repeats-and-base-tokens": {
+      "statement": "A repeat of an expression that itself contains a repeat (*, +, ? or {m,n}) is supported, and patterns no longer need to begin with a base token (a simple alphanumeric sequence of known length).",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#patterns"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-patterns-custom-dictionaries.json",
+          "quotes": [
+            "A repeat of an expression containing a repeat (*, +, ?, or {m,n}) is supported.",
+            "Your patterns are no longer required to begin with a simple sequence of alphabetic and numeric characters of a known length called the \"base token.\""
+          ]
+        }
+      ]
+    },
+    "lookaround-requirements": {
+      "statement": "A custom dictionary whose patterns use lookaround constructs (zero-length assertions) must use the Match Any Patterns and Any Phrases match type and have at least one phrase.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#customPhraseMatchType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-patterns-custom-dictionaries.json",
+          "quotes": [
+            "For custom dictionaries that use patterns with lookaround constructs (also known as zero-length assertions), you must:",
+            "Select Match Any Patterns and Any Phrases as the Match Type.",
+            "Configure at least one phrase."
+          ]
+        }
+      ]
+    },
+    "count-actions": {
+      "statement": "The action the dictionary takes on detecting valid matches of a pattern or phrase is either Count All, which counts every match, including identical ones, toward the match count, or Count Unique, which counts each unique match once regardless of how many times it appears.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#patterns",
+        "zia/dlp-dictionaries#phrases"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-patterns-custom-dictionaries.json",
+          "quotes": [
+            "Choose the Action the dictionary takes upon detecting valid matches:",
+            "Count All: The dictionary counts all matches of the pattern, including identical patterns, toward the match count.",
+            "Count Unique: The dictionary counts each unique match of the pattern toward the match count only once, regardless of how many times it appears in the content."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-phrases-custom-dictionaries.json",
+          "quotes": [
+            "Count All: The dictionary counts all matches of the phrase, including identical phrases, toward the match count.",
+            "Count Unique: The dictionary counts each unique match of the phrase towards the match count only once, regardless of how many times it appears in the content."
+          ]
+        }
+      ]
+    },
+    "phrase-limits-and-matching": {
+      "statement": "A custom dictionary can contain up to 512 phrases, each 3 to 128 bytes. Phrase matching is not case-sensitive and ignores punctuation. The page says quotes around a phrase make the dictionary detect only phrases that exactly match it in the order given, yet its own example says “security service” matches “security-service,” and “security,service,”, so how exact a quoted match is stays open.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#phrases"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-phrases-custom-dictionaries.json",
+          "quotes": [
+            "A dictionary can contain up to 512 phrases.",
+            "Each phrase can contain a minimum of 3 bytes and a maximum of 128 bytes.",
+            "Dictionary phrase-matching is not case-sensitive and ignores punctuation.",
+            "You can place quotes around phrases to specify that the dictionary only detects phrases that exactly match the phrase in the order given within the quotes.",
+            "For example, “security service” matches “security-service,” “security,service,” and other such unrelated phrases."
+          ]
+        }
+      ],
+      "gaps": [
+        "fuzzy-quoted-example"
+      ]
+    },
+    "fuzzy-matching": {
+      "statement": "The service matches phrases fuzzily so that capitalization or spacing differences and noise words (such as spurious words or HTML tags) between words do not hide them. When that causes false positives, quotes or double quotes around the words disable fuzzy matching so only the phrase within the quotes matches, with different types of whitespace between the words ignored.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#phrases"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-phrases-custom-dictionaries.json",
+          "quotes": [
+            "The Zscaler service uses fuzzy matching techniques to ensure that phrases do not go undetected by dictionaries because of capitalization or spacing discrepancies and the existence of noise words (e.g., spurious words or HTML tags) between words.",
+            "Sometimes this fuzzy matching results in matching phrases from an irrelevant context and can cause false positives.",
+            "In such cases, quotes or double quotes can be placed around the words of a phrase to disable fuzzy matching and match only the phrase within the quotes. Zscaler then ignores the different types of whitespace between the words."
+          ]
+        }
+      ]
+    },
+    "unicode-non-delimited": {
+      "statement": "A checkbox (Non-delimited Unicode Phrase matching in the Add DLP Dictionary window) lets Unicode phrases match when they are adjacent to other characters with no delimiter between them.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#phrases"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-phrases-custom-dictionaries.json",
+          "quotes": [
+            "To enable matching of Unicode phrases when they are adjacent to other characters with no delimiters in between, check the Unicode checkbox."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-dictionary.json",
+          "after": "Add a Standalone DLP Dictionary",
+          "quotes": [
+            "select the Non-delimited Unicode Phrase matching checkbox"
+          ]
+        }
+      ]
+    },
+    "match-types": {
+      "statement": "A Patterns & Phrases dictionary has a Match Type. Match Any (the default) triggers when any one pattern or phrase matches; Match All triggers when all patterns and phrases match; Match Any Patterns and Any Phrases triggers on any one pattern plus any one phrase and needs at least one of each to match; Match Near or Not Near Phrases triggers when phrases from two groups appear near or not near each other.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#customPhraseMatchType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-dictionary.json",
+          "after": "Add a Standalone DLP Dictionary",
+          "quotes": [
+            "Match Type: This is only applicable if you are configuring a Patterns & Phrases dictionary type.",
+            "Match Any: This is the default setting. If selected, the dictionary triggers when a transaction matches any one of the dictionary’s patterns or phrases.",
+            "Match All: If selected, the dictionary triggers when a transaction matches all of the dictionary’s patterns and phrases.",
+            "Match Any Patterns and Any Phrases: If selected, the dictionary triggers when a transaction matches any one of the dictionary's patterns and any one of the dictionary's phrases. This option requires at least one phrase and one pattern to match.",
+            "Match Near or Not Near Phrases: If selected, the dictionary triggers when phrases from two groups appear near or not near each other in a transaction."
+          ]
+        }
+      ]
+    },
+    "proximity-for-match-types": {
+      "statement": "Proximity applies only to the Match Any Patterns and Any Phrases and Match Near or Not Near Phrases match types. Near defaults to 0 bytes and accepts up to 10,000 bytes; Not Near requires 1 to 10,000 bytes; Proximity Length takes 0 to 10,000 bytes, where 0 disables it.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#proximity",
+        "zia/dlp-dictionaries#proximityEnabledForCustomDictionary"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-dictionary.json",
+          "after": "Add a Standalone DLP Dictionary",
+          "quotes": [
+            "Proximity: This is only applicable if you select Match Any Patterns and Any Phrases or Match Near or Not Near Phrases as the Match Type.",
+            "If you select Near proximity, the service assigns a value of 0 bytes by default, and you can specify a value of up to 10,000 bytes.",
+            "If you select Not Near proximity, you must enter a value from 1–10,000 bytes.",
+            "Enter a value from 0–10,000 bytes. A proximity length of 0 disables this option (i.e., the phrase can be any distance from the pattern)."
+          ]
+        }
+      ]
+    },
+    "parent-and-sub-dictionaries": {
+      "statement": "Patterns and Phrases dictionaries can be parent dictionaries or sub-dictionaries, with one level of nesting (a sub-dictionary cannot be a parent) and up to 63 sub-dictionaries per parent; neither can be cloned. A parent may hold patterns or phrases or be left blank as a container, each sub-dictionary needs at least one pattern or phrase, and a sub-dictionary is added to an existing Patterns and Phrases dictionary. Parent dictionaries and sub-dictionaries are not supported for Endpoint DLP.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#hierarchicalDictionary",
+        "zia/dlp-dictionaries#hierarchicalIdentifiers"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-dictionary.json",
+          "quotes": [
+            "Parent dictionaries and sub-dictionaries are not supported for Endpoint DLP.",
+            "The Zscaler service supports only one level of nesting for sub-dictionaries (i.e., sub-dictionaries cannot also be parent dictionaries), and each parent dictionary can contain up to 63 sub-dictionaries. Additionally, parent dictionaries and sub-dictionaries cannot be cloned.",
+            "For parent dictionaries, you can define patterns or phrases, or you can leave them blank so that they act simply as a container for sub-dictionaries.",
+            "You must specify at least one pattern or phrase for each sub-dictionary.",
+            "To add a sub-dictionary, locate an existing Patterns and Phrases dictionary in the list, then click Add DLP Sub Dictionary."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fuzzy-quoted-example": {
+      "kind": "semantic",
+      "title": "Whether a quoted phrase still matches across punctuation",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying whether quotes around a phrase stop it matching words separated by punctuation",
+      "detail": "The phrases page says quotes disable fuzzy matching and match only the phrase within the quotes, then gives an example: \"security service\" matches \"security-service,\" \"security,service,\" and other such unrelated phrases. The example follows the sentence about quotes, so whether a quoted phrase still matches across punctuation is unclear."
+    },
+    "match-type-wire-form": {
+      "kind": "semantic",
+      "title": "How the four console match types are carried by the API's customPhraseMatchType",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "about": [
+        "zia/dlp-dictionaries#customPhraseMatchType"
+      ],
+      "blocks": "mapping a console Match Type to an API value",
+      "detail": "Help lists four match types. The API reference lists two values for customPhraseMatchType, MATCH_ALL_CUSTOM_PHRASE_PATTERN_DICTIONARY and MATCH_ANY_CUSTOM_PHRASE_PATTERN_DICTIONARY. How Match Any Patterns and Any Phrases and Near or Not Near, with their phrase groups, go over the wire is not stated in the captured help."
+    },
+    "near-group-limits": {
+      "kind": "semantic",
+      "title": "Size limits and definition of the Near and Not Near phrase groups",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "stating how many phrases a Near or Not Near group can hold",
+      "detail": "The page says phrases from two groups appear near or not near each other but gives no limit on group sizes or on how groups are defined beyond its examples table."
+    }
+  }
+}

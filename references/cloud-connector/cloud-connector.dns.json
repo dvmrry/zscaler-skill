@@ -76,6 +76,10 @@
       ]
     },
     {
+      "label": "Branch Connector resolution by forwarding action.",
+      "text": "{{bc-resolution-zpa}} {{bc-resolution-zia}} {{bc-resolution-direct}} {{bc-resolution-global-vip}} Which DNS server counts as the current one in the last case is open {{gap:global-vip-current-dns}}. Whether Cloud Connector handles DNS the same way is not stated {{gap:cc-same-handling}}. The pool is in [[cloud-connector.shared-objects.ip-pools]]."
+    },
+    {
       "text": "DNS through the Connector also decides whether wildcard and FQDN forwarding criteria can match non-web traffic: [[cloud-connector.forwarding.criteria:dns-required]]."
     },
     {
@@ -91,6 +95,63 @@
     }
   ],
   "claims": {
+    "bc-resolution-zpa": {
+      "statement": "On the Branch Connector DNS page, when a DNS request arrives at any destination IP address for an FQDN request that matches a Private Access application, Branch Connector intercepts it and responds with a customer-defined synthetic IP address from the customer-defined IP pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "The DNS request arrives at any destination IP address for an FQDN request that matches a Private Access application.",
+            "Branch Connector intercepts requests and responds with a customer-defined synthetic IP address from the customer-defined IP pool."
+          ]
+        }
+      ]
+    },
+    "bc-resolution-zia": {
+      "statement": "On the Branch Connector DNS page, Branch Connector encapsulates the request with a client source IP and destination DNS IP address (for example 8.8.8.8) and forwards it to Internet & SaaS, and the Internet & SaaS DNS control and firewall filtering policies need to allow the DNS response back to the workload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "Branch Connector encapsulates the request with a client source IP and destination DNS IP address (e.g., 8.8.8.8) and forwards the request to Internet & SaaS.",
+            "You need to configure the Internet & SaaS DNS control and firewall filtering policies to allow the DNS response back to the workload."
+          ]
+        }
+      ]
+    },
+    "bc-resolution-direct": {
+      "statement": "On the Branch Connector DNS page, a custom traffic forwarding policy matching the client source IP, the destination IP address (for example 8.8.8.8) or the network service (UDP 53) with the forwarding action set to direct makes Branch Connector forward the request to the destination, changing the source from the client to its own service IP address (Source NAT).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "Custom traffic forwarding policy matches the client source IP address, the destination IP address (e.g., 8.8.8.8), or network service (UDP 53) with the forwarding action set to direct.",
+            "Branch Connector forwards this request to the destination IP address, modifying the source IP from the client to its own service IP address (Source NAT)."
+          ]
+        }
+      ]
+    },
+    "bc-resolution-global-vip": {
+      "statement": "On the Branch Connector DNS page, when a request arrives from a workload configured with a custom DNS server destination that matches a Zscaler Global Public Service Edge IP (for example 185.46.212.88) and a custom traffic forwarding policy matches the client source IP, the destination IP or the network service (UDP 53) with the forwarding action set to direct, the source IP is replaced with Branch Connector's own service IP and the destination with the current DNS server configured on the Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-handling-dns-resolutions-zscaler-branch-connector.json",
+          "quotes": [
+            "The DNS request arrives at Branch Connector from a workload configured with a custom DNS server destination that matches a Zscaler Global Public Service Edge IP (e.g., 185.46.212.88).",
+            "Custom traffic forwarding policy matches the client source IP address, the destination IP address, or network service (UDP 53) with the forwarding action set to direct.",
+            "The source IP is replaced with Branch Connector's own service IP address and the destination IP is replaced with the current DNS server configured on the Branch Connector."
+          ]
+        }
+      ]
+    },
     "route-through": {
       "statement": "To use DNS gateway and DNS policy functions, the help says to design the network so that workloads', servers' and endpoints' DNS queries route through the Cloud or Branch Connector.",
       "tier": "A",
@@ -102,6 +163,28 @@
             "To use DNS gateway and policy functionalities, design your network where workloads, servers, and endpoints are deployed to route DNS queries through the Cloud or Branch Connector."
           ]
         }
+      ]
+    }
+  },
+  "gaps": {
+    "global-vip-current-dns": {
+      "kind": "semantic",
+      "title": "Which DNS server the Global Public Service Edge row substitutes",
+      "status": "open",
+      "detail": "The page says the destination is replaced with the current DNS server configured on the Branch Connector without saying whether that is the management or the forwarding interface DNS.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "cc-same-handling": {
+      "kind": "semantic",
+      "title": "Whether Cloud Connector handles DNS resolution the same way as Branch Connector",
+      "status": "open",
+      "detail": "The page covers Branch Connector only.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
       ]
     }
   }

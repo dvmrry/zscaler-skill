@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.live-sessions",
+  "title": "PRA live session sharing: participants, invitations, control and ejection",
+  "aliases": [
+    "pra shared session",
+    "pra invite participant",
+    "pra session host",
+    "pra transfer control",
+    "pra eject participant",
+    "pra copy invitation",
+    "pra shared sessions section"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.pra"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zpa.pra.consoles-policy",
+      "because": "zpa.pra.consoles-policy:share-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.portals"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The host of a live privileged session invites other users from within the session. {{participants}} {{invitation}}"
+    },
+    {
+      "label": "Listing and joining.",
+      "text": "{{shared-sessions-list}} {{disconnect-rejoin}}"
+    },
+    {
+      "label": "Control and removal.",
+      "text": "{{control-transfer}} {{eject}}"
+    },
+    {
+      "label": "Open.",
+      "text": "How the invite flow ties to the consoles policy sharing modes, and several access and recording questions, are open {{gap:consoles-policy-tie}}."
+    },
+    {
+      "text": "The consoles policy that sets Share Sessions Mode and Join Sessions Mode is in [[zpa.pra.consoles-policy]]; the PRA Portal itself is in [[zpa.pra.portals]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the policy rule gives the user a sharing mode before looking at the invitation, since the Accessing page does not link the invite flow to it.",
+      "uses": [
+        "consoles-policy-tie"
+      ]
+    },
+    {
+      "do": "Whether a participant who cannot use the clipboard or file transfer was given control, since the participant given control cannot use them.",
+      "uses": [
+        "control-transfer"
+      ]
+    },
+    {
+      "do": "Whether an ejected participant was reinvited.",
+      "uses": [
+        "eject"
+      ]
+    }
+  ],
+  "claims": {
+    "participants": {
+      "statement": "After logging into a privileged console, a user can invite up to 10 additional participants into the live privileged session, and the user who started the session is the host by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "After you have logged into a privileged console, you can invite up to 10 additional participants into your live privileged session.",
+            "As the user who started the session, you are the host by default."
+          ]
+        }
+      ]
+    },
+    "invitation": {
+      "statement": "An invitee is sent an email with a link to the PRA Portal and a direct link to the live privileged session, and after logging into the PRA Portal can click the console in the Shared Sessions section. The host can click Copy Invitation after clicking Invite to send a pasted link in addition to the automated email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "An email invitation is sent to the user with a link to the PRA Portal and a direct link to the live privileged session.",
+            "After the user is logged into the PRA Portal, they can click on the privileged console in the Shared Sessions section.",
+            "You can click Copy Invitation after you clicked Invite to send the invited user a pasted link in addition to the automated email."
+          ]
+        }
+      ]
+    },
+    "shared-sessions-list": {
+      "statement": "Shared privileged sessions are listed at the top of the PRA Portal. A session for a console within a Microtenant shows the Microtenant name, one without a folder is from the Default tenant, and an end user can view only the sessions they have been given access to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Shared privileged sessions are listed at the top of the PRA Portal.",
+            "If the shared privileged session is for a privileged console within a Microtenant, then the Microtenant name is also displayed. If a folder is not displayed, the shared privileged session is from the Default tenant.",
+            "The end user can only view the privileged sessions that they have been given access to."
+          ]
+        }
+      ]
+    },
+    "disconnect-rejoin": {
+      "statement": "The host receives a notification when a participant joins, disconnects or rejoins. Disconnected participants show as Inactive in the Participants window, and participants who have left the shared session can rejoin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "After the user joins, you receive a notification.",
+            "If a participant disconnects from the session, you receive a notification that they disconnected.",
+            "Disconnected participants show as Inactive in the Participants window. Participants who have left the shared session can rejoin.",
+            "If a participant rejoins, you receive a notification."
+          ]
+        }
+      ]
+    },
+    "control-transfer": {
+      "statement": "A participant the host gives control to can use the mouse and keypad functions but cannot access clipboard and file transfer features, and the original host can no longer use the mouse or keypad, including the clipboard and file transfer features. The host regains control by clicking Control in the host box, and those functions are restored to the host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "The participant given control can use the mouse and keypad functions but cannot access clipboard and file transfer features.",
+            "The original host can no longer use the mouse or keypad in the session, including the clipboard and file transfer features.",
+            "You can regain control by clicking Control in the host box.",
+            "Those functions are restored to the host, including the clipboard and file transfer features."
+          ]
+        }
+      ]
+    },
+    "eject": {
+      "statement": "The host can click Eject in a participant's box to remove them from the privileged session. It can take a few seconds for the user to be ejected, and ejected participants cannot rejoin the same shared session unless they are reinvited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-privileged-remote-access-portal.json",
+          "quotes": [
+            "Click Eject in the box of the participant you want to remove from the privileged session.",
+            "It can take a few seconds for the user to be ejected. Ejected participants can't rejoin the same shared session unless they are reinvited."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "consoles-policy-tie": {
+      "kind": "semantic",
+      "title": "How the invite flow relates to Share Sessions Mode and Join Sessions Mode",
+      "status": "open",
+      "detail": "The Accessing a Privileged Remote Access Portal article does not tie the invite flow to the consoles policy's Share Sessions Mode (Control) or Join Sessions Mode. It does not say whether invitees need their own access to the console, whether a shared session is recorded, or whether the 10-participant cap can be raised. A lab test or Zscaler statement would resolve it.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

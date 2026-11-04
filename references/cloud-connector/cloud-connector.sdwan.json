@@ -24,6 +24,18 @@
     {
       "rel": "see-also",
       "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.configuration-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.virtual-deployment"
     }
   ],
   "prose": [
@@ -32,7 +44,7 @@
     },
     {
       "label": "Branch Connector.",
-      "text": "{{branch-connector-vm}} {{branch-connector-proxy}} Cloud Connector, the cloud-workload counterpart, is covered from [[cloud-connector.overview]]. Hardware devices, gateway and one-arm modes and zero touch provisioning are in [[cloud-connector.sdwan.device-modes]]. Whether Zero Trust SD-WAN is licensed as a product of its own is not stated {{gap:product-packaging}}."
+      "text": "{{branch-connector-vm}} {{branch-connector-proxy}} Cloud Connector, the cloud-workload counterpart, is covered from [[cloud-connector.overview]]. Hardware devices, gateway and one-arm modes and zero touch provisioning are in [[cloud-connector.sdwan.device-modes]]. Configuration templates are in [[cloud-connector.sdwan.configuration-templates]], the device inventory and per-device settings in [[cloud-connector.sdwan.devices]], and VM deployment on VMware, Linux KVM and Hyper-V in [[cloud-connector.sdwan.virtual-deployment]]. {{setup-sequence}} Whether Zero Trust SD-WAN is licensed as a product of its own is not stated {{gap:product-packaging}}."
     },
     {
       "label": "Branch to branch and VPN replacement.",
@@ -48,11 +60,11 @@
     },
     {
       "label": "Availability.",
-      "text": "{{n-plus-one}} The branch-site high availability model behind it is not described {{gap:branch-ha-model}}. Cloud Connector gateway failover and the fail-close and fail-open setting are in [[cloud-connector.overview.gateway-failover]]. Upgrades run in a scheduled window: [[cloud-connector.upgrades:default-window]], [[cloud-connector.upgrades:two-hour-staggered]]; what happens to long-lived sessions on an upgrading connector is not stated {{gap:upgrade-session-drop}}."
+      "text": "{{n-plus-one}} The template settings for VM, LAN and WAN uplink failover are in [[cloud-connector.sdwan.configuration-templates]]; failover timing and how a site with hardware devices is built end to end are not described {{gap:branch-ha-model}}. Cloud Connector gateway failover and the fail-close and fail-open setting are in [[cloud-connector.overview.gateway-failover]]. Upgrades run in a scheduled window: [[cloud-connector.upgrades:default-window]], [[cloud-connector.upgrades:two-hour-staggered]]; what happens to long-lived sessions on an upgrading connector is not stated {{gap:upgrade-session-drop}}."
     },
     {
       "label": "Forwarding.",
-      "text": "Forwarding methods are in [[cloud-connector.forwarding.methods]], WAN selection in [[cloud-connector.forwarding.methods:wan-selection]], and the gateway-mode predefined rules in [[cloud-connector.forwarding.predefined-rules]]. What metric Best Link uses, and whether WAN selection ever applies outside hardware in gateway mode, is open {{gap:wan-selection-detail}}. Whether traffic markings such as DSCP survive the connector, or any per-link QoS exists, is not documented {{gap:qos}}."
+      "text": "Forwarding methods are in [[cloud-connector.forwarding.methods]], WAN selection in [[cloud-connector.forwarding.methods:wan-selection]], and the gateway-mode predefined rules in [[cloud-connector.forwarding.predefined-rules]]. The metric behind the device-level Traffic Distribution setting's Best Link is in [[cloud-connector.sdwan.configuration-templates:traffic-distribution]]; the metric the forwarding rule's WAN Selection Best Link uses, and whether WAN selection ever applies outside hardware in gateway mode, are open {{gap:wan-selection-detail}}. Whether traffic markings such as DSCP survive the connector, or any per-link QoS exists, is not documented {{gap:qos}}."
     }
   ],
   "checks": [
@@ -210,6 +222,28 @@
         }
       ]
     },
+    "setup-sequence": {
+      "statement": "The Step-by-Step Configuration Guide orders Branch Connector setup as: update administrator and role management information, configure locations, configure a provisioning template (which creates provisioning URLs to deploy Branch Connector as a VM), configure firewall filtering (source IP groups, destination IP groups, IP pools and network services), gateways, forwarding methods (traffic forwarding, log and control forwarding, and DNS control rules), then analytics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-step-step-configuration-guide-zscaler-branch-connector.json",
+          "quotes": [
+            "Step 1: Update Administrator and Role Management Information",
+            "Step 2: Configure your Locations",
+            "Step 3: Configure your Provisioning Template",
+            "Provisioning templates create provisioning URLs to deploy your Branch Connector as a virtual machine (VM).",
+            "Step 4: Configure your Firewall Filtering",
+            "Firewall filtering policies are comprised of source IP groups, destination IP groups, IP pools, and network services.",
+            "Step 5: Configure your Gateways",
+            "Step 6: Configure your Forwarding Methods",
+            "Forwarding allows you to set up traffic forwarding, log and control forwarding, and DNS control rules.",
+            "Step 7: Configure your Analytics"
+          ]
+        }
+      ]
+    },
     "n-plus-one": {
       "statement": "Branch Connector's feature list claims high availability with automatic failover and N+1 redundancy.",
       "tier": "A",
@@ -261,8 +295,8 @@
     "branch-ha-model": {
       "kind": "semantic",
       "title": "High availability for a branch site with physical devices",
-      "status": "open",
-      "detail": "Unverified legacy statement: 'HA model not fully captured in available docs: the help content covers hardware redundancy at a high level but does not specify failover timing or mode for physical Branch Connector appliances.' The Branch Connector page claims N+1 redundancy with automatic failover; how that is built at a site with hardware devices, and its timing, are not described.",
+      "status": "partial",
+      "detail": "The configuration template help now describes a virtual IP shared by two Branch Connectors in active or standby mode, LAN interface HA with an ID, virtual IP, passphrase and Preferred setting, one-arm Active-Standby HA deployment status, and WAN uplink failover when probes detect 100 percent loss on the active link (see cloud-connector.sdwan.configuration-templates). Failover timing is still not stated anywhere. The Branch Connector page claims N+1 redundancy with automatic failover; how that is built end to end at a site with hardware devices is not described.",
       "blocks": "Designing branch redundancy.",
       "resolves_with": [
         "source-read",
@@ -271,9 +305,9 @@
     },
     "wan-selection-detail": {
       "kind": "semantic",
-      "title": "Best Link metric and WAN selection outside hardware gateway mode",
-      "status": "open",
-      "detail": "Unverified legacy statements: 'The best-performing metric is not defined in the captured documentation: it is not clear whether this is measured RTT, loss, or a proprietary metric'; 'Cloud Connector and virtual Branch Connector deployments do not have this option.' The forwarding rule help says WAN selection is only applicable to hardware devices deployed in gateway mode and that Best Link uses the best-performing link; it does not define the metric or address virtual Branch Connectors explicitly.",
+      "title": "Forwarding-rule Best Link metric and WAN selection outside hardware gateway mode",
+      "status": "partial",
+      "detail": "The metric for the device-level Traffic Distribution setting is sourced: the configuration template help says its best link is determined using probes that measure loss, latency and jitter (see cloud-connector.sdwan.configuration-templates). The forwarding rule's WAN Selection Best Link gives no metric, and nothing captured says the two share one. Still open, from an unverified legacy statement: 'Cloud Connector and virtual Branch Connector deployments do not have this option.' The forwarding rule help says WAN selection is only applicable to hardware devices deployed in gateway mode; it does not address virtual Branch Connectors explicitly.",
       "blocks": "Predicting which uplink Best Link picks, and whether a VM deployment can use WAN selection.",
       "resolves_with": [
         "lab-test",

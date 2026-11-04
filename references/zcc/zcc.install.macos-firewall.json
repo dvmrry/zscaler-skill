@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.macos-firewall",
+  "title": "Client Connector's firewall on macOS: the system extension and content filter profiles, VendorConfig rules and the app profile switches",
+  "aliases": [
+    "zcc macos firewall",
+    "zcc firewall macos",
+    "ZscalerSample.mobileconfig",
+    "enforceTrafficViaTunnel",
+    "allowTrafficToDefaultGateway",
+    "detectAltInterfaceTraffic",
+    "alwaysAllowed",
+    "block lan access macos",
+    "VendorConfig firewall"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-extensions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.location-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.macos-deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{parts}}"
+    },
+    {
+      "label": "System extension profile.",
+      "text": "{{system-extension}}"
+    },
+    {
+      "label": "Content filter profile.",
+      "text": "{{content-filter}}"
+    },
+    {
+      "label": "The rules.",
+      "text": "{{structure}} {{rule-parameters}} {{evaluation}}"
+    },
+    {
+      "label": "General parameters.",
+      "text": "{{general-parameters}} {{persistence}}"
+    },
+    {
+      "label": "App profile and changes.",
+      "text": "{{console-settings}} {{jamf-legacy-profiles}} The Windows counterpart for LAN blocking is in [[zcc.location-policies]]."
+    },
+    {
+      "label": "Open points.",
+      "text": "Which interception mode the firewall needs is open {{gap:interception-mode}} (the version floor under Transparent Proxy-based Interception is in [[zcc.install.macos-extensions:trp-support]]). What lanlocal covers is open {{gap:lanlocal}}, and so is whether the rules apply per network type as the example keys name them {{gap:network-keys}}."
+    }
+  ],
+  "claims": {
+    "parts": {
+      "statement": "On macOS devices, admins must create a system extension profile via a mobile device management (MDM) solution, configure firewall rules, and also enable firewall settings in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "On macOS devices, admins must create a system extension profile via a mobile device management (MDM), configure firewall rules, and also enable firewall settings in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "system-extension": {
+      "statement": "The system extension profile uses team identifier PCBCQZJ7S7: in Intune an Extensions template, where the team identifier allows the profile to be installed silently, and in Jamf Pro System Extensions with the type Allowed Team Identifiers. Although the Zscaler system extension is built into Client Connector, it must be configured in Jamf to activate it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "after": "Step 4: (For legacy/pre-existing configurations) Remove the Firewall Rules from Application and Custom Settings",
+          "quotes": [
+            "In the Microsoft Intune Company Portal, go to Devices.",
+            "Template name: Choose Extensions.",
+            "Team identifier: Enter the team identifier PCBCQZJ7S7.",
+            "The team identifier allows the System Extension Profile to be installed on the user's system silently."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "Although Zscaler system extension is built into Zscaler Client Connector, you must configure it in Jamf to activate it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "after": "Although Zscaler system extension is built into Zscaler Client Connector, you must configure it in Jamf to activate it.",
+          "quotes": [
+            "From the left-side navigation, click System Extensions and select Configure.",
+            "System Extension Types: Select Allowed Team Identifiers from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "content-filter": {
+      "statement": "In Jamf Pro the firewall is a Content Filter payload with identifier com.zscaler.zscaler, service address zscaler.com, organization Zscaler and a socket filter with bundle identifier com.zscaler.zscaler.pktfilter and designated requirement identifier \"com.zscaler.zscaler.pktfilter\" and anchor apple generic; the general, outbound and inbound firewall parameters go in the Custom Data section. In Intune a Custom template uploads ZscalerSample.mobileconfig with the firewall parameters configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "after": "If the system extension feature is activated using a command line, you must deactivate it manually.",
+          "quotes": [
+            "In the Microsoft Intune Company Portal, go to Devices.",
+            "Template name: Choose Custom.",
+            "In the Configuration settings section, upload the ZscalerSample.mobileconfig file and configure the Zscaler Client Connector firewall for macOS configuration parameters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "Socket filter Designated Requirement: Enter identifier \"com.zscaler.zscaler.pktfilter\" and anchor apple generic",
+            "In the Custom Data section, define the Zscaler Client Connector firewall configuration parameters for general, outbound and inbound rules."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "after": "From the left-side navigation, select Content Filter.",
+          "quotes": [
+            "Identifier: Enter com.zscaler.zscaler."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "after": "Create a Content Filter Configuration Profile to configure firewall rules.",
+          "quotes": [
+            "Service Address: Enter zscaler.com.",
+            "Organization: Enter Zscaler.",
+            "Socket Filter Bundle Identifier: Enter com.zscaler.zscaler.pktfilter"
+          ]
+        }
+      ]
+    },
+    "general-parameters": {
+      "statement": "The general parameters are enforceTrafficViaTunnel (if true, when the tunnel is inactive, restricts network traffic while the Z-Tunnel is not running), allowTrafficToDefaultGateway (if false, traffic to the default gateway is blocked, which can prevent the device interacting with captive portals and other services the default gateway device provides), detectAltInterfaceTraffic (if true, detects traffic that attempts to bypass the routing table; not supported on Client Connector 4.5.2 and later for macOS) and alwaysAllowed (inbound and outbound traffic defined with it is always allowed even when enforceTrafficViaTunnel is true). The sentence after alwaysAllowed says that parameter applies to Z-Tunnel 1.0 and 2.0 and is supported on 4.5.2 and later for macOS.",
+      "tier": "A",
+      "conditions": "Which parameter the line 'This parameter applies to Z-Tunnel 1.0 and Z-Tunnel 2.0' belongs to is read by position: it follows the alwaysAllowed description.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "enforceTrafficViaTunnel: If true, when the tunnel is inactive, prevents circumvention of security by restricting network traffic when the Z-Tunnel is not running.",
+            "allowTrafficToDefaultGateway: If set to false, traffic to the default gateway is blocked. Use this parameter with caution as it can prevent the device from interacting with captive portals and other services that the default gateway device provides.",
+            "detectAltInterfaceTraffic: When set to true, Zscaler Client Connector detects traffic that attempts to bypass the routing table. This parameter is not supported on Zscaler Client Connector version 4.5.2 and later for macOS.",
+            "alwaysAllowed: Inbound and outbound traffic defined using this parameter is always allowed even when enforceTrafficViaTunnel is set to true.",
+            "This parameter applies to Z-Tunnel 1.0 and Z-Tunnel 2.0 and is supported on Zscaler Client Connector version 4.5.2 and later for macOS."
+          ]
+        }
+      ]
+    },
+    "persistence": {
+      "statement": "If the persistent key is true, the firewall remains on even when the user logs out of Client Connector; if false, firewall rules are no longer applied at logout. The parameter does not affect the firewall while the user is logged in; for persistent firewall filtering then, the Persistent Zscaler Firewall option on the user's app profile is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "Persistent: If true, the firewall remains on even when the user logs out of Zscaler Client Connector. If the persistent key is false, firewall rules are no longer applied when the user logs out of Zscaler Client Connector.",
+            "This parameter does not affect Zscaler Firewall behavior when the user is logged in to Zscaler Client Connector. To enable persistent firewall filtering while the user is logged in, enable the Persistent Zscaler Firewall option on the user’s app profile."
+          ]
+        }
+      ]
+    },
+    "rule-parameters": {
+      "statement": "A firewall rule's action is allow or block. An app match must exactly match teamid.bundleid, or the bundleid for an app with no Team ID; protos specifies the IP protocol the flow must match (for example tcp and/or udp or icmp); ips lists remote IP addresses and subnets, delimited by a space or comma, and may mix IPv4, IPv6 and lanlocal; ports specifies the UDP or TCP ports that match, and is ignored if protos is icmp. The system extension does not filter incoming ICMP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "action: Defines what action is taken if the rule matches. Use allow or block.",
+            "This value must exactly match the teamid.bundleid, unless the app has no Team ID, in which case the app must exactly match the bundleid.",
+            "protos: Specifies the IP protocol that the flow must match. For example, tcp and/or udp or icmp.",
+            "ips: Specifies the set of remote IP addresses that the flow must match. Add a space or a comma to the delimited list of IP addresses and/or IP subnets.",
+            "Mixed IPv4, IPv6 addresses, and lanlocal are allowed.",
+            "ports: Specifies what UDP or TCP ports cause the rule to match the flow.",
+            "If protos is configured and is set to icmp, the ports attribute is ignored.",
+            "System extension does not filter incoming ICMP."
+          ]
+        }
+      ]
+    },
+    "structure": {
+      "statement": "The VendorConfig section of ZscalerSample.mobileconfig has top-level dictionaries general, inbound and outbound; within the inbound and outbound dictionaries are dictionaries for untrusted or trusted networks, each key holding an optional array of rule dictionaries. The page's inbound example uses the keys trustednet, trustedsplitvpnnet, trustedvpnnet and untrustednet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "The VendorConfig section of the ZscalerSample.mobileconfig has several dictionaries that determine the logic for the traffic.",
+            "The top-level dictionaries are general, inbound, and outbound. Within each dictionary are dictionaries for untrusted or trusted networks. Each trusted and untrusted key contains an optional array of rule dictionaries."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "after": "The following is an example of this structure for inbound:",
+          "quotes": [
+            "<key>inbound</key> <dict> <key>trustednet</key> <array>",
+            "<key>trustedsplitvpnnet</key>",
+            "<key>trustedvpnnet</key>",
+            "<key>untrustednet</key>"
+          ]
+        }
+      ]
+    },
+    "evaluation": {
+      "statement": "In the page's example the untrustednet array has three separate rules (apps, ips, ports), each independent of the other two: traffic from Opera matches only the first rule and the second and third are not evaluated, and the third is evaluated only if the traffic is not from Opera and is not destined for the listed addresses or lanlocal. Key types can be combined for more specific rules, such as disallowing Opera traffic only if the destination is 1.2.3.4:5432:.",
+      "tier": "A",
+      "conditions": "The first-match reading comes from the example only; the page does not state a general evaluation order.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "The above untrustednet array has three separate rules (apps, ips, ports). Each rule is independent of the other two.",
+            "For example, if traffic from Opera is detected, it matches only the first rule (apps), where the second rule (ips) and third rule (ports) are not evaluated.",
+            "Only if the traffic is not from Opera, and is also not destined for 1:2:3:4::, 1.2.3.4, or lanlocal, then the third rule is evaluated.",
+            "You can combine key types for more specific rules, such as disallowing Opera traffic only if the destination is 1.2.3.4:5432:."
+          ]
+        }
+      ]
+    },
+    "console-settings": {
+      "statement": "In the app profile, Enable Zscaler Firewall determines which network traffic is allowed and blocked and is disabled by default; the optional Persistent Zscaler Firewall setting, for persistence while the user is logged in, is also disabled by default. When Client Connector performs a policy update the firewall feature is enabled and the rules are enforced; to change firewall parameters or rules, edit the configuration profile and redeploy it to macOS devices using Jamf Pro, with no change required to the app profile for existing rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "after": "Step 4: Enable Firewall Settings in the Zscaler Admin Console",
+          "quotes": [
+            "Enable Zscaler Firewall to determine which network traffic is allowed and blocked. This setting is disabled by default.",
+            "(Optional) If firewall persistence while the user is logged in to Zscaler Client Connector is required, enable the Persistent Zscaler Firewall setting. This setting is disabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "When Zscaler Client Connector performs a policy update, the Zscaler Firewall feature is enabled and the firewall rules are enforced.",
+            "If you want to change firewall parameters or rules, edit the Configuration Profile and redeploy it to macOS devices using Jamf Pro.",
+            "No change is required to the App Profiles in the Zscaler Admin Console when changing existing firewall rules."
+          ]
+        }
+      ]
+    },
+    "jamf-legacy-profiles": {
+      "statement": "For existing legacy configuration profiles in Jamf Pro, Application and Custom Settings must be removed and the general, inbound and outbound firewall rules added to the Content Filter payload; this applies to Client Connector for macOS 4.5.0.211, 4.3.1.102 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "If you have existing legacy configuration profiles in Jamf Pro, you must remove Application and Custom Settings and add general, inbound, and outbound firewall rules to the Content Filter payload.",
+            "This applies to Zscaler Client Connector for macOS versions 4.5.0.211, 4.3.1.102, and later."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "interception-mode": {
+      "kind": "semantic",
+      "title": "Which interception mode the macOS firewall needs",
+      "status": "open",
+      "detail": "The firewall article does not say which interception mode the firewall needs. The Jamf Pro deployment guide lists the firewall as supported under Transparent Proxy-based Interception from 4.7 (zcc.install.macos-extensions:trp-support).",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "lanlocal": {
+      "kind": "semantic",
+      "title": "What lanlocal covers in a firewall rule",
+      "status": "open",
+      "detail": "The article allows lanlocal alongside IP addresses in the ips list and uses it in the Opera example but does not define which addresses it covers.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "network-keys": {
+      "kind": "semantic",
+      "title": "Whether rules apply per network type as the example keys name them",
+      "status": "open",
+      "detail": "The prose says only that each dictionary holds untrusted or trusted networks; the keys trustednet, trustedvpnnet, trustedsplitvpnnet and untrustednet come from the page's examples, and the page does not map them to the forwarding profile's network types.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

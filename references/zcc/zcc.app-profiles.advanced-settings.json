@@ -55,7 +55,7 @@
     },
     {
       "label": "Keeping the app on.",
-      "text": "{{anti-tampering}} {{reactivate-zia}} {{send-disable-reason}} {{fail-close-lockdown}} {{lockdown-on-errors}} {{lockdown-error-keys}}"
+      "text": "{{anti-tampering}} {{anti-tampering-scope}} {{anti-tampering-platforms}} {{anti-tampering-zep}} {{reactivate-zia}} {{send-disable-reason}} {{fail-close-lockdown}} {{lockdown-on-errors}} {{lockdown-error-keys}}"
     },
     {
       "label": "Traffic handling.",
@@ -183,6 +183,49 @@
         }
       ],
       "conditions": "Quote extended to cover \"Windows 4.5 and later\" (verifier w2 A11)."
+    },
+    "anti-tampering-scope": {
+      "statement": "The Anti-Tampering article says anti-tampering prevents non-admin end users from stopping, modifying and deleting Zscaler products and services, including Zscaler files and new registry keys, and that admins enable or disable it in app profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-anti-tampering-zscaler-client-connector.json",
+          "quotes": [
+            "Anti-tampering protection prevents non-admin end-users from stopping, modifying, and deleting Zscaler products and services, including Zscaler files and new registry keys.",
+            "Admins can enable or disable anti-tampering in Zscaler Client Connector App Profiles."
+          ]
+        }
+      ]
+    },
+    "anti-tampering-platforms": {
+      "statement": "Anti-tampering is supported only on Windows desktop operating systems, not on Windows Server. It does not run in safe mode by design, and Zscaler recommends disabling safe mode for all end users and allowing safe mode access only to the administrator.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-anti-tampering-zscaler-client-connector.json",
+          "quotes": [
+            "Anti-tampering is supported only on Windows desktop operating systems. Anti-tampering is not supported on Windows Server operating systems.",
+            "Zscaler Anti-Tampering does not run in safe mode by design. Zscaler recommends disabling safe mode for all end-users and allowing safe mode access only to the administrator."
+          ]
+        }
+      ]
+    },
+    "anti-tampering-zep": {
+      "statement": "The anti-tampering framework is part of the ZEP module, installed by ZEPInstaller.exe, which is 32-bit on a 32-bit OS and 64-bit on a 64-bit OS, is embedded as a resource in the Client Connector installer, and is unpacked to /program files/zscaler on the local drive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-anti-tampering-zscaler-client-connector.json",
+          "quotes": [
+            "The anti-tampering framework is part of the ZEP module and is installed by the ZEPInstaller.exe.",
+            "The ZEPInstaller.exe is a 32-bit program on a 32-bit OS and a 64-bit program on a 64-bit OS that is embedded as a resource inside the Zscaler Client Connector installer.",
+            "The Zscaler Client Connector installer unpacks the ZEPInstaller.exe to /program files/zscaler on the local hard drive."
+          ]
+        }
+      ]
     },
     "reactivate-zia": {
       "statement": "Reactivate ZIA After turns Internet & SaaS back on 1 to 1440 minutes after a user turns it off; 0 disables reactivation.",
@@ -634,7 +677,7 @@
       ]
     },
     "android-quota": {
-      "statement": "Android profiles carry cellular data quota settings: a quota, optionally enforced only while roaming, reset on a chosen monthly billing day, and a Wi-Fi SSID for testing and simulating data usage. Zscaler has ended support of bandwidth quota control for Client Connector 1.5.3 and later for Android.",
+      "statement": "Android profiles carry cellular data quota settings: a quota, optionally enforced only while roaming, reset on a chosen monthly billing day, and a Wi-Fi SSID for testing and simulating data usage. Zscaler has ended support of bandwidth quota control for Client Connector 1.5.3 and later for Android. The quota page says the quota affects cellular data only, not Wi-Fi, and that business applications must be allowlisted to be exempt from it.",
       "tier": "A",
       "conditions": "Qualified with the end of support for quota control (verifier w2 A5).",
       "evidence": [
@@ -646,6 +689,13 @@
             "Enforce Quota Only for Roaming Users: Enable to enforce the quota only when users are roaming.",
             "The day you select is when the cellular quota is reset every month",
             "Wi-Fi SSID: (Optional) Enter the service set identifier (SSID) of your wireless local area network (WLAN) if you want to test and simulate data usage for that specific SSID."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-cellular-quota-zscaler-client-connector-android.json",
+          "quotes": [
+            "The quota affects cellular data only. It does not affect Wi-Fi. You must allowlist your business applications to exempt them from the quota."
           ]
         }
       ]

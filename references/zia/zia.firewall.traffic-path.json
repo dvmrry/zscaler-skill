@@ -56,6 +56,14 @@
     {
       "rel": "see-also",
       "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
     }
   ],
   "prose": [
@@ -63,7 +71,15 @@
       "text": "{{firewall-first}} {{nonweb-firewall-only}} {{firewall-beats-web-allow}}"
     },
     {
-      "text": "{{enforcement-conditions}} {{explicit-forwarding-tuples}} {{ztunnel-pac-opt-in}} Whether Z-Tunnel 2.0 engages the firewall without an option is open {{gap:ztunnel-2-firewall}}."
+      "text": "{{enforcement-conditions}} {{explicit-forwarding-tuples}} {{connect-inner-outer}} {{ztunnel-pac-opt-in}} {{ztunnel1-pac-rules}} Whether Z-Tunnel 2.0 engages the firewall without an option is open {{gap:ztunnel-2-firewall}}."
+    },
+    {
+      "label": "Connectivity to the Zscaler service.",
+      "text": "{{recommended-connectivity}} {{proxy-connectivity-objects}} The setting page that holds the Z-Tunnel option is routed in [[zia.advanced-settings]]."
+    },
+    {
+      "label": "Application layer gateway.",
+      "text": "{{alg}}"
     },
     {
       "label": "Telling the two modules apart in the logs.",
@@ -235,6 +251,84 @@
         }
       ]
     },
+    "recommended-connectivity": {
+      "statement": "Zscaler recommends GRE or IPSec tunnel connectivity from branch or headquarter location gateway devices, and installing Zscaler Client Connector for remote users to connect to the Zscaler service. Zscaler Client Connector should be implemented when users are off network using HTTP CONNECT tunnels to forward their traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-http-tunnel-connectivity.json",
+          "quotes": [
+            "Zscaler recommends using GRE/IPSec tunnel connectivity from branch or headquarter location gateway devices. For remote users, the recommendation is to install Zscaler Client Connector to connect to the Zscaler service.",
+            "Zscaler Client Connector should be implemented when users are off network using HTTP CONNECT tunnels to forward their traffic."
+          ]
+        }
+      ]
+    },
+    "connect-inner-outer": {
+      "statement": "With HTTP CONNECT tunnels, there are two 5-tuples associated with the traffic, the outer IP and the inner IP address. Zscaler removes the HTTP CONNECT request from the outer tunnel and applies the Firewall policies to the request inside the tunnel independently, so any 5-tuple that results in a blocking policy blocks the corresponding session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-http-tunnel-connectivity.json",
+          "quotes": [
+            "With HTTP CONNECT tunnels, there are two 5-tuples associated with the traffic: the outer IP and the inner IP address.",
+            "Zscaler removes the HTTP CONNECT request from the outer tunnel and then applies the Firewall policies to the request inside the HTTP CONNECT tunnel independently. This means that any 5-tuple that results in a blocking policy blocks the corresponding session."
+          ]
+        }
+      ]
+    },
+    "proxy-connectivity-objects": {
+      "statement": "To allow connectivity to the Zscaler service, an organization's policies must use three predefined objects: the Zscaler Proxy Network Service, which includes all proxied network services (for example TCP 21, 80, 443, 9400, 9480) and the subscription to a DPPC port; the Zscaler Proxy IPs IP category, which includes all Public Service Edge service IPs in a particular cloud, the Public Service Edge's local IPs and global service IPs; and the Zscaler Proxy Traffic Firewall policy rule, which matches that category and that service. Zscaler Client Connector version 2.0 or later uses DTLS/TLS tunnels to forward traffic and does not support the Zscaler Proxy Traffic rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-http-tunnel-connectivity.json",
+          "quotes": [
+            "To ensure your organization is configured to allow connectivity to the Zscaler service, you must leverage the following predefined Zscaler network services and IP groups in your organization’s policies:",
+            "A predefined network service: Zscaler Proxy Network Service - This includes all proxied network services (e.g., TCP 21, 80, 443, 9400, 9480, etc.) and the subscription to a DPPC port.",
+            "A predefined IP category: Zscaler Proxy IPs - It includes all Public Service Edge for Internet & SaaS (ZIA) service IPs in a particular cloud, local IPs of the particular Public Service Edge for Internet & SaaS, and global service IPs.",
+            "A predefined Firewall policy rule: Zscaler Proxy Traffic - This is available to match the Zscaler Proxy IPs category and the Zscaler Proxy Networking Service.",
+            "Zscaler Client Connector version 2.0 or later uses DTLS/TLS tunnels to forward traffic, and it doesn't support Zscaler Proxy Traffic rule."
+          ]
+        }
+      ]
+    },
+    "alg": {
+      "statement": "Some protocols currently cannot be fully handled by Public Service Edges and require an application layer gateway (ALG) feature to be tracked across control and bearer channels; the Zscaler service applies the ALG feature automatically to the protocols the page lists: FTP (passive), PPTP and RTSP. Traffic for protocols that are not fully supported by an ALG, like SIP, H.323, H.248, VOIP and TFTP, might need to be bypassed from Zscaler by changing the configuration when setting up forwarding methods such as IPSec, GRE or Z-Tunnel 2.0 (for remote users). The page says the best practice for those forwarding methods is generally to send all ports and protocols through the tunnels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-internet-saas-and-application-layer-gateway-enabled-applications.json",
+          "quotes": [
+            "The best practice for customers using forwarding methods such as IPSec, GRE, or Zscaler Tunnel (Z-Tunnel) 2.0 (for remote users) is generally to send all ports and protocols through their tunnels.",
+            "However, there are some protocols that currently cannot be fully handled by Public Service Edges for Internet & SaaS (ZIA). These protocols require an application layer gateway (ALG) feature to be tracked across control and bearer channels.",
+            "The Zscaler service supports and applies the ALG feature automatically to the following protocols: - FTP (passive) - PPTP - RTSP",
+            "Traffic forwarded to the protocols that are not fully supported by an ALG (like SIP, H.323, H.248, VOIP, and TFTP) might need to be bypassed from Zscaler by changing the configuration when setting up your forwarding methods such as IPSec, GRE, or Z-Tunnel 2.0 (for remote users)."
+          ]
+        }
+      ]
+    },
+    "ztunnel1-pac-rules": {
+      "statement": "Enabling the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option applies the following Firewall rules to remote user traffic forwarded via Z-Tunnel 1.0 or PAC: all the default Firewall rules, all the user-defined rules configured without any location criteria, and all the user-defined rules configured for the Road Warrior location, because Road Warrior applies only to Z-Tunnel 2.0 when the option is disabled. The page says to ensure these rules are relevant for Z-Tunnel 1.0 and PAC traffic before enabling it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors: Enabling the option applies the following Firewall rules to the remote user traffic forwarded via Z-Tunnel 1.0 or PAC:",
+            "All the default Firewall rules.",
+            "All the user-defined rules configured without any location criteria.",
+            "All the user-defined rules configured for the Road Warrior location because Road Warrior applies only to Z-Tunnel 2.0 when this option is disabled.",
+            "Ensure that these Firewall rules are relevant for the traffic forwarded via Z-Tunnel 1.0 and PAC before enabling this option."
+          ]
+        }
+      ]
+    },
     "inbound-web-module-only": {
       "statement": "Inbound web traffic (HTTP or HTTPS on ports 80/443 from the internet in response to GET or POST requests) is sent to the web module for policy evaluation, and is allowed into the organization if it violates no Web policy.",
       "tier": "A",
@@ -288,8 +382,8 @@
     "ztunnel-2-firewall": {
       "kind": "semantic",
       "title": "Whether Z-Tunnel 2.0 engages the firewall without an option",
-      "status": "open",
-      "detail": "The old reference said Z-Tunnel 2.0 forwarding engages the firewall automatically and that without the opt-in the firewall and IPS never run on Z-Tunnel 1.0 and PAC traffic. The captures only say the firewall must be enabled for Z-Tunnel 1.0 and PAC; they say nothing about Z-Tunnel 2.0.",
+      "status": "partial",
+      "detail": "The old reference said Z-Tunnel 2.0 forwarding engages the firewall automatically and that without the opt-in the firewall and IPS never run on Z-Tunnel 1.0 and PAC traffic. The captures only say the firewall must be enabled for Z-Tunnel 1.0 and PAC; the Advanced Settings page adds that Road Warrior applies only to Z-Tunnel 2.0 when the option is disabled (ztunnel1-pac-rules), but does not say the firewall engages Z-Tunnel 2.0 automatically.",
       "blocks": "explaining why firewall rules do or do not apply to a forwarding method",
       "resolves_with": [
         "support-ticket",

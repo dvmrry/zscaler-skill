@@ -29,6 +29,18 @@
     {
       "rel": "see-also",
       "to": "zpa.terraform.resource-fidelity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.file-transfer"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.live-sessions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.portals-policy"
     }
   ],
   "prose": [
@@ -37,11 +49,15 @@
     },
     {
       "label": "Controls.",
-      "text": "{{scope}} {{defaults-disabled}} {{disabled-feature-display}}"
+      "text": "{{scope}} {{prerequisites}} {{console-configuration-column}} {{defaults-disabled}} {{disabled-feature-display}} The Clipboard article says a disabled Clipboard icon can still be clicked {{divergence:clipboard-disabled-display}}."
     },
     {
       "label": "File transfer.",
-      "text": "{{inspect-needs-zia}} {{vnc-file-transfer}}"
+      "text": "{{inspect-needs-zia}} {{vnc-file-transfer}} {{vnc-realvnc-sftp}}"
+    },
+    {
+      "label": "Clipboard.",
+      "text": "{{clipboard-direction}} {{clipboard-limits}} Whether the 32K increase is per tenant or per console is open {{gap:clipboard-size-scope}}. {{clipboard-sync-and-tamper}} {{clipboard-browsers}}"
     },
     {
       "label": "Recording and sharing.",
@@ -49,30 +65,40 @@
     },
     {
       "label": "Changes and limits.",
-      "text": "{{live-session-changes}} {{limits}} The older Privileged Capabilities Policy name and URL are not confirmed as retired {{gap:renamed}}."
+      "text": "{{live-session-changes}} {{clipboard-new-session}} Whether a page refresh applies a policy change is described two ways {{divergence:refresh-applies-policy}}. {{limits}} The older Privileged Capabilities Policy name and URL are not confirmed as retired {{gap:renamed}}."
     },
     {
-      "text": "Recordings and their statuses are in [[zpa.pra.session-recording]]. The Terraform defects around the portal capabilities rule are in [[zpa.terraform.resource-fidelity]]."
+      "text": "Recordings and their statuses are in [[zpa.pra.session-recording]]. The transfer mechanics and the File Transfer System are in [[zpa.pra.file-transfer]]; inviting participants is in [[zpa.pra.live-sessions]]; the sibling policy for the PRA Portal is [[zpa.pra.portals-policy]]. The Terraform defects around the portal capabilities rule are in [[zpa.terraform.resource-fidelity]]."
     }
   ],
   "checks": [
     {
-      "do": "Whether a missing control in the session is simply disabled, since every control defaults to off and File Transfer shows but does not work when off.",
+      "do": "Whether a missing control in the session is simply disabled, since every control defaults to off; the pages disagree on whether a disabled control is displayed.",
       "uses": [
         "defaults-disabled",
-        "disabled-feature-display"
+        "clipboard-disabled-display"
       ]
     },
     {
-      "do": "Whether a VNC console with file transfer has SSH and SFTP on port 22 with the VNC credentials.",
+      "do": "Whether a VNC or RealVNC console with file transfer has SFTP enabled on the server, with SFTP authentication matching the VNC configuration.",
       "uses": [
-        "vnc-file-transfer"
+        "vnc-file-transfer",
+        "vnc-realvnc-sftp"
       ]
     },
     {
-      "do": "Whether the policy changed during a live session, which only affects the next session.",
+      "do": "Whether the policy changed during a live session, which a page refresh may or may not apply.",
       "uses": [
-        "live-session-changes"
+        "live-session-changes",
+        "clipboard-new-session",
+        "refresh-applies-policy"
+      ]
+    },
+    {
+      "do": "Whether a Clipboard failure is the protocol, browser or character set, using the documented limits.",
+      "uses": [
+        "clipboard-limits",
+        "clipboard-browsers"
       ]
     },
     {
@@ -219,9 +245,201 @@
           ]
         }
       ]
+    },
+    "prerequisites": {
+      "statement": "Consoles-based control needs the privileged portals and privileged consoles it will be assigned to created first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-consoles-policy.json",
+          "quotes": [
+            "If you want to configure consoles-based control, you must first create the privileged portals and privileged consoles that you want to assign control to."
+          ]
+        }
+      ]
+    },
+    "console-configuration-column": {
+      "statement": "The Consoles Policy page shows each rule's Rule Order (ZPA applies rules in the listed order and the number can be edited by entering a new value) and its Console Configuration, which lists Clipboard Copy, Clipboard Paste, Download, Inspect Upload, Join Sessions, Record Sessions, Share Sessions Control, Share Sessions Monitor and Upload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-consoles-policy.json",
+          "quotes": [
+            "Rule Order: The policy evaluation order number for the rule. Private Access (ZPA) applies policy rules based on the order they are listed here. Change the rule order by clicking on the number and manually entering a new value.",
+            "Console Configuration: The console configuration options you have set for that specific policy rule: Clipboard Copy, Clipboard Paste, Download, Inspect Upload, Join Sessions, Record Sessions, Share Sessions Control, Share Sessions Monitor, and Upload."
+          ]
+        }
+      ]
+    },
+    "vnc-realvnc-sftp": {
+      "statement": "For a VNC or RealVNC console with File Transfer in a consoles policy, the SFTP service must be enabled on the VNC or RealVNC server before the consoles policy is created, with SFTP authentication matching the VNC or RealVNC configuration. If SFTP is not configured on the VNC target and a consoles policy with file transfer is configured for the console, end users cannot connect to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-consoles.json",
+          "quotes": [
+            "If you select VNC or RealVNC and are enabling File Transfer in a consoles policy, the SFTP service needs to be enabled on the VNC or RealVNC server prior to creating the consoles policy, and the authentication for SFTP needs to match the VNC or RealVNC configuration.",
+            "If SFTP is not configured, end users cannot connect to the privileged console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-downloading-file-transfer.json",
+          "quotes": [
+            "If SFTP is not configured on the VNC target, and a consoles policy with file transfer is configured for the associated privileged console, then end users cannot connect to that privileged console."
+          ]
+        }
+      ],
+      "conditions": "These pages add RealVNC and name the SFTP service without a port; the port 22 requirement is stated by vnc-file-transfer."
+    },
+    "clipboard-direction": {
+      "statement": "Enabling Clipboard Copy lets a user copy functions from Privileged Remote Access to the local system, and enabling Clipboard Paste lets a user paste functions from the local system to PRA. With multiple privileged consoles open, copied text is carried over to all of the Clipboard-enabled privileged consoles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-copying-and-pasting-clipboard.json",
+          "quotes": [
+            "If you enable the Clipboard Copy option, you can copy functions from Privileged Remote Access (PRA) to your local system.",
+            "If you enable the Clipboard Paste option, you can paste functions from your local system to PRA.",
+            "If you have multiple privileged consoles open, copied text is carried over to all of the Clipboard-enabled privileged consoles."
+          ]
+        }
+      ]
+    },
+    "clipboard-limits": {
+      "statement": "Clipboard operations work only when the selected protocol and remote OS allow them. Non-ASCII characters cannot be copied and pasted if the console uses a VNC, RealVNC or SSH protocol, and operations between a non-Windows OS and a Windows OS can add newline characters. Up to 4,096 characters can be copied and pasted by default, and a larger size of up to 32K characters can be requested through Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-copying-and-pasting-clipboard.json",
+          "quotes": [
+            "You can only use Clipboard operations when the selected protocol and remote OS allow it.",
+            "You cannot copy and paste non-ASCII characters with the Clipboard feature if the privileged console is using a VNC protocol, RealVNC protocol, or an SSH protocol.",
+            "Clipboard operations between a non-Windows OS and a Windows OS can lead to additional newline characters, as Windows uses a different newline character format.",
+            "You can copy and paste up to 4,096 characters by default. If you need a larger clipboard size, you can request an increase of up to 32K characters by contacting Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "clipboard-new-session": {
+      "statement": "When the Clipboard features are enabled in a consoles policy, a new session must be started before the Clipboard permissions take effect, and refreshing the page also refreshes the permissions. If a session is already running when Clipboard is started, the user must terminate it and start a new session to show the Clipboard icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-copying-and-pasting-clipboard.json",
+          "quotes": [
+            "When you enable the Clipboard features in a consoles policy, a new session must be started before the Clipboard permissions take effect. Refreshing the page also refreshes the permissions.",
+            "If you have a current session running and you start Clipboard, then you must terminate the existing session and start a new session to show the Clipboard icon."
+          ]
+        }
+      ]
+    },
+    "clipboard-sync-and-tamper": {
+      "statement": "When Clipboard is enabled, copied content is periodically synced to the privileged console Clipboard if the browser supports it, and websites or other applications on the device can modify the Clipboard before it is pasted into the console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-copying-and-pasting-clipboard.json",
+          "quotes": [
+            "When Clipboard is enabled, the copied content is periodically synced to the privileged console Clipboard if the browser you are using supports it.",
+            "Websites or other applications on your device can modify the Clipboard before it is pasted into the privileged console."
+          ]
+        }
+      ]
+    },
+    "clipboard-browsers": {
+      "statement": "When Clipboard Copy and Paste are enabled the functions depend on the browser. In Safari only the Clipboard window can copy and paste within the console; in Chrome a pop-up appears on a paste from the local Clipboard and the user clicks Allow; for pasting from Firefox into the console, dom.events.testing.asyncClipboard and dom.events.asyncClipboard.readText must be set to true on the about:config page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-copying-and-pasting-clipboard.json",
+          "quotes": [
+            "When the Clipboard Copy and Paste features are enabled, the Clipboard functions are dependent upon the browser you are using.",
+            "If you are using Safari, you can only use the Clipboard window to do copy and paste operations within the privileged console.",
+            "If you are using Chrome and have copied from the local system Clipboard and are pasting into the privileged console, a pop-up message from your Chrome browser appears when you attempt the paste operation by keyboard or via the privileged console Clipboard.",
+            "Click Allow to complete the paste.",
+            "If you are copying from the Firefox browser and want to paste into the privileged console, you need to complete additional configurations on the Firefox side:",
+            "In the Firefox browser, go to the about:config page.",
+            "Set the following options to true:",
+            "dom.events.testing.asyncClipboard",
+            "dom.events.asyncClipboard.readText"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "refresh-applies-policy": {
+      "summary": "Whether a consoles-policy change reaches a live session without a new session: the Configuring Consoles Policies article says changes are not reflected until a new live session is started, and the Clipboard article says refreshing the page also refreshes the permissions.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-consoles-policies.json",
+            "quotes": [
+              "If the consoles policy is changed while a live privileged session is in progress, the changes aren't reflected until a new live privileged session is started."
+            ]
+          },
+          "says": "A change made during a live session is not reflected until a new live session is started (claim live-session-changes)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-copying-and-pasting-clipboard.json",
+            "quotes": [
+              "When you enable the Clipboard features in a consoles policy, a new session must be started before the Clipboard permissions take effect. Refreshing the page also refreshes the permissions."
+            ]
+          },
+          "says": "For the Clipboard features, a new session must be started before permissions take effect, and refreshing the page also refreshes the permissions (claim clipboard-new-session)."
+        }
+      ],
+      "impact": "It is not settled whether a page refresh starts a new session, so it is not settled whether a refresh applies a consoles-policy change. An answer about a policy change that has not taken effect should not state either as fact. A lab test of a change followed by a refresh would settle it."
+    },
+    "clipboard-disabled-display": {
+      "summary": "Whether a disabled consoles-policy feature is displayed to the user: the PRA overview says disabled features are not displayed except File Transfer, and the Clipboard article says Clipboard options are disabled by default but the Clipboard icon can still be clicked.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-privileged-remote-access.json",
+            "quotes": [
+              "If any of the features are disabled, then they are not displayed, with the exception of the File Transfer feature, which shows if disabled but isn't functional."
+            ]
+          },
+          "says": "Disabled features are not displayed, except File Transfer (claim disabled-feature-display)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-copying-and-pasting-clipboard.json",
+            "quotes": [
+              "Clipboard options are disabled by default, but you can still click the Clipboard icon."
+            ]
+          },
+          "says": "Clipboard options are disabled by default and the Clipboard icon can still be clicked."
+        }
+      ],
+      "impact": "The Clipboard article also says that with a session already running the user must start a new session to show the Clipboard icon, so it is not settled when the icon is shown. An answer about a missing or clickable Clipboard icon should not rest on either page alone."
     }
   },
   "gaps": {
+    "clipboard-size-scope": {
+      "kind": "semantic",
+      "title": "Whether the Clipboard size increase is per tenant or per console",
+      "status": "open",
+      "detail": "The Clipboard article says Zscaler Support can raise the limit from 4,096 to up to 32K characters but does not say whether the increase applies per tenant or per console. A support request would resolve it.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
     "renamed": {
       "kind": "semantic",
       "title": "Whether the Privileged Capabilities Policy URL redirects to Configuring Consoles Policies",

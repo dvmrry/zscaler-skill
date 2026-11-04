@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "zcc.install.business-continuity",
-  "title": "Install parameters for enrolling users during a Private Access or ISP outage",
+  "title": "Business Continuity in Client Connector: availability, the Business Continuity page, the app profile switch, install parameters and enrolling during an outage",
   "aliases": [
     "bcpConfigFilePath",
     "BCPCONFIGFILEPATH",
@@ -22,6 +22,30 @@
     },
     {
       "text": "{{windows}} {{macos}}"
+    },
+    {
+      "label": "What it is and where it is available.",
+      "text": "{{purpose}} {{availability}} The Private Access side is in [[zpa.private-service-edges.business-continuity]]."
+    },
+    {
+      "label": "The Business Continuity page.",
+      "text": "{{page}}"
+    },
+    {
+      "label": "The app profile switch.",
+      "text": "{{configuring}} What Configure ZPA Business Continuity contains is open {{gap:configure-contents}}."
+    },
+    {
+      "label": "What users see.",
+      "text": "{{enrolled-users}} {{stored-profile}}"
+    },
+    {
+      "label": "Enrolling new users during an outage.",
+      "text": "{{new-users}} {{windows-5-option}} The name of that Windows 5.0 option is open {{gap:windows-5-option-name}}."
+    },
+    {
+      "label": "Upgrades.",
+      "text": "{{upgrade-reauth}}"
     }
   ],
   "checks": [
@@ -34,6 +58,149 @@
     }
   ],
   "claims": {
+    "availability": {
+      "statement": "Business Continuity is available only for Client Connector 4.6 and later for Windows and 4.7 and later for macOS; the About Business Continuity and Configuring Business Continuity pages both say so.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-business-continuity.json",
+          "quotes": [
+            "Business Continuity is available only for Zscaler Client Connector version 4.6 and later for Windows and for Zscaler Client Connector version 4.7 and later for macOS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-business-continuity-zscaler-client-connector.json",
+          "quotes": [
+            "Business Continuity is available only for Zscaler Client Connector version 4.6 and later for Windows and for Zscaler Client Connector version 4.7 and later for macOS."
+          ]
+        }
+      ]
+    },
+    "purpose": {
+      "statement": "Business Continuity in Private Access allows users to continue to access applications during Private Access-related cloud outages or ISP outages; Client Connector connects users to a Private Cloud without manual intervention, for enrolled users and for new users enrolling while the Admin Console and the cloud are unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-business-continuity.json",
+          "quotes": [
+            "Business Continuity in Private Access allows users to continue to access applications during Private Access-related cloud outages or Internet Service Provider (ISP) outages.",
+            "Zscaler Client Connector connects users to a Private Cloud to help achieve uninterrupted access without manual intervention.",
+            "Provide existing users who are enrolled in Zscaler Client Connector continual access to their approved applications during an outage.",
+            "Enroll new users in Zscaler Client Connector and provide secure access to applications while the Zscaler Admin Console and the cloud are unavailable."
+          ]
+        }
+      ]
+    },
+    "page": {
+      "statement": "The Business Continuity page (Infrastructure > Connectors > Client > Business Continuity) shows Private Cloud Controller DNS (the initial DNS request for the controller addresses, e.g. any2bcp.<business_continuity_domain>), Private Cloud Controller SNI (c2.<business_continuity_domain> for enrolled users or c2site.<business_continuity_domain> for new users), the Business Continuity SP URL and the SP CA Certificate. Sync retrieves the latest settings, Download Config downloads a configuration file with them for installing Client Connector, and Copy Thumbprint copies the public key for installing for a new user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-business-continuity.json",
+          "quotes": [
+            "On the Business Continuity page (Infrastructure > Connectors > Client > Business Continuity), you can do the following:",
+            "Private Cloud Controller DNS: The initial DNS request to get the Private Cloud Controller IP addresses (e.g., any2bcp.<business_continuity_domain>).",
+            "Private Cloud Controller SNI: The Server Name Indication (SNI) used to make TLS connections to the Private Cloud Controller and the Private Service Edge for Private Access (e.g., c2.<business_continuity_domain> for enrolled users or c2site.<business_continuity_domain> for new users).",
+            "Business Continuity SP URL: The service provider URL for the Business Continuity Domain.",
+            "Business Continuity SP CA Certificate: The service provider certificate for the Business Continuity Domain.",
+            "Click Sync to retrieve the latest Business Continuity settings.",
+            "Click Download Config to download a configuration file with these settings to use when installing Zscaler Client Connector for users.",
+            "Click Copy Thumbprint to copy the public key to use when installing Zscaler Client Connector for a new user."
+          ]
+        }
+      ]
+    },
+    "configuring": {
+      "statement": "Configuring Business Continuity means ensuring the Business Continuity settings are configured, enabling Configure ZPA Business Continuity in the app profile, and downloading the config file and copying the thumbprint from the Business Continuity page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-business-continuity-zscaler-client-connector.json",
+          "quotes": [
+            "Ensure that the Business Continuity settings are configured.",
+            "Enable Configure ZPA Business Continuity in the app profile.",
+            "Download the config file and copy the thumbprint from the Business Continuity page."
+          ]
+        }
+      ]
+    },
+    "enrolled-users": {
+      "statement": "If Business Continuity is enabled, enrolled users automatically access the Private Cloud during an outage and keep access to their applications based on their app profile; during the outage the Update App and Update Policy options are not available in the About section of the More window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-business-continuity-zscaler-client-connector.json",
+          "quotes": [
+            "If Business Continuity is enabled, enrolled users automatically access the Private Cloud if there is an outage and continue to have access to their applications based on their app profile.",
+            "During the outage, the Update App and Update Policy options are not available in the About section of the More window in Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "stored-profile": {
+      "statement": "The app can authenticate with the Private Cloud and apply a stored app profile; the stored app profile from the configuration file is used until the Zscaler back-end servers can retrieve the config profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-business-continuity-zscaler-client-connector.json",
+          "quotes": [
+            "The app can then authenticate with the Private Cloud and apply a stored app profile to the user to provide application access.",
+            "The stored app profile from the configuration file is used until the Zscaler back-end servers can retrieve the config profile."
+          ]
+        }
+      ]
+    },
+    "new-users": {
+      "statement": "New users can also be enrolled during the outage even though the Admin Console and the cloud are unavailable, including when they hit authentication issues or upstream communication failures (such as DNS exceptions, connection timeouts or socket unreachable) during enrollment. Before an outage a configuration file with Business Continuity settings and a public key must be downloaded; they are passed in an installer option, installing through an MDM or GPO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-business-continuity-zscaler-client-connector.json",
+          "quotes": [
+            "You can also enroll new users in Zscaler Client Connector and provide access to applications during the outage even though the Zscaler Admin Console and the cloud are unavailable",
+            "authentication issues or upstream communication failures (e.g., DNS exceptions, connection timeouts, or socket unreachable) during enrollment",
+            "Before an outage, you must download a configuration file with Business Continuity settings and a public key.",
+            "You can pass the file and public key to Zscaler Client Connector in an installer option.",
+            "install Zscaler Client Connector using an MDM or GPO and pass the downloaded configuration file and the public key"
+          ]
+        }
+      ]
+    },
+    "windows-5-option": {
+      "statement": "For Client Connector 5.0 and later for Windows, another installer option can be passed that enables Business Continuity if users experience network or authentication issues during enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-business-continuity-zscaler-client-connector.json",
+          "quotes": [
+            "If you use Zscaler Client Connector version 5.0 and later for Windows, you can also pass an installer option that enables Business Continuity if users experience network or authentication issues during enrollment."
+          ]
+        }
+      ]
+    },
+    "upgrade-reauth": {
+      "statement": "If a Windows device on a Client Connector version earlier than 5.0 is in Business Continuity mode when the upgrade starts and is still in it after upgrading to 5.0 or later, the user must reauthenticate to Private Access after the upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-business-continuity-zscaler-client-connector.json",
+          "quotes": [
+            "If a device using a Zscaler Client Connector for Windows version earlier than 5.0 is in Business Continuity mode when the upgrade process starts",
+            "is still in Business Continuity mode after upgrading to Zscaler Client Connector version 5.0 and later for Windows, the user must reauthenticate to Private Access after the upgrade."
+          ]
+        }
+      ]
+    },
     "windows": {
       "statement": "On Windows from Client Connector 4.6, bcpConfigFilePath (MSI `BCPCONFIGFILEPATH`) passes a predownloaded configuration file with Business Continuity settings, and bcpMAPublicKeyHash (MSI `BCPMAPUBKEYHASH`) passes the public key provided by Private Access for it, so Client Connector can enroll new users during a Private Access-related cloud outage or an ISP outage. Each requires the other.",
       "tier": "A",
@@ -80,6 +247,27 @@
             "If you pass this install option, you must also pass the bcpConfigFilePath option."
           ]
         }
+      ]
+    }
+  },
+  "gaps": {
+    "windows-5-option-name": {
+      "kind": "semantic",
+      "title": "The name of the Windows 5.0 installer option that enables Business Continuity",
+      "status": "open",
+      "detail": "The Configuring page says an installer option for Client Connector 5.0 and later for Windows enables Business Continuity on network or authentication issues during enrollment but does not name it; it points to the Supported Parameters page for Windows.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "configure-contents": {
+      "kind": "semantic",
+      "title": "What Configure ZPA Business Continuity contains",
+      "status": "open",
+      "detail": "The Configuring page tells the admin to enable Configure ZPA Business Continuity in the app profile without describing what the section holds.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
       ]
     }
   }

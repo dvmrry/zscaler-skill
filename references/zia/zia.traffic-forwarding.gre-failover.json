@@ -33,6 +33,18 @@
       "text": "{{failover-profiles}} {{delay-down-up}} {{sample-config}}"
     },
     {
+      "label": "What the GRE configuration guides add.",
+      "text": "{{router-detection}} {{keepalive-nat}}"
+    },
+    {
+      "label": "Cisco 881 ISR example.",
+      "text": "{{cisco-keepalive-and-sla}} {{cisco-sla-example}} The two Cisco samples probe different addresses {{divergence:ip-sla-probe-target}}. {{failover-tests}}"
+    },
+    {
+      "label": "Juniper SRX example.",
+      "text": "{{juniper-hold-time}} {{juniper-rpm}} A Zscaler-side keepalive limit or rate is open {{gap:keepalive-zscaler-side}}."
+    },
+    {
       "text": "The tunnel design itself (primary and secondary in different data centers) is in [[zia.traffic-forwarding.gre]]."
     }
   ],
@@ -170,6 +182,149 @@
             "route-map ZS-NET-PORT permit 10 match ip address ZS-NET-PORT set ip next-hop verify-availability"
           ]
         }
+      ]
+    },
+    "router-detection": {
+      "statement": "The GRE guidelines say the router must detect a primary tunnel failure and switch its routing table or routing instance to the secondary tunnel and back, with keepalive settings neither too aggressive nor too slow. A router without GRE keepalives can use ICMP probes; Cisco routers can monitor tunnels with IP SLA and Juniper routers with RPM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-gre-tunnels.json",
+          "quotes": [
+            "Ensure that if the primary tunnel goes down, the router detects it and changes the routing table or routing instance so that the secondary tunnel is used for traffic forwarding and vice versa.",
+            "Additionally, ensure that the settings are neither too aggressive nor too slow in detecting when the tunnel is down. If your router does not support GRE keepalives, you can configure ICMP probes instead.",
+            "For Cisco routers, you can use IPSLAs to monitor the tunnels.",
+            "For Juniper routers, you can use real-time performance monitoring (RPM) to monitor the VPNs."
+          ]
+        }
+      ]
+    },
+    "cisco-keepalive-and-sla": {
+      "statement": "The Cisco 881 ISR GRE example requires both GRE keepalives and IP SLA for tunnel failover.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-cisco-881-isr.json",
+          "quotes": [
+            "You must configure both GRE keepalives and IP SLA to enable GRE tunnel failover."
+          ]
+        }
+      ]
+    },
+    "keepalive-nat": {
+      "statement": "The Cisco 881 ISR GRE example says GRE keepalives fail if the tunnel traverses NAT, and do not work if the tunnel source interface has a private IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-cisco-881-isr.json",
+          "quotes": [
+            "If the GRE tunnel traverses NAT, keepalives fail. If the tunnel source interface has a private IP address, then the GRE keepalives don't work."
+          ]
+        }
+      ]
+    },
+    "cisco-sla-example": {
+      "statement": "In the Cisco 881 ISR GRE example the IP SLA HTTP raw probes target the internal Public Service Edge IPs of both tunnels (ip sla 1 the primary, ip sla 2 the secondary), the secondary probe with timeout 5000 and threshold 500 requesting http://gateway.<Zscaler Cloud Name>.net/vpntest, and track 1 uses delay down 120 up 180.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-cisco-881-isr.json",
+          "quotes": [
+            "ip sla 1 http raw http://<Primary Internal Public Service Edge IP>",
+            "ip sla 2 http raw http://<Secondary Internal Public Service Edge IP> timeout 5000 threshold 500 http-raw-request GET http://gateway.<Zscaler Cloud Name>.net/vpntest",
+            "track 1 ip sla 1 delay down 120 up 180"
+          ]
+        }
+      ]
+    },
+    "failover-tests": {
+      "statement": "The Cisco 881 ISR example verifies failover by checking ip.zscaler.com for the data center receiving traffic and confirming failover to the secondary interface after each of: bringing the primary tunnel interface down, configuring a wrong primary DC VIP, blocking the GRE port on the upstream firewall or router ACL, and lowering the primary IP SLA thresholds to trigger a timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-cisco-881-isr.json",
+          "quotes": [
+            "Go to ip.zscaler.com to verify the data center that receives the traffic.",
+            "Test 1: Bring the primary tunnel interface down manually and verify if the traffic fails over to the secondary interface.",
+            "Test 2: Configure an incorrect value for your router's Zscaler GRE tunnel IP address <Primary DC VIP> and verify if the traffic fails over to the secondary interface.",
+            "Test 3: Block the GRE port on the upstream Firewall/Router ACL and verify if the traffic fails over to the secondary interface.",
+            "Test 4: Decrease the threshold values on the primary tunnel IP SLA to trigger a timeout and verify if the traffic fails over to the secondary interface."
+          ]
+        }
+      ]
+    },
+    "juniper-hold-time": {
+      "statement": "In the Juniper SRX GRE example the hold time must be at least twice the keepalive time; the sample sets keepalive-time 10 and hold-time 60.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-juniper-srx.json",
+          "quotes": [
+            "The hold time must be at least twice the keepalive time.",
+            "keepalive-time 10; hold-time 60;"
+          ]
+        }
+      ]
+    },
+    "juniper-rpm": {
+      "statement": "The Juniper SRX GRE example monitors the GRE endpoints with an ICMP-based probe to the internal Public Service Edge IPs; when the data center under the GRE virtual IP address goes down, the SRX gets no keepalive response and the adjacency state goes down.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-gre-configuration-example-juniper-srx.json",
+          "quotes": [
+            "Use the following command to create an ICMP-based probe to monitor the GRE endpoints (<Primary Internal Public Service Edge IP> and <Secondary Internal Public Service Edge IP>) on the Zscaler service:",
+            "When the data center under the GRE virtual IP address goes down, Juniper SRX does not receive a keepalive message response and the adjacency state goes down."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "ip-sla-probe-target": {
+      "summary": "The Cisco 881 ISR GRE example probes the internal Public Service Edge IPs of both tunnels, while the best-practices sample probes the Global Public Service Edge IP addresses.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-gre-configuration-example-cisco-881-isr.json",
+            "quotes": [
+              "ip sla 1 http raw http://<Primary Internal Public Service Edge IP>",
+              "ip sla 2 http raw http://<Secondary Internal Public Service Edge IP> timeout 5000 threshold 500 http-raw-request GET http://gateway.<Zscaler Cloud Name>.net/vpntest"
+            ]
+          },
+          "says": "The IP SLA probes target the primary and secondary internal Public Service Edge IPs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "best-practices-deploying-gre-tunnels.json",
+            "quotes": [
+              "ip sla 1 http raw http://<Primary Global Public Service Edge IP>"
+            ]
+          },
+          "says": "The IP SLA probe targets the primary Global Public Service Edge IP."
+        }
+      ],
+      "impact": "Low: the two examples probe different addresses and neither says the other is wrong, so a probe target should not be generalized from either one."
+    }
+  },
+  "gaps": {
+    "keepalive-zscaler-side": {
+      "kind": "semantic",
+      "title": "Zscaler-side GRE keepalive limit or rate (not the router-side timers)",
+      "status": "open",
+      "detail": "The best-practices failover table (failover-profiles) gives router-side keepalive timers, the Juniper SRX example gives the hold-time rule and the Cisco 881 ISR example says keepalives fail through NAT. This gap is about the Zscaler side: no captured GRE page gives a Zscaler-side keepalive limit or rate.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
       ]
     }
   }

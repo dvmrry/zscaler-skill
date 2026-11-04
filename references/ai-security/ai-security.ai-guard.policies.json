@@ -62,11 +62,23 @@
     },
     {
       "label": "Policy configurations.",
-      "text": "{{policy-is-detectors}} {{detector-settings}} {{pii-name-disabled}} {{ten-limit}} The detectors themselves are in [[ai-security.ai-guard.detectors]]."
+      "text": "{{policy-is-detectors}} {{detector-settings}} What strict means for the threshold depends on the page {{divergence:strict-direction}}. {{pii-name-disabled}} {{ten-limit}} The detectors themselves are in [[ai-security.ai-guard.detectors]]."
+    },
+    {
+      "label": "Threshold scale and roll-out.",
+      "text": "{{threshold-scale}} {{runbook-rollout}} Per-detector settings are in [[ai-security.ai-guard.detectors.pii]], [[ai-security.ai-guard.detectors.intellectual-property]], [[ai-security.ai-guard.detectors.competition]] and [[ai-security.ai-guard.detectors.topic]]."
     },
     {
       "label": "Policy control.",
       "text": "{{control-binding}} {{user-control-fields}} {{criteria-types}} {{match-rule-references}} {{no-match-unapplied}} What applies when no rule matches is open {{gap:no-match-default}}."
+    },
+    {
+      "label": "Application policy control.",
+      "text": "{{app-control-criteria}}"
+    },
+    {
+      "label": "Prompt allowlist.",
+      "text": "{{allowlist}} {{allowlist-prereqs}} {{allowlist-add}} Whether responses can be allowlisted is disputed {{divergence:allowlist-scope}}. {{no-detector-allowlist}}"
     },
     {
       "label": "Enabling and disabling.",
@@ -97,9 +109,10 @@
       ]
     },
     {
-      "do": "The detector's Action (Block, Detect or Allow) and threshold in the policy; Detect only flags.",
+      "do": "The detector's Action (Block, Detect or Allow) and threshold in the policy; Detect only flags. Which direction counts as strict for the threshold is disputed, so state the direction by what triggers rather than by strict.",
       "uses": [
-        "detector-settings"
+        "detector-settings",
+        "strict-direction"
       ]
     },
     {
@@ -125,7 +138,7 @@
       ]
     },
     "detector-settings": {
-      "statement": "Most prompt detectors share Enabled (on by default), Severity, Threshold (the lower it is, the more strictly AI Guard activates the policy) and Action: Allow lets the prompt proceed, Block blocks it, Detect flags it as detected, and some detectors also offer Disabled.",
+      "statement": "Most prompt detectors share Enabled (on by default), Severity, Threshold (the page words it as: the lower the threshold setting, the more strict AI Guard is with activating the policy) and Action: Allow lets the prompt proceed, Block blocks it, Detect flags it as detected, and some detectors also offer Disabled.",
       "tier": "A",
       "evidence": [
         {
@@ -156,7 +169,7 @@
       ]
     },
     "ten-limit": {
-      "statement": "Competition and Topic accept at most 10 entries at a time in a single policy.",
+      "statement": "Competition and Topic accept at most 10 entries at a time in a single policy, and the Topic/Off Topic runbook gives the Off Topic topic definitions up to 10 topics as well.",
       "tier": "A",
       "evidence": [
         {
@@ -174,6 +187,13 @@
             "Only 10 can be set at a time for a single policy."
           ],
           "after": "Topic: Includes the ability to add multiple custom topics to add to your policy."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Custom Topic (Topic) or Topic Definition (Off Topic): Up to 10 topics. Each has a Name and a Definition."
+          ]
         }
       ]
     },
@@ -342,6 +362,264 @@
           ]
         }
       ]
+    },
+    "app-control-criteria": {
+      "statement": "On the AI Guard for Apps page, a policy configuration is attached to an application by adding policy control, on the AI Applications tab in Proxy mode (for DAS mode the page says to skip to the next step); the rule takes a rule name, a policy configuration, a rule order and a rule status (enabled or disabled), and at least one match criterion defined among LLM Provider & Models (Proxy Only), Applications & Credentials, Application Groups, Custom Request Headers and their values, and source IPv4 addresses; the new policy control appears at the Rule Order number entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-ai-guard-policy-control.json",
+          "quotes": [
+            "After you create an AI Guard policy configuration, you can then attach it to an application by adding policy control.",
+            "Click the AI Applications tab in Proxy mode. For DAS mode, skip to the next step.",
+            "Rule Name: Enter a name for the policy match.",
+            "Policy Configuration: From the drop-down menu, select a policy you previously created.",
+            "Rule Order: Enter a number for the order in which you want the policy match applied.",
+            "Rule Status: Select whether you want the rule to be enabled or disabled.",
+            "Match Criteria: At least one match criteria must be defined:",
+            "LLM Provider & Models (Proxy Only): Match against specific LLM providers and models.",
+            "Applications & Credentials: Match against specific AI Applications and their credentials.",
+            "Application Groups: Match against specific AI Application Groups.",
+            "Custom Request Headers: Match against custom request headers and their values.",
+            "Source IPs: Match against specific source IPv4 addresses (e.g., 192.168.1.1).",
+            "The new policy control appears at the Rule Order number you entered."
+          ]
+        }
+      ]
+    },
+    "allowlist": {
+      "statement": "The prompt allowlist holds prompts to allow that may otherwise be blocked by an existing AI Guard policy; it is available only in Proxy mode, and prompts sent to the allowlist endpoint are fully encrypted so the prompt content remains protected end to end.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-prompt-allowlist.json",
+          "quotes": [
+            "The prompt allowlist for AI Guard allows you to track and manage any prompts that you wish to allow that may otherwise be blocked by an existing AI Guard policy.",
+            "Prompts sent to the allowlist endpoint are fully encrypted, so the prompt content remains protected end-to-end.",
+            "The prompt allowlist functionality is only available in Proxy mode."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-prompt-allowlist.json",
+          "quotes": [
+            "The prompt allowlist for AI Guard allows you to track and manage any prompts that you wish to allow that may otherwise be blocked by an existing AI Guard policy.",
+            "Prompts sent to the allowlist endpoint are fully encrypted, so the prompt content remains protected end-to-end.",
+            "The prompt allowlist functionality is only available in Proxy mode."
+          ]
+        }
+      ]
+    },
+    "allowlist-prereqs": {
+      "statement": "Using the allowlist requires Store Prompts/Responses and Enable Data Sharing for AI Training enabled under Security Settings and the System Administrator role with all-write access; individual actions are governed by the Default Access permission: View to see allowlisted prompts, Create to add to the allowlist and Delete to delete a prompt from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-prompt-allowlist.json",
+          "quotes": [
+            "Under Security Settings, enable Store Prompts/Responses and Enable Data Sharing for AI Training.",
+            "Using the allowlist functionality requires the System Administrator role with all-write access. Individual actions are governed by the Default Access permission.",
+            "View allowlisted prompts: Default Access: View",
+            "Add to allowlist: Default Access: Create",
+            "Delete prompt from allowlist: Default Access: Delete"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-prompt-allowlist.json",
+          "quotes": [
+            "Under Security Settings, enable Store Prompts/Responses and Enable Data Sharing for AI Training.",
+            "Using the allowlist functionality requires the System Administrator role with all-write access. Individual actions are governed by the Default Access permission.",
+            "View allowlisted prompts: Default Access: View",
+            "Add to allowlist: Default Access: Create",
+            "Delete prompt from allowlist: Default Access: Delete"
+          ]
+        }
+      ]
+    },
+    "allowlist-add": {
+      "statement": "A blocked prompt is added to the allowlist from the Transaction Details window: under Prompt Details, Reveal Prompt, then Add to Allowlist if the blocked prompt is the one to add; added prompts are found on the Prompt Allowlist page, where a prompt is deleted with Delete in the Action column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-prompt-allowlist.json",
+          "quotes": [
+            "At the bottom of the Transaction Details window under Prompt Details, click Reveal Prompt.",
+            "If the blocked prompt is the one you want to add to the allowlist, click Add to Allowlist.",
+            "On the Prompt Allowlist page, you can find the prompts that you have added.",
+            "On the Prompt Allowlist page, find the prompt you want to delete and in the Action column, click Delete."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-managing-prompt-allowlist.json",
+          "quotes": [
+            "At the bottom of the Transaction Details window under Prompt Details, click Reveal Prompt.",
+            "If the blocked prompt is the one you want to add to the allowlist, click Add to Allowlist.",
+            "On the Prompt Allowlist page, you can find the prompts that you have added.",
+            "On the Prompt Allowlist page, find the prompt you want to delete and in the Action column, click Delete."
+          ]
+        }
+      ]
+    },
+    "no-detector-allowlist": {
+      "statement": "The Competition runbook says allowlisting is not supported at the Competition-detector level, and the Topic/Off Topic runbook says it is not supported at the detector level; both point to policy-level exceptions (exclude a user group, restrict to certain apps), and the Competition runbook adds a sentence-level allow rule if you have those.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "Not supported at the Competition-detector level. Use policy-level exceptions (exclude a user group, restrict to certain apps) or a sentence-level allow rule if you have those."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Not supported at the detector level. Use policy-level exceptions (exclude a user group, restrict to certain apps)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "Not supported at the Competition-detector level. Use policy-level exceptions (exclude a user group, restrict to certain apps) or a sentence-level allow rule if you have those."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Not supported at the detector level. Use policy-level exceptions (exclude a user group, restrict to certain apps)."
+          ]
+        }
+      ]
+    },
+    "threshold-scale": {
+      "statement": "The PII runbook defines the threshold as a number between 0.0 and 1.0 that controls how confident the model must be before it calls a prompt a match, comparing it to a volume knob: turned up, only very obvious mentions trigger; turned down, more borderline cases trigger too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "The threshold is a number between 0.0 and 1.0 that controls how confident the model must be before it calls a prompt a match.",
+            "Think of it as a volume knob: turn it up and only very obvious mentions trigger. Turn it down and more borderline cases trigger too."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "The threshold is a number between 0.0 and 1.0 that controls how confident the model must be before it calls a prompt a match.",
+            "Think of it as a volume knob: turn it up and only very obvious mentions trigger. Turn it down and more borderline cases trigger too."
+          ]
+        }
+      ]
+    },
+    "runbook-rollout": {
+      "statement": "Each of the PII, IP, Competition and Topic/Off Topic runbooks gives Severity as LOW for initial deployments, raised to MEDIUM or HIGH only after a user confirms the false-positive rate is acceptable, and says to validate in Policy Testing with five to ten sample prompts; each describes the detector's default on triggering as Detect (log only), Allow (pass through) or Block (stop the prompt), labeled Default State in the PII, Competition and Topic/Off Topic runbooks and Action in the IP runbook; the PII runbook adds that after creating a policy and confirming it works the next step is to create a policy match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+          "quotes": [
+            "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page. The recommended setting is LOW for initial deployments. Raise to MEDIUM/HIGH only after a user confirms the false-positive rate is acceptable.",
+            "Validate in Policy Testing with five to ten sample prompts to confirm your setup is working as expected.",
+            "After creating a policy and confirming it works as expected, the next step is to create a policy match.",
+            "Default State: What happens by default when the detector triggers: Detect (log only), Allow (pass through), or Block (stop the prompt)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page. The recommended setting is LOW for initial deployments. Raise to MEDIUM/HIGH only after a user confirms the false-positive rate is acceptable.",
+            "Validate in Policy Testing with five to ten sample prompts to confirm your setup is working as expected.",
+            "Action: What happens by default when the detector triggers: Detect (log only), Allow (pass through), or Block (stop the prompt)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page. The recommended setting is LOW for initial deployments. Raise to MEDIUM/HIGH only after a user confirms the false-positive rate is acceptable.",
+            "Validate in Policy Testing with five to ten sample prompts to confirm your setup is working as expected.",
+            "Default State: What happens by default when the detector triggers: Detect (log only), Allow (pass through), or Block (stop the prompt)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+          "quotes": [
+            "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page. The recommended setting is LOW for initial deployments. Raise to MEDIUM/HIGH only after a user confirms the false-positive rate is acceptable.",
+            "Validate in Policy Testing with five to ten sample prompts to confirm your setup is working as expected.",
+            "Default State: What happens by default when the detector triggers: Detect (log only), Allow (pass through), or Block (stop the prompt)."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "strict-direction": {
+      "summary": "Which direction of the detector threshold is strict: the policy page says a lower threshold is more strict, the PII runbook calls the high end stricter.",
+      "positions": [
+        {
+          "says": "The policy configuration page says the lower the threshold setting, the more strict AI Guard is with activating the policy (allowing, blocking or detecting the prompt).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+            "quotes": [
+              "Threshold: The lower the threshold setting, the more strict AI Guard is with activating the policy (i.e., allowing, blocking, or detecting the prompt)."
+            ]
+          }
+        },
+        {
+          "says": "The PII runbook labels the 0.7 to 1.00 range Stricter, where only high-confidence matches trigger, and describes turning the threshold up as meaning only very obvious mentions trigger.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-pii-detector.json",
+            "quotes": [
+              "| 0.7 to 1.00 | Stricter. Only high-confidence matches trigger. | If you are sensitive to noise from extended categories (PERSON, LOCATION, DATE/TIME). |",
+              "Think of it as a volume knob: turn it up and only very obvious mentions trigger. Turn it down and more borderline cases trigger too."
+            ]
+          }
+        }
+      ],
+      "impact": "On the mechanics the pages agree that a lower threshold makes more prompts trigger; they differ on whether strict means more enforcement (lower) or tighter matching (higher), so describe the direction by what triggers rather than by strict."
+    },
+    "allowlist-scope": {
+      "summary": "Whether the allowlist covers responses as well as prompts: the allowlist page names only prompts, the detection summary says a blocked prompt or response can be added.",
+      "positions": [
+        {
+          "says": "The allowlist page describes it as an allowlist of prompts that an AI Guard policy may otherwise block, and its add and delete steps name only prompts.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-managing-prompt-allowlist.json",
+            "quotes": [
+              "The prompt allowlist for AI Guard allows you to track and manage any prompts that you wish to allow that may otherwise be blocked by an existing AI Guard policy.",
+              "If the blocked prompt is the one you want to add to the allowlist, click Add to Allowlist."
+            ]
+          }
+        },
+        {
+          "says": "The detection summary page says that with the proper permissions, revealing a blocked prompt or response offers Add to Allowlist for the prompt or response.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-about-ai-guard-detection-summary.json",
+            "quotes": [
+              "Add to Allowlist: If you have the proper permissions, when you reveal a prompt or response that was blocked, you can click this option to add the prompt or response to your allowlist."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a blocked response can be allowlisted is unsettled; answer for prompts and say the detection summary page also mentions responses."
     }
   },
   "gaps": {

@@ -49,8 +49,12 @@
       "text": "{{predefined-groups}} The Zscaler Emergency Access and Dynamic Group Guest Domains groups are prerequisites for ZPA emergency access users: [[zpa.emergency-access.identity:auth-service-prerequisites]]."
     },
     {
+      "label": "Super admin.",
+      "text": "{{global-admins-super-admin}}"
+    },
+    {
       "label": "How many groups a user can be in.",
-      "text": "{{membership-limit}}"
+      "text": "{{membership-limit}} The Adding Users and CSV import pages give other numbers {{divergence:group-count-per-user}}."
     },
     {
       "label": "Where a group comes from.",
@@ -140,8 +144,21 @@
         }
       ]
     },
+    "global-admins-super-admin": {
+      "statement": "To give users super admin privileges for Authentication Service and all the services linked to it, the help says to add them to the Zscaler Global Administrators group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "If you would like to provide super admin privileges to users for Authentication Service and all the services linked to Authentication Service, you need to add those users to the Zscaler Global Administrators group."
+          ]
+        }
+      ]
+    },
     "membership-limit": {
-      "statement": "A user can be in up to 1,000 groups. Each service needs a matching limit; where a service's per-user limit is lower, it counts the user's group assignments only up to that limit (the help's example: a user in 500 groups on a Private Access subscription for 128 groups per user has only the first 128 assignments considered there).",
+      "statement": "The About User Groups page says a user can be in up to 1,000 groups. Each service needs a matching limit; where a service's per-user limit is lower, it counts the user's group assignments only up to that limit (the help's example: a user in 500 groups on a Private Access subscription for 128 groups per user has only the first 128 assignments considered there).",
       "tier": "A",
       "evidence": [
         {
@@ -417,6 +434,44 @@
         }
       ],
       "conditions": "Absence claim (only two `...Enabled` booleans): `jq -c '.paths[\"/groups\"].post.responses[\"201\"].content[\"application/json\"].schema as $s | [($s.properties|keys), ($s.allOf|map(.title, (.properties|keys)))]'` on automate-zscaler/openapi/zid.openapi.json returns the record's members adminEntitlementEnabled, id, idp, isDynamicGroup, serviceEntitlementEnabled and source, plus description and name in its GroupProfilePubReqDto part; the same query on the `/groups/{id}` PUT 200 schema returns the same members."
+    }
+  },
+  "divergences": {
+    "group-count-per-user": {
+      "summary": "How many groups a user can belong to: 1,000 on the About User Groups page, 1,024 on the Adding Users page, 128 on the CSV import page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-about-user-groups.json",
+            "quotes": [
+              "A user can be part of up to 1,000 groups. You must have similar limits on the respective services to support the 1,000 group assignments per user."
+            ]
+          },
+          "says": "A user can be part of up to 1,000 groups, and the services need similar limits."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-adding-users.json",
+            "quotes": [
+              "A user account can belong to up to 1,024 groups."
+            ]
+          },
+          "says": "A user account can belong to up to 1,024 groups."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-importing-user-details-csv-file.json",
+            "quotes": [
+              "A user can belong to up to 128 groups."
+            ]
+          },
+          "says": "In the CSV page's line for adding a user, a user can belong to up to 128 groups; the page does not say what this 128 applies to, and the About User Groups page uses 128 only as an example of a Private Access per-user limit."
+        }
+      ],
+      "impact": "An agent that quotes one number gives a limit two other pages contradict. The 128 may be a CSV-only or service-side limit, but no page says so; none of the three says which the console enforces."
     }
   },
   "gaps": {

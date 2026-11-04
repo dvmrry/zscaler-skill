@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.shared-objects.network-services",
+  "title": "Network services and network service groups in Cloud & Branch Connector",
+  "aliases": [
+    "cloud connector network services",
+    "network service groups cloud connector",
+    "Zscaler Proxy Network Services cloud connector",
+    "network applications forwarding policies"
+  ],
+  "binds": [
+    "ztw/network-services",
+    "ztw/network-service-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.shared-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-services"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Network services are the port criteria Cloud & Branch Connector policies reference. {{uses}} {{page}}"
+    },
+    {
+      "label": "Predefined services.",
+      "text": "{{counts}} {{predefined-editability}} {{predefined-ports}} How these values compare with ZIA's pages is open {{gap:zia-scope}}; ZIA's own values are in [[zia.firewall.network-services]]."
+    },
+    {
+      "label": "Custom services.",
+      "text": "{{custom-fields}} The eight-entry cap ZIA's page states is not on this page {{gap:entry-cap}}."
+    },
+    {
+      "label": "Groups and ranking.",
+      "text": "{{service-groups}} {{first-packet}} {{applications-not-in-forwarding}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a port edit to a predefined service is allowed, using the page that matches the product the object was created in.",
+      "uses": [
+        "predefined-editability",
+        "zia-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "counts": {
+      "statement": "The Cloud & Branch Connector About Network Services page says the Zscaler firewall has over 50 predefined services and an admin can configure up to 1,024 additional custom services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-services.json",
+          "quotes": [
+            "Zscaler firewall has over 50 predefined services and an admin can configure up to 1,024 additional custom services."
+          ]
+        }
+      ]
+    },
+    "predefined-editability": {
+      "statement": "The Cloud & Branch Connector About Network Services page says ports can be added, modified or deleted in all predefined services except ICMP_any, UDP_any, TCP_any and OTHER.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-services.json",
+          "quotes": [
+            "You can add, modify, or delete ports in all predefined services except ICMP_any, UDP_any, TCP_any, and OTHER."
+          ]
+        }
+      ]
+    },
+    "predefined-ports": {
+      "statement": "The Cloud & Branch Connector predefined services table gives, for example, DNS on 53 for both TCP and UDP, HTTP on TCP 80, HTTPS on TCP 443, QUIC on UDP 443 and MS_SQL on TCP 1433; Zscaler Proxy Network Services lists TCP 10099, 21, 443, 80, 8080, 8800, 9400, 9443 and 9480 and includes all Zscaler-specific web proxy ports including customer-specific Dedicated Proxy Ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-services.json",
+          "quotes": [
+            "| DNS | 53 | 53 |",
+            "| HTTP | 80 | - |",
+            "| HTTPS | 443 | - |",
+            "| QUIC | - | 443 |",
+            "| MS_SQL | 1433 |",
+            "| Zscaler Proxy Network Services | 10099, 21, 443, 80, 8080, 8800, 9400, 9443, 9480 | - |",
+            "This network service includes all Zscaler-specific web proxy ports including customer-specific Dedicated Proxy Ports."
+          ]
+        }
+      ]
+    },
+    "first-packet": {
+      "statement": "Network services are identified at the first packet, leading to immediate policy action, so Zscaler recommends ranking firewall filtering rules for network services, and for network service groups, higher than rules for network applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-services.json",
+          "quotes": [
+            "Network services configured in Zscaler are identified at the first packet, leading to immediate policy action.",
+            "Therefore, Zscaler recommends that you rank firewall filtering rules for network services higher than rules for network applications"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-service-groups.json",
+          "quotes": [
+            "Zscaler recommends that you rank firewall filtering rules for network service groups higher than rules for network applications"
+          ]
+        }
+      ]
+    },
+    "applications-not-in-forwarding": {
+      "statement": "The network service groups page says network applications are available in security policies only, and Cloud & Branch Connector forwarding policies are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-service-groups.json",
+          "quotes": [
+            "Network applications are available in security policies only. Cloud & Branch Connector forwarding policies are not supported."
+          ]
+        }
+      ]
+    },
+    "uses": {
+      "statement": "Network services let policies be created on TCP and UDP source and destination ports, the same services are used in forwarding and security policies, and custom services can be added to Firewall, DNS and NAT policies and can include custom ports for HTTP, HTTPS, DNS, FTP, RTSP or PPTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-services.json",
+          "quotes": [
+            "Create policies based on TCP and UDP source and destination ports.",
+            "Use the same network services in forwarding & security policies."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-network-services.json",
+          "quotes": [
+            "You can define custom network services to add to the Firewall, DNS, and NAT policies.",
+            "Additionally, you can define custom services that include custom ports for HTTP, HTTPS, DNS, FTP, RTSP, or PPTP."
+          ]
+        }
+      ]
+    },
+    "page": {
+      "statement": "Network services are on Internet Access > Resources > Network Services (Services tab), which can filter services by protocol (TCP or UDP) and shows port columns such as TCP Source Ports and UDP Destination Ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-services.json",
+          "quotes": [
+            "On the Network Services page (Internet Access > Resources > Network Services > Services tab), you can do the following:",
+            "Filter the network services by protocol (TCP or UDP).",
+            "TCP Source Ports: The TCP source port number or port number range, if any, that is used by the network service.",
+            "UDP Destination Ports: The UDP destination port number or port number range, if any, that is used by the network service."
+          ]
+        }
+      ]
+    },
+    "custom-fields": {
+      "statement": "A custom service shows Definition as CUSTOM; each of its TCP and UDP source and destination port fields takes a port number (for example 50) or a range (for example 1000-1050), and its description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-network-services.json",
+          "quotes": [
+            "Definition: This field displays CUSTOM to indicate that this is an admin-defined service.",
+            "TCP Source Ports: Enter the port number (for example 50) or port number range (for example 1000-1050) that is used by the network service.",
+            "TCP Destination Ports: Enter the port number (for example 50) or port number range (for example 1000-1050) that is used by the network service.",
+            "UDP Source Ports: Enter the port number (for example 50) or port number range (for example 1000-1050) that is used by the network service.",
+            "UDP Destination Ports: Enter the port number (for example 50) or port number range (for example 1000-1050) that is used by the network service.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "service-groups": {
+      "statement": "Predefined and custom network services can be grouped for use in policies, on the Service Groups tab; the add form lets any number of custom and predefined services be selected, and the group description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-network-service-groups.json",
+          "quotes": [
+            "You can group predefined and custom network services for use in policies.",
+            "On the Network Service Group page (Internet Access > Resources > Network Services > Service Groups tab), you can do the following:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-network-service-groups.json",
+          "quotes": [
+            "Service: From the drop-down menu, select any number of custom and predefined services you want to include in the group",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "zia-scope": {
+      "kind": "semantic",
+      "title": "Whether the Cloud & Branch Connector and ZIA network service pages describe the same objects",
+      "status": "open",
+      "detail": "The Cloud & Branch Connector page gives 1,024 custom services, a modification exception list of ICMP_any, UDP_any, TCP_any and OTHER, and TCP 10099 in Zscaler Proxy Network Services. The ZIA page gives 832, a view-only list of ESP, GRE, ICMP, TCP, UDP and Zscaler Proxy Network Services, and no 10099. Neither page says it describes the other's objects, though the API marks network services with a ZIA or EC creatorContext, so the values are recorded per page rather than as a divergence. Whether ICMP_any is the ICMP service is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "entry-cap": {
+      "kind": "semantic",
+      "title": "Whether ZIA's eight-entry cap per port field applies in Cloud & Branch Connector",
+      "status": "open",
+      "detail": "The Cloud & Branch Connector Configuring page omits the maximum of 8 entries per port that ZIA's page states. A diff of the two predefined tables also shows this table lacks FINGER and GOPHER, names MSNP and FTPS_Implicit where ZIA has MSN and Implicit FTPS, and adds MS_SQL; these are differences found by comparing pages, not claims. Whether the 1,024 or 832 cap counts predefined services is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

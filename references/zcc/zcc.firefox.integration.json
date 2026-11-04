@@ -30,7 +30,7 @@
     },
     {
       "label": "Where it is set.",
-      "text": "{{where-configured}} {{tenant-wide}}"
+      "text": "{{where-configured}} {{tenant-wide}} {{endpoint-page}} {{listening-port}} The port's default and allowed range are open {{gap:listening-port-range}}. The adapter names are in [[zcc.forwarding-profiles.network-types:vpn-adapter-names]], the VPN service names for flow logging in [[zcc.logs.flow-logging:vpn-service-names]], and the synthetic IP range settings in [[zcc.interoperability.security-software:synthetic-range]] and [[zcc.interoperability.security-software:drop-non-zscaler]]."
     },
     {
       "label": "Which Firefox.",
@@ -138,6 +138,39 @@
         "where-configured"
       ]
     },
+    "endpoint-page": {
+      "statement": "The Endpoint Integration page (Infrastructure > Advanced Settings > Endpoint Configuration) configures how Client Connector interacts with applications installed on the device; on it an admin can configure Firefox integration, the port for Client Connector to listen on, a VPN-Trusted Network Adapter Name and a VPN Service Name for Flow Logging, the Client Connector Synthetic IP Range, and Drop Non-Zscaler Packets in Synthetic IP Range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-endpoint-integration-page.json",
+          "quotes": [
+            "In the Zscaler Admin Console, you can configure how Zscaler Client Connector interacts with applications installed on the device.",
+            "On the Endpoint Integration page (Infrastructure > Advanced Settings > Endpoint Configuration), you can:",
+            "Configure Firefox integration for Zscaler Client Connector.",
+            "Configure the port for Zscaler Client Connector to listen on.",
+            "Add a VPN-Trusted Network Adapter Name.",
+            "Add a VPN Service Name for Flow Logging.",
+            "Configure the Zscaler Client Connector Synthetic IP Range.",
+            "Drop Non-Zscaler Packets in Synthetic IP Range."
+          ]
+        }
+      ]
+    },
+    "listening-port": {
+      "statement": "The page says to avoid port conflicts with other applications by configuring the port for Client Connector to listen on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-endpoint-integration-page.json",
+          "quotes": [
+            "Avoid port conflicts with other applications by configuring the port for Zscaler Client Connector to listen on."
+          ]
+        }
+      ]
+    },
     "unsupported-variants": {
       "statement": "Firefox integration does not support Mozilla Developer Preview or Firefox downloaded from the Microsoft Store.",
       "tier": "A",
@@ -153,6 +186,16 @@
     }
   },
   "gaps": {
+    "listening-port-range": {
+      "kind": "semantic",
+      "title": "The listening port's default value and allowed range",
+      "status": "open",
+      "detail": "The Endpoint Integration page says an admin can configure the port Client Connector listens on to avoid port conflicts; it names no default port and no allowed range.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "linux": {
       "kind": "semantic",
       "title": "Whether Firefox integration applies on Linux",

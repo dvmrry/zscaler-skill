@@ -50,6 +50,14 @@
     {
       "rel": "see-also",
       "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings.partial-configuration"
     }
   ],
   "prose": [
@@ -62,7 +70,19 @@
     },
     {
       "label": "Whether user rules can apply anyway.",
-      "text": "{{unauthenticated-policy-setting}}"
+      "text": "{{unauthenticated-policy-setting}} {{when-unidentified}} {{policy-conditions}} The Advanced Settings page that holds the setting is routed in [[zia.advanced-settings]]."
+    },
+    {
+      "label": "Choosing which unauthenticated traffic a rule covers.",
+      "text": "{{departments-vs-users}} {{special-user-types}} The Miscellaneous Unauthenticated Transactions user is also the fallback in [[zia.advanced-settings.partial-configuration]]. Whether CONNECT and OPTIONS requests are attributed to the location or logged in the Authentication Bypass URL category is not reconciled {{divergence:connect-options-attribution}}."
+    },
+    {
+      "label": "Port 9480.",
+      "text": "{{port-9480-bypass}}"
+    },
+    {
+      "label": "Guest users.",
+      "text": "{{guest-authenticated}} {{guest-unauthenticated}}"
     },
     {
       "label": "A location mapped to an identity provider.",
@@ -78,7 +98,8 @@
       "do": "Which kind of transaction it was (CONNECT, an unknown user agent, an exempted destination, or undecrypted SSL), since each of these is attributed to the location.",
       "uses": [
         "no-cookie-traffic",
-        "connect-sni-skip"
+        "connect-sni-skip",
+        "connect-options-attribution"
       ]
     },
     {
@@ -189,6 +210,148 @@
       ],
       "conditions": "Assumes Surrogate IP is off and the policy for unauthenticated traffic is not enabled; with either on, user policy can apply."
     },
+    "when-unidentified": {
+      "statement": "The service might not authenticate user traffic to URLs or cloud apps selected to be exempt from authentication, or traffic that is encrypted when SSL/TLS Inspection is not enabled. For policies where users and departments can be specified in the criteria, the service lets an admin specify which rules it applies to such unauthenticated traffic. With a default block on web traffic (a URL Filtering rule that blocks all traffic not explicitly allowed through the URL Filtering policy), the feature can help ensure that lack of authentication does not lead to an unnecessary block of user traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-policies-for-unauthenticated-traffic.json",
+          "quotes": [
+            "For example, the service does not authenticate user traffic to URLs or cloud apps you have selected to exempt from authentication.",
+            "In another example, the service might not authenticate user traffic because it is encrypted and SSL/TLS Inspection is not enabled.",
+            "For policies where you can specify users and departments in the criteria, the Zscaler service enables you to specify which rules the service applies to such unauthenticated traffic.",
+            "If your organization has a default block on web traffic (i.e., a URL Filtering rule that blocks all traffic, which is not explicitly allowed through the URL Filtering policy), this feature can help you ensure that lack of authentication does not lead to an unnecessary block of user traffic."
+          ]
+        }
+      ]
+    },
+    "policy-conditions": {
+      "statement": "The feature must be explicitly enabled in Advanced Settings before it can be used. Any rule that applies to unauthenticated traffic also applies to specific users, groups and departments if they are selected. The feature only applies to locations that have authentication enabled. Any rule that applies to unauthenticated traffic must apply to all locations: a rule cannot apply to unauthenticated traffic and select particular locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-policies-for-unauthenticated-traffic.json",
+          "quotes": [
+            "You must explicitly enable this feature in Advanced Settings before you can use it.",
+            "Any rule that applies to unauthenticated traffic also applies to specific users, groups, and departments if they are selected.",
+            "This feature only applies to locations that have authentication enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-settings.json",
+          "quotes": [
+            "Any rule that applies to unauthenticated traffic must apply to all locations; you cannot apply a rule to unauthenticated traffic and select particular locations."
+          ]
+        }
+      ]
+    },
+    "departments-vs-users": {
+      "statement": "When the feature is enabled in Advanced Settings, a rule's application to unauthenticated traffic is specified under the Department criteria by selecting Unauthenticated Transactions under Special Departments, alone or combined with regular departments; for more granularity, the types of unauthenticated traffic are specified under the Users criteria, under Special Users. For either Users or Departments, a group must not be selected from the Groups drop-down menu, and a criterion with no value selected is ignored in the policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-policies-for-unauthenticated-traffic.json",
+          "quotes": [
+            "When the feature is enabled in Advanced Settings, you can specify whether the policy rule applies to unauthenticated traffic under the Department criteria.",
+            "For more granularity, you can specify the types of unauthenticated traffic to which the policy rule applies under the Users criteria.",
+            "Special Users: The users you can select the types of unauthenticated traffic for and also apply the rule to.",
+            "Special Departments: The departments for which you can select Unauthenticated Transactions if you want the rule to also apply to any unauthenticated traffic.",
+            "You can choose a combination of regular departments with the Unauthenticated Transactions selected.",
+            "If you have chosen to apply this rule to unauthenticated traffic for either Users or Departments, don't select a group from the Groups drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-policies-for-unauthenticated-traffic.json",
+          "quotes": [
+            "If you don't select a value for a criterion, the system ignores it in the policy evaluation."
+          ],
+          "after": "To apply a rule to specific types of traffic:"
+        }
+      ]
+    },
+    "special-user-types": {
+      "statement": "The Special Users types of unauthenticated traffic are: Unauthenticated User Agent (the configured authentication method cannot authenticate the user agent); Unsupported Method (HTTP methods not normally supported, such as FIND or PROPBIND); Unauthenticated Protocol (for example, un-decrypted HTTPS traffic); Unauthenticated Proxy Port User (traffic coming from port 9480); Miscellaneous Unauthenticated Transactions (miscellaneous issues); Authentication Bypass URL (traffic to URLs or cloud apps exempted from authentication); and Unknown Kerberos User. The page adds that HTTP requests that do not support cookie-based authentication, such as CONNECT and OPTIONS, are logged in this category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-policies-for-unauthenticated-traffic.json",
+          "quotes": [
+            "Unauthenticated User Agent: User traffic that cannot be authenticated because the user agent cannot be authenticated by the configured authentication method.",
+            "Unsupported Method: User traffic that cannot be authenticated because of HTTP methods that are not normally supported, such as FIND or PROPBIND.",
+            "Unauthenticated Protocol: User traffic that cannot be authenticated by the configured authentication method (for example, un-decrypted HTTPS traffic).",
+            "Unauthenticated Proxy Port User: User traffic that is coming from port 9480.",
+            "Miscellaneous Unauthenticated Transactions: User traffic that cannot be authenticated due to miscellaneous issues.",
+            "Authentication Bypass URL: User traffic to URLs or cloud apps you have exempted from authentication.",
+            "HTTP requests that do not support cookie-based authentication, such as CONNECT and OPTIONS, are logged in this category.",
+            "Unknown Kerberos User: User traffic that cannot be authenticated because it comes from an unknown Kerberos user."
+          ]
+        }
+      ]
+    },
+    "port-9480-bypass": {
+      "statement": "Public Service Edges accept web requests on ports 80, 443, 9400, 9480 and 9443. Any traffic generated from a known gateway location and destined to Public Service Edges with the proxy port of 9480 bypasses authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-policies-for-unauthenticated-traffic.json",
+          "quotes": [
+            "Public Service Edges accept web requests on ports 80, 443, 9400, 9480, and 9443.",
+            "Any traffic generated from a known gateway location and destined to Public Service Edges with the proxy port of 9480 bypass authentication."
+          ]
+        }
+      ]
+    },
+    "guest-authenticated": {
+      "statement": "In general, policies are applied to authenticated traffic, regardless of location. In the page's Guest Inc. and Host Corp. example, when the Guest Inc. user is authenticated, all of the Guest Inc. user's URL, Cloud App, Firewall, DLP and security policies are applied, all transactions are logged against the Guest user, and an Acceptable Use Policy configured for the Guest user is displayed after authentication. The Guest user cannot use the Guest DPPC port, all Host Corp. bandwidth limitations and SSL/TLS and authentication bypasses apply, and if Host Corp. has SSL/TLS Inspection enabled at the location, the Guest user's traffic is intercepted and decrypted using the Host Corp. SSL certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-applying-policies-for-authenticated-guest-users.json",
+          "quotes": [
+            "In general, policies are applied to authenticated traffic, regardless of location.",
+            "All the Guest Inc. user's URL, Cloud App, Firewall, Data Loss Prevention (DLP), and security policies are applied to that authenticated traffic.",
+            "All transactions are logged against the Guest user.",
+            "If the Guest user has an Acceptable Use Policy (AUP) configured, it is displayed after authentication.",
+            "All Host Corp. SSL/TLS and authentication bypasses apply."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-applying-policies-for-authenticated-guest-users.json",
+          "quotes": [
+            "The Guest user cannot use the Guest DPPC port.",
+            "All Host Corp. bandwidth limitations apply.",
+            "If Host Corp. has SSL/TLS Inspection enabled at the location, then Guest user traffic is intercepted and decrypted using the Host Corp. SSL certificate."
+          ],
+          "after": "If the Guest Inc. user is authenticated, the following occurs:"
+        }
+      ]
+    },
+    "guest-unauthenticated": {
+      "statement": "In the page's Guest Inc. and Host Corp. example, the Guest user cannot be authenticated if Host Corp. has authentication disabled at the location; if the Guest Inc. user cannot be authenticated for any reason, all of Host Corp.'s URL, Cloud App, Firewall, DLP and security policies are applied to that unauthenticated traffic, all unauthenticated transactions are logged against Host Corp., all Host Corp. SSL and authentication bypasses apply, and an AUP configured for the Guest user is not displayed because the user is not authenticated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-applying-policies-for-authenticated-guest-users.json",
+          "quotes": [
+            "However, if Host Corp. has authentication disabled at the location, the Guest user cannot be authenticated. If the Guest Inc. user cannot be authenticated for any reason, the following occurs:",
+            "All the Host Corp's URL, Cloud App, Firewall, DLP, and security policies are applied to that unauthenticated traffic.",
+            "All unauthenticated transactions are logged against Host Corp.",
+            "If the Guest user has AUP configured, it is not displayed because the user is not authenticated.",
+            "All Host Corp. SSL and authentication bypasses apply."
+          ]
+        }
+      ]
+    },
     "idp-location-policy": {
       "statement": "When a location is assigned to an IdP, location-based policies are enforced even when users are not authenticated.",
       "tier": "A",
@@ -201,6 +364,35 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "connect-options-attribution": {
+      "summary": "How CONNECT requests are classified when unauthenticated: the cookies article says all CONNECT requests are marked against the user's location, while the unauthenticated-traffic article says HTTP requests without cookie-based authentication support, such as CONNECT and OPTIONS, are logged in the Authentication Bypass URL category.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-zscaler-cookies.json",
+            "quotes": [
+              "The Zscaler service marks the following user traffic against the user's location instead of the user due to the absence of authentication cookies:",
+              "All the CONNECT method requests."
+            ]
+          },
+          "says": "All CONNECT method requests are marked against the user's location instead of the user."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-policies-for-unauthenticated-traffic.json",
+            "quotes": [
+              "HTTP requests that do not support cookie-based authentication, such as CONNECT and OPTIONS, are logged in this category."
+            ]
+          },
+          "says": "CONNECT and OPTIONS requests are logged in the Authentication Bypass URL category, which follows the page's Authentication Bypass URL entry."
+        }
+      ],
+      "impact": "Neither article says how location attribution and the Authentication Bypass URL category relate, or whether a CONNECT request to a non-exempted destination falls in that category; the two statements are not shown to describe the same thing."
     }
   },
   "gaps": {

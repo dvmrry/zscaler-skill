@@ -29,6 +29,18 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.dlp.dictionary-patterns"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.index-tool"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.mip-labels"
+    },
+    {
+      "rel": "see-also",
       "to": "zia.terraform.field-fidelity"
     },
     {
@@ -44,13 +56,21 @@
       "text": "{{dictionary-definition}} {{predefined-and-custom}} {{predefined-catalog}} {{python-predefined-lookup-by-name}}"
     },
     {
-      "text": "{{cloning-is-limited}}"
+      "text": "{{cloning-is-limited}} {{cloning-help}}"
     },
     {
-      "text": "{{confidence-threshold-decides-violation}} {{threshold-type-values}}"
+      "text": "{{confidence-threshold-decides-violation}} {{confidence-threshold-aggressiveness}} {{threshold-type-values}}"
     },
     {
-      "text": "{{custom-dictionary-types}} {{python-phrase-pattern-tuples}} {{edm-idm-reference-objects}} The schemas and profiles themselves have separate endpoints in the Go SDK: [[zia.dlp.incident-forwarding:supporting-objects-endpoints]]. {{mip-labels-dictionary}} How exact data matching works operationally is open {{gap:edm-mechanics}}."
+      "label": "Predefined dictionary fields.",
+      "text": "{{predefined-high-confidence-fields}} {{bin-and-ssn-lists}}"
+    },
+    {
+      "text": "{{custom-dictionary-types}} {{custom-dictionary-kinds-help}} Pattern and phrase authoring, match types and sub-dictionaries are in [[zia.dlp.dictionary-patterns]]. {{python-phrase-pattern-tuples}} {{edm-idm-reference-objects}} The schemas and profiles themselves have separate endpoints in the Go SDK: [[zia.dlp.incident-forwarding:supporting-objects-endpoints]]. The templates are built in the Index Tool ([[zia.dlp.index-tool]]), and how exact data matching works operationally is open {{gap:edm-mechanics}}."
+    },
+    {
+      "label": "MIP labels.",
+      "text": "{{mip-labels-dictionary}} {{mip-dictionary-type}} Help and the Terraform provider have a MIP dictionary type that the OpenAPI `dictionaryType` enum does not list {{divergence:mip-type-vs-api-enum}}, and whether the API returns MIP_TAG for it is open {{gap:mip-label-api-representation}}. The MIP account and label retrieval are in [[zia.dlp.mip-labels]]."
     },
     {
       "text": "{{validate-pattern-unreliable}}"
@@ -280,12 +300,11 @@
       ]
     },
     "mip-labels-dictionary": {
-      "statement": "A rule's Document Properties content location matches file metadata such as MIP labels. The captured help does not describe a MIP-label custom dictionary, and the API's `dictionaryType` has no MIP value.",
-      "tier": "B",
-      "binds": [
-        "zia/dlp-dictionaries#dictionaryType"
+      "statement": "A rule's Document Properties content location matches file metadata such as MIP labels.",
+      "tier": "A",
+      "gaps": [
+        "mip-label-api-representation"
       ],
-      "conditions": "Corrected on recapture (2026-10-18): previously \"Help lists a way to define Microsoft Information Protection (MIP) labels for custom dictionaries, and a rule's Document Properties content location matches file metadata such as MIP labels. The API's `dictionaryType` has no MIP value.\". The absence of a MIP value is from the dictionaryType enum in the API reference.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -294,23 +313,114 @@
           "quotes": [
             "Document Properties: Matches are based on the file metadata (i.e., MIP labels)."
           ]
-        },
-        {
-          "source": "api-specs",
-          "path": "automate-zscaler/openapi/zia.openapi.json",
-          "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/dictionaryType",
-          "expect": {
-            "type": "string",
-            "enum": [
-              "PATTERNS_AND_PHRASES",
-              "EXACT_DATA_MATCH",
-              "INDEXED_DATA_MATCH"
-            ]
-          }
         }
+      ]
+    },
+    "confidence-threshold-aggressiveness": {
+      "statement": "For predefined dictionaries whose Confidence Score Threshold can be edited, the value is Low, Medium or High. A lower threshold makes the dictionary more aggressive, needing less matching content before it triggers; a higher threshold needs more exact format and verification requirements to be met and might need more instances of matching content.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#confidenceThreshold"
       ],
-      "gaps": [
-        "mip-label-api-representation"
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-dictionaries.json",
+          "quotes": [
+            "Depending on the predefined DLP dictionary, you can edit the dictionary and modify the Confidence Score Threshold. For this setting, you can choose a value of Low, Medium, or High.",
+            "a lower confidence score threshold means the dictionary is more aggressive in identifying violations and requires less matching content to be found before it triggers",
+            "a higher confidence score threshold means that the dictionary needs more exact format and verification requirements to be met for matching content, and that it also might need more instances of matching content to be found before it triggers"
+          ]
+        }
+      ]
+    },
+    "predefined-high-confidence-fields": {
+      "statement": "On a predefined dictionary, Proximity Length, High Confidence Phrases and Custom High Confidence Phrases appear only when the dictionary's Confidence Score Threshold is High, where applicable. Proximity length defines how close a high confidence phrase must be to an instance of the pattern, in any direction, from 0 to 10,000 bytes, with 0 disabling the option; High Confidence Phrases shows Zscaler's default phrases, and up to 256 custom phrases can be added, one per line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-dictionaries.json",
+          "quotes": [
+            "Proximity Length: This field appears only when the dictionary’s Confidence Score Threshold is High, if applicable.",
+            "The proximity length defines how close a high confidence phrase must be to an instance of the pattern (that the dictionary detects) to count as a match.",
+            "The phrase can be located in any direction from the pattern within the document. Enter a value from 0–10,000 bytes. A proximity length of 0 disables this option (i.e., the phrase can be any distance from the pattern).",
+            "High Confidence Phrases: This field only appears when the dictionary’s Confidence Score Threshold is High, if applicable. This field displays all of Zscaler's default high confidence phrases that the dictionary matches when scanning content.",
+            "Custom High Confidence Phrases: This field only appears when the dictionary’s Confidence Score Threshold is High, if applicable.",
+            "Enter up to 256 custom phrases you want the dictionary to match in addition to its default phrases when scanning content. You must enter phrases one at a time (i.e., one phrase per line)."
+          ]
+        }
+      ]
+    },
+    "bin-and-ssn-lists": {
+      "statement": "The BIN Number field appears only for the predefined credit card dictionary or its clones and includes or excludes up to 512 Bank Identification Numbers; the Social Security Numbers field appears only for the predefined Social Security Numbers (US) dictionary or its clones and includes or excludes up to 512 values.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#binNumbers",
+        "zia/dlp-dictionaries#includeBinNumbers"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-predefined-dlp-dictionaries.json",
+          "quotes": [
+            "BIN Number: This field appears only for the predefined credit card dictionary or its clones. Specify whether to include or exclude specific Bank Identification Numbers (BINs), then enter up to 512 BIN values.",
+            "Social Security Numbers: This field appears only for the predefined Social Security Numbers (US) dictionary or its clones. Specify whether to include or exclude specific Social Security numbers, then enter up to 512 values."
+          ]
+        }
+      ]
+    },
+    "cloning-help": {
+      "statement": "Clones of one predefined dictionary can carry different Confidence Score Thresholds and dictionary-specific parameters. Help says cloning is supported for identification-based predefined dictionaries (for example Credit Cards, Social Security Numbers, National Identification Numbers), with up to 4 clones per predefined dictionary; a clone's description cannot exceed 255 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-cloning-predefined-dlp-dictionaries.json",
+          "quotes": [
+            "You can use clones of the same dictionary with different Confidence Score Thresholds, as well as with different dictionary-specific parameters.",
+            "The Zscaler service supports cloning identification-based predefined dictionaries (e.g., Credit Cards, Social Security Numbers, National Identification Numbers). You can create up to 4 clones from a predefined dictionary.",
+            "(Optional) For Description, enter any additional notes or information. The description cannot exceed 255 characters."
+          ]
+        }
+      ]
+    },
+    "custom-dictionary-kinds-help": {
+      "statement": "Help lists four kinds of standalone custom dictionary: Exact Data Match (EDM) index templates, Indexed Document Match (IDM) index templates, Microsoft Information Protection (MIP) labels, and custom phrases and alphanumeric patterns. Choosing EDM selects existing EDM templates and data fields from them; IDM selects existing IDM templates with match accuracy levels; MIP lists MIP labels in a table for selection.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#dictionaryType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-dlp-dictionary.json",
+          "quotes": [
+            "You can add Exact Data Match (EDM) index templates, Indexed Document Match (IDM) index templates, Microsoft Information Protection (MIP) labels, or custom phrases and alphanumeric patterns as standalone custom dictionaries that the dictionary detects and protects.",
+            "Exact Data Match: If selected, the Exact Data Match section appears, where you can select existing EDM templates and add data fields from those templates.",
+            "Indexed Document Match: If selected, the Indexed Document Match section appears, where you can select existing IDM templates and choose match accuracy levels for those templates.",
+            "Microsoft Information Protection (MIP): If selected, the MIP labels appear in a table, where you can select the MIP labels."
+          ]
+        }
+      ]
+    },
+    "mip-dictionary-type": {
+      "statement": "A MIP-label dictionary needs a MIP account added in the Admin Console and its labels retrieved from Microsoft first. Once saved, its Dictionary Type shows as Microsoft Information Protection (MIP) and cannot be changed; at most 256 labels can be selected per custom dictionary, and deleted labels, including labels deleted on Azure, show with a strikethrough and cannot be selected.",
+      "tier": "A",
+      "binds": [
+        "zia/dlp-dictionaries#dictionaryType"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-microsoft-information-protection-labels-custom-dlp-dictionaries.json",
+          "quotes": [
+            "Before you can add MIP labels to a custom dictionary, you must add a MIP account in the Zscaler Admin Console and retrieve the MIP labels from Microsoft to the MIP account.",
+            "In the Edit DLP Dictionary window, the Dictionary Type is displayed as Microsoft Information Protection (MIP) and cannot be changed.",
+            "A maximum of 256 labels can be selected for each custom dictionary.",
+            "You can't select deleted labels, which appear with a strikethrough line. Any labels that are deleted on Azure display with a strikethrough line in this window."
+          ]
+        }
       ]
     },
     "validate-pattern-unreliable": {
@@ -431,6 +541,50 @@
       ]
     }
   },
+  "divergences": {
+    "mip-type-vs-api-enum": {
+      "summary": "Help and the Terraform provider documentation have a MIP dictionary type, but the published OpenAPI dictionaryType enum has no MIP value.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-defining-microsoft-information-protection-labels-custom-dlp-dictionaries.json",
+            "quotes": [
+              "In the Edit DLP Dictionary window, the Dictionary Type is displayed as Microsoft Information Protection (MIP) and cannot be changed."
+            ]
+          },
+          "says": "Help shows a custom dictionary's Dictionary Type as Microsoft Information Protection (MIP), and the adding page lists MIP labels as a dictionary kind."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1dlpDictionaries/post/requestBody/content/application~1json/schema/properties/dictionaryType",
+            "expect": {
+              "type": "string",
+              "enum": [
+                "PATTERNS_AND_PHRASES",
+                "EXACT_DATA_MATCH",
+                "INDEXED_DATA_MATCH"
+              ]
+            }
+          },
+          "says": "The API reference lists only PATTERNS_AND_PHRASES, EXACT_DATA_MATCH and INDEXED_DATA_MATCH for dictionaryType."
+        },
+        {
+          "evidence": {
+            "source": "tf-zia",
+            "path": "docs/resources/zia_dlp_dictionaries.md",
+            "quotes": [
+              "* `MIP_TAG`"
+            ]
+          },
+          "says": "The Terraform zia_dlp_dictionaries documentation lists MIP_TAG among the supported dictionary_type values, after PATTERNS_AND_PHRASES, EXACT_DATA_MATCH and INDEXED_DATA_MATCH."
+        }
+      ],
+      "impact": "Help and the Terraform provider have a MIP dictionary type that the published OpenAPI dictionaryType enum lacks, so the API's own reference cannot be used to confirm the value."
+    }
+  },
   "gaps": {
     "threshold-type-semantics": {
       "kind": "semantic",
@@ -445,25 +599,25 @@
     },
     "mip-label-api-representation": {
       "kind": "semantic",
-      "title": "How a MIP-label dictionary is represented and whether it needs Microsoft 365 integration",
-      "status": "open",
+      "title": "Whether MIP_TAG is the API's dictionaryType for a MIP-label dictionary",
+      "status": "partial",
       "resolves_with": [
         "lab-test",
         "support-ticket"
       ],
-      "blocks": "answering whether MIP matching works from document metadata alone",
-      "detail": "The captured help has only the article title. No source says whether the Zscaler side needs a Microsoft 365 integration, or which dictionaryType a MIP-label dictionary uses."
+      "blocks": "saying which dictionaryType a MIP-label dictionary has through the API",
+      "detail": "Narrowed by mip-dictionary-type: help now says a MIP account must be added in the Admin Console and its labels retrieved from Microsoft before labels can be added to a custom dictionary. The Terraform provider documentation lists MIP_TAG as a dictionary_type value, but the published OpenAPI enum does not, and no captured source says that MIP_TAG is what the API returns for a MIP-label dictionary."
     },
     "edm-mechanics": {
       "kind": "semantic",
       "title": "How exact data matching works operationally",
-      "status": "open",
+      "status": "partial",
       "resolves_with": [
         "source-read",
         "support-ticket"
       ],
       "blocks": "describing EDM hashing, whether source data leaves the tenant, and update cadence",
-      "detail": "The captured help does not cover EDM setup. The API shows EDM schema and template identifiers on the dictionary but no mechanics."
+      "detail": "Narrowed: EDM and IDM index templates are created and modified in the Index Tool, a VM the customer hosts (zia.dlp.index-tool:what-it-is). The EDM and IDM help articles that would describe the mechanics (about Exact Data Match, EDM index templates, creating an EDM template, EDM fields for dictionaries, about Indexed Document Match, creating an IDM template, IDM match accuracy) are not yet cited in the graph. The API shows EDM schema and template identifiers on the dictionary but no mechanics."
     },
     "predefined-catalog-contents": {
       "kind": "data",

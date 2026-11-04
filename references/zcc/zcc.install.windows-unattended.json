@@ -51,7 +51,7 @@
         },
         {
           "label": "Upgrade.",
-          "text": "{{upgrade-password}}"
+          "text": "{{upgrade-password}} {{upgrade-password-scope}} {{upgrade-methods}}"
         },
         {
           "label": "Uninstall.",
@@ -59,7 +59,7 @@
         },
         {
           "label": "Revert.",
-          "text": "{{revert}}"
+          "text": "{{revert}} The password option is spelled differently on the revert page, a divergence recorded with the prerequisites, commands and what a revert keeps in [[zcc.install.revert]]."
         },
         {
           "label": "Installer language.",
@@ -90,7 +90,7 @@
         },
         {
           "label": "VDI.",
-          "text": "{{vdi}} What the flag changes is open {{gap:vdi-effect}}. Client Connector for VDI is a separate product whose MSI parameters are named differently: [[cloud-connector.vdi.install]]."
+          "text": "{{vdi}} It moves the configuration store to the user profile: [[zcc.install.citrix-vdi:vdi-flag]]. Whether it changes anything else is open {{gap:vdi-effect}}. Client Connector for VDI is a separate product whose MSI parameters are named differently: [[cloud-connector.vdi.install]]."
         }
       ]
     }
@@ -209,6 +209,40 @@
           "after": "MSI: REVERTPASSWORDCMDLINE EXE: revertPasswordCmdLine",
           "quotes": [
             "This option is available only in Zscaler Client Connector version 4.2.1 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "upgrade-password-scope": {
+      "statement": "Upgrading with a password applies only to Client Connector 4.2.1 for Windows or later. An upgrade password can be required when updating in unattended mode (for example with GPO, SCCM or other device management methods), it provides additional security if auto-update is disabled, and it must be configured before the password can be used to upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-zscaler-client-connector.json",
+          "quotes": [
+            "This feature applies only to Zscaler Client Connector version 4.2.1 for Windows or later.",
+            "You can require an upgrade password if you update Zscaler Client Connector in unattended mode on your users' devices (e.g., you use GPO, SCCM, or other device management methods).",
+            "If you disable the auto-update option, you can use this password to provide additional security.",
+            "Before you can upgrade using the password, you must configure it."
+          ]
+        }
+      ]
+    },
+    "upgrade-methods": {
+      "statement": "The upgrade page gives these ways to pass the upgrade password: an MST file created with Orca that adds UPGRADEPASSWORDCMDLINE as a property whose value is the generated upgrade password from the platform settings, deployed with GPO or a compatible device management tool; msiexec /i <complete path> /quiet UPGRADEPASSWORDCMDLINE=<upgrade password>; and --upgradePasswordCmdLine <upgrade password> with the EXE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-upgrading-zscaler-client-connector.json",
+          "quotes": [
+            "Create an MST and Deploy it Using GPO or a Compatible Device Management Tool",
+            "Follow the instructions to create an MST file using Orca, and add UPGRADEPASSWORDCMDLINE as one of the install options:",
+            "For Property, enter UPGRADEPASSWORDCMDLINE.",
+            "For Value, enter the generated upgrade password from the platform settings.",
+            "msiexec /i <complete path> /quiet UPGRADEPASSWORDCMDLINE=<upgrade password>",
+            "enter --upgradePasswordCmdLine <upgrade password>"
           ]
         }
       ]
@@ -419,8 +453,17 @@
     "vdi-effect": {
       "kind": "semantic",
       "title": "What the VDI install flag changes",
-      "status": "open",
-      "detail": "Unverified legacy statement: VDI marks the installation as VDI and adjusts ZCC behavior for virtual desktop scenarios. The parameters page says only that the flag indicates a VDI installation.",
+      "status": "partial",
+      "detail": "The parameters page says only that the flag indicates a VDI installation. The MSI install-options page adds that VDI=1 stores configuration data in the user profile store instead of %ProgramData%\\Zscaler (zcc.install.citrix-vdi:vdi-flag). Whether it changes anything else is not stated.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "VDI=1 : Configures the Zscaler Client Connector to store configuration data in the %USERPROFILE%\\AppData\\Roaming\\Zscaler user profile store so it is roamed using a profile management tool instead of the default %ProgramData%\\Zscaler."
+          ]
+        }
+      ],
       "blocks": "deciding whether a virtual desktop install needs the flag",
       "resolves_with": [
         "source-read",

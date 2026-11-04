@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.detectors.intellectual-property",
+  "title": "The AI Guard Intellectual Property detector: reproduction of a confidential context, what it ignores, sensitive context and threshold",
+  "aliases": [
+    "ip detector",
+    "ai guard ip detector",
+    "ai guard sensitive context"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-flags}} This subject is the IP detector runbook; the detector list is in [[ai-security.ai-guard.detectors]]."
+    },
+    {
+      "label": "Sensitive context.",
+      "text": "{{sensitive-context}}"
+    },
+    {
+      "label": "What it catches.",
+      "text": "{{catches}} The 28-language count is disputed: [[ai-security.ai-guard.detectors:supported-languages]]."
+    },
+    {
+      "label": "What it ignores.",
+      "text": "{{does-not-trigger}}"
+    },
+    {
+      "label": "Threshold.",
+      "text": "{{threshold}}"
+    },
+    {
+      "label": "Model.",
+      "text": "{{model}} The 28-language count is disputed: [[ai-security.ai-guard.detectors:supported-languages]]."
+    }
+  ],
+  "claims": {
+    "what-it-flags": {
+      "statement": "The Intellectual Property (IP) detector flags a prompt that reproduces or leaks specific sensitive content from a confidential context (numerical data, named entities, source code, proprietary text), even when rephrased, abbreviated or written in another language, when the user appears to be reproducing or extracting specific confidential content from the context document the customer has loaded; unlike a topic detector, which catches what subject is being discussed, it catches whether actual private data is being reproduced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "The Intellectual Property (IP) Detector flags when a user’s prompt reproduces or leaks specific sensitive content from a confidential context (numerical data, named entities, source code, proprietary text, etc.), even when rephrased, abbreviated, or written in another language.",
+            "flags it when the user appears to be reproducing or extracting specific confidential content from the context document the customer has loaded.",
+            "Unlike a topic detector (which catches what subject is being discussed), the IP detector catches whether actual private data is being reproduced."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "The Intellectual Property (IP) Detector flags when a user’s prompt reproduces or leaks specific sensitive content from a confidential context (numerical data, named entities, source code, proprietary text, etc.), even when rephrased, abbreviated, or written in another language.",
+            "flags it when the user appears to be reproducing or extracting specific confidential content from the context document the customer has loaded.",
+            "Unlike a topic detector (which catches what subject is being discussed), the IP detector catches whether actual private data is being reproduced."
+          ]
+        }
+      ]
+    },
+    "catches": {
+      "statement": "The runbook lists near-verbatim reproduction, paraphrase and synonym substitution, abbreviated and reformatted numbers, named-entity carry-over, partial or reformatted source code (captured at the token level), paraphrased legal and contractual clauses (detected via semantic overlap), and reproduction of confidential English content in French, German or any of 28 supported languages as cases the IP detector catches.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Near-verbatim reproduction: \"Revenue grew 23% YoY to $412M\" matches context containing those exact figures.",
+            "Paraphrase and synonym substitution:",
+            "Abbreviated and reformatted numbers:",
+            "Named-entity carry-over:",
+            "Source code reproduction: Partial or reformatted code copied from a confidential context is captured at the token level.",
+            "Legal and contractual clause reproduction: Paraphrasing specific clause text is detected via semantic overlap.",
+            "Multilingual reproduction: Reproducing confidential English content in French, German, or any of 28 supported languages is detected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Near-verbatim reproduction: \"Revenue grew 23% YoY to $412M\" matches context containing those exact figures.",
+            "Paraphrase and synonym substitution:",
+            "Abbreviated and reformatted numbers:",
+            "Named-entity carry-over:",
+            "Source code reproduction: Partial or reformatted code copied from a confidential context is captured at the token level.",
+            "Legal and contractual clause reproduction: Paraphrasing specific clause text is detected via semantic overlap.",
+            "Multilingual reproduction: Reproducing confidential English content in French, German, or any of 28 supported languages is detected."
+          ]
+        }
+      ]
+    },
+    "does-not-trigger": {
+      "statement": "The runbook lists generic topic questions (a question about a typical M&A breakup fee does not trigger even if the context contains a specific figure), vague summarization requests, codename mentions alone (asking about a name is not revealing its contents), educational and best-practice queries, and incidental overlap of common numbers (years, percentages used in general context) as cases that do not trigger the IP detector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Generic topic questions: \"What is a typical breakup fee in M&A?\" does not trigger even if the context contains a specific breakup fee figure.",
+            "Vague summarization requests:",
+            "Codename mentions alone: \"What is Project Falcon?\" is not a leak; asking about a name is not the same as revealing its contents.",
+            "Educational and best-practice queries:",
+            "Incidental number overlap: Common numbers (years, percentages used in general context) that appear in the context do not trigger on their own."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Generic topic questions: \"What is a typical breakup fee in M&A?\" does not trigger even if the context contains a specific breakup fee figure.",
+            "Vague summarization requests:",
+            "Codename mentions alone: \"What is Project Falcon?\" is not a leak; asking about a name is not the same as revealing its contents.",
+            "Educational and best-practice queries:",
+            "Incidental number overlap: Common numbers (years, percentages used in general context) that appear in the context do not trigger on their own."
+          ]
+        }
+      ]
+    },
+    "sensitive-context": {
+      "statement": "The IP tile's Sensitive Context field takes the intellectual property information to filter; the runbook's example is a sentence giving a project's launch date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Sensitive Context: Enter the intellectual property information that you want to filter. For example:",
+            "Sensitive Context: \"Project Chimera's launch date is slated for Q4 2026, contingent on hardware finalization.\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Sensitive Context: Enter the intellectual property information that you want to filter. For example:",
+            "Sensitive Context: \"Project Chimera's launch date is slated for Q4 2026, contingent on hardware finalization.\""
+          ]
+        }
+      ]
+    },
+    "threshold": {
+      "statement": "The IP threshold defaults to 0.7, which Zscaler strongly recommends keeping; the runbook's ranges are 0.85 to 1.00 (only near-verbatim or unmistakable reproductions trigger, suited to initial Block-mode roll-outs on high-value IP), 0.7 to 0.84 (the default band, for production deployments), 0.5 to 0.69 (borderline cases, for investigation or audit mode and not recommended for Block mode) and below 0.5 (very permissive, not recommended for production, useful only for internal debugging).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "The default for IP is 0.7.",
+            "Zscaler strongly recommends that you leave the threshold at 0.7.",
+            "| 0.85 to 1.00 | Only near-verbatim or unmistakable reproductions trigger. | If you want to avoid false positives. Suitable for initial Block-mode roll-outs on high-value IP. |",
+            "| 0.7 to 0.84 | Default sweet spot. Catches real reproductions including paraphrases, number reformatting, and other languages. Rejects generic summaries and topic questions. | Production deployments. Start here unless you explicitly need tighter behavior. |",
+            "| 0.5 to 0.69 | Triggers on borderline cases, prompts that hint at or indirectly reference the confidential content. | Investigation or audit mode. NOT recommended for Block mode. |",
+            "| Below 0.5 | Very permissive. Loose topical overlap triggers. | Not recommended for production. Useful only for internal debugging. |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "The default for IP is 0.7.",
+            "Zscaler strongly recommends that you leave the threshold at 0.7.",
+            "| 0.85 to 1.00 | Only near-verbatim or unmistakable reproductions trigger. | If you want to avoid false positives. Suitable for initial Block-mode roll-outs on high-value IP. |",
+            "| 0.7 to 0.84 | Default sweet spot. Catches real reproductions including paraphrases, number reformatting, and other languages. Rejects generic summaries and topic questions. | Production deployments. Start here unless you explicitly need tighter behavior. |",
+            "| 0.5 to 0.69 | Triggers on borderline cases, prompts that hint at or indirectly reference the confidential content. | Investigation or audit mode. NOT recommended for Block mode. |",
+            "| Below 0.5 | Very permissive. Loose topical overlap triggers. | Not recommended for production. Useful only for internal debugging. |"
+          ]
+        }
+      ]
+    },
+    "model": {
+      "statement": "The IP runbook answers yes, 28 languages are supported, says the bi-encoder is multilingual, and says the model is retrained periodically as new false-positive patterns surface, with updates rolled out transparently and no customer action needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Yes, 28 languages are supported. The bi-encoder is multilingual.",
+            "Retrained periodically as new false-positive patterns surface. Updates are rolled out transparently, no customer action needed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-ip-detector.json",
+          "quotes": [
+            "Yes, 28 languages are supported. The bi-encoder is multilingual.",
+            "Retrained periodically as new false-positive patterns surface. Updates are rolled out transparently, no customer action needed."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

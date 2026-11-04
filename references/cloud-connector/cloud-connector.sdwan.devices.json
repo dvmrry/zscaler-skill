@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.sdwan.devices",
+  "title": "Branch device inventory and per-device settings: ZIA tunnel mode, support tunnel, DNS cache, traffic forwarding bypass",
+  "aliases": [
+    "ZT devices page",
+    "virtual branch devices",
+    "physical branch devices",
+    "VM group",
+    "appliances group",
+    "support tunnel",
+    "bypass traffic forwarding engine",
+    "auto populate dns cache"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.sdwan.configuration-templates"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.gateway-failover"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{zt-devices}} {{support-tunnel}}"
+    },
+    {
+      "label": "Virtual and physical device lists.",
+      "text": "{{virtual-list}} {{physical-list}} {{device-status-and-versions}} The schedule itself is in [[cloud-connector.upgrades]]. {{device-network-view}}"
+    },
+    {
+      "label": "Tunnel to Internet and SaaS.",
+      "text": "{{zia-tunnel-mode}} The defaults of the tunnel mode itself, whether Unencrypted and Unencrypted UDP are one option, and whether a tunnel returns to DTLS after falling back are not stated {{gap:tunnel-mode-defaults}}."
+    },
+    {
+      "label": "Physical device settings.",
+      "text": "{{auto-populate-dns-cache}} {{bypass-forwarding-engine}} Cloud Connector fail-close and fail-open behavior is separate: [[cloud-connector.overview.gateway-failover]]. Whether virtual devices have these two settings is not stated {{gap:virtual-device-settings}}. The defaults of the support tunnel settings and Auto Populate DNS Cache, and what the support tunnel connects to, are not stated {{gap:support-tunnel-defaults}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Bypass Traffic Forwarding Engine is enabled on a physical device, since enabling it lets traffic flow without policy validation or content inspection and blocks access to Private Access applications.",
+      "uses": [
+        "bypass-forwarding-engine"
+      ]
+    },
+    {
+      "do": "Whether Zscaler Support has been given control of the support tunnel on the device.",
+      "uses": [
+        "support-tunnel"
+      ]
+    }
+  ],
+  "claims": {
+    "zt-devices": {
+      "statement": "Zero Trust Branch Devices are installed in an organization's on-premises locations such as branches and data centers, enabling Zero Trust connectivity from any unauthenticated users, servers or IoT/OT devices; the ZT Devices page (Infrastructure > Branch Connector > ZT Devices) lists each device's appliance name, serial number, device model (ZT400, ZT600 or ZT800), location, template and status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-zero-trust-branch-devices.json",
+          "quotes": [
+            "Zero Trust Branch Devices are installed in your organization’s on-premises locations such as branches and data centers.",
+            "They enable Zero Trust connectivity from any unauthenticated users, servers, or IoT/OT devices in any location or over any network.",
+            "On the ZT Devices page (Infrastructure > Branch Connector > ZT Devices), you can do the following:",
+            "Appliance Name: The name of the Zero Trust Branch Device.",
+            "Serial Number: The serial number of the Zero Trust Branch Device.",
+            "Device Model: The model of the Zero Trust Branch Device (ZT400, ZT600, or ZT800).",
+            "Location: The location of the Zero Trust Branch Device.",
+            "Template: The template for the Zero Trust Branch Device.",
+            "Status: The status of the Zero Trust Branch Device."
+          ]
+        }
+      ]
+    },
+    "support-tunnel": {
+      "statement": "Editing a Zero Trust Branch Device sets its name and description, with the serial number, location and template shown view-only; Zscaler Initiated On-Demand Support Tunnel, when enabled, gives Zscaler Support control over the tunnel's start and stop, and Establish Support Tunnel, when enabled, allows Zscaler Support to access the device through the tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-zero-trust-branch-devices.json",
+          "quotes": [
+            "Device Name: Enter a name for the Zero Trust Branch Device.",
+            "Description: Enter a description for the Zero Trust Branch Device.",
+            "Serial Number: View the serial number of the Zero Trust Branch Device.",
+            "Location: View the location of the Zero Trust Branch Device.",
+            "Template: View the template the Zero Trust Branch Device.",
+            "Zscaler Initiated On-Demand Support Tunnel: Select Enable to give Zscaler Support control over the tunnel's start and stop.",
+            "Establish Support Tunnel: Select Enable to allow Zscaler Support to access the Zero Trust Branch Device through the tunnel."
+          ]
+        }
+      ]
+    },
+    "virtual-list": {
+      "statement": "The Virtual Branch Devices page (Infrastructure > Branch Connector > VM Group) lists each device's availability zone, operational status (Inactive or Active), HA status (Disabled or Enabled), branch type (the hypervisor host type), upgrade window and upgrade status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-virtual-branch-devices.json",
+          "quotes": [
+            "On the Virtual Branch Devices page (Infrastructure > Branch Connector > VM Group), you can do the following:",
+            "Availability Zone: The availability zone of the virtual branch device.",
+            "Operational Status: The operational status of the virtual branch device (i.e., Inactive or Active).",
+            "HA Status: The HA status of the virtual branch device (i.e., Disabled or Enabled).",
+            "Branch Type: The hypervisor host type of the virtual branch device.",
+            "Upgrade Window: The upgrade window for the virtual branch device.",
+            "Upgrade Status: The upgrade status of the virtual branch device."
+          ]
+        }
+      ]
+    },
+    "physical-list": {
+      "statement": "The Physical Branch Devices page (Infrastructure > Branch Connector > Appliances Group) lists each device's serial number, operational status (Inactive or Active), HA status (Disabled or Enabled), branch type (the hardware device type), upgrade window and upgrade status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-physical-branch-devices.json",
+          "quotes": [
+            "On the Physical Branch Devices page (Infrastructure > Branch Connector > Appliances Group), you can do the following:",
+            "Serial Number: The serial number of the physical branch device.",
+            "Operational Status: The operational status of the physical branch device (i.e., Inactive or Active).",
+            "HA Status: The High Availability (HA) status of the physical branch device (i.e., Disabled or Enabled).",
+            "Branch Type: The hardware device type of the physical branch device.",
+            "Upgrade Window: The upgrade window for the physical branch device.",
+            "Upgrade Status: The upgrade status of the physical branch device."
+          ]
+        }
+      ]
+    },
+    "zia-tunnel-mode": {
+      "statement": "In the Group section of the edit window for a virtual branch device, and likewise for a physical one, the ZIA Tunnel Mode is set to Unencrypted or DTLS as the encryption type used when forwarding traffic to Internet & SaaS; an option that switches the tunnel type to TLS automatically if the tunnel becomes unhealthy can only be enabled if Unencrypted UDP or DTLS is selected as the ZIA Tunnel Mode and is enabled by default. An individual virtual device's edit window shows the ZIA Tunnel Mode view-only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-virtual-branch-devices.json",
+          "quotes": [
+            "ZIA Tunnel Mode: Select either Unencrypted or DTLS for the encryption type to be used when forwarding traffic to Internet & SaaS."
+          ],
+          "after": "In the Tunnel Information section, configure the following:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-virtual-branch-devices.json",
+          "quotes": [
+            "ZIA Tunnel Mode: View the encryption type to be used when forwarding traffic to Internet & SaaS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-virtual-branch-devices.json",
+          "quotes": [
+            "You can only enable this feature if Unencrypted UDP or DTLS is selected as the ZIA Tunnel Mode.",
+            "Select Enable to have the tunnel type automatically switch to TLS if the tunnel becomes unhealthy.",
+            "This feature is enabled by default."
+          ],
+          "after": "In the Tunnel Information section, configure the following:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-physical-branch-devices.json",
+          "quotes": [
+            "ZIA Tunnel Mode: Select either Unencrypted or DTLS for the encryption type to be used when forwarding traffic to Internet & SaaS."
+          ],
+          "after": "In the Tunnel Information section, configure the following:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-physical-branch-devices.json",
+          "quotes": [
+            "This feature is enabled by default."
+          ],
+          "after": "In the Tunnel Information section, configure the following:"
+        }
+      ]
+    },
+    "device-status-and-versions": {
+      "statement": "An individual virtual device's edit window can enable or disable the device, shows the date and time it last received a heartbeat, and shows the current version and scheduled version of its software alongside its Software Upgrade Schedule; a physical device can likewise be enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-virtual-branch-devices.json",
+          "quotes": [
+            "Status: Select Enable or Disable to activate or disable the device.",
+            "Last Heartbeat Received On: View the date and time the device last received a heartbeat.",
+            "Software Upgrade Schedule: Designate a day and time for periodic software updates. To learn more, see Managing Cloud & Branch Connector Upgrades. You can view the following information:",
+            "Current Version: The current version of the software.",
+            "Scheduled Version: The version of the software to update to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-physical-branch-devices.json",
+          "quotes": [
+            "Status: Select Enable or Disable to activate or disable the device."
+          ]
+        }
+      ]
+    },
+    "device-network-view": {
+      "statement": "A virtual device's edit window shows the management outgoing gateway IP address, management IP address and management primary DNS server, the internal gateway IP address and primary DNS server, and the service IP, virtual IP and load balancer IP addresses; a physical device's window also shows a secondary DNS server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-virtual-branch-devices.json",
+          "quotes": [
+            "Management Outgoing Gateway IP Address: The default gateway IP address.",
+            "Management IP Address: The IP address of the Branch Connector.",
+            "Management DNS Server 1: The IP address of the primary DNS server.",
+            "Internal Gateway IP Address: The gateway IP address.",
+            "Service IP: The service IP address.",
+            "Virtual IP Address: The virtual IP address.",
+            "Load Balancer: The load balancer IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-virtual-branch-devices.json",
+          "quotes": [
+            "DNS Server 1: The IP address of the primary DNS server."
+          ],
+          "after": "Internal Gateway IP Address: The gateway IP address."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-physical-branch-devices.json",
+          "quotes": [
+            "DNS Server 2: The IP address of the secondary DNS server."
+          ]
+        }
+      ]
+    },
+    "auto-populate-dns-cache": {
+      "statement": "On the physical device's edit window, Auto Populate DNS Cache, when enabled, activates advance DNS resolution of the application service fully qualified domain names (FQDNs); by processing the response of the DNS queries, Branch Connector builds an IP cache that helps policy match even when the DNS queries do not pass through the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-physical-branch-devices.json",
+          "quotes": [
+            "Auto Populate DNS Cache: Click Enable to activate advance DNS resolution of the application service fully qualified domain names (FQDNs) or click Disable to disable this feature."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-physical-branch-devices.json",
+          "quotes": [
+            "By processing the response of the DNS queries, Branch Connector builds an IP cache that helps policy match even when the DNS queries do not pass through the device."
+          ],
+          "after": "Software Upgrade Schedule: Designate a day and time for periodic software updates. To learn more, see Managing Cloud & Branch Connector Upgrades. You can view the following information:"
+        }
+      ]
+    },
+    "bypass-forwarding-engine": {
+      "statement": "On the physical device's edit window, Bypass Traffic Forwarding Engine, when enabled, allows all local and internet-destined traffic to flow without policy validation or content inspection if the policy enforcement engine fails or is stopped for upgrades; when it is enabled, applications protected by Private Access cannot be accessed. The feature is disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-physical-branch-devices.json",
+          "quotes": [
+            "Bypass Traffic Forwarding Engine: Select Enable to allow all local and internet-destined traffic to flow without policy validation or content inspection if the policy enforcement engine fails or is stopped for upgrades.",
+            "When this feature is enabled, you cannot access applications protected by Private Access.",
+            "This feature is disabled by default."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "tunnel-mode-defaults": {
+      "kind": "semantic",
+      "title": "Default ZIA Tunnel Mode and the Unencrypted naming",
+      "status": "open",
+      "detail": "The default ZIA Tunnel Mode is not stated. The tunnel mode list names Unencrypted while the fallback rule names Unencrypted UDP, and the pages do not say whether these are one option or whether a tunnel that fell back to TLS returns to DTLS.",
+      "blocks": "Predicting which tunnel encryption a device uses.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "virtual-device-settings": {
+      "kind": "semantic",
+      "title": "Whether virtual devices have Auto Populate DNS Cache and Bypass Traffic Forwarding Engine",
+      "status": "open",
+      "detail": "The virtual device edit page lists neither setting, while the physical device page lists both. Whether virtual devices lack them or the page omits them is not stated; this is an absence found by comparing the two pages.",
+      "blocks": "Applying the physical-device settings to a virtual deployment.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "support-tunnel-defaults": {
+      "kind": "semantic",
+      "title": "Support tunnel and DNS cache defaults",
+      "status": "open",
+      "detail": "The pages do not state the defaults of Zscaler Initiated On-Demand Support Tunnel, Establish Support Tunnel or Auto Populate DNS Cache, what the support tunnel connects to, or how it is secured.",
+      "blocks": "Judging what Zscaler Support can reach by default.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

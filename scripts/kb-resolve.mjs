@@ -866,6 +866,8 @@ function readType(g, id, paths = null) {
   // A log type's status codes are too many to print with its fields; each reads by name.
   const codes = Object.keys(t.status_codes || {});
   if (codes.length) lines.push(`- Status codes: ${codes.length} listed for this log type in the LSS API's status-codes response${Object.values(t.status_codes).some((c) => c.help) ? " and the session status codes help article" : ""}; read one by its code (\`read ${codes[0]}\`)`);
+  const reasons = Object.keys(t.policy_reasons || {});
+  if (reasons.length) lines.push(`- Policy reasons: ${reasons.length} reason strings from the Policy Reasons help article, which the reason field points to; read one by its text (\`read "${reasons[0]}"\`)`);
   return [`# ${t.title || id} (${id})`, ...lines].join("\n");
 }
 
@@ -885,6 +887,20 @@ function readStatusCode(g, code) {
       }),
     ].join("\n");
   }).join("\n\n");
+}
+
+/** One policy reason as the Policy Reasons article gives it: each row's feature and description, and where it says so. */
+function readPolicyReason(g, key) {
+  const cache = new Map();
+  return g.policyReasons.get(key).map(({ type, reason, data }) => [
+    `# ${reason}: a policy reason of ${titleOf(g, type)} (${type}#reason)`,
+    ...data.rows.map((r) => `- ${r.feature}: ${r.description}`),
+    ...(data.rows.length > 1 ? ["- The article lists this reason in more than one row."] : []),
+    ...data.evidence.map((ev) => {
+      const lines = [...new Set(anchorEvidence(g, ev, cache).anchors.map((a) => a.line).filter(Boolean))];
+      return `- Source: \`${g.sources.sources[ev.source].root}/${ev.path}${lines.length ? `:${lines.join(",")}` : ""}\``;
+    }),
+  ].join("\n")).join("\n\n");
 }
 
 /**
@@ -972,6 +988,10 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     let arg = given.replace(/^(gap|divergence):/, "");
     if (!g.nodes.has(arg) && g.statusCodes.has(arg)) {
       out.push(readStatusCode(g, arg));
+      continue;
+    }
+    if (!g.nodes.has(arg) && g.policyReasons.has(arg.toLowerCase())) {
+      out.push(readPolicyReason(g, arg.toLowerCase()));
       continue;
     }
     if (!g.nodes.has(arg) && g.formerIds.has(arg)) arg = g.formerIds.get(arg);

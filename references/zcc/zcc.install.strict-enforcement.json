@@ -53,7 +53,7 @@
     },
     {
       "label": "The policy token.",
-      "text": "{{policy-token}} After enrollment the token's policy gives way to the user's own app profile: [[zcc.install.precedence:policytoken-replaced]]. The same token is what makes a machine tunnel reach Private Access before login: [[zpa.machine-tunnels.requirements:policytoken-required]]."
+      "text": "{{policy-token}} {{policy-token-generated}} After enrollment the token's policy gives way to the user's own app profile: [[zcc.install.precedence:policytoken-replaced]]. The same token is what makes a machine tunnel reach Private Access before login: [[zpa.machine-tunnels.requirements:policytoken-required]]."
     },
     {
       "label": "Locking the device out of its own login.",
@@ -61,7 +61,7 @@
     },
     {
       "label": "iOS.",
-      "text": "{{ios-exclude-list}} {{ios-unlisted-blocked}}"
+      "text": "{{ios-exclude-list}} {{ios-unlisted-blocked}} {{ios-intune-requirements}} {{ios-strict-profile-bypasses}} {{ios-troubleshooting}} The rest of the Intune iOS guide is in [[zcc.install.ios-deployment]]."
     },
     {
       "label": "Citrix.",
@@ -237,6 +237,74 @@
           "after": "| policyToken |",
           "quotes": [
             "Applies only, and is required if you use the strictEnforcement option."
+          ]
+        }
+      ]
+    },
+    "policy-token-generated": {
+      "statement": "After an app profile is saved, a policy token is automatically generated for the profile; it is viewed by clicking the Edit icon beside the profile on the App Profiles tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-policy-token-zscaler-client-connector-app-profile.json",
+          "quotes": [
+            "After you save your Zscaler Client Connector app profile, a policy token is automatically generated for the profile.",
+            "On the App Profiles tab, click the Edit icon beside the profile."
+          ]
+        }
+      ]
+    },
+    "ios-intune-requirements": {
+      "statement": "The Intune iOS guide says that deploying Strict Enforcement requires defining policyToken, adding at least one entry to the excluded URLs list, and enabling Disable iCloud Private Relay and Drop QUIC Traffic in the Strict Enforcement App Profile. Its Excluded URLs list includes the Private Access hosts authsp.prod.zpath.net, samlsp.private.zscaler.com and samlsp-pdx2.private.zscaler.com, and hosts required for Intune, Apple and the organization's IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "When you deploy Strict Enforcement, you must define policyToken, add at least one entry to the excluded URLs list, and enable the Disable iCloud Private Relay and Drop QUIC Traffic options in the Strict Enforcement App Profile.",
+            "samlsp.private.zscaler.com",
+            "samlsp-pdx2.private.zscaler.com",
+            "Hosts required for Intune. To learn more, refer to the Microsoft documentation.",
+            "Hosts required for Apple. To learn more, refer to the Apple documentation.",
+            "Hosts required for your organization's IdP. To learn more, refer to your IdP documentation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "after": "Hosts required for Private Access:",
+          "quotes": [
+            "authsp.prod.zpath.net"
+          ]
+        }
+      ]
+    },
+    "ios-strict-profile-bypasses": {
+      "statement": "In the same guide, destination IPs are bypassed by adding them to the IP Exclusion List and web destinations, such as the IdP login page, by adding the domain names to the custom PAC file associated with the policy; the policy token is copied by saving the app profile and reopening it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "To bypass destination IPs, add the IP addresses to the IP Exclusion List. To bypass web destinations, add the domain names to the custom PAC file associated with the policy (e.g., your IdP login page).",
+            "Save the App Profile and reopen it to copy the Policy Token."
+          ]
+        }
+      ]
+    },
+    "ios-troubleshooting": {
+      "statement": "If Client Connector blocks sites after being installed with Strict Enforcement, the Intune iOS guide says to inspect the ZSATunnel_[DATETIME].log file for the string Proxy=PROXY; if the file has a Local captive mode! Dropping Https request message for a hostname, adding that hostname to the Excluded URLs field in the device configuration profile resolves it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "If Zscaler Client Connector blocks sites after being installed with Strict Enforcement, you can inspect the ZSATunnel_[DATETIME].log file for the string Proxy=PROXY.",
+            "If the file includes a Local captive mode! Dropping Https request message for a hostname, you can resolve the issue by adding the hostname to the Excluded URLs field in the device configuration profile."
           ]
         }
       ]

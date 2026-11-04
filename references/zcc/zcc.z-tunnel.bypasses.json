@@ -56,7 +56,7 @@
     },
     {
       "label": "Destination exclusions and inclusions.",
-      "text": "{{incl-excl-patterns}} {{conflict-resolution}} {{port-bypass}} {{bypass-scope}}"
+      "text": "{{incl-excl-patterns}} {{conflict-resolution}} {{port-bypass}} {{bypass-scope}} {{default-ipv4-exclusions}}"
     },
     {
       "label": "Process-based bypass.",
@@ -265,6 +265,23 @@
         }
       ]
     },
+    "default-ipv4-exclusions": {
+      "statement": "In the LAN access article's steps for blocking LAN access for Windows devices using Client Connector 4.7 and earlier, the Zscaler service by default includes the RFC 1918 networks (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) and the multicast range 224.0.0.0/4 in the IPv4 exclusions list, and Zscaler recommends keeping them unless explicitly needed, because deleting them causes private network traffic (for example DHCP) to be tunneled through the cloud.",
+      "tier": "A",
+      "conditions": "The article gives these as the default exclusions in its steps for Client Connector 4.7 and earlier on Windows; location-based rulesets from 4.8 have their own default lists (zcc.location-policies:default-ip-lists).",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-blocking-lan-access-windows-and-configuring-zscaler-client-connector-firewall-macos.json",
+          "quotes": [
+            "To block LAN access for Windows devices using Zscaler Client Connector version 4.7 and earlier",
+            "By default, the Zscaler service includes the RFC 1918 networks (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) in the IPv4 exclusions list.",
+            "Zscaler also includes the multicast range 224.0.0.0/4.",
+            "Zscaler recommends that you keep these networks in the list, unless explicitly needed, because deleting them causes private network traffic (e.g., DHCP) to be tunneled through the cloud."
+          ]
+        }
+      ]
+    },
     "process-bypass": {
       "statement": "Process-Based Application Bypass in the app profile bypasses applications defined by process in Application Bypass, for both Z-Tunnel 1.0 and 2.0.",
       "tier": "A",
@@ -463,6 +480,16 @@
             ]
           },
           "says": "Application bypass applies only to Windows and macOS app profiles and only if Z-Tunnel 2.0 is the forwarding profile."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-adding-process-based-applications-bypass-traffic.json",
+            "quotes": [
+              "You can then select these applications in App Profiles to bypass traffic for both Zscaler Tunnel (Z-Tunnel) 1.0 and Z-Tunnel 2.0."
+            ]
+          },
+          "says": "The process-based applications page says the applications can be selected in App Profiles to bypass traffic for both Z-Tunnel 1.0 and Z-Tunnel 2.0; it says nothing about IP-based bypass (see zcc.app-profiles.application-bypass:process-based)."
         }
       ],
       "impact": "Whether an Application Bypass entry has any effect on a Z-Tunnel 1.0 profile, or on other platforms, depends on which page is read; process-bypass in this subject states the first page's scope."

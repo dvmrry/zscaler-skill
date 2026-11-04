@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "id": "zpa.pra.file-transfer",
+  "title": "PRA file transfer: in-console transfer, the PRA File Transfer System and the Sandbox integration",
+  "aliases": [
+    "pra file transfer",
+    "pra file transfer system",
+    "my files uninspected files",
+    "pra upload failed",
+    "pra sandbox integration",
+    "pra rdp drive redirection",
+    "pra file transfer limits",
+    "pra file status malicious"
+  ],
+  "binds": [
+    "zpa/pra-app-segments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.pra"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zpa.pra.consoles-policy",
+      "because": "zpa.pra.consoles-policy:scope"
+    },
+    {
+      "rel": "decided-by",
+      "to": "zpa.pra.portals-policy",
+      "because": "zpa.pra.file-transfer:fts-portals-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra.components"
+    }
+  ],
+  "prose": [
+    {
+      "text": "PRA moves files in two ways: directly to and from a console, or through the PRA File Transfer System in the PRA Portal. {{fts-model}} {{in-console-drive}}"
+    },
+    {
+      "label": "Inspection.",
+      "text": "{{sandbox-inspection}} {{sandbox-integration-fields}} {{inspection-flow}} The consoles policy side is [[zpa.pra.consoles-policy:inspect-needs-zia]]. What the ZIA admin account and integration require is open {{gap:sandbox-account-requirements}}."
+    },
+    {
+      "label": "Console transfer.",
+      "text": "{{rdp-drive}} {{writable-directory}}"
+    },
+    {
+      "label": "The File Transfer System.",
+      "text": "{{fts-portals-policy}} {{fts-storage-limits}} {{fts-files-per-portal}} {{fts-files-at-once}} What the per-portal cap counts is open {{gap:fts-file-count-meaning}}. Whether the storage limit is per user, portal or tenant, and how long files are kept, is open {{gap:fts-storage-scope}}."
+    },
+    {
+      "label": "My Files.",
+      "text": "{{fts-file-names}} {{fts-status}} {{fts-columns}} {{fts-delete-and-transfer}}"
+    },
+    {
+      "text": "The Files analytics page is described in [[zpa.pra.components:files-page]]; the permissions that turn each action on are in [[zpa.pra.consoles-policy]] and [[zpa.pra.portals-policy]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a failed in-console transfer is a non-writable directory or, for an RDP target, redirection disabled in group policy.",
+      "uses": [
+        "writable-directory",
+        "rdp-drive"
+      ]
+    },
+    {
+      "do": "Whether Inspect is unavailable because the Sandbox integration was not set up first.",
+      "uses": [
+        "sandbox-inspection",
+        "sandbox-integration-fields"
+      ]
+    },
+    {
+      "do": "Whether a blocked upload hit the 10-files-at-one-time limit, the 10-files-per-portal cap, or the storage limit.",
+      "uses": [
+        "fts-files-per-portal",
+        "fts-files-at-once",
+        "fts-file-count-meaning",
+        "fts-storage-limits"
+      ]
+    },
+    {
+      "do": "Whether a file cannot be deleted or transferred because it is uploading or malicious.",
+      "uses": [
+        "fts-delete-and-transfer",
+        "fts-status"
+      ]
+    }
+  ],
+  "claims": {
+    "sandbox-inspection": {
+      "statement": "Files moved through a privileged console can be downloaded or uploaded with the option to inspect them using Internet & SaaS (ZIA) Sandbox File Transfer. To enable the Inspect option for the File Transfer feature the Internet & SaaS Sandbox integration must be set up first, otherwise the Inspect option is automatically disabled, and the consoles policy is set up after the integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-integrations.json",
+          "quotes": [
+            "These files can then be downloaded or uploaded with the option to inspect the files using Internet & SaaS (ZIA) Sandbox File Transfer.",
+            "To enable the Inspect option for the File Transfer feature for privileged consoles, you first need to set up the parameters for the Internet & SaaS Sandbox integration.",
+            "If you do not set up the integration configurations, then the Inspect option is automatically disabled.",
+            "After you have configured the Internet & SaaS Sandbox integration, set up the consoles policy for the privileged consoles."
+          ]
+        }
+      ]
+    },
+    "sandbox-integration-fields": {
+      "statement": "The Sandbox Integration page takes the ZIA Cloud name, a Cloud Service API Key, a ZIA admin username and password, and a Sandbox API Token. All fields must be completed before the admin can move forward, and the page is read-only for Microtenant admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-integrations.json",
+          "quotes": [
+            "ZIA Cloud: Enter the name of the Internet & SaaS Cloud with the Sandbox you are accessing.",
+            "Cloud Service API Key: Enter the API key for the Internet & SaaS Cloud.",
+            "ZIA Admin Username: Enter the username for that specific Internet & SaaS Admin account.",
+            "ZIA Admin Password: Enter the password for that specific Internet & SaaS Admin account.",
+            "Sandbox API Token: Enter the API key for the Internet & SaaS Sandbox.",
+            "All fields must be completed before you can move forward.",
+            "The Sandbox Integration page is read-only for Microtenant admins."
+          ]
+        }
+      ]
+    },
+    "in-console-drive": {
+      "statement": "In-console file transfers, both uploads and downloads, take place in a Zscaler-generated drive on the privileged console. The Upload and Download options are disabled by default but File Transfer can still be opened to view the files, and when they are enabled files can be uploaded and downloaded from the File Transfer window even if the screen is locked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-downloading-file-transfer.json",
+          "quotes": [
+            "All file transfers (both uploads and downloads) take place in a Zscaler-generated drive on your privileged console.",
+            "The Upload and Download options are disabled by default, but you can still open File Transfer and view the files.",
+            "If the Upload and Download options are enabled, you can still upload and download files from the File Transfer window even if your screen is locked."
+          ]
+        }
+      ]
+    },
+    "rdp-drive": {
+      "statement": "For a Windows-based privileged console using RDP, a remote drive is automatically mounted and handles all transferred files. If the target Windows system has Device and Resource redirection disabled in the local group policy editor, File Transfer is not possible because the drive is not mounted, and Windows version 7 or later is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-downloading-file-transfer.json",
+          "quotes": [
+            "If you are using a Windows-based privileged console with an RDP protocol, a remote drive is automatically mounted and all transferred files are handled here.",
+            "If the target Windows system has Device and Resource redirection disabled in the local group policy editor, the File Transfer feature is not possible due to the drive not being mounted with Privileged Remote Access (PRA).",
+            "You must have Windows version 7 or later to use the File Transfer feature."
+          ]
+        }
+      ]
+    },
+    "inspection-flow": {
+      "statement": "If Inspect is enabled, files are inspected before they are uploaded and the step is bypassed otherwise; if there is an issue with the inspection, the upload is paused and the user is notified that the inspection was not completed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-downloading-file-transfer.json",
+          "quotes": [
+            "If you enabled Inspect, then the files are inspected prior to uploading. If Inspect is not enabled, then this step is bypassed.",
+            "If there is an issue with the file inspection, then the upload is paused and you receive a notification that the inspection wasn't completed."
+          ]
+        }
+      ]
+    },
+    "writable-directory": {
+      "statement": "An upload from a local machine to a non-writable directory fails. After such a failure, moving from the non-writable directory to a writable one with the File Transfer window open and selecting files makes the upload fail the first time too, and additional attempts to a writable directory should succeed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-downloading-file-transfer.json",
+          "quotes": [
+            "If you attempt to upload files from a local machine to a non-writable directory, the upload will fail.",
+            "After it fails, if you navigate from a non-writable directory to a writable directory with the File Transfer window open, and then use File Transfer to select files from a local machine to a writable directory, it also fails the first time.",
+            "Additional file uploading attempts to a writable directory should succeed."
+          ]
+        }
+      ]
+    },
+    "fts-model": {
+      "statement": "With the PRA File Transfer System, users upload files from their system to the PRA cloud through the PRA Portal, manage them there and then transfer them to a privileged console. Without the PRA File Transfer System, users upload and download files directly to and from a privileged console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-transferring-files-pra-file-transfer-system.json",
+          "quotes": [
+            "If you have the PRA File Transfer System, you can upload files from your system directly to the Privileged Remote Access (PRA) cloud using the PRA Portal where you can manage your uploaded files.",
+            "After you have uploaded files to the PRA File System, you can then transfer those files to a privileged console.",
+            "If you don't have the PRA File Transfer System, you can upload and download files directly to and from a privileged console."
+          ]
+        }
+      ]
+    },
+    "fts-portals-policy": {
+      "statement": "For the PRA File Transfer System the admin must also configure a portals policy to enable deleting a file, accessing uninspected files and uploading an inspected file (via DI scan or Sandbox). The files shown on the Uninspected Files page depend on the user's permissions, and analytics for uploaded inspected files are on the Files page (Data Explorer > Privileged Remote Access > Files).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "The admin must also configure a portals policy to enable the following actions: deleting a file, accessing uninspected files, uploading an inspected file (via DI scan or Sandbox).",
+            "The visibility of the files displayed on the Uninspected Files page are dependent on the user's permissions.",
+            "You can view the analytics of the uploaded inspected files on the Files page (Data Explorer > Privileged Remote Access > Files)."
+          ]
+        }
+      ]
+    },
+    "fts-storage-limits": {
+      "statement": "My Files shows the storage used and the storage limit; up to 10 GB can be stored in My Files, and a file can be up to 1 GB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "View storage used and your storage limit."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "Size: The size of the file. You can upload a file with a maximum limit of up to 1 GB."
+          ],
+          "after": "# About the My Files Page"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-transferring-files-pra-file-transfer-system.json",
+          "quotes": [
+            "You can store up to 10 GB in My Files."
+          ]
+        }
+      ]
+    },
+    "fts-files-per-portal": {
+      "statement": "The About page says up to 10 files can be uploaded for each privileged portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "You can upload up to 10 files for each privileged portal."
+          ]
+        }
+      ]
+    },
+    "fts-files-at-once": {
+      "statement": "The Uploading page says that when selecting a file to upload, and when selecting the directory to transfer files to, up to 10 files can be uploaded at one time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-transferring-files-pra-file-transfer-system.json",
+          "quotes": [
+            "select the file you want to upload and click Open. You can upload up to 10 files at one time.",
+            "select the directory you want to transfer the files to. You can upload up to 10 files at one time."
+          ]
+        }
+      ]
+    },
+    "fts-file-names": {
+      "statement": "The My Files page says only these characters can be used when naming a file: & $ , _ - ! @ ( ) [ ]= ' ~ ; and the characters & and + cannot be used in its filter search field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "Only the following characters can be used when naming a file: & $ , _ - ! @ ( ) [ ]= ' ~ ;"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "The characters & and + cannot be used in the filter search field."
+          ],
+          "after": "# About the My Files Page"
+        }
+      ],
+      "conditions": "The page does not say whether letters and digits are meant to be included in the character list."
+    },
+    "fts-status": {
+      "statement": "A My Files entry's Status, for the ZIA Integration inspection process, is Uploading, Pending (pending inspection), Uninspected (not inspected, and added to the Uninspected Files page), Success (inspected with no malicious content or malware found), Error (an error during the upload) or Malicious (found malicious during inspection).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "Status: Displays one of the following inspection status types for the ZIA Integration inspection process:",
+            "Uploading: The file is uploading.",
+            "Pending: The file is pending inspection.",
+            "Uninspected: The file was not inspected. The uninspected file is added to the Uninspected Files page.",
+            "Success: The file inspection was completed and no malicious content or malware was found.",
+            "Error: There was an error during the upload of the file.",
+            "Malicious: The file was found to be malicious during inspection."
+          ]
+        }
+      ]
+    },
+    "fts-columns": {
+      "statement": "Among its columns My Files shows the Detected File Type, the file type detected during inspection, and the Uninspected Files page shows the email of the user who uploaded each file; uninspected files can be downloaded from that page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "Detected File Type: The file type detected during inspection.",
+            "User: The email of the user that uploaded the file.",
+            "Download the uninspected files."
+          ]
+        }
+      ]
+    },
+    "fts-delete-and-transfer": {
+      "statement": "A file cannot be deleted while it is being uploaded or if it contains malicious content, malicious files cannot be transferred, and a cancelled upload does not appear on the My Files page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-remote-access-pra-file-transfer-system.json",
+          "quotes": [
+            "You can't delete the file if it is being uploaded or if it contains malicious content.",
+            "If you cancel a file upload, the file won't appear on the My Files page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-and-transferring-files-pra-file-transfer-system.json",
+          "quotes": [
+            "Malicious files cannot be transferred."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fts-file-count-meaning": {
+      "kind": "semantic",
+      "title": "What the per-portal 10-file cap of the PRA File Transfer System counts",
+      "status": "open",
+      "detail": "The About page says up to 10 files can be uploaded for each privileged portal, and the Uploading page says up to 10 files can be uploaded at one time. These are different quantities and both can hold, but the pages do not say whether the per-portal figure counts files currently in My Files, files per user, or uploads over time. A lab test of repeated uploads would resolve it.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "sandbox-account-requirements": {
+      "kind": "semantic",
+      "title": "What the ZIA admin account and Sandbox integration require",
+      "status": "open",
+      "detail": "The Sandbox Integration page does not say which ZIA admin role or permissions the admin account needs, how the ZIA Cloud name is written, or whether a ZIA Sandbox subscription is required. A Zscaler statement or lab test would resolve it.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "fts-storage-scope": {
+      "kind": "semantic",
+      "title": "How the File Transfer System storage is scoped and kept",
+      "status": "open",
+      "detail": "The pages state a 10 GB limit for My Files but not whether it applies per user, per portal or per tenant, nor how long files in My Files are retained. A Zscaler statement or lab test would resolve it.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

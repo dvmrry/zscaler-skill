@@ -89,6 +89,10 @@
       "text": "{{sign-in-required}} {{users-appear}} How users and groups sync in AI Guard is in [[ai-security.ai-guard.tenant-settings:zia-sync]]."
     },
     {
+      "label": "Claude apps through Client Connector.",
+      "text": "{{claude-version}} {{claude-prereqs}} {{claude-tools}} {{claude-node-ca}} {{claude-verify}}"
+    },
+    {
       "label": "Not stated by the article.",
       "text": "Whether SSL inspection settings in ZIA matter on this path is open {{gap:ssl-inspection}}, as is what traffic escapes inspection without the QUIC rule or with the gateway set to fail open {{gap:quic-bypass}}. Whether traffic from GRE or IPSec tunnel locations reaches AI Guard on this path is open {{gap:tunnel-locations}}."
     }
@@ -327,14 +331,169 @@
           ]
         }
       ]
+    },
+    "claude-version": {
+      "statement": "The Claude integration runbook says AI Guard by default supports all the Claude tools it lists when using Claude version 2.1.101 or later, and that a Claude Code CLI version earlier than 2.1.101 needs its Enabling Claude Code CLI and Code for VS Code section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "By default, AI Guard supports all Claude tools listed in this article when using Claude version 2.1.101 or later.",
+            "If using a Claude Code CLI version earlier than 2.1.101 you need to refer to the Enabling Claude Code CLI and Code for VS Code section later in this article."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "By default, AI Guard supports all Claude tools listed in this article when using Claude version 2.1.101 or later.",
+            "If using a Claude Code CLI version earlier than 2.1.101 you need to refer to the Enabling Claude Code CLI and Code for VS Code section later in this article."
+          ]
+        }
+      ]
+    },
+    "claude-prereqs": {
+      "statement": "The Claude runbook's prerequisites are Zscaler Client Connector installed and logged in, the Zscaler Root CA installed in the Trusted Root Certification Authority store on the device, all Claude applications, tools, extensions, plugins or add-ons installed, and SSL Inspection configured in ZIA for the domains .api.anthropic.com and .claude.ai.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "Zscaler Client Connector installed and logged in.",
+            "Zscaler Root Certificate Authority (CA) installed in the Trusted Root Certification Authority store on the device.",
+            "All Claude applications, tools, extensions, plugins, or add-ons are installed.",
+            "SSL Inspection is configured in Zscaler Internet Access (ZIA) for the following Anthropic/Claude domains:",
+            ".api.anthropic.com",
+            ".claude.ai"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "Zscaler Client Connector installed and logged in.",
+            "Zscaler Root Certificate Authority (CA) installed in the Trusted Root Certification Authority store on the device.",
+            "All Claude applications, tools, extensions, plugins, or add-ons are installed.",
+            "SSL Inspection is configured in Zscaler Internet Access (ZIA) for the following Anthropic/Claude domains:",
+            ".api.anthropic.com",
+            ".claude.ai"
+          ]
+        }
+      ]
+    },
+    "claude-tools": {
+      "statement": "The runbook's table marks Claude Code Desktop, Claude Cowork (in Claude Code Desktop), Claude Code CLI, the Claude Code Visual Studio (VS) Code Extension, and the Claude Extension for Chrome, Excel and Powerpoint with a green checkmark in each of the Works by Default, Windows and macOS columns; the runbook says AI Guard by default supports all the listed tools when using Claude version 2.1.101 or later, and that an app with the checkmark in Works by Default needs no additional steps so long as the prerequisites are followed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "By default, AI Guard supports all Claude tools listed in this article when using Claude version 2.1.101 or later.",
+            "In the following table, Claude apps with the green checkmark (✅) in the Works by Default column do not require any additional steps, so long as the previous prerequisites are followed.",
+            "| Claude Tool/Application | Works by Default | Windows | macOS |",
+            "| Claude Code Desktop | ✅ | ✅ | ✅ |",
+            "| Claude Cowork (in Claude Code Desktop) | ✅ | ✅ | ✅ |",
+            "| Claude Code CLI | ✅ | ✅ | ✅ |",
+            "| Claude Code Visual Studio (VS) Code Extension | ✅ | ✅ | ✅ |",
+            "| Claude Extension for Chrome | ✅ | ✅ | ✅ |",
+            "| Claude Extension for Excel | ✅ | ✅ | ✅ |",
+            "| Claude Extension for Powerpoint | ✅ | ✅ | ✅ |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "In the following table, Claude apps with the green checkmark (✅) in the Works by Default column do not require any additional steps, so long as the previous prerequisites are followed.",
+            "| Claude Tool/Application | Works by Default | Windows | macOS |",
+            "| Claude Code Desktop | ✅ | ✅ | ✅ |",
+            "| Claude Cowork (in Claude Code Desktop) | ✅ | ✅ | ✅ |",
+            "| Claude Code CLI | ✅ | ✅ | ✅ |",
+            "| Claude Code Visual Studio (VS) Code Extension | ✅ | ✅ | ✅ |",
+            "| Claude Extension for Chrome | ✅ | ✅ | ✅ |",
+            "| Claude Extension for Excel | ✅ | ✅ | ✅ |",
+            "| Claude Extension for Powerpoint | ✅ | ✅ | ✅ |"
+          ]
+        }
+      ]
+    },
+    "claude-node-ca": {
+      "statement": "For a Claude version earlier than 2.1.101, the Claude runbook enables Claude Code CLI and Code for VS Code by exporting the Zscaler Root CA and setting the NODE_EXTRA_CA_CERTS environment variable to it: on Windows with the Base-64 encoded X.509 (.CER) format and setx; on macOS in PEM format, since Node.js-based tools such as Claude CLI need a PEM-formatted certificate, with an export line in ~/.zshrc (the default on modern macOS) or ~/.bash_profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "select Base-64 encoded X.509 (.CER) for the file format and click Next again.",
+            "setx NODE_EXTRA_CA_CERTS=\"/path/to/your/zscaler.cer\"",
+            "Select the .pem file format. For Node.js-based tools such as Claude CLI, you need a PEM-formatted certificate.",
+            "export NODE_EXTRA_CA_CERTS=\"/path/to/zscaler.pem\"",
+            "The default on modern MacOS: ~/.zshrc",
+            "Common alternative: ~/.bash_profile"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "To enable Claude Code CLI and Code for VS Code if you are using a Claude version earlier than 2.1.101, you will need to do the following:"
+          ],
+          "after": "- Windows Instructions"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "To enable Claude Code CLI and Code for VS Code if you are using a Claude version earlier than 2.1.101, you will need to do the following:"
+          ],
+          "after": "- macOS Instructions"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "select Base-64 encoded X.509 (.CER) for the file format and click Next again.",
+            "setx NODE_EXTRA_CA_CERTS=\"/path/to/your/zscaler.cer\"",
+            "Select the .pem file format. For Node.js-based tools such as Claude CLI, you need a PEM-formatted certificate.",
+            "export NODE_EXTRA_CA_CERTS=\"/path/to/zscaler.pem\"",
+            "The default on modern MacOS: ~/.zshrc",
+            "Common alternative: ~/.bash_profile"
+          ]
+        }
+      ]
+    },
+    "claude-verify": {
+      "statement": "The Claude runbook's check for Claude Code CLI is to enter a prompt: if it is working you receive a response instead of an SSL certificate error, and the traffic appears in Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "Enter a prompt. If Claude Code CLI is working, you will receive a response instead of an SSL certificate error, and the traffic will appear in Zscaler."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-claude-integration.json",
+          "quotes": [
+            "Enter a prompt. If Claude Code CLI is working, you will receive a response instead of an SSL certificate error, and the traffic will appear in Zscaler."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "ssl-inspection": {
       "kind": "semantic",
       "title": "Whether ZIA SSL inspection settings affect the AI Guard proxy-chaining path",
-      "status": "open",
-      "detail": "Unverified legacy statement: inline mode requires SSL inspection; prompt and response payloads are HTTPS to LLM providers, so SSL bypass on LLM domains can prevent AI Guard inline inspection. The ZIA integration article does not mention SSL inspection: it chains the forwarded traffic to the AI Guard proxy, which is trusted through the uploaded proxy-chaining root certificate.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: inline mode requires SSL inspection; prompt and response payloads are HTTPS to LLM providers, so SSL bypass on LLM domains can prevent AI Guard inline inspection. The ZIA integration article does not mention SSL inspection: it chains the forwarded traffic to the AI Guard proxy, which is trusted through the uploaded proxy-chaining root certificate. For Claude only, the Claude runbook makes ZIA SSL Inspection of .api.anthropic.com and .claude.ai a prerequisite (claude-prereqs); it does not say what fails without it, and no runbook covers other providers. The supported-application table in the ZIA integration article lists the Anthropic (Claude) row without Claude Cowork or the Chrome extension, which the runbook lists; the table's Web Browsers entry may cover Chrome, which is not stated.",
       "blocks": "diagnosing AI Guard for Users traffic that is not inspected",
       "resolves_with": [
         "lab-test",

@@ -1,0 +1,631 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.index-tool",
+  "title": "DLP Index Tool: configuration object, VM requirements and deployment notes for VMware, AWS and Azure, SSO and VM commands",
+  "aliases": [
+    "index tool",
+    "dlp index tool",
+    "edm index template",
+    "idm index template",
+    "zadp",
+    "adp_client.ova",
+    "index tool sso",
+    "index tool explicit proxy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-sensitive-information"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.incident-receiver"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{automatic-upgrade}} The dictionaries that use its templates are in [[zia.dlp.dictionaries]]; Endpoint DLP's use of it is in [[zia.dlp.endpoint-sensitive-information]]. Its VM has the same three-platform deployment shape as [[zia.dlp.incident-receiver]]."
+    },
+    {
+      "label": "The console object.",
+      "text": "{{configuration-object}} What the provisioning blob data is for is open {{gap:provisioning-blob}}, and whether the configuration has an API object is open {{gap:api-object}}."
+    },
+    {
+      "label": "Sizing.",
+      "text": "{{sizing-common}} How records relate to the cells used for the AWS instance type is open {{gap:records-vs-cells}}."
+    },
+    {
+      "label": "VMware.",
+      "text": "{{vmware-deployment}} How the image is obtained for templates over 300 million records is open {{gap:large-template-image}}, and whether the image is the one named in [[zia.dlp.incident-receiver:onprem-vm-spec]] is open {{gap:shared-image}}."
+    },
+    {
+      "label": "AWS.",
+      "text": "{{aws-deployment}} The contents of the requirements list are not captured {{gap:requirements-list-not-captured}}."
+    },
+    {
+      "label": "Azure.",
+      "text": "{{azure-deployment}}"
+    },
+    {
+      "label": "Differences between the three pages.",
+      "text": "The three deployment pages differ in what each states {{gap:family-absences}}."
+    },
+    {
+      "label": "Certificate, login and start-up.",
+      "text": "{{certificate-install}} {{startup-update-and-access}} {{non-elevated-port}}"
+    },
+    {
+      "label": "Network modes.",
+      "text": "{{explicit-proxy-requirements}} The command that sets the proxy differs between the pages {{divergence:explicit-proxy-command}}. The AWS page also spells another command differently {{gap:change-password-spelling}}."
+    },
+    {
+      "label": "Maintenance and commands.",
+      "text": "{{support-access}} {{vm-commands}}"
+    },
+    {
+      "label": "Single sign-on.",
+      "text": "{{sso}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which deployment page (VMware, AWS or Azure) the VM was built from before reading a specification or command off one of them, since the pages state different requirements.",
+      "uses": [
+        "vmware-deployment",
+        "aws-deployment",
+        "azure-deployment",
+        "explicit-proxy-command",
+        "family-absences"
+      ]
+    },
+    {
+      "do": "Whether the VM's RAM matches the number of records in the index templates, since the pages recommend different RAM above and below 300 million records.",
+      "uses": [
+        "sizing-common"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "The Index Tool builds the index templates used when creating custom DLP dictionaries and engines: once an Index Tool configuration exists and its VM is installed and running, admins log in to the tool to create and modify EDM and IDM index templates, and it shows a dashboard of the templates with details, last-modified date and time, and status. The VM can run on an AWS EC2 instance, an Azure VM or on-premises.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-index-tool.json",
+          "quotes": [
+            "The Index Tool allows you to configure index templates that can be applied when creating custom Data Loss Prevention (DLP) dictionaries and engines for the Zscaler service.",
+            "After an Index Tool configuration is created and the virtual machine (VM) for the tool is installed and running, you can then log in to the tool to create and modify Exact Data Match (EDM) or Indexed Document Match (IDM) index templates for DLP.",
+            "The Index Tool also provides a dashboard view of your EDM and IDM index templates, including template details, the date and time when the template was last modified, and the template's status.",
+            "Host the Index Tool VM on an Amazon Web Services (AWS) EC2 instance, an Azure VM, or on-premises."
+          ]
+        }
+      ]
+    },
+    "automatic-upgrade": {
+      "statement": "Zscaler updates the Index Tool automatically. Admins are notified in the tool, cannot change the upgrade time, and the upgrade waits for running operations to finish; it takes about one hour, during which the tool is unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-index-tool.json",
+          "quotes": [
+            "To ensure you have access to the latest features, the Zscaler service automatically updates the Index Tool.",
+            "You are notified in the Index Tool when an upgrade takes place and you can't change the upgrade time. However, the upgrade process waits for all system operations to complete before it begins. During the upgrade, which takes approximately one hour, the tool is not available for use."
+          ]
+        }
+      ]
+    },
+    "configuration-object": {
+      "statement": "An Index Tool configuration in the Admin Console has a unique VM Name, a Status of Enabled or Disabled, and an Enable Single Sign-On setting. After it is saved its SSL client certificate can be downloaded; the VM Name cannot be changed afterwards, and regenerating the certificate requires updating the VM with the new file. The page also offers the VM download (.ova) and a New Client Certificate window for uploading provisioning blob data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-index-tool-configuration.json",
+          "quotes": [
+            "VM Name: Enter a unique name for the virtual machine (VM).",
+            "Status: Make sure that the VM is Enabled.",
+            "Enable Single Sign-On: Select Enabled if you are configuring single sign-on (SSO) for the Index Tool.",
+            "After you save, you can download the SSL certificate for the configuration from the Index Tool page or from the Edit Index Tool Configuration window."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-modifying-index-tool-configuration.json",
+          "quotes": [
+            "In the Edit Index Tool Configuration window, you cannot modify the VM Name.",
+            "Status: Select Enabled or Disabled.",
+            "If you regenerate the certificate, make sure that you update the Index Tool virtual machine with the new file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-index-tool.json",
+          "quotes": [
+            "SSL Certificate: Displays a link that allows you to download the SSL client certificate that the VM uses.",
+            "Download the VM (.ova) for the Index Tool.",
+            "Open the New Client Certificate window. You can upload provisioning blob data."
+          ]
+        }
+      ]
+    },
+    "sizing-common": {
+      "statement": "All three deployment pages require 4 CPUs, so that hash generation performance is not impacted, and recommend 16 GB of RAM when the index templates hold less than 300 million records and 64 GB when they hold more.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "after": "If your index templates include less than 300 million records, Zscaler recommends",
+          "quotes": [
+            "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+            "RAM: 16 GB"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "after": "If your index templates include more than 300 million records, Zscaler recommends",
+          "quotes": [
+            "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+            "RAM: 64 GB"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-amazon-web-services.json",
+          "after": "If your index templates include less than 300 million records, Zscaler recommends",
+          "quotes": [
+            "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+            "RAM: 16 GB"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-amazon-web-services.json",
+          "after": "If your index templates include more than 300 million records, Zscaler recommends",
+          "quotes": [
+            "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+            "RAM: 64 GB"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-azure-vms.json",
+          "after": "If your index templates include less than 300 million records, Zscaler recommends",
+          "quotes": [
+            "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+            "RAM: 16 GB (i.e., Standard_D4_v4 or Standard_D8_v4)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-azure-vms.json",
+          "after": "If your index templates include more than 300 million records, Zscaler recommends",
+          "quotes": [
+            "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+            "RAM: 64 GB (i.e., Standard_E8-4ds_v4 or Standard_E8as_v4)."
+          ]
+        }
+      ]
+    },
+    "vmware-deployment": {
+      "statement": "On VMware, a new or clean deployment needs a VM image on Zscaler OS version 24, on ESX/ESXi 6.0 or later with one virtual NIC and a 600 GB disk (under 300 million records) or 1 TB (over). For templates under 300 million records the image can be downloaded from the Admin Console, and the page gives the official MD5 for /sc/adp/vm/adp_client.ova as f6793ec81fa7bcb3cd128ce37ced6fa9. The VM starts on DHCP by default, and the zsroot user's initial password is randomly generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "quotes": [
+            "New or clean deployment of Index Tool requires VM image running on Zscaler OS version 24.",
+            "If your index templates include less than 300 million records, you can download the Index Tool VM image from the Zscaler Admin Console.",
+            "Official MD5 for /sc/adp/vm/adp_client.ova: f6793ec81fa7bcb3cd128ce37ced6fa9",
+            "By default, the VM starts using DHCP to obtain the IP address and default router information.",
+            "Log in to the VM as user zsroot. The initial root password for this user is randomly generated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "after": "If your index templates include less than 300 million records, Zscaler recommends",
+          "quotes": [
+            "Hypervisor: VMware ESX/ESXi version 6.0 or later.",
+            "Disk: 600 GB",
+            "VM Network: 1 Virtual NIC"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "after": "If your index templates include more than 300 million records, Zscaler recommends",
+          "quotes": [
+            "Disk: 1 TB"
+          ]
+        }
+      ],
+      "gaps": [
+        "large-template-image",
+        "shared-image"
+      ]
+    },
+    "aws-deployment": {
+      "statement": "On AWS the Index Tool VM is requested from Zscaler Support for the customer's shared AWS account and region, and Support provides the shared AMI ID and description. The security group's outbound rules take the IPs listed on the Zscaler Index Tool Requirements page at config.zscaler.com, inbound rules carry only necessary traffic, and the VM needs no open port for internet traffic. The page's sizing example ties instance type to the planned number of cells (t2.large or t3.large below 500 million cells, t2.xlarge or t3.xlarge above), and a public IP changes when the instance is shut down and restarted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-amazon-web-services.json",
+          "quotes": [
+            "you must contact Zscaler Support and request the Index Tool VM for your shared AWS account and region. Zscaler Support then provides you with the shared Index Tool VM information, Amazon Machine Image (AMI) ID and description to use when configuring the Index Tool with AWS.",
+            "The Zscaler Index Tool Requirements page lists all of the outbound connections that need to be configured for the Zscaler Index Tool to communicate with the Zscaler cloud.",
+            "Inbound rules: Add only necessary incoming traffic IPs for the Index Tool VM. The Index Tool VM does not require an open port for internet traffic.",
+            "Outbound Rules: Add the outgoing traffic IPs that you gathered earlier from the Zscaler Index Tool Requirements page at config.zscaler.com.",
+            "The instance type depends on the total number of cells that you plan to use within the Index Tool VM.",
+            "if you plan to use less than 500 million cells, select the t2.large instance type, t3.large instance type, or something similar. If you plan to use more than 500 million cells, select the t2.xlarge instance type, t3.xlarge instance type or something similar.",
+            "If you are using a public IP address, when you shut down and restart the instance, the IP address changes."
+          ]
+        }
+      ],
+      "gaps": [
+        "records-vs-cells"
+      ]
+    },
+    "azure-deployment": {
+      "statement": "On Azure, the Index Tool VHD shared access signature (SAS) token must be obtained from Zscaler Support first; without it the tool cannot be set up. Deployment uses two VHD files (OS and data), each offered for 600 GB and 1,100 GB disks, copied from a regional source (USA, Europe or Australia) into the customer's storage account, whose networking must allow public access from all networks; all Index Tool resources must use the resource group's region. The VM is deployed by downloading a JSON parameter file and using it to deploy the Azure VM instance, 1,100 GB VHDs need an E8 VM size, and the tool is ready to configure when the serial console prompts to change the zsroot password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-azure-vms.json",
+          "quotes": [
+            "Before you begin deployment, contact Zscaler Support to obtain the Index Tool VHD shared access signature (SAS) token. Without it, you cannot set up the Index Tool.",
+            "To deploy the Index Tool on Azure, you'll need two separate VHD files: one for the OS, and one for data. Additionally, there are two different options available for each VHD file, to support 600 GB and 1,100 GB disk sizes on the Azure VM.",
+            "Use Azure Storage Explorer to copy the Index Tool VHD file to your Azure storage account.",
+            "Select the appropriate URL for your region to ensure the fastest copy time:",
+            "USA: https://zadpazureprod.blob.core.windows.net/",
+            "Europe: https://zadpazureeu.blob.core.windows.net/",
+            "Australia: https://zadpazureau.blob.core.windows.net/",
+            "On the Networking tab, ensure that the Enable public access from all networks option is selected.",
+            "All resources that you create for the Index Tool must use the region you select here.",
+            "To create the Index Tool VM, you first download a JSON parameter file, and then use that file to deploy the Azure VM instance that hosts the Index Tool.",
+            "If you are using 1,100 GB VHD files, select an E8 VM.",
+            "The Index Tool is ready to be configured when you see the prompt to change the zsroot password in the serial console output."
+          ]
+        }
+      ]
+    },
+    "certificate-install": {
+      "statement": "The VMware, AWS and Azure pages each install the SSL client certificate downloaded from the Admin Console with sudo zadp configure <SSL_certificate_zip_filename>, ask for the domain name used in the Index Tool's FQDN, and offer the default passphrase file /home/zsroot/zscaler_zadp_webui_certificate_pass.txt. The VMware page asks for a passphrase and a confirmation, says the step generates a self-signed server certificate (its example is *.mycompany.com), and gives sudo zadp install-server-cert for installing a server certificate followed by a service restart; the AWS and Azure pages also give sudo zadp install-server-cert. On the VMware page the tool is reached at https://<IP Address of the Index Tool VM> and logged in to with Admin Console credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "quotes": [
+            "Locate the Index Tool Configuration you added previously, and under the SSL Certificate column, click Download.",
+            "sudo zadp configure <SSL_certificate_zip_filename>",
+            "Enter the domain namethat is used for the Index Tool's fully qualified domain name (FQDN).",
+            "The self-signed certificate would be generated for *.mycompany.com.",
+            "Enter a passphrase, then re-enter the passphrase to confirm it.",
+            "You can also press Enter twice to accept the default location and file, /home/zsroot/zscaler_zadp_webui_certificate_pass.txt.",
+            "Generates a self-signed SSL server certificate.",
+            "sudo zadp install-server-cert",
+            "Enter the following command to restart the Index Tool service:",
+            "Go to https://<IP Address of the Index Tool VM> to access the Index Tool.",
+            "you can log in with your Zscaler Admin Console login credentials and create Index Templates to use when creating DLP dictionaries"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-amazon-web-services.json",
+          "quotes": [
+            "sudo zadp configure <SSL_certificate_zip_filename>",
+            "Enter the domain name that is used for the Index Tool's FQDN.",
+            "You can also press Enter twice to accept the default location and file, /home/zsroot/zscaler_zadp_webui_certificate_pass.txt.",
+            "sudo zadp install-server-cert"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-azure-vms.json",
+          "quotes": [
+            "sudo zadp configure <SSL_certificate_zip_filename>",
+            "Enter the domain name that is used for the Index Tool's FQDN.",
+            "You can also press Enter twice to accept the default location and file, /home/zsroot/zscaler_zadp_webui_certificate_pass.txt.",
+            "sudo zadp install-server-cert"
+          ]
+        }
+      ]
+    },
+    "explicit-proxy-requirements": {
+      "statement": "In explicit proxy mode DNS and NTP are not tunneled, so an internal DNS server is needed. The VMware page says the tool needs resolution for the current Master CA IP, the update server and the NTP server, and lists smcacluster, update1, update2 and zdistribute under the Zscaler cloud name plus the NTP servers 0, 1 and 2.freebsd.pool.ntp.org, which can be overridden. Because the proxy configuration does not allow authentication, the proxy must allow the VM's IP/MAC without user and password, and must allow SSL bypass to the IPs listed at config.zscaler.com/<Zscaler cloud Name>.net/edm. The AWS and Azure pages give the same internal DNS statement and the same IP list location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "quotes": [
+            "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode.",
+            "The Index Tool needs to have DNS resolution for the current Master CA IP, update server, and the NTP server.",
+            "smcacluster.<Zscaler cloud Name>",
+            "update1.<Zscaler cloud Name>",
+            "update2.<Zscaler cloud Name>",
+            "zdistribute.<Zscaler cloud Name>",
+            "0.freebsd.pool.ntp.org",
+            "1.freebsd.pool.ntp.org",
+            "2.freebsd.pool.ntp.org",
+            "You can override these FQDNs to your internal IP address in your DNS server configuration or using other methods.",
+            "since the proxy configuration doesn't allow authentication, you need to configure the proxy server to allow specific IP/MAC addresses without user and password authentication.",
+            "The proxy server must also allow SSL bypass for communication from the VM to a specific set of IP addresses. These IPs are listed at config.zscaler.com/<Zscaler cloud Name>.net/edm."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-amazon-web-services.json",
+          "quotes": [
+            "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode.",
+            "These IPs are listed at config.zscaler.com/<cloudname>.net/edm."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-azure-vms.json",
+          "quotes": [
+            "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode.",
+            "These IPs are listed at config.zscaler.com/<cloudname>.net/edm."
+          ]
+        }
+      ]
+    },
+    "non-elevated-port": {
+      "statement": "The VMware, AWS and Azure pages each say to update zadp_ui_port in the /sc/conf/sc.conf file to a port number higher than 1,000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "quotes": [
+            "Open the /sc/conf/sc.conf file and update the value for zadp_ui_port to a port number higher than 1,000."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-amazon-web-services.json",
+          "quotes": [
+            "Open the /sc/conf/sc.conf file and update the value for zadp_ui_port to a port number higher than 1,000."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-azure-vms.json",
+          "quotes": [
+            "Open the /sc/conf/sc.conf file and update the value for zadp_ui_port to a port number higher than 1,000."
+          ]
+        }
+      ]
+    },
+    "support-access": {
+      "statement": "The VMware page describes remote access for Zscaler Support without opening an inbound firewall connection: disabled by default and enabled only for as long as needed, sudo zadp support-access-start creates a long-lived SSH tunnel to the Zscaler cloud with remote port forwarding, sudo zadp support-access-stop brings it and all remote connections down, and the page also lists sudo zadp support-access-status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "quotes": [
+            "An admin can request remote assistance and allow Zscaler Support to log in to an Index Tool without having to open a firewall connection for inbound traffic. This feature is disabled by default and must be enabled explicitly for the duration that remote support assistance is required.",
+            "sudo zadp support-access-start",
+            "This creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding.",
+            "sudo zadp support-access-stop",
+            "This brings down the long-lived SSH tunnel to the Zscaler cloud and all the remote connections.",
+            "sudo zadp support-access-status"
+          ]
+        }
+      ],
+      "gaps": [
+        "family-absences"
+      ]
+    },
+    "vm-commands": {
+      "statement": "The VMware page's VM commands table includes: update-now, which needs the service stopped; force-update-now, which updates to the latest version regardless of the installed one and stops the service first; status; troubleshoot, which checks the installed certificate, the zcloud server configuration, all services and whether an update is needed; collect-diagnostics, which builds a file for Zscaler Support; and configure-syslog-server, which forwards file SFTP events and critical changes to monitored configuration files to an external syslog server over UDP port 514, which cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "quotes": [
+            "| sudo zadp troubleshoot |",
+            "| sudo zadp configure-syslog-server |",
+            "| sudo zadp update-now | Updates the Zscaler Index Tool service. The service must be stopped before you can run this command. |",
+            "| sudo zadp force-update-now | Forces the Zscaler Index Tool service to update to the latest version regardless of what version is on the VM. The service is automatically stopped before the update begins. |",
+            "| sudo zadp status | Displays whether the Zscaler Index Tool service is running or stopped. |",
+            "Runs a series of checks to help troubleshoot issues, such as checking the installed certificate, the zcloud server configuration, all services, and whether or not an update is needed.",
+            "| sudo zadp collect-diagnostics | Creates a file with diagnostic information to send to Zscaler Support for troubleshooting purposes. |",
+            "Configures external syslog server forwarding on the Zscaler Index Tool to forward file SFTP events and to log any critical changes to the configuration files monitored by the Index Tool.",
+            "The external syslog server forwarding happens over UDP port 514, which cannot be modified."
+          ]
+        }
+      ]
+    },
+    "startup-update-and-access": {
+      "statement": "On the VMware page, a successfully configured Index Tool downloads the latest install package automatically before it starts. Because the tool gives access to highly sensitive information, the page says everyone with access to it must be authorized and authenticated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-index-tool-vmware.json",
+          "quotes": [
+            "If you successfully configured the Index Tool, the service automatically downloads the latest install package before it starts.",
+            "Since the Index Tool provides access to highly sensitive information, ensure that everyone who has access to it is authorized and authenticated."
+          ]
+        }
+      ]
+    },
+    "sso": {
+      "statement": "Single sign-on to the Index Tool can be configured through the customer's IdP instead of logging in with a username and password; the page walks through Okta (a SAML 2.0 app) and Microsoft Entra ID. The IdP's single sign-on, audience and reply URLs are <Index tool URL>/ssoLogin, Okta's Name ID format is Unspecified, and IdP usernames must match the admins' usernames on the Zscaler service. The Admin Console side takes the IDP URL, an Issuer of <Index Tool URL>/ssoLogin (case-sensitive), the IdP's SSO certificate and a SAML Issuer ID used to verify the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-single-sign-index-tool.json",
+          "quotes": [
+            "Instead of logging in to the Index Tool with a username and password, you can configure single sign-on (SSO) to the Index Tool through your identity provider (IdP).",
+            "Log in to the Okta Admin Console as an administrator.",
+            "In the Create a new app integration window, select SAML 2.0, and click Next.",
+            "Sign in to the Microsoft Entra admin center.",
+            "On the Single sign-on page, select SAML.",
+            "Single sign-on URL: Enter <Index tool URL>/ssoLogin.",
+            "Audience URI (SP Entity ID): Enter <Index tool URL>/ssoLogin.",
+            "Name ID format: Select Unspecified.",
+            "Reply URL (Assertion Consumer Service URL): Click Add reply URL and enter <Index tool URL>/ssoLogin.",
+            "Usernames selected for SSO to the Index Tool in your IdP's admin console must match the usernames of those admins on the Zscaler service.",
+            "IDP URL: Enter the IdP SSO URL that you copied during the Index Tool integration.",
+            "Issuer: Enter <Index Tool URL>/ssoLogin.",
+            "This value is case-sensitive. Ensure that you enter it correctly.",
+            "SSO Certificate: Upload the certificate that you downloaded during the Index Tool integration.",
+            "SAML Issuer ID: Enter the URL that is used to verify your IdP."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "explicit-proxy-command": {
+      "summary": "The VMware page sets the explicit proxy with one command, while the AWS and Azure pages use another.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-index-tool-vmware.json",
+            "quotes": [
+              "sudo zadp configure-network"
+            ],
+            "after": "## Run the Index Tool VM in Explicit Proxy Mode"
+          },
+          "says": "The VMware page runs sudo zadp configure-network for explicit proxy mode."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-index-tool-amazon-web-services.json",
+            "quotes": [
+              "sudo zadp configure-proxy",
+              "AWS manages network configuration, so you cannot directly configure the network from the Incident Receiver VM."
+            ],
+            "after": "Run the Index Tool VM in Explicit Proxy Mode"
+          },
+          "says": "The AWS page runs sudo zadp configure-proxy. Its note that AWS manages network configuration so the network cannot be configured directly names the Incident Receiver VM, which looks like text copied from the Incident Receiver page."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-index-tool-azure-vms.json",
+            "quotes": [
+              "sudo zadp configure-proxy"
+            ],
+            "after": "Run the Index Tool VM in explicit proxy mode"
+          },
+          "says": "The Azure page runs sudo zadp configure-proxy."
+        }
+      ],
+      "impact": "Which command sets an explicit proxy depends on which page is followed, and which platform accepts which command is unstated."
+    }
+  },
+  "gaps": {
+    "provisioning-blob": {
+      "kind": "semantic",
+      "title": "What the provisioning blob data in the New Client Certificate window is for",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying when provisioning blob data must be uploaded",
+      "detail": "The About the Index Tool page says the New Client Certificate window lets an admin upload provisioning blob data but does not say what it provisions."
+    },
+    "api-object": {
+      "kind": "semantic",
+      "title": "Whether the Index Tool configuration has an API object",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "code-read"
+      ],
+      "blocks": "binding the configuration to an API type",
+      "detail": "The type registry has no Index Tool object. The DLP EDM schema and IDM profile types carry client fields (edmClient, idmClient, clientVm) that may point at it, but no captured source says so."
+    },
+    "records-vs-cells": {
+      "kind": "semantic",
+      "title": "How the 300 million records RAM threshold relates to the 500 million cells instance-type example",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "choosing an AWS instance type from a record count",
+      "detail": "The AWS page gives RAM guidance at 300 million records and an instance-type example at 500 million cells, and does not say how records relate to cells."
+    },
+    "large-template-image": {
+      "kind": "semantic",
+      "title": "How the VMware image is obtained for templates over 300 million records",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "stating where to get the VMware image for large templates",
+      "detail": "The VMware page gives the Admin Console download only for fewer than 300 million records."
+    },
+    "shared-image": {
+      "kind": "semantic",
+      "title": "Whether the Index Tool and Incident Receiver VMware images are the same image",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying the two VMs share an OVA",
+      "detail": "The VMware Index Tool page and the Incident Receiver on-premises page give the same OVA path and MD5 (/sc/adp/vm/adp_client.ova, f6793ec81fa7bcb3cd128ce37ced6fa9). Whether that is one shared image or a copied value is not stated."
+    },
+    "family-absences": {
+      "kind": "semantic",
+      "title": "Which deployment-page facts apply to the other platforms",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "extending a fact from one deployment page to the others",
+      "detail": "In the captures, the Zscaler OS version 24 requirement and the remote Support access commands appear only on the VMware page, the AWS page's requirements list gives no disk size (its AMI example is named \"Zscaler ADP/EDM 500GB (6.2r.46.331757)\", which does not say it is the required disk), and the Azure page gives disk sizes only through the 600 GB and 1,100 GB VHD options. This was found by comparing the three captured pages; whether the other platforms share these facts is not stated."
+    },
+    "change-password-spelling": {
+      "kind": "semantic",
+      "title": "The change-password command spelling on the AWS page",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "giving the change-password command for an AWS-hosted Index Tool",
+      "detail": "The VMware page gives sudo zadp change-password, while the AWS page spells the command with zap in place of zadp. Which is correct for AWS is not stated, and no spelling is asserted here."
+    },
+    "requirements-list-not-captured": {
+      "kind": "semantic",
+      "title": "The Zscaler Index Tool Requirements IP list",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "listing the outbound addresses the Index Tool needs",
+      "detail": "The AWS and explicit-proxy sections point to the Zscaler Index Tool Requirements page and the config.zscaler.com EDM list, whose contents are not captured."
+    }
+  }
+}

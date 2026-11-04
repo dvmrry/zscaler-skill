@@ -31,6 +31,22 @@
     {
       "rel": "see-also",
       "to": "ai-security.ai-guard.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.pii"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.intellectual-property"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.competition"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.topic"
     }
   ],
   "prose": [
@@ -47,7 +63,15 @@
     },
     {
       "label": "What the policy editor configures.",
-      "text": "{{configurable-detectors}} {{keyword-detectors}} Settings shared by all detectors, and how a policy is applied, are in [[ai-security.ai-guard.policies]]."
+      "text": "{{configurable-detectors}} {{keyword-detectors}} The Topic runbook disagrees about whether Off Topic has a threshold and whether it matches by keyword {{divergence:off-topic-threshold}}. Settings shared by all detectors, and how a policy is applied, are in [[ai-security.ai-guard.policies]]."
+    },
+    {
+      "label": "Per-detector runbooks.",
+      "text": "The PII detector is in [[ai-security.ai-guard.detectors.pii]], the Intellectual Property detector in [[ai-security.ai-guard.detectors.intellectual-property]], the Competition detector in [[ai-security.ai-guard.detectors.competition]], and the Topic and Off Topic detectors in [[ai-security.ai-guard.detectors.topic]]."
+    },
+    {
+      "label": "Languages.",
+      "text": "{{languages}} The detector runbooks give a different count {{divergence:supported-languages}}. The runbook claims that state 28 languages are [[ai-security.ai-guard.detectors.competition:languages-tickers]], [[ai-security.ai-guard.detectors.topic:languages]] and [[ai-security.ai-guard.detectors.intellectual-property:model]]."
     },
     {
       "label": "Counts.",
@@ -63,10 +87,18 @@
       ]
     },
     {
-      "do": "For a keyword or regex need, the Text detector (regex patterns) or Off Topic (listed topics), which trigger on specific terms rather than a threshold.",
+      "do": "For a keyword or regex need, the Text detector (regex patterns); for Off Topic (listed topics), whether it has a threshold and matches by keyword is disputed, so read the divergence rather than assume either.",
       "uses": [
         "configurable-detectors",
-        "keyword-detectors"
+        "keyword-detectors",
+        "off-topic-threshold"
+      ]
+    },
+    {
+      "do": "Before stating how many languages AI Guard supports, which list applies: the Multilingual Support page's six or the detector runbooks' 28.",
+      "uses": [
+        "languages",
+        "supported-languages"
       ]
     }
   ],
@@ -226,6 +258,126 @@
           ]
         }
       ]
+    },
+    "languages": {
+      "statement": "The Multilingual Support page says AI Guard currently supports English, French, German, Japanese, Portuguese and Spanish, with more being added; as more prompt and response detector categories are added they may not support all languages, and a Multilingual badge on a detector's tile marks the categories that support all languages, with a hover that shows which languages that detector supports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-ai-guard-multilingual-support.json",
+          "quotes": [
+            "AI Guard currently supports the following languages with more being added in the future:",
+            "- English",
+            "- French",
+            "- German",
+            "- Japanese",
+            "- Portuguese",
+            "- Spanish",
+            "As more prompt and response detector categories are added, they may not support all languages at this time.",
+            "You can see at-a-glance which detector categories support all languages by finding the Multilingual badge on their tile.",
+            "Hovering your mouse cursor over it will show which languages are supported by the specific detector."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-multilingual-support.json",
+          "quotes": [
+            "AI Guard currently supports the following languages with more being added in the future:",
+            "- English",
+            "- French",
+            "- German",
+            "- Japanese",
+            "- Portuguese",
+            "- Spanish",
+            "As more prompt and response detector categories are added, they may not support all languages at this time.",
+            "You can see at-a-glance which detector categories support all languages by finding the Multilingual badge on their tile.",
+            "Hovering your mouse cursor over it will show which languages are supported by the specific detector."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "supported-languages": {
+      "summary": "How many languages AI Guard supports: the Multilingual Support page lists six, while the detector runbooks say 28.",
+      "positions": [
+        {
+          "says": "The Multilingual Support page lists six languages: English, French, German, Japanese, Portuguese and Spanish.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-ai-guard-multilingual-support.json",
+            "quotes": [
+              "AI Guard currently supports the following languages with more being added in the future:",
+              "- English",
+              "- French",
+              "- German",
+              "- Japanese",
+              "- Portuguese",
+              "- Spanish"
+            ]
+          }
+        },
+        {
+          "says": "The Competition runbook says 28 languages are supported out of the box.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+            "quotes": [
+              "Yes. 28 languages are supported out of the box."
+            ]
+          }
+        },
+        {
+          "says": "The Topic and Off Topic runbook says 28 languages are supported out of the box, including Arabic, Chinese, Hindi, Korean, Russian, Thai, Turkish and Vietnamese, which the Multilingual page does not list.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+            "quotes": [
+              "28 languages are supported out of the box, including Arabic, Chinese, French, German, Hindi, Japanese, Korean, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese, and more."
+            ]
+          }
+        },
+        {
+          "says": "The IP runbook says reproduction of confidential English content in French, German or any of 28 supported languages is detected.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-ip-detector.json",
+            "quotes": [
+              "Multilingual reproduction: Reproducing confidential English content in French, German, or any of 28 supported languages is detected."
+            ]
+          }
+        }
+      ],
+      "impact": "The Multilingual page allows per-detector differences, since newer detector categories may not support every language, but it does not reconcile six with 28; an answer on a language outside the six should name which page it rests on and that the other disagrees."
+    },
+    "off-topic-threshold": {
+      "summary": "Whether Off Topic has a threshold and how it matches: the policy-editor page says it has no threshold option and describes activation by specific keywords, phrases or topics, while the Topic runbook gives the pair a threshold and semantic matching rather than exact-substring keywords.",
+      "positions": [
+        {
+          "says": "The policy-editor page says some prompt detectors such as Text and Off Topic do not include the threshold option because they activate with specific keywords, phrases or topics.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-add-and-manage-ai-guard-policies.json",
+            "quotes": [
+              "Some prompt detectors such as Text and Off Topic don't include this option because those detectors activate with specific keywords, phrases, or topics."
+            ]
+          }
+        },
+        {
+          "says": "The Topic and Off Topic runbook gives the pair a threshold with a default of 0.7, says both detectors use the same underlying model and topic definitions, and says the detector does not match keywords by exact substring but uses semantic understanding.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-best-practices-runbook-topicoff-topic-detectors.json",
+            "quotes": [
+              "The default is 0.7.",
+              "Both detectors use the same underlying model and the same topic definitions. The only difference is when they are triggered:",
+              "It does not perform keyword matching by exact substring. It uses semantic understanding, so “block” in “writer’s block” won’t trigger a topic about blockchain."
+            ]
+          }
+        }
+      ],
+      "impact": "The keyword-detectors claim states what the policy-editor page says and stands as a statement of that page; whether the console shows a threshold on the Off Topic tile is not settled, so do not tell an administrator Off Topic has no threshold or that it matches only literal keywords."
     }
   },
   "gaps": {

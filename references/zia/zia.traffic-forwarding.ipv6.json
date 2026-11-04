@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.ipv6",
+  "title": "IPv6 through ZIA: forwarding per method, prerequisites, processing and policy",
+  "aliases": [
+    "ipv6 support",
+    "ipv6 forwarding",
+    "IPv6 Configuration",
+    "Other6",
+    "Block All IPv6"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipv6-prefixes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.verification"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.locations.sublocations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.forwarding"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{methods}} {{outer-ipv4}} Provisioning IPv6 and enabling it for the organization and each location is in [[zia.traffic-forwarding.gre:ipv6-inside-gre]]; IPv6 over IPSec needs the selectors in [[zia.traffic-forwarding.ipsec:ipv6-selectors]]; NAT64 and DNS64 prefixes are in [[zia.traffic-forwarding.ipv6-prefixes]]."
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{client-prerequisites}} {{remote-prerequisites}} {{ipv6-data-centers}} {{firewall-domains}} Which data centers are IPv6-enabled is open {{gap:ipv6-data-center-list}}."
+    },
+    {
+      "label": "Client Connector and PAC setup.",
+      "text": "{{pac-and-zcc-setup}} {{zcc-profile-settings}} {{zt2-bypass}} The Android version for these prerequisites is open {{gap:android-version}}."
+    },
+    {
+      "label": "How the service connects.",
+      "text": "{{prefers-ipv4}} {{transparent-connection}} {{translation-inputs}} {{zt2-web-and-non-web}} {{dns-response-table}} What the service does when a DNS query has no A record is stated two ways on the page {{divergence:no-a-record}}."
+    },
+    {
+      "label": "Policy.",
+      "text": "{{predefined-firewall-rules}} {{policies}} Which policy types accept IPv6 criteria is open {{gap:policy-types}}."
+    },
+    {
+      "label": "Private and Virtual Service Edges.",
+      "text": "Which tunnels carry IPv6 to a Private or Virtual Service Edge is described two ways {{divergence:service-edge-tunnels}}; the Virtual Service Edge page's side is [[zia.virtual-service-edge.forwarding:ipv6-gre-only-page]]."
+    },
+    {
+      "label": "Checking and logs.",
+      "text": "{{my-ip-v6}} {{logs}} Whether ip.zscaler.com recognizes IPv6 is in [[zia.traffic-forwarding.verification]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the client is inside a location, which decides between a GRE or IPSec tunnel and PAC files or Client Connector.",
+      "uses": [
+        "methods"
+      ]
+    },
+    {
+      "do": "Whether the forwarding profile disables Drop IPv6 in Dual Stack Network and Drop IPv6 in IPv6 Only Network for Client Connector.",
+      "uses": [
+        "zcc-profile-settings"
+      ]
+    },
+    {
+      "do": "Whether an IPv6 design toward a Private or Virtual Service Edge assumes GRE only or GRE and IPSec, since the pages differ.",
+      "uses": [
+        "service-edge-tunnels"
+      ]
+    }
+  ],
+  "claims": {
+    "methods": {
+      "statement": "Zscaler extends IPv6 support according to the forwarding method and whether the client is inside a location. Inside a location, IPv6 traffic is forwarded inside an IPv4 tunnel using GRE or IPSec, web and non-web alike. Outside a location, web requests go through PAC files via a self-hosted or ISP-provided NAT64 gateway or directly over Client Connector Z-Tunnel 1.0, and web and non-web requests go directly over Z-Tunnel 2.0. Zscaler highly recommends Client Connector as the preferred IPv6 forwarding method whenever feasible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "IPv6 support is extended by Zscaler based on the traffic forwarding method and also whether the client device is inside a location.",
+            "For clients inside a location: Forward IPv6 traffic inside an IPv4 tunnel to Service Edges for Internet & SaaS (ZIA) using a GRE tunnel or IPSec tunnel. Both web and non-web traffic can be forwarded using these tunneling methods.",
+            "For clients outside a location (web requests only):",
+            "Forward web traffic from IPv6 clients to Service Edges using PAC files via a self-hosted or ISP-provided NAT64 gateway.",
+            "Forward web traffic from IPv6 clients to Service Edges directly using Zscaler Client Connector Z-Tunnel 1.0.",
+            "For clients outside a location (web and non-web requests): Forward all traffic from IPv6 clients to Service Edges directly using Zscaler Client Connector Z-Tunnel 2.0.",
+            "Zscaler highly recommends using Zscaler Client Connector as your preferred forwarding method for IPv6 traffic whenever feasible."
+          ]
+        }
+      ]
+    },
+    "outer-ipv4": {
+      "statement": "Zscaler's cloud infrastructure can handle IPv6 traffic, but the outer packets of a tunnel arriving at the Service Edges must be IPv4 packets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "Although Zscaler's cloud infrastructure can handle IPv6 traffic, the outer packets arriving in a tunnel at the Service Edges must be IPv4 packets."
+          ]
+        }
+      ]
+    },
+    "client-prerequisites": {
+      "statement": "The prerequisites the Understanding IPv6 Support page lists include Client Connector 4.8 or later on Windows and 4.7 or later on macOS, allowlisting the IPv6 addresses of the Zscaler infrastructure on on-premises firewalls, selecting Packet Filter Based for Tunnel Driver Type in forwarding profiles, and disabling Drop IPv6 Packets for the forwarding profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "This feature requires Zscaler Client Connector version 4.8 or later for Windows and Zscaler Client Connector version 4.7 or later for macOS.",
+            "Allowlist the IPv6 addresses for the Zscaler infrastructure for your on-premises firewalls.",
+            "Then select Packet Filter Based for Tunnel Driver Type when configuring forward profiles.",
+            "Disable Drop IPv6 Packets for the forwarding profile to prevent Zscaler Client Connector from dropping IPv6 addresses."
+          ]
+        }
+      ]
+    },
+    "remote-prerequisites": {
+      "statement": "For clients outside a location, Client Connector users must enable Enable IPv6 Resolution for Zscaler Domains in the Admin Console, otherwise a NAT64/DNS64 service is needed; PAC file users must use a self-hosted or ISP-provided NAT64 gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "Zscaler Client Connector users must enable the Enable IPv6 Resolution for Zscaler Domains field in the Zscaler Admin Console. Otherwise, a NAT64/DNS64 service is needed.",
+            "PAC file users must use a self-hosted or ISP-provided NAT64 gateway to forward IPv6 traffic to Service Edges."
+          ]
+        }
+      ]
+    },
+    "ipv6-data-centers": {
+      "statement": "When Z-Tunnel 1.0 or Z-Tunnel 2.0 IPv6 traffic is forwarded without an intermediate NAT64 service, it must go only to IPv6-enabled data centers, and for Client Connector without a NAT64 service only to data centers in the IPv6-enabled subcloud Zscaler manages. With an intermediate NAT64 service, the page says to check whether the data center is IPv6-enabled by verifying on the Zscaler config page that it has an IPv6 virtual IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "When forwarding your organization's Z-Tunnel 1.0 and Z-Tunnel 2.0 IPv6 traffic to Zscaler's data centers without an intermediate NAT64 service, you must ensure that the traffic is forwarded only to IPv6-enabled data centers.",
+            "If you use an intermediate NAT64 service to forward traffic to Zscaler, check if a Zscaler data center is IPv6-enabled.",
+            "Go to the Zscaler config page and verify that the data center has an IPv6 virtual IP address associated with it.",
+            "When using Zscaler Client Connector without an intermediate NAT64 service, you must forward your users' IPv6 traffic only to data centers in the IPv6-enabled subcloud managed by Zscaler."
+          ]
+        }
+      ]
+    },
+    "firewall-domains": {
+      "statement": "On-premises firewalls must allow IPv6 traffic to gateway6, secondary.gateway6, pac6, login6, logout6 and mobile6 under <cloudname>.net, to any6.broker.<cloudname>.net and to speedtest6.zscaler.com; the SAML IdP Reply URL is set for https://login6.<cloudname>.net/sfc_sso and, if applicable, https://logout6.<cloudname>.net/sfc_sso.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "Allow IPv6 traffic to pass through on-premises firewalls to the following domains:",
+            "- gateway6.<cloudname>.net",
+            "secondary.gateway6.<cloudname>.net",
+            "pac6.<cloudname>.net",
+            "- login6.<cloudname>.net",
+            "- logout6.<cloudname>.net",
+            "speedtest6.zscaler.com",
+            "any6.broker.<cloudname>.net",
+            "mobile6.<cloudname>.net",
+            "https://login6.<cloudname>.net/sfc_sso",
+            "https://logout6.<cloudname>.net/sfc_sso (if applicable)"
+          ]
+        }
+      ]
+    },
+    "pac-and-zcc-setup": {
+      "statement": "For PAC files, the ${Gateway_Host} variable is configured in the PAC file. For Client Connector, IPv6 traffic must go only to data centers in the IPv6-enabled subcloud Zscaler manages, which the admin does with a custom PAC file used with the App Profile; its gateway variable names the public subcloud ipv6, for example ${GATEWAY.ipv6.zscalertwo.net}.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "Configure the ${Gateway_Host} variable, which is a Zscaler-specific variable, in the PAC file.",
+            "When using Zscaler Client Connector, you must ensure that your users' IPv6 traffic is forwarded only to data centers in the IPv6-enabled subcloud managed by Zscaler. You can do this by configuring a custom PAC file and using it with your App Profile in Zscaler Client Connector.",
+            "<Subcloud> with ipv6, which is the DNS name of the public subcloud provisioned by Zscaler.",
+            "An example would be ${GATEWAY.ipv6.zscalertwo.net}."
+          ]
+        }
+      ]
+    },
+    "zcc-profile-settings": {
+      "statement": "In Client Connector forwarding profiles, Drop IPv6 in Dual Stack Network and Drop IPv6 in IPv6 Only Network must be disabled, for both Z-Tunnel 2.0 and Z-Tunnel 1.0; Drop IPv6 Include Traffic When not supported is recommended, for Z-Tunnel 2.0 only. In app profiles, IPv6 routes are not added to the inclusion settings by default, so all inclusions must be added explicitly, including [2000::/3]; and with * as the DNS Domain Inclusion, Enforce Firewall Control must be enabled for the locations or DNS resolution fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "These configurations are applicable to Z-Tunnel 2.0 unless otherwise specified.",
+            "(Mandatory) Disable the Drop IPv6 in Dual Stack Network and Drop IPv6 in IPv6 Only Network options",
+            "This configuration is applicable to both Z-Tunnel 2.0 and Z-Tunnel 1.0.",
+            "(Recommended) Enable the Drop IPv6 Include Traffic When not supported option to drop IPv6 traffic that matches the destination inclusion if IPv6 is not provisioned for the company or the Service Edge. This configuration is applicable only to Z-Tunnel 2.0.",
+            "IPv6 routes are not added by default to the inclusion settings, so you need to explicitly add all inclusions, including [2000::/3] that sends traffic from all publicly routable IPv6 addresses.",
+            "When entering * for the DNS Domain Inclusion field, ensure that the Enforce Firewall Control field is enabled for your locations in the Zscaler Admin Console. Otherwise, the DNS resolution fails."
+          ]
+        }
+      ]
+    },
+    "zt2-bypass": {
+      "statement": "Client Connector over Z-Tunnel 2.0 might let IPv6 traffic reach the destination by bypassing the Zscaler service when it connects to a data center that does not support IPv6 yet, or when IPv6 support is disabled in the Admin Console for the organization or the device's location; to prevent that, Client Connector is configured to drop IPv6 packets in its forwarding profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "Zscaler Client Connector over Z-Tunnel 2.0 might allow IPv6 traffic to the destination by bypassing the Zscaler service in the following cases:",
+            "Zscaler Client Connector connects to a Zscaler data center that does not support IPv6 yet.",
+            "IPv6 support has been disabled in the Zscaler Admin Console for your organization or the location where the user device is placed.",
+            "To prevent IPv6 traffic from bypassing the Zscaler service in these scenarios, you need to configure Zscaler Client Connector to drop IPv6 packets forwarding profiles in Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "prefers-ipv4": {
+      "statement": "The service prefers an IPv4 connection whenever possible and uses IPv6 for IPv6-only destinations. For web traffic from IPv6 clients arriving in explicit proxy mode via Client Connector over Z-Tunnel 1.0 or via PAC files, it connects over IPv4 when the destination is reachable only over IPv4 or over IPv4 or IPv6, and over IPv6 when the destination is reachable only over IPv6.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "The Zscaler service prefers an IPv4 connection whenever possible, and an IPv6 connection is established for IPv6-only destinations.",
+            "When web traffic from IPv6 clients arrives at a Service Edge in explicit proxy mode via Zscaler Client Connector over Z-Tunnel 1.0 or using PAC files",
+            "If the destination is reachable only via IPv4, then the Zscaler service establishes an IPv4 connection.",
+            "If the destination is reachable via IPv4 or IPv6, then the Zscaler service establishes an IPv4 connection.",
+            "If the destination is reachable only via IPv6, then the Zscaler service establishes an IPv6 connection."
+          ]
+        }
+      ]
+    },
+    "transparent-connection": {
+      "statement": "For traffic from IPv6 clients arriving in transparent proxy mode over a GRE or IPSec IPv4 tunnel, or via Client Connector (Z-Tunnel 2.0 only): if the destination IPv6 address matches a NAT64 prefix the organization supports, the IPv4 address is extracted from it and an IPv4 connection is established; if it is a regular IPv6 address, an IPv6 connection is established.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "When traffic from IPv6 clients arrives at a Service Edge in transparent proxy mode using an IPv4 tunnel (GRE or IPSec) or via Zscaler Client Connector (Z-Tunnel 2.0 only)",
+            "If the destination IPv6 address has a prefix match with NAT64 prefixes supported by the organization, then the IPv4 address is extracted from the destination IPv6 address and an IPv4 connection is established.",
+            "If the destination IPv6 address is a regular IPv6 address, an IPv6 connection is established."
+          ]
+        }
+      ]
+    },
+    "translation-inputs": {
+      "statement": "To establish an IPv4 connection to the destination, the service uses the NAT64/DNS64 mechanism to translate inbound IPv6 packets to IPv4; the translation depends on the type of traffic (DNS queries or non-DNS), the prefix used in the inbound IPv6 packets and the DNS64/NAT64 prefix configurations in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "For establishing an IPv4 connection with the destination, the Zscaler service employs the NAT64/DNS64 mechanism to translate IPv6 packets of the inbound traffic to IPv4 packets. This translation depends on the following parameters:",
+            "Type of traffic (DNS queries or non-DNS traffic)",
+            "The prefix used in the inbound IPv6 packets",
+            "DNS64/NAT64 prefix configurations in the Zscaler Admin Console"
+          ]
+        }
+      ]
+    },
+    "zt2-web-and-non-web": {
+      "statement": "For an IPv6 client outside a location reaching an IPv4-only or dual-stack destination over Z-Tunnel 2.0, the service connects over IPv4 using the DNS64/NAT64 mechanism for web traffic; for non-web traffic it connects over IPv4 if the destination IPv6 address contains a NAT64 prefix recognized by Zscaler, and over IPv6 otherwise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "The IPv6 traffic from a client outside a location is forwarded to the Service Edge using Zscaler Client Connector or PAC file to an IPv4-Only/Dual-Stack destination.",
+            "Z-Tunnel 2.0: The Zscaler service establishes an IPv4 connection with the destination using the DNS64/NAT64 mechanism for Z-Tunnel 2.0 web traffic. For non-web traffic, an IPv4 connection is established if the destination IPv6 contains a NAT64 prefix recognized by Zscaler. Otherwise, an IPv6 connection is established."
+          ]
+        }
+      ]
+    },
+    "dns-response-table": {
+      "statement": "In the page's DNS response table, an IPv6 client reaching an IPv4 destination gets an IPv4 A response and a DNS64 AAAA response; an IPv4 + IPv6 client reaching an IPv6 destination gets an empty A response and a native IPv6 AAAA response; an IPv6 (CGNAT) client reaching an IPv4 + IPv6 destination gets an IPv4 A response and a DNS64 AAAA response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "| Client | Destination | DNS A Response | DNS AAAA Response |",
+            "| IPv6 | IPv4 | IPv4 | DNS64 |",
+            "| IPv4 + IPv6 | IPv6 | Empty | Native IPv6 |",
+            "| IPv6 (CGNAT) | IPv4 + IPv6 | IPv4 | DNS64 |"
+          ]
+        }
+      ]
+    },
+    "predefined-firewall-rules": {
+      "statement": "When IPv6 is enabled for the organization, two predefined Firewall Filtering rules are created: Block All IPv6, which blocks traffic from all IPv6 clients to any destination and must be modified, or overridden by higher-order rules, to allow IPv6 traffic; and Allow IPv6 DNS Traffic, which lets DNS traffic from IPv6 clients sent via Client Connector reach the Service Edges. They use Source IP address conditions and do not affect destination-based IPv6 traffic, and Zscaler recommends the lowest precedence for them, after the Default Firewall Filtering Rule. DNS optimization settings for IPv6 connections are enabled for all URL categories and cloud applications in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "When IPv6 is enabled at the organization level, two new predefined Firewall Filtering rules are automatically created:",
+            "The Block All IPv6 rule blocks traffic from all IPv6 clients, directed to any destination.",
+            "You need to modify this rule to allow IPv6 traffic or create higher-order rules with granularity to allow IPv6 traffic that matches specific conditions.",
+            "The Allow IPv6 DNS Traffic rule facilitates the DNS traffic from IPv6 clients sent via Zscaler Client Connector to reach the Service Edges.",
+            "These rules use Source IP address conditions and do not affect destination-based IPv6 traffic. Zscaler recommends assigning the lowest precedence to these rules, following the Default Firewall Filtering Rule.",
+            "Additionally, the DNS optimization settings for IPv6 connections are automatically enabled for all URL categories and cloud applications in the Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "policies": {
+      "statement": "The service enforces limited policies on IPv6 server-bound connections: Other6 as the location criteria covers all IPv6 traffic from a location; by URL categories, to which individual domains or IP addresses can be added; and by the predefined All IPv6 source and destination address groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "The Zscaler service allows you to configure and enforce limited policies on IPv6 server-bound connections.",
+            "Using Other6 as the location criteria, you can define policies for all the IPv6 traffic that originates from that location.",
+            "The Zscaler service allows you to add individual domains or IP addresses to URL categories, which can then be used in policies to control the traffic bound to those IPv6 destinations.",
+            "The Zscaler service provides predefined source and destination IPv6 address groups, All IPv6, which encompasses all IPv6 source or destination addresses."
+          ]
+        }
+      ]
+    },
+    "my-ip-v6": {
+      "statement": "Zscaler's My IP Address service is ipv6.zscaler.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ipv6-support.json",
+          "quotes": [
+            "Zscaler's My IP Address service is ipv6.zscaler.com."
+          ]
+        }
+      ]
+    },
+    "logs": {
+      "statement": "Web Logs have a Client IP filter that narrows transactions to devices with IPv4 addresses, IPv6 addresses or both, and DNS64 queries are found with the DNS Request Type filter set to IPv6 Address, which queries the AAAA DNS request and response types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-ipv6-settings.json",
+          "quotes": [
+            "For example, Web Logs display a Client IP filter that you can use to narrow down transactions made by devices with IPv4 addresses, IPv6 addresses, or both by using the respective options.",
+            "You can also query the DNS64 logs by using the DNS Request Type filter set to IPv6 Address. This filter queries the AAAA DNS request/response types sent through the Zscaler service."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "no-a-record": {
+      "summary": "The Understanding IPv6 Support page gives two opposite outcomes for a DNS query whose domain has no A record.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-ipv6-support.json",
+            "quotes": [
+              "If an A record is not available, an AAAA record is synthesized using DNS64 and an IPv4 connection is established using NAT64."
+            ]
+          },
+          "says": "With no A record, an AAAA record is synthesized using DNS64 and an IPv4 connection is established using NAT64."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-ipv6-support.json",
+            "quotes": [
+              "If an A record is not available, an AAAA record is used to establish an IPv6 connection."
+            ]
+          },
+          "says": "With no A record, an AAAA record is used to establish an IPv6 connection."
+        }
+      ],
+      "impact": "Both sentences start from the same condition and give opposite outcomes, a DNS64-synthesized IPv4 connection against a native IPv6 connection; the page does not say which applies, and its DNS response table is its only other statement of the behavior."
+    },
+    "service-edge-tunnels": {
+      "summary": "The Configuring IPv6 Settings page says IPv6 to Private and Virtual Service Edges works over GRE and IPSec tunnels; the Virtual Service Edge forwarding page says only over GRE tunnels.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ipv6-settings.json",
+            "quotes": [
+              "Forwarding IPv6 traffic to Private Service Edges and Virtual Service Edges is supported only via GRE and IPSec tunnels."
+            ]
+          },
+          "says": "IPv6 to Private Service Edges and Virtual Service Edges is supported only via GRE and IPSec tunnels."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "Virtual Service Edges support IPv6 traffic if it's only forwarded via GRE tunnels."
+            ]
+          },
+          "says": "Virtual Service Edges support IPv6 traffic only if it is forwarded via GRE tunnels."
+        }
+      ],
+      "impact": "An IPv6-over-IPSec design toward a Virtual Service Edge is allowed by one page and excluded by the other."
+    }
+  },
+  "gaps": {
+    "ipv6-data-center-list": {
+      "kind": "semantic",
+      "title": "Which Zscaler data centers are IPv6-enabled",
+      "status": "open",
+      "detail": "The Understanding IPv6 Support page points to the cloud's config page for the list of IPv6-enabled data centers and for each data center's IPv6 virtual IP address; the capture does not carry the list.",
+      "resolves_with": [
+        "tenant-data"
+      ]
+    },
+    "android-version": {
+      "kind": "semantic",
+      "title": "The Client Connector Android version for IPv6",
+      "status": "open",
+      "detail": "The prerequisites name Client Connector 4.8 or later for Windows and 4.7 or later for macOS and no Android version. zcc.platform-settings:ipv6-resolution gives an Android version; the Understanding IPv6 Support page does not.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "policy-types": {
+      "kind": "semantic",
+      "title": "Which policy types accept IPv6 criteria",
+      "status": "open",
+      "detail": "The page says the Locations and Location Groups, URL Categories and Source and Destination IPv6 Address Groups criteria are each supported in \"various web and firewall policies\" without naming the policy types. The OpenAPI /ipv6config paths and the Go SDK's IPv6 configuration service were not read for this subject.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

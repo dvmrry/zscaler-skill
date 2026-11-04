@@ -64,7 +64,7 @@
     },
     {
       "label": "Forwarding.",
-      "text": "{{forwarding-fields-parent-only}} Whether a sublocation can have a forwarding method of its own is open {{gap:sublocation-own-forwarding}}, and so is whether a static-IP-only parent can have sublocations {{gap:static-ip-parent}}."
+      "text": "{{forwarding-fields-parent-only}} {{sublocation-no-forwarding-fields}} Whether a sublocation can have a forwarding method of its own is partly answered {{gap:sublocation-own-forwarding}}, and so is whether a static-IP-only parent can have sublocations {{gap:static-ip-parent}}."
     },
     {
       "label": "XFF.",
@@ -171,6 +171,32 @@
       ],
       "conditions": "`x-applicableTo: TOP` marks fields the schema applies to top-level locations only."
     },
+    "sublocation-no-forwarding-fields": {
+      "statement": "In the location CSV format GRE tunnels are bound to locations only, not sublocations, and a SubLocation row cannot carry a VPN type, dedicated port, Virtual Service Edge name or Virtual Service Edge cluster name (each is left as an empty comma) and must name its parent location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "GRE tunnels are bound to locations only, not sublocations."
+          ],
+          "after": "- The following fields are required for adding or deleting locations:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "VPN-type: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "Dedicated port: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "VirtualServiceEdgeName: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "VirtualServiceEdgeClusterName: You cannot enter a value for this field. Enter a comma to indicate that this field is empty.",
+            "Parent Location Name (Required): Enter the name of the parent location to which this sublocation belongs."
+          ]
+        }
+      ],
+      "conditions": "Scoped to the CSV import format; the page does not state the API or console behavior."
+    },
     "xff-opt-in": {
       "statement": "Use XFF from Client Request is set per location for proxy-chained deployments: the service reads the client RFC 1918 address from the XFF header an on-premises proxy inserts, uses it to identify the client's sublocation, applies that sublocation's policy, then replaces the XFF header with the gateway's public IP before forwarding.",
       "tier": "A",
@@ -208,8 +234,8 @@
     "sublocation-own-forwarding": {
       "kind": "semantic",
       "title": "Whether a sublocation can have its own forwarding method",
-      "status": "open",
-      "detail": "Unverified legacy statements: \"A sublocation does not define its own forwarding method. It reuses the parent location's forwarding method\" and \"There is no mechanism to assign a different GRE tunnel or IPSec SA to a sublocation versus its parent. Forwarding method differentiation requires separate parent locations.\" The schema marks `vpnCredentials` and `ports` parent-only (forwarding-fields-parent-only) but no source states the conclusion. Resolve with a Zscaler statement or a lab attempt to attach a credential to a sublocation.",
+      "status": "partial",
+      "detail": "Partly answered by sublocation-no-forwarding-fields: the location CSV format binds GRE tunnels to locations only and a SubLocation row cannot carry a VPN type, dedicated port or Virtual Service Edge, but that is the CSV format only, not the API or console. Unverified legacy statements: \"A sublocation does not define its own forwarding method. It reuses the parent location's forwarding method\" and \"There is no mechanism to assign a different GRE tunnel or IPSec SA to a sublocation versus its parent. Forwarding method differentiation requires separate parent locations.\" The schema marks `vpnCredentials` and `ports` parent-only (forwarding-fields-parent-only) but no source states the conclusion. Resolve with a Zscaler statement or a lab attempt to attach a credential to a sublocation.",
       "resolves_with": [
         "lab-test",
         "support-ticket"

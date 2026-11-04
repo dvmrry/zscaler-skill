@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-guard.detectors.competition",
+  "title": "The AI Guard Competition detector: the evidence rule, competitor list, tickers, languages, threshold and the scoreByCompetitor log field",
+  "aliases": [
+    "competitor detector",
+    "ai guard competition detector",
+    "scoreByCompetitor"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.detectors.topic"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.observability"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-flags}} This subject is the Competition detector runbook; the detector list is in [[ai-security.ai-guard.detectors]]."
+    },
+    {
+      "label": "The evidence rule.",
+      "text": "{{evidence-rule}}"
+    },
+    {
+      "label": "Competitor list.",
+      "text": "{{competitor-list}} {{per-policy}}"
+    },
+    {
+      "label": "Tickers and languages.",
+      "text": "{{languages-tickers}} The 28-language count is disputed: [[ai-security.ai-guard.detectors:supported-languages]]."
+    },
+    {
+      "label": "Threshold.",
+      "text": "{{threshold}}"
+    },
+    {
+      "label": "Logs and support.",
+      "text": "{{score-field}}"
+    }
+  ],
+  "claims": {
+    "what-it-flags": {
+      "statement": "The Competition detector flags user prompts that reference monitored competitors, with built-in tolerance for name misspellings, ticker symbol usage and multilingual input; the user provides a list of competitor names, and the runbook lists plain mentions, typos and OCR artifacts (with business context), other languages, ticker symbols and phonetic spellings as cases it triggers on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "The Competition Detector flags user prompts that reference monitored competitors, with built-in tolerance for name misspellings, ticker symbol usage, and multilingual input.",
+            "The user provides a list of competitor names; AI Guard does the rest.",
+            "Plain mentions:",
+            "Typos and OCR artifacts: \"Veltroxmax Motors's new model is fast\" still triggers on Veltroxmax when there is business context.",
+            "Other languages:",
+            "Ticker symbols: \"VTRX earnings looked strong this quarter\" triggers on competitor Veltroxmax (ticker VTRX).",
+            "Phonetic spellings: \"the veltrohmax is fast\" triggers on Veltroxmax."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "The Competition Detector flags user prompts that reference monitored competitors, with built-in tolerance for name misspellings, ticker symbol usage, and multilingual input.",
+            "The user provides a list of competitor names; AI Guard does the rest.",
+            "Plain mentions:",
+            "Typos and OCR artifacts: \"Veltroxmax Motors's new model is fast\" still triggers on Veltroxmax when there is business context.",
+            "Other languages:",
+            "Ticker symbols: \"VTRX earnings looked strong this quarter\" triggers on competitor Veltroxmax (ticker VTRX).",
+            "Phonetic spellings: \"the veltrohmax is fast\" triggers on Veltroxmax."
+          ]
+        }
+      ]
+    },
+    "evidence-rule": {
+      "statement": "The runbook says every potential match must have evidence that it refers to a company, not just a common word, and no evidence means no trigger regardless of length or spelling; its examples that do not trigger are a city block, Peter Pan, writer's block, Times Square and out of stock, and a lowercase mention with no business words, such as I like oracle, does not trigger, which the runbook calls intentional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "AI Guard makes the distinction because every potential match must have evidence that it refers to a company, not just a common word.",
+            "No evidence means there is no trigger, regardless of length or spelling.",
+            "Common-word false positives: \"I walked around the city block\" does not trigger competitor Block.",
+            "Fictional or unrelated references: \"Peter Pan is a beloved character\" does not trigger competitor Pan.",
+            "Idioms and wordplay: \"I've had writer's block all week\" does not trigger Block.",
+            "Landmarks: \"Times Square was crowded with tourists\" does not trigger Square.",
+            "Generic vocabulary: \"We are out of stock for this item\" does not trigger Stock.",
+            "\"I like oracle\" (no business words, no capital) will not trigger. This is intentional"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "AI Guard makes the distinction because every potential match must have evidence that it refers to a company, not just a common word.",
+            "No evidence means there is no trigger, regardless of length or spelling.",
+            "Common-word false positives: \"I walked around the city block\" does not trigger competitor Block.",
+            "Fictional or unrelated references: \"Peter Pan is a beloved character\" does not trigger competitor Pan.",
+            "Idioms and wordplay: \"I've had writer's block all week\" does not trigger Block.",
+            "Landmarks: \"Times Square was crowded with tourists\" does not trigger Square.",
+            "Generic vocabulary: \"We are out of stock for this item\" does not trigger Stock.",
+            "\"I like oracle\" (no business words, no capital) will not trigger. This is intentional"
+          ]
+        }
+      ]
+    },
+    "competitor-list": {
+      "statement": "The Competitors field is a list of up to 10 names to watch for, each with its own Action override (Allow, Block or Detect); the runbook advises starting with three to five high-value competitors, using the common short form of a name, noting the detector already knows corporate suffixes (Inc, Corp, Ltd), and the full name for multi-word names, and says more than 10 per policy increases noise and latency, in which case the user probably wants the Topic detector instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "Competitors: The list of up to 10 names to watch for. Each entry has its own Action override (Allow / Block / Detect). Start with three to five high-value competitors.",
+            "Use the common short form of the name",
+            "The detector already knows about corporate suffixes (Inc, Corp, Ltd).",
+            "they probably want the Topic detector instead",
+            "For multi-word names like Bleep Bloop Networks, use the full name.",
+            "Up to 10 per policy. Beyond that, noise and latency increase."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "Competitors: The list of up to 10 names to watch for. Each entry has its own Action override (Allow / Block / Detect). Start with three to five high-value competitors.",
+            "Use the common short form of the name",
+            "The detector already knows about corporate suffixes (Inc, Corp, Ltd).",
+            "they probably want the Topic detector instead",
+            "For multi-word names like Bleep Bloop Networks, use the full name.",
+            "Up to 10 per policy. Beyond that, noise and latency increase."
+          ]
+        }
+      ]
+    },
+    "per-policy": {
+      "statement": "Each policy has its own Competition configuration, and the runbook says to copy-paste the competitor list when duplicating a policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "Yes. Each policy has its own Competition configuration. Copy-paste the competitor list when duplicating a policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "Yes. Each policy has its own Competition configuration. Copy-paste the competitor list when duplicating a policy."
+          ]
+        }
+      ]
+    },
+    "threshold": {
+      "statement": "The Competition threshold defaults to 0.7, which Zscaler strongly recommends keeping; the runbook's ranges are 0.85 to 1.00 (only unambiguous mentions trigger), 0.70 to 0.84 (the default band, for production deployments), 0.50 to 0.69 (also fires on semantically adjacent cases, where the competitor is mentioned only indirectly or with ambiguous wording) and below 0.50 (very permissive, loose or tangential mentions trigger); it calls scores of 0.70 to 0.75 borderline, with both true and false positives expected, and says raising the threshold to 0.80 cuts most of these but also drops real matches.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "The default is 0.7.",
+            "Zscaler strongly recommends that you leave the threshold at 0.7.",
+            "| 0.85 to 1.00 | Only unambiguous mentions trigger.",
+            "| 0.70 to 0.84 | Default sweet spot. Catches real mentions including typos, tickers, and other languages. Rejects common-word false positives. | Production deployments. Start here unless you need tighter or looser behavior. |",
+            "| 0.50 to 0.69 | Also fires on semantically adjacent cases: prompts that mention the competitor only indirectly or use ambiguous wording.",
+            "| Below 0.50 | Very permissive. Loose or tangential mentions trigger.",
+            "Is the score close to threshold (0.70 – 0.75)? Borderline scores are expected to have both true and false positives. Raising the threshold to 0.80 will cut most of these but also drop real matches."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "The default is 0.7.",
+            "Zscaler strongly recommends that you leave the threshold at 0.7.",
+            "| 0.85 to 1.00 | Only unambiguous mentions trigger.",
+            "| 0.70 to 0.84 | Default sweet spot. Catches real mentions including typos, tickers, and other languages. Rejects common-word false positives. | Production deployments. Start here unless you need tighter or looser behavior. |",
+            "| 0.50 to 0.69 | Also fires on semantically adjacent cases: prompts that mention the competitor only indirectly or use ambiguous wording.",
+            "| Below 0.50 | Very permissive. Loose or tangential mentions trigger.",
+            "Is the score close to threshold (0.70 – 0.75)? Borderline scores are expected to have both true and false positives. Raising the threshold to 0.80 will cut most of these but also drop real matches."
+          ]
+        }
+      ]
+    },
+    "languages-tickers": {
+      "statement": "The runbook says the detector ships with a built-in ticker map covering the largest tech and finance tickers and tries fuzzy matching for others, with less reliable matches; it answers yes that 28 languages are supported out of the box, says capitalization evidence is English-only (in other languages the detector relies on business context alone), and says prompts under about 10 characters do not give the model enough context to classify reliably.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "The detector ships with a built-in ticker map covering the largest tech and finance tickers.",
+            "it'll still try fuzzy matching, but matches are less reliable.",
+            "Yes. 28 languages are supported out of the box.",
+            "Capitalization evidence (i.e., the name of the competitor capitalized) is English-only; in other languages the detector relies on business context alone.",
+            "Prompts under ~10 characters don't give the model enough context to classify reliably."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "The detector ships with a built-in ticker map covering the largest tech and finance tickers.",
+            "it'll still try fuzzy matching, but matches are less reliable.",
+            "Yes. 28 languages are supported out of the box.",
+            "Capitalization evidence (i.e., the name of the competitor capitalized) is English-only; in other languages the detector relies on business context alone.",
+            "Prompts under ~10 characters don't give the model enough context to classify reliably."
+          ]
+        }
+      ]
+    },
+    "score-field": {
+      "statement": "The Competition detector's triggers are tagged with a per-competitor scoreByCompetitor dict, so individual competitors can be pivoted on in a BI tool or spreadsheet; the runbook's support-ticket list for persistent false positives includes the confidence score from scoreByCompetitor and whether the prompt was in English or another language.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-best-practices-runbook-competitor-detector.json",
+          "quotes": [
+            "The Competition detector's triggers are tagged with the per-competitor scoreByCompetitor dict, so you can pivot on individual competitors in a BI tool or spreadsheet.",
+            "Confidence score from scoreByCompetitor.",
+            "Whether the prompt was in English or another language."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-best-practices-runbook-competition-detector.json",
+          "quotes": [
+            "The Competition detector's triggers are tagged with the per-competitor scoreByCompetitor dict, so you can pivot on individual competitors in a BI tool or spreadsheet.",
+            "Confidence score from scoreByCompetitor.",
+            "Whether the prompt was in English or another language."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

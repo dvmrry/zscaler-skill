@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.shared-objects.destination-ip-groups",
+  "title": "Destination IP groups in Cloud & Branch Connector: types, predefined groups and forwarding limits",
+  "aliases": [
+    "destination ipv4 groups",
+    "destination ip groups cloud connector",
+    "wildcard domain destination group",
+    "LAN Destinations Group",
+    "WAN Destinations Group",
+    "Zscaler Domains group"
+  ],
+  "binds": [
+    "ztw/ip-destination-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.shared-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.source-ip-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.destination-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Destination IP groups are the named destination sets Cloud & Branch Connector policies reference. {{purpose}} {{help-page-ipv4-tab}}"
+    },
+    {
+      "label": "Types.",
+      "text": "{{types}} {{ip-formats}} {{fqdn-type}} {{wildcard-type}} Whether a group can hold countries is disputed between the pages {{divergence:countries}}. What the Other type is for is open {{gap:other-type-purpose}}."
+    },
+    {
+      "label": "Forwarding.",
+      "text": "{{types-not-in-forwarding}} {{wildcard-dns-required}} How these two pages fit together is open {{gap:wildcard-forwarding}}. The wildcard syntax a forwarding rule takes inline is in [[cloud-connector.forwarding.criteria]]."
+    },
+    {
+      "label": "Predefined groups.",
+      "text": "{{predefined-groups}} Whether an enabled predefined group can be edited is open {{gap:predefined-editable}}."
+    },
+    {
+      "label": "Names and limits.",
+      "text": "{{name-description}} No per-group entry limit, per-tenant group count or IPv6 group is described {{gap:limits-and-ipv6}}."
+    },
+    {
+      "label": "ZIA counterpart.",
+      "text": "ZIA's destination groups, which these pages do not describe, are in [[zia.firewall.destination-groups]]; the API marks destination IP groups as an object type of both products: [[cloud-connector.shared-objects:twin-types]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Wildcard Domain or Other group is being used in a forwarding policy, which the help currently says is unsupported.",
+      "uses": [
+        "types-not-in-forwarding",
+        "wildcard-forwarding"
+      ]
+    },
+    {
+      "do": "Whether a predefined group is expected on a device that is not a hardware device in gateway mode.",
+      "uses": [
+        "predefined-groups"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "The About page says destination IP groups simplify policy creation by grouping multiple IP addresses into one destination, and that security and forwarding policies can be configured for a group of destinations based on IP addresses and fully qualified domain names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-destination-ip-groups.json",
+          "quotes": [
+            "Destination IP Groups simplify policy creation by grouping multiple IP addresses into one destination, reducing the chance for error to occur.",
+            "Configure security and forwarding policies for a group of destinations based on IP addresses and fully qualified domain names (FQDNs)."
+          ]
+        }
+      ]
+    },
+    "help-page-ipv4-tab": {
+      "statement": "The Cloud & Branch Connector help places the Destination IP Groups page under Internet Access > Resources > IP & FQDN Groups, on the Destination IPv4 Groups tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-destination-ip-groups.json",
+          "quotes": [
+            "On the Destinations IP Groups page (Internet Access > Resources > IP & FQDN Groups > Destination IPv4 Groups tab), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "types": {
+      "statement": "A destination IP group's Type is IP Address, FQDN, Wildcard Domain or Other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+          "quotes": [
+            "Type: Select IP Address, FQDN, Wildcard Domain, or Other."
+          ]
+        }
+      ]
+    },
+    "types-not-in-forwarding": {
+      "statement": "Destination IP groups can be created for Wildcard Domain and Other, but these types are currently not supported in Cloud & Branch Connector forwarding policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-destination-ip-groups.json",
+          "quotes": [
+            "Although destination IP groups can be created for Wildcard Domain and Other, these destination IP group types are currently not supported in Cloud & Branch Connector forwarding policies."
+          ]
+        }
+      ]
+    },
+    "ip-formats": {
+      "statement": "An IP Address group takes individual addresses (for example 192.0.2.1), subnets (for example 192.0.2.0/24) and address ranges (for example 192.0.2.1 - 192.0.2.5).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+          "quotes": [
+            "An individual IP address (for example, 192.0.2.1)",
+            "A subnet (for example, 192.0.2.0/24)",
+            "An IP address range (for example, 192.0.2.1 - 192.0.2.5)"
+          ]
+        }
+      ]
+    },
+    "fqdn-type": {
+      "statement": "The FQDN type is for applications with multiple IP addresses or with IP addresses that frequently change, which can be given as fully qualified domain names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+          "quotes": [
+            "FQDN: For applications with multiple IP addresses or with IP addresses that frequently change, you can add fully qualified domain names (FQDNs)."
+          ]
+        }
+      ]
+    },
+    "wildcard-type": {
+      "statement": "The Wildcard Domain type takes specific wildcard domains, or * to denote all domains; *abc.example.com and abs.*.example.com are given as invalid examples, and Zscaler cannot match invalid items.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+          "quotes": [
+            "Wildcard Domain: You can enter specific wildcard domains or enter * to denote all domains.",
+            "Examples of invalid wildcard domains are *abc.example.com and abs.*.example.com. Zscaler cannot match invalid items."
+          ]
+        }
+      ]
+    },
+    "name-description": {
+      "statement": "A destination IP group name may contain only alphanumeric characters, underscores, hyphens and periods; the description cannot exceed 10,240 characters; adding a group ends with saving and activating the change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+          "quotes": [
+            "Name: Enter a name for the destination IP address group. You can only use alphanumeric characters, underscores, hyphens, and periods.",
+            "The description cannot exceed 10,240 characters.",
+            "Click Save and activate the change."
+          ]
+        }
+      ]
+    },
+    "predefined-groups": {
+      "statement": "Zscaler creates predefined destination groups, disabled by default and able to be enabled, shown according to the licenses enabled in the tenant: the LAN Destinations Group (all LAN directly connected networks and configured static routes from a given Branch Connector), the WAN Destinations Group (all WAN directly connected networks and DNS servers) and Zscaler Domains (all Zscaler public cloud domains: Internet & SaaS, Private Access and ZDX). They apply only to hardware devices deployed in gateway mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-destination-ip-groups.json",
+          "quotes": [
+            "View a list of predefined groups created by Zscaler. They are disabled by default, but you can enable them.",
+            "Predefined rules appear based on the licenses enabled in your tenant:",
+            "LAN Destinations Group: This group contains all LAN directly connected networks and configured static routes from a given Branch Connector.",
+            "WAN Destinations Group: This group contains all WAN directly connected networks and DNS servers.",
+            "Zscaler Domains: This group contains all Zscaler public cloud domains (i.e., Internet & SaaS, Private Access, and Digital Experience (ZDX)).",
+            "Predefined groups are only applicable to hardware devices deployed in gateway mode."
+          ]
+        }
+      ]
+    },
+    "wildcard-dns-required": {
+      "statement": "To use wildcard FQDN destination IP groups, the help says to deploy workloads, servers and endpoints to route DNS queries through the Cloud Connector or Branch Connector; if forwarding HTTP/HTTPS traffic, DNS is not required for wildcard domain and FQDN traffic, but UDP and non-web traffic requires DNS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+          "quotes": [
+            "To use wildcard FQDN destination IP groups, design your network so that workloads, servers, and endpoints are deployed to route DNS queries through the Cloud Connector or Branch Connector.",
+            "If you are forwarding HTTP/HTTPS traffic, DNS is not required for wildcard domain and FQDN traffic. However, UDP and non-web traffic requires DNS to function."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "countries": {
+      "summary": "The Cloud & Branch Connector destination IP group pages disagree on whether a group can hold countries.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-about-destination-ip-groups.json",
+            "quotes": [
+              "You can create groups of destination IP addresses, countries where servers are located, and URL categories, and apply firewall policies to them."
+            ]
+          },
+          "says": "The About page says groups can be created of destination IP addresses, countries where servers are located and URL categories."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+            "quotes": [
+              "You can group destinations by specifying IP addresses and countries where servers are located."
+            ]
+          },
+          "says": "The Configuring page intro says destinations can be grouped by IP addresses and countries where servers are located."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-configuring-destination-ip-groups.json",
+            "quotes": [
+              "Other: Countries are the only option on this tab, but you cannot configure countries."
+            ]
+          },
+          "says": "The Configuring page's Other type says countries are the only option on the tab but cannot be configured."
+        }
+      ],
+      "impact": "Neither page says how a country-based group is made, so whether a Cloud & Branch Connector destination group can hold countries is not settled by the help; ZIA's page lets its Other type take countries (see zia.firewall.destination-groups)."
+    }
+  },
+  "gaps": {
+    "other-type-purpose": {
+      "kind": "semantic",
+      "title": "What the Other destination group type is for",
+      "status": "open",
+      "detail": "The Configuring page says countries are the only option for Other but cannot be configured, and the About page says Other groups cannot be used in forwarding policies; no captured page says what an Other group holds.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "wildcard-forwarding": {
+      "kind": "semantic",
+      "title": "How the wildcard DNS conditions relate to wildcard groups being unsupported in forwarding policies",
+      "status": "open",
+      "detail": "The About page says Wildcard Domain groups are currently not supported in Cloud & Branch Connector forwarding policies. The Configuring page gives DNS conditions for using wildcard FQDN groups and talks about forwarding HTTP/HTTPS traffic, without naming the policy type. Whether it means DNS policies, security policies or a forwarding rule's inline wildcard field is not stated, so the pages are not shown to give incompatible answers for the same use. No claim says wildcard groups work in forwarding rules.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "predefined-editable": {
+      "kind": "semantic",
+      "title": "Whether predefined destination groups can be edited once enabled",
+      "status": "open",
+      "detail": "The About page says the predefined groups are disabled by default and can be enabled; it does not say whether their contents can be changed.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "limits-and-ipv6": {
+      "kind": "semantic",
+      "title": "Destination group limits and IPv6",
+      "status": "open",
+      "detail": "The pages are titled Destination IPv4 Groups and describe no IPv6 group, and give no per-group entry limit or per-tenant group count.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

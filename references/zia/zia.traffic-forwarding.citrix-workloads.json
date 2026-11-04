@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.citrix-workloads",
+  "title": "Forwarding Citrix XenDesktop and XenApp workloads to ZIA",
+  "aliases": [
+    "citrix xendesktop zscaler",
+    "citrix xenapp zscaler",
+    "hosted shared desktops",
+    "citrix virtual apps",
+    "citrix vdi zscaler"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.surrogate-ip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.cleanup"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{methods}}"
+    },
+    {
+      "label": "PAC files and SSL/TLS Inspection.",
+      "text": "{{pac-and-ssl}}"
+    },
+    {
+      "label": "XenDesktop.",
+      "text": "{{xendesktop-zcc}} {{xendesktop-surrogate}} Device Cleanup is in [[zcc.devices.cleanup]]."
+    },
+    {
+      "label": "XenApp and Hosted Shared Desktops.",
+      "text": "{{xenapp}} How surrogate IP maps users is in [[zia.authentication.surrogate-ip]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the workload is a dedicated desktop (XenDesktop) or a shared server (XenApp or Hosted Shared Desktops) before choosing Client Connector or setting IP Surrogacy.",
+      "uses": [
+        "xendesktop-zcc",
+        "xendesktop-surrogate",
+        "xenapp"
+      ]
+    }
+  ],
+  "claims": {
+    "methods": {
+      "statement": "Traffic from Citrix workloads can be forwarded to Internet & SaaS with GRE or IPSec tunnels, PAC files or Zscaler Client Connector, though in some situations an option might not be feasible or must be configured in a certain way. For tunnels, the XenDesktop page and the XenApp and Hosted Shared Desktops page each say they can be treated like any Windows user device going through Internet & SaaS, and that likely only a sublocation for these workloads is needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "To forward traffic to Internet & SaaS from Citrix workloads, you can use GRE or IPSec tunnels, PAC files, or Zscaler Client Connector.",
+            "However, there are some situations where one option might not be feasible or where it needs to be configured in a certain way."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "GRE or IPSec tunnels: These can be treated like any Windows user device going through Internet & SaaS. You likely only need to create a sublocation for these workloads."
+          ],
+          "after": "# Using XenDesktop with Internet & SaaS"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "GRE or IPSec tunnels: These can be treated like any Windows user device going through Internet & SaaS. You likely only need to create a sublocation for these workloads."
+          ],
+          "after": "# Using XenApp and Hosted Shared Desktops with Internet & SaaS"
+        }
+      ]
+    },
+    "pac-and-ssl": {
+      "statement": "On both the XenDesktop and the XenApp and Hosted Shared Desktops pages, the Zscaler authentication cookies must be retained across sessions; the XenDesktop page adds that this way a user does not need to reauthenticate each time they launch a new desktop. Both pages say that if needed the Zscaler root certificate can be deployed centrally to the Citrix master images or via GPO as for any other domain-joined machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "However, you need to ensure that the Zscaler authentication cookies are retained across sessions.",
+            "This way, a user does not need to reauthenticate each time they launch a new desktop.",
+            "If needed, you can deploy the Zscaler Root certificate centrally to the Citrix master images or via GPO as you would any other domain-joined machine."
+          ],
+          "after": "# Using XenDesktop with Internet & SaaS"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "However, you need to ensure that the Zscaler authentication cookies are retained across sessions.",
+            "If needed, you can deploy the Zscaler Root certificate centrally to the Citrix master images or via GPO as you would any other domain-joined machine."
+          ],
+          "after": "# Using XenApp and Hosted Shared Desktops with Internet & SaaS"
+        }
+      ]
+    },
+    "xendesktop-zcc": {
+      "statement": "XenDesktop workloads are typically Windows client operating systems, and for them the page says Client Connector, given its enrollment process, only works well with a dedicated VDI and does not support multiple simultaneous user sessions from a single host operating system. With non-persistent VDIs, where users get fresh desktops each time, users must re-enroll each time, which might quickly reach the limit of 16 devices per user; the page says to configure Device Cleanup in the Admin Console to remove the oldest enrolled device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "These workloads are typically Windows Client Operating Systems, such as Windows 7, 8, or 10.",
+            "enrollment process, this only works well with a dedicated VDI.",
+            "Zscaler Client Connector does not support multiple, simultaneous user sessions from a single host operating system.",
+            "If you are using non-persistent VDIs where users get fresh desktops each time they connect, they need to re-enroll each time.",
+            "This might cause users to quickly hit the limit of 16 devices per user.",
+            "To avoid this, configure Device Cleanup in the Zscaler Admin Console to remove the oldest enrolled device."
+          ]
+        }
+      ]
+    },
+    "xendesktop-surrogate": {
+      "statement": "On XenDesktop each user has a one-to-one mapping with a virtual desktop, so IP Surrogacy can bind a username to an internal IP for transactions that would normally show only the Internet & SaaS location name; the page says the threshold should typically be much lower than on normal device networks, such as only a few hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "IP Surrogacy: Since each user gets a one-to-one mapping with a virtual desktop, you can use IP Surrogacy to bind a username to an internal IP for transactions that would normally only show the Internet & SaaS location name.",
+            "Typically, you should configure the threshold to be much lower than on normal device networks, such as only a few hours."
+          ]
+        }
+      ]
+    },
+    "xenapp": {
+      "statement": "XenApp and Hosted Shared Desktop workloads are typically Windows Servers. Client Connector currently supports Windows client operating systems and is not supported with Virtual Apps and Hosted Shared Desktops, because Zscaler does not support concurrent user sessions on a device with Client Connector installed: it establishes a single Internet & SaaS tunnel from the first enrolled Windows user session, and concurrently connected users on the server can enroll but their Internet & SaaS and Private Access tunnels fail. IP Surrogacy needs to be disabled for the sublocation containing the XenApp workloads, because all users on the server share one source IP address, so with user authentication enabled it can flip between users and eventually stop working.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-supporting-citrix-xenapp-and-xendesktop-applications.json",
+          "quotes": [
+            "These workloads are typically Windows Servers, such as Windows Server 2008R2, and Windows Server 2012.",
+            "Zscaler Client Connector currently supports Windows Client Operating Systems and is not supported for use with Virtual Apps and Hosted Shared Desktops.",
+            "This is because Zscaler does not support concurrent user sessions on a device with Zscaler Client Connector installed.",
+            "Zscaler Client Connector establishes a single tunnel to Internet & SaaS from the first Windows user session that has enrolled with the service.",
+            "Any concurrently connected users on the same server are able to enroll with Zscaler Client Connector, but the Internet & SaaS and Private Access (ZPA) tunnels fail.",
+            "IP Surrogacy: IP Surrogacy needs to be disabled for the sublocation containing the XenApp workloads.",
+            "Therefore, if user authentication is enabled, IP Surrogate can flip between users and eventually stop working.",
+            "Since all the users connected to the server have the same source IP address, there is no way for Zscaler to know which user to map to that IP."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

@@ -1,0 +1,512 @@
+{
+  "schema_version": 1,
+  "id": "zcc.install.ios-deployment",
+  "title": "Deploying Client Connector on iOS through an MDM: managed app configuration, the VPN profile, per-app VPN, dual tunnel, SSO and ZDX",
+  "aliases": [
+    "zcc ios mdm",
+    "zcc jamf pro ios",
+    "zcc intune ios",
+    "zcc workspace one ios",
+    "zcc mobileiron ios",
+    "zcc maas360 ios",
+    "managed app configuration zcc ios",
+    "zcc dual tunnel ios",
+    "tunnelsecondary"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.mobile-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.strict-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection.certificate-install"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.android-deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{mdm-only}} {{guide-versions}}"
+    },
+    {
+      "label": "Getting the parameters to the app.",
+      "text": "{{managed-app-config}} The keys that are specific to iOS are in [[zcc.install.mobile-options]], and the shared enrollment keys in [[zcc.install.enrollment]]. {{jamf-sample}}"
+    },
+    {
+      "label": "Enrollment on the device.",
+      "text": "{{launch-to-enroll}}"
+    },
+    {
+      "label": "The VPN profile.",
+      "text": "{{vpn-profile}} {{workspace-one-vpn}}"
+    },
+    {
+      "label": "Intune.",
+      "text": "{{intune-recommended-profile}} {{intune-profile-settings}} {{intune-assignment}} The certificate profile for SSL inspection is in [[zcc.ssl-inspection.certificate-install:ios-intune-profile]]. The strict enforcement requirements in the same guide are in [[zcc.install.strict-enforcement]]."
+    },
+    {
+      "label": "Per-app VPN.",
+      "text": "{{per-app-vpn}} The per-app VPN keys are in [[zcc.install.mobile-options:ios-per-app-vpn]]."
+    },
+    {
+      "label": "Single sign-on.",
+      "text": "{{enterprise-sso}}"
+    },
+    {
+      "label": "Dual tunnel.",
+      "text": "{{dual-tunnel}} {{dual-tunnel-jamf}} {{dual-tunnel-intune}} Which custom data keys the profiles accept besides tunnelType, and the Client Connector version dual tunnel needs, are open {{gap:dual-tunnel-keys}}."
+    },
+    {
+      "label": "ZDX.",
+      "text": "{{zdx-jamf}} {{zdx-workspace-one}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "The Intune guide's Minimum operating system value is a form value rather than a support statement {{gap:intune-min-os}}, and the Microsoft Enterprise SSO plug-in URL list is left to Microsoft's documentation {{gap:sso-plugin-urls}}."
+    }
+  ],
+  "claims": {
+    "mdm-only": {
+      "statement": "The iOS version of Client Connector cannot be downloaded and installed manually from the Admin Console; it must be downloaded and deployed with the organization's MDM. The iOS install-options page lists guides for Microsoft Intune, Jamf Pro, Workspace ONE UEM, MobileIron and MaaS360.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-understanding-zscaler-client-connector-app-downloads.json",
+          "quotes": [
+            "You cannot manually download and install the iOS version of Zscaler Client Connector from the Zscaler Admin Console. You must download and deploy the app with the Mobile Device Management (MDM) used by your organization."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-ios.json",
+          "quotes": [
+            "Deploying Zscaler Client Connector with Microsoft Intune for iOS",
+            "Deploying Zscaler Client Connector with Jamf Pro for iOS",
+            "Deploying Zscaler Client Connector with Workspace ONE UEM for iOS",
+            "Deploying Zscaler Client Connector with MobileIron for iOS",
+            "Deploying Zscaler Client Connector with MaaS360 for iOS"
+          ]
+        }
+      ]
+    },
+    "guide-versions": {
+      "statement": "The iOS guides are written against Jamf Pro 10.37.2, Microsoft Intune service release 2048, Workspace ONE UEM 20.7.0.0 (2007) and MaaS360 10.72.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-jamf-pro-ios.json",
+          "quotes": [
+            "The following deployment procedure is based on Jamf Pro 10.37.2."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "The version used for the following steps is Microsoft Intune Service release version 2048."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-ios.json",
+          "quotes": [
+            "The version used for the following steps is Workspace ONE UEM 20.7.0.0 (2007)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-maas360-ios.json",
+          "quotes": [
+            "The deployment procedure below is based on MaaS360 10.72."
+          ]
+        }
+      ]
+    },
+    "managed-app-config": {
+      "statement": "The Jamf Pro guide describes managed app configuration as a set of key-value pairs in XML format used to configure iOS applications. The guides use Intune's Use configuration designer settings format, Workspace ONE's Send Configuration, MobileIron's Apple Managed App Settings for Zscaler configuration parameters, and MaaS360's Key/Value app config source, where MaaS360 variables can populate the fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-jamf-pro-ios.json",
+          "quotes": [
+            "Managed App Configuration is a set of key-value pairs in XML format used to configure iOS applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "On the Settings tab, for Configurations settings format, select Use configuration designer."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-ios.json",
+          "quotes": [
+            "Enable Send Configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-mobileiron-ios.json",
+          "quotes": [
+            "Under Apple Managed App Settings, click Add and enter Zscaler configuration parameters and their corresponding values per your organization's needs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-maas360-ios.json",
+          "quotes": [
+            "In App Config Source, select Key/Value.",
+            "You can also use MaaS360 variables to automatically populate these fields."
+          ]
+        }
+      ]
+    },
+    "jamf-sample": {
+      "statement": "Jamf Pro's sample configuration dictionary sets cloudname, ownership, strictEnforcement (the string 0), userDomain and an excludeList naming company.jamfcloud.com, aadcdn.msftauth.net, login.microsoftonline.com, oktacdn.com and samlsp.prod.zpath.net; the values are the guide's examples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-jamf-pro-ios.json",
+          "quotes": [
+            "<dict> <key>cloudname</key> <string>zscalerthree</string> <key>ownership</key> <string>Dattalabz</string> <key>strictEnforcement</key> <string>0</string> <key>userDomain</key> <string>dattalabz.com</string>",
+            "<key>excludeList</key> <string>company.jamfcloud.com, aadcdn.msftauth.net,login.microsoftonline.com,oktacdn.com,samlsp.prod.zpath.net</string>"
+          ]
+        }
+      ]
+    },
+    "launch-to-enroll": {
+      "statement": "After the MDM installs the app, the Jamf Pro guide says users must manually launch Client Connector to complete enrollment; the Intune, Workspace ONE and MaaS360 guides say users must launch the app and log in to enroll; the MobileIron guide says users must open it once for the configurations to be applied for the first time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-jamf-pro-ios.json",
+          "quotes": [
+            "After installation, you must manually launch Zscaler Client Connector to complete enrollment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "After Zscaler Client Connector is installed on users’ devices, they must launch the app and log in to enroll in the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-ios.json",
+          "quotes": [
+            "After Zscaler Client Connector is installed on users’ devices, they must launch the app and log in to enroll in the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-maas360-ios.json",
+          "quotes": [
+            "Once Zscaler Client Connector is on users’ devices, they must launch the app and log in to enroll to the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-mobileiron-ios.json",
+          "quotes": [
+            "Users must open Zscaler Client Connector once for the configurations to be applied for the first time."
+          ]
+        }
+      ]
+    },
+    "vpn-profile": {
+      "statement": "The Workspace ONE guide says Client Connector automatically creates a VPN profile on the device if one is not present, which prompts the user to install it and lets the user reject it; pushing the VPN profile as Custom VPN pre-deploys it, so the user is not prompted and cannot remove the profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-ios.json",
+          "quotes": [
+            "Zscaler Client Connector automatically creates a VPN profile on the device if one is not already present. However, this means that the user is prompted to install the VPN profile and they can reject this installation.",
+            "By pushing the VPN profile as Custom VPN, you can pre-deploy this VPN profile, which means not only is the user not prompted to install the profile, they also cannot remove the profile as it is pushed and managed by the MDM."
+          ]
+        }
+      ]
+    },
+    "workspace-one-vpn": {
+      "statement": "In the Workspace ONE guide the Custom VPN profile has identifier com.zscaler.zscaler, user authentication Certificate, VPN On Demand enabled with new on-demand keys and override prevented; its on-demand rule uses interface type Any and action Connect, with On Demand Action Always Establish, and the OS launches the Client Connector VPN when the rule matches.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-workspace-one-uem-ios.json",
+          "quotes": [
+            "Identifier: Enter com.zscaler.zscaler.",
+            "User Authentication: From the drop-down menu, select Certificate.",
+            "Enable VPN On Demand: Enable this setting.",
+            "User new on-demand keys: Enable this setting.",
+            "Prevent on demand override: Enable this setting.",
+            "Select interface type: Choose Any.",
+            "When the On-Demand Rule matches with the configured rules, the OS launches the Zscaler Client Connector VPN.",
+            "Action if network matches: Select Connect.",
+            "On Demand Action: From the drop-down menu, select Always Establish."
+          ]
+        }
+      ]
+    },
+    "intune-recommended-profile": {
+      "statement": "In the Intune guide Zscaler recommends a device configuration profile for custom policy settings, though an app configuration policy can be used instead. With a device posture check of the Ownership Variable, a device configuration profile can carry all settings except ownership, which must be set with an app configuration policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "Zscaler recommends that you use a device configuration profile to configure custom policy settings, but you can use an app configuration policy instead.",
+            "If you use a device posture check of the Ownership Variable, you can use a device configuration profile for all settings except the ownership setting (which you must set using an app configuration policy)."
+          ]
+        }
+      ]
+    },
+    "intune-profile-settings": {
+      "statement": "The Intune on-demand VPN device configuration profile uses the VPN template with connection type Zscaler. Its Custom domain name sets the user domain so users skip the enrollment page for the single sign-on login page; it also takes Enable strict enforcement, the organization's cloud name and Excluded URLs, such as the IdP, the MDM server or anything else needed before enrollment, with authsp.prod.zpath.net required for Private Access. Its on-demand rules get a Connect VPN rule restricted to All domains as the primary rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "Custom domain name: Enter your Zscaler tenant domain. This allows you to configure the user domain so that users can skip the Zscaler Client Connector enrollment page and go directly to the single sign-on (SSO) login page.",
+            "Excluded URLs: Enter any URLs you want to bypass. For example, enter your identity provider (IdP), MDM (Mobile Device Management) server, or anything else the user should have access to before enrollment.",
+            "In the On-demand rules section, click Add, select Connect VPN, restrict to All domains as the primary rule, and click Save."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "after": "Configure a device configuration policy for On-demand VPN (recommended).",
+          "quotes": [
+            "Template name: Select VPN.",
+            "On the Configuration settings tab, for Connection type, select Zscaler.",
+            "Enable strict enforcement: Enabling this option blocks internet traffic before a user enrolls in Zscaler Client Connector when:",
+            "Organization’s cloud name: The name of the cloud where your organization is provisioned.",
+            "If you use the Private Access service, you must enter authsp.prod.zpath.net."
+          ]
+        }
+      ]
+    },
+    "intune-assignment": {
+      "statement": "Intune's assignment settings can uninstall Client Connector automatically if the device is removed from Intune (Yes for Uninstall on device removal) and stop users removing it (No for Install as removable).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "To automatically uninstall Zscaler Client Connector if the device is removed from Intune, select Yes for Uninstall on device removal.",
+            "To ensure that the user can’t remove Zscaler Client Connector from the device, select No for Install as removable."
+          ]
+        }
+      ]
+    },
+    "per-app-vpn": {
+      "statement": "In the Intune guide, adding a specific application to Intune and associating it with a per-app VPN configuration profile makes selected applications protected by Internet & SaaS; for example, access to private applications can be allowed only from a specific browser. The profile's automatic VPN type is Per-app VPN, Safari URLs can trigger it for chosen domains, and domains entered in Excluded Domains are excluded from the per-app VPN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "You can add a specific application to Microsoft Intune and associate the application with a per-app VPN configuration profile to ensure that selected applications are protected by Internet & SaaS and can access other applications.",
+            "For example, you can allow access to private applications only from a specific browser.",
+            "For Type of automatic VPN, select Per-app VPN.",
+            "If you want Safari to selectively send traffic to specific destinations via Zscaler Client Connector, enter domains in Safari URLs that will trigger this VPN.",
+            "If you want to exclude traffic to specific domains, enter domains in Excluded Domains.",
+            "Select the Per-app VPN profile you created in the previous step to associate the application with the profile."
+          ]
+        }
+      ]
+    },
+    "enterprise-sso": {
+      "statement": "With Entra ID as the IdP, Client Connector can integrate with the Microsoft Enterprise SSO plug-in so users need not log in during enrollment or reauthentication; the device configuration profile must exclude specific URLs for the plug-in. The Intune Device features profile uses the Microsoft Entra ID SSO app extension type with the bundle IDs com.apple., com.microsoft. and com.zscaler. (all required), browser_sso_interaction_enabled set to 1 so the app can use Safari to authenticate, disable_explicit_app_prompt set to 1 to reduce prompts, and AppPrefixAllowList with the same three prefixes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "quotes": [
+            "If you use Entra ID (Azure AD) as your IdP, you can integrate Zscaler Client Connector with the Microsoft Enterprise SSO plug-in so that users do not need to log in to Zscaler Client Connector during enrollment or reauthentication.",
+            "To integrate with the plug-in, the device configuration profile you create must exclude specific URLs for the plug-in.",
+            "Template name: Select Device features.",
+            "For SSO app extension type, select Microsoft Entra ID.",
+            "com.apple.: Allows all Apple apps to use SSO (required).",
+            "com.microsoft.: Allows all Microsoft apps to use SSO (required).",
+            "com.zscaler.: Allows all Zscaler apps to use SSO (required).",
+            "browser_sso_interaction_enabled: Enter a value of 1 with a type of integer so that Zscaler Client Connector can use Safari to authenticate.",
+            "disable_explicit_app_prompt: Enter a value of 1 with a type of integer to reduce end-user prompts.",
+            "AppPrefixAllowList: Enter a list of prefixes for apps that are allowed to use SSO. The following prefixes are required:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-client-connector-microsoft-intune-ios.json",
+          "after": "AppPrefixAllowList: Enter a list of prefixes for apps that are allowed to use SSO. The following prefixes are required:",
+          "quotes": [
+            "com.zscaler.",
+            "com.microsoft.",
+            "com.apple."
+          ]
+        }
+      ]
+    },
+    "dual-tunnel": {
+      "statement": "With the dual tunnel feature, organizations can capture per-app traffic through a secondary tunnel and send it to Private Access applications, while all other apps still tunnel to Internet & SaaS through the primary tunnel. The Jamf Pro guide says Client Connector must already be installed on the device, and that the two VPN profiles then appear in the Device VPN and Per-App VPN sections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-dual-tunnel-feature-configuration-jamf-pro-ios.json",
+          "quotes": [
+            "With the dual tunnel feature, organizations can capture Per App traffic via a secondary tunnel and send it to the Private Access applications, while all other apps still tunnel to Internet & SaaS through the primary tunnel.",
+            "Before following this guide, ensure that Zscaler Client Connector is installed on your device.",
+            "The two VPN profiles that you created are shown in the Device VPN and Per-App VPN sections."
+          ]
+        }
+      ]
+    },
+    "dual-tunnel-jamf": {
+      "statement": "In the Jamf Pro dual tunnel guide the primary VPN profile has identifier com.zscaler.zscaler, provider bundle identifier com.zscaler.zscaler.tunnel, custom data tunnelType with value ZIA and provider type Packet-Tunnel; the secondary profile has provider bundle identifier com.zscaler.zscaler.tunnelsecondary and custom data tunnelType with value APP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-dual-tunnel-feature-configuration-jamf-pro-ios.json",
+          "quotes": [
+            "Custom Data: Click Add to add the key tunnelType and value ZIA.",
+            "Provider Bundle Identifier: Enter com.zscaler.zscaler.tunnelsecondary",
+            "Custom Data: Click Add to add the key tunnelType and value APP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-dual-tunnel-feature-configuration-jamf-pro-ios.json",
+          "after": "Step 1: Create and Push Primary Tunnel Configuration Profile from Jamf Pro",
+          "quotes": [
+            "Identifier: Enter com.zscaler.zscaler",
+            "Provider Bundle Identifier: Enter com.zscaler.zscaler.tunnel",
+            "Provider Type: Choose Packet-Tunnel."
+          ]
+        }
+      ]
+    },
+    "dual-tunnel-intune": {
+      "statement": "In the Intune dual tunnel guide the primary profile is a Custom template that uploads the Dual Tunnel Primary VPN mobileconfig file; the secondary uses an automatic VPN type of Per-app VPN with VPN server address perappvpn, split tunneling disabled, VPN identifier com.zscaler.zscaler, the custom attribute tunnelType with value APP and provider type packet-tunnel, and is assigned to a third-party app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-dual-tunnel-feature-configuration-microsoft-intune-ios.json",
+          "quotes": [
+            "Template name: Select Custom.",
+            "Configuration profile file: Download the Dual Tunnel Primary VPN mobileconfig file and upload it.",
+            "Type of automatic VPN: Select Per-app VPN.",
+            "Step 3: Assign Secondary Tunnel Configuration Profile to a Third-Party App",
+            "VPN server address: Enter perappvpn.",
+            "Split tunneling: Select Disable.",
+            "VPN identifier: Enter com.zscaler.zscaler.",
+            "Enter key and value pairs for the custom VPN attributes: Enter the key tunnelType and the value APP.",
+            "Provider Type: Select packet-tunnel."
+          ]
+        }
+      ]
+    },
+    "zdx-jamf": {
+      "statement": "The Jamf Pro ZDX guide applies to devices running iOS 16 and later and needs Client Connector already installed. Its content filter has filter type Plug-in, identifier com.zscaler.zscaler, organization Zscaler, per-app networking and socket filter enabled; the filter is selected in the app's Per-App Content Filter section, after which the Zscaler Content Filter shows as running and the app shows the ZDX service running.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zdx-jamf-pro-ios.json",
+          "quotes": [
+            "Before following this guide, ensure that Zscaler Client Connector is installed on your device.",
+            "This deployment guide applies to devices running iOS version 16 and later.",
+            "Filter type: Select Plug-in.",
+            "Identifier: Enter com.zscaler.zscaler",
+            "Organization: Enter Zscaler",
+            "Per-app networking: Select Enable",
+            "Socket-filter: Select Enable",
+            "Within the General tab, for the Per-App Content Filter section, select the content filter you created earlier.",
+            "The Zscaler Content Filter shows as running. Clicking the filter shows the apps associated with the filter.",
+            "Open the Zscaler Client Connector app on your iOS device to see the ZDX service running."
+          ]
+        }
+      ]
+    },
+    "zdx-workspace-one": {
+      "statement": "The Workspace ONE ZDX guide also applies to iOS 16 and later with Client Connector already installed. Its custom payload has PayloadType com.apple.webcontent-filter, PluginBundleID com.zscaler.zscaler and FilterSockets true; the ContentFilterUUID value must match the value in the XML text in the earlier section, and the Zscaler Content Filter then shows as running.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-deploying-zscaler-digital-experience-zdx-workspace-one-uem-ios.json",
+          "quotes": [
+            "Before following this guide, ensure that Zscaler Client Connector is installed on your device.",
+            "This deployment guide applies to devices running iOS version 16 and later.",
+            "<key>FilterSockets</key> <true />",
+            "<key>PayloadType</key> <string>com.apple.webcontent-filter</string>",
+            "<key>PluginBundleID</key> <string>com.zscaler.zscaler</string>",
+            "The ContentFilterUUID value must match with the value in the XML text in the previous section.",
+            "The Zscaler Content Filter shows as running. Clicking on the filter shows the apps associated with the filter."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dual-tunnel-keys": {
+      "kind": "semantic",
+      "title": "Which dual tunnel custom data keys exist and which Client Connector version it needs",
+      "status": "open",
+      "detail": "The dual tunnel guides use only the custom data key tunnelType (values ZIA and APP). They do not say whether other keys are accepted or which Client Connector version dual tunnel requires.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "intune-min-os": {
+      "kind": "semantic",
+      "title": "Whether the Intune guide's Minimum operating system value is a support statement",
+      "status": "open",
+      "detail": "The Intune guide has a Minimum operating system form value of iOS 9.0. It is a value the admin enters in the MDM, and the page does not present it as a supported-version statement.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "sso-plugin-urls": {
+      "kind": "semantic",
+      "title": "Which URLs the Microsoft Enterprise SSO plug-in needs excluded",
+      "status": "open",
+      "detail": "The Intune guide says the device configuration profile must exclude specific URLs for the plug-in but leaves the list to Microsoft's documentation, which is not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

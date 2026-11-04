@@ -31,6 +31,10 @@
     {
       "rel": "see-also",
       "to": "zidentity.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.security-settings"
     }
   ],
   "prose": [
@@ -43,7 +47,11 @@
     },
     {
       "label": "What a user can be given.",
-      "text": "Admin and service entitlements: [[zidentity.entitlements:two-kinds]]. {{assign-services}} Group membership, up to 1,000 groups per user: [[zidentity.groups:membership-limit]]."
+      "text": "Admin and service entitlements: [[zidentity.entitlements:two-kinds]]. {{assign-services}} Group membership, and the per-user group limit on which help pages differ: [[zidentity.groups:membership-limit]]."
+    },
+    {
+      "label": "Adding one in the console.",
+      "text": "{{login-id-format}} {{guest-domain-user}} {{profile-fields}} Super admin privileges come from group membership: [[zidentity.groups:global-admins-super-admin]]. The password option and skipping second-factor authentication are in [[zidentity.users.security-settings]]."
     },
     {
       "label": "Active or inactive.",
@@ -51,7 +59,7 @@
     },
     {
       "label": "Bulk work in the console.",
-      "text": "{{console-bulk}}"
+      "text": "{{console-bulk}} {{csv-import-format}} {{csv-email-and-password}} {{csv-override}} Whether the CSV can assign groups, and its full column set, are open {{gap:csv-columns}}."
     },
     {
       "label": "Creating one through the API.",
@@ -221,6 +229,100 @@
         }
       ]
     },
+    "login-id-format": {
+      "statement": "A user's login ID consists of a username and a domain name in email format, where the username must be unique and its domain must belong to the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "Login ID: Enter a user ID. The user ID consists of a username and domain name in email format (e.g., username@domain.com). The username must be unique, and its domain must belong to the organization."
+          ]
+        }
+      ]
+    },
+    "guest-domain-user": {
+      "statement": "If a user's login ID has a guest domain, authentication for that user is not managed by Zscaler, and the password option remains disabled on the Security Settings tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "If you add the login ID with a guest domain, authentication for that user is not managed by Zscaler, and the password option remains disabled on the Security Settings tab."
+          ]
+        }
+      ]
+    },
+    "profile-fields": {
+      "statement": "Adding a user in the console takes a status (enable or disable), primary and secondary email addresses, first and last names (from which the Display Name is built), a Department (a system-defined attribute), a manager and additional attributes already created in Authentication Service by admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-users.json",
+          "quotes": [
+            "Status: Enable or disable the user.",
+            "Primary Email: Enter the primary email address of the user.",
+            "Secondary Email: Enter the secondary email address of the user.",
+            "The user's full name is created based on what you enter in the First Name and Last Name fields and is displayed in the Display Name field.",
+            "Department is a system-defined attribute.",
+            "Manager: Select the manager of the user.",
+            "Additional Attributes: Select the user attributes that are already created in Authentication Service by admins."
+          ]
+        }
+      ]
+    },
+    "csv-import-format": {
+      "statement": "The help says up to 1,000 users can be imported at one time by CSV file, from a template downloaded with Download Sample in the Import User drawer; the header row is retained, the file name has a .csv extension, each user is on a separate line with an email domain defined in the portal, and in the Action column + adds a user (Primary Email, Login Name, First Name and Last Name filled in) and - deletes one (Login Name filled in).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-user-details-csv-file.json",
+          "quotes": [
+            "You can import up to 1,000 users into Authentication Service at one time by using CSV files.",
+            "In the Import User drawer, click Download Sample to download the template.",
+            "Retain the first line of the file, which is the header row.",
+            "The file name must have a .csv extension.",
+            "+ (plus sign): To add a user, fill in the Primary Email, Login Name, First Name, Last Name columns.",
+            "- (minus sign): To delete a user, fill in the Login Name column.",
+            "Each user must be on a separate line. Each user's email address must have a domain name that was defined in the portal."
+          ]
+        }
+      ]
+    },
+    "csv-email-and-password": {
+      "statement": "In the CSV the Secondary Email can specify any domain but must be a valid email address; if the authentication method is a one-time token or one-time link the Primary Email must be a valid email address; and a Password Reset value of True emails the user to set their password while False does not send the email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-user-details-csv-file.json",
+          "quotes": [
+            "The Secondary Email can specify any domain, but it must be a valid email address.",
+            "If the authentication method is a one-time token or one-time link, then this Primary Email field must contain a valid email address.",
+            "You can set the Password Reset column to either True or False. Enter True to email the user to set their password or False to not send the email."
+          ]
+        }
+      ]
+    },
+    "csv-override": {
+      "statement": "Override Existing Entries is selected to update existing user details, delete users or add new users, and is not selected to only add new users; without it, adding a user who already exists shows an error message stating that identical users cannot be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-user-details-csv-file.json",
+          "quotes": [
+            "Select Override Existing Entries if you want to update the existing user details, delete users, or add new users.",
+            "Do not select this option if you only want to add new users.",
+            "If you attempt to add a user that already exists and this option is not selected, an error message is displayed, stating that identical users cannot be imported."
+          ]
+        }
+      ]
+    },
     "id-assigned": {
       "statement": "So the service assigns the user's ID when the user is created.",
       "tier": "B",
@@ -309,6 +411,17 @@
     }
   },
   "gaps": {
+    "csv-columns": {
+      "kind": "semantic",
+      "title": "The CSV template's full column set, group assignment and delete rows",
+      "status": "open",
+      "detail": "The import page names only the Action, Primary Email, Login Name, First Name, Last Name, Password Reset and Secondary Email columns and does not list the template's full column set. Whether the CSV can assign groups is not stated, which leaves the page's line that a user can belong to up to 128 groups unexplained (see the group-count divergence in zidentity.groups), and how - rows interact with Override Existing Entries is not stated.",
+      "blocks": "building an import file that sets groups or deletes users",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "caller-id": {
       "kind": "semantic",
       "title": "What happens when a user create carries an ID",

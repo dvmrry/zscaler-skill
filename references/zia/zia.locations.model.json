@@ -66,7 +66,7 @@
       "text": "A location is the unit the service recognizes traffic by. {{identifies-networks}} {{road-warrior}}"
     },
     {
-      "text": "What a location holds: {{what-a-location-holds}} {{time-zone-in-policy}}"
+      "text": "What a location holds: {{what-a-location-holds}} {{time-zone-in-policy}} {{without-static-ip}} Whether a location is the forwarding-grouping primitive is partly answered {{gap:forwarding-primitive-wording}}."
     },
     {
       "text": "One setting that no longer does what its name says: {{ssl-scan-flag-deprecated}} So a statement that a rule or group \"scopes by SSL Inspection on the location\" has nothing behind it; check the SSL Inspection rules instead: [[zia.ssl-inspection.pipeline]]."
@@ -145,6 +145,29 @@
         "zia/locations#tz"
       ]
     },
+    "without-static-ip": {
+      "statement": "A location is most commonly defined by a static public IP; without one, it can be defined by subscribing to a dedicated proxy port or by an IPSec tunnel whose VPN credential is an FQDN. The CSV format likewise requires a location to have an IP, a VPN type and username, a dedicated port, or a Virtual Service Edge or cluster name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-location-without-static-public-ip-address.json",
+          "quotes": [
+            "The most common way to define a location in the Zscaler Admin Console is by specifying a static public IP address.",
+            "But if your organization does not have a static public IP address, you can still define a location by either subscribing to a dedicated proxy port or by configuring an IPSec VPN tunnel to forward internet traffic to the Zscaler service and specifying an FQDN for the VPN credentials."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-multiple-locations-and-sublocations.json",
+          "quotes": [
+            "IP (Required unless you enter a value for Dedicated Port, VPN-Type/VPN-userName, VirtualServiceEdgeCluster, or VirtualServiceEdgeClusterName): Enter the public IP address of the location.",
+            "VPN-type (Required unless you enter a value for IP, Dedicated port, VirtualServiceEdgeName, or VirtualServiceEdgeClusterName)",
+            "Dedicated Port (Required unless you enter a value for IP or VPN-type/VPN-userName, VirtualServiceEdgeName, or VirtualServiceEdgeClusterName): If you are entering a value here, you must also enable Auth."
+          ]
+        }
+      ]
+    },
     "ssl-scan-flag-deprecated": {
       "statement": "The per-location SSL Inspection flag (`sslScanEnabled`, Terraform `ssl_scan_enabled`) is deprecated and no longer affects SSL policy; it stays in the API payload for backward compatibility.",
       "tier": "A",
@@ -207,8 +230,8 @@
     "forwarding-primitive-wording": {
       "kind": "semantic",
       "title": "Legacy description of a location as a forwarding-grouping primitive with MTU and SSL toggles",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Locations are ZIA's forwarding-grouping primitive — the aggregation point that binds a forwarding method (GRE tunnel, IPSec tunnel, PAC, ZCC) to a set of client IPs\" and \"Forwarding-method-specific config (MTU, authentication toggle, SSL-inspection toggle)\". The help articles state what a location associates (see what-a-location-holds) but not this framing, PAC and ZCC as bound forwarding methods, an optional dedicated proxy port as a forwarding path, or an MTU setting. Resolve by reading the Add Location article's addressing section against a tenant export.",
+      "status": "partial",
+      "detail": "Partly answered by without-static-ip: a dedicated proxy port is a way to define a location without a static public IP. Unverified legacy statement: \"Locations are ZIA's forwarding-grouping primitive — the aggregation point that binds a forwarding method (GRE tunnel, IPSec tunnel, PAC, ZCC) to a set of client IPs\" and \"Forwarding-method-specific config (MTU, authentication toggle, SSL-inspection toggle)\". The help articles state what a location associates (see what-a-location-holds) but not this framing, PAC and ZCC as bound forwarding methods, an optional dedicated proxy port as a forwarding path, or an MTU setting. Resolve by reading the Add Location article's addressing section against a tenant export.",
       "resolves_with": [
         "source-read",
         "tenant-data"

@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.mip-labels",
+  "title": "Microsoft Information Protection (MIP) accounts and label retrieval",
+  "aliases": [
+    "mip account",
+    "microsoft information protection labels",
+    "mip label retrieval",
+    "sensitivity labels zia",
+    "purview labels dlp",
+    "validation failed mip",
+    "tenant inactive"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports.saas-security"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-and-why}} Labels are added to a custom dictionary as described in [[zia.dlp.dictionaries:mip-dictionary-type]]."
+    },
+    {
+      "label": "Adding an account.",
+      "text": "{{connector-options}} The Copilot Readiness Assessment page names different onboarding options, recorded in [[zia.reports.saas-security:mip-onboarding]]. {{validation-result}}"
+    },
+    {
+      "label": "Statuses and activation.",
+      "text": "{{account-statuses}} {{start-stop-retrieval}} The status names and the activation control differ between the pages {{divergence:mip-status-and-control}}. How Retrieval Pending becomes Active is open {{gap:retrieval-pending-to-active}}."
+    },
+    {
+      "label": "Retrieval.",
+      "text": "{{retrieval-cadence}} What happens in existing dictionaries when a label is deleted in Microsoft is open {{gap:deleted-label-effect}}, and how Data at Rest Scanning uses labels to auto-classify is open {{gap:dar-classification}}. Whether an API object represents the account is open {{gap:api-object}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which page the status name or the activation control was read from before telling an admin what to click, since the pages name them differently.",
+      "uses": [
+        "account-statuses",
+        "start-stop-retrieval",
+        "mip-status-and-control"
+      ]
+    },
+    {
+      "do": "Whether the labels are published in Microsoft and the account's labels have been retrieved, before expecting them in a dictionary or an inline web DLP policy.",
+      "uses": [
+        "retrieval-cadence"
+      ]
+    }
+  ],
+  "claims": {
+    "what-and-why": {
+      "statement": "MIP sensitivity labels are maintained by Microsoft; adding a MIP account in the Admin Console lets the service retrieve them for use in DLP. They let inline web DLP policies detect files tagged with these labels when evaluating transactions, and Data at Rest Scanning policies auto-classify sensitive files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-information-protection-labels.json",
+          "quotes": [
+            "These MIP labels are maintained by Microsoft and, through the addition of an MIP account in the Zscaler Admin Console, these labels can be retrieved from Microsoft so that they can be used when defining a Data Loss Prevention (DLP) in the Zscaler Admin Console.",
+            "Prevent exfiltration of files tagged with MIP labels through inline web DLP policies. With the inline web DLP policy, the service can detect files tagged with these sensitivity labels when evaluating transactions.",
+            "Auto-classify sensitive files using Data at Rest Scanning policies."
+          ]
+        }
+      ]
+    },
+    "account-statuses": {
+      "statement": "The MIP Labels page lists each account's label count and status, including when its information was last retrieved from Microsoft. The page's status values are Active (labels are retrieved), Retrieval Pending (fetching in progress; validation succeeded and the account is active), Tenant Inactive (labels are not retrieved), Validation Failed and Validation Success. The page must be refreshed explicitly to show the current state, and an account's labels can be downloaded as a CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-information-protection-labels.json",
+          "quotes": [
+            "Labels: The number of labels associated with the account.",
+            "Status: The status of the account, including the last time the account information was last retrieved from Microsoft.",
+            "Active: The account is active. MIP labels are retrieved from the Microsoft Portal.",
+            "Retrieval Pending: The fetching of the MIP labels from the Microsoft Portal is in progress for the MIP account. Validation has been successful and the status of the MIP account is active.",
+            "Tenant Inactive: The account is inactive. MIP labels are not retrieved from the Microsoft Portal.",
+            "Validation Success: The account is validated with the Microsoft Portal.",
+            "To view the current state, you need to explicitly refresh the page.",
+            "Download the list of labels associated with the MIP account to a comma-separated value Microsoft Excel spreadsheet."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-information-protection-labels.json",
+          "after": "Tenant Inactive: The account is inactive.",
+          "quotes": [
+            "Validation Failed: The account failed to validate with the Microsoft Portal."
+          ]
+        }
+      ]
+    },
+    "connector-options": {
+      "statement": "The Adding a MIP Account page has the admin choose a SaaS connector: a Zscaler-defined connector grants the Zscaler service full administrator privileges to the application (authorized by signing in to Microsoft and accepting the requested permissions), while a custom connector grants only the necessary permissions and needs permissions configured in Azure to supply a Client ID, Client Secret and Tenant ID. The account name must be unique.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-mip-account.json",
+          "quotes": [
+            "A Zscaler-defined connector grants the Zscaler service full administrator privileges to the application, whereas a custom connector grants only necessary permissions.",
+            "Choose an account and log in to the Microsoft Portal.",
+            "Review the required permissions for the Internet & SaaS (ZIA) service to access the Microsoft account and click Accept.",
+            "To create a custom MIP connector, you must first configure permissions in Azure so that you can provide the Client ID, Client Secret, and Tenant ID for the MIP account in the Zscaler Admin Console.",
+            "under Account Name, enter a name you want to associate with the Microsoft account. It must be unique."
+          ]
+        }
+      ]
+    },
+    "validation-result": {
+      "statement": "The adding page says the MIP account displays Validation Successful if it is authorized and Validation Failed if it is not; a failed account can be reauthorized from the Edit MIP Account window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-mip-account.json",
+          "quotes": [
+            "The MIP account displays a status of Validation Successful if the MIP account is authorized. It displays a status of Validation Failed if the MIP account is not authorized.",
+            "If the status on the MIP account is Validation Failed, you can try the authorization process again by clicking Reauthorize in the Edit MIP Account window."
+          ]
+        }
+      ]
+    },
+    "start-stop-retrieval": {
+      "statement": "The adding page says to change the account's status from Validation Successful to Active in the Edit MIP Account window for the service to scan and retrieve labels, and to Tenant Inactive to stop; the retrieving page says to change the account's Label Retrieval field to Activate, and that disabling the field stops retrieval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-mip-account.json",
+          "quotes": [
+            "For the service to scan and retrieve the MIP labels from Microsoft, you need to change the status on the MIP account from Validation Successful to Active using the Edit MIP Account window.",
+            "To stop the scan and retrieval of these MIP labels from Microsoft, change the status of the MIP account to Tenant Inactive."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-retrieving-mip-labels-microsoft-zscaler.json",
+          "quotes": [
+            "you need to change the Label Retrieval field for the MIP account in the Zscaler Admin Console to Activate for the service to scan and retrieve the published MIP labels from Microsoft.",
+            "Disabling the Label Retrieval field for the MIP account stops the scan and retrieval of the MIP labels from Microsoft."
+          ]
+        }
+      ]
+    },
+    "retrieval-cadence": {
+      "statement": "Labels must be published in Microsoft before they can be retrieved. The first scan and retrieval takes a few minutes, then retrieval runs automatically every 12 hours. Retrieved labels are added to the MIP account and can be used with inline web DLP policies; the labels of the different MIP accounts are shown when configuring an inline web DLP policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-retrieving-mip-labels-microsoft-zscaler.json",
+          "quotes": [
+            "The MIP labels need to be published in Microsoft before the service can retrieve them.",
+            "The first scan and retrieval of the MIP labels takes a few minutes. After that, the scan and retrieval of the MIP labels occurs automatically every 12 hours.",
+            "The retrieved MIP labels are added to the MIP account.",
+            "After the MIP labels are added to the Zscaler Admin Console, you can use them with the inline web Data Loss Prevention (DLP) policies.",
+            "The MIP labels that are associated with the different MIP accounts are displayed when configuring an inline web DLP policy."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "mip-status-and-control": {
+      "summary": "The three MIP pages name the success state and the activation control differently.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-microsoft-information-protection-labels.json",
+            "quotes": [
+              "Validation Success: The account is validated with the Microsoft Portal."
+            ]
+          },
+          "says": "The MIP Labels page names the state Validation Success."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-mip-account.json",
+            "quotes": [
+              "For the service to scan and retrieve the MIP labels from Microsoft, you need to change the status on the MIP account from Validation Successful to Active using the Edit MIP Account window.",
+              "To stop the scan and retrieval of these MIP labels from Microsoft, change the status of the MIP account to Tenant Inactive."
+            ]
+          },
+          "says": "The adding page names the state Validation Successful and controls retrieval with the account status, Active to start and Tenant Inactive to stop."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-retrieving-mip-labels-microsoft-zscaler.json",
+            "quotes": [
+              "you need to change the Label Retrieval field for the MIP account in the Zscaler Admin Console to Activate for the service to scan and retrieve the published MIP labels from Microsoft.",
+              "Disabling the Label Retrieval field for the MIP account stops the scan and retrieval of the MIP labels from Microsoft."
+            ]
+          },
+          "says": "The retrieving page controls retrieval with a Label Retrieval field, Activate to start and disabling it to stop."
+        }
+      ],
+      "impact": "An admin told which control to use depends on the page followed, and the pages do not say whether the status and the Label Retrieval field are the same control."
+    }
+  },
+  "gaps": {
+    "retrieval-pending-to-active": {
+      "kind": "semantic",
+      "title": "How Retrieval Pending becomes Active",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying when a retrieving account is usable",
+      "detail": "The MIP Labels page defines Retrieval Pending as fetching in progress and Active as labels retrieved, without saying what moves an account from one to the other."
+    },
+    "deleted-label-effect": {
+      "kind": "semantic",
+      "title": "Whether a label deleted in Microsoft is removed or only struck through in existing dictionaries",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying what a dictionary does after a label is deleted at Microsoft",
+      "detail": "The dictionary page says deleted labels, including labels deleted on Azure, appear with a strikethrough and cannot be selected, and does not say how existing dictionaries are affected."
+    },
+    "dar-classification": {
+      "kind": "semantic",
+      "title": "How Data at Rest Scanning auto-classifies files with MIP labels",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "describing the Data at Rest Scanning use of MIP labels",
+      "detail": "The MIP Labels page lists auto-classifying sensitive files with Data at Rest Scanning policies as a use, without describing how."
+    },
+    "api-object": {
+      "kind": "semantic",
+      "title": "Whether the MIP account has an API object",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "code-read"
+      ],
+      "blocks": "binding the account to an API type",
+      "detail": "No MIP account type or path was found in the type registry or the endpoint inventory; the SDKs and Terraform provider were not checked."
+    }
+  }
+}

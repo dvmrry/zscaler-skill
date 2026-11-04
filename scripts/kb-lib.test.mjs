@@ -55,17 +55,20 @@ test("schema validator refuses keywords it does not implement", () => {
   assert.throws(() => validate(schemas, "x.schema.json", {}), /unsupported keyword "if"/);
 });
 
-test("a log type's status codes are evidence the validator anchors", () => {
-  const logType = (quote) => ({
+test("a log type's status codes and policy reasons are evidence the validator anchors", () => {
+  const logType = (quote, reason = "| Denied by fake rule | Fake |") => ({
     schema_version: 1, id: "zia/fake-log", kind: "log", product: "zia", title: "Fake log",
     evidence: [{ source: "fake-help", path: "doc.txt", quotes: ["a fake log format"] }],
     fields: { action: { type: "string", description: "The action." } },
     status_codes: { FAKE_DENIED: { name: "Denied", status: "Error", evidence: [{ source: "fake-help", path: "doc.txt", after: "\"FAKE_DENIED\": {", quotes: [quote] }] } },
+    policy_reasons: { "Denied by fake rule": { rows: [{ feature: "Fake", description: "A fake rule denied it." }], evidence: [{ source: "fake-help", path: "doc.txt", quotes: [reason] }] } },
   });
-  const doc = "a fake log format\n\"FAKE_DENIED\": {\n\"name\": \"Denied\",\n\"status\": \"Error\"\n}\n";
+  const doc = "a fake log format\n\"FAKE_DENIED\": {\n\"name\": \"Denied\",\n\"status\": \"Error\"\n}\n| Denied by fake rule | Fake | A fake rule denied it. |\n";
   assert.deepEqual(messages(tmpRepo({ "vendor/fake/doc.txt": doc, "references/zia/types/fake-log.json": logType("\"name\": \"Denied\",") })), []);
   const bad = messages(tmpRepo({ "vendor/fake/doc.txt": doc, "references/zia/types/fake-log.json": logType("\"name\": \"Allowed\",") }));
   assert.ok(bad.some((m) => /status_codes\.FAKE_DENIED evidence\[0\].*quote not found/.test(m)), bad.join("\n"));
+  const badReason = messages(tmpRepo({ "vendor/fake/doc.txt": doc, "references/zia/types/fake-log.json": logType("\"name\": \"Denied\",", "| Allowed by fake rule | Fake |") }));
+  assert.ok(badReason.some((m) => /policy_reasons\.Denied by fake rule evidence\[0\].*quote not found/.test(m)), badReason.join("\n"));
 });
 
 test("a quote must occur exactly once unless an after-anchor sets context", () => {
@@ -523,6 +526,10 @@ test("read gives an area's subjects as text with citable claim IDs and no eviden
   // article's rows, and where each says so.
   assert.match(run("--no-overlay", "BRK_MT_TERMINATED"), /^# BRK_MT_TERMINATED: a status code of .*\(zpa\/user-activity-log\)\n- name: SE: Connection closed by Service Edge\n- error type: NA\n- status: Success\n- admin action: NA\n- Help article \(Info codes\): SE: Connection closed by Service Edge\. .+\n- Source: `vendor\/zscaler-help\/configuring-log-streaming-service-configurations-using-api\.json:[\d,]+`\n- Source: `vendor\/zscaler-help\/zpa-understanding-private-access-session-status-codes\.json:\d+/m);
   assert.equal(run("--no-overlay", "ZPN_STATUS_AUTH_FAILED").match(/^# ZPN_STATUS_AUTH_FAILED: /gm).length, 3);
+  // A ZIA policy reason reads by its text, case aside, with each of its article rows and their sources.
+  assert.match(run("--no-overlay", "bypassed due to missing config"), /^# Bypassed due to missing config: a policy reason of .*\(zia\/web-log#reason\)\n- Firewall Filtering: This implicit rule action .+\n- Source: `vendor\/zscaler-help\/zia-policy-reasons\.json:\d+`$/m);
+  assert.match(run("--no-overlay", "Not allowed to upload/download media files of this type"), /^- Cloud App Control: .+Streaming Media.+\n- Cloud App Control: .+File Sharing.+\n- The article lists this reason in more than one row\.$/m);
+  assert.match(run("--no-overlay", "zia/web-log"), /^- Policy reasons: \d+ reason strings from the Policy Reasons help article, which the reason field points to; read one by its text/m);
   assert.match(run("--no-overlay", "zpa/user-activity-log#InternalReason"), /^- Status codes: 201 listed for this log type in the LSS API's status-codes response and the session status codes help article; read one by its code \(`read [A-Z_]+`\)$/m);
   assert.equal(spawnSync("node", [path.join(ROOT, "scripts/kb.mjs"), "read", "--bogus", "zia"], { encoding: "utf8" }).status, 2);
   const withOverlay = run("--overlay", OVERLAY, "zia/url-filtering-rules");

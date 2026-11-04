@@ -25,6 +25,14 @@
     {
       "rel": "see-also",
       "to": "zidentity.step-up"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview.external-idps.integrations"
     }
   ],
   "prose": [
@@ -33,11 +41,11 @@
     },
     {
       "label": "Primary and secondary.",
-      "text": "{{primary-secondary}} {{domains}} {{idp-removal-retention}}"
+      "text": "{{primary-secondary}} Whether the 64 counts all IdPs or only secondary ones differs between two help pages {{divergence:idp-count}}. {{domains}} The Domains field and the rest of an IdP's form are in [[zidentity.overview.external-idps.configuration]]. {{idp-removal-retention}}"
     },
     {
       "label": "Which IdPs.",
-      "text": "{{example-idps}}"
+      "text": "{{example-idps}} What each vendor's guide says differently is in [[zidentity.overview.external-idps.integrations]]."
     },
     {
       "label": "OIDC and step-up.",
@@ -49,7 +57,7 @@
     },
     {
       "label": "Admin MFA and certificates.",
-      "text": "{{admin-mfa-per-idp}} {{cert-warnings}}"
+      "text": "{{admin-mfa-per-idp}} {{cert-warnings}} The option that enforces it and the certificates' lifecycle are in [[zidentity.overview.external-idps.configuration]]."
     }
   ],
   "checks": [
@@ -88,7 +96,7 @@
       ]
     },
     "primary-secondary": {
-      "statement": "IdPs are configured as a primary IdP and secondary IdPs, a primary IdP must be configured before any secondary IdP, and an organization can configure at most 64 IdPs.",
+      "statement": "IdPs are configured as a primary IdP and secondary IdPs, a primary IdP must be configured before any secondary IdP, and the About External Identity Providers page says an organization can configure a maximum of 64 IdPs.",
       "tier": "A",
       "evidence": [
         {
@@ -186,6 +194,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "idp-count": {
+      "summary": "Whether 64 is the maximum number of IdPs per organization or the maximum number of secondary IdPs.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-about-external-identity-providers.json",
+            "quotes": [
+              "Authentication Service allows you to configure a maximum of 64 IdPs per organization."
+            ]
+          },
+          "says": "Authentication Service allows a maximum of 64 IdPs per organization."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-adding-saml-identity-providers.json",
+            "quotes": [
+              "You can add up to 64 secondary IdPs."
+            ]
+          },
+          "says": "Up to 64 secondary IdPs can be added, which with one primary IdP would make 65."
+        }
+      ],
+      "impact": "Trusting the first page, an agent says a tenant with a primary and 64 secondary IdPs is over the limit; trusting the second, it says the 65th IdP is allowed. Neither page says which count the console enforces."
     }
   }
 }

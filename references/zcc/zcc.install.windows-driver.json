@@ -146,8 +146,17 @@
     "boot-start-purpose": {
       "kind": "semantic",
       "title": "Whether LWF boot start is required for machine tunnels",
-      "status": "open",
-      "detail": "Unverified legacy statement: LWFBOOTSTART=1 is required for machine tunnel scenarios where ZPA connectivity must exist before the user session starts (for example reaching an AD domain controller over ZPA during Windows login); without it the LWF driver loads after the user session starts. Neither the parameters page nor the machine tunnel article ties the two together.",
+      "status": "partial",
+      "detail": "The documented purpose of LWFBOOTSTART=1 is to avoid a blue screen during OS boot where the OS is booted over the network, such as Citrix Provisioning Services, where it is required (zcc.install.citrix-vdi:lwf-boot-start). No captured page ties it to machine tunnels or to ZPA connectivity before the user session starts.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "This prevents a blue screen during OS boot in environments where the OS is booted over the network, such as in Citrix Provisioning Services."
+          ]
+        }
+      ],
       "blocks": "machine tunnel troubleshooting on devices using the LWF driver",
       "resolves_with": [
         "lab-test",
@@ -157,8 +166,17 @@
     "install-versus-enable": {
       "kind": "semantic",
       "title": "Whether installLWFDriver installs the driver without activating it",
-      "status": "open",
-      "detail": "Unverified legacy statement: INSTALLLWFDRIVER installs the NDIS 6 LWF driver binary without activating it, separately from USELWFDRIVER, which enables it. The parameters page describes each switch on its own and says nothing about how they combine.",
+      "status": "partial",
+      "detail": "The MSI install-options page says that without INSTALLLWFDRIVER Client Connector does not install the LWF driver until a forwarding profile configures it during policy download (zcc.install.citrix-vdi:install-lwf). No captured page says whether the installed driver is active or how the switch combines with USELWFDRIVER.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-customizing-zscaler-client-connector-install-options-msi.json",
+          "quotes": [
+            "Without this parameter, Zscaler Client Connector doesn't install the LWF driver until configured to do so by a forwarding profile during policy download, which might cause network connection disruption and VDI disconnection."
+          ]
+        }
+      ],
       "blocks": "which LWF switches a deployment needs",
       "resolves_with": [
         "lab-test"

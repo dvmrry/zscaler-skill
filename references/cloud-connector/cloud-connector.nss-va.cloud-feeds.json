@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.nss-va.cloud-feeds",
+  "title": "Cloud NSS feeds for Cloud & Branch Connector logs: HTTPS destination, output and per-log-type filters",
+  "aliases": [
+    "cloud nss feeds cloud connector",
+    "nss cloud feeds",
+    "cloud nss branch connector",
+    "cloud nss session feed",
+    "cloud nss dns feed",
+    "cloud nss metrics feed"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.nss-va.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.delivery-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feed-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Cloud NSS feeds are the HTTPS-push feeds for Cloud & Branch Connector logs. {{no-vm-needed}} {{cloud-feeds-exist}} {{nss-type-and-location}} Whether they need their own subscription is open {{gap:subscription}}."
+    },
+    {
+      "label": "Destination.",
+      "text": "{{https-destination}} {{siem-rate}} Max Batch Size has no unit, default or range, and the SIEM Type list is not given {{gap:batch-size}}."
+    },
+    {
+      "label": "Output.",
+      "text": "{{output}} {{escape-and-timezone}} The VM-based feed's defaults are in [[cloud-connector.nss-va.feeds]]. {{retry-on-http-codes}} What the Cloud pages omit, including behaviour while the SIEM is unreachable, is open {{gap:vm-feed-differences}}."
+    },
+    {
+      "label": "Session feeds.",
+      "text": "{{session-log-type}} {{session-filters}} The Client IP filter is worded differently from the VM feed page {{gap:client-ip-wording}}."
+    },
+    {
+      "label": "DNS, Event and Metrics feeds.",
+      "text": "{{dns-filters}} {{event-filters}} {{metrics-record-type}}"
+    },
+    {
+      "label": "Open.",
+      "text": "How many Cloud NSS feeds per log type are allowed is not stated {{gap:feed-count}}. Three further Cloud NSS captures are not yet cited {{gap:uncited-captures}}."
+    }
+  ],
+  "claims": {
+    "no-vm-needed": {
+      "statement": "Cloud NSS streams logs from the Zscaler Cloud & Branch Connector Admin Portal directly into a compatible cloud-based SIEM without the need to deploy an NSS VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-cloud-nss-feeds.json",
+          "quotes": [
+            "Cloud NSS allows you to instantly stream logs from the Zscaler Cloud & Branch Connector Admin Portal directly into a compatible cloud-based security information and event management (SIEM) system without the need to deploy an NSS VM."
+          ]
+        }
+      ]
+    },
+    "retry-on-http-codes": {
+      "statement": "A Cloud NSS feed treats HTTP 200 or 204 from the SIEM as a successful upload and 400 as a parsing error that drops the batch; on any other HTTP code it repeatedly attempts to upload the same batch until it receives a 200, 204 or 400 response, up to one hour, after which the batch is dropped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-cloud-nss-feeds.json",
+          "quotes": [
+            "HTTP code 200 or 204: The feed considers the batch of logs successfully uploaded.",
+            "HTTP code 400: The feed considers the batch of logs to have a parsing error and drops the batch.",
+            "Any other HTTP code (e.g., 401, 403, 501, etc.): The feed repeatedly attempts to upload the same batch until it receives a 200, 204, or 400 response from the SIEM up to one hour. After one hour, the batch is dropped."
+          ]
+        }
+      ]
+    },
+    "cloud-feeds-exist": {
+      "statement": "Cloud & Branch Connector help has pages for adding Cloud NSS feeds for Session, DNS, Event and Metrics logs; a Cloud NSS feed specifies the log data the Cloud NSS sends to the SIEM, with one or more fields for the logs and one field for alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds.json",
+          "quotes": [
+            "A Cloud NSS feed specifies the data from the logs that the Cloud NSS sends to the security information and event management (SIEM) system.",
+            "You can add one or more fields for the logs and one field for alerts.",
+            "Adding Cloud NSS Feeds for Session Logs",
+            "Adding Cloud NSS Feeds for DNS Logs",
+            "Adding Cloud NSS Feeds for Event Logs",
+            "Adding Cloud NSS Feeds for Metrics Logs"
+          ]
+        }
+      ]
+    },
+    "nss-type-and-location": {
+      "statement": "The Session, Event and Metrics feed pages add Cloud NSS feeds under Data Explorer > Log Streaming > NSS Cloud Feeds; on the Session and DNS feed pages the NSS type is NSS for Firewall, Cloud and Branch Connector by default, and on the Session page the status is Enabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-session-logs.json",
+          "quotes": [
+            "From the navigation menu, go to Data Explorer > Log Streaming > NSS Cloud Feeds.",
+            "NSS Type: NSS for Firewall, Cloud and Branch Connector is enabled by default.",
+            "Status: It is Enabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-dns-logs.json",
+          "quotes": [
+            "NSS Type: The NSS type is set to NSS for Firewall, Cloud and Branch Connector by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-event-logs.json",
+          "quotes": [
+            "From the navigation menu, go to Data Explorer > Log Streaming > NSS Cloud Feeds."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-metrics-logs.json",
+          "quotes": [
+            "From the navigation menu, go to Data Explorer > Log Streaming > NSS Cloud Feeds."
+          ]
+        }
+      ]
+    },
+    "https-destination": {
+      "statement": "On the Session feed page a Cloud NSS feed sends to a SIEM type chosen from a list, at the HTTPS URL of the SIEM log collection API endpoint, with HTTP header keys and token values; OAuth 2.0 Authentication is enabled by default if applicable to the SIEM type, and Max Batch Size limits an individual HTTP request payload to the SIEM's best practice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-session-logs.json",
+          "quotes": [
+            "SIEM Type: Choose a SIEM type from the list.",
+            "API URL: Enter the HTTPS URL of the SIEM log collection API endpoint.",
+            "Key 1: Enter the key for the HTTP header.",
+            "Value 1: Enter the token value for the HTTP header.",
+            "OAuth 2.0 Authentication: This setting is enabled by default if it is applicable to the SIEM type.",
+            "Max Batch Size: Enter a size limit for an individual HTTP request payload to the SIEM's best practice."
+          ]
+        }
+      ]
+    },
+    "siem-rate": {
+      "statement": "On the Session feed page SIEM Rate stays Unlimited unless the output stream must be throttled for licensing or other constraints; a limit must be between 100 and 1,000,000, and one too low for the traffic volume causes log loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-session-logs.json",
+          "quotes": [
+            "SIEM Rate: Leave as Unlimited, unless you need to throttle the output stream due to licensing or other constraints.",
+            "This number must be between 100 and 1,000,000. A limit that is too low for the traffic volume causes log loss."
+          ]
+        }
+      ]
+    },
+    "output": {
+      "statement": "On the Session, DNS, Event and Metrics feed pages the Feed Output Type is JSON by default, with Name-Value Pairs or Tab-separated as alternatives if the SIEM accepts them; on the Session page, with JSON, JSON Array Notation is enabled by default and lets the NSS stream a batch of logs as a JSON array.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-session-logs.json",
+          "quotes": [
+            "Feed Output Type: The output is JSON by default. You can choose Name-Value Pairs or Tab-separated if your SIEM accepts either of these formats.",
+            "When JSON is selected for the Feed Output Type, the JSON Array Notation setting is enabled by default.",
+            "This setting allows the NSS to stream a batch of logs in a JSON Array format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-dns-logs.json",
+          "quotes": [
+            "Feed Output Type: The output is JSON by default. You can choose Name Value Pairs or Tab Separated if your SIEM accepts either of these formats."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-event-logs.json",
+          "quotes": [
+            "Feed Output Type: The output is JSON by default. You can choose Name Value Pairs or Tab Separated if your SIEM accepts either of these formats."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-metrics-logs.json",
+          "quotes": [
+            "Feed Output Type: The output is JSON by default. You can choose Name Value Pairs or Tab Separated if your SIEM accepts either of these formats."
+          ]
+        }
+      ]
+    },
+    "escape-and-timezone": {
+      "statement": "On the Session feed page an optional Feed Escape Character is hex encoded when it appears in a URL, hostname or referrer URL, and the eedone field is YES for a record created using custom encoding; the Time Zone is the organization's by default, and direct GMT offsets can also be specified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-session-logs.json",
+          "quotes": [
+            "Feed Escape Character: (Optional) Type a character that you want to hex encode when it appears in a URL, hostname, or referrer URL.",
+            "If a record was created using custom encoding, the %s{eedone} field is YES for that record.",
+            "Time Zone: By default, this is set to the organization's time zone.",
+            "Direct GMT offsets can also be specified."
+          ]
+        }
+      ]
+    },
+    "session-log-type": {
+      "statement": "A Session Cloud NSS feed records Full Session Logs (all sessions of the rule individually, except HTTP/HTTPS), Aggregate Logs (sessions grouped by user, rule, network service and network application, recorded periodically within a 15-minute time window) or both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-session-logs.json",
+          "quotes": [
+            "Full Session Logs: Logs all sessions of the rule individually, except HTTP/HTTPS.",
+            "Aggregate Logs: Individual sessions are grouped together based on user, rule, network service, and network application recorded periodically, within a 15-minute time window.",
+            "Both Session and Aggregate Logs"
+          ]
+        }
+      ]
+    },
+    "session-filters": {
+      "statement": "A Session Cloud NSS feed filters by policy action and rule name (in accordance with the traffic forwarding rules), by locations (with no limit on how many), by Cloud or Branch Connector and their groups, by client IP addresses (worded as client destination IP addresses, and for an aggregate that of the last session), by network services and by gateway.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-session-logs.json",
+          "quotes": [
+            "Policy Action: Use this filter to limit the logs based on the action the service took, in accordance with the traffic forwarding rules.",
+            "Rule Name: Use this filter to limit the logs based on traffic forwarding rules.",
+            "There is no limit on the number of locations that you can select.",
+            "Cloud or Branch Connector: Use this filter to limit the logs to specific Cloud Connectors or Branch Connectors.",
+            "Cloud or Branch Connector Groups: Use this filter to limit the logs to specific Cloud Connector Groups or Branch Connector Groups.",
+            "Client IP Addresses: Use this filter to limit the logs to specific client destination IP addresses. For aggregated sessions, this is the client destination IP address of the last session in the aggregate.",
+            "Network Services: Use this filter to limit the logs to specific network services associated with the session or aggregated sessions.",
+            "Gateway: Use this filter to limit the log to specific gateways."
+          ]
+        }
+      ]
+    },
+    "dns-filters": {
+      "statement": "A DNS Cloud NSS feed filters by policy action (Allow, Block for requests and responses the service dropped, Redirect to ZPA), DNS Filtering rule name, locations and sublocations, client IP and server IP addresses, domains, server ports (individual ports and ranges), DNS request types, DNS response types and session duration in seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-dns-logs.json",
+          "quotes": [
+            "Allow: Use this filter to limit the logs to allowed DNS requests and responses.",
+            "Block: Use this filter to limit the logs to DNS requests and responses that the service dropped.",
+            "Redirect to ZPA: Use this filter to limit the logs to transactions wherein the service redirected the DNS request or response to Zscaler Private Access (ZPA).",
+            "Rule Name: Use this filter to limit the logs based on specific rules in the DNS Filtering Rule.",
+            "Locations: Use this filter to limit the logs to specific locations and sublocations.",
+            "Client IP Addresses: Use this filter to limit the logs based on a client’s IP address.",
+            "Server IP Addresses: Use this filter to limit the logs to specific server IP addresses.",
+            "Domains: Use this filter to limit the logs to sessions associated with specific domains.",
+            "Server IP Ports: Use this filter to limit the logs to specific server ports. You can specify individual ports and a range of ports.",
+            "DNS Request Types: Use this filter to limit the logs to sessions associated with specific DNS request types.",
+            "DNS Response Types: Use this filter to limit the logs to sessions associated with specific DNS response types.",
+            "Durations: Use this filter to limit the logs based on the duration of the sessions, in seconds."
+          ]
+        }
+      ]
+    },
+    "event-filters": {
+      "statement": "An Event Cloud NSS feed filters by locations and sublocations, Cloud or Branch Connector groups and Cloud or Branch Connector VMs; the Metrics feed page has the same three filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-event-logs.json",
+          "quotes": [
+            "Locations: Use this filter to limit the logs to specific locations and sublocations.",
+            "Cloud/Branch Connector Groups: Use this filter to limit the logs to specific Cloud Connector Groups or Branch Connector Groups.",
+            "Cloud/Branch Connector VM: Use this filter to limit the logs to specific Cloud or Branch Connector virtual machines (VMs)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-metrics-logs.json",
+          "quotes": [
+            "Locations: Use this filter to limit the logs to specific locations and sublocations.",
+            "Cloud/Branch Connector Groups: Use this filter to limit the logs to specific Cloud Connector Groups or Branch Connector Groups.",
+            "Cloud/Branch Connector VM: Use this filter to limit the logs to specific Cloud or Branch Connector VMs."
+          ]
+        }
+      ]
+    },
+    "metrics-record-type": {
+      "statement": "A Metrics Cloud NSS feed selects record types VM, Instance and/or Resource: VM is metrics at the virtual machine level, Instance at an individual data processing instance level, and Resource at an individual resource level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-cloud-nss-feeds-metrics-logs.json",
+          "quotes": [
+            "Metrics Record Type: Select VM, Instance, and/or Resource.",
+            "VM: Metrics that are applicable at the virtual machine (VM) level.",
+            "Instance: Metrics that are applicable at an individual data processing instance level.",
+            "Resource: Metrics that are applicable at an individual resource level."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "subscription": {
+      "kind": "semantic",
+      "title": "Whether Cloud NSS for Cloud & Branch Connector logs needs its own subscription",
+      "status": "open",
+      "detail": "No Cloud & Branch Connector page says whether Cloud NSS for these logs needs a subscription of its own; the shared Cloud NSS subscription claim is written for ZIA.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "feed-count": {
+      "kind": "semantic",
+      "title": "How many Cloud NSS feeds per log type Cloud & Branch Connector allows",
+      "status": "open",
+      "detail": "The Cloud NSS pages state no feed count; the VM-based limits are in cloud-connector.nss-va.feeds.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "vm-feed-differences": {
+      "kind": "semantic",
+      "title": "What the Cloud NSS pages omit compared with the VM feed page, and what happens while the SIEM is unreachable",
+      "status": "partial",
+      "detail": "Compared with the VM session feed, the Cloud NSS pages show no NSS Server, SIEM IP or FQDN, TCP port or Duplicate Logs settings and offer no CSV or Custom output. These are absences found by comparing pages, not claims. The retry behaviour on HTTP codes is stated (retry-on-http-codes); what a feed does while the SIEM cannot be reached at all, with no HTTP response, is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "batch-size": {
+      "kind": "semantic",
+      "title": "Max Batch Size unit, default and range, and the SIEM Type list",
+      "status": "open",
+      "detail": "The Session page says Max Batch Size is an individual HTTP request payload limit to the SIEM's best practice, with no unit, default or range, and does not list the SIEM types.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "client-ip-wording": {
+      "kind": "semantic",
+      "title": "Which field the Session feed Client IP filter matches",
+      "status": "open",
+      "detail": "The Cloud NSS Session page words the filter as client destination IP addresses, while the VM feed page words it as a client's IP address; which log field it filters is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "uncited-captures": {
+      "kind": "semantic",
+      "title": "Cloud NSS captures not yet cited",
+      "status": "open",
+      "detail": "Three captures were listed by the extraction and not read for claims: vendor/zscaler-help/zero-trust-cloud-adding-nss-feeds-dns-logs.json, vendor/zscaler-help/zero-trust-cloud-adding-nss-feeds-metrics-logs.json and vendor/zscaler-help/zero-trust-cloud-general-guidelines-nss-feeds-and-feed-formats.json.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

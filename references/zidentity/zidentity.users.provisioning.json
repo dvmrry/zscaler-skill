@@ -41,6 +41,18 @@
       "text": "{{scim-recommended}} {{jit-reactive}}"
     },
     {
+      "label": "JIT in the IdP form.",
+      "text": "{{jit-first-access}} {{jit-no-system-groups}} {{scim-users-not-updated-by-jit}} Whether secondary IdPs provision system-defined groups is open {{gap:jit-secondary-groups}}."
+    },
+    {
+      "label": "JIT attribute mapping.",
+      "text": "{{jit-mapping}} {{primary-email-mandatory}} {{attribute-names-exact}} {{default-oidc-claims}} {{default-saml-attributes}} What the SAML default attribute Name means is open {{gap:saml-name-attribute}}."
+    },
+    {
+      "label": "SCIM in the IdP form.",
+      "text": "{{scim-endpoint-and-auth}} {{scim-bearer-token}} Who may see the token differs between pages {{divergence:bearer-token-visibility}}. {{scim-client-credentials}} {{addresses-scim-only}} Vendor-specific SCIM settings are in [[zidentity.overview.external-idps.integrations]]."
+    },
+    {
       "label": "When an IdP is removed.",
       "text": "Users and groups of the primary IdP stay, those of a secondary IdP do not: [[zidentity.overview.external-idps:idp-removal-retention]]."
     },
@@ -125,6 +137,245 @@
       ],
       "conditions": "Follows from JIT updating identities from attributes received at login and SCIM synchronizing on a schedule or on demand; no source states the before-first-login case."
     },
+    "jit-first-access": {
+      "statement": "With JIT Provisioning enabled on an OIDC or SAML IdP, users not yet provisioned are provisioned automatically when they first try to access Authentication Service, the user database being created in real time from the OP's response (OIDC) or the SAML assertion with user information; if the option is disabled, unprovisioned users are denied access until they are configured in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "Just-in-time (JIT) Provisioning: Enable JIT Provisioning to allow automated user provisioning to Authentication Service when the user tries to access Authentication Service for the first time and is not provisoned to Authentication Service yet.",
+            "Authentication Service uses the response sent by the OP containing user information to create a user database with Authentication Service in real time.",
+            "If you disable this option, unprovisioned users are denied access to Authentication Service until the users are configured in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "Enable JIT Provisioning option to allow automated user provisioning to Authentication Service when the user tries to access Authentication Service for the first time.",
+            "The IdP sends a SAML Assertion (XML file) containing user information, which Authentication Service uses to create a user database with Authentication Service in real time.",
+            "If you disable this option, unprovisioned users are denied access to Authentication Service until the users are configured in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "jit-no-system-groups": {
+      "statement": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups such as Zscaler Global Administrators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators)."
+          ]
+        }
+      ]
+    },
+    "scim-users-not-updated-by-jit": {
+      "statement": "The PingOne guide says users created in Authentication Service through SCIM cannot be updated through JIT provisioning and their records must be updated through SCIM provisioning only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "Users created in Authentication Service via SCIM cannot be updated through JIT provisioning. These user records must be updated via SCIM provisioning only."
+          ]
+        }
+      ]
+    },
+    "jit-mapping": {
+      "statement": "JIT takes a JIT user group attribute from the IdP and maps JIT attributes from the IdP to user attributes in Authentication Service; the SAML page lists First Name, Last Name, Primary Email, Login Name and Display Name among its default attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "JIT User Group Attribute from IdP: Enter the JIT user group attribute.",
+            "JIT Attribute from IdP: Enter the JIT attribute that you want to map from the OP.",
+            "User Attribute in Authentication Service: Select the user attribute that you want to map to the JIT attribute."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-saml-identity-providers.json",
+          "quotes": [
+            "Authentication Service supports the following default attributes:",
+            "- First Name",
+            "- Last Name",
+            "- Primary Email",
+            "- Login Name",
+            "- Display Name"
+          ]
+        }
+      ]
+    },
+    "primary-email-mandatory": {
+      "statement": "The Auth0 guide says mapping the Primary Email attribute is mandatory because password resetting and multi-factor authentication need it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication."
+          ]
+        }
+      ]
+    },
+    "attribute-names-exact": {
+      "statement": "The OneLogin guide says that if the external IdP sends different attributes for First Name, Last Name or Display Name those attributes must be mapped, and the Auth0 guide says the attributes entered in the Just-in-time Attribute field must match exactly the attributes received in the ID tokens.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-onelogin-external-idp.json",
+          "quotes": [
+            "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "While mapping attributes, ensure that the attributes you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the ID tokens."
+          ]
+        }
+      ]
+    },
+    "default-oidc-claims": {
+      "statement": "The Auth0 guide's OIDC attribute table maps First Name from given_name, Last Name from family_name and Display Name from name by default, lists nickname, phone_number, email, locale and zoneinfo against Nick Name, Mobile Phone, Primary Email, Language and Timezone, says Department, Organization, Title, Division, Cost Center, User Type, Formatted Name and Manager need a custom claim, and says Manager must be in email address format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "| Default Authentication Service User Attributes | OIDC Attribute in ID Tokens | Description |",
+            "| First Name | given_name | First name of the user (e.g., John). This attribute is mapped by default. |",
+            "| Last Name | family_name | Last name of the user (e.g., Doe). This attribute is mapped by default. |",
+            "| Display Name | name | Display name of the user (e.g. John Doe). This attribute is mapped by default. |",
+            "| Nick Name | nickname |",
+            "| Mobile Phone | phone_number |",
+            "| Primary Email | email |",
+            "| Language | locale |",
+            "| Timezone | zoneinfo |",
+            "| Department | Needs a custom claim |",
+            "| Organization | Needs a custom claim |",
+            "| Title | Needs a custom claim |",
+            "| Division | Needs a custom claim |",
+            "| Cost Center | Needs a custom claim |",
+            "| User Type | Needs a custom claim |",
+            "| Formatted Name | Needs a custom claim |",
+            "| Manager | Needs a custom claim | The manager's login name (manager@company.com). This must be in the email address format. |"
+          ]
+        }
+      ]
+    },
+    "default-saml-attributes": {
+      "statement": "The AD FS guide's SAML attribute table maps First Name from firstName, Last Name from lastName and Display Name from displayName by default, and lists mobile or telephoneNumber, email or mail, locale or preferredLanguage, timezone, department, organization or company, title, division, costCenter, userType or employeeType, formattedName and manager for Mobile Phone, Primary Email, Language, Timezone, Department, Organization, Title, Division, Cost Center, User Type, Formatted Name and Manager, with Manager in email address format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-ad-fs-external-idp.json",
+          "quotes": [
+            "| Default Authentication Service User Attributes | Attribute in SAML Assertions | Description |",
+            "| First Name | firstName | First name of the user (e.g., John). This attribute is mapped by default. |",
+            "| Last Name | lastName | Last name of the user (e.g., Doe). This attribute is mapped by default. |",
+            "| Display Name | displayName | Display name of the user (e.g. John Doe). This attribute is mapped by default. |",
+            "| Mobile Phone | mobile or telephoneNumber |",
+            "| Primary Email | email or mail |",
+            "| Language | locale or preferredLanguage |",
+            "| Timezone | timezone |",
+            "| Department | department |",
+            "| Organization | organization or company |",
+            "| Title | title |",
+            "| Division | division |",
+            "| Cost Center | costCenter |",
+            "| User Type | userType or employeeType |",
+            "| Formatted Name | formattedName |",
+            "| Manager | manager | The manager's login name (manager@company.com). This must be in the email address format. |"
+          ]
+        }
+      ]
+    },
+    "addresses-scim-only": {
+      "statement": "The Auth0 guide says the Addresses attribute in Authentication Service is supported only with SCIM provisioning, and the PingOne guide says the SCIM attribute mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "The Addresses attribute in Authentication Service is supported only with SCIM provisioning."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-pingone-external-idp.json",
+          "quotes": [
+            "This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "scim-endpoint-and-auth": {
+      "statement": "Enabling SCIM Provisioning on an IdP gives a SCIM Endpoint URL, the base URL of the SCIM server needed when configuring SCIM-based provisioning with the external IdP, which appears only if the IdP's Basic tab configuration is completed and saved; the authentication options are Bearer Token and Oauth 2 Client Credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "SCIM Provisioning: Enable SCIM Provisioning to activate SCIM-based provisioning for users.",
+            "SCIM Endpoint URL: Copy the SCIM Endpoint URL. This is the base URL for the SCIM server and it's needed when configuring SCIM-based provisioning with your external IdP.",
+            "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+            "- Bearer Token",
+            "- Oauth 2 Client Credentials"
+          ]
+        }
+      ]
+    },
+    "scim-bearer-token": {
+      "statement": "The SCIM bearer token is a unique alphanumeric string the SCIM client uses to make authenticated API calls to the Zscaler SCIM server; a new one can be generated for security reasons, and for an existing SCIM configuration the token must be updated in the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "The token is a unique alphanumeric string that is used by the SCIM client to make authenticated API calls to the Zscaler SCIM server.",
+            "You can generate a new bearer token for security reasons. If you're generating a new bearer token for an existing SCIM configuration, ensure you update the token for your IdP."
+          ]
+        }
+      ]
+    },
+    "scim-client-credentials": {
+      "statement": "With Oauth 2 Client Credentials the console's Token Endpoint URL appears only when the external identity configuration is saved, and the client secret's expiration date can be customized with the Expires On drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-openid-providers.json",
+          "quotes": [
+            "Token Endpoint: Copy the token endpoint URL. This option appears only when the external identity configuration is saved.",
+            "You can customize the client secret expiration date using the Expires On drop-down menu."
+          ]
+        }
+      ]
+    },
     "scim-scope": {
       "statement": "The help's table covers removal of an admin group in the external IdP, for a user in both an admin group and a user group that are assigned to Authentication Service in the IdP, and splits the outcome by Authentication Service for Admins versus for Admins and Users.",
       "tier": "A",
@@ -173,7 +424,57 @@
       ]
     }
   },
+  "divergences": {
+    "bearer-token-visibility": {
+      "summary": "Who can see the SCIM bearer token: only admins with Full permission for external identities, or also View Only admins.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-adding-openid-providers.json",
+            "quotes": [
+              "The bearer token is visible only to admins with Full permission enabled for external identities."
+            ]
+          },
+          "says": "The bearer token is visible only to admins with Full permission enabled for external identities."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "admin-roles-and-permissions.json",
+            "quotes": [
+              "View all configurations per IdP.",
+              "View configuration per IdP except for Bearer Token."
+            ]
+          },
+          "says": "The admin roles matrix describes View Only on External Identities as viewing all configurations per IdP and Restricted View as viewing the configuration per IdP except for the bearer token, which implies View Only can see the token."
+        }
+      ],
+      "impact": "Trusting the IdP pages, an agent says a View Only admin cannot see the token; trusting the matrix, it says they can. The matrix does not name the token for View Only, so the two may be reconcilable, but no page says so."
+    }
+  },
   "gaps": {
+    "jit-secondary-groups": {
+      "kind": "semantic",
+      "title": "Whether JIT provisions system-defined groups for secondary IdPs",
+      "status": "open",
+      "detail": "Only primary IdPs are said not to support provisioning or updating system-defined groups such as Zscaler Global Administrators; secondary IdPs are not addressed.",
+      "blocks": "predicting whether a secondary IdP can put users into system groups",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "saml-name-attribute": {
+      "kind": "semantic",
+      "title": "What the SAML page's default attribute Name is",
+      "status": "open",
+      "detail": "The SAML page lists Name among the default attributes, but how it differs from Display Name is not stated; the entry is too short to quote.",
+      "blocks": "mapping the right IdP attribute to Name",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
     "propagation": {
       "kind": "semantic",
       "title": "How long Authentication Service user and group changes take to reach ZIA and ZPA",

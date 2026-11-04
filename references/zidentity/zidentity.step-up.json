@@ -62,6 +62,10 @@
       "text": "[[zia.authentication.step-up:oidc-only]] Another help page puts it as a recommendation, because most IdPs support step-up only over OIDC {{divergence:oidc-strictness}}. What a SAML-only tenant sees when a rule demands a level is not documented {{gap:saml-outcome}}."
     },
     {
+      "label": "Setting it up.",
+      "text": "{{prerequisites}} {{setup-order}} Per-vendor ACR mappings are in [[zidentity.overview.external-idps.integrations]]."
+    },
+    {
       "label": "Levels.",
       "text": "The levels a policy asks for, their tree, validity and acr mapping are in [[zidentity.step-up.levels]]."
     },
@@ -104,6 +108,46 @@
     }
   ],
   "claims": {
+    "prerequisites": {
+      "statement": "The Auth0 guide's step-up section lists as prerequisites Zscaler Client Connector version 4.7 or later deployed for the users, Authentication Service enabled for both admins and users, and step-up authentication enabled for Authentication Service, Internet & SaaS (ZIA) and Private Access (ZPA) tenants; the Entra ID guide gives the third without the word tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+            "Authentication Service is enabled for both admins and users.",
+            "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA) tenants."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-microsoft-entra-id-external-idp.json",
+          "quotes": [
+            "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA)."
+          ]
+        }
+      ]
+    },
+    "setup-order": {
+      "statement": "The Auth0 guide gives step-up setup as four steps: configure authentication levels in the Zscaler Admin Console, enable ACR values and configure policies in the external IdPs, map authentication levels and ACR values in the Zscaler Admin Console, and configure access policies in supported Zscaler services; for Private Access that is Access Policies with Conditional Access as the Rule Action and the Step-up Authentication Level field, and for Internet & SaaS the URL Filtering Policy and Cloud App Control Policies with Conditional Access as the Action and the Authentication Level field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-auth0-external-idp.json",
+          "quotes": [
+            "a. Configure authentication levels in the Zscaler Admin Console.",
+            "b. Enable ACR values and configure the necessary policies in the external IdPs.",
+            "c. Map authentication levels and ACR values in the Zscaler Admin Console.",
+            "d. Configure access policies in supported Zscaler services.",
+            "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
+            "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field."
+          ]
+        }
+      ]
+    },
     "use-cases": {
       "statement": "The help names three uses: access to critical applications as defined by ZIA and ZPA access policies, which integrate with Authentication Service to enforce them; increased risk, where unusual behavior or a changed environment such as an unrecognized device or location might trigger a request for a higher level; and compliance, where certain data must be protected with MFA.",
       "tier": "A",
@@ -145,6 +189,16 @@
             ]
           },
           "says": "OIDC is recommended for step-up because most IdPs support step-up only over OIDC; SAML is recommended where no OIDC integration is possible."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-configuring-okta-external-idp.json",
+            "quotes": [
+              "If you want to leverage step-up authentication, it is recommended to use OIDC-based integrations as most IdPs only support step-up authentication with the OIDC protocol."
+            ]
+          },
+          "says": "The Okta guide repeats the recommendation, without the sentence about SAML as a fallback. The Entra ID, AD FS and PingFederate guides carry the same sentence, and the step-up sections of the vendor guides sit only in their OIDC paths."
         }
       ],
       "impact": "Trusting the first page, an agent says a SAML tenant can never step up; trusting the second, it may tell a SAML tenant step-up could work with their IdP. Neither page says what happens when a SAML-only tenant's rule demands a level."

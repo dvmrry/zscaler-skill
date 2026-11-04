@@ -272,6 +272,40 @@ for (const [code, rows] of Object.entries(sessionCodes())) {
   codes[SESSION_CODES.lss][code] = { ...attrs, help: rows.map((r) => r.help), evidence: [...evidence, ...rows.map((r) => r.evidence)] };
 }
 
+// The ZIA Policy Reasons article: one table of Policy Reason, Feature and Description for the policy actions seen in
+// Insights and NSS reports, the article the web feed's reason field points to. Each row becomes a row of the web log's
+// `policy_reasons` entry for its reason string; a string in more than one row keeps each. A row's evidence anchors
+// after its reason and feature cells, or, where the same pair is in two rows, is the start of its own row.
+const POLICY_REASONS = { src: "zia-policy-reasons.json", feed: "web" };
+
+function policyReasons() {
+  const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", POLICY_REASONS.src), "utf8"));
+  const text = captureText(doc.blocks);
+  const cell = (c) => c.replaceAll("|", "\\|");
+  const clip = (s) => (s.length <= 320 ? s : s.slice(0, s.lastIndexOf(" ", 320)));
+  const out = {};
+  for (const b of doc.blocks) {
+    if (!b.table) continue;
+    const [header, ...body] = b.table;
+    if (header.map((h) => h.trim()).join("|") !== "Policy Reason|Feature|Description") continue;
+    for (const row of body) {
+      const [reason, feature, description] = row.map((c) => c.trim());
+      const after = `| ${cell(reason)} | ${cell(feature)} |`;
+      let evidence = { source: "zscaler-help", path: POLICY_REASONS.src, after, quotes: [clip(cell(description))] };
+      if (text.split(after).length !== 2 || description.length < 8) {
+        const q = clip(`| ${row.map((c) => cell(c.trim())).join(" | ")} |`);
+        if (text.split(q).length !== 2) throw new Error(`gen-log-types: policy reason row "${reason}" has no unique anchor`);
+        evidence = { source: "zscaler-help", path: POLICY_REASONS.src, quotes: [q] };
+      }
+      const r = (out[reason] ??= { rows: [], evidence: [] });
+      r.rows.push({ feature, description });
+      r.evidence.push(evidence);
+    }
+  }
+  if (!Object.keys(out).length) throw new Error(`gen-log-types: no Policy Reason table in ${POLICY_REASONS.src}`);
+  return out;
+}
+
 for (const [name, meta] of Object.entries(ZPA)) {
   const doc = JSON.parse(fs.readFileSync(path.join(ROOT, "vendor/zscaler-help", meta.src), "utf8"));
   const text = captureText(doc.blocks);
@@ -375,6 +409,7 @@ for (const [feed, meta] of Object.entries(FEEDS)) {
     aliases: prev.aliases || meta.aliases,
     evidence: [{ source: "zscaler-help", path: src, quotes: [text.split("\n")[0].slice(0, 120).replace(/\s+\S*$/, "")] }],
     fields,
+    ...(feed === POLICY_REASONS.feed ? { policy_reasons: policyReasons() } : {}),
   };
   write(target, out, Object.keys(fields).length, skipped);
 }

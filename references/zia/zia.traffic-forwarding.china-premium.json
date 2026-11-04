@@ -1,0 +1,595 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.china-premium",
+  "title": "China Premium and Premium Plus Internet Access: service model, provisioning, backup, licensing and DNS",
+  "aliases": [
+    "China Premium Access",
+    "China Premium Plus",
+    "ZIA China Premium",
+    "internet access in mainland China",
+    "Great Firewall"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.private-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.cloud-deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what}} {{premium-backbone}} {{plus-backbone}} {{customer-compliance}}"
+    },
+    {
+      "label": "Service model.",
+      "text": "{{partner-pse}} {{partnership-deployment}} Who operates the China Premium data centers, and which kind of Service Edge they are, is described differently across the pages {{divergence:china-edge-operator}}. {{plus-fit}} {{benefits}}"
+    },
+    {
+      "label": "Enabling and provisioning.",
+      "text": "{{enable-and-provision}} The IPSec provisioning steps are open {{gap:ipsec-provisioning}}."
+    },
+    {
+      "label": "Backup.",
+      "text": "{{backup-dcs}} {{backup-bandwidth}}"
+    },
+    {
+      "label": "Licensing and fair use.",
+      "text": "{{licensing-basis}} {{premium-p95}} {{premium-burst}} {{plus-peak}} {{overage-enforcement}} {{availability-agreement}} The agreement's terms are open {{gap:availability-agreement-terms}}."
+    },
+    {
+      "label": "Health360.",
+      "text": "{{health360}} {{health360-premium}} {{health360-plus}} What the exceeded limit is measured against is open {{gap:health360-limit}}."
+    },
+    {
+      "label": "DNS.",
+      "text": "{{dns-poisoning}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which tier the organization bought, since Premium bandwidth is measured at P95 with a burst cap and Premium Plus at the peak sample with no Premium burst limits.",
+      "uses": [
+        "premium-p95",
+        "premium-burst",
+        "plus-peak"
+      ]
+    },
+    {
+      "do": "Who operates the data center and which kind of Service Edge it is before deciding whom to contact in an outage, since the pages differ.",
+      "uses": [
+        "china-edge-operator"
+      ]
+    }
+  ],
+  "claims": {
+    "what": {
+      "statement": "China Premium Internet Access provides internet access for users residing in mainland China, including access to international sites and applications such as Salesforce and Microsoft 365. China Premium for Private Access is covered in a separate article.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "Zscaler's China Premium Internet Access feature provides fast and secure internet access for users residing in mainland China.",
+            "The feature enables users to access international sites or applications such as Salesforce, Microsoft 365, etc.",
+            "If you are looking for China Premium Service for Private Access (ZPA), see Managing Private Access Use in China."
+          ]
+        }
+      ]
+    },
+    "premium-backbone": {
+      "statement": "China Premium Access is based on the Chinese technology partners' IP backbone, which passes all domestically and internationally bound traffic through the Great Firewall; the partners have registered all IP addresses assigned to the service under China's Internet Content Provider (ICP) scheme on Zscaler's behalf.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "China Premium Access is based on our Chinese technology partners’ IP backbone, which passes all domestically and internationally bound traffic through the Great Firewall.",
+            "Our technology partners have registered on Zscaler’s behalf all IP addresses assigned to the China Premium Access service under China’s Internet Content Provider (ICP) scheme."
+          ]
+        }
+      ]
+    },
+    "plus-backbone": {
+      "statement": "China Premium Plus connections use a dedicated cross-border private link that the Chinese technology partners register with the relevant government agencies via China Telecom, China Unicom and China Mobile; the page says the Ministry of Industry and Information Technology (MIIT) accepts VPNs for cross-border communications and connections to outside mainland China for business purposes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "China Premium Access Plus connections utilize a dedicated cross-border private link that our Chinese technology partners register with the relevant Chinese government agencies via the three main Chinese telecom companies (China Telecom, China Unicom, and China Mobile).",
+            "The Chinese Ministry of Industry and Information Technology (MIIT) accepts the use of VPNs for cross-border communications and connections to outside mainland China for business purposes."
+          ]
+        }
+      ]
+    },
+    "customer-compliance": {
+      "statement": "For both tiers, ensuring compliance with all applicable Chinese laws and regulations when using the Zscaler service is ultimately the responsibility of the end user customer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "However, it is ultimately the responsibility of the end user customer to ensure their own compliance with all applicable Chinese laws and regulations when using the Zscaler service."
+          ],
+          "after": "The following premium services are available for organizations whose users work from mainland China and are required to access international sites:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "However, it is ultimately the responsibility of the end user customer to ensure their own compliance with all applicable Chinese laws and regulations when using the Zscaler service."
+          ],
+          "after": "China Premium Access Plus connections utilize a dedicated cross-border private link"
+        }
+      ]
+    },
+    "partner-pse": {
+      "statement": "The Managing Internet & SaaS Use in China page says China Premium uses a Private Service Edge for Internet & SaaS hosted at a partner site within China with a premium Chinese ISP, and that IPSec or GRE tunnels can be established from any endpoint to a Private Service Edge managed by Zscaler partners in China, used similarly to a public Zscaler data center; China Premium Plus uses a Private Service Edge hosted at a partner site within China whose premium ISP has a dedicated link to international sites. For China Premium, traffic can be broken and inspected within China, the partner premium fabric serves any destination, there is no traffic forwarding limitation, and Zscaler manages the partner premium fabric.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "With this service, you can establish Internet Protocol Security (IPSec) or Generic Routing Encapsulation (GRE) tunnels from any endpoint to a Private Service Edge managed by Zscaler partners in China.",
+            "You can use this service similar to a public Zscaler data center (DC).",
+            "The China Premium Plus service uses a Private Service Edge hosted at a partner site within China, which has a premium Chinese ISP with access to both the domestic internet in China and a dedicated link to international websites and SaaS applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "The China Premium service uses a Private Service Edge for Internet & SaaS (ZIA) hosted at a partner site within China, which has a premium Chinese internet service provider (ISP) with access to both the domestic internet in China and premium access to international websites and Software as a Service (SaaS) applications",
+            "This service allows you to break and inspect traffic within China, and use the partner premium fabric for any destination (domestic or international).",
+            "There is no traffic forwarding limitation with this service.",
+            "Zscaler manages the partner premium fabric."
+          ],
+          "after": "China Premium Access is based on our Chinese technology partners’ IP backbone"
+        }
+      ]
+    },
+    "partnership-deployment": {
+      "statement": "The Deploying Zscaler Internet Access in China page says Zscaler's partnership with service providers in China includes deploying ZIA Public Service Edge data centers within China and ZIA Private Service Edge devices within the service providers themselves; the guide is delivered as a PDF download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-zscaler-internet-access-china.json",
+          "quotes": [
+            "To help you navigate this difficult environment, Zscaler has developed solutions with service providers inside of China.",
+            "Zscaler's partnership includes deploying ZIA Public Service Edge data centers within China, and ZIA Private Service Edge devices within the service providers themselves.",
+            "Deploying Zscaler Internet Access in China Download PDF"
+          ]
+        }
+      ]
+    },
+    "plus-fit": {
+      "statement": "The Managing Internet & SaaS Use in China page says China Premium Plus is best suited for organizations with the highest bandwidth and user counts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "This service is best suited for organizations with the highest bandwidth and user counts."
+          ],
+          "after": "- China Premium Plus"
+        }
+      ]
+    },
+    "benefits": {
+      "statement": "The page's benefit list for China Premium includes shared premium bandwidth, international traffic routed via the Great Firewall, Z-Tunnel 2.0 for any traffic and any port, and no traffic split at the branch offices; the list for China Premium Plus includes dedicated international bandwidth, a bandwidth control option, optional content filtering, Z-Tunnel 2.0 for any traffic and any port, and no traffic split at the branch offices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "Shared premium bandwidth",
+            "International traffic is routed via the China Great Firewall (GFW)",
+            "Dedicated international bandwidth",
+            "Bandwidth control option",
+            "(Optional) Support for content filtering"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "Z-Tunnel 2.0 (any traffic, any port)",
+            "No traffic split is required at the branch offices"
+          ],
+          "after": "The key benefits of this solution are:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "Z-Tunnel 2.0 (any traffic, any port)",
+            "No traffic split is required at the branch offices"
+          ],
+          "after": "The benefits of China Premium Access Plus are:"
+        }
+      ]
+    },
+    "enable-and-provision": {
+      "statement": "To enable either tier, the organization purchases the service, has Zscaler provision it, and limits bandwidth at the source or with Zscaler bandwidth controls. Provisioning starts with a Zscaler Support ticket giving the source tunnel IP address to the China POP for GRE; Zscaler associates the virtual IP address with the service and makes the required changes to the Public Service Edge for Internet & SaaS within 48 hours (the China Premium section's wording), and the bandwidth limit of the IPSec or GRE tunnel is set so it does not exceed the purchased bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "Purchase this service and have Zscaler provision it.",
+            "Limit the bandwidth at the source or use the Zscaler bandwidth controls to limit traffic.",
+            "Open a Zscaler Support ticket to provide the source tunnel IP address to the China POP for GRE.",
+            "Zscaler associates the virtual IP (VIP) address with the service and makes the required changes to the Public Service Edge for Internet & SaaS within 48 hours.",
+            "Set the bandwidth limit for the IPSec/GRE tunnel to avoid exceeding the bandwidth purchased for the service."
+          ],
+          "after": "China Premium Access is based on our Chinese technology partners’ IP backbone"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "Purchase this service and have Zscaler provision it.",
+            "Limit the bandwidth at the source or use the Zscaler bandwidth controls to limit traffic.",
+            "Open a Zscaler Support ticket to provide the source tunnel IP address to the China POP for GRE.",
+            "Set the bandwidth limit for the IPSec/GRE tunnel to avoid exceeding the bandwidth purchased for the service."
+          ],
+          "after": "China Premium Access Plus connections utilize a dedicated cross-border private link"
+        }
+      ]
+    },
+    "backup-dcs": {
+      "statement": "In the China Premium backup section, Beijing and Shanghai data centers are available and either can be the primary based on users' locations. Either can be requested, and Zscaler reviews the situation and assigns an appropriate data center. Remote users' PAC files define the subcloud for both the Beijing and Shanghai data centers so users connect to the closest one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "You can access DCs in Beijing and Shanghai and use either one as your primary DC, based on your users' locations.",
+            "You can also request for either of the DCs to be assigned.",
+            "Zscaler reviews the situation and assigns an appropriate DC.",
+            "Define the subcloud for both the Beijing and Shanghai DCs in the PAC file for remote users, so based on the users' locations, they are connected to the closest DC."
+          ],
+          "after": "## China Premium Backup"
+        }
+      ]
+    },
+    "backup-bandwidth": {
+      "statement": "In the China Premium backup section, the bandwidth purchased for China Premium must not be exceeded across both data centers: for example, 100 Mbps in Beijing means the overall bandwidth for Shanghai and Beijing must not exceed 100 Mbps. Backup bandwidth can be purchased only with China Premium service, and China Premium Plus backup bandwidth only with China Premium Plus service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "For example, if you require 100 Mbps bandwidth in Beijing, then the overall bandwidth for Shanghai and Beijing shouldn't exceed 100 Mbps."
+          ],
+          "after": "## China Premium Backup"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "You must ensure that you do not exceed the bandwidth purchased for the China Premium service.",
+            "You can purchase backup bandwidth only if you have China Premium service.",
+            "You can purchase backup bandwidth only if you have China Premium Plus service."
+          ]
+        }
+      ]
+    },
+    "health360": {
+      "statement": "Bandwidth utilization for the premium services can be viewed on Health360. Health360 Service Health gives a near-real-time overview of China Premium connectivity, showing current and historic bandwidth utilization against purchased bandwidth. On the Service Health: China Connectivity page (Analytics > Health360 > China Connectivity) an admin can show the last 24 hours, 48 hours, 7 days, 30 days or a custom range, choose a data center, export to CSV, and switch between China Premium and Premium Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "You can view the bandwidth utilization for premium services on Health360."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-viewing-service-health-china-connectivity.json",
+          "quotes": [
+            "Health360 Service Health provides a near-real-time overview of your China Premium connectivity, which gives you visibility into the current and historic bandwidth utilization against purchased bandwidth.",
+            "On the Service Health: China Connectivity page (Analytics > Health360 > China Connectivity), you can use the following options:",
+            "Select to display the data for the last 24 hours, 48 hours, 7 days, 30 days, or a custom range.",
+            "Select the data center for which you want to view the insights.",
+            "Export the data to a CSV file.",
+            "Switch between China Premium and Premium Plus connectivity health insights."
+          ]
+        }
+      ]
+    },
+    "health360-premium": {
+      "statement": "The Premium view shows total bandwidth usage for Internet & SaaS and Private Access and the number of times usage exceeded the allowed limits. Its Internet Access Bandwidth Usage graph shows total inbound and outbound Internet & SaaS traffic across all points of presence within China for the filtered time period, and an exceeded bandwidth limit is shown in red.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-viewing-service-health-china-connectivity.json",
+          "quotes": [
+            "View the total bandwidth usage data for Internet & SaaS (ZIA) and Private Access (ZPA), and the number of times the usage exceeded the allowed limits.",
+            "Internet Access Bandwidth Usage: The graph shows the total inbound and outbound traffic for Internet & SaaS across all points of presence within China for the filtered time period."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-viewing-service-health-china-connectivity.json",
+          "quotes": [
+            "An exceeded bandwidth limit is indicated with red."
+          ],
+          "after": "Internet Access Bandwidth Usage: The graph shows the total inbound"
+        }
+      ]
+    },
+    "health360-plus": {
+      "statement": "The Premium Plus view shows the total bandwidth usage and the number of times usage exceeded the allowed limits for Internet & SaaS and Private Access, with two graphs: International, for Internet & SaaS traffic routing through China international links, and Domestic, for Internet & SaaS traffic routing within mainland China.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-viewing-service-health-china-connectivity.json",
+          "quotes": [
+            "View the total bandwidth usage data for Internet & SaaS and Private Access, and the number of times the usage exceeded the allowed limits.",
+            "International - Internet Access Bandwidth Usage: The graph shows the total international inbound and outbound traffic for Internet & SaaS routing through China international links for the filtered time period.",
+            "Domestic - Internet Access Bandwidth Usage: The graph shows the total domestic inbound and outbound traffic for Internet & SaaS routing within mainland China for the filtered time period."
+          ]
+        }
+      ]
+    },
+    "dns-poisoning": {
+      "statement": "To access websites with DNS issues, DNS traffic must be forwarded to Zscaler. If the issue has been identified as DNS poisoning, Zscaler needs time to change the policy, a maximum of three days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-internet-saas-use-china.json",
+          "quotes": [
+            "To access websites with DNS issues, you must forward DNS traffic to Zscaler.",
+            "If the issue has been identified as DNS poisoning, Zscaler needs time to change the policy.",
+            "It takes a maximum of three days for the changes to be made."
+          ]
+        }
+      ]
+    },
+    "licensing-basis": {
+      "statement": "ZIA China Premium and ZIA China Premium Plus are SaaS products licensed according to the bandwidth purchased for the subscription term in an order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "Zscaler Internet Access (ZIA) China Premium and ZIA China Premium Plus are Software as a Service (SaaS) products that are licensed according to the bandwidth purchased for the subscription term in an order."
+          ]
+        }
+      ]
+    },
+    "premium-p95": {
+      "statement": "For China Premium, bandwidth is the data transmitted and processed by ZIA within a Premium data center in China. It is calculated in Mbps from five-minute samples of received (Rx) and transmitted (Tx) traffic. For each data center, a calendar month's samples are sorted and the 95th percentile is taken (P95 Accounting Method), separately for Tx and Rx with the larger used as that data center's usage; the P95 values of all Premium data centers accessed in the month are summed to give the month's total.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "For ZIA China Premium, bandwidth is defined as the amount of data that is transmitted over a network connection and processed by ZIA within a Premium data center operated by Zscaler in China.",
+            "All five-minute samples from a data center in a calendar month are sorted, and the 95th percentile value is taken (P95 Accounting Method).",
+            "The P95 Accounting Method is calculated for each Premium data center accessed each month.",
+            "The P95 Accounting Method bandwidth usage values from all Premium data centers are combined (summed) in order to compute the total bandwidth usage for that calendar month."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "Bandwidth is calculated in Megabits per second (Mbps) using five-minute samples.",
+            "Zscaler calculates bandwidth based on Received (Rx) and Transmitted (Tx) Mbps.",
+            "This calculation is done separately for both the Tx and Rx values. The larger of the two is used as that data center's bandwidth usage."
+          ],
+          "after": "For ZIA China Premium, bandwidth is defined"
+        }
+      ]
+    },
+    "premium-burst": {
+      "statement": "For China Premium, usage must stay within the purchased bandwidth 95% of the time in any calendar month. Because usage is measured at the 95th percentile, it can burst above the purchased bandwidth for up to 5% of the month at no additional charge, approximately 36 hours in a 30-day month. A burst may never exceed 130% of the purchased bandwidth, and excess bursting, in time or in bandwidth, is best-effort and may be throttled down to the purchased bandwidth. In the page's three examples with 140 Mbps purchased, a 200 Mbps peak at 5% burst duration is not within limits because the peak exceeds 130%, 180 Mbps at 5% is within limits, and 170 Mbps at 6% is not because the duration exceeds 5% of five-minute samples.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "You must remain within your purchased bandwidth for 95% of the time in any calendar month.",
+            "By calculating monthly bandwidth usage at the 95th percentile, you can burst above your purchased bandwidth for up to 5% of the month without incurring additional charges. In a 30-day calendar month, this represents approximately 36 hours.",
+            "The maximum burst bandwidth may not exceed 130% of the purchased bandwidth at any time.",
+            "Excess bursting bandwidth (whether excess in time or in bandwidth) is only available on a best-effort basis and may be subject to throttling down to your purchased bandwidth.",
+            "Purchased Bandwidth (Mbps)",
+            "Burst duration (percentage of five-minute samples above purchased bandwidth)",
+            "| Example 1 | 140 | 200 | 5% | No. Peak value exceeds 130% of purchased bandwidth |",
+            "| Example 2 | 140 | 180 | 5% | Yes |",
+            "| Example 3 | 140 | 170 | 6% | No. Burst duration exceeds 5% of five-minute samples |"
+          ]
+        }
+      ]
+    },
+    "plus-peak": {
+      "statement": "For China Premium Plus, bandwidth is the data transmitted and processed by ZIA within a Premium Plus data center in China, measured with the Peak Accounting Method: the highest five-minute sample per data center in a calendar month, with Tx and Rx calculated separately and the larger used, and the values of all Premium Plus data centers summed. The bursting limitations applicable to China Premium do not apply to China Premium Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "For ZIA China Premium Plus, bandwidth is defined as the amount of data that is transmitted over a network connection and processed by ZIA within a Premium Plus data center operated by Zscaler in China.",
+            "All five-minute samples from a data center in a calendar month are sorted, and the highest value is taken (Peak Accounting Method).",
+            "The Peak Accounting Method bandwidth usage values from all Premium Plus data centers are combined (summed) in order to compute the total bandwidth usage for that calendar month.",
+            "The bursting limitations applicable to ZIA China Premium do not apply to ZIA China Premium Plus."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "This calculation is done separately for both the Tx and Rx values. The larger of the two is used as that data center's bandwidth usage."
+          ],
+          "after": "For ZIA China Premium Plus, bandwidth is defined"
+        }
+      ]
+    },
+    "overage-enforcement": {
+      "statement": "For both China Premium and China Premium Plus: if usage exceeds the total purchased bandwidth the customer must promptly reduce it or order more; Zscaler reserves the right to deploy bandwidth control policies to hold consumption to the purchased bandwidth; Zscaler may use reports from third-party network and internet service providers as well as internal tools when calculating consumption; on written request Zscaler provides bandwidth usage reports for the previous calendar month; and use is expected to follow the Acceptable Use Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "If you exceed your total purchased bandwidth, you shall promptly reduce your bandwidth usage until it is within the purchased bandwidth amount or place an order for additional bandwidth.",
+            "When calculating bandwidth consumption, in addition to internal tools, Zscaler may use reports from 3rd-party network and internet service providers.",
+            "Upon written request, Zscaler will provide bandwidth usage reports for the previous calendar month."
+          ],
+          "after": "For ZIA China Premium, bandwidth is defined"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "If you exceed your total purchased bandwidth, you shall promptly reduce your bandwidth usage until it is within the purchased bandwidth amount or place an order for additional bandwidth.",
+            "When calculating bandwidth consumption, in addition to internal tools, Zscaler may use reports from 3rd-party network and internet service providers.",
+            "Upon written request, Zscaler will provide bandwidth usage reports for the previous calendar month."
+          ],
+          "after": "For ZIA China Premium Plus, bandwidth is defined"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "In order to protect the ZIA China Premium quality of service, Zscaler reserves the right to deploy bandwidth control policies to restrict bandwidth consumption to within purchased bandwidth.",
+            "In order to protect the ZIA China Premium Plus quality of service, Zscaler reserves the right to deploy bandwidth control policies to restrict bandwidth consumption to within purchased bandwidth.",
+            "The usage of ZIA China Premium is expected to be in accordance with the Acceptable Use Policy.",
+            "The usage of ZIA China Premium Plus is expected to be in accordance with the Acceptable Use Policy."
+          ]
+        }
+      ]
+    },
+    "availability-agreement": {
+      "statement": "Use of both China Premium and China Premium Plus is subject to Zscaler's Supplemental Premium China Services Availability Agreement. For China Premium, the Service Availability Agreement does not apply if usage exceeds the burst limits: greater than 130% at any time and/or greater than 5% of five-minute samples in a calendar month.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+          "quotes": [
+            "Your use of ZIA China Premium is subject to the terms of Zscaler's Supplemental Premium China Services Availability Agreement.",
+            "The Service Availability Agreement will not apply if you exceed the burst limits (greater than 130% at any time and/or greater than 5% of five-minute samples in a calendar month).",
+            "Your use of ZIA China Premium Plus is subject to the terms of Zscaler's Supplemental Premium China Services Availability Agreement."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "china-edge-operator": {
+      "summary": "The China Premium pages disagree on who operates the China Premium data centers and what kind of Service Edge they are: operated by Zscaler, a Private Service Edge managed by partners, or both Public and Private Service Edges.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "logs-fair-use-zia-china-premium-and-premium-plus-licensing-and-fair-use.json",
+            "quotes": [
+              "For ZIA China Premium, bandwidth is defined as the amount of data that is transmitted over a network connection and processed by ZIA within a Premium data center operated by Zscaler in China."
+            ]
+          },
+          "says": "The licensing page defines China Premium bandwidth as data processed within a Premium data center operated by Zscaler in China."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-managing-internet-saas-use-china.json",
+            "quotes": [
+              "With this service, you can establish Internet Protocol Security (IPSec) or Generic Routing Encapsulation (GRE) tunnels from any endpoint to a Private Service Edge managed by Zscaler partners in China."
+            ]
+          },
+          "says": "The Managing page has tunnels going to a Private Service Edge managed by Zscaler partners in China, hosted at a partner site."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-managing-internet-saas-use-china.json",
+            "quotes": [
+              "Zscaler associates the virtual IP (VIP) address with the service and makes the required changes to the Public Service Edge for Internet & SaaS within 48 hours."
+            ]
+          },
+          "says": "The same page's provisioning step has Zscaler making the changes to the Public Service Edge for Internet & SaaS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-zscaler-internet-access-china.json",
+            "quotes": [
+              "Zscaler's partnership includes deploying ZIA Public Service Edge data centers within China, and ZIA Private Service Edge devices within the service providers themselves."
+            ]
+          },
+          "says": "The deployment guide names both ZIA Public Service Edge data centers within China and ZIA Private Service Edge devices within the service providers."
+        }
+      ],
+      "impact": "Both could be true, with a partner hosting and managing the Private Service Edge while Zscaler runs the service on it, but no page says so; the answer decides whom to contact in an outage and which kind of Service Edge's behavior applies."
+    }
+  },
+  "gaps": {
+    "ipsec-provisioning": {
+      "kind": "semantic",
+      "title": "How a China Premium IPSec tunnel is provisioned",
+      "status": "open",
+      "detail": "The provisioning steps name only the source tunnel IP address given to the China POP for GRE; no IPSec provisioning steps are given. The Deploying Zscaler Internet Access in China guide is a PDF download that was not captured.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "availability-agreement-terms": {
+      "kind": "semantic",
+      "title": "The terms of the Supplemental Premium China Services Availability Agreement",
+      "status": "open",
+      "detail": "The licensing page and the Managing page name the agreement and, for China Premium, say it does not apply above the burst limits; the agreement's own terms are not captured.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "health360-limit": {
+      "kind": "semantic",
+      "title": "What the Health360 exceeded limit is measured against",
+      "status": "open",
+      "detail": "Health360 shows the number of times usage exceeded the allowed limits; the page does not say whether the limit is the purchased bandwidth or the 130% burst cap, how fresh near-real-time is, or how long data is kept.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

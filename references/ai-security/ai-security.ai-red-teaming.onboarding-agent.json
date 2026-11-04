@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.ai-red-teaming.onboarding-agent",
+  "title": "The AI Red Teaming Onboarding Agent: generating a Proxy SDK proxy for a non-standard app, its spec gate, versions and local skill",
+  "aliases": [
+    "onboarding agent",
+    "ai red teaming onboarding agent",
+    "generate proxy",
+    "red teaming proxy",
+    "onboarding agent skill",
+    "download skill",
+    "onboarding agent prompting guide"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.connections"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-red-teaming.brokers"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{why-a-proxy}} {{what-it-is}}"
+    },
+    {
+      "label": "Sessions and the spec gate.",
+      "text": "{{sessions}} {{spec-gate}}"
+    },
+    {
+      "label": "Output.",
+      "text": "{{generated-project}} {{connect-proxy}} The Proxy SDK connection fields are in [[ai-security.ai-red-teaming.connections]]."
+    },
+    {
+      "label": "Versions and the local skill.",
+      "text": "{{versions}} {{skill}}"
+    },
+    {
+      "label": "What to trust.",
+      "text": "{{check-limits}} {{verify-guidance}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "That a generated proxy was run against the real target or a sandbox with known-good and failing cases before it is connected, since the agent's automated check and chat summary do not establish behavior.",
+      "uses": [
+        "check-limits",
+        "verify-guidance"
+      ]
+    }
+  ],
+  "claims": {
+    "why-a-proxy": {
+      "statement": "During Red Teaming tests AI Red Teaming acts as a client connecting to the application; the intermediary layer that translates for a non-standard application is called a proxy, and custom-built apps need custom-built proxies while other apps can be connected with AI Security's prebuilt connectors; building one means collecting the application's connection protocol, authentication method, session behavior, message format and rate limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "During Red Teaming tests, AI Red Teaming acts as a client connecting to your application.",
+            "This intermediary layer is what is known as a proxy in AI Red Teaming. Custom-built apps need custom-built proxies, and other apps can be connected with AI Security's prebuilt connectors.",
+            "Building a proxy means collecting specific technical details about your target application: its connection protocol, authentication method, session behavior, message format, and rate limits."
+          ]
+        }
+      ]
+    },
+    "what-it-is": {
+      "statement": "The Onboarding Agent is a chat-based assistant in the AI Security Admin Portal that guides the user through collecting the proxy specification with structured questions and generates a complete, ready-to-deploy Python project, using the responses along with any API documentation uploaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "Onboarding Agent is a chat-based assistant in the AI Security Admin Portal that guides you through this process with structured questions, adapts to your level of technical expertise, and generates a complete, ready-to-deploy Python project."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-onboarding-agent-with-use-cases.json",
+          "quotes": [
+            "The agent uses your responses, along with any API documentation you upload, to automatically generate a ready-to-use proxy project that you can download, configure, and deploy."
+          ]
+        }
+      ]
+    },
+    "sessions": {
+      "statement": "A session is Private, accessible only to the user who creates it, or Public, visible and accessible to all users within the organization or tenant; a session also takes a Business Unit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "Private: Accessible only to the user who creates it.",
+            "Public: Visible and accessible to all users within the organization or tenant.",
+            "Business Unit: Select the Business Unit."
+          ]
+        }
+      ]
+    },
+    "spec-gate": {
+      "statement": "The agent adapts follow-up questions to previous answers and tracks spec completeness as a percentage, and code generation cannot proceed until the spec is 100% complete, with every required field having a value; the spec covers connectivity (connection protocol, such as REST, WebSocket or SSE, and endpoints), authentication, message handling, session behavior, multimodal support and rate limits.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-onboarding-agent-with-use-cases.json",
+          "quotes": [
+            "You cannot proceed to code generation until the spec is 100% complete.",
+            "The agent adapts follow-up questions based on your previous answers and tracks spec completeness as a percentage.",
+            "Connectivity: Connection protocol and endpoints",
+            "Authentication: Authentication type and credentials flow",
+            "Message handling: Request and response format",
+            "Session behavior: Stateless or persistent sessions",
+            "Multimodal support: File or media input handling",
+            "Rate limits: Request throttling and retry behavior"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "Connection type: The protocol your application uses, such as REST, WebSocket, or SSE."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-prompting-guide-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "It does not offer to generate code until every required field has a value."
+          ]
+        }
+      ]
+    },
+    "generated-project": {
+      "statement": "The agent produces a full Python project built on the proxy SDK containing main.py (a server subclass implementing open_session, send_message, and close_session), pyproject.toml, a Dockerfile, .env / .env.example, README.md and .vscode/launch.json; it is downloaded as a ZIP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-onboarding-agent-with-use-cases.json",
+          "quotes": [
+            "The agent produces a full Python project built on the proxy SDK, containing:",
+            "main.py: A server subclass implementing open_session, send_message, and close_session",
+            "pyproject.toml: All required dependencies",
+            "Dockerfile: For containerized deployment",
+            ".env / .env.example: Environment configuration",
+            "README.md: Setup, testing, and deployment instructions",
+            ".vscode/launch.json: Local debug configuration",
+            "Download the project as a ZIP, run it locally, and connect it to the AI Red Teaming by configuring a new connection with type Proxy SDK."
+          ]
+        }
+      ]
+    },
+    "connect-proxy": {
+      "statement": "The proxy is run locally or deployed with the provided Dockerfile, then a new connection with type Proxy SDK is created on the Configure your connection page pointing to the proxy's URL, which the platform must be able to reach (public URL, IP whitelisting, or broker).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "Run the proxy locally or deploy it using the provided Dockerfile, then go to the Configure your connection page and create a new connection with type Proxy SDK, pointing to the proxy's URL.",
+            "Ensure that the platform can reach the URL (public URL, IP whitelisting, or broker)."
+          ]
+        }
+      ]
+    },
+    "versions": {
+      "statement": "Each generation creates a numbered version (v1, v2, v3...) with a timestamped history from which any previous version downloads as a ZIP; the prompting guide says the agent applies a focused patch to the existing code rather than rewriting from scratch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-onboarding-agent-with-use-cases.json",
+          "quotes": [
+            "Each generation creates a numbered version (v1, v2, v3...). You can view the full version history with timestamps and download any previous version as a ZIP, so you can roll back if a regeneration introduces issues."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-prompting-guide-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "The agent applies a focused patch to the existing code rather than rewriting from scratch, which preserves behavior you have already confirmed."
+          ]
+        }
+      ]
+    },
+    "skill": {
+      "statement": "Skill is a downloadable package installed in a local coding agent environment (such as Claude Code, Cursor, or Copilot) that runs the same guided proxy-building experience on the user's machine without the AI Security Admin Portal; it runs a test script to validate the proxy's three endpoints, looks up common failures in a known-problems database if a test fails, and fixes the code automatically or asks a targeted follow-up question.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-about-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "Skill is a downloadable package that users install in their local coding agent environment (such as Claude Code, Cursor, or Copilot) to run the same guided proxy-building experience locally on their machine without needing to use the AI Security Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-understanding-onboarding-agent-with-use-cases.json",
+          "quotes": [
+            "The skill provides the same guided spec collection as the platform chatbot and runs entirely on your machine.",
+            "Runs a test script to validate the proxy's three endpoints.",
+            "Looks up common failures in a known-problems database if a test fails.",
+            "Fixes the code automatically or asks a targeted follow-up question."
+          ]
+        }
+      ]
+    },
+    "check-limits": {
+      "statement": "The agent's automated check catches obvious mistakes such as bad imports and syntax errors but does not validate behavioral correctness, and the chat summary describes what the agent intended to build, not verified behavior.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-prompting-guide-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "The automated check catches obvious mistakes such as bad imports and syntax errors; however, it does not validate behavioral correctness.",
+            "The chat summary describes what the agent intended to build, not verified behavior."
+          ]
+        }
+      ]
+    },
+    "verify-guidance": {
+      "statement": "Zscaler's prompting guide says to test with two known-good tests and at least two failure modes (an authentication failure and a not-found or invalid-ID case), confirming the returned status codes match what was specified; it says distinct upstream failures such as bad authentication, not-found and rate-limiting have a tendency to collapse into a single generic error response, even when the summary states otherwise, and never to paste real credentials or customer data into the chat.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-prompting-guide-ai-red-teaming-onboarding-agent.json",
+          "quotes": [
+            "Test with two known-good tests and at least two failure modes, i.e., an authentication failure and a not-found or invalid-ID case, and confirm the returned status codes match what you specified.",
+            "Distinct upstream failures such as bad authentication, not-found, and rate-limiting have a tendency to collapse into a single generic error response, even when the summary states otherwise.",
+            "Never paste real credentials or customer data into the chat."
+          ]
+        }
+      ]
+    }
+  }
+}

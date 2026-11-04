@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "id": "zia.alerts.rules",
+  "title": "Security & UEBA alert rules: alert types, triggers, exceptions and webhooks",
+  "aliases": [
+    "alert rules",
+    "configuring an alert rule",
+    "ueba alert rule",
+    "alert exceptions",
+    "webhooks",
+    "inline alert types",
+    "api alert types",
+    "place user in group"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.alerts.security-ueba"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.ueba-alerts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Alert rules raise the alerts shown in [[zia.alerts.security-ueba]]; the email alert definitions are in [[zia.alerts]]. {{rules-page}} {{definition}}"
+    },
+    {
+      "label": "Security rules.",
+      "text": "{{security-trigger}}"
+    },
+    {
+      "label": "UEBA rules.",
+      "text": "{{ueba-trigger}} {{inline-alert-types}} {{api-alert-types}} Whether these names match the provider's closed list is open {{gap:terraform-name-match}}."
+    },
+    {
+      "label": "Actions, recipients and exceptions.",
+      "text": "{{ueba-actions-recipients}} What placing a user in a group does is open {{gap:place-user-in-group}}. {{exceptions}}"
+    },
+    {
+      "label": "Webhooks.",
+      "text": "{{webhooks}} What a webhook delivery carries is open {{gap:webhook-delivery}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which channel and event type the UEBA rule uses, since the alert types depend on them.",
+      "uses": [
+        "ueba-trigger",
+        "inline-alert-types",
+        "api-alert-types"
+      ]
+    },
+    {
+      "do": "Whether the user is on the rule's Exceptions list before concluding the rule did not evaluate them.",
+      "uses": [
+        "exceptions"
+      ]
+    }
+  ],
+  "claims": {
+    "rules-page": {
+      "statement": "The Alert Rules page gives a graphical representation of the top 5 security and UEBA alerts by the rule type and the number of rules enabled or disabled, and lists the preconfigured rules in a table where the alert can be enabled or disabled. The table shows Alert Class (UEBA or Security), Applies To (organization or a location), Recipients (the number of recipients receiving the triggered alert) and Alert Type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-alert-rules.json",
+          "quotes": [
+            "The Alert Rules page provides a graphical representation of the top 5 security and UEBA alerts by the rule type and the number of rules that have been enabled or disabled.",
+            "The Alert Rules page also lists the preconfigured rules in a table where you can enable or disable the alert.",
+            "Alert Class: Displays the type of alert, UEBA or Security.",
+            "Applies To: Displays if the alert is applicable to an organization or a location.",
+            "Recipients: Displays the number of recipients receiving the triggered alert.",
+            "Alert Type: Displays the type of the alert."
+          ]
+        }
+      ]
+    },
+    "definition": {
+      "statement": "When adding an alert rule, the Alert Name has a maximum length of 31 characters, and the Alert Class is Security by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "Alert Name: Enter an alert name. The maximum length is 31 characters.",
+            "Alert Class: Select the alert class for the rule. By default, the alert class is set to Security."
+          ],
+          "after": "# Adding an Alert Rule"
+        }
+      ]
+    },
+    "security-trigger": {
+      "statement": "A security alert rule's event type is selected from Advanced Threat Protection, Malware or Sandbox. The time interval can be 10 minutes, 15 minutes, 30 minutes, 45 minutes or 1 hour, and filters can be applied to Department, Location, System Impacted and Users. The rule triggers when the criteria have been met at least a set number of times in the last set number of time intervals, and Send Alert Update every set number of intervals can be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "Event Type: Select the event type for the rule. Select from a list of Advanced Threat Protection, Malware, or Sandbox.",
+            "You can choose from 10 minutes, 15 minutes, 30 minutes, 45 minutes, or 1 hour.",
+            "You can apply the filters to Department, Location, System Impacted, and Users.",
+            "Update the values for Alert trigger criteria have been met atleast ___ times in the last ___ time intervals to trigger an alert when the trigger criteria are met a specified number of times within the defined time window.",
+            "Enable Send Alert Update every ___ intervals and add the number of times you want to trigger the alert in the intervals field."
+          ],
+          "after": "# Adding an Alert Rule"
+        }
+      ]
+    },
+    "ueba-trigger": {
+      "statement": "For a UEBA alert rule the page's drop-down offers Access, Data or Privilege, and the alert types depend on the selected event type, with each channel type having different alert types; the channel is chosen between Inline and API. The alert trigger criteria fields vary based on the selected alert type and are not available for all alert types; they include No of Failed Logins, Tenants, a number of files that triggers the rule for bulk upload or download of data, Doc Type, DLP Engines (one or multiple), a data type that is All Data Types by default, a count for bulk sharing of data, Activity and Countries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "Select Access, Data, or Privilege from the drop-down menu.",
+            "The alert types depend on the selected Event Type. Each channel type has different alert types to choose from."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "For UEBA Alerts",
+            "Channel: Choose between Inline and API to select the channel.",
+            "The alert trigger criteria fields vary based on the selected alert type and are not available for all alert types.",
+            "No of Failed Logins: Enter the number of failed login attempts for the alert rule to get triggered.",
+            "Tenants: Select the tenants for which you want to apply the alert rule.",
+            "The rule gets triggered if the number of files is greater than the set number, for bulk upload or download of data.",
+            "Doc Type: Select the document type to apply the alert rule.",
+            "DLP Engines: Select the DLP engine for the rule. You can select one or multiple engines.",
+            "By default, the data type is set to All Data Types.",
+            "No of Activities Greater Than: Enter the number of activities to set the trigger.",
+            "for bulk sharing of data.",
+            "Activity: Select the type of activity for the rule to apply.",
+            "Countries: Select the country for the rule to apply."
+          ],
+          "after": "# Adding an Alert Rule"
+        }
+      ]
+    },
+    "inline-alert-types": {
+      "statement": "For the Inline channel, the alert type table lists uploads in a short period of invoices, tax documents, resumes, medical documents, real estate documents, legal documents, court form documents, technical documents, transportation and motor documents, immigration documents, insurance documents, corporate finance documents and corporate legal documents; data exfiltration by password protected or encrypted docs; upload to and from high risk countries; bulk upload and bulk download of sensitive data; and Bulk Activity, which lets multiple activities for the SaaS Security API be tracked for a user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "Upload of Invoice | Identify users who have uploaded invoices in a short period of time.",
+            "Upload of Tax documents | Identify users who have uploaded tax documents in a short period of time.",
+            "Upload of Resumes | Identify users who have uploaded resumes in a short period of time.",
+            "Upload of Medical documents | Identify users who have uploaded medical documents in a short period of time.",
+            "Upload of Real Estate documents | Identify users who have uploaded real estate documents in a short period of time.",
+            "Upload of Legal documents | Identify users who have uploaded legal documents in a short period of time.",
+            "Upload of Court Form documents | Identify users who have uploaded court form documents in a short period of time.",
+            "Upload of Technical documents | Identify users who have uploaded technical documents in a short period of time.",
+            "Upload of Transportation and Motor documents | Identify users who have uploaded documents related to transportation and motor in a short period of time.",
+            "Upload of Immigration documents | Identify users who have uploaded immigration documents in a short period of time.",
+            "Upload of Insurance documents | Identify users who have uploaded insurance documents in a short period of time.",
+            "Upload of Corporate Finance documents | Identify users who have uploaded corporate finance documents in a short period of time.",
+            "Upload of Corporate Legal documents | Identify users who have uploaded legal documents in a short period of time.",
+            "Data exfiltration by password protected or encrypted docs | Identify users who have shared data after applying encryption or passwords to avoid content inspection.",
+            "Upload to high risk countries | Identify users who have uploaded data to locations in suspicious countries.",
+            "Upload from high risk countries | Identify users who have uploaded data from locations in suspicious countries.",
+            "Bulk upload of sensitive data | Identify users who have uploaded sensitive data in a short period of time.",
+            "Bulk download of sensitive data | Identify users who have downloaded sensitive data in a short period of time.",
+            "Bulk Activity | Identify users who have performed a certain set of activities in a short period of time.",
+            "Through this alert multiple activities for the SaaS Security API can be tracked for a user."
+          ],
+          "after": "- Inline"
+        }
+      ]
+    },
+    "api-alert-types": {
+      "statement": "For the API channel, the alert type table lists Impossible Travel, Multiple Failed Logins, Bulk Download of Data, Bulk Upload of Data, Code Repo Shared Externally, Code Repo Made Public, Bulk Files Delete, Bulk Share of Data and Excessive Admin Activities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "Impossible Travel | Identify users accessing the organization’s applications from different locations in a short period of time.",
+            "Multiple Failed Logins | Identify users with multiple failed login attempts to the organization’s applications in a short period of time.",
+            "Bulk Download of Data | Identify users with large amounts of download activities in a short period of time.",
+            "Bulk Upload of Data | Identify users with large amounts of upload activities in a short period of time.",
+            "Code Repo Shared Externally | Identify external users accessing the organization’s code repositories.",
+            "Code Repo Made Public | Identify if the organization’s code repositories are made public.",
+            "Bulk Files Delete | Identify users with large amounts of delete activities in a short period of time.",
+            "Bulk Share of Data | Identify users with large amounts of share activities in a short period of time.",
+            "Excessive Admin Activities | Identify users performing high admin activities in a short period of time."
+          ],
+          "after": "- API\n| Alert Type | Description |"
+        }
+      ]
+    },
+    "ueba-actions-recipients": {
+      "statement": "For UEBA alerts the action is Trigger an Alert or Place user in group, the latter with a User Group and Time Interval; recipients can be a webhook selected from the list and email addresses or email aliases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "For UEBA alerts, under Actions, select Trigger an Alert or Place user in group to trigger the alert rule.",
+            "Select a User Group and Time Interval under Action for Place user in group.",
+            "Webhooks: Select a webhook from the list.",
+            "Email Addresses: Add the email address, addresses, or email alias to trigger the alert email notification for the respective alert."
+          ],
+          "after": "# Adding an Alert Rule"
+        }
+      ]
+    },
+    "exceptions": {
+      "statement": "A UEBA alert provides the option to exempt multiple users from an alert rule; by retaining specific users in the exceptions list, the alert does not evaluate them against the traffic for the selected applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-alert-rule.json",
+          "quotes": [
+            "The UEBA alert also provides the option to exempt multiple users from an alert rule.",
+            "By retaining specific users in the exceptions list, the alert does not evaluate them against the traffic for the selected applications."
+          ]
+        }
+      ]
+    },
+    "webhooks": {
+      "statement": "Webhook configuration allows alerts for the configured events in the alert rule to be delivered to third-party applications (for example ServiceNow, Splunk) for incident management. A webhook's Name is displayed when configuring the alert rule; its Status can be set to Disabled and is Enabled by default; its URL is that of the webhook provider; its Authentication Type is Basic (Username and Password) or Token (Bearer Token); and Test Webhook checks the configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-webhook.json",
+          "quotes": [
+            "Webhook configuration in the Zscaler Admin Console allows you to deliver alerts for the configured events in the alert rule to third-party applications (e.g., ServiceNow, Splunk) for incident management.",
+            "Status: Choose Disabled to disable the webhook. By default, the field is Enabled.",
+            "URL: Enter the URL of the webhook provider.",
+            "Authentication Type: Choose either Basic or Token for authentication.",
+            "For Basic, enter the Username and Password.",
+            "For Token, enter the Bearer Token.",
+            "Click Test Webhook to check the configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-webhooks.json",
+          "quotes": [
+            "Name: The name of the webhook that is displayed when configuring the alert rule."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "terraform-name-match": {
+      "kind": "semantic",
+      "title": "Whether the Inline and API alert type names match the provider's closed name list",
+      "status": "open",
+      "detail": "The alert rule page lists Inline and API alert types; the Terraform provider's supportedUEBAAlertNames list (zia.terraform.ueba-alerts) was not compared with them.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "place-user-in-group": {
+      "kind": "semantic",
+      "title": "What Place user in group does and when it ends",
+      "status": "open",
+      "detail": "The rule page offers Place user in group with a User Group and Time Interval but does not say what group membership does or when it ends.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "webhook-delivery": {
+      "kind": "semantic",
+      "title": "Webhook payload, retry and delivery guarantees",
+      "status": "open",
+      "detail": "The webhook pages give no payload format, retry behavior or delivery guarantees. About Webhooks says a webhook is associated with a rule to receive email notifications when the alert is triggered.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

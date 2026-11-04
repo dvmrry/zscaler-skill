@@ -72,7 +72,7 @@
     },
     {
       "label": "Rules and DLP.",
-      "text": "{{dlp-rule-fields}} The rule-name fields for blocks are covered in [[zia.logs.web-rule-attribution]]. {{reason-pointer}} Its structure is open {{gap:reason-structure}}."
+      "text": "{{dlp-rule-fields}} The rule-name fields for blocks are covered in [[zia.logs.web-rule-attribution]]. {{reason-pointer}} Whether the logged values are exactly the article's strings is open {{gap:reason-structure}}, and one of its rows contradicts itself {{divergence:business-site-cautioned}}."
     },
     {
       "label": "Categories.",
@@ -759,14 +759,40 @@
         }
       ],
       "impact": "A match on the reason string needs both spellings unless one page is shown to be the feed's wording; the pages do not say which a feed carries."
+    },
+    "business-site-cautioned": {
+      "summary": "In the Policy Reasons article, the Cloud App Control reason Not allowed the use of this business site says the transaction was not allowed, while the same row's description says it was cautioned.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-policy-reasons.json",
+            "quotes": [
+              "| Not allowed the use of this business site | Cloud App Control |"
+            ]
+          },
+          "says": "The reason string says the use of the business site was not allowed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-policy-reasons.json",
+            "quotes": [
+              "Due to a Cloud App Control policy that restricts access to business cloud apps, the transaction was cautioned."
+            ]
+          },
+          "says": "The row's description says the transaction was cautioned."
+        }
+      ],
+      "impact": "Whether a record with this reason was blocked or cautioned cannot be told from the article; the record's action field says which."
     }
   },
   "gaps": {
     "reason-structure": {
       "kind": "data",
       "title": "Whether reason is an enum or templated text",
-      "status": "open",
-      "detail": "Unverified legacy statement: whether reason is a stable finite set of strings or text assembled per incident, and whether wording is the same across cloud generations or localized, is not stated. Examples are sentence-shaped. A cross-tenant comparison of reason for one trigger would settle it.",
+      "status": "partial",
+      "detail": "The Policy Reasons article lists the reason strings for policy actions in a table of Policy Reason, Feature and Description; the table is generated onto the web log type as policy_reasons (read one by its text). Whether the logged values are exactly these strings, whether any are assembled per incident, and whether the wording is the same across cloud generations or localized, is still not stated. A cross-tenant comparison of reason for one trigger would settle it.",
       "blocks": "Regex-matching reason across tenants.",
       "former_ids": [
         "log-06"

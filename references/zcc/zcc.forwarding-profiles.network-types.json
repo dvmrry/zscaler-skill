@@ -51,7 +51,7 @@
     },
     {
       "label": "VPN-Trusted.",
-      "text": "{{vpn-trusted}} {{vpn-trusted-exclusions}} {{macos-interface-check}}"
+      "text": "{{vpn-trusted}} {{vpn-trusted-exclusions}} {{macos-interface-check}} {{vpn-adapter-names}} {{vpn-adapter-propagation}} Whether the hard-coded names are the built-in keywords, whether the criteria matter on macOS, and how a name is matched are open {{gap:adapter-criteria-scope}}."
     },
     {
       "label": "Split VPN-Trusted.",
@@ -148,6 +148,35 @@
         }
       ]
     },
+    "vpn-adapter-names": {
+      "statement": "If a VPN is not from a common vendor and its NIC adapter text does not match what is usually detected, its name can be entered in the VPN-Trusted Network Adapter Criteria field on the Endpoint Integration tab so Client Connector can detect a VPN-Trusted Network; hard-coded VPN adapter names can be removed there with the Delete icon next to the VPN name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-vpn-trusted-network-adapter-criteria.json",
+          "quotes": [
+            "If your VPN isn't from a common vendor and the NIC adapter text doesn't match what is usually detected, you can add the name of your VPN so Zscaler Client Connector can accurately detect a VPN-Trusted Network.",
+            "On the Endpoint Integration tab, enter the VPN adapter vendor name in the VPN-Trusted Network Adapter Criteria field.",
+            "You can remove hard-coded VPN adapter names by clicking the Delete icon next to the VPN name."
+          ]
+        }
+      ]
+    },
+    "vpn-adapter-propagation": {
+      "statement": "New VPN adapter names are sent to Client Connector when policies are updated on devices, and Client Connector detects the new VPN adapter as a trusted network on the next network change or when services start.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-vpn-trusted-network-adapter-criteria.json",
+          "quotes": [
+            "When policies are updated on devices, new VPN adapter names are sent to Zscaler Client Connector.",
+            "On the next network change or when services start, Zscaler Client Connector detects the new VPN adapter as a trusted network."
+          ]
+        }
+      ]
+    },
     "split-vpn-trusted": {
       "statement": "Split VPN-Trusted Network is when the user reaches a trusted network through a split-tunnel VPN. It does not apply when the VPN runs as a default adapter, when the VPN interface description lacks Cisco, Juniper, Fortinet, PanGP or VPN (the user is then Off-Trusted), or when the Trusted Network Criteria evaluated against the VPN adapter do not match.",
       "tier": "A",
@@ -231,6 +260,16 @@
     }
   },
   "gaps": {
+    "adapter-criteria-scope": {
+      "kind": "semantic",
+      "title": "What the VPN-Trusted Network Adapter Criteria field matches and removes",
+      "status": "open",
+      "detail": "The adapter criteria page lets an admin add a VPN adapter name and delete hard-coded names. It does not say whether the hard-coded names are the Cisco, Juniper, Fortinet, PanGP and VPN keywords, whether the field matters on macOS (which checks only utun, PPP or GPD interfaces), or whether a name matches as a substring or exactly.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "classification-order": {
       "kind": "semantic",
       "title": "How Client Connector chooses a network type when none, or more than one, applies",

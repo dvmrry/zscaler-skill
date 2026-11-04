@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.shared-objects.ip-pools",
+  "title": "IP pools for Private Access DNS resolution in Cloud & Branch Connector: default pool, per-location pools and entries",
+  "aliases": [
+    "ip pool",
+    "private access ip pool",
+    "synthetic ip pool",
+    "default private access ip pool"
+  ],
+  "binds": [
+    "ztw/ip-groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.shared-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.dns.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.ip-pools"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Cloud & Branch Connector IP pool is the address set behind Private Access DNS answers. {{purpose}} {{non-overlapping}}"
+    },
+    {
+      "label": "Default and per-scope pools.",
+      "text": "{{default-pool}} {{per-scope-pools}} How a pool is bound to a location or group, and which wins when both match, is open {{gap:pool-binding}}."
+    },
+    {
+      "label": "Console page and entries.",
+      "text": "{{page}} {{entry-formats}} {{name-description}} No size limit, default range or behaviour on overlap with workload addresses is stated {{gap:pool-limits}}."
+    },
+    {
+      "label": "ZIA pools.",
+      "text": "ZIA has IP pools for other features, with their own entry rule: [[zia.dns-control.ip-pools]]. Whether the two describe one object is open {{gap:zia-pool-scope}}. Where DNS rules use the pool is in [[cloud-connector.dns.policies]] and [[cloud-connector.dns]]."
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "The IP pool is only used in DNS control policies to forward traffic to Private Access when the network traffic action under the DNS filtering rule is Resolved by Private Access, and it can be customized to provide the synthetic IP address while resolving DNS requests from workloads to Private Access applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-ip-pool.json",
+          "quotes": [
+            "The IP Pool is only used in DNS control policies to forward traffic to Private Access when the network traffic action under the DNS filtering rule is set as Resolved by Private Access.",
+            "Customize the IP Pool used to provide the synthetic IP address while resolving DNS requests from workloads to Private Access applications."
+          ]
+        }
+      ]
+    },
+    "default-pool": {
+      "statement": "A default Private Access IP pool is created automatically, and the default IP pool cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-ip-pool.json",
+          "quotes": [
+            "A default Private Access IP Pool is automatically created.",
+            "You cannot edit or delete the default IP pool."
+          ]
+        }
+      ]
+    },
+    "per-scope-pools": {
+      "statement": "Different IP pools can be configured for each location, and separate pools can give different synthetic addresses based on source location, Location Group, Cloud Connector Group and Branch Connector Group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-ip-pool.json",
+          "quotes": [
+            "You can also configure different IP pools for each location based on your requirements.",
+            "Configure separate IP pools to provide different synthetic IP addresses for resolving DNS requests from workloads to Private Access applications based on source location, Location Group, Cloud Connector Group, and Branch Connector Group."
+          ]
+        }
+      ]
+    },
+    "non-overlapping": {
+      "statement": "IP pools let users control the IP address space cloud workloads interact with, as a customizable space where IP addresses do not overlap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-ip-pool.json",
+          "quotes": [
+            "IP pools allow users to control the IP address space that cloud workloads interact with by offering a customizable space where IP addresses do not overlap."
+          ]
+        }
+      ]
+    },
+    "page": {
+      "statement": "The IP Pool page is under Internet Access > Resources > IP & FQDN Groups (IP Pool tab) and lists, among its columns, the range of IP addresses assigned to each pool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-ip-pool.json",
+          "quotes": [
+            "On the IP Pool page (Internet Access > Resources > IP & FQDN Groups > IP Pool tab), you can do the following:",
+            "IP Addresses: The range of IP addresses that are assigned to this pool."
+          ]
+        }
+      ]
+    },
+    "entry-formats": {
+      "statement": "Adding a Cloud & Branch Connector IP pool takes any number of IP addresses, each as an address, a range or an address with a netmask, and multiple entries can be entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-ip-pool.json",
+          "quotes": [
+            "IP Addresses: Enter any number of IP addresses in the following formats.",
+            "An IP address (for example, 198.51.100.100)",
+            "A range of IP addresses (for example, 192.0.2.1-192.0.2.10)",
+            "An IP address with a netmask (for example, 203.0.113.0/24)",
+            "You can enter multiple entries."
+          ]
+        }
+      ]
+    },
+    "name-description": {
+      "statement": "An IP pool name allows only alphanumeric characters, underscores, hyphens and periods; the description cannot exceed 10,240 characters; adding a pool ends with saving and activating the changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-ip-pool.json",
+          "quotes": [
+            "Name: Enter a name for the IP pool. Only alphanumeric characters, underscores, hyphens, and periods are allowed.",
+            "The description cannot exceed 10,240 characters.",
+            "Click Save and activate the changes."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pool-binding": {
+      "kind": "semantic",
+      "title": "How a pool is bound to a location or group, and which wins when both match",
+      "status": "open",
+      "detail": "The About page says pools can be configured per location and per Location Group, Cloud Connector Group and Branch Connector Group; no captured page says where the binding is set or how overlapping bindings resolve.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "pool-limits": {
+      "kind": "semantic",
+      "title": "IP pool size limit, default range and overlap behaviour",
+      "status": "open",
+      "detail": "No Cloud & Branch Connector pool page states a size limit or the default pool's range, or what happens when a pool overlaps workload addresses. The pages also describe an IP pool that holds any number of entries, where ZIA's IP pool pages say one range for their pools; see the ZIA subject.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "zia-pool-scope": {
+      "kind": "semantic",
+      "title": "Whether the Cloud & Branch Connector IP pool and ZIA's IP pools are the same object",
+      "status": "open",
+      "detail": "The Cloud & Branch Connector help describes a Private Access DNS pool with any number of entries. The ZIA pages describe pools with at most one range, and the Cloud & Branch Connector API gives IP pools a ZIA or EC creatorContext. No page says the two are one object, so the entry rules are recorded per product rather than as a divergence.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

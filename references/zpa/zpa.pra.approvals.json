@@ -27,6 +27,15 @@
       "because": "zpa.pra.components:approvals-def"
     },
     {
+      "rel": "decided-by",
+      "to": "zpa.pra.portals-policy",
+      "because": "zpa.pra.approvals:my-approvals-prerequisites"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.emergency-access.configuration"
+    },
+    {
       "rel": "configured-via",
       "to": "zpa.pra.tooling"
     },
@@ -40,19 +49,35 @@
       "text": "Approvals bound when a user can reach a console. A user requests a window, an admin approves it, and access ends when the window does."
     },
     {
+      "label": "What an approval is.",
+      "text": "{{email-scoped}} {{admin-actions}} {{approvals-table}}"
+    },
+    {
+      "label": "Creating one.",
+      "text": "{{access-policy-required}} {{user-email-nameid}} The page's statement that there is no limit on segments conflicts with the documented figure {{divergence:segments-per-approval}}. {{time-window}} Which time zone applies by default is open {{gap:working-hours-default}}."
+    },
+    {
+      "label": "Users that do not exist yet.",
+      "text": "{{user-validation}} {{emergency-user-window}} When the window appears is described two ways {{divergence:emergency-window-domains}}."
+    },
+    {
+      "label": "Microtenants.",
+      "text": "{{microtenant-disabled}}"
+    },
+    {
       "label": "Requesting.",
-      "text": "{{request-flow}}"
+      "text": "{{request-flow}} {{my-approvals-prerequisites}} {{my-requests-and-reviews}} {{my-approvals-filter}}"
     },
     {
       "label": "Reviewing.",
-      "text": "{{approver-view}} {{request-metadata}} Whether more than one approver can be required is open {{gap:multi-approver}}."
+      "text": "{{approver-view}} {{request-metadata}} {{portal-review}} Whether more than one approver can be required is open {{gap:multi-approver}}."
     },
     {
       "label": "Expiry.",
       "text": "{{window-expiry}} {{request-limit}}"
     },
     {
-      "text": "Which consoles require an approval is open {{gap:approval-optional}}. The SDK and Ansible handling of approvals, including working hours, is in [[zpa.pra.tooling]]."
+      "text": "Which consoles require an approval is open {{gap:approval-optional}}. The SDK and Ansible handling of approvals, including working hours, is in [[zpa.pra.tooling]]. The portals policy that enables requesting and reviewing is in [[zpa.pra.portals-policy]], the Emergency Access side of creating users is in [[zpa.emergency-access.configuration]], and the approvals limit is in [[zpa.pra.components:limits]]."
     },
     {
       "text": "The Terraform PRA approval doc limits an approval to one email address, a start no more than an hour in the past and an end within 365 days [[zpa.terraform.resource-constraints:pra-approval-single-email-window]]."
@@ -63,6 +88,32 @@
       "do": "Whether the user's window has started or ended, since an expired approval removes access and an upcoming one shows as Future.",
       "uses": [
         "window-expiry"
+      ]
+    },
+    {
+      "do": "Whether an approval is Active, Future or Expired and so editable, and whether an access policy with the privileged approval option exists, since without it the approval does not take effect.",
+      "uses": [
+        "approvals-table",
+        "access-policy-required"
+      ]
+    },
+    {
+      "do": "Whether a segment count answer rests on the limit or on the page that says there is none.",
+      "uses": [
+        "segments-per-approval"
+      ]
+    },
+    {
+      "do": "Whether the user can see My Requests and My Reviews, which need the admin enablement, the My Approvals feature and a portals policy.",
+      "uses": [
+        "my-approvals-prerequisites"
+      ]
+    },
+    {
+      "do": "Whether the Add Emergency Access User window should have appeared, given the two descriptions of when it does.",
+      "uses": [
+        "emergency-user-window",
+        "emergency-window-domains"
       ]
     },
     {
@@ -185,9 +236,352 @@
           ]
         }
       ]
+    },
+    "email-scoped": {
+      "statement": "Privileged approvals allow third-party users and contractors to log in to a PRA Portal, maintain a secure access point only for the email addresses included in a privileged approval, and give those users entry to the specific applications they need to access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-approvals.json",
+          "quotes": [
+            "Privileged approvals allow third-party users and contractors to be able to log in to a Privileged Remote Access (PRA) Portal.",
+            "Privileged approvals maintain a secure access point only for the email addresses you include in a privileged approval.",
+            "These users are given entry to the specific applications you need them to access."
+          ]
+        }
+      ]
+    },
+    "admin-actions": {
+      "statement": "An admin can create privileged approvals with a set amount of time that one or more designated application segments can be accessed, delete existing approvals to revoke access to those segments, and delete all expired approvals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-approvals.json",
+          "quotes": [
+            "Create privileged approvals with a set amount of time that one or more designated application segments can be accessed.",
+            "Delete existing privileged approvals to revoke access to those application segments.",
+            "Delete all expired privileged approvals."
+          ]
+        }
+      ]
+    },
+    "access-policy-required": {
+      "statement": "After a privileged portal and privileged console are created, privileged approvals can be created. A privileged approval needs an access policy that uses the Conditional Access rule action with the Allow for Privileged Approval checkbox selected to take effect, and an approval created before that access policy and its application segments cannot take effect until the policy is created. The access policy page names the same checkbox Allow with Privileged Approval, so the label differs between pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-approvals.json",
+          "quotes": [
+            "After you have created a privileged portal and privileged console, you can start creating privileged approvals to allow users into the PRA Portal.",
+            "You also need to create an access policy that uses the Conditional Access rule action with the Allow for Privileged Approval checkbox selected for a privileged approval to take effect."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-approvals.json",
+          "quotes": [
+            "If you create a privileged approval before setting an access policy, the privileged approval and its related application segments cannot take effect until the access policy is created with the related application segments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-access-policies.json",
+          "quotes": [
+            "The Allow with Privileged Approval checkbox is only an option if you have"
+          ]
+        }
+      ],
+      "conditions": "Only the label differs between the approvals pages (Allow for Privileged Approval) and the access policy page (Allow with Privileged Approval); which one the Admin Console shows is not stated. See zpa.pra.access-policy:allow-with-privileged-approval."
+    },
+    "approvals-table": {
+      "statement": "The Privileged Approvals page lists each approval's User Email, Application Segments, Start Time and End Time, and an approval status of Active (currently available), Expired (no longer available) or Future (available at a set time in the future). Approvals with an Expired status cannot be edited, and only Active and Future approvals include the Edit icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-approvals.json",
+          "quotes": [
+            "User Email: The email address for the user assigned to the privileged approval.",
+            "Application Segments: The application segments selected for the privileged approval.",
+            "Start Time: The set start time that the user has access to the PRA Portal.",
+            "End Time: The set end time that the user no longer has access to the PRA Portal.",
+            "Active: The privileged approval is currently available for the user.",
+            "Expired: The privileged approval is no longer available for the user.",
+            "Future: The privileged approval is available for the user at a set time in the future."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-privileged-approvals.json",
+          "quotes": [
+            "Privileged approvals with an Expired approval status cannot be edited. Only privileged approvals with Active and Future approval statuses include the Edit icon."
+          ]
+        }
+      ]
+    },
+    "microtenant-disabled": {
+      "statement": "If Privileged Approvals are disabled in a Microtenant, only users with the matching authentication domains are applicable, and a third-party user or contractor using such a Microtenant cannot add or edit a privileged approval.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-privileged-approvals.json",
+          "quotes": [
+            "If Privileged Approvals are disabled in the Microtenant, only users with the matching authentication domains are applicable.",
+            "If you are a third-party user or contractor using a Microtenant with Privileged Approvals disabled, you cannot edit an existing privileged approval."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-approvals.json",
+          "quotes": [
+            "If you are a third-party user or contractor using a Microtenant with Privileged Approvals disabled, you cannot add a privileged approval."
+          ]
+        }
+      ]
+    },
+    "user-email-nameid": {
+      "statement": "The user email on a privileged approval should match the tenant's identity provider (IdP), specifically the NameID attribute in the SAML Assertion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-approvals.json",
+          "quotes": [
+            "The user email should match the tenant's identity provider (IdP), specifically the NameID attribute in the SAML Assertion."
+          ]
+        }
+      ]
+    },
+    "time-window": {
+      "statement": "An approval's time window has a start and end date, time and time zone; the end user cannot use the console before the scheduled time and loses access after it expires. For windows spanning multiple days, optional working hours set the hours and days of the week of access, with a default of 9:00 start time and 17:00 end time for a 24-hour window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-step-step-configuration-guide-privileged-remote-access.json",
+          "quotes": [
+            "Choose a start and end date, time, and time zone that the end user is authorized to use the privileged console.",
+            "The end user cannot use the privileged console before the scheduled time, and after the time expires, the end user loses access to that privileged console.",
+            "For time windows spanning multiple days, you can configure working hours as well as the days of the week for which access is permitted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-approvals.json",
+          "quotes": [
+            "(Optional) Select the Enable Working Hours checkbox to specify what hours and days of the week the time window is going to be active. The default is 9:00 start time and 17:00 end time for a 24-hour window."
+          ]
+        }
+      ],
+      "conditions": "The phrase for a 24-hour window is the page's own wording and is not interpreted here."
+    },
+    "user-validation": {
+      "statement": "When Emergency Access is not configured, Private Access does not validate that users exist before a privileged approval is created, and those users are managed in the IdP. When Emergency Access is configured, Private Access validates only users from arbitrary authentication domains, and if the user does not exist in the IdP enabled for Emergency Access it offers to create the user when the approval is created, after which the user can be managed on the Emergency Access Users page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-approvals.json",
+          "quotes": [
+            "When Emergency Access isn't configured, Private Access doesn't validate that users exist before a privileged approval is created. You need to manage those users within your IdP.",
+            "When Emergency Access is configured, Private Access only validates users that are from arbitrary authentication domains.",
+            "If the user does not exist in the IdP enabled for Emergency Access, Private Access offers to create the user when creating the privileged approval, and you can manage the user on the Emergency Access Users page."
+          ]
+        }
+      ]
+    },
+    "emergency-user-window": {
+      "statement": "The Add Emergency Access User window appears only if the email address does not match the authentication domain of the primary or secondary domain, Emergency Access is already configured, the specified email domain is added to the Emergency Authentication Domains field, and the user does not exist in the IdP enabled for Emergency Access. After the admin fills in the email address, first name and last name and clicks OK, the user is added to the Emergency Access Users page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-privileged-approvals.json",
+          "quotes": [
+            "The Add Emergency Access User window only appears if:",
+            "The email address entered doesn't match the authentication domain of the primary or secondary domain.",
+            "Emergency Access is already configured.",
+            "The specified email domain is added to the Emergency Authentication Domains field.",
+            "The user doesn't exist in the IdP enabled for Emergency Access.",
+            "Email Address: The email address of the privileged approval user.",
+            "First Name: The first name of the privileged approval user.",
+            "Last Name: The last name of the privileged approval user.",
+            "Click OK, and the user is added to the Emergency Access Users page."
+          ]
+        }
+      ]
+    },
+    "my-approvals-prerequisites": {
+      "statement": "If an admin has enabled privileged requests and approvals for the PRA Portal and a user has the My Approvals feature enabled, the user can access and manage privileged requests and approvals on the My Requests and My Reviews pages. The admin must also configure a portals policy to enable requesting and reviewing approvals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-my-approvals.json",
+          "quotes": [
+            "If an admin has enabled privileged requests and approvals for the Privileged Remote Access (PRA) Portal, and a user has the My Approvals feature enabled, then the user can access and manage privileged requests and approvals on the My Requests and My Reviews pages.",
+            "The admin must also configure a portals policy to enable requesting and reviewing approvals."
+          ]
+        }
+      ]
+    },
+    "my-requests-and-reviews": {
+      "statement": "The My Requests page displays the privileged approval requests a user has created and the My Reviews page those the user has permission to approve and reject. My Requests lists Console, Microtenant, Start Date, Requested Duration, Approved Duration (access ends after it) and a status of Pending, Approved, Expired or Rejected, My Reviews adds the Requester, and request analytics are on the Requests page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-my-approvals.json",
+          "quotes": [
+            "The My Requests page displays the privileged approval requests that a user has created.",
+            "The My Reviews page displays privileged approval requests you have permission to approve and reject.",
+            "Requester: The user who requested the privileged approval.",
+            "You can view the analytics of the privileged approval requests on the Requests page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-my-approvals.json",
+          "quotes": [
+            "Console: The privileged console that the privileged approval request is set for.",
+            "Microtenant: The Microtenant associated with the privileged approval request.",
+            "Start Date: The set start time for access to the PRA Portal.",
+            "Requested Duration: The requested duration of time for access to the PRA Portal.",
+            "Approved Duration: The set duration of time for access to the PRA Portal. Access ends after this set time.",
+            "Pending: The privileged approval request is pending.",
+            "Approved: The privileged approval request is approved.",
+            "Expired: The privileged approval request is no longer available.",
+            "Rejected: The privileged approval request was rejected."
+          ],
+          "after": "# About the My Requests Page"
+        }
+      ],
+      "conditions": "The four statuses and the column list are quoted from the My Requests section; the page repeats the statuses under My Reviews, which is not separately quoted here. The admin Approval Requests page lists only Approved or Rejected (request-metadata)."
+    },
+    "my-approvals-filter": {
+      "statement": "The characters & and + cannot be used in the filter search field of the My Requests page or the My Reviews page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-my-approvals.json",
+          "quotes": [
+            "The characters & and + cannot be used in the filter search field."
+          ],
+          "after": "# About the My Requests Page"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-my-approvals.json",
+          "quotes": [
+            "The characters & and + cannot be used in the filter search field."
+          ],
+          "after": "# About the My Reviews Page"
+        }
+      ]
+    },
+    "portal-review": {
+      "statement": "After the admin has enabled privileged approvals in a portals policy, a reviewer can access the My Approvals page in the PRA Portal. When approving, Modify Time adjusts the time window of the request, an optional message can be included to the requester on approving or rejecting, and the request is then displayed as Approved or Rejected on the My Approvals page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-reviewing-approvals-pra-portal.json",
+          "quotes": [
+            "After the admin has enabled privileged approvals in a portals policy, you can access the My Approvals page in the PRA Portal.",
+            "Enable Modify Time if you want to adjust the time window of the request.",
+            "The approval request is displayed as Approved on the My Approvals page.",
+            "The approval request is displayed as Rejected on the My Approvals page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-reviewing-approvals-pra-portal.json",
+          "quotes": [
+            "(Optional) You can include a message to the requester."
+          ],
+          "after": "# Approving an Approval Request"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-reviewing-approvals-pra-portal.json",
+          "quotes": [
+            "(Optional) You can include a message to the requester."
+          ],
+          "after": "# Rejecting an Approval Request"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "segments-per-approval": {
+      "summary": "How many application segments a privileged approval can include: the Configuring Privileged Approvals page says there is no limit to the number that can be selected, and the Ranges and Limitations table gives 200 application segments per privileged approval.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-privileged-approvals.json",
+            "quotes": [
+              "There is no limit to the number you can select."
+            ]
+          },
+          "says": "There is no limit to the number of application segments that can be selected for an approval (said of the Application Segments field)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Privileged Approvals | 20,000 privileged approvals 200 application segments per privileged approval"
+            ]
+          },
+          "says": "A privileged approval can have 200 application segments (see zpa.pra.components:limits)."
+        }
+      ],
+      "impact": "An answer that a segment count caused a failed create, or that none can, should name both pages."
+    },
+    "emergency-window-domains": {
+      "summary": "Whether the Add Emergency Access User window needs the email domain to be in the Emergency Authentication Domains field: the Configuring Privileged Approvals page lists that as a condition, and the Emergency Access page says, in its section for Private Access end users who have not migrated to Authentication Service, that users can be created from any non-primary, non-secondary domain when no domains are specified.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-privileged-approvals.json",
+            "quotes": [
+              "The specified email domain is added to the Emergency Authentication Domains field."
+            ]
+          },
+          "says": "One of the four conditions for the window to appear is that the email domain is added to the Emergency Authentication Domains field."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-emergency-access.json",
+            "quotes": [
+              "When no authentication domains are specified, users can be created from any authentication domain that is not an existing primary or secondary authentication domain."
+            ],
+            "after": "For Private Access end users who have not migrated to Authentication Service"
+          },
+          "says": "In the Emergency Access page section for Private Access end users who have not migrated to Authentication Service, when no authentication domains are specified users can be created from any authentication domain that is not an existing primary or secondary one (see zpa.emergency-access.configuration:domains-semantics)."
+        }
+      ],
+      "impact": "With the field empty it is not settled whether the window appears for a new domain. An answer about a missing window should not state either behaviour as fact."
     }
   },
   "gaps": {
+    "working-hours-default": {
+      "kind": "semantic",
+      "title": "The default time zone and meaning of the working hours default",
+      "status": "open",
+      "detail": "The Configuring Privileged Approvals page says the default is 9:00 start time and 17:00 end time for a 24-hour window, which is unclear, and the help does not state the default time zone. The SDK side is zpa.api.pra-wire:approval-times. A lab test would resolve it.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
     "multi-approver": {
       "kind": "semantic",
       "title": "Requiring more than one approver",

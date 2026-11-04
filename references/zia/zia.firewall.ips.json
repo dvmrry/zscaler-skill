@@ -92,11 +92,11 @@
     },
     {
       "label": "The rule form: scope.",
-      "text": "{{criteria-expression}} The expression omits the Applications category that the form offers {{gap:criteria-applications}}. {{who-where-when-caps}} The page and the firewall limits disagree on time intervals per rule {{divergence:time-intervals-per-rule}}. {{road-warrior}} {{enable-for-locations-and-remote-users}} {{services-and-applications}} {{source-destination-ip}}"
+      "text": "{{criteria-expression}} The expression omits the Applications category that the form offers {{gap:criteria-applications}}. {{who-where-when-caps}} The page and the limit for all policy rule types disagree on time intervals per rule, a divergence recorded with the other policy pages in [[zia.time-intervals.rule-usage:time-intervals-per-rule]]. {{road-warrior}} {{enable-for-locations-and-remote-users}} {{services-and-applications}} {{source-destination-ip}}"
     },
     {
       "label": "The rule form: actions and logging.",
-      "text": "{{action-semantics}} The console names are not tied to the API tokens in these pages {{gap:action-tokens}}. {{traffic-capture}} What the Capture option stores is described two ways {{divergence:capture-scope}}. {{logging-modes}} {{eun}}"
+      "text": "{{action-semantics}} The console names are not tied to the API tokens in these pages {{gap:action-tokens}}. {{traffic-capture}} The Traffic Capture Essentials page names a different place to enable it [[zia.traffic-capture:capture-enablement]]. What the Capture option stores is described two ways {{divergence:capture-scope}}. {{logging-modes}} {{eun}}"
     },
     {
       "label": "The rule form: name, rank and status.",
@@ -118,7 +118,7 @@
     {
       "do": "Whether a rule needs more than two time intervals, which the help and the firewall limits give differently.",
       "uses": [
-        "time-intervals-per-rule"
+        "zia.time-intervals.rule-usage:time-intervals-per-rule"
       ]
     },
     {
@@ -763,32 +763,6 @@
     }
   },
   "divergences": {
-    "time-intervals-per-rule": {
-      "summary": "The IPS Control help page allows up to two time intervals per rule, while the Ranges & Limitations page gives 8 times per rule for all policy rule types.",
-      "positions": [
-        {
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "zia-configuring-ips-control-policy.json",
-            "quotes": [
-              "Time: Select up to two time intervals during which the rule applies."
-            ]
-          },
-          "says": "Up to two time intervals on an IPS rule."
-        },
-        {
-          "evidence": {
-            "source": "zscaler-help",
-            "path": "ranges-limitations-zia.json",
-            "quotes": [
-              "| Times per Rule | 8 times |"
-            ]
-          },
-          "says": "8 times per rule (the existing claim zia.firewall.limits:per-rule-identity-caps, for all policy rule types)."
-        }
-      ],
-      "impact": "An answer about how many time intervals an IPS rule can carry depends on which page is used. The IPS page's 2 matches the Terraform time_windows cap cited for firewall filtering rules in zia.firewall.limits:time-window-cap, but that is a different rule type and the two should not be merged."
-    },
     "capture-scope": {
       "summary": "One IPS Control help page says Capture stores traffic allowed or blocked by the policy, and then describes the Capture option as storing traffic captured during a block action.",
       "positions": [

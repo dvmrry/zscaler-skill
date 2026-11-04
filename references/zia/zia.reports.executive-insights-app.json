@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "id": "zia.reports.executive-insights-app",
+  "title": "Executive Insights mobile app: access errors, data freshness and widgets",
+  "aliases": [
+    "executive insights app",
+    "executive insights mobile app",
+    "email address is not valid executive insights",
+    "stuck on select tenant",
+    "executive insights stale data"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports.executive"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{install-and-login}} {{app-role-field}} {{invalid-email}} {{select-tenant}} {{auth-service-access}}"
+    },
+    {
+      "label": "Confirmation code and Client Connector.",
+      "text": "{{confirmation-code}} {{client-connector}} Whether the app's role can be given to a user who also needs Admin Console access in the same role is open {{gap:role-combination}}."
+    },
+    {
+      "label": "Data freshness.",
+      "text": "{{data-freshness}} {{stale-data-checks}}"
+    },
+    {
+      "label": "Screens and widgets.",
+      "text": "{{screens-and-widgets}} {{news}}"
+    },
+    {
+      "text": "The monthly Executive Insights Report is a different surface: [[zia.reports.executive]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user exists in the tenant and holds a role with permission to access the app, before treating an Email Address is not valid error or a missing tenant as an app fault.",
+      "uses": [
+        "invalid-email",
+        "select-tenant"
+      ]
+    },
+    {
+      "do": "Whether the data the user is looking at is the previous day's data, and whether the app is in Demo mode, before treating a widget as stale.",
+      "uses": [
+        "data-freshness",
+        "stale-data-checks"
+      ]
+    }
+  ],
+  "claims": {
+    "invalid-email": {
+      "statement": "In the app's troubleshooting table an Invalid Email Address issue shows the error \"Email Address is not valid. Contact support if you have any further questions.\" on the Confirmation Code screen; the page's remedy is to ensure in the Zscaler Admin Console that the user exists and is assigned a role with permission to access the Executive Insights App.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "Invalid Email Address | The user gets the following error message on the Confirmation Code screen: Email Address is not valid. Contact support if you have any further questions. | In the Zscaler Admin Console, ensure that the user exists and is assigned a role with permission to access the Executive Insights App."
+          ]
+        }
+      ]
+    },
+    "select-tenant": {
+      "statement": "When a user can log in to the app but cannot see their tenant organization on the Select Tenant screen, the page says to ensure, in that tenant's Admin Console under Administration > Legacy Admin Management > Internet & SaaS, that the user exists and is assigned a role with permission to access the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "| Stuck on Select Tenant Screen | The user is able to log in to the app successfully but is unable to see their specific tenant organization on the Select Tenant screen.",
+            "In the Zscaler Admin Console of that specific tenant organization, under Administration > Legacy Admin Management > Internet & SaaS and ensure that the user exists and is assigned a role with permission to access the Executive Insights App."
+          ]
+        }
+      ]
+    },
+    "auth-service-access": {
+      "statement": "Some users can log in successfully but get the error \"Contact your IT admin to provide you access to a tenant.\" The page says this happens only in the case of Authentication Service-based authentication, when the user has been given an Authentication Service role with permission to access the app but no Internet & SaaS Administration Management access for any tenant. The remedy is to go, in the Admin Console, to Administration > Legacy Admin Management > Internet & SaaS and ensure two things: the user exists, and the user has a role with permission to access the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "Some users can log in to the app successfully but get the following error: Contact your IT admin to provide you access to a tenant.",
+            "This issue happens only in the case of Authentication Service-based authentication.",
+            "If the user has been given an Authentication Service role with permission to access the Executive Insights App but has not been given access to the Internet & SaaS (ZIA) Administration Management for any tenant",
+            "In the Zscaler Admin Console, from the navigation menu, go to Administration > Legacy Admin Management > Internet & SaaS and ensure the following: The user exists. The user has a role with permission to access the Executive Insights App."
+          ]
+        }
+      ]
+    },
+    "install-and-login": {
+      "statement": "Using the app requires the Internet & SaaS subscription. Executives are authorized by an IT admin or Network Security team adding role-based access control roles for Internet & SaaS in the Admin Console or Authentication Service, and an administrator can authorize an executive to view the data of multiple organizations. The app is installed from the Play Store (Android) or App Store (iOS). Login uses the corporate email address associated with the Zscaler account; the login fails if the email address is not authorized, and the user selects a tenant on the Select Organization screen and can switch tenants in the User Profile section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-accessing-and-using-executive-insights-app.json",
+          "quotes": [
+            "To access the Executive Insights App, you need the Internet & SaaS (ZIA) subscription.",
+            "Contact your IT admin or Network Security team to add role-based access control (RBAC) roles for Internet & SaaS using the Zscaler Admin Console or Authentication Service.",
+            "Administrators can authorize executives to view the data of multiple organizations.",
+            "Go to the Play Store or scan the following QR code:",
+            "Go to App Store or scan the following QR code:",
+            "On the Login screen, in the Email Address field, enter your corporate email address associated with the Zscaler account.",
+            "The login fails if the email address is not authorized.",
+            "On the Select Organization screen, select a tenant that you would like to access.",
+            "You can switch tenants in the User Profile section."
+          ]
+        }
+      ]
+    },
+    "app-role-field": {
+      "statement": "The Executive Insights App admin role is a default role that gives the admin the permissions and scope required to access the app but not the Admin Console. In the Edit Administrator Role window the field Enable Permissions for Executive Insights App gives the admin assigned the role that access and cannot be modified; User Names, Device Information and Gen AI Prompt can each be set to Visible or Obfuscated for admins with the role when they view data in the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-executive-insights-app-role.json",
+          "quotes": [
+            "The Executive Insights App admin role is one of the default roles Zscaler provides. It gives the admin the permissions and scope required to access the Executive Insights App, but not the Zscaler Admin Console.",
+            "Enable Permissions for Executive Insights App: Gives the admin assigned this role the permissions and scope required to access the Executive Insights App. You can't modify this field.",
+            "User Names: Choose whether real user names are Visible or Obfuscated for admins with this role when they view data in the Executive Insights App.",
+            "Device Information: Choose whether device information is Visible or Obfuscated for admins with this role when they view data in the Executive Insights App.",
+            "Gen AI Prompt: Choose whether generative AI prompts are Visible or Obfuscated for admins with this role when they view data in the Executive Insights App."
+          ]
+        }
+      ]
+    },
+    "confirmation-code": {
+      "statement": "If the user sees the countdown timer on the confirmation code screen, the page says the API call to send the code succeeded and the email was sent from the back end; the user checks the spam folder. Generating multiple codes within a short span might lead to using the wrong code, in which case the user closes and reopens the app to restart login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "If you see the countdown timer, it implies that the API call to send the confirmation code was successful and that the email had been sent from the back end to the user.",
+            "The user must check their spam folder for emails with the confirmation code.",
+            "Generating multiple codes within a short span might lead to using the wrong code.",
+            "In such cases, the user must close and reopen the app to initiate the login process."
+          ]
+        }
+      ]
+    },
+    "client-connector": {
+      "statement": "For a user running Zscaler Client Connector on the phone, the page says to ensure that Private Access on Client Connector is turned on and that authentication has not expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "If you are using Zscaler Client Connector on the phone, ensure that Private Access on Zscaler Client Connector is turned on and that authentication has not expired."
+          ]
+        }
+      ]
+    },
+    "data-freshness": {
+      "statement": "The app's data refreshes once a day, so the data for today is visible only tomorrow. The refresh starts at the UTC day boundary (00:00 UTC): users in UTC+ time zones keep seeing data two days older until their local time crosses it, and even after the boundary it might take a few hours to process, which the page says varies with system load and other factors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "The Executive Insights App data refreshes once a day (i.e., the data for today is visible only tomorrow).",
+            "Data refreshes once a day starting at the UTC day boundary (00:00 UTC).",
+            "Users in UTC+ time zones continue to see data that is two days older until their local time crosses the UTC day boundary.",
+            "Additionally, even after the UTC boundary is crossed, it might take a few hours for the data to be processed and analyzed before being made available to users.",
+            "Note that this is an illustrative example, and the processing time can vary depending on system load and other factors."
+          ]
+        }
+      ]
+    },
+    "stale-data-checks": {
+      "statement": "The app prefetches all the data and stores it in the cache on startup. For stale widgets the page's steps include forcing the latest data to be fetched from the back end. The page also says to confirm the user is not using the Demo mode, as it contains mock data, and that it is possible that no data is available for that tenant for the selected time range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "The app prefetches all the data and stores it in the cache on startup.",
+            "Confirm that the user is not using the Demo mode, as it contains mock data.",
+            "It is possible that no data is available for that tenant for the selected time range."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "This sequence forces the latest data to be fetched from the back end."
+          ],
+          "after": "| Stale Data in Widgets | The app is not showing the latest data."
+        }
+      ]
+    },
+    "screens-and-widgets": {
+      "statement": "ZDX and Risk360 support only the most current data and fixed time ranges, and the tenant must be provisioned on Risk360 before data shows on its screen. Widgets are rendered based on the subscriptions included for the user's tenant. Zscaler Sandbox threats data is aggregated monthly at the end of the month: the Last 7, Last 14 or Last 30 Days filters show only last month's data, Last 90 Days lets the user select any of the past three months, and a month with no threats does not show up in the selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "ZDX and Risk360 support only the most current data and fixed time ranges.",
+            "Widgets are rendered based on the subscriptions included for the user's tenant.",
+            "The tenant must be provisioned on Risk360 before any data for that tenant would start showing up on the Risk360 screen.",
+            "Zscaler Sandbox threats data is aggregated monthly, which happens at the end of the month.",
+            "If you select the Last 7, Last 14, or Last 30 Days filter, you can only see last month's data.",
+            "When you select Last 90 Days, you can select any of the past three months for which you want to see the data.",
+            "There might not have been any threats in a month, in which case that specific month does not show up on the selection."
+          ]
+        }
+      ]
+    },
+    "news": {
+      "statement": "News items are published periodically across Zscaler's official channels, such as News and Announcements, Blog and Zscaler Trust Portal. For news items in the For You section under Threats Detected, a status of Partially Covered or Not Covered is shown, and the page recommends reaching out to the Zscaler Account team for complete coverage and enhanced protection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "News items are published periodically across Zscaler's official communication channels, such as News and Announcements, Blog, and Zscaler Trust Portal.",
+            "For the news items in the For You section, under Threats Detected, the status Partially Covered or Not Covered displays.",
+            "To ensure complete coverage and enhanced protection, we recommend reaching out to the Zscaler Account team."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "role-combination": {
+      "kind": "semantic",
+      "title": "How the app permission combines with Admin Console permissions in a role",
+      "status": "open",
+      "detail": "The role page says an admin role with Executive Insights App Access enabled can be created to give other Admin Console permissions together with app access, but the captured pages do not say how that setting is named in the new-role form or how it interacts with scope.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

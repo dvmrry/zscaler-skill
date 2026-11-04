@@ -66,8 +66,8 @@
       "text": "{{anthropic-webhook}}"
     },
     {
-      "label": "Not yet in claims.",
-      "text": "Network access control and custom request headers, which the AI Guard for Apps page has and the Users page lacks, are open {{gap:access-and-headers}}."
+      "label": "Settings on the AI Guard for Apps page.",
+      "text": "{{network-access-control}} {{custom-headers}} {{red-teaming-toggle}} What the Network Access Control Policy restricts is open {{gap:access-and-headers}}."
     }
   ],
   "checks": [
@@ -269,14 +269,63 @@
           ]
         }
       ]
+    },
+    "network-access-control": {
+      "statement": "The AI Guard for Apps Tenant Settings page has a Network Access Control Policy that takes up to 10 IPv4 CIDR ranges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-tenant-settings.json",
+          "quotes": [
+            "you can also configure your network access control policy to allow IPv4 CIDR ranges",
+            "Under the Network Access Control Policy, enter up to 10 IPv4 CIDR ranges."
+          ]
+        }
+      ]
+    },
+    "custom-headers": {
+      "statement": "The AI Guard for Apps Tenant Settings page allows a maximum of 5 custom request headers, each name at most 64 characters from a-z A-Z 0-9 !#$%&'*+-.^_`|~, case insensitive and unique; a conversation ID header is optional and is used to track related requests, and headers can be marked sensitive for extra protection, except one selected as the Conversation ID Header until it is removed from that role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-tenant-settings.json",
+          "quotes": [
+            "A maximum of 5 custom request headers is allowed.",
+            "Header names must not exceed 64 characters.",
+            "You can use the following characters: a-z A-Z 0-9 !#$%&'*+-.^_`|~",
+            "Header names are case insensitive and must be unique.",
+            "A conversation ID header is optional.",
+            "This header will be used to track related requests.",
+            "Mark as sensitive: This allows for extra protection of headers that may contain sensitive information.",
+            "If you selected a custom header as a Conversation ID Header, then you will not be able to mark it as sensitive until you remove it."
+          ]
+        }
+      ]
+    },
+    "red-teaming-toggle": {
+      "statement": "On the AI Guard for Apps Tenant Settings page, the Integrations tab has a Red Teaming section with an Enable Red Teaming Integration toggle, used to enable AI Red Teaming after integrating it with AI Guard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-managing-tenant-settings.json",
+          "quotes": [
+            "To enable AI Red Teaming after integrating it with AI Guard:",
+            "Go to the Integrations tab and find the Red Teaming section.",
+            "Enable the toggle next to Enable Red Teaming Integration."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "access-and-headers": {
       "kind": "semantic",
-      "title": "Network access control and custom request header settings",
-      "status": "open",
-      "detail": "The legacy page's statement that tenant controls include network access control using IPv4 CIDR ranges, and custom request headers including a conversation ID header and sensitive-header marking, holds for the AI Guard for Apps Tenant Settings page, captured as ai-guard-apps-managing-tenant-settings.json (its Managing Network Access Control Policy and Managing Custom Request Headers sections); no claim draws on it yet. The AI Guard for Users Tenant Settings page (ai-guard-managing-tenant-settings.json) has neither section; it only offers encryption of sensitive custom headers (encryption). The Python SDK changelog mentions tenant-configured custom request headers carrying a conversation ID (ai-security.ai-guard.runtime-api:resolve-user-headers).",
+      "title": "What the Network Access Control Policy restricts and whether it applies to both modes",
+      "status": "partial",
+      "detail": "The AI Guard for Apps Tenant Settings page's network access control and custom request header sections are in claims (network-access-control, custom-headers). Still open: what the Network Access Control Policy restricts (management access, Proxy or DAS callers, or the allowlist endpoint) and whether it applies to both modes; neither Tenant Settings page says. The AI Guard for Users Tenant Settings page (ai-guard-managing-tenant-settings.json) has neither section; it only offers encryption of sensitive custom headers (encryption). The Python SDK changelog mentions tenant-configured custom request headers carrying a conversation ID (ai-security.ai-guard.runtime-api:resolve-user-headers).",
       "blocks": "answers on restricting API access by source IP and on header-based policy design",
       "resolves_with": [
         "source-read",

@@ -32,7 +32,7 @@
     },
     {
       "label": "Host firewall rules.",
-      "text": "{{cgnat-range}} {{windows-firewall-directions}}"
+      "text": "{{cgnat-range}} {{synthetic-range}} {{drop-non-zscaler}} {{windows-firewall-directions}}"
     },
     {
       "text": "{{macos-firewall}} {{linux-iptables}}"
@@ -187,6 +187,34 @@
             "Zscaler Client Connector also uses carrier-grade NAT range 100.64.0.0/16 as part of internal health checking and for the Private Access service.",
             "For example, if you are using 100.64.0.0/16 and Zscaler sees a conflicting IP address, Zscaler changes it to 100.65.0.0/16.",
             "This change in the IP addresses can range from 100.64.0.0/16 to 100.83.0.0/16."
+          ]
+        }
+      ]
+    },
+    "synthetic-range": {
+      "statement": "The synthetic IP range page says an organization can configure Client Connector to use an IP range beyond the default range of 100.64.0.0/16 for its Private Access applications, entered, as a range between 100.64.0.0/16 and 100.127.0.0/16 (the page writes the upper bound with a stray period), in the Zscaler Client Connector Synthetic IP Range field on the Endpoint Integration tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-zscaler-client-connector-synthetic-ip-range.json",
+          "quotes": [
+            "You can configure your organization to use a Zscaler Client Connector IP range beyond the default range of 100.64.0.0/16 for your Private Access applications.",
+            "On the Endpoint Integration tab, enter a range between 100.64.0.0/16–100.127.0.0./16 in the Zscaler Client Connector Synthetic IP Range field."
+          ]
+        }
+      ]
+    },
+    "drop-non-zscaler": {
+      "statement": "If the LAN operates on the same synthetic IP range that Client Connector uses for Private Access, Drop Non-Zscaler Packets in Synthetic IP Range makes Client Connector block non-Zscaler packets destined for the synthetic IP range; the option is disabled by default, and when disabled non-Zscaler packets are bypassed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-zscaler-client-connector-synthetic-ip-range.json",
+          "quotes": [
+            "If your LAN network operates on the same synthetic IP range that Zscaler Client Connector uses for Private Access, enable Drop Non-Zscaler Packets in Synthetic IP Range to have Zscaler Client Connector block non-Zscaler packets destined for the synthetic IP range.",
+            "This option is disabled by default. When disabled, non-Zscaler packets are bypassed."
           ]
         }
       ]

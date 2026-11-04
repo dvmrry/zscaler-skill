@@ -49,7 +49,7 @@
   "prose": [
     {
       "label": "Which rules take an interval.",
-      "text": "{{rule-types}} {{traffic-capture-rules}} {{default-always}} {{no-interval-applies-always}}"
+      "text": "{{rule-types}} {{traffic-capture-rules}} {{default-always}} {{no-interval-applies-always}} The policy pages say two intervals per rule where the limits table says eight {{divergence:time-intervals-per-rule}}. IPS Control rules are covered in [[zia.firewall.ips]]."
     },
     {
       "text": "{{rule-field-is-list}} {{time-in-rule-criteria}} The effect of being outside the window is in [[zia.time-intervals.evaluation]]."
@@ -238,6 +238,62 @@
     }
   },
   "divergences": {
+    "time-intervals-per-rule": {
+      "summary": "How many time intervals a policy rule can take: the Traffic Capture, Firewall Filtering, URL Filtering and IPS Control policy pages say up to two, while the limits table gives 8 times per rule for all policy rule types.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-traffic-capture-policy.json",
+            "quotes": [
+              "Time: Select up to two time intervals during which the rule applies. Selecting no time intervals sets the field to Always, which applies the rule at all times."
+            ]
+          },
+          "says": "Up to two time intervals on a Traffic Capture rule."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-firewall-filtering-policy.json",
+            "quotes": [
+              "Time: Select up to two time intervals during which the rule applies. By default, the field is set to Always."
+            ]
+          },
+          "says": "Up to two time intervals on a Firewall Filtering rule."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-url-filtering-policy.json",
+            "quotes": [
+              "Time: Select Always to apply this rule to all time intervals, or select up to two time intervals."
+            ]
+          },
+          "says": "Always, or up to two time intervals on a URL Filtering rule."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ips-control-policy.json",
+            "quotes": [
+              "Time: Select up to two time intervals during which the rule applies."
+            ]
+          },
+          "says": "Up to two time intervals on an IPS Control rule."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Times per Rule | 8 times |"
+            ]
+          },
+          "says": "8 times per rule, in the limits table's row for all policy rule types."
+        }
+      ],
+      "impact": "An answer about how many time intervals a rule can carry depends on which page is used; the pages do not say whether 8 applies to some rule types and two to others."
+    },
     "ssl-inspection-time-windows": {
       "summary": "SSL Inspection rules carry `timeWindows` in the OpenAPI document, the Go and Python SDKs and the Terraform schema (which caps it at 2), while the MCP server's workflow skill says the API has no time attribute for them.",
       "positions": [
