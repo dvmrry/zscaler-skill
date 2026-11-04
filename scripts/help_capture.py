@@ -13,7 +13,8 @@ do www.zscaler.com product, solution and Zpedia pages (scripts/zscaler_pages.py)
 Pages are fetched from the help site's own content endpoint (`/zapi/fetch-data`) over plain HTTP: no
 browser, no credentials, so it runs anywhere, CI included. Articles and API pages carry the site's node
 and revision IDs, so `check` tells an unchanged page in one request, and a changed rendering of an
-unchanged revision can only come from this tool (`rerender`), never from the vendor.
+unchanged revision can only come from this tool (`rerender`), never from the vendor. A release-notes page's
+entries change without its revision, so its capture also records their hash (`entries`).
 
 Usage:
   help_capture.py render <article.html>          print the blocks for saved HTML
@@ -40,6 +41,7 @@ import datetime
 import os
 import difflib
 import email.utils
+import hashlib
 import html
 import json
 import urllib.parse
@@ -426,8 +428,10 @@ def page(url: str) -> dict:
     if not body.get("content"):
         raise SystemExit(f"no article at {url}")
     notes = _release_notes_html(body.get("release_notes")) if view == "release_notes" else ""
+    # A release-notes page's entries change without its revision, so their hash is part of what it is.
+    entries = {"entries": hashlib.sha256(notes.encode("utf-8")).hexdigest()[:16]} if notes else {}
     # The site renders a PDF of each article when it is published; its Last-Modified is the article's date.
-    return {**base, "kind": "help-article", "nid": str(body["nid"]), "rev": str(body["revision_id"]),
+    return {**base, "kind": "help-article", "nid": str(body["nid"]), "rev": str(body["revision_id"]), **entries,
             "html": f"<article><h3>{html.escape(body['title'])}</h3>{body['content']}{notes}</article>",
             "updated": _last_modified(body.get("pdf_url")), "updated_basis": "pdf-last-modified"}
 
@@ -452,16 +456,17 @@ def _release_notes_html(notes: dict | None) -> str:
     return "".join(out)
 
 
-def _cache_file(nid: str, rev: str) -> Path | None:
-    """Where an article revision's HTML is kept when HELP_CAPTURE_HTML_CACHE names a directory (outside the repo)."""
+def _cache_file(nid: str, rev: str, entries: str | None = None) -> Path | None:
+    """Where an article revision's HTML (with its release-notes entries) is kept when HELP_CAPTURE_HTML_CACHE names
+    a directory (outside the repo)."""
     root = os.environ.get("HELP_CAPTURE_HTML_CACHE")
-    return Path(root) / f"{nid}-{rev}.html" if root else None
+    return Path(root) / f"{nid}-{rev}{f'-{entries}' if entries else ''}.html" if root else None
 
 
 def fetch(url: str) -> dict:
     """An article page (see page); anything else is an error here."""
     pg = page(url)
-    cached = pg.get("kind") == "help-article" and _cache_file(pg["nid"], pg["rev"])
+    cached = pg.get("kind") == "help-article" and _cache_file(pg["nid"], pg["rev"], pg.get("entries"))
     if cached:
         cached.parent.mkdir(parents=True, exist_ok=True)
         cached.write_text(pg["html"], encoding="utf-8")
@@ -470,13 +475,14 @@ def fetch(url: str) -> dict:
     return pg
 
 
-def document(title: str, url: str, blocks: list[dict], nid: str, rev: str, date: str | None = None) -> dict:
+def document(title: str, url: str, blocks: list[dict], nid: str, rev: str, date: str | None = None,
+             entries: str | None = None) -> dict:
     """An article capture: provenance, then the article as blocks (see text_of for how quotes anchor)."""
     return {
         "schema_version": 1,
         "kind": "help-article",
         "title": title,
-        "source": {"url": url, "node": str(nid), "revision": str(rev)},
+        "source": {"url": url, "node": str(nid), "revision": str(rev), **({"entries": entries} if entries else {})},
         "captured_at": date or datetime.date.today().isoformat(),
         "blocks": blocks,
     }
@@ -500,7 +506,7 @@ def build(pg: dict, date: str | None = None) -> dict:
 def _build(pg: dict, date: str | None = None) -> dict:
     if pg["kind"] == "help-article":
         title, blocks = render(pg["html"])
-        return document(title, pg["url"], blocks, pg["nid"], pg["rev"], date)
+        return document(title, pg["url"], blocks, pg["nid"], pg["rev"], date, pg.get("entries"))
     if pg["kind"] in ("automate-doc", "zscaler-page"):
         # The revision is a content hash (the page chunk's hashed file name, or the hash of a www.zscaler.com
         # page's text): it changes exactly when the page does.
@@ -671,7 +677,8 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
             say(f"GONE  {path.name}: {e}")
             report.append({"file": path.name, "status": "gone", "message": str(e)})
             continue
-        same_rev = "revision" in src and pg.get("rev") == src["revision"] and pg.get("file_url", src.get("file_url")) == src.get("file_url")
+        same_rev = ("revision" in src and pg.get("rev") == src["revision"] and pg.get("entries") == src.get("entries")
+                    and pg.get("file_url", src.get("file_url")) == src.get("file_url"))
         if same_rev:
             say(f"ok    {path.name} (revision {src['revision']})")
             continue
@@ -740,14 +747,18 @@ def rerender(names: list[str]) -> int:
             continue
         src = doc["source"]
         # A revision's HTML never changes, so a cached copy of the captured revision re-renders offline.
-        cached = _cache_file(src["node"], src["revision"]) if "node" in src else None
+        cached = _cache_file(src["node"], src["revision"], src.get("entries")) if "node" in src else None
         if cached and cached.exists():
-            art = {"rev": src["revision"], "html": cached.read_text(encoding="utf-8")}
+            art = {"rev": src["revision"], "entries": src.get("entries"), "html": cached.read_text(encoding="utf-8")}
         else:
             art = fetch(src["url"])
         if art["rev"] != src["revision"]:
             moved += 1
             print(f"DRIFT {path.name} (revision {src['revision']} -> {art['rev']}): vendor change, run `check`")
+            continue
+        if art.get("entries") != src.get("entries"):
+            moved += 1
+            print(f"DRIFT {path.name} (release-notes entries changed): vendor change, run `check`")
             continue
         _, blocks = render(art["html"])
         if blocks == doc["blocks"]:

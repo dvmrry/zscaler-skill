@@ -231,6 +231,34 @@ def test_a_page_that_moved_without_changing_is_reported_as_moved(tmp_path, monke
     assert src["url"] == "https://help.zscaler.com/zia/y" and src["aliases"] == ["https://help.zscaler.com/zia/x"]
 
 
+def test_new_release_notes_entries_are_drift_though_the_revision_is_unchanged(tmp_path, monkeypatch, capsys):
+    import json as _json
+
+    import help_capture
+
+    def payload(*titles):
+        entries = [{"id": t, "title": t, "description": f"<p>{t}.</p>"} for t in titles]
+        notes = {"entries": {"d": {"title": "November 2, 2026", "feature": {
+            "available": [{"version": "", "title": "Feature Available", "entries": entries}]}}}}
+        return {"info": {"status": 200, "url": "/zia/notes", "view_type": "release_notes"},
+                "body": {"nid": 12, "revision_id": 34, "title": "Release Upgrade Summary (2026)",
+                         "content": "<p>Intro.</p>", "release_notes": notes}}
+
+    monkeypatch.delenv("HELP_CAPTURE_HTML_CACHE", raising=False)
+    monkeypatch.setattr(help_capture, "_last_modified", lambda url: None)
+    monkeypatch.setattr(help_capture, "_payload", lambda url: payload("Old"))
+    monkeypatch.setattr(help_capture, "HELP", tmp_path)
+    help_capture.write(tmp_path / "notes.json", help_capture.build(help_capture.page("https://help.zscaler.com/zia/notes")))
+    assert help_capture.check([], replace=False, as_json=True) == 0
+    capsys.readouterr()
+    monkeypatch.setattr(help_capture, "_payload", lambda url: payload("New", "Old"))
+    assert help_capture.check([], replace=False, as_json=True) == 1
+    assert _json.loads(capsys.readouterr().out)["pages"][0]["status"] == "drift"
+    # A vendor change never lands as a renderer change: rerender leaves it for check.
+    assert help_capture.rerender([]) == 1
+    assert "New" not in help_capture.text_of(help_capture.read(tmp_path / "notes.json")["blocks"])
+
+
 def test_a_full_check_reports_a_registered_unavailable_page_that_serves_again(tmp_path, monkeypatch, capsys):
     import json as _json
 
