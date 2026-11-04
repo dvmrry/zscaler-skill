@@ -39,7 +39,7 @@
     },
     {
       "label": "The request helper.",
-      "text": "{{request-do-decodes}} The response it hands back is synthetic: [[shared.sdk-go.request-handling:request-do-fabricates-200]] Methods that pass it pre-marshaled bytes send an empty object: [[shared.sdk-go.request-handling:zcc-request-do-double-marshals]] {{legacy-body-encoded-again}} In legacy mode it routes as described in [[zcc.sdk-go.legacy-routing]]."
+      "text": "{{request-do-decodes}} The response it hands back is synthetic: [[shared.sdk-go.request-handling:request-do-fabricates-200]] Methods that pass it pre-marshaled bytes send an empty object: [[shared.sdk-go.request-handling:zcc-request-do-double-marshals]] {{legacy-body-encoded-again}} {{legacy-zcc-limiter-not-installed}} In legacy mode it routes as described in [[zcc.sdk-go.legacy-routing]]."
     },
     {
       "label": "v1 lists.",
@@ -220,6 +220,31 @@
           "quotes": [
             "err := json.NewEncoder(buf).Encode(body)"
           ]
+        }
+      ]
+    },
+    "legacy-zcc-limiter-not-installed": {
+      "statement": "The legacy ZCC Go client builds `zccRateLimiter` with `NewRateLimiter(100, 3, 3600, 86400)` and passes it to its `getHTTPClient`, but that function never uses the limiter, so the legacy ZCC client applies no client-side rate limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/v2_config.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "zccRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "cfg.HTTPClient = getHTTPClient(log, zccRateLimiter, cfg)"
+          ]
+        }
+      ],
+      "conditions": "Absence claim: `git -C vendor/zscaler-sdk-go grep -n rateLimiter v3.8.58 -- zscaler/zcc/v2_client.go` returns only the signature line `func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {` (line 73), and `grep -n RateLimitTransport zscaler/zcc/*.go` returns nothing.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Go SDK: the legacy ZCC client's getHTTPClient ignores its rateLimiter argument."
         }
       ]
     }

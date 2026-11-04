@@ -240,9 +240,33 @@
       ]
     },
     "lss-config-flattened-without-nil-check": {
-      "statement": "The SDK declares an LSS resource's `config` as a pointer with no `omitempty`, and the data source passes it straight to `flattenLSSConfig`, which reads its fields with no nil check. A decoded response with no `config` (absent or null) makes the read dereference nil and panic.",
+      "statement": "The SDK declares an LSS resource's `config` as a pointer with no `omitempty`, and the data source and the `zpa_lss_config_controller` resource's Read both pass it straight to `flattenLSSConfig`, which reads its fields with no nil check. A decoded response with no `config` (absent or null) makes either read dereference nil and panic.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "_ = d.Set(\"config\", flattenLSSConfig(resp.LSSConfig))"
+          ],
+          "after": "func resourceLSSConfigControllerRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "if resp.LSSConfig != nil { _ = d.Set(\"name\", resp.LSSConfig.Name) } if err := d.Set(\"config\", flattenLSSConfig(resp.LSSConfig)); err != nil {"
+          ]
+        },
         {
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_lss_config_controller.go",
@@ -265,6 +289,7 @@
           "after": "func flattenLSSConfig(",
           "quotes": [
             "html.UnescapeString(lssConfig.AuditMessage)",
+            "\"name\": lssConfig.Name,",
             "lssConfig *lssconfigcontroller.LSSConfig) interface{} { return []map[string]interface{}{"
           ]
         },

@@ -64,7 +64,7 @@
     },
     {
       "label": "Go SDK throttling.",
-      "text": "{{go-client-limiters}} {{go-zdx-limiter-copies-zcc}} How the SDK retries a 429 is in [[shared.sdk-go.retries]]."
+      "text": "{{go-client-limiters}} The 86,400 seconds there is not the window the limiter holds: {{zcc-zdx-daily-write-cap-is-hourly|ref}} {{go-zdx-limiter-copies-zcc}} {{go-limiter-forgets-after-an-hour}} {{zcc-zdx-daily-write-cap-is-hourly}} How long such a wait actually lasts is open {{gap:limiter-wait-vs-client-timeout}}. How the SDK retries a 429 is in [[shared.sdk-go.retries]]."
     }
   ],
   "checks": [
@@ -393,6 +393,149 @@
         }
       ]
     },
+    "go-limiter-forgets-after-an-hour": {
+      "statement": "Before it checks any limit, the Go `RateLimiter.Wait` removes every recorded request older than one hour, the combined POST/PUT/DELETE list included; it then compares the recorded writes with the write limit and, when the limit is reached and the oldest recorded write is younger than `postPutDeleteFreq` seconds, returns a wait of `postPutDeleteFreq` seconds less that write's age. A limiter built with `NewRateLimiter` takes this path for every request whatever the path, because `WaitFor` hands a limiter without per-endpoint hourly limits to `Wait(method)`, and the transport sleeps for the returned wait plus any configured additional delay, or until the request's context is done, then asks the limiter again and sends the request only once the limiter admits it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if !rl.perEndpointHourly { return rl.Wait(method) }"
+          ],
+          "after": "func (rl *RateLimiter) WaitFor(method, path string) (bool, time.Duration) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "// created with NewRateLimiterWithEndpointHourly; other limiters behave as Wait.",
+            "// cleanOldRequests removes requests older than the specified cutoff time to prevent memory leaks",
+            "// sleepCtx waits for d, or until the request's context is done."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "oneHourAgo := now.Add(-1 * time.Hour)",
+            "rl.cleanOldRequests(oneHourAgo) switch method {",
+            "case http.MethodPost, http.MethodPut:",
+            "if len(rl.postPutDeleteRequests) >= rl.postPutDeleteLimit { oldestRequest := rl.postPutDeleteRequests[0] if now.Sub(oldestRequest) < time.Duration(rl.postPutDeleteFreq)*time.Second { d := time.Duration(rl.postPutDeleteFreq)*time.Second - now.Sub(oldestRequest) return true, d }"
+          ],
+          "after": "func (rl *RateLimiter) Wait(method string) (bool, time.Duration) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "after": "rl.postPutRequests = append(rl.postPutRequests, now)",
+          "quotes": [
+            "case http.MethodDelete:",
+            "if len(rl.postPutDeleteRequests) >= rl.postPutDeleteLimit {",
+            "rl.deleteRequests = append(rl.deleteRequests, now)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "// Clean POST/PUT/DELETE combined requests",
+            "for _, t := range rl.postPutDeleteRequests { if t.After(cutoff) { cleaned = append(cleaned, t) } } rl.postPutDeleteRequests = cleaned"
+          ],
+          "after": "func (rl *RateLimiter) cleanOldRequests(cutoff time.Time) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "shouldWait, delay = rlt.Limiter.WaitFor(req.Method, req.URL.Path)",
+            "if !shouldWait { break }",
+            "if err := sleepCtx(req, delay+rlt.AdditionalDelay); err != nil { return nil, err }"
+          ],
+          "after": "func (rlt *RateLimitTransport) RoundTrip(req *http.Request) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "case <-timer.C: return nil case <-req.Context().Done(): return req.Context().Err()"
+          ],
+          "after": "func sleepCtx(req *http.Request, d time.Duration) error {"
+        }
+      ]
+    },
+    "zcc-zdx-daily-write-cap-is-hourly": {
+      "statement": "So the ZCC and ZDX limiters, built for 3 writes per 86,400 seconds, keep a write on record for one hour only: a write is admitted at once when fewer than three writes were recorded in the past hour, so more than three writes a day pass when they are spread over hours, while a fourth write within an hour of the oldest of three is told to wait 86,400 seconds less that write's age, more than 23 hours.",
+      "tier": "B",
+      "derived_from": [
+        "go-client-limiters",
+        "go-limiter-forgets-after-an-hour"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "zccRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "zdxRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "retryableClient.HTTPClient.Timeout = time.Second * 60 // Default to 60 seconds if not specified."
+          ],
+          "after": "func getHTTPClient(l logger.Logger, rateLimiter *rl.RateLimiter, cfg *Configuration) *http.Client {"
+        }
+      ],
+      "conditions": "Read from ratelimiter/limiter.go and zscaler/oneapiclient.go at v3.8.58 (HEAD), not run. ZCC and ZDX GETs (100 per 3,600 seconds) are unaffected, since their window equals the one-hour cleanup. How long the transport actually sleeps is not settled here: getHTTPClient gives the OneAPI HTTP client a 60-second timeout by default, and whether net/http puts that deadline on the request context that `sleepCtx` watches is standard-library behaviour no captured source states (gap limiter-wait-vs-client-timeout).",
+      "gaps": [
+        "limiter-wait-vs-client-timeout"
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Go SDK: RateLimiter.Wait drops records older than an hour, so a NewRateLimiter write window longer than an hour (ZCC/ZDX 3 per 86400 s) is never held."
+        }
+      ]
+    },
     "go-zdx-limiter-copies-zcc": {
       "statement": "The Go SDK builds its ZDX limiter with the same arguments as the ZCC one, commented as 100 calls per hour and 3 per day for downloadDevices.",
       "tier": "A",
@@ -410,6 +553,16 @@
     }
   },
   "gaps": {
+    "limiter-wait-vs-client-timeout": {
+      "kind": "semantic",
+      "title": "Whether a long Go limiter wait is cut short by the HTTP client's timeout",
+      "status": "open",
+      "detail": "The ZCC and ZDX limiters can ask the rate-limit transport to sleep for most of a day before a write (zcc-zdx-daily-write-cap-is-hourly). The transport sleeps until the wait ends or the request context is done; getHTTPClient sets the HTTP client's Timeout to 60 seconds unless configured. Whether that timeout cancels the sleep (and the request then fails or is retried) is not stated by the captured sources.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "rate-limit-increase": {
       "kind": "semantic",
       "title": "Whether a persistent 429 can be cleared by a tenant rate-limit increase",

@@ -50,7 +50,7 @@
     },
     {
       "label": "Streamed log types.",
-      "text": "The four log types an NSS feed can carry are in [[cloud-connector.nss-va]]. {{feed-formats}} {{not-zia-firewall}} {{tunnel-console-only}}"
+      "text": "The four log types an NSS feed can carry are in [[cloud-connector.nss-va]]. {{feed-formats}} The pages' URL hex-encoding example for a newline differs {{divergence:url-newline-hex}}. {{not-zia-firewall}} {{tunnel-console-only}}"
     },
     {
       "label": "DNS records.",
@@ -232,6 +232,46 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "url-newline-hex": {
+      "summary": "How the Cloud & Branch Connector NSS pages write a newline in their URL hex-encoding example.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-nss-feed-output-format-dns-logs.json",
+            "quotes": [
+              "Any URL character that is less than or equal to 0x20, or greater than or equal to 0x7F, is encoded as %HH.",
+              "For example, a \\n character in a URL is encoded as 0A, and a space is encoded as %20."
+            ]
+          },
+          "says": "The DNS feed output format page states the %HH rule and then gives a newline as 0A, without the %."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-general-guidelines-nss-feeds-and-feed-formats.json",
+            "quotes": [
+              "Any URL character that is less than or equal to 0x20, or equal to and above 0x7F, is encoded as %HH.",
+              "For example, a \\n character in a URL is encoded as 0A, and a space is encoded as %20."
+            ]
+          },
+          "says": "The NSS feed guidelines page states the same rule and the same 0A example."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-nss-feed-output-format-session-logs.json",
+            "quotes": [
+              "For example, a \\n character in a URL is encoded as %0A, and a space is encoded as %20."
+            ]
+          },
+          "says": "The Session feed output format page gives a newline as %0A."
+        }
+      ],
+      "impact": "The rule all three pages state (%HH) gives %0A for a newline; the bare 0A in two examples is not of that form. No captured feed sample shows either."
     }
   },
   "gaps": {

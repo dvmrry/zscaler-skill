@@ -580,8 +580,30 @@
       "derived_from": [
         "request-do-fabricates-200"
       ],
-      "conditions": "Depends on `ExecuteRequest` returning an error for statuses of 300 and above, which is read from its retry loop (`if resp.StatusCode < 300 { break }` followed by error returns) and not exercised. ZPA service code was searched for status comparisons at v3.8.42 and only its tests compare status codes.",
+      "conditions": "Depends on `ExecuteRequest` returning an error for statuses of 300 and above, which is read from its retry loop (`if resp.StatusCode < 300 { break }` followed by error returns) and not exercised. At v3.8.42 the ZPA `BulkReorder` functions do compare the status after `NewRequestDo` (policysetcontroller.go:332 and policysetcontrollerv2.go:410, quoted below), and by this claim those checks cannot fire. `git grep -n -E \"StatusCode *(!=|==|<|>|>=|<=)\" v3.8.42 -- zscaler/zpa/services ':!*_test.go'` returns only those two lines.",
       "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.42"
+          ],
+          "quotes": [
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.42"
+          ],
+          "quotes": [
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/services/manage_pass/manage_pass.go",

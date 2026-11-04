@@ -343,9 +343,28 @@
           "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
           "quotes": [
             "policy_id = get_policy_id()",
-            "truncated_content = content[:5000]"
+            "truncated_content = content[:5000]",
+            "action, severity, txn_id, triggered, policy_name, error = scan_content( truncated_content, \"OUT\", policy_id )"
           ],
           "after": "def main():"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
+          "at": [
+            "v0.2.0",
+            "HEAD"
+          ],
+          "quotes": [
+            "return int(policy_id) if policy_id else None"
+          ],
+          "after": "def get_policy_id():"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "zguard-ai-integrations: Claude Code scan_response.py parses AIGUARD_POLICY_ID with an unguarded int(), so a non-integer value raises before the scan."
         }
       ]
     },

@@ -35,7 +35,7 @@
     },
     {
       "label": "Verifying SNS access.",
-      "text": "{{verify-request}} {{verify-read-only}} {{verify-codes}}"
+      "text": "{{verify-request}} {{verify-read-only}} Whether it also publishes a test message differs: the guide's no-test-message statement and the OpenAPI operation's read-only description set against the guide's success example and the OpenAPI response's `message_sent` {{divergence:verify-test-message}}. {{verify-codes}}"
     },
     {
       "label": "Coverage.",
@@ -232,16 +232,23 @@
       ]
     },
     "verify-read-only": {
-      "statement": "The guide calls verification a read-only check of whether Zscaler can call sns:GetTopicAttributes on the topic, with no test message published, although its success example returns a `message_sent` value.",
+      "statement": "The guide calls verification a read-only check of whether Zscaler can call sns:GetTopicAttributes on the topic, and the OpenAPI operation likewise describes it as a read-only check of sns:GetTopicAttributes.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
           "quotes": [
-            "Use POST /subscriptions/channels/sns:verify to validate that Zscaler can successfully call sns:GetTopicAttributes on your SNS topic. This is a read-only check; no test message is published to the topic.",
-            "\"message_sent\": \"{\\\"message\\\": \\\"Event Monitoring Message Test\\\"}\""
+            "Use POST /subscriptions/channels/sns:verify to validate that Zscaler can successfully call sns:GetTopicAttributes on your SNS topic. This is a read-only check; no test message is published to the topic."
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+          "pointer": "/paths/~1subscriptions~1channels~1sns:verify/post",
+          "expect": {
+            "description": "Tests whether Zscaler can call sns:GetTopicAttributes on the provided topic. This is a read-only check."
+          }
         }
       ]
     },
@@ -271,7 +278,59 @@
         "channel-list",
         "verify-read-only"
       ],
-      "conditions": "The channel list is described as the channels supported for the tenant, and verification checks topic attributes without publishing."
+      "conditions": "The channel list is described as the channels supported for the tenant, and verification is described as a read-only GetTopicAttributes check (verify-read-only), though whether it also publishes a test message differs between the guide's statement and its success example (verify-test-message)."
+    }
+  },
+  "divergences": {
+    "verify-test-message": {
+      "summary": "Whether sns:verify publishes a test message to the topic.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+            "quotes": [
+              "Use POST /subscriptions/channels/sns:verify to validate that Zscaler can successfully call sns:GetTopicAttributes on your SNS topic. This is a read-only check; no test message is published to the topic."
+            ]
+          },
+          "says": "The guide's Step 5 says verification checks sns:GetTopicAttributes, is read-only, and publishes no test message."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+            "pointer": "/paths/~1subscriptions~1channels~1sns:verify/post",
+            "expect": {
+              "description": "Tests whether Zscaler can call sns:GetTopicAttributes on the provided topic. This is a read-only check."
+            }
+          },
+          "says": "The OpenAPI operation description also calls it a read-only GetTopicAttributes check."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/event-monitoring-working-with-the-event-monitoring-notification-api.json",
+            "after": "Example response for successful request (200 OK):",
+            "quotes": [
+              "\"message_sent\": \"{\\\"message\\\": \\\"Event Monitoring Message Test\\\"}\""
+            ]
+          },
+          "says": "The guide's success example returns `message_sent` holding a test message body."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/event-monitoring.openapi.json",
+            "pointer": "/paths/~1subscriptions~1channels~1sns:verify/post/responses/200/content/application~1json/schema/properties/message_sent",
+            "expect": {
+              "description": "Test message sent during verification (present on success).",
+              "type": "string"
+            }
+          },
+          "says": "The OpenAPI response schema describes `message_sent` as the test message sent during verification, present on success."
+        }
+      ],
+      "impact": "A caller cannot tell from the sources whether a successful verification has put a message on the topic,."
     }
   }
 }

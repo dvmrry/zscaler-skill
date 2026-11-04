@@ -541,7 +541,7 @@
       ]
     },
     "custom-control-redirect-value": {
-      "statement": "An inspection custom control's default_action is PASS, BLOCK or REDIRECT, and default_action_value is the redirect URL used when the action is REDIRECT; the resource code passes the value through without checking it against the action.",
+      "statement": "An inspection custom control's default_action is PASS, BLOCK or REDIRECT, and default_action_value is the redirect URL used when the action is REDIRECT; the resource code passes the value through without checking it against the action. Its create function has a REDIRECT check, but that check tests `Action` and `ActionValue`, which the expander never sets, so the value passes unchecked.",
       "tier": "A",
       "evidence": [
         {
@@ -555,9 +555,70 @@
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
           "quotes": [
             "DefaultActionValue: d.Get(\"default_action_value\").(string),"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "if req.Action == \"REDIRECT\" && req.ActionValue == \"\" {",
+            "return diag.Errorf(\"when action is REDIRECT, action value must be set\")"
+          ],
+          "after": "func resourceInspectionCustomControlsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "// \"action\": {",
+            "// \"action_value\": {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "DefaultAction:      d.Get(\"default_action\").(string),",
+            "DefaultActionValue: d.Get(\"default_action_value\").(string),"
+          ],
+          "after": "func expandInspectionCustomControls(d *schema.ResourceData) inspection_custom_controls.InspectionCustomControl {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_inspection_custom_controls.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "Description: d.Get(\"description\").(string), Name: d.Get(\"name\").(string), ParanoiaLevel: d.Get(\"paranoia_level\").(string), ProtocolType: d.Get(\"protocol_type\").(string),",
+            "Severity: d.Get(\"severity\").(string), Type: d.Get(\"type\").(string), Version: d.Get(\"version\").(string), Rules: expandInspectionCustomControlsRules(d), } return custom_control"
+          ],
+          "after": "func expandInspectionCustomControls(d *schema.ResourceData) inspection_custom_controls.InspectionCustomControl {"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "tf-zpa: zpa_inspection_custom_controls create validates REDIRECT on req.Action/req.ActionValue, which the expander never sets; default_action REDIRECT without default_action_value is not caught."
         }
       ],
       "conditions": "At v4.4.16, `grep -n -i 'default_action_value\\|DefaultActionValue\\|REDIRECT' zpa/resource_zpa_inspection_custom_controls.go` returns, besides comments and the `default_action` StringInSlice list, the `default_action_value` schema entry (no ValidateFunc), the expander's and the profile patch's copies of the value, the read's `d.Set`, and one REDIRECT check, `if req.Action == \"REDIRECT\" && req.ActionValue == \"\"`, which tests `Action` and `ActionValue`, fields the expander never sets because the `action` and `action_value` schema entries are commented out."

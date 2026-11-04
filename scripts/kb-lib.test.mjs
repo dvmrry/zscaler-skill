@@ -7,7 +7,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { anchorEvidence, buildGraph, captureText, idKind, loadPublic, materialDate, parseProse, validateGraph } from "./kb-lib.mjs";
-import { loadOverlay, renderSubject, resolve, usableOverlay, validateOverlay } from "./kb-resolve.mjs";
+import { loadOverlay, renderSubject, resolve, updateManifest, usableOverlay, validateOverlay } from "./kb-resolve.mjs";
 import { loadSchemas, validate } from "./kb-schema.mjs";
 import { snakeToCamel } from "./kb-types.mjs";
 
@@ -290,6 +290,23 @@ test("a citation's date is the material's own, never the day the file was captur
   assert.deepEqual(materialDate(g, { source: "zscaler-help", path: "coll.json" }), { as_of: "2026-09-29", basis: "release-filename" });
   // Only a capture date is known: the material is undated, not "as of the capture".
   assert.equal(materialDate(g, { source: "zscaler-help", path: "plain.txt" }), null);
+});
+
+test("the manifest takes a legacy API capture's URL and date from the capture itself", () => {
+  const root = tmpRepo({
+    "references/_meta/sources.json": { schema_version: 1, sources: { "zscaler-help": { kind: "capture", root: "vendor/zscaler-help", rank: 5, title: "Help" } } },
+    "references/zia/zia.example.json": subject({
+      claims: { "first-match": { statement: "x", tier: "A", evidence: [{ source: "zscaler-help", path: "spec.json", quotes: ["posture"] }] } },
+    }),
+    "vendor/zscaler-help/spec.json": {
+      schema_version: 1, kind: "help-api-spec", title: "Posture Profiles", captured_at: "2026-11-03", spec: {},
+      source: { url: "https://help.zscaler.com/legacy-apis/posture-profiles", node: "1", revision: "2" },
+    },
+  });
+  updateManifest(graphOf(root));
+  const entry = JSON.parse(fs.readFileSync(path.join(root, "references/_meta/capture-manifest.json"), "utf8")).files["vendor/zscaler-help/spec.json"];
+  assert.equal(entry.captured_from, "https://help.zscaler.com/legacy-apis/posture-profiles");
+  assert.equal(entry.captured_at, "2026-11-03");
 });
 
 test("references must resolve to the right kind of node", () => {

@@ -320,7 +320,7 @@
       "conditions": "The check runs before the response is examined for errors, so it applies to successful responses, including writes."
     },
     "oneapi-retry-headers": {
-      "statement": "The Python OneAPI request executor treats 429 as retryable and, absent a `Retry-After` header, takes its wait from the first rate-limit header present, which for ZCC is `X-Rate-Limit-Retry-After-Seconds` or, failing that, `X-Rate-Limit-Remaining` read as seconds, plus one second.",
+      "statement": "The Python OneAPI request executor treats 429 as retryable and, absent a `Retry-After` header, takes its wait, plus one second, from the first of `x-ratelimit-reset`, `X-RateLimit-Reset`, `RateLimit-Reset`, `X-Rate-Limit-Retry-After-Seconds` and `X-Rate-Limit-Remaining` that is present, the last read as seconds.",
       "tier": "A",
       "evidence": [
         {
@@ -336,6 +336,29 @@
             "elif retry_limit_reset_header is not None:",
             "Retryable statuses: 429, 500, 502, 503, 504"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "retry_limit_reset_header = (\n            headers.get(\"x-ratelimit-reset\")",
+            "or headers.get(\"X-RateLimit-Reset\")",
+            "or headers.get(\"RateLimit-Reset\")",
+            "headers.get(\"X-Rate-Limit-Retry-After-Seconds\")",
+            "or headers.get(\"X-Rate-Limit-Remaining\")",
+            "backoff = float(retry_limit_reset_header) + 1"
+          ],
+          "after": "def get_retry_after(self, headers, logger):"
+        }
+      ],
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK: get_retry_after falls back to X-Rate-Limit-Remaining (a request count) as a wait in seconds."
         }
       ]
     }

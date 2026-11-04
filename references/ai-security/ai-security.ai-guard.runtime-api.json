@@ -63,7 +63,7 @@
     },
     {
       "label": "DAS endpoints.",
-      "text": "{{two-endpoints}} {{resolve-requirements}} {{help-host}} {{both-directions}} {{failure-handling}}"
+      "text": "{{two-endpoints}} {{resolve-requirements}} {{help-host}} {{both-directions}} {{failure-handling}} {{das-recommends-only}} {{resolve-optional-fields}}"
     },
     {
       "label": "Where the sources disagree.",
@@ -71,11 +71,11 @@
     },
     {
       "label": "The Python SDK.",
-      "text": "{{sdk-legacy-client}} {{sdk-host}} {{sdk-bearer}} {{sdk-direction-doc}} {{sdk-policy-id-optional}} {{resolve-user-headers}} The deprecated `client.zguard` alias is in [[shared.terminology.product-names:zguard-alias]]."
+      "text": "{{sdk-legacy-client}} {{sdk-host}} {{sdk-bearer}} {{sdk-direction-doc}} {{sdk-policy-id-optional}} {{resolve-user-headers}} {{sdk-no-client-app-name}} The deprecated `client.zguard` alias is in [[shared.terminology.product-names:zguard-alias]]."
     },
     {
       "label": "Responses.",
-      "text": "{{response-fields}} {{resolve-policy-fields}}"
+      "text": "{{response-fields}} {{resolve-policy-fields}} {{sample-detector-device-type}}"
     },
     {
       "label": "Throttling.",
@@ -87,7 +87,7 @@
     },
     {
       "label": "What the integration examples say.",
-      "text": "{{examples-regional-host}} {{examples-match-sdk}} The examples do not show whether the global host also works, so host selection stays open {{gap:host-selection}}. They also state, at rank 4, that a policy ID the key cannot use comes back as \"Policy not found\" in an HTTP 200 with no action ([[ai-security.ai-guard.integrations:soft-failure]]), that a non-UUID transactionId gets HTTP 500 ([[ai-security.ai-guard.integrations:transaction-id-uuid]]), and that resolve-and-execute ignores a policyId in the body ([[ai-security.ai-guard.integrations.google-apigee-proxy:resolve-ignores-policy-id]]); their statement that the API takes only content, direction, transactionId and policyId conflicts with the SDK's `user` field ([[ai-security.ai-guard.integrations.google-apigee-sharedflow:api-fields]]). The native LiteLLM guardrail defaults to execute-policy with `policy_id` optional ([[ai-security.ai-guard.integrations.litellm:native-endpoint]])."
+      "text": "{{examples-regional-host}} {{examples-match-sdk}} The examples do not show whether the global host also works, so host selection stays open {{gap:host-selection}}. They also state, at rank 4, that a policy ID the key cannot use comes back as \"Policy not found\" in an HTTP 200 with no action ([[ai-security.ai-guard.integrations:soft-failure]]), that a non-UUID transactionId gets HTTP 500 ([[ai-security.ai-guard.integrations:transaction-id-uuid]]), and that resolve-and-execute ignores a policyId in the body ([[ai-security.ai-guard.integrations.google-apigee-proxy:resolve-ignores-policy-id]]); their statement that the API takes only content, direction, transactionId and policyId conflicts with the SDK's `user` field and with Help's September 11, 2026 release ({{resolve-optional-fields|ref}}) ([[ai-security.ai-guard.integrations.google-apigee-sharedflow:api-fields]]). The native LiteLLM guardrail defaults to execute-policy with `policy_id` optional ([[ai-security.ai-guard.integrations.litellm:native-endpoint]])."
     }
   ],
   "checks": [
@@ -548,6 +548,106 @@
       ],
       "conditions": "Follows from Python `hasattr` on an attribute the request executor never sets: a search of the package finds no other `zguard_legacy_client` and no `__getattr__` on the executor. Not exercised against a live endpoint."
     },
+    "das-recommends-only": {
+      "statement": "In DAS mode AI Guard only recommends: the quick start says it cannot perform enforcement actions and that the application must check the response for `action: ALLOW` or `action: BLOCK`, and the architecture article likewise has the application enforce the decision before calling the LLM or returning the response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-quick-start-guide-dasapi-mode.json",
+          "quotes": [
+            "Keep in mind that in DAS mode, AI Guard can only make recommendations to the application, but it cannot perform enforcement actions.",
+            "Your application must check for the key-value pair of action: ALLOW or action: BLOCK in the response from AI Guard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-architecture-ai-guard-apps-proxy-das-api-mode.json",
+          "quotes": [
+            "The application then enforces this decision before proceeding with the LLM call or returning the response to the user."
+          ]
+        }
+      ]
+    },
+    "resolve-optional-fields": {
+      "statement": "From the AI Guard for Apps release of September 11, 2026, a DAS resolve-and-execute call can include optional `user`, `clientName` and `appName` fields, which also appear in the dashboard's Transaction Details window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-release-20260909.json",
+          "after": "AI Guard for Apps 09/11/2026",
+          "quotes": [
+            "In DAS mode for AI Guard: user, clientName and appName optional fields can now be included when making the DAS resolve-and-execute API call.",
+            "In addition to appearing in the API, the new fields will appear on the Transaction Details window from the dashboard."
+          ]
+        }
+      ]
+    },
+    "sdk-no-client-app-name": {
+      "statement": "The Python SDK's `resolve_and_execute_policy` takes `content`, `direction`, `transaction_id`, `user` and `headers`; it has no `clientName` or `appName` argument.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "after": "def resolve_and_execute_policy(",
+          "quotes": [
+            "content: str,",
+            "direction: str,",
+            "transaction_id: Optional[str] = None,",
+            "user: Optional[str] = None,",
+            "headers: Optional[dict] = None,",
+            "/detection/resolve-and-execute-policy"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/policy_detection.py",
+          "quotes": [
+            "self._base_endpoint = \"/v1\""
+          ]
+        }
+      ],
+      "conditions": "Absence: `grep -n -i 'clientname\\|appname\\|client_name\\|app_name' zscaler/aiguard/*.py` returns nothing at v1.11.3-1-g4f8f54df (4f8f54df, also origin/master as last fetched).",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Help's AI Guard for Apps release of September 11, 2026 adds optional clientName and appName to resolve-and-execute; the SDK sends only user (and caller headers)."
+        }
+      ]
+    },
+    "sample-detector-device-type": {
+      "statement": "The DAS/API quick start's sample allowed and blocked responses each give the toxicity detector's entry a `latency` of 43 and a `deviceType` of `cuda`, and the Python SDK's `DetectorResponse` reads `deviceType`; no captured AI Guard Help page defines the field or its values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-quick-start-guide-dasapi-mode.json",
+          "after": "### Allowed Response",
+          "quotes": [
+            "\"detectorResponses\": { \"toxicity\": { \"statusCode\": 200, \"triggered\": false, \"action\": \"ALLOW\", \"latency\": 43, \"deviceType\": \"cuda\""
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-quick-start-guide-dasapi-mode.json",
+          "after": "### Blocked Response",
+          "quotes": [
+            "\"detectorResponses\": { \"toxicity\": { \"statusCode\": 200, \"triggered\": true, \"action\": \"BLOCK\", \"latency\": 43, \"deviceType\": \"cuda\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/aiguard/models/policy_detection.py",
+          "after": "class DetectorResponse(ZscalerObject):",
+          "quotes": [
+            "self.device_type = config[\"deviceType\"] if \"deviceType\" in config else None"
+          ]
+        }
+      ],
+      "conditions": "Absence: `grep -l deviceType vendor/zscaler-help/ai-guard*.json vendor/zscaler-help/automate-zscaler/*guard*` returns only ai-guard-apps-quick-start-guide-dasapi-mode.json (captured 2026-11-03), whose two occurrences are the sample values quoted."
+    },
     "examples-regional-host": {
       "statement": "Zscaler's integration examples build the DAS host from the cloud name as `https://api.{cloud}.zseclipse.net` (the repository's agent notes and the Cursor, n8n and Azure AI Gateway READMEs); the CI scanner treats a blank cloud as `us1` because an empty one yields `api..zseclipse.net`.",
       "tier": "A",
@@ -630,7 +730,7 @@
       "impact": "A client following one source may call a host the other source does not use; no source says whether both hosts accept the calls or which is preferred. The SDK's override URL can pin the Help host."
     },
     "direction-literals": {
-      "summary": "Which values the direction field takes.",
+      "summary": "Which values the direction field takes; Help's own pages differ.",
       "positions": [
         {
           "says": "The Python SDK documents IN or OUT.",
@@ -653,9 +753,20 @@
               "prompt_result = resolve_and_execute_policy(user_prompt, \"request\") ... response_result = resolve_and_execute_policy(llm_response, \"response\")"
             ]
           }
+        },
+        {
+          "says": "The DAS/API quick start's example passes \"IN\" and says IN refers to the prompt and OUT to the response.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-quick-start-guide-dasapi-mode.json",
+            "quotes": [
+              "In the following, note the direction key-value pair. The value of IN refers to prompt and the value of OUT refers to response.",
+              "\"direction\" : \"IN\""
+            ]
+          }
         }
       ],
-      "impact": "A request built from the Help examples may send values the SDK does not document; whether the API accepts both sets is unknown."
+      "impact": "Help is on both sides: the DAS/API quick start agrees with the SDK (IN for the prompt, OUT for the response), while the test page passes \"request\" and \"response\" and calls the prompt outbound and the response inbound, the opposite of reading IN as the prompt. Whether the API accepts both sets is unknown."
     },
     "policy-id-required": {
       "summary": "Whether execute-policy requires a policy ID.",
@@ -714,7 +825,7 @@
       "about": [
         "ai-security.ai-guard.runtime-api:direction-literals"
       ],
-      "detail": "Whether the live API accepts both IN/OUT and request/response, normalizes one to the other, or treats the Help values as pseudocode is unverified.",
+      "detail": "Whether the live API accepts both IN/OUT and request/response, normalizes one to the other, or treats the Help values as pseudocode is unverified. The DAS/API quick start uses IN and OUT, with IN for the prompt.",
       "blocks": "building a valid DAS request from the Help page",
       "resolves_with": [
         "lab-test",

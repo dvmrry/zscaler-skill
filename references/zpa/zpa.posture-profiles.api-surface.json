@@ -30,7 +30,7 @@
     },
     {
       "label": "Calls.",
-      "text": "{{endpoints}} {{spec-get-only}} {{paging}}"
+      "text": "{{endpoints}} {{spec-get-only}} {{paging}} The help article's search example uses a v1 path {{divergence:search-path}}."
     },
     {
       "label": "SDKs.",
@@ -46,7 +46,8 @@
       "do": "Which call reads the object: the v2 list for search and paging, the v1 call for one profile by id.",
       "uses": [
         "endpoints",
-        "paging"
+        "paging",
+        "search-path"
       ]
     },
     {
@@ -74,6 +75,51 @@
       ]
     }
   ],
+  "divergences": {
+    "search-path": {
+      "summary": "Which path the posture-profile search goes to.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "obtaining-posture-profile-details-using-api.json",
+            "quotes": [
+              "Getting Details for All Posture Profiles V2",
+              "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/posture&search={searchString}.",
+              "For example: /mgmtconfig/v1/admin/customers/73186051597795328/posture&search=name%20EQ%20test.",
+              "Send a GET request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/posture?page=1&pagesize=20."
+            ]
+          },
+          "says": "The help article's search steps, under its Getting Details for All Posture Profiles V2 heading, call the v1 path /mgmtconfig/v1/admin/customers/{id}/posture with search appended as &search=, while its paging steps on the same page use the v2 path."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zpa.openapi.json",
+            "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=search]",
+            "expect": {
+              "in": "query",
+              "description": "The search string used to support search by features and fields for the API."
+            }
+          },
+          "says": "The OpenAPI contract defines search as a query parameter of the v2 list."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-api-posture-profiles.json",
+            "pointer": "/spec/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1posture/get/parameters/[name=search]",
+            "expect": {
+              "in": "query",
+              "description": "The search string used to support search by features and fields for the API."
+            }
+          },
+          "says": "Help's own Posture Profiles API reference also defines search as a query parameter of the v2 list."
+        }
+      ],
+      "impact": "A search sent as the article shows goes to a v1 list path that neither API reference defines, with `&` where a query string starts with `?`. Both SDKs list on the v2 path (zpa.posture-profiles.api-surface:go-functions, zpa.posture-profiles.api-surface:python-methods)."
+    }
+  },
   "claims": {
     "endpoints": {
       "statement": "The documented posture profile calls are GETs in the posture-profile-controller: all profiles by page on the v2 path, with search, and one profile by id on the v1 path.",
@@ -120,7 +166,7 @@
           }
         }
       ],
-      "conditions": "Every member: over automate-zscaler/openapi/zpa.openapi.json (captured 2026-09-07), `jq -r '.paths | to_entries[] | select(.key|test(\"posture\";\"i\")) | \"\\(.key) \\(.value|keys|join(\",\"))\"'` returns two paths, /mgmtconfig/v2/admin/customers/{customerId}/posture and /mgmtconfig/v1/admin/customers/{customerId}/posture/{id}, each with only a get operation; vendor/zscaler-help/obtaining-posture-profile-details-using-api.json (captured 2026-10-18) has two sections, 'Getting Details for All Posture Profiles V2' and 'Getting Details for a Particular Posture Profile', and `grep -o 'Send a [A-Z]* request'` on it returns four lines, all 'Send a GET request', while `grep -o -w 'POST\\|PUT\\|DELETE\\|PATCH'` returns nothing. (The page's own search example uses a v1 path, /mgmtconfig/v1/admin/customers/73186051597795328/posture&search=, while the spec puts search on the v2 path; the statement follows the spec.)"
+      "conditions": "Every member: over automate-zscaler/openapi/zpa.openapi.json (captured 2026-09-07), `jq -r '.paths | to_entries[] | select(.key|test(\"posture\";\"i\")) | \"\\(.key) \\(.value|keys|join(\",\"))\"'` returns two paths, /mgmtconfig/v2/admin/customers/{customerId}/posture and /mgmtconfig/v1/admin/customers/{customerId}/posture/{id}, each with only a get operation; vendor/zscaler-help/obtaining-posture-profile-details-using-api.json (captured 2026-10-18) has two sections, 'Getting Details for All Posture Profiles V2' and 'Getting Details for a Particular Posture Profile', and `grep -o 'Send a [A-Z]* request'` on it returns four lines, all 'Send a GET request', while `grep -o -w 'POST\\|PUT\\|DELETE\\|PATCH'` returns nothing."
     },
     "spec-get-only": {
       "statement": "The captured API specification defines only get operations on its two posture paths, and no operation that creates, changes or deletes a posture profile.",

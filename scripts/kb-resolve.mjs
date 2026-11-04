@@ -12,7 +12,7 @@ import path from "node:path";
 import { validate } from "./kb-schema.mjs";
 import { runtimeDataMountSettings } from "./lib.mjs";
 import {
-  ID, META, allEvidence, anchorEvidence, gitlink, idKind, materialDate, normalizeText, qualify, resolvePointer, sha256File,
+  HELP_KINDS, ID, META, allEvidence, anchorEvidence, gitlink, idKind, materialDate, normalizeText, qualify, resolvePointer, sha256File,
 } from "./kb-lib.mjs";
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
@@ -1098,18 +1098,19 @@ export function updateManifest(g) {
     if (!fs.existsSync(full)) continue;
     const sha = sha256File(full);
     const prev = files[file];
-    // A help capture carries its own provenance; older text captures name it in a header.
+    // A JSON capture carries its own provenance; older text captures name it in a header.
     const doc = file.endsWith(".json") ? readJson(full) : null;
+    const own = HELP_KINDS.has(doc?.kind) || doc?.kind === "github-issue" ? doc : null;
     const head = doc ? "" : fs.readFileSync(full, "utf8").slice(0, 600);
     const url =
-      (doc?.kind === "help-article" || doc?.kind === "github-issue" ? doc.source.url : null) ||
+      own?.source?.url ||
       head.match(/^URL:\s*(\S+)/m)?.[1] ||
       head.match(/^\*{0,2}Source:\*{0,2}\s*(https?:\/\/\S+)/m)?.[1] ||
       prev?.captured_from ||
       null;
     if (prev?.sha256 === sha && prev.captured_from === url) continue;
     const captured =
-      (doc?.kind === "help-article" || doc?.kind === "github-issue" ? doc.captured_at : null) ||
+      own?.captured_at ||
       head.match(/Captured:\*{0,2}\s*(\d{4}-\d{2}-\d{2})/)?.[1] ||
       gitDate(g.root, file);
     // The material date survives a refresh; a first-seen date moves to today when the content changed.

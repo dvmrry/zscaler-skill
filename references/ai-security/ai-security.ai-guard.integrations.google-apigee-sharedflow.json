@@ -773,12 +773,13 @@
       "summary": "Which request fields the DAS detection API accepts.",
       "positions": [
         {
-          "says": "The SharedFlow's architecture note, like the inline proxy's and the AWS modules', says the API accepts content, direction, transactionId and policyId and no other field, so there is no place for user or session identity.",
+          "says": "The SharedFlow's architecture design note (not a description of the flow's current behaviour), like the inline proxy's and the AWS modules', says the API accepts content, direction, transactionId and policyId and no other field, so there is no place for user or session identity.",
           "evidence": {
             "source": "zguard-integrations",
             "path": "Google/apigee/sharedflow/ARCHITECTURE.md",
             "quotes": [
-              "The detection API accepts four fields and no more:"
+              "The detection API accepts four fields and no more:",
+              "App name, user, model and agent identifiers cannot ride along with the scan"
             ]
           }
         },
@@ -791,9 +792,31 @@
               "body[\"user\"] = user"
             ]
           }
+        },
+        {
+          "says": "The SharedFlow's own scan-body builder adds a `user` field to the scan body when one is set.",
+          "evidence": {
+            "source": "zguard-integrations",
+            "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/build-aiguard-scan-body.js",
+            "quotes": [
+              "body.user = String(user);"
+            ]
+          }
+        },
+        {
+          "says": "Help's AI Guard for Apps release of September 11, 2026 says resolve-and-execute takes optional user, clientName and appName fields.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-release-20260909.json",
+            "after": "AI Guard for Apps 09/11/2026",
+            "quotes": [
+              "In DAS mode for AI Guard: user, clientName and appName optional fields can now be included when making the DAS resolve-and-execute API call.",
+              "In addition to appearing in the API, the new fields will appear on the Transaction Details window from the dashboard."
+            ]
+          }
         }
       ],
-      "impact": "The examples' claim that identity cannot reach AI Guard is narrower than the SDK: resolve-and-execute accepts a user (ai-security.ai-guard.runtime-api:resolve-user-headers). Integrations built on the four-field assumption leave user attribution unused."
+      "impact": "The architecture note's four-field account is out of date for resolve-and-execute: Help and the SDK both have it take a `user`, and the SharedFlow itself forwards `user`; Help adds `clientName` and `appName` (ai-security.ai-guard.runtime-api:resolve-optional-fields), which are absent from the SharedFlow's code. No source says whether execute-policy takes `user`, `clientName` or `appName` (the SharedFlow sends `user` on both endpoints). Integrations built on the four-field assumption leave attribution unused."
     }
   }
 }

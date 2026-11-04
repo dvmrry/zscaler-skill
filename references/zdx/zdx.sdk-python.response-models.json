@@ -53,7 +53,7 @@
   ],
   "checks": [
     {
-      "do": "Whether a field that comes back None from a Python ZDX object has a multiword key; read it from the raw response (`response.get_body()`) instead.",
+      "do": "Whether a field that comes back None from a Python ZDX object is one its model looks up under a key with an underscore; read it from the raw response (`response.get_body()`) instead.",
       "uses": [
         "multiword-attrs-lost"
       ]
@@ -179,13 +179,64 @@
       ]
     },
     "multiword-attrs-lost": {
-      "statement": "So on those methods a model attribute looked up under a multi-word snake_case key (a deep trace's `trace_id`, a device list's `next_offset`, an application's `total_users`, and the like) comes back None, and the MCP tools that return these models' records omit those fields; single-word keys such as `id`, `name` and `score` survive.",
+      "statement": "So on those methods a model attribute whose lookup key contains an underscore (a deep trace's `trace_id`, a device list's `next_offset`, an application's `total_users`, and the like) comes back None, and the MCP tools that return these models' records omit those fields. A key with no underscore passes through unchanged, so single-word keys such as `id`, `name` and `score` survive, and so do the camelCase keys some models read: the affected-devices `DeviceDetails` reads `userName` and `userEmail`, the form the contract returns, while `next_offset` on the same `list_affected_devices` result is lost.",
       "tier": "B",
       "derived_from": [
         "models-read-snake",
         "zcc.sdk-python.wire-keys:response-keys-camel-cased"
       ],
-      "conditions": "Follows from the camel-casing helper and the models' snake_case lookups at v1.11.3-1-g4f8f54df; the only snake_case keys FIELD_EXCEPTIONS yields are `exit_password` and `tunnel_two_fori_os_devices`, neither of them a ZDX key named here. Which ZDX models beyond the three named look up multi-word keys was not enumerated. No recorded ZDX response at that release shows it, and the ZDX integration tests that would read these fields are commented out.",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def to_lower_camel_case(string):",
+          "quotes": [
+            "if not string or \"_\" not in string:\n        return string"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/alerts.py",
+          "after": "class DeviceDetails(ZscalerObject):",
+          "quotes": [
+            "self.user_name = config[\"userName\"] if \"userName\" in config else None",
+            "self.user_email = config[\"userEmail\"] if \"userEmail\" in config else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/models/alerts.py",
+          "after": "class AffectedDevices(ZscalerObject):",
+          "quotes": [
+            "self.next_offset = config[\"next_offset\"] if \"next_offset\" in config else None",
+            "self.devices = ZscalerCollection.form_list(config[\"devices\"] if \"devices\" in config else [], DeviceDetails)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/alerts.py",
+          "after": "def list_affected_devices(",
+          "quotes": [
+            "result = [AffectedDevices(self.form_response_body(response.get_body()))]"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zdx.openapi.json",
+          "pointer": "/paths/~1v1~1alerts~1{id}~1affected_devices/get/responses/200/content/application~1json/schema/properties/devices/items/properties",
+          "expect": {
+            "userName": {
+              "description": "The user name associated with the device.",
+              "type": "string"
+            },
+            "userEmail": {
+              "description": "The user email associated the device.",
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "conditions": "Follows from the camel-casing helper and the models' snake_case lookups at v1.11.3-1-g4f8f54df; the only snake_case keys FIELD_EXCEPTIONS yields are `exit_password` and `tunnel_two_fori_os_devices`, neither of them a ZDX key named here. Which ZDX models beyond the three named look up keys with an underscore was not enumerated. No recorded ZDX response at that release shows it, and the ZDX integration tests that would read these fields are commented out. `to_lower_camel_case` returns a key with no underscore unchanged unless FIELD_EXCEPTIONS holds it; `sed -n '/^def to_lower_camel_case/,/^def convert_keys_to_snake_case/p' zscaler/helpers.py | grep -i -c 'username\\|useremail'` returns 0 at v1.11.3-1-g4f8f54df.",
       "upstream": [
         {
           "status": "unfiled"

@@ -28,7 +28,7 @@
   ],
   "prose": [
     {
-      "text": "The ZPA provider orders policy rules differently from the ZIA provider described in [[zia.terraform.rule-order]]. The reorder resource computes one complete ordered list of rule IDs and replaces the policy set's order with a single request. {{sends-id-list-only}} {{synchronous-and-reports-failure}} {{delete-is-a-noop}} {{zia-zpa-failure-contrast}}"
+      "text": "The ZPA provider orders policy rules differently from the ZIA provider described in [[zia.terraform.rule-order]]. The reorder resource computes one complete ordered list of rule IDs and replaces the policy set's order with a single request. {{sends-id-list-only}} {{synchronous-and-reports-failure}} {{bulk-reorder-status-check-unreachable}} {{delete-is-a-noop}} {{zia-zpa-failure-contrast}}"
     },
     {
       "label": "Sort order of the list.",
@@ -171,7 +171,7 @@
       ]
     },
     "synchronous-and-reports-failure": {
-      "statement": "Unlike the ZIA provider's background worker, the ZPA resource applies the order inside the apply call: a failed PUT (or a non-2xx status) comes back as an error from the update, and the update then reads the rules back before returning.",
+      "statement": "Unlike the ZIA provider's background worker, the ZPA resource applies the order inside the apply call: a failed PUT comes back as an error from the update, and, only when the PUT succeeds (the update returns the error first otherwise), the update then reads the rules back before returning. On the OneAPI client a non-2xx status reaches the update as the error returned by `NewRequestDo`, not through a status check in `BulkReorder`.",
       "tier": "A",
       "evidence": [
         {
@@ -197,11 +197,32 @@
             "HEAD"
           ],
           "quotes": [
-            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {",
-            "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))",
             "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }"
           ],
           "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON) if err != nil { return nil, err }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if resp.StatusCode >= 300 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))"
+          ],
+          "after": "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {"
         },
         {
           "source": "tf-zia",
@@ -213,6 +234,102 @@
           "quotes": [
             "// reorderAll runs as a background goroutine and reconciles the desired // order of every rule registered for resourceType against the API's"
           ]
+        }
+      ]
+    },
+    "bulk-reorder-status-check-unreachable": {
+      "statement": "`BulkReorder`, in both the policysetcontroller and policysetcontrollerv2 packages, checks the reorder PUT for a non-2xx status after `NewRequestDo` returns, but on the OneAPI client that check never fires: `ExecuteRequest` turns any status of 300 or above into an error, which `BulkReorder` returns with a nil response before the check, and `NewRequestDo` reports every success as `StatusCode` 200.",
+      "tier": "B",
+      "derived_from": [
+        "shared.sdk-go.request-handling:request-do-fabricates-200",
+        "shared.sdk-go.request-handling:fabricated-200-disables-status-checks"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }",
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {",
+            "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }",
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {",
+            "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))"
+          ],
+          "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "respBody, _, _, err := client.ExecuteRequest(ctx, method, endpoint, bodyReader, nil, contentTypeJSON) if err != nil { return nil, err }",
+            "resp := &http.Response{\n\t\tStatusCode: http.StatusOK,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if resp.StatusCode < 300 { break }",
+            "if resp.StatusCode >= 400 && resp.StatusCode < 500 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))",
+            "if resp.StatusCode >= 300 { return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))"
+          ],
+          "after": "func (c *Client) ExecuteRequest(ctx context.Context, method, endpoint string, body io.Reader, urlParams url.Values, contentType string) ([]byte, *http.Response, *http.Request, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/v2_client.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := errorx.CheckErrorInResponse(resp, err); err != nil { return resp, err }"
+          ],
+          "after": "func (client *Client) do(req *http.Request, v interface{}, start time.Time, reqID string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/errorx/errors.go",
+          "at": [
+            "v3.8.58",
+            "HEAD"
+          ],
+          "quotes": [
+            "if res.StatusCode >= 200 && res.StatusCode <= 299 { return respErr }",
+            "return &ErrorResponse{ Response: res, Err: respErr, Parsed: parsed,"
+          ],
+          "after": "func CheckErrorInResponse(res *http.Response, respErr error) error {"
+        }
+      ],
+      "conditions": "Read from the code at v3.8.58, not exercised. The legacy ZPA client ends the same way: its `do` returns `errorx.CheckErrorInResponse`'s error for any status outside 200-299, so `BulkReorder` again returns nil and that error before its own check. The 403 LIMIT_EXCEEDED, 409/412 edit-lock and 5xx branches of `ExecuteRequest` either retry or return an error; none returns a non-2xx response without one.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Go SDK: BulkReorder's non-2xx status branch is unreachable; failures surface only as NewRequestDo errors with a nil response."
         }
       ]
     },

@@ -38,7 +38,7 @@
       "text": "The time zone used to evaluate an interval depends on who the user is, not on where they are. {{known-location}} {{remote-user}}"
     },
     {
-      "text": "{{worked-example}}"
+      "text": "{{worked-example}} The example's blocked outcome falls outside the rule's own window {{divergence:worked-example-outside-window}}."
     },
     {
       "text": "{{window-follows-location-not-user}} The location model is in [[zia.locations.model]], and the time zone values are in [[zia.locations.country-timezone]]. {{rule-locations-wording}} Whose location sets the zone when a rule selects other locations is open {{gap:rule-locations-versus-user-location}}."
@@ -166,6 +166,47 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "worked-example-outside-window": {
+      "summary": "The About Time Intervals example blocks a known-location user at 5:30 PM London time under a rule that runs from 9:00 AM to 5:00 PM.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-time-intervals.json",
+            "quotes": [
+              "This policy is set to block the Social Networking URL category Monday through Friday from 9:00 AM - 5:00 PM."
+            ]
+          },
+          "says": "The example rule blocks the Social Networking category Monday to Friday from 9:00 AM to 5:00 PM."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-time-intervals.json",
+            "quotes": [
+              "They come from a known location with the time zone configured as Europe/London on Tuesday at 5:30 PM.",
+              "This user is blocked from going to the site even though the time in Paris at that point in time is 6:30 PM.",
+              "The reason for this behavior is that the Public Service Edge uses the time zone of the configured location for policy execution."
+            ]
+          },
+          "says": "A user from a known location with the Europe/London time zone, at 5:30 PM on a Tuesday, is blocked, and the page gives the location's time zone as the reason."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-time-intervals.json",
+            "quotes": [
+              "The reason for this behavior is that, though the user is located in London and the time in London is 5:30 PM, there is no location configured for remote users.",
+              "Because the Public Service Edge used is in Paris and the time in Paris is 6:30 PM, the policy is not triggered."
+            ]
+          },
+          "says": "For the remote user the page sets London's 5:30 PM against the Paris edge's 6:30 PM as the reason the rule does not fire."
+        }
+      ],
+      "impact": "The remote-user reasoning reads as if 5:30 PM were inside the window. By the stated window neither clock in the example (5:30 PM London, 6:30 PM Paris) is inside 9:00 AM to 5:00 PM, so the known-location user's block does not follow from the page's own rule. The example still shows which clock applies (known-location, remote-user); do not cite its outcomes as evidence that a request just after a window's end is blocked."
     }
   },
   "gaps": {

@@ -365,9 +365,32 @@
       "statement": "A call shaped like that docstring example therefore sends the DTO nested under one `filterAndSortDto` key, rather than `filterBy`, `pageBy` and `sortBy` at the top level of the body.",
       "tier": "B",
       "derived_from": [
-        "search-filter-shape"
+        "search-filter-shape",
+        "shared.sdk-python.request-handling:body-camel-case",
+        "shared.sdk-python.request-handling:camel-rule"
       ],
-      "conditions": "Follows from search-filter-shape: `body = kwargs` makes the `filter_and_sort_dto` keyword a top-level body key. That it reaches the wire as `filterAndSortDto` rests on the request executor camel-casing ZPA body keys (`convert_keys_to_camel_case` in `_prepare_body`, zscaler/request_executor.py), which no evidence here quotes. How the API answers a nested body is not captured, and no such request was sent."
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "Recursively convert all keys in a dictionary or list to camelCase.",
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ],
+          "after": "def convert_keys_to_camel_case(data):"
+        }
+      ],
+      "conditions": "Follows from search-filter-shape: `body = kwargs` makes the `filter_and_sort_dto` keyword a top-level body key. That it reaches the wire as `filterAndSortDto` rests on the request executor camel-casing ZPA body keys recursively (`convert_keys_to_camel_case`, quoted here) and on FIELD_EXCEPTIONS having no entry for these keys: `git -C vendor/zscaler-sdk-python show <ref>:zscaler/helpers.py | sed -n '/^def to_lower_camel_case/,/^def convert_keys_to_snake_case/p' | grep -c -E '\"(filter_and_sort_dto|filter_by|filter_name|page_by|page_size|sort_by|sort_name|sort_order)\"'` returns 0 at v1.11.3 and HEAD. How the API answers a nested body is not captured, and no such request was sent.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK: get_microtenant_search sends **kwargs as the body, so the documented filter_and_sort_dto wrapper reaches the API as filterAndSortDto instead of top-level filterBy/pageBy/sortBy."
+        }
+      ]
     },
     "credential-move-target-zero-only": {
       "statement": "On the credential move operation the microtenantId query parameter is described as taking 0 for the Default Microtenant and null for the customer data Microtenant, while targetMicrotenantId is described as taking 0 for the Default Microtenant and says nothing about null.",

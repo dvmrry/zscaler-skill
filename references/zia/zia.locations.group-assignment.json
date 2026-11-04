@@ -64,7 +64,7 @@
     },
     {
       "label": "Terraform and Ansible.",
-      "text": "{{tf-exclusive-enforced-one-side}} {{tf-dynamic-field-not-in-schema}} {{tf-static-drift-fix}} {{ansible-reads-exclude-flags}}"
+      "text": "{{tf-exclusive-enforced-one-side}} {{tf-manual-check-needs-a-change}} {{tf-dynamic-field-not-in-schema}} {{tf-static-drift-fix}} {{ansible-reads-exclude-flags}}"
     },
     {
       "text": "Group types and conditions: [[zia.locations.groups]]. Which rules those groups feed: [[zia.locations.rule-scoping]]."
@@ -226,6 +226,35 @@
             "if v, ok := d.GetOk(\"static_location_groups\"); ok && len(v.(*schema.Set).List()) > 0 {",
             "// return errors.New(\"dynamic_location_groups cannot be set when exclude_from_dynamic_groups is set to true\")"
           ]
+        }
+      ]
+    },
+    "tf-manual-check-needs-a-change": {
+      "statement": "So the manual-side check does not catch an update that turns `exclude_from_manual_groups` on while an already non-empty `static_location_groups` stays as it is: the check runs only when `static_location_groups` changes, so that plan passes.",
+      "tier": "B",
+      "derived_from": [
+        "tf-exclusive-enforced-one-side"
+      ],
+      "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_location_management.go",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
+          "quotes": [
+            "if d.Get(\"exclude_from_manual_groups\").(bool) && d.HasChange(\"static_location_groups\") {",
+            "if v, ok := d.GetOk(\"static_location_groups\"); ok && len(v.(*schema.Set).List()) > 0 {"
+          ],
+          "after": "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {"
+        }
+      ],
+      "conditions": "Rests on terraform-plugin-sdk's ResourceDiff.HasChange being true only when an attribute's planned value differs from its prior state, which no captured vendor source states. A create is caught, since the prior value is empty. What the API does with such a request is not established here; exclude-flags says the flag removes a location from groups it is already in.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "tf-zia: zia_location_management CustomizeDiff checks static_location_groups only on HasChange, so enabling exclude_from_manual_groups with an unchanged non-empty set passes plan."
         }
       ]
     },

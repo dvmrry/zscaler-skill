@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "ai-security.ai-guard",
-  "title": "AI Guard: runtime guardrails on prompts and responses, its Proxy and DaaS modes, and where each part is documented",
+  "title": "AI Guard: runtime guardrails on prompts and responses, its Proxy and DAS/API modes, and where each part is documented",
   "aliases": [
     "ai guard",
     "aiguard",
@@ -89,7 +89,7 @@
     },
     {
       "label": "Two modes.",
-      "text": "{{two-modes}} {{proxy-single-destination}} {{das-not-inline}} {{das-no-zia-dependency}} {{providers-proxy-only}} {{provider-objects}} The API side of providers and credentials is in [[ai-security.ai-guard.admin-api]]. A third, on-premises mode is a legacy statement no current page carries {{gap:onprem-mode}}."
+      "text": "{{two-modes}} {{proxy-single-destination}} {{das-not-inline}} {{das-no-zia-dependency}} {{providers-proxy-only}} {{provider-objects}} {{default-providers}} Whether the mode is set per tenant or per application differs between pages {{divergence:mode-scope}}, and what the Tenant Settings mode governs is open {{gap:tenant-mode-effect}}. The API side of providers and credentials is in [[ai-security.ai-guard.admin-api]]. A third, on-premises mode is a legacy statement no current page carries {{gap:onprem-mode}}."
     },
     {
       "label": "Users' traffic through ZIA.",
@@ -109,7 +109,7 @@
     },
     {
       "label": "Not settled.",
-      "text": "How detection runs (models, GPUs) and what latency it adds are open {{gap:inference-and-latency}}. Whether AI Guard is offered in government clouds is open {{gap:gov-cloud}}. The Topology and Audit Log pages are in [[ai-security.ai-guard.observability]] and prompt allowlisting is in [[ai-security.ai-guard.policies]]; the AI Guard for Users topology page is captured but not yet written up {{gap:uncaptured-features}}."
+      "text": "How detection runs (models, GPUs) and what latency it adds are open {{gap:inference-and-latency}}. Whether AI Guard is offered in government clouds is open {{gap:gov-cloud}}. The Topology and Audit Log pages are in [[ai-security.ai-guard.observability]] and prompt allowlisting is in [[ai-security.ai-guard.policies]]; the AI Guard for Users topology page is captured but not yet written up {{gap:users-topology-unwritten}}."
     },
     {
       "label": "Adjacent ZIA controls.",
@@ -118,14 +118,16 @@
   ],
   "checks": [
     {
-      "do": "Which mode the application uses; Tenant Settings shows Proxy or DaaS, one tenant can serve applications in both modes, and the call path, the provider objects and the credentials differ between them.",
+      "do": "Which mode the application uses; Tenant Settings shows Proxy or DaaS while the architecture article and the configuration API treat the mode as per application (which of the two governs is open), and the call path, the provider objects and the credentials differ between the modes.",
       "uses": [
         "two-modes",
+        "mode-scope",
+        "tenant-mode-effect",
         "providers-proxy-only"
       ]
     },
     {
-      "do": "For DaaS, that the application calls AI Guard on both the prompt and the response; AI Guard sees nothing the application does not send.",
+      "do": "For DAS/API, that the application calls AI Guard on both the prompt and the response; AI Guard sees nothing the application does not send.",
       "uses": [
         "das-not-inline"
       ]
@@ -161,7 +163,7 @@
       ]
     },
     "two-modes": {
-      "statement": "AI Guard has two deployment modes: in Proxy mode it is an inline reverse proxy between the AI application and the LLM provider; in DAS/API (Detection-as-a-Service) mode it is an API endpoint that the application must call for every prompt and every response. Tenant Settings lists the mode as Proxy or DaaS and each quick-start guide sets it there, while the architecture article says one tenant can serve some applications in Proxy mode and others in DAS mode.",
+      "statement": "AI Guard has two deployment modes: in Proxy mode it is an inline reverse proxy between the AI application and the LLM provider; in DAS/API (Detection-as-a-Service) mode it is an API endpoint that the application must call for every prompt and every response.",
       "tier": "A",
       "evidence": [
         {
@@ -169,9 +171,7 @@
           "path": "ai-guard-apps-architecture-ai-guard-apps-proxy-das-api-mode.json",
           "quotes": [
             "The platform supports two primary deployment modes: Proxy Mode and Detection-as-a-Service (DAS/API) Mode.",
-            "In Proxy Mode, AI Guard acts as an inline reverse proxy situated between the AI application and the LLM provider.",
-            "Organizations do not have to choose a single mode for their entire environment.",
-            "An AI Guard tenant can support multiple applications simultaneously, with some utilizing Proxy mode and others utilizing DAS mode based on their specific technical requirements."
+            "In Proxy Mode, AI Guard acts as an inline reverse proxy situated between the AI application and the LLM provider."
           ]
         },
         {
@@ -187,29 +187,6 @@
           "quotes": [
             "With the DAS mode, AI Guard acts as an API endpoint the enterprise AI application or chatbot can access.",
             "The AI application must make an API call to AI Guard for every prompt that you make and for every response you receive in the AI application."
-          ]
-        },
-        {
-          "source": "zscaler-help",
-          "path": "ai-guard-managing-tenant-settings.json",
-          "quotes": [
-            "Mode: Lists whether AI Guard is in Proxy or DaaS mode."
-          ]
-        },
-        {
-          "source": "zscaler-help",
-          "path": "ai-guard-apps-quick-start-guide-proxy-mode.json",
-          "quotes": [
-            "In the AI Security Admin Portal left navigation menu, go to AI Guard > Tenant Settings > Security.",
-            "In the top right of the page, set the Mode to Proxy."
-          ]
-        },
-        {
-          "source": "zscaler-help",
-          "path": "ai-guard-apps-quick-start-guide-dasapi-mode.json",
-          "quotes": [
-            "In the AI Security Admin Portal left navigation menu, go to AI Guard > Tenant Settings > Security.",
-            "In the top right of the page, set the Mode to DAS."
           ]
         }
       ]
@@ -245,12 +222,12 @@
       ]
     },
     "das-no-zia-dependency": {
-      "statement": "A DaaS deployment does not depend on ZIA forwarding: the inspection happens because the application calls AI Guard, wherever the application runs.",
+      "statement": "A DAS/API deployment does not depend on ZIA forwarding: the inspection happens because the application calls AI Guard, wherever the application runs.",
       "tier": "B",
       "derived_from": [
         "das-not-inline"
       ],
-      "conditions": "Follows from the DAS page (das-not-inline); no captured page ties DaaS mode to ZIA. Users' AI traffic through ZIA is the separate proxy-chaining path."
+      "conditions": "Follows from the DAS page (das-not-inline); no captured page ties DAS/API mode to ZIA. Users' AI traffic through ZIA is the separate proxy-chaining path."
     },
     "providers-proxy-only": {
       "statement": "LLM provider and provider-credential objects are a Proxy-mode requirement: in Proxy mode AI Guard stores the provider credentials and uses them to forward requests, while in DAS/API mode the application keeps its direct provider connection and credentials, and no captured page asks for provider objects.",
@@ -316,6 +293,47 @@
         }
       ]
     },
+    "default-providers": {
+      "statement": "The Secure Access to AI Apps release summary's entry for AI Guard 2.13.1 says all default LLM providers are now provisioned automatically and pre-configured during AI Guard tenant creation, with no impact on existing customers. The Proxy-mode quick start's credential and identity-broker steps select \"Default Anthropic Provider\", and none of its five steps adds a provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-users-release-20260909.json",
+          "after": "AI Guard 2.13.1",
+          "quotes": [
+            "During AI Guard tenant creation, all default LLM providers are now:",
+            "Automatically provisioned.",
+            "Pre-configured and ready to use.",
+            "This has no impact on existing customers."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-users-release-20260909.json",
+          "quotes": [
+            "This article provides a summary of all new features and enhancements for Secure Access to AI Apps."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-quick-start-guide-proxy-mode.json",
+          "after": "Click Add More. The Add LLM Credentials window opens.",
+          "quotes": [
+            "LLM Provider: Default Anthropic Provider"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-quick-start-guide-proxy-mode.json",
+          "after": "Name: Travel App-Anthropic",
+          "quotes": [
+            "LLM Provider: Default Anthropic Provider"
+          ]
+        }
+      ],
+      "conditions": "Absence: ai-guard-apps-quick-start-guide-proxy-mode.json (captured 2026-11-03) has five steps (Configuring AI Guard; Configuring LLM Credentials; Configuring AI Application and Identity Broker; Configure Policy and Policy Control; Testing and Validating), and `grep -c -i 'LLMs > Providers\\|Add LLM Provider'` on its text returns 0. The release entry is in the Secure Access to AI Apps (AI Guard for Users) summary, under the heading April 10, 2026; the quick start does not say where Default Anthropic Provider comes from."
+    },
     "config-sequence": {
       "statement": "The quick-start guides order setup by mode. Proxy mode: set the Mode to Proxy in Tenant Settings and enable Store Prompts/Responses; add the LLM provider's credentials; add the AI application and an application identity broker linking it to the provider, whose API key the application uses; create a policy configuration and a policy control that applies it to the application; then test and validate on the Dashboard. DAS/API mode: set the Mode to DAS and enable Store Prompts/Responses; add the AI application and its API key; create a policy and note its Policy ID; then test and validate.",
       "tier": "A",
@@ -354,7 +372,93 @@
       ]
     }
   },
+  "divergences": {
+    "mode-scope": {
+      "summary": "Whether the Proxy or DAS/API mode is set once for the tenant or per application.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-managing-tenant-settings.json",
+            "quotes": [
+              "Mode: Lists whether AI Guard is in Proxy or DaaS mode."
+            ]
+          },
+          "says": "Tenant Settings (AI Guard for Apps) lists one Mode for the tenant, Proxy or DaaS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-quick-start-guide-proxy-mode.json",
+            "quotes": [
+              "In the AI Security Admin Portal left navigation menu, go to AI Guard > Tenant Settings > Security.",
+              "In the top right of the page, set the Mode to Proxy."
+            ]
+          },
+          "says": "The Proxy quick start's first step sets the Mode to Proxy under Tenant Settings > Security."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-quick-start-guide-dasapi-mode.json",
+            "quotes": [
+              "In the AI Security Admin Portal left navigation menu, go to AI Guard > Tenant Settings > Security.",
+              "In the top right of the page, set the Mode to DAS."
+            ]
+          },
+          "says": "The DAS/API quick start's first step sets the same Mode to DAS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-guard-apps-architecture-ai-guard-apps-proxy-das-api-mode.json",
+            "quotes": [
+              "Organizations do not have to choose a single mode for their entire environment.",
+              "An AI Guard tenant can support multiple applications simultaneously, with some utilizing Proxy mode and others utilizing DAS mode based on their specific technical requirements."
+            ]
+          },
+          "says": "The architecture article says a tenant need not choose one mode: some applications can use Proxy mode and others DAS mode at the same time."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/aiguard.openapi.json",
+            "pointer": "/paths/~1v1~1llm-application-credentials/post/requestBody/content/application~1json/schema/properties/mode",
+            "expect": {
+              "description": "The service mode these credentials are issued for.",
+              "allOf": [
+                {
+                  "description": "Operating mode for an LLM application: PROXY routes traffic, DETECTIONS runs detection-only.",
+                  "enum": [
+                    "PROXY",
+                    "DETECTIONS"
+                  ],
+                  "title": "ModeEnum",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "says": "The configuration API issues each application credential for a mode, PROXY or DETECTIONS."
+        }
+      ],
+      "impact": "No page says what the Tenant Settings Mode governs when both modes are in use (every application, a default, or a display), so following both quick starts on one tenant sets the same control twice."
+    }
+  },
   "gaps": {
+    "tenant-mode-effect": {
+      "kind": "semantic",
+      "title": "What the Tenant Settings Mode governs when one tenant runs applications in both modes",
+      "status": "open",
+      "detail": "Tenant Settings shows one Mode (Proxy or DaaS) and both quick starts set it there, while the architecture article says one tenant can run applications in both modes and the configuration API gives each application credential a PROXY or DETECTIONS mode. Whether changing the tenant Mode affects applications of the other mode, sets a default, or only displays a value is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "about": [
+        "ai-security.ai-guard:mode-scope"
+      ]
+    },
     "onprem-mode": {
       "kind": "semantic",
       "title": "Whether AI Guard has an on-premises (hybrid) deployment mode",
@@ -370,15 +474,18 @@
       "kind": "semantic",
       "title": "How AI Guard runs its detectors and what latency inspection adds",
       "status": "partial",
-      "detail": "Unverified legacy statement: AI Guard detection uses GPU-based inference with classifier models, several detectors run per prompt and response, and no latency budget is published for an inline round trip. Insights reports a tenant's average prompt and response detection latency (ai-security.ai-guard.observability:insights), and the Latency page gives the inspection order and the per-transaction timing fields (ai-security.ai-guard.observability:latency). The IP runbook names a multilingual bi-encoder and periodic retraining of its model (ai-security.ai-guard.detectors.intellectual-property:model). Still no page states an expected latency value or the GPU inference design; the Latency page describes a path in which AI Guard receives the LLM response without naming a mode, and whether DAS transactions carry Total Time Taken By LLM is not stated.",
+      "detail": "Unverified legacy statement: AI Guard detection uses GPU-based inference with classifier models, several detectors run per prompt and response, and no latency budget is published for an inline round trip. Insights reports a tenant's average prompt and response detection latency (ai-security.ai-guard.observability:insights), and the Latency page gives the inspection order and the per-transaction timing fields (ai-security.ai-guard.observability:latency). The IP runbook names a multilingual bi-encoder and periodic retraining of its model (ai-security.ai-guard.detectors.intellectual-property:model). Still no page states an expected latency value or the GPU inference design; the Latency page describes a path in which AI Guard receives the LLM response without naming a mode, and whether DAS transactions carry Total Time Taken By LLM is not stated. The DAS/API quick start's sample responses show `deviceType: cuda` on a detector (ai-security.ai-guard.runtime-api:sample-detector-device-type): a sample value no page defines.",
       "blocks": "latency and capacity answers for inline or DAS inspection",
       "resolves_with": [
         "source-read",
         "lab-test"
       ]
     },
-    "uncaptured-features": {
+    "users-topology-unwritten": {
       "kind": "semantic",
+      "former_ids": [
+        "uncaptured-features"
+      ],
       "title": "AI Guard features captured but not yet in claims: the AI Guard for Users topology page",
       "status": "partial",
       "detail": "Narrowed: the AI Guard for Apps topology, audit log and prompt allowlist articles are now in claims (ai-security.ai-guard.observability:topology, :audit-log, :audit-details-revert; ai-security.ai-guard.policies:allowlist, :allowlist-prereqs, :allowlist-add). What remains is the AI Guard for Users topology page (ai-guard-about-ai-application-topology.json), which describes user groups and LLM providers rather than applications; the two topology pages' headings swap their subjects, so cite only each page's opening sentence and node legend. The RBAC page names Topology and Audit Log modules (ai-security.ai-guard.admin-access:rbac-permissions).",

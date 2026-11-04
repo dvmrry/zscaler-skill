@@ -32,9 +32,94 @@
     {
       "label": "Expired tokens.",
       "text": "{{reauth-on-401}} A legacy client has no OAuth handler to re-authenticate with: [[zdx.sdk-python.legacy-client:no-reauth]]."
+    },
+    {
+      "label": "Client-side throttling.",
+      "text": "{{legacy-rate-limiter-unused}}"
     }
   ],
   "claims": {
+    "legacy-rate-limiter-unused": {
+      "statement": "The ZIA, ZPA, ZTW and ZTB legacy clients each build a `RateLimiter` and keep it as `self.rate_limiter` (the ZPA one commented as allowing 20 GET and 10 POST/PUT/DELETE requests per 10 seconds), but no code in the `zscaler` package calls the limiter's `wait` or `update_limits`, so none of these clients paces its requests with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/legacy.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "self.rate_limiter = RateLimiter("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/legacy.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "self.rate_limiter = RateLimiter("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztw/legacy.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "self.rate_limiter = RateLimiter("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ztb/legacy.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "self.rate_limiter = RateLimiter("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/legacy.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "get_limit=20,  # Allow 20 GET requests per 10 seconds",
+            "post_put_delete_limit=10,  # Allow 10 POST/PUT/DELETE requests per 10 seconds"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ratelimiter/ratelimiter.py",
+          "at": [
+            "v1.11.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "def wait(self, method):",
+            "def update_limits(self, headers):"
+          ]
+        }
+      ],
+      "conditions": "Absence claim from a search at v1.11.3 and at HEAD (4f8f54df): `git -C vendor/zscaler-sdk-python grep -n rate_limiter <ref> -- zscaler` returns only the four assignments (zia/legacy.py:247, zpa/legacy.py:142, ztb/legacy.py:158, ztw/legacy.py:107), and `git -C vendor/zscaler-sdk-python grep -n -E '\\.wait\\(|update_limits' <ref> -- zscaler` returns only the `update_limits` definition in zscaler/ratelimiter/ratelimiter.py. Outside the package only tests/unit/test_rate_limiting_and_retry.py calls `wait`. The legacy clients' own sleeps on their retry paths are separate and not covered by this claim.",
+      "upstream": [
+        {
+          "status": "unfiled",
+          "note": "Python SDK: the RateLimiter built by the ZIA, ZPA, ZTW and ZTB legacy clients is never consulted (no call to wait or update_limits)."
+        }
+      ]
+    },
     "max-retries": {
       "statement": "The executor reads `client.rateLimit.maxRetries` from the configuration with a default of 2, and rejects a negative value.",
       "tier": "A",
