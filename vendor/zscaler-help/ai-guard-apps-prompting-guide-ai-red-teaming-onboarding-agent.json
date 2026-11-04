@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Prompting Guide for AI Red Teaming Onboarding Agent",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/prompting-guide-ai-red-teaming-onboarding-agent",
+    "node": "1542866",
+    "revision": "3242847",
+    "updated": "2026-08-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "The Onboarding Agent turns a conversation about a target chat or API into a working proxy forAI Red Teaming. This guide covers what to know before you start, how to prompt the agent effectively, and what to verify once it hands you code."
+    },
+    {
+      "text": "The agent runs in two phases:"
+    },
+    {
+      "item": "Spec gathering: As you describe your target, the agent fills in a structured checklist covering connection type, authentication, multi-turn state handling, request and response shapes, and error behavior. It does not offer to generate code until every required field has a value. If something is missing or ambiguous, it asks rather than guessing.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Code generation: After you approve the spec, the agent generates a single proxy file built from a library of known-good patterns, including REST, streaming, WebSocket, authentication handling, and retries. It then runs an automated check and resolves some issues before handing you the bundle. The automated check catches obvious mistakes such as bad imports and syntax errors; however, it does not validate behavioral correctness. Running the code yourself remains essential.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "You can continue the conversation after a generation to request changes. The agent applies a focused patch to the existing code rather than rewriting from scratch, which preserves behavior you have already confirmed.",
+      "depth": 0
+    },
+    {
+      "heading": "Before You Start",
+      "level": 1
+    },
+    {
+      "text": "Gather the following information about your target before starting a session:"
+    },
+    {
+      "item": "Connection type and base URL: Whether the target uses REST, SSE, or WebSocket, and where it is hosted.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Authentication details: Not just that a token exists, but the exact header name and format. Authorization: Bearer <token> produces a different build than a raw token or a custom X-API-Key header.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Statefulness: Whether every call is independent, or whether the target maintains a server-side state that must be referenced across turns. If the target is stateful, describe the creation step and what gets reused, e.g. creating a thread once and passing its ID on every subsequent message.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Exact request and response field names: The outgoing message field, the reply field, and any counters or IDs the proxy needs to handle. Do not leave these to be inferred.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Error contract, per failure mode: What the target returns on bad authentication, an unknown or invalid ID, rate limiting, and generic server errors and which of those should trigger a retry. This is the area most often left vague and most likely to be implemented incorrectly.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Multimodal support: Whether the target handles anything beyond text, such as images or files.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Operational limits: Rate limits, expected latency, retry preferences, and any content guardrail or refusal behavior the proxy needs to recognize.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "heading": "How to Prompt the Agent",
+      "level": 1
+    },
+    {
+      "text": "Here's how you can prompt the agent:"
+    },
+    {
+      "item": "Provide complete information upfront. State all known details organized by topic rather than one fact per message. A complete opening message can produce a ready-to-generate spec in a single turn.",
+      "depth": 0
+    },
+    {
+      "item": "Be honest about what you don't know. The agent asks targeted follow-up questions rather than guessing. It can also draft a precise question list for you to forward to whoever owns the integration. Honest uncertainty still produces a complete spec.",
+      "depth": 0
+    },
+    {
+      "item": "Confirm literal values explicitly. Specify the exact header prefix, the exact JSON field names, and whether an ID goes in the path, a header, or the request body. Ambiguity can result in creating incorrect or fragile code.",
+      "depth": 0
+    },
+    {
+      "item": "Be explicit with error handling one failure mode at a time. Specify what a bad-authentication response looks like, what an unknown-ID response looks like, and what a rate-limit response looks like. \"Handle errors sensibly\" is too vague.",
+      "depth": 0
+    },
+    {
+      "item": "Describe stateful behavior explicitly. For example: Create a thread once and reuse its ID on every following message in that conversation. Stated upfront, this is the detail the agent implements most reliably. Left implicit, it is the one most often implemented incorrectly.",
+      "depth": 0
+    },
+    {
+      "item": "Never paste real credentials or customer data into the chat. Refer to secrets by name and let the agent wire up an environment variable.",
+      "depth": 0
+    },
+    {
+      "item": "Request post-generation changes as a single focused delta. For example: Also send header X on every call. A focused request reliably produces a small patch. Restating the full spec risks a rewrite that can silently discard behavior you have already verified.",
+      "depth": 0
+    },
+    {
+      "heading": "Verify the Code After Generation",
+      "level": 1
+    },
+    {
+      "text": "The chat summary describes what the agent intended to build, not verified behavior. Treat it as a changelog, not a test report."
+    },
+    {
+      "item": "Run the code against the real target or a sandbox environment. Test with two known-good tests and at least two failure modes, i.e., an authentication failure and a not-found or invalid-ID case, and confirm the returned status codes match what you specified.",
+      "depth": 0
+    },
+    {
+      "item": "Check error mapping specifically. Distinct upstream failures such as bad authentication, not-found, and rate-limiting have a tendency to collapse into a single generic error response, even when the summary states otherwise.",
+      "depth": 0
+    },
+    {
+      "item": "Verify stateful behavior end to end. If you request stateful behavior, send two messages in the same conversation and confirm that the target's own counter or history advances correctly.",
+      "depth": 0
+    },
+    {
+      "item": "Skim the generated file for unrequested behavior. Look for invented guardrail logic, extra retry paths, or unused fields that are not part of your spec.",
+      "depth": 0
+    }
+  ]
+}

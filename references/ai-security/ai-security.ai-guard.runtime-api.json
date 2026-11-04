@@ -123,39 +123,48 @@
   ],
   "claims": {
     "proxy-paths": {
-      "statement": "In proxy mode the application keeps each provider's own request path but sends it to `https://proxy.zseclipse.net`; the proxy page lists Anthropic (`/v1/messages`), AWS Bedrock Agent, AWS Bedrock Anthropic, AWS Bedrock Invoke, Azure Foundry (`/openai/v1/chat/completions`), Google Gemini, Google Vertex and OpenAI (`/v1/chat/completions`).",
+      "statement": "In proxy mode the application sends requests to `https://proxy.zseclipse.net` on a proxy path per provider; the proxy page lists Anthropic (`/v1/messages`), AWS Bedrock Agent, AWS Bedrock Anthropic, AWS Bedrock Invoke, Azure Foundry (`/openai/v1/chat/completions`), Google Gemini, Google Vertex and OpenAI (`/v1/chat/completions`).",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "ai-guard-test-llm-providers-ai-guard-proxy-mode.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-proxy-mode.json",
           "quotes": [
-            "Anthropic Provider-specific upstream in AI Guard /v1/messages",
-            "AWS Bedrock Agent Provider-specific upstream in AI Guard /agents/<AGENT_ID>/agentAliases/<AGENT_ALIAS_ID>/sessions/<SESSION_ID>/text",
-            "AWS Bedrock Anthropic Provider-specific upstream in AI Guard /model/anthropic.<MODEL>/invoke",
-            "AWS Bedrock Invoke Provider-specific upstream in AI Guard /model/<MODEL>/converse",
-            "Azure Foundry <your-resource>.openai.azure.com /openai/v1/chat/completions",
-            "Google Gemini generativelanguage.googleapis.com /v1beta/models/<MODEL>:generateContent",
-            "Google Vertex aiplatform.googleapis.com /v1/projects/<PROJECT_ID>/locations/<REGION>/publishers/google/models/<MODEL>:generateContent",
-            "OpenAI Provider-specific upstream in AI Guard /v1/chat/completions",
+            "| Provider | Hostname | Proxy Path |",
+            "| Anthropic | Provider-specific upstream in AI Guard | /v1/messages |",
+            "| AWS Bedrock Agent | Provider-specific upstream in AI Guard | /agents/<AGENT_ID>/agentAliases/<AGENT_ALIAS_ID>/sessions/<SESSION_ID>/text |",
+            "| AWS Bedrock Anthropic | Provider-specific upstream in AI Guard | /model/anthropic.<MODEL>/invoke |",
+            "| AWS Bedrock Invoke | Provider-specific upstream in AI Guard | /model/<MODEL>/converse |",
+            "| Azure Foundry | <your-resource>.openai.azure.com | /openai/v1/chat/completions |",
+            "| Google Gemini | generativelanguage.googleapis.com | /v1beta/models/<MODEL>:generateContent |",
+            "| Google Vertex | aiplatform.googleapis.com | /v1/projects/<PROJECT_ID>/locations/<REGION>/publishers/google/models/<MODEL>:generateContent |",
+            "| OpenAI | Provider-specific upstream in AI Guard | /v1/chat/completions |",
             "When configuring a proxy for Zscaler, use the following base URL endpoint: https://proxy.zseclipse.net"
           ]
         }
       ]
     },
     "proxy-key-header": {
-      "statement": "A proxy-mode request authenticates to AI Guard with the AI Guard application key in an `X-ApiKey` header; the Anthropic example also sends an `anthropic-version` header giving the API version in use.",
+      "statement": "A proxy-mode request authenticates to AI Guard with the AI Guard application key in an `X-ApiKey` header; the Anthropic example also sends an `anthropic-version` header giving the Anthropic version in use, such as 2023-06-01.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "ai-guard-api-user-guide.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-proxy-mode.json",
           "quotes": [
-            "X-ApiKey: The AI Guard application key which is mandatory for authentication.",
-            "--header 'anthropic-version: 2023-06-01'",
-            "Anthropic-version: API version in use (e.g., 2023-06-01)."
+            "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json anthropic-version: <VERSION>",
+            "X-ApiKey: The AI Guard key for Anthropic.",
+            "Anthropic-version: This is the version of Anthropic you're using, i.e. 2023-06-01."
           ],
-          "after": "curl --location 'https://proxy.zseclipse.net/v1/messages'"
+          "after": "Endpoint: POST https://proxy.zseclipse.net/v1/messages"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ai-guard-apps-quick-start-guide-proxy-mode.json",
+          "quotes": [
+            "The API key created under Application Identity Broker is stored under an environment variable called AIG_PROXY_API_KEY.",
+            "Second, authentication is done via the X-ApiKey header."
+          ]
         }
       ]
     },
@@ -165,7 +174,7 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
           "quotes": [
             "There are two primary endpoints for DAS/API mode:",
             "You want to explicitly reference a specific AI Guard policy.",
@@ -180,12 +189,12 @@
       ]
     },
     "resolve-requirements": {
-      "statement": "Resolve-and-execute needs DAS/API policies to exist in AI Guard; AI Guard evaluates them and determines the matching one, so several DAS/API policies may apply and the application should not hard-code a single policy ID.",
+      "statement": "Resolve-and-execute needs DAS/API policies to exist in AI Guard; AI Guard evaluates them and determines the matching one; several DAS/API policies may apply, and the application should not hard-code a single policy ID.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
           "quotes": [
             "DAS/API policies must exist in AI Guard.",
             "AI Guard evaluates those policies and determines the matching policy.",
@@ -201,25 +210,19 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
           "quotes": [
             "https://api.zseclipse.net/v1/detection/execute-policy",
-            "self.zag_key = \"<insert-api-key-generated-in-aiguard>\"",
-            "\"Authorization\": f\"Bearer {self.zag_key}\",",
-            "\"direction\": direction,",
-            "\"content\": content or \"\","
+            "self.zag_key = \"<insert-api-key-generated-in-aiguard>\" ZAG_POLICY_ID = <insert-policy-id-number> headers = { \"Authorization\": f\"Bearer {self.zag_key}\", \"Content-Type\": \"application/json\", } payload = { \"policyId\": ZAG_POLICY_ID, \"direction\": direction, \"content\": content or \"\", }"
           ],
           "after": "Option 1: Execute a specific policy"
         },
         {
           "source": "zscaler-help",
-          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
           "quotes": [
             "https://api.zseclipse.net/v1/detection/resolve-and-execute-policy",
-            "self.zag_key = \"<insert-api-key-generated-in-aiguard>\"",
-            "\"Authorization\": f\"Bearer {self.zag_key}\",",
-            "\"direction\": direction,",
-            "\"content\": content or \"\","
+            "self.zag_key = \"<insert-api-key-generated-in-aiguard>\" headers = { \"Authorization\": f\"Bearer {self.zag_key}\", \"Content-Type\": \"application/json\", } payload = { \"direction\": direction, \"content\": content or \"\", }"
           ],
           "after": "Option 2: Resolve and execute policy"
         }
@@ -231,8 +234,9 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
           "quotes": [
+            "The application should inspect both sides of the interaction:",
             "The prompt before it is sent to the model.",
             "The response before it is shown back to the user.",
             "Do not bypass the response-side call if output enforcement is required."
@@ -246,7 +250,7 @@
       "evidence": [
         {
           "source": "zscaler-help",
-          "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+          "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
           "quotes": [
             "Use a short request timeout for AI Guard inspection.",
             "Handle AI Guard failures explicitly.",
@@ -606,7 +610,7 @@
           "says": "Help calls both endpoints on the global host api.zseclipse.net.",
           "evidence": {
             "source": "zscaler-help",
-            "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+            "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
             "quotes": [
               "https://api.zseclipse.net/v1/detection/execute-policy"
             ]
@@ -643,11 +647,10 @@
           "says": "The DAS Help page's examples pass \"request\" and \"response\", and its prose speaks of the outbound prompt and the inbound response.",
           "evidence": {
             "source": "zscaler-help",
-            "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+            "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
             "quotes": [
               "direction should indicate whether this is the outbound prompt or inbound response.",
-              "prompt_result = resolve_and_execute_policy(user_prompt, \"request\")",
-              "response_result = resolve_and_execute_policy(llm_response, \"response\")"
+              "prompt_result = resolve_and_execute_policy(user_prompt, \"request\") ... response_result = resolve_and_execute_policy(llm_response, \"response\")"
             ]
           }
         }
@@ -661,7 +664,7 @@
           "says": "The DAS Help page says policyId is required for execute-policy.",
           "evidence": {
             "source": "zscaler-help",
-            "path": "ai-guard-test-llm-providers-ai-guard-dasapi-mode.md",
+            "path": "ai-guard-apps-test-llm-providers-ai-guard-dasapi-mode.json",
             "quotes": [
               "policyId is required."
             ]

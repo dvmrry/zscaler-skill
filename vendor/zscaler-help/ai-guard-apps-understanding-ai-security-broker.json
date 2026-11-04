@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding the AI Security Broker",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/understanding-ai-security-broker",
+    "node": "1541762",
+    "revision": "3226213",
+    "updated": "2026-07-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "The AI Red Teaming Broker enables Zscaler's AI Red Teaming (AIRT) workers, which run in the Zscaler cloud, to securely reach private AI applications hosted inside a customer's network without requiring any firewall changes to allow inbound connections that originate from the Internet."
+    },
+    {
+      "text": "In most enterprise environments, AI applications sit behind a firewall with no inbound ports open to the internet. The AI Red Teaming Broker eliminates this barrier by having the customer deploy a lightweight broker agent inside their network. The agent opens a single outbound connection to the Zscaler cloud, allowing AI Red Teaming to reach the private application through that connection."
+    },
+    {
+      "heading": "How It Works",
+      "level": 1
+    },
+    {
+      "text": "The broker opens one outbound WebSocket Secure (WSS) connection to the cloud gateway and keeps it open. All test traffic travels over this tunnel to the customer’s application and back."
+    },
+    {
+      "item": "The Broker Agent initializes an outbound WSS connection towards the Broker Gateway that is running in the Zscaler infrastructure.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "After a connection is established, the AI Red Teaming Worker sends the commands to the Broker Agent via the Broker Gateway.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "The commands are carried over the bidirectional WSS connection.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "The Broker Agent forwards the command to the Customer AI App.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The Customer AI App sends its response back to the Broker Agent.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "The Broker Agent sends the response to the Broker Gateway.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "The Broker Gateway forwards the response to the AI Red Teaming Worker.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "text": "No service is exposed to the internet in the customer’s network. The broker makes only outbound connections on port 443."
+    },
+    {
+      "heading": "Provisioning a Broker",
+      "level": 1
+    },
+    {
+      "text": "Users can provision a broker by performing the following steps:"
+    },
+    {
+      "item": "1. Register a broker.",
+      "depth": 0
+    },
+    {
+      "item": "Create a new broker entry in the AI Security Admin Portal to generate the credentials and configuration required for deployment. To learn more, see Registering a Broker.",
+      "depth": 0
+    },
+    {
+      "item": "2. Obtain the OAuth credentials.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure you do the following before you run the broker:",
+      "depth": 0
+    },
+    {
+      "item": "Create an API Client. To learn more, see Adding an API Client.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Assign AI Red Teaming Viewer scope under AI Security.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Set the Validation Type to Secret.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          8,
+          23
+        ],
+        [
+          27,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Client ID and Client Secret to a password manager. This is used when configuring the broker's environment. You can reuse the same API Client across multiple brokers.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "The broker authenticates to the platform with an OAuth API Client you create in the Authentication Service Admin Portal.",
+      "depth": 0
+    },
+    {
+      "item": "3. Download the generated run manifest.",
+      "depth": 0
+    },
+    {
+      "item": "Download the run manifest file that contains the broker configuration. Use this file to deploy and run the broker within your private network environment. To learn more, see About Red Teaming Brokers.",
+      "depth": 0
+    },
+    {
+      "item": "4. Verify the broker status.",
+      "depth": 0
+    },
+    {
+      "item": "Confirm that the broker shows Online in the AI Security Admin Portal. An Online status indicates that the broker has successfully established an outbound WebSocket connection to the Zscaler cloud gateway.",
+      "depth": 0,
+      "strong": [
+        [
+          30,
+          36
+        ],
+        [
+          73,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "5. Configure the target AI application and attach the broker.",
+      "depth": 0
+    },
+    {
+      "item": "Add your private AI application as a target in the platform and associate it with the provisioned broker. This enables Zscaler AI Red Teaming workers to route test traffic through the broker to reach the application. To learn more, see Connect an Asset.",
+      "depth": 0
+    }
+  ]
+}

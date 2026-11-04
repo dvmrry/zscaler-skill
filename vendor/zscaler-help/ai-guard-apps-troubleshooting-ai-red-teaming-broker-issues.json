@@ -1,0 +1,516 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting AI Red Teaming Broker Issues",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/troubleshooting-ai-red-teaming-broker-issues",
+    "node": "1541957",
+    "revision": "3228762",
+    "updated": "2026-08-11",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "The AI Security Red Teaming Broker is a lightweight agent that you deploy inside your network to enable Red Teaming to reach private AI applications without opening inbound firewall ports. Use this article to diagnose and resolve common broker connectivity, authentication, and routing issues."
+    },
+    {
+      "heading": "Running the Preflight Check",
+      "level": 2
+    },
+    {
+      "text": "For any broker issue, your first step is always to run the built-in diagnostic tool airt-broker diagnose. It checks connectivity, certificates, OAuth credentials, and DNS without disrupting a live broker."
+    },
+    {
+      "text": "Run the following command within the container:"
+    },
+    {
+      "text": "docker exec <broker-container> python -m airt_broker diagnose"
+    },
+    {
+      "text": "An example of healthy output is shown here:"
+    },
+    {
+      "heading": "Quick Reference",
+      "level": 2
+    },
+    {
+      "text": "The following table lists the symptoms, the likely causes, and resolution:"
+    },
+    {
+      "table": [
+        [
+          "Symptom",
+          "Likely Cause",
+          "Resolution"
+        ],
+        [
+          "Broker stays Pending or Offline Logs repeat opening wss with no wss connected",
+          "Cannot reach or authenticate to gateway",
+          "Check egress to GATEWAY_URL:443 Run diagnose tool"
+        ],
+        [
+          "Auth token returns (401 invalid_client)",
+          "Incorrect OAUTH_CLIENT_ID / OAUTH_CLIENT_SECRET",
+          "Verify that the Client ID and Client Secret match the registered broker"
+        ],
+        [
+          "WSS rejected 4403 (gateway_cidr_rejected)",
+          "Broker’s egress IP is not in the source-IP allow-list",
+          "Add the broker’s public egress IP to the allow-list in the platform"
+        ],
+        [
+          "WSS rejected 4401 (gateway_broker_unregistered / _revoked)",
+          "BROKER_ID mismatch, or broker revoked/deleted",
+          "Confirm BROKER_ID Ensure the broker is not revoked (reinstate if needed)"
+        ],
+        [
+          "TLS errors (certificate verify failed, unable to get local issuer)",
+          "Corporate TLS inspection/private CA",
+          "Set EXTRA_CA_CERTS (add the corporate CA) Disable SSL inspection for the broker traffic Set HTTPS_PROXY if required"
+        ],
+        [
+          "Broker Online but tests return 403",
+          "Target base URL not in the broker’s target allow-list",
+          "Add the target’s base URL to the broker’s allow-list, or correct X-Target-Url."
+        ],
+        [
+          "Tests time out (504) or fail 502",
+          "Target slow or unreachable from the broker’s network",
+          "Verify the broker can reach the target Raise TARGET_REQUEST_TIMEOUT for slow applications"
+        ],
+        [
+          "Broker disconnects periodically while idle (close_code:null)",
+          "An intermediary (proxy/ NAT/firewall) idle or max-connection timeout",
+          "Benign - the broker reconnects automatically Raise the intermediary’s idle timeout if frequent."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          13,
+          20
+        ],
+        [
+          1,
+          0,
+          24,
+          31
+        ],
+        [
+          2,
+          0,
+          0,
+          4
+        ],
+        [
+          3,
+          0,
+          13,
+          17
+        ],
+        [
+          4,
+          0,
+          13,
+          17
+        ],
+        [
+          6,
+          0,
+          7,
+          13
+        ],
+        [
+          6,
+          0,
+          31,
+          34
+        ],
+        [
+          7,
+          0,
+          6,
+          20
+        ],
+        [
+          7,
+          0,
+          29,
+          32
+        ]
+      ]
+    },
+    {
+      "heading": "Diagnosing and Resolving Common Issues",
+      "level": 2
+    },
+    {
+      "text": "This section describes common Broker issues and the steps to resolve them:"
+    },
+    {
+      "item": "Broker Stays Pending or Offline",
+      "depth": 0
+    },
+    {
+      "item": "Symptom: The broker status does not change from Pending, or it repeatedly switches to Offline. The logs show repeated opening wss entries with no wss connected line.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          48,
+          55
+        ],
+        [
+          86,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "The following are the likely causes:",
+      "depth": 0
+    },
+    {
+      "item": "Cannot Reach the Gateway",
+      "depth": 1
+    },
+    {
+      "item": "Confirm that outbound TCP access to the GATEWAY_URL host on port 443 is open.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          65,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Run the preflight check and review the DNS, TCP, and TLS rows.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Invalid OAuth Credentials (diagnose shows 401 invalid_client)",
+      "depth": 1
+    },
+    {
+      "item": "Go to Administration > Red Teaming > Brokers and open the broker's detail page.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Compare the OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET values in your deployment against the Authentication Service credentials associated with this broker registration.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "If they do not match, re-copy the credentials from the Authentication Service API client and redeploy the broker container.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Egress IP Not in the Allow-List (4403 gateway_cidr_rejected)",
+      "depth": 1
+    },
+    {
+      "item": "Identify the broker container's public egress IP address.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Administration > Red Teaming > Brokers and open the broker's detail page.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Under Source-IP Allow-list, add the broker's public egress IP.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Allow-list changes apply immediately and no broker restart is required.",
+      "depth": 2
+    },
+    {
+      "item": "Broker ID Mismatch or Broker is Revoked (4401 gateway_broker_unregistered or _revoked)",
+      "depth": 1
+    },
+    {
+      "item": "Confirm that the BROKER_ID environment variable in your deployment matches the ID shown on the broker's detail page in AIRT.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "If the broker status shows Revoked, go to Administration > Red Teaming > Brokers, open the broker, and select Reinstate.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          27,
+          34
+        ],
+        [
+          42,
+          80
+        ],
+        [
+          110,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "TLS Certificate Errors",
+      "depth": 0
+    },
+    {
+      "item": "Symptom: Broker startup logs show certificate verify failed or unable to get local issuer certificate.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Cause: A corporate TLS inspection proxy or a private Certificate Authority (CA) is intercepting the broker's outbound connection.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "To resolve this issue:",
+      "depth": 0
+    },
+    {
+      "item": "Obtain the corporate CA certificate in PEM format.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Set the EXTRA_CA_CERTS environment variable to the path of the PEM file and mount it into the container:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "-e EXTRA_CA_CERTS=\"/etc/airt-broker/corp-intermediates.pem\" \\ -v \"$PWD/certs:/etc/airt-broker:ro\"",
+      "depth": 1
+    },
+    {
+      "item": "If an outbound proxy is required, also set:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "-e HTTPS_PROXY=\"http://proxy.internal:8080\"",
+      "depth": 1
+    },
+    {
+      "item": "Do not set SSL_VERIFY to false. Disabling certificate validation removes a critical security control and is not supported in production environments.",
+      "depth": 1
+    },
+    {
+      "item": "Broker is Online but Tests Return 403",
+      "depth": 0
+    },
+    {
+      "item": "Symptom: The broker shows Online in AIRT, but test requests return a 403 error.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          26,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Cause: The target's base URL is not in the broker's target allow-list.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "To resolve this issue:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Red Teaming > Brokers and open the broker's detail page.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Select the Allow-lists tab, then select Target URLs.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          22
+        ],
+        [
+          40,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Add the target's base URL, or verify that the X-Target-Url header in your request is correct.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Tests Time Out (504) or Fail with 502",
+      "depth": 0
+    },
+    {
+      "item": "Symptom: Requests hang and return 504 Gateway Timeout or 502 Bad Gateway.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Cause: The target application is slow to respond or is unreachable from the broker host.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "To resolve this issue:",
+      "depth": 0
+    },
+    {
+      "item": "From the broker host, verify that the broker can reach the target URL directly (for example, using curl <target-url>).",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "If the target is reachable but responds slowly, increase the request timeout:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "-e TARGET_REQUEST_TIMEOUT=120",
+      "depth": 1
+    },
+    {
+      "item": "Check that no firewall rule is blocking traffic from the broker host to the target application.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Broker Disconnects Periodically While Idle",
+      "depth": 0
+    },
+    {
+      "item": "Symptom: Logs show wss disconnected with close_code: null and abnormal: true after a period of inactivity, followed by automatic reconnection (opening wss).",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Cause: An intermediary (proxy, NAT gateway, or firewall) is closing idle connections due to a configured timeout.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "This behavior is benign. The broker reconnects automatically. If reconnections are frequent and affecting test reliability, work with your network team to increase the idle connection timeout on the intermediary.",
+      "depth": 0
+    },
+    {
+      "heading": "Collecting Logs for Support",
+      "level": 2
+    },
+    {
+      "text": "If you cannot resolve the issue, collect the following information before contacting Zscaler Support:"
+    },
+    {
+      "text": "Run these commands to export a redacted diagnostic report and recent broker logs:"
+    },
+    {
+      "text": "docker exec <broker-container> python -m airt_broker diagnose --json > diag.json docker logs --tail 500 <broker-container> > broker.log"
+    },
+    {
+      "text": "Ensure you include the following information when you contact support:"
+    },
+    {
+      "item": "diag.json",
+      "depth": 0
+    },
+    {
+      "item": "broker.log",
+      "depth": 0
+    },
+    {
+      "item": "Your BROKER_ID",
+      "depth": 0
+    },
+    {
+      "item": "The approximate date and time of the incident",
+      "depth": 0
+    },
+    {
+      "item": "The diag.json output is automatically redacted and does not contain your OAUTH_CLIENT_SECRET. Do not share your client secret directly with support or include it in log files.",
+      "depth": 0
+    }
+  ]
+}

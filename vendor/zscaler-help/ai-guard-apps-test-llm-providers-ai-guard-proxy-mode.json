@@ -1,0 +1,1029 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Test LLM Provider Endpoints in AI Guard Proxy Mode",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-apps-infra/test-llm-providers-ai-guard-proxy-mode",
+    "node": "1541882",
+    "revision": "3228827",
+    "updated": "2026-08-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This document provides a reference for testing supported Large Language Model (LLM) providers through AI Guard in proxy mode. Its purpose is to show, for each validated provider, the exact proxy URL path, required headers, and basic request body structure needed to successfully send a test prompt through the common AI Guard proxy endpoint. This is intended as a practical reference guide for administrators and engineers who need to configure or verify provider-specific proxy routing in AI Guard for services such as Anthropic, Azure Foundry, AWS Bedrock, Google Gemini, and Google Vertex, OpenAI, etc."
+    },
+    {
+      "text": "When configuring a proxy for Zscaler, use the following base URL endpoint: https://proxy.zseclipse.net"
+    },
+    {
+      "text": "In proxy mode, the application is updated so it no longer sends requests directly to each individual LLM provider endpoint. Instead, the application sends its model requests to Zscaler AI Guard as the single destination, and AI Guard then proxies that traffic to the appropriate upstream LLM provider on the application’s behalf. This allows AI Guard to sit inline for routing, inspection, and policy enforcement while simplifying the application-side integration to a common proxy pattern."
+    },
+    {
+      "heading": "App Flow Example",
+      "level": 1
+    },
+    {
+      "text": "The following diagram is a simple visualization to show applications configured with AI Guard in proxy mode will have the prompts and responses flow from the application server to the AI Guard cloud service, which will then send the traffic to the destination LLM:"
+    },
+    {
+      "heading": "Providers List",
+      "level": 1
+    },
+    {
+      "text": "The following table provides a list of all supported AI providers as well as hostname and proxy path information."
+    },
+    {
+      "table": [
+        [
+          "Provider",
+          "Hostname",
+          "Proxy Path"
+        ],
+        [
+          "Anthropic",
+          "Provider-specific upstream in AI Guard",
+          "/v1/messages"
+        ],
+        [
+          "AWS Bedrock Agent",
+          "Provider-specific upstream in AI Guard",
+          "/agents/<AGENT_ID>/agentAliases/<AGENT_ALIAS_ID>/sessions/<SESSION_ID>/text"
+        ],
+        [
+          "AWS Bedrock Anthropic",
+          "Provider-specific upstream in AI Guard",
+          "/model/anthropic.<MODEL>/invoke"
+        ],
+        [
+          "AWS Bedrock Invoke",
+          "Provider-specific upstream in AI Guard",
+          "/model/<MODEL>/converse"
+        ],
+        [
+          "Azure Foundry",
+          "<your-resource>.openai.azure.com",
+          "/openai/v1/chat/completions"
+        ],
+        [
+          "Google Gemini",
+          "generativelanguage.googleapis.com",
+          "/v1beta/models/<MODEL>:generateContent"
+        ],
+        [
+          "Google Vertex",
+          "aiplatform.googleapis.com",
+          "/v1/projects/<PROJECT_ID>/locations/<REGION>/publishers/google/models/<MODEL>:generateContent"
+        ],
+        [
+          "OpenAI",
+          "Provider-specific upstream in AI Guard",
+          "/v1/chat/completions"
+        ]
+      ]
+    },
+    {
+      "heading": "Provider Testing Information",
+      "level": 1
+    },
+    {
+      "item": "Anthropic",
+      "depth": 0
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/v1/messages",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json anthropic-version: <VERSION>",
+      "depth": 0
+    },
+    {
+      "item": "Sample Body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "{ \"model\": \"<MODEL>\", \"max_tokens\": 64, \"messages\": [ { \"role\": \"user\", \"content\": \"Reply with the single word OK.\" } ] }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for Anthropic.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Anthropic-version: This is the version of Anthropic you're using, i.e. 2023-06-01.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Model: The model to query, such as \"claude-sonnet-4-2025051\".",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Messages: List of conversations containing:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Role: The sender’s role. Options include: \"user\", \"assistant\", and \"system\".",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Content: The actual content or query to be processed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "AWS Bedrock Agent",
+      "depth": 0
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/agents/<AGENT_ID>/agentAliases/<AGENT_ALIAS_ID>/sessions/<SESSION_ID>/text",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json accept: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Sample Body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "{ \"inputText\": \"Reply with the single word OK.\", \"enableTrace\": false }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "Agent ID: The Agent ID obtained from AWS Bedrock Agent",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Agent Alias ID: The Agent Alias ID obtained from your AWS Bedrock Agent.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Session ID: Does not need to be pre-created in AWS. It is a client-supplied conversation ID. For example: lab-test-001",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for Bedrock.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "AWS Bedrock Anthropic",
+      "depth": 0
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/model/<MODEL>/invoke",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json accept: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Sample Body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "{ \"anthropic_version\": \"<MODEL>\", \"max_tokens\": 64, \"messages\": [ { \"role\": \"user\", \"content\": [ { \"type\": \"text\", \"text\": \"Reply with the single word OK.\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "Model: The model to query, such as anthropic.claude-3-haiku-20240307-v1:0.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for Bedrock.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Anthropic-version: This is the version of Anthropic you're using, i.e. 2023-06-01.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Messages: List of conversations containing:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Role: The sender’s role. Options include: \"user\", \"assistant\", and \"system\".",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Content: The actual content or query to be processed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "AWS Bedrock Invoke",
+      "depth": 0
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/model/<MODEL>/converse",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json accept: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Sample Body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "{ \"messages\": [ { \"role\": \"user\", \"content\": [ { \"text\": \"Reply with the single word OK.\" } ] } ], \"inferenceConfig\": { \"maxTokens\": 64, \"temperature\": 0 } }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "Model: The model to query, such as \"amazon.nova-lite-v1:0\".",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for Bedrock.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Messages: List of conversations containing:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Role: The sender’s role. Options include: \"user\", \"assistant\", and \"system\".",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Content: The actual content or query to be processed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Azure Foundry",
+      "depth": 0
+    },
+    {
+      "item": "AI Guard hostname/FQDN: <your-resource>.openai.azure.com",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/openai/v1/chat/completions",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Sample Body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "{ \"model\": \"<MODEL>\", \"messages\": [ { \"role\": \"user\", \"content\": \"Reply with the single word OK.\" } ], \"max_tokens\": 64 }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "Your-resource: The prefix to your Azure Foundry OpenAI service.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for OpenAI.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Model: The model to query, such as \"claude-sonnet-4-2025051\".",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Messages: List of conversations containing:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Role: The sender’s role. Options include: \"user\", \"assistant\", and \"system\".",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Content: The actual content or query to be processed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Google Gemini",
+      "depth": 0
+    },
+    {
+      "item": "AI Guard hostname/FQDN: generativelanguage.googleapis.com",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/v1beta/models/<MODEL>:generateContent",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Minimal sample body aligned with Google Gemini:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "{ \"contents\": [ { \"parts\": [ { \"text\": \"Reply with the single word OK.\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "item": "Script-compatible sample body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "{ \"contents\": [ { \"role\": \"user\", \"parts\": [ { \"text\": \"Reply with the single word OK.\" } ] } ], \"generationConfig\": { \"maxOutputTokens\": 64 } }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "Model: The model being called, such as gemini-2.5-flash.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for Gemini.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Upstream provider credential in AI Guard is a Gemini API key from Google AI Studio.",
+      "depth": 0
+    },
+    {
+      "item": "Google Vertex",
+      "depth": 0
+    },
+    {
+      "item": "AI Guard hostname/FQDN: aiplatform.googleapis.com",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/v1/projects/<PROJECT_ID>/locations/<REGION>/publishers/google/models/<MODEL>:generateContent",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json Authorization: Bearer <GOOGLE_OAUTH_ACCESS_TOKEN> X-Goog-User-Project: <PROJECT_ID>",
+      "depth": 0
+    },
+    {
+      "item": "Minimal sample body aligned with Google Gemini:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "{ \"contents\": [ { \"parts\": [ { \"text\": \"Reply with the single word OK.\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "item": "Script-compatible sample body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "{ \"contents\": [ { \"role\": \"user\", \"parts\": [ { \"text\": \"Reply with the single word OK.\" } ] } ], \"generationConfig\": { \"maxOutputTokens\": 64 } }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "Project_ID: The GCP project ID for Vertex.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Region: The GCP region for Vertex, such as us-central1.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Model: The model being called, such as gemini-2.5-flash.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for Vertex.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Google_OAuth_Access_Token: This is an access token obtained from the Google authorization server.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Contents: List of conversations containing:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Role: The sender’s role. Options include: \"user\", \"assistant\", and \"system\".",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Content: The actual content or query to be processed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Vertex does not use a Gemini API key in the request.",
+      "depth": 0
+    },
+    {
+      "item": "It also requires a short-lived Google OAuth bearer token in the original request. AI Guard forwards the bearer token upstream.",
+      "depth": 0
+    },
+    {
+      "item": "OpenAI",
+      "depth": 0
+    },
+    {
+      "item": "Endpoint: POST https://proxy.zseclipse.net/v1/chat/completions",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Headers:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "X-ApiKey: <ZSCALER_AI_GUARD_KEY> Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Sample Body:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "{ \"model\": \"<MODEL>\", \"messages\": [ { \"role\": \"user\", \"content\": \"Reply with the single word OK.\" } ], \"max_tokens\": 64 }",
+      "depth": 0
+    },
+    {
+      "heading": "Fields explained",
+      "level": 2
+    },
+    {
+      "item": "X-ApiKey: The AI Guard key for OpenAI.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Content-Type: Specifies the request payload format (always JSON).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Model: The model to query, such as gpt-4o-mini.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Messages: List of conversations containing:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Role: The sender’s role. Options include: \"user\", \"assistant\", and \"system\".",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Content: The actual content or query to be processed.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    }
+  ]
+}

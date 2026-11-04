@@ -86,14 +86,14 @@
   ],
   "claims": {
     "vm-sizes": {
-      "statement": "The AWS deployment guide lists Small VMs on m5n.large, c5a.large, m6i.large (recommended) or c6i.large, and Medium and Large VMs, both deprecated, on m5n.4xlarge, m6i.4xlarge (recommended) or c6i.4xlarge.",
+      "statement": "The AWS deployment guide lists Small VMs on m5n.large, c5a.large, m6i.large (recommended), c6i.large, m7i.large or m7i-flex.large, and Medium and Large VMs, both deprecated, on m5n.4xlarge, m6i.4xlarge (recommended) or c6i.4xlarge.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
           "quotes": [
-            "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), or c6i.large.",
+            "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), c6i.large, m7i.large, or m7i-flex.large.",
             "Medium VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge.",
             "Large VM (deprecated): Requires one of the following EC2 instances: m5n.4xlarge, m6i.4xlarge (recommended), or c6i.4xlarge."
           ]
@@ -270,20 +270,20 @@
   },
   "divergences": {
     "small-instance-list": {
-      "summary": "Which EC2 types a Small Cloud Connector may use: the deployment guide lists four, while the reference Terraform module and the CloudFormation templates each accept twelve.",
+      "summary": "Which EC2 types a Small Cloud Connector may use: the deployment guide lists six, while the reference Terraform module and the CloudFormation templates each accept twelve.",
       "positions": [
         {
-          "says": "Small VMs require m5n.large, c5a.large, m6i.large or c6i.large.",
+          "says": "Small VMs require m5n.large, c5a.large, m6i.large, c6i.large, m7i.large or m7i-flex.large.",
           "evidence": {
             "source": "zscaler-help",
             "path": "cbc-deploying-zscaler-cloud-connector-amazon-web-services.json",
             "quotes": [
-              "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), or c6i.large."
+              "Small VM: Requires one of the following Elastic Compute Cloud (EC2) instances: m5n.large, c5a.large, m6i.large (recommended), c6i.large, m7i.large, or m7i-flex.large."
             ]
           }
         },
         {
-          "says": "The small size also accepts t3.medium, c6in.large, m7i.large, m7i-flex.large and the 4xlarge types m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
+          "says": "The small size also accepts t3.medium, c6in.large and the 4xlarge types m5n.4xlarge, m6i.4xlarge, c6i.4xlarge and c6in.4xlarge.",
           "evidence": {
             "source": "tfmod-aws-cloud-connector",
             "path": "modules/terraform-zscc-ccvm-aws/variables.tf",
@@ -293,7 +293,7 @@
           }
         },
         {
-          "says": "The CloudFormation Starter template accepts twelve types, including t3.medium, c6in.large, m7i.large and m7i-flex.large.",
+          "says": "The CloudFormation Starter template accepts twelve types, including t3.medium and c6in.large.",
           "evidence": {
             "source": "cft-aws-cloud-connector",
             "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
@@ -304,7 +304,7 @@
           }
         }
       ],
-      "impact": "A module or CloudFormation deployment can pass validation on a type the guide does not list (t3.medium, c6in.large, the m7i types), and the guide says Zscaler cannot guarantee unsupported instances work."
+      "impact": "A module or CloudFormation deployment can pass validation on a type the guide does not list (t3.medium, c6in.large), and the guide says Zscaler cannot guarantee unsupported instances work."
     }
   }
 }
