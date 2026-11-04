@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.application-services",
+  "title": "Application service groups: predefined provider groups, custom groups, first-packet matching",
+  "aliases": [
+    "application service group",
+    "application services",
+    "app service groups",
+    "Authoritative (AU)",
+    "Custom (CU)"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.destination-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.network-applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.licensing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{definition}} {{predefined-list}} {{au-cu-suffix}}"
+    },
+    {
+      "label": "Matching.",
+      "text": "{{first-packet}} {{hyperscaler-broad}} {{web-nonweb}} {{wildcard-nonweb}} What Zscaler Cloud Endpoints covers is open {{gap:cloud-endpoints}}."
+    },
+    {
+      "label": "Custom groups.",
+      "text": "{{custom-licensing}} {{custom-caps}} {{custom-entries}} {{ports}} Whether the form has source-port fields is open {{gap:source-ports}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an Allow rule that uses a hyperscaler group combines it with other conditions.",
+      "uses": [
+        "hyperscaler-broad"
+      ]
+    }
+  ],
+  "claims": {
+    "definition": {
+      "statement": "Zscaler provides predefined and custom application service groups for Firewall Filtering and Forwarding policies. They are defined by metadata (IP addresses, ports, protocols and domains) from the providers' published information, which Zscaler continuously updates and validates, and policies on them can allow, block or forward traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-services.json",
+          "quotes": [
+            "Zscaler provides predefined and custom application service groups that can be used in Firewall Filtering and Forwarding policies to manage specific application traffic.",
+            "Defined using metadata—including IP addresses, ports, protocols, and domains—these groups rely on the information published by the respective providers to identify the traffic belonging to their services.",
+            "Zscaler continuously updates and validates the latest IP addresses and other information published by the providers",
+            "Enforce condition-based actions on the predefined and custom application service traffic, such as allowing or blocking traffic and forwarding traffic to specific destinations."
+          ]
+        }
+      ]
+    },
+    "predefined-list": {
+      "statement": "The predefined application service groups are AWS, GCP, GoTo, Microsoft 365, RingCentral, Talkdesk, Webex, Zoom and Zscaler Cloud Endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-services.json",
+          "quotes": [
+            "List of Predefined Application Service Groups",
+            "AWS - GCP - GoTo - Microsoft 365 - RingCentral - Talkdesk - Webex - Zoom - Zscaler Cloud Endpoints"
+          ]
+        }
+      ]
+    },
+    "au-cu-suffix": {
+      "statement": "The suffix Authoritative (AU) marks a predefined application service and Custom (CU) a custom one, and the page lets an admin view details for read-only predefined application service groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-services.json",
+          "quotes": [
+            "The name with the suffix Authoritative (AU) is the predefined application service and Custom (CU) is the custom application service.",
+            "View details for read-only predefined application service groups."
+          ]
+        }
+      ]
+    },
+    "first-packet": {
+      "statement": "Application services are identified at the first packet, so the policy action can hit that first packet; the service assembles the first packet's metadata (domain and subdomains with destination IP addresses, protocol types and ports) to identify the application service. Policies using application services should therefore be in a higher priority rule than a similar policy using network applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-services.json",
+          "quotes": [
+            "Zscaler's application services are identified at the first packet and therefore can result in the policy action hitting that first packet.",
+            "The custom firmware pre-assembles the metadata received from the first packet, such as the domain and subdomains, along with their destination IP addresses, protocol types, and ports to identify the associated application service.",
+            "This means that policies using application services should be in a higher priority rule than a similar policy using network applications so that the former can be matched first."
+          ]
+        }
+      ]
+    },
+    "hyperscaler-broad": {
+      "statement": "Groups for cloud providers such as AWS and GCP identify traffic to those services and their subservices, and include all IP addresses for AWS- or GCP-based services. The general recommendation for Firewall Allow rules is a minimum of three conditions, with Application Service Groups as one of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-services.json",
+          "quotes": [
+            "Application service groups designated for cloud service providers, such as AWS and GCP (i.e., hyperscalers), can identify traffic not only to these services but also their subservices based on the metadata published by the providers.",
+            "These groups include all IP addresses for AWS- or GCP-based services",
+            "The general recommendation for Firewall Allow rules is to have a minimum of three conditions with Application Service Groups as one of them."
+          ]
+        }
+      ]
+    },
+    "web-nonweb": {
+      "statement": "The application service criterion applies to web and non-web traffic: non-web traffic is matched by IP address, and web traffic by an FQDN match against the hostname in the HTTP/FTP header or the SNI for HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-application-service-groups.json",
+          "quotes": [
+            "As both FQDN and IP address values are available for a destination, this criterion applies to the web as well as non-web traffic examined by the Zscaler service.",
+            "The Zscaler service employs an IP address match when evaluating non-web traffic using this criterion, whereas the web traffic evaluation relies on an FQDN match against the hostname in the HTTP/FTP header or Server Name Indication (SNI) for HTTPS."
+          ]
+        }
+      ]
+    },
+    "wildcard-nonweb": {
+      "statement": "To evaluate wildcard FQDNs against non-web traffic, Zscaler requires the IP address the FQDN resolves to, and the page says this functionality is included in the Advanced Firewall and DNS Control and Internet & SaaS editions. Wildcard FQDN matching against web traffic (HTTP and TLS/SNI) can function without meeting these conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-application-service-groups.json",
+          "quotes": [
+            "To evaluate wildcard FQDNs against non-web traffic, Zscaler requires the IP address to which the FQDN resolves.",
+            "This functionality is included in the Advanced Firewall and DNS Control and Internet & SaaS editions.",
+            "Wildcard FQDN match against web traffic (HTTP and TLS/SNI) can function without meeting these conditions."
+          ]
+        }
+      ]
+    },
+    "custom-licensing": {
+      "statement": "Advanced Firewall is required for configuring custom application service groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-application-services.json",
+          "quotes": [
+            "Advanced Firewall is required for configuring custom application service groups."
+          ]
+        }
+      ]
+    },
+    "custom-caps": {
+      "statement": "An organization can configure up to 128 custom application service groups, each with at most 32 IP addresses or wildcard FQDNs, and 4,096 in total across the 128 groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-application-service-groups.json",
+          "quotes": [
+            "You can configure up to 128 custom application service groups.",
+            "A maximum of 32 IP addresses or wildcard FQDNs can be added in a custom application service group and a total of 4,096 IP addresses or wildcard FQDNs can be added for 128 custom application service groups."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Custom Application Service Groups | 128 groups |",
+            "| IP Address or Wildcard FQDN per Custom Application Service Group | 32 entries |"
+          ]
+        }
+      ]
+    },
+    "custom-entries": {
+      "statement": "A custom definition takes IP addresses, wildcard FQDNs or both (for example 1.11.1.1, *.google.com). Addresses are IPv4 only, as an individual address, a subnet or an address range; IPv6 is currently not supported, and the same IP address or wildcard FQDN cannot be added twice in a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-application-service-groups.json",
+          "quotes": [
+            "IP Address or Wildcard FQDN: Enter the IP address or wildcard FQDN, or both (e.g., 1.11.1.1, *.google.com).",
+            "Enter addresses (IPv4 only) in any of the following formats:",
+            "An individual address, such as 192.0.2.1.",
+            "A subnet, such as 192.0.2.0/24.",
+            "An address range, such as 192.0.2.1 - 192.0.2.5.",
+            "Specifying individual, subnet, or range of IPv6 addresses is currently not supported.",
+            "You cannot add a duplicate IP Address or Wildcard FQDN within the same application service groups."
+          ]
+        }
+      ]
+    },
+    "ports": {
+      "statement": "A custom application service takes TCP destination ports, UDP destination ports, or both, each as a port number, a range or both (for example 25, 35-40 for TCP).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-application-service-groups.json",
+          "quotes": [
+            "TCP Destination Ports: Enter the TCP destination port number or a range of port numbers, or both (e.g., 25, 35-40).",
+            "UDP Destination Ports: Enter the UDP destination port number or a range of port numbers, or both (e.g., 29, 45-50).",
+            "You can enter either TCP Destination Ports or UDP Destination Ports, or both for an application service."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cloud-endpoints": {
+      "kind": "semantic",
+      "title": "What the Zscaler Cloud Endpoints group covers",
+      "status": "open",
+      "detail": "The page lists Zscaler Cloud Endpoints among the predefined groups without defining it. Refresh cadence is given only as continuously, and whether predefined groups match source ports is not stated.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "source-ports": {
+      "kind": "semantic",
+      "title": "Whether a custom application service can set source ports",
+      "status": "open",
+      "detail": "The Configuring page's add-definition fields name TCP and UDP destination ports only. No source states that source ports are unsupported, and the 4,096 total equals 128 x 32 with nothing said beyond that.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    }
+  }
+}

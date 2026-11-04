@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.diagnostics",
+  "title": "ZPA Live Logs and Private Diagnostics: views, time ranges, retention, filters and export",
+  "aliases": [
+    "zpa live logs",
+    "private diagnostics",
+    "zpa diagnostics console",
+    "zpa diagnostics export",
+    "zpa extended log search"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.signals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.log-receivers.delivery"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.user-activity-diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.user-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.logs.control-session-status"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{live-vs-past}} {{live-chart-100}} {{live-filter-advice}}"
+    },
+    {
+      "label": "Ranges and retention.",
+      "text": "{{default-range}} {{live-retention}} {{extended-search-la}} {{retention-wording-varies}} The 6-month search conflicts with the 14-day Custom Range start on the same page and the 14-day limit on the export page {{divergence:custom-range-6-months-vs-14-days}}, and with the Log Streaming Service article's 14 days in the console {{divergence:console-retention-vs-lss}}. {{dashboard-fresher}}"
+    },
+    {
+      "label": "Filters and tables.",
+      "text": "{{filter-operator-setting}} {{query-builder-rules}} {{less-greater-ordering}} {{table-20-rows}}"
+    },
+    {
+      "label": "Counters.",
+      "text": "{{ua-counters}} {{status-counters}}"
+    },
+    {
+      "label": "The LSS client user.",
+      "text": "{{lss-client-user}}"
+    },
+    {
+      "label": "Exporting logs.",
+      "text": "{{export-limits}} {{export-manage}}"
+    },
+    {
+      "label": "Chrome Enterprise Browser.",
+      "text": "{{chrome-enterprise-log}} {{chrome-enterprise-fields}}"
+    },
+    {
+      "label": "What an entry shows.",
+      "text": "The fields of a User Activity entry are in [[zpa.troubleshooting.user-activity-diagnostics]], those of a User Status entry in [[zpa.logs.user-status]] and those of the connector and Service Edge status entries in [[zpa.logs.control-session-status]]."
+    }
+  ],
+  "claims": {
+    "live-vs-past": {
+      "statement": "Live Logs shows real-time events for user activity, user status, application activity and App Connector status, and a Private Service Edge Status page; past events for this data are viewed in Diagnostics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "quotes": [
+            "You can view and filter user activity, user status, application activity, and App Connector status data for real-time events. If you need to view past events for this data, use Diagnostics.",
+            "Private Service Edge Status: Displays the Private Service Edge Status page, which contains detailed activity for your organization's Private Service Edges for Private Access."
+          ]
+        }
+      ]
+    },
+    "live-chart-100": {
+      "statement": "A Live Logs chart tracks up to 100 of the latest activity logs and updates when Public or Private Service Edges record new logs; the table shows no data by default, and every click on New Logs refreshes the table and removes the older logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "quotes": [
+            "The chart tracks up to 100 of the latest activity logs. It updates instantaneously when the Public Service Edges or Private Service Edges record new logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "after": "The chart tracks up to 100 of the latest activity logs.",
+          "quotes": [
+            "By default, the table doesn't display any data. Click New Logs to populate the table. Every time you click New Logs, the table refreshes and the older logs are removed."
+          ]
+        }
+      ]
+    },
+    "live-filter-advice": {
+      "statement": "For troubleshooting, Zscaler recommends filtering Live Logs by User and Application to avoid viewing irrelevant logs, because many applications, users and App Connectors can produce a lot of logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "quotes": [
+            "If you have many applications, users, and App Connectors configured for your organization, the Real-Time Events table can potentially produce a lot of logs.",
+            "When troubleshooting, Zscaler recommends filtering the logs by User and Application to avoid viewing irrelevant logs."
+          ]
+        }
+      ]
+    },
+    "default-range": {
+      "statement": "The User Activity and User Status diagnostics show events of the last 24 hours by default. On the User Activity diagnostics page a Custom Range start date must be within the last 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "By default, the detailed activity for all users is displayed for events that occurred in the last 24 hours.",
+            "If you use Custom Range, the start date must be within the last 14 days."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "By default, the detailed status and authentication information for all users is displayed for events that occurred in the last 24 hours."
+          ]
+        }
+      ]
+    },
+    "live-retention": {
+      "statement": "The Live Logs page says Zscaler retains User Activity, User Status and App Connector log information for rolling periods of at least 14 days, and Audit log information for at least 6-month periods, during the subscription term.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "quotes": [
+            "Zscaler retains User Activity, User Status, and App Connector log information for rolling periods of at least 14 days during the subscription term.",
+            "Zscaler retains Audit log information for at least 6-month periods during the subscription term."
+          ]
+        }
+      ]
+    },
+    "extended-search-la": {
+      "statement": "The User Activity diagnostics page says Zscaler retains logs for rolling periods of up to 6 months depending on the subscription, and that a Custom Range can search data within the past 6 months of the current date, beginning from the moment of feature enablement. It adds, under the condition 'When the date range exceeds 14 days:', that not all the log fields are populated and that metrics including aggregates and trends are not available, and that this feature and its procedures are in limited availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Zscaler retains logs for rolling periods of up to 6 months depending on your subscription.",
+            "When you use Custom Range, you can search for data within the past 6 months of the current date. The data retrieved begins from the moment of feature enablement.",
+            "When the date range exceeds 14 days:",
+            "Not all the log fields are populated.",
+            "Metrics including aggregates and trends are not available.",
+            "This feature and its procedures are in limited availability."
+          ]
+        }
+      ]
+    },
+    "retention-wording-varies": {
+      "statement": "The Clientless Access diagnostics page gives the at-least-14-days retention statement, while the Chrome Enterprise Browser page gives both the at-least-14-days and the up-to-6-months statements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-clientless-access-diagnostics.json",
+          "quotes": [
+            "Zscaler retains logs for rolling periods of at least 14 days during your subscription term."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-chrome-enterprise-browser-diagnostics.json",
+          "quotes": [
+            "Zscaler retains logs for rolling periods of at least 14 days during the Subscription Term.",
+            "Zscaler retains logs for rolling periods of up to 6 months depending on your subscription."
+          ]
+        }
+      ]
+    },
+    "dashboard-fresher": {
+      "statement": "Data in the dashboard might be more recent than the data presented within Diagnostics for the same time range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Data in the dashboard might be more recent than the data presented within Diagnostics for the same time range."
+          ]
+        }
+      ]
+    },
+    "filter-operator-setting": {
+      "statement": "The Diagnostics settings select the default filter operator, Equals or Contains, with Equals the default, and the selected operator is saved for future sessions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-diagnostics-settings.json",
+          "quotes": [
+            "select the default filter operator (i.e., Equals or Contains) from the drop-down menu. The Default Filter Operator is set to Equals by default.",
+            "The selected filter operator is saved for future sessions."
+          ]
+        }
+      ]
+    },
+    "query-builder-rules": {
+      "statement": "In the User Activity diagnostics query builder, filters using the Contains operator allow at most 7 entries, multiple text entries are separated by a semicolon, the Username filter takes up to 5 usernames, and another admin can paste a copied query by clicking the Clipboard icon. The App Connector Status diagnostics offer a Recent Filters icon for the last 5 applied filters, shown only if a filter has been applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "Filters using the Contains operator allow a maximum of 7 entries.",
+            "All filters using operators that require text input must use a semicolon (;) to separate multiple entries (e.g., 137; 138; 139).",
+            "If you or another Private Access (ZPA) admin accesses Diagnostics, you can paste the query into the field by clicking the Clipboard icon."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "after": "User: System Public IP: See requests from a specific system IP.",
+          "quotes": [
+            "You can select up to 5 usernames for this filter option."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-app-connector-status-diagnostics.json",
+          "quotes": [
+            "Click the Recent Filters icon to select a filter from the last 5 filters that were applied. This icon only appears if a filter has been applied."
+          ]
+        }
+      ]
+    },
+    "less-greater-ordering": {
+      "statement": "With multiple text entries, a Less Than filter shows transactions starting from the largest entry provided and a Greater Than filter from the smallest entry provided.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "When configuring multiple text entries and using the Less Than operator, the results show transactions starting from the largest entry provided.",
+            "When configuring multiple text entries and using the Greater Than operator, the results show transactions starting from the smallest entry provided."
+          ]
+        }
+      ]
+    },
+    "table-20-rows": {
+      "statement": "The User Activity diagnostics table displays 20 transactions by default, and scrolling loads more.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "By default, the table displays 20 transactions. You can scroll to load more transactions."
+          ]
+        }
+      ]
+    },
+    "ua-counters": {
+      "statement": "The User Activity diagnostics count the total number of application requests, Errors, Access Policy Blocks (blocked by an access policy rule), Timeout Policy Blocks (blocked by a timeout policy rule), Successful requests, and Info, the application connections that terminated because the user or App Connector abruptly ended the TLS session (for example a laptop entering sleep mode) or the connection gracefully timed out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "quotes": [
+            "By default, the table displays the Total number of application requests made by users.",
+            "Errors: The total number of application access errors.",
+            "Access Policy Blocks: The total number of application requests blocked by an access policy rule.",
+            "Timeout Policy Blocks: The total number of application requests blocked by a timeout policy rule.",
+            "Successful: The total number of successful application requests.",
+            "Info: The total number of application connections that terminated because the user or App Connector abruptly ended the TLS session (e.g., user laptop enters sleep mode which ends the TLS session) or the application's connection gracefully timed out."
+          ]
+        }
+      ]
+    },
+    "status-counters": {
+      "statement": "The User Status diagnostics count the total number of authentication requests, access errors and successful authentication requests, and the App Connector Status diagnostics count App Connector access errors and successful App Connector requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Also, by default, the table displays the Total number of authentication requests made by users.",
+            "Errors: The total number of access errors.",
+            "Successful: The total number of successful authentication requests."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-app-connector-status-diagnostics.json",
+          "quotes": [
+            "Errors: The total number of App Connector access errors.",
+            "Successful: The total number of successful App Connector requests."
+          ]
+        }
+      ]
+    },
+    "lss-client-user": {
+      "statement": "The ZPA LSS Client user represents the LSS service, not an actual user; its diagnostic information is captured but not displayed by default, it must be selected explicitly in the User field to show its log information, and each log receiver is displayed as an application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-activity-diagnostics.json",
+          "after": "Username: The user who requested the application.",
+          "quotes": [
+            "be aware that the ZPA LSS Client user represents the LSS service, not an actual user. By default, diagnostic information for the ZPA LSS Client is captured but not displayed.",
+            "You must explicitly select this user from the User field to display its log information.",
+            "Also, each log receiver is displayed as an application to reflect the data coming in from the service."
+          ]
+        }
+      ]
+    },
+    "export-limits": {
+      "statement": "Diagnostics log data can be exported as a CSV file, with access governed by the organization's RBAC policies, for a maximum time range of 14 days even with an extended log retention policy. A tenant can generate up to 50 exports and 50 downloads per day; each export is limited to 10,000 entries and 200 MB, with a partial result if either limit is reached first, is processed in the background, and stays available for download for 72 hours before deletion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-exporting-diagnostics-logs.json",
+          "quotes": [
+            "You can export log data as a CSV file for offline analysis or reporting.",
+            "Access to exported data is governed by your organization's RBAC policies.",
+            "You can export diagnostic logs for a maximum time range of 14 days. If your organization has an extended log retention policy, you cannot retrieve data beyond the 14-day limit using this functionality.",
+            "You can generate up to 50 exports and 50 downloads per tenant per day.",
+            "Each export is limited to 10,000 entries and a maximum file size of 200 MB. If the export reaches either limit before all matching data is included, the exported file contains a partial result.",
+            "Exports are processed in the background, so you can continue using the Zscaler Admin Console while the export completes.",
+            "Export files remain available for download for 72 hours. After 72 hours, the export is deleted."
+          ]
+        }
+      ]
+    },
+    "export-manage": {
+      "statement": "In Manage Exports, downloading is available only for exports with the Ready to Download status and only failed exports can be retried; the Retry option can be used a maximum of 3 times.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-exporting-diagnostics-logs.json",
+          "quotes": [
+            "This action is available only for export requests with the Ready to Download status.",
+            "You can use the Retry option a maximum of 3 times.",
+            "only completed exports can be downloaded, and only failed exports can be retried."
+          ]
+        }
+      ]
+    },
+    "chrome-enterprise-log": {
+      "statement": "The Chrome Enterprise Browser diagnostics show managed Chrome Enterprise Browser policy log data and trend data for past events. Its query builder filters include CrowdStrike Agent (Enabled or Disabled), Disk Encryption, Operating System, Safe Browsing Protection Level and Secure Boot Mode, each with a listed set of values, and the page points to the Chrome Verified Access API documentation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-chrome-enterprise-browser-diagnostics.json",
+          "quotes": [
+            "You can view and filter managed Chrome Enterprise Browser policy log data and trend data for past events."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-chrome-enterprise-browser-diagnostics.json",
+          "after": "View query builder filters.",
+          "quotes": [
+            "CrowdStrike Agent: The CrowdStrike Agent software. This can be Enabled or Disabled.",
+            "Disk Encryption: The disk encryption type (i.e., Unspecified Disk Encryption, Unknown Disk Encryption, Disabled Disk Encryption, or Encrypted Disk Encryption).",
+            "Operating System: The host operating system (i.e., Unspecified Operating System, ChromeOS, ChromiumOS, Windows, macOS, Linux).",
+            "Safe Browsing Protection Level: The Safe Browsing protection level (i.e., Unspecified Safe Browsing Protection Level, Inactive Safe Browsing Protection Level, Standard Safe Browsing Protection Level, or Enhanced Safe Browsing Protection Level).",
+            "Secure Boot Mode: The Secure Boot mode (i.e., Unspecified Secure Boot Mode, Unknown Secure Boot Mode, Enable Secure Boot Mode, or Disable Secure Boot Mode).",
+            "To learn more, refer to the Chrome Verified Access API documentation."
+          ]
+        }
+      ]
+    },
+    "chrome-enterprise-fields": {
+      "statement": "A Chrome Enterprise Browser entry shows OS Firewall (enabled or disabled), Password Protection Warning Trigger (whether the feature is enabled or disabled), Key Trust Level and Device Affiliation IDs. Separately, a table-level Errors counter gives the total number of Chrome Enterprise browser errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-chrome-enterprise-browser-diagnostics.json",
+          "quotes": [
+            "OS Firewall: Indicates if the operating system firewall is enabled or disabled.",
+            "Password Protection Warning Trigger: Indicates if the Password Protection Warning feature is enabled or disabled.",
+            "Key Trust Level: The key trust level of the operating system (e.g., Chrome Browser OS Key).",
+            "Device Affiliation IDs: The device affiliation ID.",
+            "Errors: The total number of Chrome Enterprise browser errors."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {},
+  "divergences": {
+    "custom-range-6-months-vs-14-days": {
+      "summary": "The User Activity diagnostics page's 6-month Custom Range search versus its 14-day Custom Range start and the export limit",
+      "positions": [
+        {
+          "says": "The User Activity diagnostics page says a Custom Range can search data within the past 6 months, in limited availability.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-activity-diagnostics.json",
+            "quotes": [
+              "When you use Custom Range, you can search for data within the past 6 months of the current date."
+            ]
+          }
+        },
+        {
+          "says": "The same page says a Custom Range start date must be within the last 14 days.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-activity-diagnostics.json",
+            "quotes": [
+              "If you use Custom Range, the start date must be within the last 14 days."
+            ]
+          }
+        },
+        {
+          "says": "The export page says an organization with extended log retention cannot retrieve data beyond 14 days when exporting.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-exporting-diagnostics-logs.json",
+            "quotes": [
+              "If your organization has an extended log retention policy, you cannot retrieve data beyond the 14-day limit using this functionality."
+            ]
+          }
+        }
+      ],
+      "impact": "The page does not say which Custom Range limit applies to a tenant. Check the range the console accepts before telling an admin how far back a Diagnostics search reaches; an export is limited to 14 days in both readings."
+    },
+    "console-retention-vs-lss": {
+      "summary": "Console log availability of 14 days in the Log Streaming Service article versus up to 6 months in the Diagnostics pages",
+      "positions": [
+        {
+          "says": "The Log Streaming Service article says that for access to logs beyond 14 days in the Admin Console, setting up LSS is necessary.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-log-streaming-service.json",
+            "quotes": [
+              "For access to logs beyond the 14 days they are available in the Zscaler Admin Console, setting up the LSS is necessary."
+            ]
+          }
+        },
+        {
+          "says": "The User Activity diagnostics page says Zscaler retains logs for rolling periods of up to 6 months depending on the subscription.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-user-activity-diagnostics.json",
+            "quotes": [
+              "Zscaler retains logs for rolling periods of up to 6 months depending on your subscription."
+            ]
+          }
+        }
+      ],
+      "impact": "Which statement holds for a tenant is not stated. Do not tell an admin that LSS is the only route to logs older than 14 days, or that the console keeps 6 months, without checking the tenant's console range and subscription."
+    }
+  }
+}

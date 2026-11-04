@@ -39,7 +39,7 @@
   ],
   "prose": [
     {
-      "text": "Every scope of the score starts from the same per-hour values and then takes a different low or average. {{hourly-lowest}}"
+      "text": "Each scope of the score is built from the 5-minute and hourly values with its own rule: a lowest value, an average of lowest values, or an average over intervals. {{hourly-lowest}} The subscription table gives a different probing interval on Standard {{divergence:probe-interval-scope}}. {{probing-interval-by-tier}}"
     },
     {
       "label": "One bad sample.",
@@ -62,7 +62,7 @@
     },
     {
       "label": "User.",
-      "text": "{{user-score}} What a user who accessed no application gets is unverified {{gap:no-application-user}}."
+      "text": "{{user-score}} The Users Overview describes it as an average {{divergence:user-score-vs-overview}}. What a user who accessed no application gets is unverified {{gap:no-application-user}}."
     },
     {
       "label": "Rounding.",
@@ -72,7 +72,7 @@
       "heading": "What an application's value rests on"
     },
     {
-      "text": "{{pft-baseline}} {{availability-impact}} The relative weight of Page Fetch Time and availability is not published {{gap:pft-availability-weighting}}, and which other metrics enter the value is only partly documented {{gap:metrics-in-score}}."
+      "text": "{{pft-baseline}} {{baseline-population}} {{network-app-latency}} {{availability-impact}} The help article gives no relative weight for Page Fetch Time and availability {{gap:pft-availability-weighting}}, and which other metrics enter the value is only partly documented {{gap:metrics-in-score}}."
     },
     {
       "label": "Regions.",
@@ -102,6 +102,49 @@
     }
   ],
   "claims": {
+    "probing-interval-by-tier": {
+      "statement": "In the subscription table the probing interval is 15 minutes on Standard and 5 minutes on Microsoft 365, Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Probing Interval | 15 minutes | 5 minutes | 5 minutes | 5 minutes |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Applications and Probes"
+        }
+      ]
+    },
+    "baseline-population": {
+      "statement": "For predefined applications the Page Fetch Time baseline represents an average score based on device metrics across all organizations, and for custom applications an average score based on device metrics from a given organization; it is measured in milliseconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "The Page Fetch Time graph includes a baseline for any given region with at least one active device.",
+            "For predefined applications, the baseline represents an average score based on device metrics across all organizations. For custom applications, the baseline represents an average score based on device metrics from a given organization.",
+            "Baseline metrics are calculated daily for each application on a rolling timeline of the previous 7 days. The baseline value is measured in milliseconds."
+          ]
+        }
+      ]
+    },
+    "network-app-latency": {
+      "statement": "For network applications that use a single Cloud Path probe, End-to-End Latency information is provided in place of Page Fetch Time to calculate the ZDX Score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-application-details.json",
+          "quotes": [
+            "For network applications that use a single Cloud Path probe, End-to-End Latency information is provided in place of Page Fetch Time to calculate the ZDX Score."
+          ]
+        }
+      ]
+    },
     "hourly-lowest": {
       "statement": "Client Connector sends a probe to an application every 5 minutes; each 5-minute period's measurements are given a value from 0 to 100, and the lowest value within an hour becomes that hour's value. This is done for every defined application across all users, their devices and their locations.",
       "tier": "A",
@@ -236,6 +279,62 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "user-score-vs-overview": {
+      "summary": "A user's ZDX Score over a period: the score article says it is the value of the application with the lowest value among those the user accessed, while the Users Overview says the user's ZDX Score is an average score for the selected time period.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-zdx-score.json",
+            "quotes": [
+              "For a user's ZDX Score, a comparison of the values across each application they accessed is done for the selected time period. The application with the lowest value is the user's score, since it represents the user's poorest Digital Experience for the selected time range."
+            ]
+          },
+          "says": "The user's score is the lowest value among the applications the user accessed in the period."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-monitoring-users-overview.json",
+            "quotes": [
+              "The ZDX Score column shows the user's ZDX Score from 1–100, with 1 being the lowest and 100 being the highest. It is an average score for the selected time period."
+            ]
+          },
+          "says": "The Users list's ZDX Score column is an average score for the selected time period."
+        }
+      ],
+      "impact": "A user's score read from the Users Overview may not equal the lowest-application score the score article describes; neither article reconciles the two, so which definition the list uses is not settled."
+    },
+    "probe-interval-scope": {
+      "summary": "The probe cadence: the score article says Client Connector sends a probe to an application every 5 minutes with no subscription scope, while the subscription table gives a probing interval of 15 minutes on Standard.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-zdx-score.json",
+            "quotes": [
+              "Zscaler sends a probe from Zscaler Client Connector to an application every 5 minutes."
+            ]
+          },
+          "says": "A probe is sent every 5 minutes, with no subscription tier stated."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Probing Interval | 15 minutes | 5 minutes | 5 minutes | 5 minutes |",
+              "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+            ],
+            "after": "## Applications and Probes"
+          },
+          "says": "The probing interval is 15 minutes on Standard and 5 minutes on Microsoft 365, Advanced and Advanced Plus."
+        }
+      ],
+      "impact": "On a Standard subscription the 5-minute periods and the hourly lowest value the score article describes rest on a 15-minute probing interval; the score article does not say it applies to Standard."
     }
   },
   "gaps": {

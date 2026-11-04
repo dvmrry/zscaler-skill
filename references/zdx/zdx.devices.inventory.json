@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "id": "zdx.devices.inventory",
+  "title": "Hardware, process, software and software patch inventory in the ZDX console",
+  "aliases": [
+    "hardware inventory",
+    "hardware overview",
+    "process inventory",
+    "software inventory",
+    "software patch inventory",
+    "cpu incident",
+    "end of life software",
+    "inventory settings"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.health-score"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZDX has four inventory views in the console: hardware, process, software and software patch. {{hardware-requirements}} The minimum versions are not given {{gap:minimum-versions}}. {{hardware-views}}"
+    },
+    {
+      "label": "Process Inventory.",
+      "text": "{{process-requirements}} {{process-incidents}}"
+    },
+    {
+      "label": "Software Inventory.",
+      "text": "{{software-requirements}} {{software-overview}} {{software-details}}"
+    },
+    {
+      "label": "Software Patch Inventory.",
+      "text": "{{patch-inventory}}"
+    },
+    {
+      "label": "Through the API.",
+      "text": "The API's software inventory reads are not covered here and are open {{gap:api-inventory-reads}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant's subscription and the inventory collection settings support the inventory view before treating its absence as missing data.",
+      "uses": [
+        "hardware-requirements",
+        "process-requirements",
+        "software-requirements",
+        "patch-inventory"
+      ]
+    }
+  ],
+  "claims": {
+    "hardware-requirements": {
+      "statement": "Hardware Overview and Hardware Inventory show current information about the organization's devices and their hardware based on their associated users. They need the minimum required Client Connector and ZDX Module versions, a ZDX subscription level that supports Hardware Inventory and the proper ZDX role; the subscription table lists Software and Device Inventory as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-hardware-overview-and-hardware-inventory.json",
+          "quotes": [
+            "Hardware Overview and Hardware Inventory allow you to view current information about your organization's devices and their hardware information based on their associated users.",
+            "The minimum required versions of Zscaler Client Connector and ZDX Module.",
+            "Your ZDX subscription level supports Hardware Inventory.",
+            "Your ZDX role has the proper permission level."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Software and Device Inventory | Not supported | Not supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "hardware-views": {
+      "statement": "The hardware views show the current device count and the total active users from the last 14 days until the start of the UTC day, with the change over the past 24 hours, and chart memory and OS distribution. The inventory table gives each device's name (the vendor device name, with model and OS), user, vendor, hardware model, CPU and memory, and the download captures all currently known devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-hardware-overview-and-hardware-inventory.json",
+          "quotes": [
+            "View the current device count and the total active users from the last 14 days until the start of the UTC day. The percentage on each card indicates how the count has increased or decreased over the past 24 hours.",
+            "Memory Distribution: Amount of memory installed and allotted per device.",
+            "OS Distribution: Number of devices per OS."
+          ],
+          "after": "# Viewing Hardware Overview"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-hardware-overview-and-hardware-inventory.json",
+          "quotes": [
+            "The download process captures all currently known devices.",
+            "Name: The vendor device name, with model and OS.",
+            "User: The device user.",
+            "Vendor: The name of the device provider.",
+            "Hardware Model: The specific model name of the device.",
+            "CPU: The processor model.",
+            "Memory (RAM): The amount of memory installed on the device."
+          ]
+        }
+      ]
+    },
+    "process-requirements": {
+      "statement": "Process Inventory monitors processes that might be impacting the behavior of users' devices; process calculations are updated in one-minute rolling intervals and the top processes are displayed every five minutes. It needs the minimum required Client Connector and ZDX Module versions, a ZDX subscription level that supports it and a CPU usage threshold set for devices; the subscription table lists Process Inventory as supported only on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-process-inventory.json",
+          "quotes": [
+            "Process Inventory allows you to monitor processes that might be impacting the behavior of your users' devices.",
+            "Process calculations are updated in one-minute rolling intervals, and the top processes are displayed every five minutes.",
+            "You're running the minimum required versions of Zscaler Client Connector and ZDX Module.",
+            "Your ZDX subscription level supports Process Inventory.",
+            "You've set a CPU usage threshold for devices in your organization."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Process Inventory | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "process-incidents": {
+      "statement": "The Process Overview tiles show top processes that have exceeded the CPU threshold within a 5-minute interval, color-coded according to number of incidents. The Process Inventory table gives each process's name, the number of devices impacted, CPU incidents (incidents that exceeded the configured CPU threshold) and the average percentage of RAM used. The process details table gives the bytes read from and written to the disk and the bytes uploaded by the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-process-inventory.json",
+          "quotes": [
+            "These processes have exceeded the threshold within a 5-minute interval, and are color-coded according to number of incidents, as indicated in the legend.",
+            "Devices: The number of devices impacted.",
+            "Disk Read: The number of bytes read from the disk.",
+            "Disk Write: The number of bytes written from the disk.",
+            "Network Upload: The number of bytes uploaded by the device."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-process-inventory.json",
+          "quotes": [
+            "Name: The name of the process.",
+            "CPU Incidents: The number of incidents that have exceeded your configured CPU threshold.",
+            "Avg Memory: The average percentage of RAM used for the process."
+          ],
+          "after": "# Viewing Process Inventory"
+        }
+      ]
+    },
+    "software-requirements": {
+      "statement": "Software Inventory shows current and historical information about software versions and updates on users' devices. It needs the minimum required Client Connector and ZDX Module versions, a ZDX subscription level that supports it and the inventory data collection setting enabled, and its data might take up to one day to be available after Data Collection is enabled. The subscription table lists Software and Device Inventory as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Software and Device Inventory | Not supported | Not supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-software-inventory.json",
+          "quotes": [
+            "Software Inventory allows you to view current and historical information about software versions and updates on your users' devices.",
+            "You're running the minimum required versions of Zscaler Client Connector and ZDX Module.",
+            "Your ZDX subscription level supports Software Inventory.",
+            "You've enabled the setting for inventory data collection.",
+            "Availability of Software Inventory data might take up to one day after Data Collection is enabled."
+          ]
+        }
+      ]
+    },
+    "software-overview": {
+      "statement": "The Software Overview shows the current count of installed software, vendors, users and devices from the day Software Inventory was enabled until the start of the UTC day. The inventory table groups software by a software group, gives End of Life (when the vendor no longer supports or maintains the software) and End of Support (when it no longer receives updates, patches or technical assistance) dates, and its download captures all known installations every 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-software-inventory.json",
+          "quotes": [
+            "View the current count for installed software, vendors, users, and devices from the day Software Inventory was enabled until the start of the UTC day.",
+            "Software App Groups: Supported vendor software or individual applications, grouped by name.",
+            "Software Group: The group name to which the software or application belongs.",
+            "The download process captures all known installations every 24 hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-software-inventory.json",
+          "quotes": [
+            "End of Life: The date when the installed software is no longer supported or maintained by the vendor.",
+            "End of Support: The date when the installed software no longer receives updates, patches, or technical assistance from the vendor."
+          ],
+          "after": "# Viewing Software Inventory"
+        }
+      ]
+    },
+    "software-details": {
+      "statement": "Per software version the details give the folder on the user's system where the software is found, a version history with the date it was last updated, and the date it was originally installed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-software-inventory.json",
+          "quotes": [
+            "Location: The folder on the user's system where the software or application is found.",
+            "Version History: Click the View icon to display the date when the software or application was last updated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-software-inventory.json",
+          "quotes": [
+            "Install Date: The date when the software or application was originally installed."
+          ],
+          "after": "## View Software Details"
+        }
+      ]
+    },
+    "patch-inventory": {
+      "statement": "Software Patch Inventory identifies each patch, associated with a user and device, as either a software or security patch update. It needs the required Client Connector and ZDX Module versions, a ZDX subscription level that supports it, an admin role configured for inventory management and the setting to collect Software Patch Inventory data enabled; the subscription table lists it as supported on Standard, Microsoft 365, Advanced and Advanced Plus. A patch's Patch Type is an Update, a Security Update or N/A, and its details give the device hostname, the operating system version and the install date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-software-patch-inventory.json",
+          "quotes": [
+            "Each patch is associated with a user and device, and identified as either a software or security patch update, as applicable.",
+            "You're running the required versions of Zscaler Client Connector and ZDX Module.",
+            "Your ZDX subscription level supports Software Patch Inventory.",
+            "Your admin role is configured for inventory management.",
+            "You've enabled the setting to collect Software Patch Inventory data.",
+            "Hostname: The device hostname.",
+            "Version: The version of the operating system."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-software-patch-inventory.json",
+          "quotes": [
+            "Patch Type: Identified as an Update, Security Update, or N/A (Not Applicable).",
+            "Install Date: The date when the software patch was installed on the corresponding device."
+          ],
+          "after": "# Viewing Software Patch Inventory"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Software Patch Inventory | Supported | Supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-inventory-reads": {
+      "kind": "semantic",
+      "title": "What the API's software inventory reads return",
+      "status": "open",
+      "detail": "The generated surface lists `/v1/inventory/software` and `/v1/inventory/software/{softwareKey}`, and the Python SDK has methods on `/zdx/v1/inventory/software`. No subject reads the contract or the SDK for them, and the help articles on the console views do not say how the views relate to the API reads.",
+      "blocks": "answering how to read software inventory through the API",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "minimum-versions": {
+      "kind": "semantic",
+      "title": "The minimum Client Connector and ZDX Module versions the inventory views need",
+      "status": "open",
+      "detail": "The inventory articles require the minimum required versions of Client Connector and ZDX Module and link to a compatibility page without giving numbers; the settings that enable collection and set the CPU usage threshold are configured in articles outside the extraction.",
+      "blocks": "explaining why a device does not appear in an inventory view",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

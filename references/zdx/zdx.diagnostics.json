@@ -35,6 +35,10 @@
     {
       "rel": "see-also",
       "to": "zdx.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-types"
     }
   ],
   "prose": [
@@ -51,7 +55,19 @@
     },
     {
       "label": "Where each part is.",
-      "text": "Statuses: [[zdx.diagnostics.session-status]]. Starting one through the API, with its limits: [[zdx.diagnostics.start-request]]. Reading, deleting and the session record: [[zdx.diagnostics.session-records]]. Score analysis jobs: [[zdx.diagnostics.analysis]]. The MCP tools: [[zdx.diagnostics.mcp-tools]]."
+      "text": "The four console session types and their options and results: [[zdx.diagnostics.session-types]]. Statuses: [[zdx.diagnostics.session-status]]. Starting one through the API, with its limits: [[zdx.diagnostics.start-request]]. Reading, deleting and the session record: [[zdx.diagnostics.session-records]]. Score analysis jobs: [[zdx.diagnostics.analysis]]. The MCP tools: [[zdx.diagnostics.mcp-tools]]."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{session-collection-interval}} {{session-requirements}} {{session-duration-and-export}} The contract and the help differ on the length {{divergence:session-length-help}}."
+    },
+    {
+      "label": "Limits.",
+      "text": "{{session-limit-tiers}} The contract's tenant-wide figure differs {{divergence:active-session-limit}}."
+    },
+    {
+      "label": "Managing a session.",
+      "text": "{{session-actions}} {{session-table-fields}}"
     },
     {
       "label": "Live troubleshooting.",
@@ -178,6 +194,181 @@
           }
         }
       ]
+    },
+    "session-collection-interval": {
+      "statement": "During a Diagnostics session information is collected every minute for the Web probe and the Cloud Path probe, as well as device statistics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "During a session, information is collected every minute for the Web probe and Cloud Path probe, as well as device statistics."
+          ]
+        }
+      ]
+    },
+    "session-requirements": {
+      "statement": "Diagnostics needs the minimum required versions of Client Connector and ZDX Module, a Digital Experience subscription level that supports Diagnostics, and an admin role configured for Diagnostics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "You're running the minimum required versions of Zscaler Client Connector and ZDX Module.",
+            "Your Digital Experience subscription level supports Diagnostics.",
+            "Your admin role is configured for Diagnostics."
+          ]
+        }
+      ]
+    },
+    "session-limit-tiers": {
+      "statement": "The subscription table gives Total Diagnostics Sessions and Total Active Sessions as not supported on Standard, 25 each on Microsoft 365 and Advanced, and 100 each on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Total Diagnostics Sessions | Not supported | 25 | 25 | 100 |",
+            "| Total Active Sessions | Not supported | 25 | 25 | 100 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "# Diagnostics"
+        }
+      ]
+    },
+    "session-duration-and-export": {
+      "statement": "A session can be run to monitor issues from 5 minutes to 60 minutes; starting one needs an active probe on the device that must have run for a minimum of 30 minutes; session information can be viewed on the Diagnostics page and exported as a PDF file, but an admin with View Only permission for Diagnostics details cannot use Export PDF.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "You can choose to run the session to monitor issues from 5 minutes to 60 minutes.",
+            "To start a session, an active probe is required on the device. The active probe must run for a minimum duration of 30 minutes.",
+            "You can view session information on the Diagnostics page and also export it as a PDF file for reference and information sharing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "If you have View Only permission for Diagnostics details, you cannot use the Export PDF feature to save the results."
+          ]
+        }
+      ]
+    },
+    "session-actions": {
+      "statement": "From the Diagnostics page an admin can copy a session's details into a new session with all fields editable, end a session in the In Progress table, or delete a session, which removes it from the Diagnostics page; a copy does not include a device that has a session in progress or is no longer associated with the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "Copy the details of the selected session and start a new session with all details of an existing session copied. All fields are editable.",
+            "End a session in the In Progress table.",
+            "Delete the session. Deleting a session removes it from the Diagnostics page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "If the device has a session in progress or is no longer associated with the user, it is not copied."
+          ]
+        }
+      ]
+    },
+    "session-table-fields": {
+      "statement": "The session tables give each session's type, Created Time (when the admin created it), Start Time (when Client Connector accepted the request and started collecting data) and Created By (the admin's name and email address), with Duration in minutes in the In Progress table and End Time in the History table, sorted by Start Time with the latest first by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-diagnostics-session-information.json",
+          "quotes": [
+            "Session Type: The type of session selected during configuration.",
+            "Created Time: The time the session was created by the Digital Experience (ZDX) admin.",
+            "Start Time: The time that Zscaler Client Connector accepted the request and started collecting data.",
+            "Created By: The name and email address of the admin who created the session.",
+            "Duration (minutes): How long the Diagnostics session is, in minutes, in the In Progress table.",
+            "End Time: The time the session ended in the History table.",
+            "By default, the lists are sorted by the Start Time, displaying the session with the latest Start Time first."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "session-length-help": {
+      "summary": "The length of a Diagnostics session: the API contract says up to 15 minutes; the About Diagnostics help says 5 to 60 minutes, and the Starting a New Diagnostics Session help lists 5, 15, 30 and 60 minutes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post/requestBody/content/application~1json/schema/properties/session_length_minutes",
+            "expect": {
+              "description": "Session length in minutes (upto 15 mins)"
+            }
+          },
+          "says": "`session_length_minutes` goes up to 15 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-about-diagnostics.json",
+            "quotes": [
+              "You can choose to run the session to monitor issues from 5 minutes to 60 minutes."
+            ]
+          },
+          "says": "A session can run from 5 minutes to 60 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-starting-new-diagnostics-session.json",
+            "quotes": [
+              "you can set the duration to 5 minutes, 15 minutes, 30 minutes, or 60 minutes using the Run Session For option"
+            ]
+          },
+          "says": "With Packet Capture Probing added to another type the Run Session For option offers 5, 15, 30 and 60 minutes."
+        }
+      ],
+      "impact": "A 30- or 60-minute session the console offers may be refused or shortened when started through the API; the sources do not say whether the console and the API share a limit. The existing divergence session-length-range in zdx.diagnostics.start-request holds the SDK positions."
+    },
+    "active-session-limit": {
+      "summary": "How many Diagnostics sessions can be active: the API contract limits deep traces to 15 active sessions across all devices, UI sessions included; the subscription table gives 25 total active sessions on Microsoft 365 and Advanced and 100 on Advanced Plus.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1devices~1{id}~1deeptraces/post",
+            "expect": {
+              "description": "Start deep trace on a device. Limited to 1 active session on a device at any time. Overall 15 active sessions at any point of time across all devices - includes sessions initiated from UI."
+            }
+          },
+          "says": "Overall 15 active sessions across all devices, including sessions started from the UI."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Total Active Sessions | Not supported | 25 | 25 | 100 |",
+              "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+            ],
+            "after": "# Diagnostics"
+          },
+          "says": "Total Active Sessions is not supported on Standard, 25 on Microsoft 365 and Advanced, and 100 on Advanced Plus."
+        }
+      ],
+      "impact": "No tier's figure equals the contract's 15; which limit an API start meets first is not stated by either source. The start-article help also says a Deep Tracing special application is not counted toward the sessions limit."
     }
   },
   "gaps": {

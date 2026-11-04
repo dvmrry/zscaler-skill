@@ -50,13 +50,22 @@
       "heading": "How many feeds"
     },
     {
-      "text": "{{feed-limits}} {{cbc-nss-limits}} A Cloud NSS instance instead holds one feed per log type: [[zia.logs.nss-feed-format:cloud-feed-limit]]."
+      "text": "{{feed-limits}} The HTTP feed article states the HTTP limit differently {{divergence:http-feed-count}}. {{cbc-nss-limits}} A Cloud NSS instance instead holds one feed per log type: [[zia.logs.nss-feed-format:cloud-feed-limit]]."
+    },
+    {
+      "text": "{{tcp-per-type-limits}} {{http-limits-and-types}} {{cloud-one-feed}}"
+    },
+    {
+      "text": "{{nss-type-by-log-type}} All three Tunnel articles show only the Web default, so whether a Firewall-type server can carry tunnel feeds is open {{gap:tunnel-nss-type}}. Its bearing on subscriptions is in [[shared.nss.delivery-modes:subscription-log-types]]. {{log-domain}}"
+    },
+    {
+      "text": "{{sspm-subscription}} {{auth-scim-delay}}"
     },
     {
       "heading": "Kinds of feed and what they carry"
     },
     {
-      "text": "{{feed-kinds}} {{feed-columns}} {{feed-log-types}} {{alert-feed}}"
+      "text": "{{feed-kinds}} {{feed-columns}} {{feed-log-types}} {{alert-feed}} The alert feed's levels, format and thresholds are in [[shared.nss.alerts]]."
     },
     {
       "text": "{{sspm-log-types}} The Automate nssLogType enum snapshot does not list these values ([[shared.nss.feeds:new-log-types]])."
@@ -65,7 +74,7 @@
       "heading": "Filters"
     },
     {
-      "text": "{{filter-caps}} {{filtered-not-sent}} How several values and several filter fields combine is not stated {{gap:filter-logic}}. {{select-all-hide-deleted}} ([[shared.nss.feeds:filter-select-all-hide-deleted]])"
+      "text": "{{filter-caps}} {{filtered-not-sent}} The one example of filters on different fields is in [[shared.nss.feed-filters:filters-and]]. The general rule for how filter values and fields combine is not stated {{gap:filter-logic}}. The per-log-type filters are in [[shared.nss.feed-filters]]. {{select-all-hide-deleted}} ([[shared.nss.feeds:filter-select-all-hide-deleted]])"
     },
     {
       "heading": "Output format"
@@ -79,9 +88,11 @@
   ],
   "checks": [
     {
-      "do": "Count the server's existing feeds by log type and transport before adding one: 16 in total, 8 Web, 8 Firewall, 2 HTTP.",
+      "do": "Count the server's existing feeds by log type and transport before adding one: 16 in total, 8 Web and 8 Firewall, and for HTTP either 2 or 8 depending on which article is read.",
       "uses": [
-        "feed-limits"
+        "feed-limits",
+        "http-limits-and-types",
+        "http-feed-count"
       ]
     },
     {
@@ -130,6 +141,251 @@
           "quotes": [
             "You can add as many as 16 feeds per NSS server for a TCP NSS and HTTP NSS together.",
             "To ensure optimal performance, Web and Firewall log types are each limited to 8 feeds per server and the HTTP logs are restricted to 2 feeds within the total."
+          ]
+        }
+      ]
+    },
+    "tcp-per-type-limits": {
+      "statement": "The TCP NSS feed articles allow up to 8 feeds for Web, Firewall, Sandbox Verdict, Authentication, SCIM, 3rd-Party App Governance and Posture Management logs, and up to 16 for DNS, Tunnel, SaaS Security, SaaS Security Activity, Admin Audit, Endpoint DLP and Email DLP logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "You can configure up to 8 TCP Nanolog Streaming Service (NSS) feeds that define the web logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "You can configure up to TCP 8 Nanolog Streaming Service (NSS) feeds to specify the data from the Firewall logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-sandbox-verdict-logs.json",
+          "quotes": [
+            "You can configure up to 8 TCP Nanolog Streaming Service (NSS) feeds to specify the data from the Sandbox verdict logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-authentication-logs.json",
+          "quotes": [
+            "You can configure up to 8 TCP Nanolog Streaming Service (NSS) feeds that define the Authentication logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-scim-logs.json",
+          "quotes": [
+            "You can configure up to 8 TCP Nanolog Streaming Service (NSS) feeds that define the SCIM logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-3rd-party-app-governance-logs.json",
+          "quotes": [
+            "You can configure up to 8 TCP Nanolog Streaming Service (NSS) feeds to specify the data from the 3rd-Party App Governance logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-posture-management-logs.json",
+          "quotes": [
+            "You can configure up to 8 TCP Nanolog Streaming Service (NSS) feeds to specify the data from the Posture Management logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-dns-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP Nanolog Streaming Service (NSS) feeds to specify the data from the DNS logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-tunnel-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP Nanolog Streaming Service (NSS) feeds to specify the data from the tunnel logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP Nanolog Streaming Service (NSS) feeds that define the SaaS Security logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-saas-security-activity-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP NSS feeds that define the SaaS Security activity logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP NSS feeds to specify the data from the admin audit logs that the NSS sends to the SIEM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-endpoint-dlp-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP Nanolog Streaming Service (NSS) feeds to specify the data from the Endpoint Data Loss Prevention (DLP) logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-email-dlp-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP Nanolog Streaming Service (NSS) feeds to specify the data from the Email Data Loss Prevention (DLP) logs"
+          ]
+        }
+      ]
+    },
+    "http-limits-and-types": {
+      "statement": "The HTTP NSS feeds article says up to 8 HTTP NSS feeds can be added for each NSS server, with Web and firewall log types each limited to two feeds per NSS server, and it lists articles for adding HTTP NSS feeds per log type, among them Web Logs and Sandbox Verdict Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds.json",
+          "quotes": [
+            "You can add up to 8 HTTP NSS feeds for each NSS server. (Web and firewall log types are each limited to two feeds per NSS server to ensure optimal performance.)",
+            "Adding HTTP NSS Feeds for Web Logs",
+            "Adding HTTP NSS Feeds for Sandbox Verdict Logs"
+          ]
+        }
+      ]
+    },
+    "cloud-one-feed": {
+      "statement": "The Cloud NSS Authentication and SCIM articles each say one Cloud NSS feed can be configured for that log type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-authentication-logs.json",
+          "quotes": [
+            "You can configure one Cloud NSS feed that defines the Authentication logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-scim-logs.json",
+          "quotes": [
+            "You can configure one Cloud NSS feed that defines the SCIM logs"
+          ]
+        }
+      ]
+    },
+    "nss-type-by-log-type": {
+      "statement": "The TCP DNS feed article says to select NSS for Firewall as the NSS Type, while the TCP, HTTP and Cloud Tunnel articles each say NSS for Web is selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-dns-logs.json",
+          "quotes": [
+            "NSS Type: Select NSS for Firewall."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-tunnel-logs.json",
+          "quotes": [
+            "NSS Type: NSS for Web is selected by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-tunnel-logs.json",
+          "quotes": [
+            "NSS Type: NSS for Web is selected by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-tunnel-logs.json",
+          "quotes": [
+            "NSS Type: NSS for Web is selected by default."
+          ]
+        }
+      ]
+    },
+    "log-domain": {
+      "statement": "The TCP DNS article offers a choice between Firewall, for Internet Access (ZIA) DNS logs, and Cloud & Branch Connector, while the HTTP DNS article says Log Domain: Choose Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-dns-logs.json",
+          "quotes": [
+            "If you want to configure NSS for Internet Access (ZIA) DNS logs, choose Firewall and follow the successive steps.",
+            "If you want to configure NSS for Cloud & Branch Connector logs, choose Cloud & Branch Connector and see Adding NSS Feeds for applicable log types."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-dns-logs.json",
+          "quotes": [
+            "Log Domain: Choose Firewall."
+          ]
+        }
+      ]
+    },
+    "sspm-subscription": {
+      "statement": "Access to 3rd-Party App Governance and Posture Management logs requires Advanced SaaS Security Posture Management (SSPM), available from the Zscaler Account team; their Log Type values are App Governance and Posture.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-3rd-party-app-governance-logs.json",
+          "quotes": [
+            "Access to Zscaler 3rd-Party App Governance logs requires Advanced SaaS Security Posture Management (SSPM). To get Advanced SSPM, contact your Zscaler Account team.",
+            "Log Type: Select App Governance."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-posture-management-logs.json",
+          "quotes": [
+            "Access to Posture Management logs requires Advanced SaaS Security Posture Management (SSPM).",
+            "Log Type: Select Posture."
+          ]
+        }
+      ]
+    },
+    "auth-scim-delay": {
+      "statement": "The initial Authentication feed takes up to 5 hours to stream, on TCP and Cloud NSS, and appropriate Log Streaming role permissions must be enabled in the Authentication Service. The SCIM article says the initial SCIM feed also takes up to 5 hours, and that this delay does not occur if Audit Logs are already configured and streaming.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-authentication-logs.json",
+          "quotes": [
+            "The initial Authentication Nanolog Streaming Service (NSS) feed takes up to 5 hours to stream to the NSS and your security information and event management (SIEM) system.",
+            "Ensure that you enable appropriate role permissions for Log Streaming in the Authentication Service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-authentication-logs.json",
+          "quotes": [
+            "The initial Authentication Nanolog Streaming Service (NSS) feed takes up to 5 hours to stream to the Cloud NSS"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-scim-logs.json",
+          "quotes": [
+            "The initial SCIM Nanolog Streaming Service (NSS) feed takes up to 5 hours to stream to the NSS and your security information and event management (SIEM) system.",
+            "However, this delay does not occur if you have already configured and are streaming Audit Logs."
           ]
         }
       ]
@@ -330,15 +586,53 @@
       ]
     }
   },
+  "divergences": {
+    "http-feed-count": {
+      "summary": "The NSS Feeds article and the HTTP NSS feed article state the HTTP feed limit differently.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-nss-feeds.json",
+            "quotes": [
+              "To ensure optimal performance, Web and Firewall log types are each limited to 8 feeds per server and the HTTP logs are restricted to 2 feeds within the total."
+            ]
+          },
+          "says": "HTTP logs are restricted to 2 feeds within the 16 total, and Web and Firewall are each limited to 8."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-http-nss-feeds.json",
+            "quotes": [
+              "You can add up to 8 HTTP NSS feeds for each NSS server. (Web and firewall log types are each limited to two feeds per NSS server to ensure optimal performance.)"
+            ]
+          },
+          "says": "Up to 8 HTTP NSS feeds are allowed per NSS server, with Web and Firewall each limited to two."
+        }
+      ],
+      "impact": "How many HTTP feeds a server can carry, 2 or 8, depends on which article is read; the per-server total of 16 is not in dispute."
+    }
+  },
   "gaps": {
     "filter-logic": {
       "kind": "semantic",
       "title": "How feed filter values and fields combine",
       "status": "open",
-      "detail": "Unverified legacy statement: \"Filter criteria are additive per field (OR within a field; AND across fields). A feed filtering on 'Location = HQ AND Threat = Malware' emits records that match both conditions.\" The captured NSS articles describe filters only as excluding unwanted logs.",
-      "blocks": "predicting which records a feed with several filter fields sends",
+      "detail": "Unverified legacy statement: \"Filter criteria are additive per field (OR within a field; AND across fields).\" The web feed article gives one example, a location HQ and a department Finance selecting logs that belong to both (shared.nss.feed-filters:filters-and), but no article states AND across fields as a rule. They say only that multiple selections are allowed within a filter, and never state whether those values combine as OR.",
+      "blocks": "predicting which records a feed with several filter fields or several values sends",
       "resolves_with": [
         "source-read",
+        "lab-test"
+      ]
+    },
+    "tunnel-nss-type": {
+      "kind": "semantic",
+      "title": "Whether a Firewall-type NSS server can carry tunnel feeds",
+      "status": "open",
+      "detail": "The Tunnel feed articles show only that NSS for Web is selected by default, while the DNS articles select NSS for Firewall. No source says which NSS type a Tunnel feed needs.",
+      "resolves_with": [
+        "support-ticket",
         "lab-test"
       ]
     },

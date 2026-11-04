@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.vm-platforms",
+  "title": "Deploying the NSS VM on AWS, GCP, Azure, Hyper-V, Nutanix and vSphere",
+  "aliases": [
+    "nss deployment guide",
+    "nss on aws",
+    "nss on gcp",
+    "nss on azure",
+    "nss on hyper-v",
+    "nss on nutanix",
+    "nss on vsphere",
+    "zsos42",
+    "zscaleros 42"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.servers"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-network"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.azure-arm-template"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{zscaleros-42}}"
+    },
+    {
+      "label": "Amazon Web Services.",
+      "text": "{{aws-ami}} {{aws-interfaces}} {{aws-storage-and-login}}"
+    },
+    {
+      "label": "Google Cloud Platform.",
+      "text": "{{gcp-image}} {{gcp-network}} {{gcp-troubleshooting}}"
+    },
+    {
+      "label": "Microsoft Azure.",
+      "text": "{{azure-image}} {{azure-vm}} Zscaler's own ARM template is in [[shared.nss.azure-arm-template]]."
+    },
+    {
+      "label": "Hyper-V.",
+      "text": "{{hyperv}} The guides disagree on whether a second management or service interface is available {{divergence:extra-interfaces-scope}}: [[shared.nss.vm-advanced-settings]]."
+    },
+    {
+      "label": "Nutanix.",
+      "text": "{{nutanix}}"
+    },
+    {
+      "label": "VMware vSphere.",
+      "text": "{{vsphere}}"
+    },
+    {
+      "label": "Next.",
+      "text": "Memory, CPU and disk are in [[shared.nss.vm-sizing]], interface roles and firewall rules in [[shared.nss.vm-network]], and the `nss` command set in [[shared.nss.vm-operations]]."
+    }
+  ],
+  "claims": {
+    "zscaleros-42": {
+      "statement": "A new or clean NSS deployment requires a VM image running ZscalerOS version 42.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-nss-virtual-appliances.json",
+          "quotes": [
+            "New or clean deployment of Nanolog Streaming Service (NSS) requires VM image running on ZscalerOS version 42."
+          ]
+        }
+      ]
+    },
+    "aws-ami": {
+      "statement": "On AWS the NSS runs on an EC2 instance; the guide selects AWS Marketplace AMIs, searches for zsos42 and selects the Zscaler NSS (ZSOS42) AMI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "An organization can deploy the NSS instance on an EC2 instance on AWS.",
+            "Select AWS Marketplace AMIs.",
+            "Enter zsos42 in the search bar and press Enter.",
+            "Click Select next to Zscaler NSS (ZSOS42) AMI in the results."
+          ]
+        }
+      ]
+    },
+    "aws-interfaces": {
+      "statement": "On AWS the NSS needs a second interface (eth1) in the same subnet as the first (eth0). Auto-assign IP can only be assigned to instances with one network interface. Second management or service network interfaces are currently not supported in the NSS over AWS deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "By default, the EC2 instance has one network interface (eth0), but NSS requires an additional interface (eth1) in the same subnet.",
+            "Auto-assign IP can only be assigned to instances with one network interface; NSS requires two network interfaces.",
+            "Second management or service network interfaces are currently not supported in the NSS over AWS deployment."
+          ]
+        }
+      ]
+    },
+    "aws-storage-and-login": {
+      "statement": "On AWS, General purpose SSD (gp3) is recommended and Magnetic (standard) is sufficient. The admin logs in over SSH as zsroot with the key pair's PEM file. Zscaler's EC2 instance type recommendation is based on the expected number of transactions, users and the most economical option, and if the recommended type cannot be selected, the guide says to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "General purpose SSD (gp3) is recommended, but Magnetic (standard) is sufficient.",
+            "ssh -i <key-pair-name>.pem zsroot@<instance-public-IP-address>",
+            "Zscaler’s EC2 instance type recommendation is based on the expected number of transactions, users, and the most economical option for the customer. If you are unable to select the recommended type, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "gcp-image": {
+      "statement": "On GCP, access to the Zscaler-owned NSS VMDK file comes from Zscaler Support. A TSV file contains the signed URL of the VMDK file, which expires after 24 hours, and the guide imports the file into Compute Engine as a custom image with Skip OS adaptation enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "Before you begin deployment, you must get access to the Zscaler-owned NSS VMDK file. To get access, contact Zscaler Support.",
+            "The TSV file contains the signed URL of the Zscaler-owned NSS VMDK file later used to create an NSS image.",
+            "The signed URL expires after 24 hours. If your signed URL expires, and you require a new one, contact Zscaler Support.",
+            "import it into Compute Engine as a custom image",
+            "Skip OS adaptation: Enable this setting."
+          ]
+        }
+      ]
+    },
+    "gcp-network": {
+      "statement": "On GCP, Zscaler recommends an MTU of 1460. The instance has IP forwarding enabled and the VirtIO network interface card, and the management interface is assigned to vtnet0 and the service interface to vtnet1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "Maximum transmission unit (MTU): Zscaler recommends 1460.",
+            "IP forwarding: Enable this setting.",
+            "Network interface card: Select VirtIO.",
+            "the management interface is assigned to vtnet0 and the service interface is assigned to vtnet1"
+          ]
+        }
+      ]
+    },
+    "gcp-troubleshooting": {
+      "statement": "On GCP, if the NSS connection with the Zscaler CA fluctuates, the guide gives the command `ifconfig vtnet1 -rxcsum -txcsum -rxcsum6 -txcsum6 -tso4`. It also gives an `smnet_route` line for the SIEM, and Zscaler recommends a custom route in the sc.conf file if the downstream SIEM IP address is in the same subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "If the NSS connection with the Zscaler CA fluctuates (i.e., it is established and then disconnects), run the following command:",
+            "ifconfig vtnet1 -rxcsum -txcsum -rxcsum6 -txcsum6 -tso4",
+            "smnet_route=<SIEM IP Address>/32/<SIEM Gateway IP Address>",
+            "Zscaler recommends adding a custom route in the sc.conf file if your downstream SIEM IP address is in the same subnet."
+          ]
+        }
+      ]
+    },
+    "azure-image": {
+      "statement": "On Azure, the NSS VHD SAS token and the Azure VM instance type recommendations come from Zscaler Support. The OS-disk VHD znss_5_2_osdisk.vhd is published at Zscaler storage accounts for USA, Europe and Australia, is approximately 500 GB, and the script that copies it then creates an Azure Managed Image.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "Before you begin deployment, contact Zscaler Support to obtain the NSS VHD SAS token and the Azure Virtual Machine (VM) instance type recommendations.",
+            "USA: https://znssprod.blob.core.windows.net/nss/znss_5_2_osdisk.vhd Europe: https://znssprodeu.blob.core.windows.net/nss/znss_5_2_osdisk.vhd Australia: https://znssprodau.blob.core.windows.net/nss/znss_5_2_osdisk.vhd",
+            "The VHD file is approximately 500 GB and is used for the OS disk. After copying the VHD file, the script creates an Azure Managed Image based on the OS disk."
+          ]
+        }
+      ]
+    },
+    "azure-vm": {
+      "statement": "On Azure only XEON CPUs are supported, the disk size is changed to 512 GiB, and a second network interface is attached after the VM is created. The NSS configuration steps run over an SSH terminal connection that must use basic authentication with zsroot/zsroot, and Zscaler recommends restarting the VM externally from the Azure Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "Only XEON CPUs are supported.",
+            "Size: Change the size to 512 GiB.",
+            "After you create the VM, you must attach a second network interface to the VM.",
+            "The following NSS configuration steps are run through an SSH terminal connection. The connection must use basic authentication. Use zsroot/zsroot when prompted for credentials.",
+            "Zscaler recommends externally restarting the VM from the Azure Portal."
+          ]
+        }
+      ]
+    },
+    "hyperv": {
+      "statement": "On Hyper-V the NSS VHDX is downloaded with Download NSS Virtual Appliance and the VM is Generation 1. At least two network adapters are added, one for management and one for service, and the guide's table lists hn2 and hn3 as optional second management and second service addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-hyper-v.json",
+          "quotes": [
+            "Click Download NSS Virtual Appliance to download the NSS VHDX file.",
+            "On the Specify Generation page that appears, select Generation 1 and click Next.",
+            "After you have configured the VM, you must add a minimum of two network interface adapters: one for the management interface and another for the service interface.",
+            "| hn2 (Third network adapter) | (Optional) Second Management IP Address |",
+            "| hn3 (Fourth network adapter) | (Optional) Second Service IP Address |"
+          ]
+        }
+      ]
+    },
+    "nutanix": {
+      "statement": "On Nutanix the image downloaded from the console is uploaded with Image Type DISK, and the VM disk uses the operation Clone from Image Service on the SCSI bus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-nutanix.json",
+          "quotes": [
+            "Click Download NSS Virtual Appliance and save for later uploading the image in Nutanix.",
+            "Image Type: Select DISK.",
+            "Operation: Select Clone from Image Service.",
+            "Bus Type: Leave SCSI as is."
+          ]
+        }
+      ]
+    },
+    "vsphere": {
+      "statement": "On vSphere the NSS OVA is downloaded from the console and the hypervisor is VMware ESX/ESXi v5.0 and later. The first network adapter em0 is the management IP address and the second em1 the service IP address. The default login credentials differ from those of NSS VM versions earlier than 4.2.1, and Zscaler strongly recommends changing the default password with passwd.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "Hypervisor: VMware ESX/ESXi v5.0 and later",
+            "Click Download NSS Virtual Appliance to download and save the NSS OVA file for later configuring the NSS on the VM instance.",
+            "| em0 (First network adapter) | Management IP Address |",
+            "| em1 (Second network adapter) | Service IP Address |",
+            "The default login credentials are different from those that were used in NSS VM versions earlier than 4.2.1.",
+            "Zscaler strongly recommends that you change this default password by running the command passwd."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "extra-interfaces-scope": {
+      "summary": "The vendor docs disagree on whether a second management or service interface exists outside vSphere.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-advanced-nss-settings.json",
+            "quotes": [
+              "The first three sections listed pertain to the NSS deployment over VMware vSphere only."
+            ]
+          },
+          "says": "The advanced settings article limits its first three sections, second management interface, second service interface and additional interfaces from the console, to vSphere."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-hyper-v.json",
+            "quotes": [
+              "| hn2 (Third network adapter) | (Optional) Second Management IP Address |"
+            ]
+          },
+          "says": "The Hyper-V guide lists an optional hn2 adapter for a second management IP address, and hn3 for a second service address."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "Second management or service network interfaces are currently not supported in the NSS over AWS deployment."
+            ]
+          },
+          "says": "The AWS guide says second management or service interfaces are not supported on AWS."
+        }
+      ],
+      "impact": "Whether a Hyper-V NSS can use a second management or service interface cannot be settled from the vendor text; the vSphere-only reading and the Hyper-V table conflict."
+    }
+  }
+}

@@ -1,0 +1,350 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.vm-sizing",
+  "title": "NSS VM specs: cores, memory by user count, disk, bandwidth and the console's sizing inputs",
+  "aliases": [
+    "nss vm size",
+    "nss memory per user",
+    "nss instance type",
+    "nss sizing",
+    "nss vm specs",
+    "nss bandwidth"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.servers"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.reliability"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.azure-arm-template"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{sizing-inputs}} Which memory tier is current is not stated {{gap:sizing-source-of-truth}}."
+    },
+    {
+      "label": "Cores.",
+      "text": "{{cores-aws}} {{cores-gcp-nutanix}} The AWS prerequisite and its own table disagree {{divergence:aws-dual-core}}."
+    },
+    {
+      "label": "Memory by user count.",
+      "text": "{{memory-tiers-aws-vsphere}} {{memory-tiers-other}} The two sets differ for the same VM {{divergence:memory-tiers}}."
+    },
+    {
+      "label": "Disk.",
+      "text": "{{disk}} Azure's managed disk size is in [[shared.nss.vm-platforms:azure-vm]]."
+    },
+    {
+      "label": "Instance tables.",
+      "text": "{{aws-instance-table}} {{azure-vm-table}} The Azure table matches Zscaler's ARM template: [[shared.nss.azure-arm-template]]."
+    },
+    {
+      "label": "Bandwidth and buffer.",
+      "text": "{{bandwidth}} {{buffer-in-sizing}} What a buffer does during an outage is in [[shared.nss.reliability]]."
+    },
+    {
+      "label": "MCAS.",
+      "text": "{{mcas-ram}}"
+    }
+  ],
+  "claims": {
+    "sizing-inputs": {
+      "statement": "In the AWS guide's NSS Virtual Appliance Deployment window, the NSS for Web type takes Number of Users and Peak Transactions per Hour, and the NSS for Firewall type takes Number of Users, Peak Sessions per Hour and Peak DNS Requests per Hour.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "NSS for Web",
+            "Number of Users: Enter the number of users.",
+            "Peak Transactions per Hour: Enter the peak number of transactions in an hour."
+          ],
+          "after": "In the NSS Virtual Appliance Deployment window, choose either of the following NSS types:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "NSS for Firewall",
+            "Number of Users: Enter the number of users.",
+            "Peak Sessions per Hour: Enter the peak number of sessions in an hour.",
+            "Peak DNS Requests per Hour: Enter the peak number of DNS requests in an hour."
+          ],
+          "after": "Peak Transactions per Hour: Enter the peak number of transactions in an hour."
+        }
+      ]
+    },
+    "cores-aws": {
+      "statement": "The AWS guide lists dual-core instances and says the NSS uses one core for the control plane and another core for the data plane.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "One of the following dual-core instances. NSS uses one core for the control plane and another core for the data plane:"
+          ]
+        }
+      ]
+    },
+    "cores-gcp-nutanix": {
+      "statement": "The GCP and Nutanix guides state 2 vCPU (1 shared core) and a CPU speed of greater than or equal to 2.40GHz.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "vCPUs: 2 vCPU (1 shared core)",
+            "CPU speed: Greater than or equal to 2.40GHz"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-nutanix.json",
+          "quotes": [
+            "vCPUs: 2 vCPU (1 shared core)",
+            "CPU speed: Greater than or equal to 2.40GHz"
+          ]
+        }
+      ]
+    },
+    "memory-tiers-aws-vsphere": {
+      "statement": "The AWS guide gives 8 GB for up to 15K users, 16 GB for up to 40K users and 32 GB for up to 100K users. The vSphere guide has the 8 GB and 32 GB lines and says that with more than 100K users, contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "8 GB for up to 15K users",
+            "16 GB for up to 40K users",
+            "32 GB for up to 100K users"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "8 GB for up to 15K users",
+            "32 GB for up to 100K users",
+            "If you have more than 100K users, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "memory-tiers-other": {
+      "statement": "The Azure guide gives 8 GB for up to 8K users, 16 GB for up to 20K, 32 GB for up to 50K, 48 GB for up to 75K and 64 GB for more than 75K users. The Hyper-V guide has the 8K and more-than-75K lines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "8 GB for up to 8K users",
+            "16 GB for up to 20K users",
+            "32 GB for up to 50K users",
+            "48 GB for up to 75K users",
+            "64 GB for more than 75K users"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-hyper-v.json",
+          "quotes": [
+            "8 GB for up to 8K users",
+            "64 GB for more than 75K users"
+          ]
+        }
+      ]
+    },
+    "disk": {
+      "statement": "The AWS guide lists a 500 GB data disk and the Hyper-V guide a recommended disk size of 500 GB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Data disk size: 500 GB"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-hyper-v.json",
+          "quotes": [
+            "Recommended disk size: 500 GB"
+          ]
+        }
+      ]
+    },
+    "aws-instance-table": {
+      "statement": "The AWS guide's EC2 table lists memory and cores per instance type: t2.large 8 GB and 2, t2.xlarge 16 GB and 4, t2.2xlarge 32 GB and 8, m4.large 8 GB and 2, m4.4xlarge 64 GB and 16, r4.large 15.25 GB and 2, r4.xlarge 30.5 GB and 4, r4.4xlarge 122 GB and 16, and c4.8xlarge 60 GB and 36. Zscaler's recommendation rests on the expected number of transactions, users, and the most economical option for the customer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "| t2.large | 8 GB | 2 |",
+            "| t2.xlarge | 16 GB | 4 |",
+            "| t2.2xlarge | 32 GB | 8 |",
+            "| m4.large | 8 GB | 2 |",
+            "| m4.4xlarge | 64 GB | 16 |",
+            "| r4.large | 15.25 GB | 2 |",
+            "| r4.xlarge | 30.5 GB | 4 |",
+            "| r4.4xlarge | 122 GB | 16 |",
+            "| c4.8xlarge | 60 GB | 36 |",
+            "Zscaler’s EC2 instance type recommendation is based on the expected number of transactions, users, and the most economical option for the customer."
+          ]
+        }
+      ]
+    },
+    "azure-vm-table": {
+      "statement": "The Azure guide's VM table lists Standard_D2_v4 with 8 GB, 2 cores and 1 GBPS, Standard_D4_v4 with 16 GB, 4 cores and 2 GBPS, Standard_D8_v4 with 32 GB, 8 cores and 4 GBPS, and Standard_D16_v4 with 64 GB, 16 cores and 8 GBPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "| Standard_D2_v4 | 8 GB | 2 | 1 GBPS |",
+            "| Standard_D4_v4 | 16 GB | 4 | 2 GBPS |",
+            "| Standard_D8_v4 | 32 GB | 8 | 4 GBPS |",
+            "| Standard_D16_v4 | 64 GB | 16 | 8 GBPS |"
+          ]
+        }
+      ]
+    },
+    "bandwidth": {
+      "statement": "The AWS guide gives 11 Mbps for 10K users as an example average value for log download bandwidth. The recommended internet bandwidth is the peak bandwidth required to download the logs from the Nanolog in the Zscaler cloud, and if NSS is not allocated the bandwidth it needs, logs can accumulate in the Nanolog, which can result in frequent connection resets and the logs not being streamed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Bandwidth for log download: 11 Mbps for 10K users is an example average value."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "The recommended internet bandwidth is the peak bandwidth required to download the logs from the Nanolog in the Zscaler cloud.",
+            "If NSS is not allocated the bandwidth it needs, the logs can accumulate in the Nanolog. This can result in frequent connection resets and the logs not being streamed to NSS."
+          ],
+          "after": "Peak Transactions per Hour: Enter the peak number of transactions in an hour."
+        }
+      ]
+    },
+    "buffer-in-sizing": {
+      "statement": "The amount of memory required to buffer the logs is incorporated into the VM spec computation, and the buffer size increases proportionally to the amount of RAM allocated to the NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-nss-virtual-appliances.json",
+          "quotes": [
+            "The amount of memory required to buffer the logs is incorporated into the VM spec computation. The buffer size increases proportionally to the amount of RAM allocated to the NSS."
+          ]
+        }
+      ]
+    },
+    "mcas-ram": {
+      "statement": "For an MCAS NSS feed to perform optimally, the VM deployed for the NSS server requires a minimum of 8GB of RAM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-mcas-nss-feeds.json",
+          "quotes": [
+            "In order for your MCAS NSS feed to perform optimally, the virtual machine (VM) deployed for the NSS server requires a minimum of 8GB of RAM."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "memory-tiers": {
+      "summary": "The platform guides give different user-count tiers for the same NSS VM memory sizes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "8 GB for up to 15K users"
+            ]
+          },
+          "says": "The AWS guide, and the vSphere guide, give 8 GB for up to 15K users."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-hyper-v.json",
+            "quotes": [
+              "8 GB for up to 8K users"
+            ]
+          },
+          "says": "The Hyper-V guide, like the Azure guide, gives 8 GB for up to 8K users."
+        }
+      ],
+      "impact": "The same 8 GB VM is rated for 15K or 8K users depending on which platform guide is read, so a user count near that range needs the console's computed recommendation."
+    },
+    "aws-dual-core": {
+      "summary": "The AWS guide describes its instances as dual-core, but its table lists instance types with more cores.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "One of the following dual-core instances."
+            ]
+          },
+          "says": "The prerequisite says the instances are dual-core."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "| c4.8xlarge | 60 GB | 36 |"
+            ]
+          },
+          "says": "The guide's own table lists c4.8xlarge with 60 GB and 36 cores."
+        }
+      ],
+      "impact": "The table, not the prerequisite sentence, is the usable list of instance types, and the sentence cannot be read as a core count."
+    }
+  },
+  "gaps": {
+    "sizing-source-of-truth": {
+      "kind": "semantic",
+      "title": "Which memory-per-user tier set is current",
+      "status": "open",
+      "detail": "The AWS and vSphere guides give 8 GB for up to 15K users, while the GCP, Azure, Hyper-V and Nutanix guides give 8 GB for up to 8K users. No captured guide says which is current; each guide defers to the console's computed recommendation.",
+      "blocks": "telling an operator which VM size a given user count needs",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

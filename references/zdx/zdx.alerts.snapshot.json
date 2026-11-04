@@ -28,7 +28,11 @@
     },
     {
       "label": "The contract.",
-      "text": "{{contract-alert-request}} {{contract-user-request}} {{contract-response}} Who can open that URL is open {{gap:share-url-access}}."
+      "text": "{{contract-alert-request}} {{contract-user-request}} {{contract-response}} Who can open that URL is only partly settled {{gap:share-url-access}}."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{console-snapshot}} {{console-snapshot-sources}} {{console-snapshot-validity}} {{console-snapshot-history}} {{console-snapshot-user-page}}"
     },
     {
       "label": "Where it lives.",
@@ -56,6 +60,109 @@
     }
   ],
   "claims": {
+    "console-snapshot": {
+      "statement": "The ZDX Snapshot feature captures the current state of a UI page and provides a URL that admins can share with ZDX users or other admins for view-only access. It enables users without Digital Experience login access to view a subset of ZDX features while bypassing the login authentication process, and the help says to share snapshots only with trusted recipients to avoid inadvertent disclosure of data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-sharing-zdx-snapshots.json",
+          "quotes": [
+            "The ZDX Snapshot feature captures the current state of a UI page, and provides a URL that admins can share with ZDX users or other admins for view-only access.",
+            "ZDX Snapshot enables users without Digital Experience login access to view a subset of ZDX features while bypassing the login authentication process.",
+            "Make sure you only share ZDX Snapshots with trusted recipients to avoid inadvertent disclosure of data."
+          ]
+        }
+      ]
+    },
+    "console-snapshot-sources": {
+      "statement": "Sharing snapshots needs a ZDX subscription level that supports it and an admin role configured to share them; the subscription table lists ZDX Snapshots as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus, with 90 days of data retention on those two tiers. Snapshots can be shared from user details, the Applications Overview, application details, alert details, Diagnostics details and incident details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-sharing-zdx-snapshots.json",
+          "quotes": [
+            "Your ZDX subscription level supports ZDX Snapshot sharing.",
+            "Your admin role is configured to share ZDX Snapshots.",
+            "- User details",
+            "- Applications Overview",
+            "- Application details",
+            "- Alert details",
+            "- Diagnostics details",
+            "- Incident details"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| ZDX Snapshots | Not supported | Not supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| ZDX Snapshots | Not supported | Not supported | 90 days | 90 days |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Integrations and Data Retention"
+        }
+      ]
+    },
+    "console-snapshot-validity": {
+      "statement": "In the console a snapshot's Valid For period is selected in increments from 2 Hours to 90 Days, and Obfuscate Data can be enabled to hide the data types chosen from the Obfuscation menu from the recipient.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-sharing-zdx-snapshots.json",
+          "quotes": [
+            "Select a time range from the Valid For drop-down menu, based on increments from 2 Hours to 90 Days.",
+            "Enable or disable Obfuscate Data. If you enable the setting, select the data types from the Obfuscation drop-down menu to be hidden from the recipient."
+          ]
+        }
+      ]
+    },
+    "console-snapshot-history": {
+      "statement": "Digital Experience > Reports > Snapshots shows a history of ZDX Snapshots from an accrued list of generated URLs, each of which can be copied or deleted. A snapshot's Status is Expired or Active, and after expiration the snapshot is no longer valid and a message confirms the URL is not found if one attempts to share it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-sharing-zdx-snapshots.json",
+          "quotes": [
+            "Go to Digital Experience > Reports > Snapshots to view a history of ZDX Snapshots from an accrued list of generated URLs. You have the option to copy or delete any of the ZDX Snapshots.",
+            "Status: The current state of the ZDX Snapshot (Expired, Active).",
+            "The ZDX Snapshot is no longer valid after expiration, and a message confirms the URL is not found if you attempt to share it."
+          ]
+        }
+      ]
+    },
+    "console-snapshot-user-page": {
+      "statement": "For the user details page the Share Snapshot link is enabled only when an application has been selected, and only for the selected device; in a snapshot of that page, user interaction is disabled by default for the time range filter, drop-down menu filters, device selection, applications other than the one selected, other root cause analysis data points, Web Probe Metrics and the Cloud Path.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-sharing-zdx-snapshots.json",
+          "quotes": [
+            "For the user details page, the Share Snapshot link is enabled only when an application has been selected, and only for the selected device.",
+            "For example, user interaction for the following features is disabled by default when viewing a snapshot of the user details page:",
+            "- Time range filter",
+            "- Drop-down menu filters",
+            "- Device selection",
+            "- Applications other than the application already selected",
+            "- Data points for root cause analysis other than the data point already selected",
+            "- Web Probe Metrics",
+            "- Cloud Path"
+          ]
+        }
+      ]
+    },
     "contract-alert-request": {
       "statement": "The contract's alert snapshot takes `name` and `alert_id` (required, both strings), `expiry` as a Unix epoch in seconds that defaults to 2 hours and must fall between 2 hours and 90 days, and `obfuscation`, a list of fields to mask drawn from `USER_NAME`, `LOCATION`, `DEVICE_NAME`, `IP_ADDRESS` and `WIFI_NAME`.",
       "tier": "A",
@@ -331,12 +438,12 @@
     "share-url-access": {
       "kind": "semantic",
       "title": "Who can open a snapshot's URL",
-      "status": "open",
-      "detail": "Unverified legacy statement: a snapshot lets an alert be handed to someone outside the ZDX console, such as an application owner or a vendor, without giving them tenant access. The contract says only that the response carries the URL to access the snapshot.",
+      "status": "partial",
+      "detail": "The help settles that a snapshot lets users without Digital Experience login access view a subset of ZDX features while bypassing login authentication (claim console-snapshot), and advises sharing only with trusted recipients. It does not name recipients outside the organization, such as an application owner or a vendor, or say whether the link works outside the organization's network; that part of the earlier legacy statement is unverified.",
       "blocks": "advising whether a snapshot link can be shared outside the organization",
       "resolves_with": [
-        "source-read",
-        "lab-test"
+        "lab-test",
+        "support-ticket"
       ]
     }
   }

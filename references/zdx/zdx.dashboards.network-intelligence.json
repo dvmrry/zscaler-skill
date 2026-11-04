@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "zdx.dashboards.network-intelligence",
+  "title": "Network Intelligence: ISP and ASN latency baselines, anomalies and severity",
+  "aliases": [
+    "network intelligence",
+    "network intelligence dashboard",
+    "isp latency baseline",
+    "asn latency",
+    "network anomaly",
+    "peer impact analysis",
+    "sankey isp view"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.cloud-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Network Intelligence is the console view of ISP and ASN network behavior measured against a latency baseline. {{what-it-is}} {{subscription}}"
+    },
+    {
+      "label": "Overview and filters.",
+      "text": "{{overview-widgets}} {{filters-map}}"
+    },
+    {
+      "label": "Legs.",
+      "text": "{{legs}}"
+    },
+    {
+      "label": "Insight charts.",
+      "text": "{{insight-charts}} {{anomaly-without-users}}"
+    },
+    {
+      "label": "Severity.",
+      "text": "{{sankey-severity}} {{asn-severity}}"
+    },
+    {
+      "label": "Tables.",
+      "text": "{{performance-tables}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether users with a poor ZDX Score sit behind a network anomaly before treating the anomaly as affecting user experience.",
+      "uses": [
+        "anomaly-without-users"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Network Intelligence provides end-to-end multi-path network visibility from Last Mile ISPs to the Zero Trust Exchange to applications. ZDX runs Cloud Path probes to gather network metrics such as latency and packet loss, establishes a baseline for network latency and compares performance against it, using ML-based algorithms to identify anomalies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "Network Intelligence provides end-to-end multi-path network visibility from Last Mile Internet Service Providers (ISPs) to Zero Trust Exchange (ZTE) to applications.",
+            "Digital Experience (ZDX) runs Cloud Path probes to gather network metrics (e.g., network latency, packet loss) to establish a baseline for network latency and compares the network performance against the baseline.",
+            "using ML-based algorithms to extract patterns and identify anomalies"
+          ]
+        }
+      ]
+    },
+    "subscription": {
+      "statement": "Network Intelligence needs a ZDX subscription level that supports it and View Only permission for the Network Intelligence Dashboard; the subscription table lists it as not supported on Standard, Microsoft 365 and Advanced and supported on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "Your ZDX subscription level supports Network Intelligence.",
+            "View Only permission for the Network Intelligence Dashboard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Network Intelligence | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        }
+      ]
+    },
+    "overview-widgets": {
+      "statement": "The opening overview shows network anomalies for the last 14 days as a total per 24-hour period, highlighting severe and medium issues across geolocations with more than 50 users, the top 5 cities by user count with their anomaly levels, and the top 5 ASNs by measured latency compared to a baseline. Interactions in these widgets do not apply to global filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "Network Anomalies for Last 14 Days: Displays total anomalies per 24-hour period, highlighting severe and medium issues across geolocations with more than 50 users.",
+            "Top 5 Cities by User Count: Lists the cities with the highest user counts and corresponding anomaly levels based on the time range selected.",
+            "Top 5 High-Latency ASNs: Shows the ASNs with the highest measured latency compared to a baseline.",
+            "Interactions in these widgets do not apply to global filters."
+          ]
+        }
+      ]
+    },
+    "filters-map": {
+      "statement": "Network Intelligence filters by Zscaler Data Centers, Application, Zscaler Locations or Geolocations, and its time range offers 2, 4, 6, 12, 24 or 48 hours, Current or Custom. A rippling effect appears on the map for geolocations with more than 50 users, while for geolocations with fewer than 50 users anomalies are detected at runtime without the effect, and network data is not populated until a network anomaly geolocation is selected from the drill-down view.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "Filter by Zscaler Data Centers, Application, Zscaler Locations, or Geolocations.",
+            "Select a time range (2 Hours, 4 Hours, 6 Hours, 12 Hours, 24 Hours, 48 Hours, Current, Custom).",
+            "A rippling effect appears on the map for geolocations with more than 50 users. For geolocations with fewer than 50 users, anomalies are detected at runtime and do not have the rippling effect.",
+            "If you do not select a network anomaly geolocation from the drill-down view, the network data is not populated."
+          ]
+        }
+      ]
+    },
+    "legs": {
+      "statement": "The legs Network Intelligence analyzes are Client to Zero Trust Exchange (from the client's ISP to the Zero Trust Exchange, with a forward path from the ISP to the data center and a reverse path from the Zero Trust Exchange to the Last Mile ISP), Zero Trust Exchange to Application, Client to Application (Direct) and Client to Application (from the client's ISP to the application).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "Client to Zero Trust Exchange: From the client's ISP to the Zero Trust Exchange.",
+            "Forward Path: From the ISP to the Zero Trust Exchange data center.",
+            "Reverse Path: From Zero Trust Exchange to the Last Mile ISP.",
+            "Zero Trust Exchange to Application: From the Zero Trust Exchange to the application.",
+            "Client to Application (Direct): From the direct path to the application.",
+            "Client to Application: From the client's ISP to the application."
+          ]
+        }
+      ]
+    },
+    "insight-charts": {
+      "statement": "The User Experience & Network Insights charts filter to up to the top 5 ISPs or Zero Trust Exchanges with the highest number of probes and show P50 and P95 latency, probe count, the number of users and their ZDX Score over time, a P50 Packet Loss described as the 95th-percentile value of packet loss over time, and Cloud Path probe errors for up to the top 5 impacted Cloud Path probes. Compare shows a historical or geographical comparison of up to 5 ISPs or locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "Filter to up to top 5 ISPs or Zero Trust Exchange with the highest number of probes depending on your view.",
+            "P50 Latency: The 50th percentile latency over time.",
+            "P95 Latency: The 95th percentile latency over time.",
+            "Probe Count: The number of network probes available during the selected time frame.",
+            "ZDX Score: The number of users and their ZDX Score over time.",
+            "P50 Packet Loss: The 95th-percentile value of packet loss over time.",
+            "Cloud Path Probe Errors: The number of Cloud Path probe errors over time. This displays up to the top 5 impacted Cloud Path probes.",
+            "Click Compare to view the historical comparison between different times or view geographical comparison between different locations. Up to 5 ISPs or locations are selected."
+          ]
+        }
+      ]
+    },
+    "anomaly-without-users": {
+      "statement": "A network anomaly (red shade) with no users with a poor ZDX Score (gray shade) is not impacting the users' digital experience; for example, latency going from 10 to 40 ms is an anomaly at 3 times the 10 ms baseline, yet 40 ms does not normally impact users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "If there is a network anomaly (red shade) and no users with poor ZDX Score (gray shade), then the network anomaly is not impacting the users' digital experience.",
+            "For example, if the network latency goes from 10 to 40 ms, then this is considered an anomaly since it is 3 times the baseline of 10 ms. However, a network latency of 40 ms does not normally impact the users' digital experience."
+          ]
+        }
+      ]
+    },
+    "sankey-severity": {
+      "statement": "The ISP or ASN View is a Sankey visualization aggregating all IP addresses of the same ASN. Links are yellow (medium severity) when IP addresses are impacted by at least 2 times the baseline with an average latency between 50 ms and 100 ms, red (high severity) at least 3 times the baseline with an average latency above 100 ms, and dotted red for applications with a poor ZDX Score; if a baseline is not established, the values 50 ms (red) and 25 ms (yellow) are used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "The ISP or ASN View displays a Sankey visualization for the aggregation of all the IP addresses that belong to the same ASN.",
+            "Yellow: The IP addresses are impacted by at least 2 times the baseline with an average latency threshold between 50 ms and 100 ms. Then they are considered medium severity.",
+            "Red: The IP addresses are impacted by at least 3 times the baseline with an average latency threshold above 100 ms. Then they are considered high severity.",
+            "Dotted Red: Applications with a poor ZDX Score to indicate potential application-side impact.",
+            "If a baseline is not established, then the baseline uses the values of 50 ms (red) and 25 ms (yellow)."
+          ]
+        }
+      ]
+    },
+    "asn-severity": {
+      "statement": "ASN details indicate the level of latency severity from the P50 latency's deviation from the baseline, with levels at P50 of at least 3 times the baseline, at least 2 times and below 3 times, and below 2 times. They also give the probe count, the count of unique users, average latency, P90 latency, average leg latency, leg loss and a Peer Impact Analysis of whether customers on the same Inter ASN path are also impacted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "Severity: Indicates the level of latency severity based on the P50 Latency deviation from the baseline:",
+            "P50 ≥ 3× baseline",
+            "P50 ≥ 2× and < 3× baseline",
+            "P50 < 2× baseline",
+            "Probe Count: The total number of measurement probes sent to and from this ASN during the selected time interval.",
+            "Number of Users: The count of unique end-users whose traffic passed through this ASN during the selected time window.",
+            "Average Latency: The average latency of probes between ASNs or within the same ASN during the selected time interval.",
+            "P90 Latency: The 90th percentile latency.",
+            "Average Leg Latency: The mean latency for individual legs of the path to and from the Zero Trust Exchange during the selected time window.",
+            "Leg Loss: The percentage of packet loss for individual legs of the path to and from the Zero Trust Exchange during the selected time window.",
+            "Peer Impact Analysis: Click Peer Impact Analysis to see if customers on the same Inter ASN path are also impacted and displays the number of impacted customers when applicable."
+          ]
+        }
+      ]
+    },
+    "performance-tables": {
+      "statement": "The ISP Performance table displays the top 200 Last Mile ISPs by ASN, sorted by Baseline Deviation by default to list the most deviated ISPs, with a baseline from the previous 7 days and the names of the Zero Trust Exchange data centers connected to the ISP. The Application Performance table displays the performance of applications accessed by users, with a baseline from the previous 7 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-network-intelligence-dashboard.json",
+          "quotes": [
+            "The ISP Performance table displays the top 200 Last Mile ISPs by ASN with the following information:",
+            "Baseline: The established baseline for the Last Mile ISP from the previous 7 days when users access the Last Mile ISP.",
+            "Zero Trust Exchange: The names of the Zero Trust Exchange data centers connected to the ISP.",
+            "The ISP Performance Table is sorted by Baseline Deviation as the default to list the most deviated ISPs.",
+            "The Application Performance table displays the performance of applications that are accessed by users with the following information:",
+            "Baseline: The established baseline from the previous 7 days when users access the application."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "baseline-and-anomaly-rules": {
+      "kind": "semantic",
+      "title": "How an anomaly is decided and what levels lie behind the map colors",
+      "status": "open",
+      "detail": "Baselines come from the previous 7 days. The article does not state how an anomaly's start and end are decided, or the anomaly levels behind the map's green, orange and red. The article's severity text also reads oddly in two places: P50 Packet Loss is defined as a 95th-percentile value, and the Sankey view gives high severity as an average latency above 100 ms; only the baseline multiples are written as claims here.",
+      "blocks": "explaining why an ISP or geolocation shows as an anomaly",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

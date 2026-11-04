@@ -65,7 +65,7 @@
     },
     {
       "label": "Groups and signatures.",
-      "text": "{{dest-group-org-caps}} The per-group FQDN limit, 100 by default, is in [[zia.firewall.destination-groups]], and the service count in [[zia.firewall.network-services]]. {{custom-ips-caps}}"
+      "text": "{{group-count-caps}} The same page also lists the two kinds together at that number {{divergence:group-count-scope}}. {{group-entry-caps}} {{dest-group-org-caps}} The per-group FQDN limit, 100 by default, is in [[zia.firewall.destination-groups]], and the service count in [[zia.firewall.network-services]]. {{custom-ips-caps}} The caps on network service groups, network application groups, custom application service groups, DNS gateways and ECS prefixes are in [[zia.firewall.network-services:service-group-sizes]], [[zia.firewall.network-applications:group-object]], [[zia.firewall.application-services:custom-caps]], [[zia.dns-control.gateways:count-and-name]] and [[zia.dns-control.ecs:prefix-count]]."
     },
     {
       "label": "What the provider enforces.",
@@ -175,6 +175,35 @@
             "| Source IP Groups IP Address Entries per Rule | 8,000 IP address entries |",
             "| Destination Groups IP Address Entries and FQDNS per Rule | 8,000 IP address entries |",
             "Destination Groups FQDNs per Rule | 5,000"
+          ]
+        }
+      ]
+    },
+    "group-count-caps": {
+      "statement": "An organization can have up to 4,000 source IP address groups and 4,000 destination groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Source IP Address Groups | 4,000 groups |",
+            "| Destination Groups (Destination IP or FQDN Groups) | 4,000 groups |"
+          ],
+          "after": "| Custom Application Service Groups | 128 groups |"
+        }
+      ]
+    },
+    "group-entry-caps": {
+      "statement": "A group holds up to 8,000 FQDN or IP address entries, and the total across groups must stay within the overall base IP limit. Source and destination groups together hold up to 16K IP address entries per organization, which Zscaler Support may raise to 64K and which requires Advanced Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| FQDNs or IP Address Entries per Group | 8,000 IP address entries The total number of IP entries across groups must adhere to the overall base IP limit, as noted in the Other section. |",
+            "| Source IP/Destination Groups IP Address Entries and FQDNs per Organization | 16K IP address entries | Contact Zscaler Support for a possible increase in limit from 16K IP address entries to 64K IP address entries. Requires Advanced Firewall."
           ]
         }
       ]
@@ -310,6 +339,34 @@
         }
       ],
       "impact": "The provider will not reject a plan with more than 8 workload groups, so the failure, if any, would come from the API; no source shows the response."
+    },
+    "group-count-scope": {
+      "summary": "The limits page's Firewall section gives 4,000 source IP address groups and 4,000 destination groups; its Other section gives 4,000 groups for source IP and destination groups as one row.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "after": "| Custom Application Service Groups | 128 groups |",
+            "quotes": [
+              "| Source IP Address Groups | 4,000 groups |",
+              "| Destination Groups (Destination IP or FQDN Groups) | 4,000 groups |"
+            ]
+          },
+          "says": "Source IP address groups and destination groups are each listed at 4,000 groups."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Source IP and Destination Groups | 4,000 groups |"
+            ]
+          },
+          "says": "Source IP and destination groups are listed together at 4,000 groups."
+        }
+      ],
+      "impact": "Whether an organization can have 4,000 groups of each kind or 4,000 in all is not settled by the page."
     }
   },
   "gaps": {

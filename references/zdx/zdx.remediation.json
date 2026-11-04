@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "id": "zdx.remediation",
+  "title": "ZDX Remediation: remote PowerShell scripts, jobs, signing, prerequisites and troubleshooting",
+  "aliases": [
+    "remediation",
+    "zdx remediation",
+    "remote scripts",
+    "remediation jobs",
+    "custom script signing",
+    "predefined scripts",
+    "script templates",
+    "ZSAScript",
+    "script orchestrator service",
+    "remote powershell zdx"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.remediation.errors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Remediation is ZDX's way of running remote PowerShell scripts on devices; its job error messages are in [[zdx.remediation.errors]]. {{remediation-what}}"
+    },
+    {
+      "label": "Requirements.",
+      "text": "{{remediation-requirements}} {{device-prerequisites}}"
+    },
+    {
+      "label": "Subscription.",
+      "text": "{{remediation-tiers}}"
+    },
+    {
+      "label": "Scripts.",
+      "text": "{{script-kinds}} {{script-status}} {{script-config}}"
+    },
+    {
+      "label": "Signing.",
+      "text": "{{signing}} {{script-authoring}}"
+    },
+    {
+      "label": "Jobs.",
+      "text": "{{job-config}} {{job-status}} {{job-details}}"
+    },
+    {
+      "label": "When a script does not run.",
+      "text": "{{troubleshooting}}"
+    },
+    {
+      "label": "Open.",
+      "text": "The Remediation API surface was not checked {{gap:remediation-api}}, nor the article on configuring Remediation settings {{gap:remediation-settings-article}}."
+    }
+  ],
+  "claims": {
+    "remediation-what": {
+      "statement": "Remediation lets IT admins anticipate potential issues and resolve them proactively by deploying remote scripts before end users report a problem: scripts are configured to run on devices and scheduled to run remotely at an appropriate time, PowerShell scripts can be run remotely to schedule system updates, gather information on the issue or fix it on impacted devices, and IT admins can view all configured scripts and Remediation jobs that are In Progress, Completed or Scheduled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-remediation.json",
+          "quotes": [
+            "Remediation for Digital Experience (ZDX) allows IT admins to anticipate potential issues and proactively resolve them by deploying remote scripts before end users can report a problem.",
+            "You can configure specific scripts to run devices and schedule to remotely run the scripts at an appropriate time when the device is able to update or provide maintenance.",
+            "IT admins can view all configured scripts and Remediation jobs that are In Progress, Completed, or Scheduled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-scripts.json",
+          "quotes": [
+            "You can run PowerShell scripts remotely to schedule system updates, gather information on the issue, or fix the issue on impacted devices."
+          ]
+        }
+      ]
+    },
+    "remediation-requirements": {
+      "statement": "Using Remediation needs the appropriate ZDX subscription level, Remediation enabled, and admin permissions per page: Script Management (configure or view scripts on the Scripts page), Script Templates (import or view predefined scripts from the Scripts Templates page), Remediation Jobs (run or view jobs from the Remediation Jobs page) and Remediation Settings; a script does not run on a selected device that lacks the appropriate version compatibility and supporting OS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-remediation.json",
+          "quotes": [
+            "The appropriate ZDX subscription level for Remediation.",
+            "Script Management: Configure or view scripts on the Scripts page.",
+            "Script Templates: Import or view predefined scripts from the Scripts Templates page.",
+            "Remediation Jobs: Run or view Remediation jobs from the Remediation Jobs page.",
+            "Remediation Settings: Configure or view the Remediation settings.",
+            "If you are running a script, the selected devices must have the appropriate version compatibility and supporting OS. If a device is not compatible, then the script does not run on that device.",
+            "Enable Remediation. To learn more, see Configuring Remediation Settings."
+          ]
+        }
+      ]
+    },
+    "device-prerequisites": {
+      "statement": "On the device, PowerShell's Execution Policy must not be restricted (set with Set-ExecutionPolicy AllSigned or RemoteSigned at LocalMachine scope, checked with Get-ExecutionPolicy -List), and the article lists ZSAScriptOrchestratorService.exe and ZSAScriptExecutor.exe under the Zscaler\\ZSAScriptOrchestratorService folder of %ProgramFiles(x86)% and of %ProgramFiles% as device prerequisites.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-remediation.json",
+          "quotes": [
+            "PowerShell's Execution Policy on the device is not restricted.",
+            "- Set-ExecutionPolicy AllSigned -Scope LocalMachine",
+            "- Set-ExecutionPolicy RemoteSigned -Scope LocalMachine",
+            "- Get-ExecutionPolicy -List",
+            "- %ProgramFiles(x86)%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptOrchestratorService.exe %ProgramFiles(x86)%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptExecutor.exe",
+            "- %ProgramFiles%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptOrchestratorService.exe %ProgramFiles%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptExecutor.exe"
+          ]
+        }
+      ]
+    },
+    "remediation-tiers": {
+      "statement": "In the subscription table Remediation Settings are supported on Standard, Microsoft 365, Advanced and Advanced Plus; Standard, Microsoft 365 and Advanced get limited support for predefined scripts for Zscaler platform use and no custom scripts, while Advanced Plus gets additional predefined scripts (for example Service Desk or general purpose) and custom scripts; all tiers allow 1,000 configured scripts, 100 enabled scripts and 1,000 jobs, and Remediation data retention is 180 days on Advanced Plus and not supported on Standard, Microsoft 365 and Advanced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Feature | Standard, Microsoft 365, Advanced | Advanced Plus |",
+            "| Remediation Settings | Supported | Supported |",
+            "| Predefined Scripts | Limited Support Predefined scripts for Zscaler platform use (e.g., SSL certificate issues for various developer tools). | Supported Additional predefined scripts (e.g., Service Desk or general purpose) |",
+            "| Custom Scripts | Not supported | Supported |",
+            "| Scripts Limitations | 1,000 configured scripts 100 enabled scripts | 1,000 configured scripts 100 enabled scripts |",
+            "| Jobs | 1,000 jobs Jobs can be In Progress, Scheduled, or Completed. | 1,000 jobs Jobs can be In Progress, Scheduled, or Completed. |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Remediation | Not supported | Not supported | Not supported | 180 days |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Integrations and Data Retention"
+        }
+      ]
+    },
+    "script-kinds": {
+      "statement": "Predefined scripts are certified, ready-to-use script templates that need no signing, can be imported only once, and when revoked (outdated because a newer version is on the Scripts > Templates page) cannot run and must be deleted and re-imported; custom scripts must be signed with a certificate before running; Zscaler recommends testing all scripts in a non-production environment first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-scripts.json",
+          "quotes": [
+            "Import predefined scripts that are readily available and do not require any signing.",
+            "Prior to running a custom script, all custom scripts must be signed with a certificate.",
+            "Zscaler recommends testing all scripts (custom or predefined) in a non-production environment prior to deploying them to users to ensure the script is working adequately and as expected.",
+            "Revoked: The script is outdated and cannot run as there is a newer version of the predefined script from the Scripts > Templates page. Remove the outdated script and import the latest predefined script."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-scripts.json",
+          "quotes": [
+            "Predefined scripts are useful because they are certified and ready for use script templates.",
+            "You can import a predefined script only once.",
+            "You are unable to run an older version of a predefined remote script if it is revoked. You must delete the previously configured predefined script and import the latest predefined script to continue use."
+          ]
+        }
+      ]
+    },
+    "script-status": {
+      "statement": "A script's status is Enabled, Disabled or Revoked, a script disabled from remediation job use cannot be run until it is enabled, and its type is Custom or Predefined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-scripts.json",
+          "quotes": [
+            "Status: The status of the script (Enabled, Disabled, or Revoked).",
+            "Disabled: The script is disabled from remediation job use.",
+            "If the script is disabled, then you cannot run the script. Enable it to run the script.",
+            "Type: The type of script (Custom or Predefined)."
+          ]
+        }
+      ]
+    },
+    "script-config": {
+      "statement": "A script is configured for the Windows operating system and uploaded as a PS1 file of at most 512 KB; it can run with elevated permissions on the system account, take parameters that are mandatory by default, and show end user notifications before running; a script runs for a maximum of 10 minutes, and the maximum number of scripts depends on the subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-scripts.json",
+          "quotes": [
+            "Operating System: Select which OS this impacts (Windows).",
+            "Upload Script File: Upload a PS1 file to run the script. The maximum script file size when uploading is 512 KB.",
+            "Run Script with Elevated Permissions (System Account): Select if you want to run the script on a system account.",
+            "Mandatory: Select the checkbox if the parameter is mandatory. By default, this is selected.",
+            "End User Notifications: Show or Hide notifications to the end user. When Show is selected, configure the following to show to the end user prior to running the script:",
+            "A script runs for a maximum of 10 minutes.",
+            "The maximum number of scripts you can configure is based on your subscription."
+          ]
+        }
+      ]
+    },
+    "signing": {
+      "statement": "Each customized and uploaded script must carry a signed certificate to run on a device: the code signing certificate must be valid, not expired and added to the Trusted Publishers directories, with the CA that generated it uploaded to Trusted Root Certification Authorities and the certificate to Trusted Publishers; the CA can be an existing one in the organization or a self-signed CA for code signing; and a script that does not run on acceptance because of an expired or invalid certificate must be uploaded again with a valid script certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-preparing-custom-script-signing.json",
+          "quotes": [
+            "Each customized and uploaded script must have a signed certificate to allow any scripts to run on a device.",
+            "Added to the Trusted Publisher's directories.",
+            "Valid and not expired.",
+            "Trusted Root Certification Authorities > Certificates: Upload your CA that is used to generate the code signing certificate.",
+            "Trusted Publishers > Certificates: Upload your code signing certificate.",
+            "Select a certificate authority (CA) that exists and is ready for use within your organization that can generate a code signing certificate.",
+            "Generate a self-signed CA for code signing certificate."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-and-managing-jobs.json",
+          "quotes": [
+            "When the user accepts a job and the script does not run due to an expired certificate or an invalid certificate, then you must upload the script again with a valid script certificate."
+          ]
+        }
+      ]
+    },
+    "script-authoring": {
+      "statement": "A custom script routes output to ZDX with the custom cmdlets set-zresult and set-zoutput; when the -Test flag is passed its output goes through PowerShell's write-output commands instead; only ASCII or UTF-8 without Byte Order Mark encoding is accepted in the Admin Console; scripts can be signed to run under AllSigned and RemoteSigned permissions, and each should be signed with a timestamp so the signature records when the code signing certificate expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-preparing-custom-script-signing.json",
+          "quotes": [
+            "Custom cmdlets for set-zresult and set-zoutput: Routes output to ZDX.",
+            "When the -Test flag is passed, the script's output is routed through PowerShell's write-output commands, rather than the Zscaler's z-output and z-result output commands.",
+            "Only ASCII/UTF-8 without Byte Order Mark (BOM) encoding are accepted for scripts in the Zscaler Admin Console.",
+            "You can sign PowerShell scripts so that they can run scripts under AllSigned and RemoteSigned permissions on Windows devices.",
+            "It is important that each script is signed with at least the following command prompt to ensure a timestamp is recorded to indicate when the code signing certificate is expiring."
+          ]
+        }
+      ]
+    },
+    "job-config": {
+      "statement": "A job's criteria select Devices, Users, User Groups, Locations, Location Groups or Departments, with Script Run Settings in seconds and a maximum wait in minutes, hours or days for devices to be online; a job can be scheduled for later, can be edited on the page if it is Scheduled, and can be deleted from any table to cancel or abort it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-and-managing-jobs.json",
+          "quotes": [
+            "Criteria: Select Devices, Users, User Groups, Locations, Location Groups, or Departments.",
+            "Script Run Settings: Enter the number of seconds the script runs for the job.",
+            "Wait for devices to be online for a maximum of: Enter the number of minutes, hours, or days a script must wait to run on a device.",
+            "Schedule Job for later: Enable to select a date on which to run the script.",
+            "You can edit a job on the page if it's Scheduled.",
+            "You can delete to cancel or abort a job on any table."
+          ]
+        }
+      ]
+    },
+    "job-status": {
+      "statement": "A job's status is In Progress (currently running the remote script on selected devices), Scheduled, Completed - Aborted (stopped while running the script, possible if the job has not entered its ending phase) or Completed (successfully completed running the script on all selected devices).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-and-managing-jobs.json",
+          "quotes": [
+            "| In Progress | The job is currently running the remote script on selected devices. |",
+            "| Scheduled | The job is scheduled to run a remote script on selected devices. |",
+            "| Completed - Aborted | The job was stopped while running a remote script. Jobs are capable of being stopped or aborted if the job has not entered its ending phase. |",
+            "| Completed | The job has successfully completed running the remote script on all selected devices. |"
+          ]
+        }
+      ]
+    },
+    "job-details": {
+      "statement": "Job details count the devices that completed the job (Success) and failed to run the script (Failed) against the number targeted, with an error message and script output per device; if a job is aborted ZDX tries its best effort to stop the script, and Rerun Job runs the job as a new job with prefilled criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-and-managing-jobs.json",
+          "quotes": [
+            "Success: The number of devices that have completed the job.",
+            "Failed: The number of devices that have failed to run the script.",
+            "If the job is aborted, then Digital Experience (ZDX) tries its best effort to stop the script.",
+            "Targeted: The number of devices, users, user groups, locations, location groups, or departments that are targeted for the job. The targeted number is based on the job's selection.",
+            "Error Message: A descriptive error message as to why the job failed.",
+            "Script Output: The script output when the job is completed successfully.",
+            "Click Rerun Job to run the job as a new job with prefilled criteria."
+          ]
+        }
+      ]
+    },
+    "troubleshooting": {
+      "statement": "Devices can be grayed out during device selection because of incompatible version compatibility or inactive devices; a script may not run when the selected device is unavailable (not powered on, or not connected to Wi-Fi), when the device runs a Client Connector version older than 4.8.0.151 or a ZDX Module older than 4.6.0, when an admin aborted the job mid-way, or when Internet & SaaS (ZIA) policy blocks it (ps1 files blocked, or the URL policy blocking unknown URLs, for which the help says to allow ps1 files and the remediation URL into a URL category); a script signed with an expired or invalid certificate cannot run and must be signed again with an appropriate expiration and valid credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-troubleshooting-remediation.json",
+          "quotes": [
+            "If the devices you want to select are grayed out during device selection, it might be due to:",
+            "- Incompatible version compatibility",
+            "- Inactive devices",
+            "Selected device is unavailable and cannot run the remote script from the Remediation job. This can be due to:",
+            "- The device is not powered on.",
+            "- The device is not connected to Wi-Fi.",
+            "Selected device is running Zscaler Client Connector version that is older than 4.8.0.151 or ZDX Module is older than 4.6.0.",
+            "An admin aborted the Remediation job mid-way and the remote script only ran on selected devices before the abortion.",
+            "Internet & SaaS (ZIA) policy blocks remote scripts from running on device.",
+            "ps1 files are blocked.",
+            "The URL policy is blocking unknown URLs.",
+            "configure them accordingly to allow ps1 files to run on devices and allow your specified remediation URL into a URL category",
+            "You cannot run a remote script that is signed with an invalid certificate due to certificate expiration or invalid credentials.",
+            "You must sign the script again with an appropriate certificate expiration and valid credentials."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "remediation-api": {
+      "kind": "semantic",
+      "title": "Whether the API contract or an SDK reaches Remediation scripts and jobs",
+      "status": "open",
+      "detail": "The Remediation articles describe only the console. The API contract, SDKs and the generated surface were not checked for scripts, jobs or Remediation settings.",
+      "blocks": "telling an operator whether a Remediation job can be started or read through the API",
+      "resolves_with": [
+        "source-read",
+        "code-read"
+      ]
+    },
+    "remediation-settings-article": {
+      "kind": "semantic",
+      "title": "What Remediation settings hold, including enabling Remediation and the revocation check",
+      "status": "open",
+      "detail": "The Understanding Remediation article says to enable Remediation under Configuring Remediation Settings, and a Remediation error message refers to disabling the certificate revocation check; the article on configuring Remediation settings (zdx-configuring-remediation-settings.json) was outside the extraction and is not read.",
+      "blocks": "explaining where Remediation is enabled and what its settings change",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

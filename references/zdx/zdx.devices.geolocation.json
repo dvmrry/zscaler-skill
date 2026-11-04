@@ -34,6 +34,10 @@
     {
       "label": "Coordinates and their source.",
       "text": "{{coordinates}} {{geo-detection}} How a region for the score baseline relates to these is open, [[zdx.score.calculation:region-definition]]."
+    },
+    {
+      "label": "In the console.",
+      "text": "{{console-locating}} {{console-supported-os}} {{console-hierarchy}} The API and the console differ on cities outside the US {{divergence:cities-outside-us}}. {{cloud-path-location-icon}}"
     }
   ],
   "checks": [
@@ -58,6 +62,74 @@
     }
   ],
   "claims": {
+    "console-locating": {
+      "statement": "ZDX uses a device's location service to determine a user's location, taking the longitude and latitude coordinates and comparing them to Zscaler's geographic IP database; if the location service is not enabled on the device, ZDX uses the device's IP address. If a user's coordinates are closer to the center of another city than their own, the user's location might be misidentified as connecting from the neighboring city.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "ZDX uses a device's location service to determine a user's location. It takes the longitude and latitude coordinates from the location service and compares it to Zscaler's geographic IP database.",
+            "If the location service is not enabled on the device, then ZDX uses the device's IP address to determine the location.",
+            "If a user's latitude and longitude are closer to the center of another city, instead of their own city, the user's location might be misidentified as connecting from the neighboring city."
+          ]
+        }
+      ]
+    },
+    "console-supported-os": {
+      "statement": "The Performance Dashboard, Applications Overview and Users Overview each say ZDX currently supports Windows, macOS, Android, Android on ChromeOS and iOS devices only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "ZDX currently supports Windows, macOS, Android, Android on ChromeOS, and iOS devices only."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-applications-overview.json",
+          "quotes": [
+            "ZDX currently supports Windows, macOS, Android, Android on ChromeOS, and iOS devices only."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-users-overview.json",
+          "quotes": [
+            "ZDX currently supports Windows, macOS, Android, Android on ChromeOS, and iOS devices only."
+          ]
+        }
+      ]
+    },
+    "console-hierarchy": {
+      "statement": "The console's Geolocations filter is hierarchical: it includes the continent, country, states and cities within the US, while non-US geolocations show the continent, countries and then cities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-performance-dashboard.json",
+          "quotes": [
+            "Click the drop-down menu option to choose locations in the Geolocations filter. This hierarchical display includes the continent, country, states, and cities within the US, while non-US geolocations show the continent, countries, and then cities."
+          ]
+        }
+      ]
+    },
+    "cloud-path-location-icon": {
+      "statement": "In the Cloud Path, a device location icon confirms that a device's location was determined by latitude and longitude coordinates; if no icon is displayed, the device was located by its IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-cloud-path.json",
+          "quotes": [
+            "A device location icon confirms that a device's location was determined by latitude and longitude coordinates. If no icon is displayed, the device was located by its IP address."
+          ]
+        }
+      ]
+    },
     "active-geo": {
       "statement": "The active-geolocations read lists all active geolocations for the time range, the last 2 hours if none is given; state and city data is retrieved only for the US.",
       "tier": "A",
@@ -212,6 +284,35 @@
           }
         }
       ]
+    }
+  },
+  "divergences": {
+    "cities-outside-us": {
+      "summary": "City data outside the US: the API's active-geolocations description says state and city data is retrieved only for the US, while the console's Geolocations filter shows cities for non-US geolocations.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1active_geo/get",
+            "expect": {
+              "description": "Gets the list of all active geolocations for the time range specified. If not specified, the endpoint defaults to the last 2 hours. The state and city data is retrieved only for the US."
+            }
+          },
+          "says": "The state and city data is retrieved only for the US."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-monitoring-performance-dashboard.json",
+            "quotes": [
+              "This hierarchical display includes the continent, country, states, and cities within the US, while non-US geolocations show the continent, countries, and then cities."
+            ]
+          },
+          "says": "The console's geolocation hierarchy shows states and cities within the US, and for non-US geolocations the continent, countries and then cities."
+        }
+      ],
+      "impact": "A client building a geolocation list from the API may find no city for a non-US location that the console shows with one; neither source says whether the API and console differ by design."
     }
   },
   "gaps": {

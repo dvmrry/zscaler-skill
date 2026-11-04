@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.feed-settings",
+  "title": "NSS feed destination and delivery settings by feed kind: TCP, HTTP, Cloud NSS and MCAS",
+  "aliases": [
+    "nss feed settings",
+    "siem rate",
+    "siem ip fqdn",
+    "max batch size",
+    "json array notation",
+    "feed output type",
+    "nss configure-nssas",
+    "cloud nss oauth",
+    "api url",
+    "duplicate logs setting"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feed-filters"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.reliability"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.cloud-nss-feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.nss-feed-format"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.alerts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{feed-is-connection}} Which settings each kind of feed has is not quotable from the articles {{gap:settings-by-kind}}."
+    },
+    {
+      "label": "TCP feeds.",
+      "text": "{{siem-fqdn}} {{siem-rate}} {{tcp-output-types}} What the Duplicate Logs setting replays is in [[shared.nss.reliability:duplicate-logs-recommendation]]."
+    },
+    {
+      "label": "HTTP feeds.",
+      "text": "{{http-enable}} {{http-destination}} {{http-json}} The batch size has no unit or default stated {{gap:max-batch-size}}."
+    },
+    {
+      "label": "Cloud NSS feeds.",
+      "text": "{{cloud-settings}} The URL, certificate trust and OAuth default are in [[zia.api.cloud-nss-feeds:cloud-url-cert]]. The SIEM types and which use OAuth 2.0 are not listed {{gap:siem-types}}. The API side is [[zia.api.cloud-nss-feeds]]."
+    },
+    {
+      "label": "MCAS feeds.",
+      "text": "{{mcas-fixed}}"
+    },
+    {
+      "label": "Replay on HTTP and Cloud.",
+      "text": "What an HTTP or Cloud NSS feed replays after an outage beyond the batch retry is open {{gap:http-cloud-duplicate-logs}}."
+    }
+  ],
+  "claims": {
+    "feed-is-connection": {
+      "statement": "Each feed is a connection between the NSS and the SIEM, and a configured NSS server is required to add an NSS feed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Feed Name: Enter or edit the name of the feed. Each feed is a connection between the NSS and your SIEM.",
+            "NSS Server: Select an NSS server from the list. A configured NSS server is required to add an NSS feed."
+          ]
+        }
+      ]
+    },
+    "siem-fqdn": {
+      "statement": "A TCP feed's SIEM destination can be given as an FQDN: the NSS re-resolves the FQDN only when the existing connection goes down, allowing failover from one IP to another by updating the DNS entry. The feature cannot be used for DNS-based load balancing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "This allows failover from one IP to the other without manual intervention, but rather relying on updating the DNS entry. The NSS re-resolves the FQDN only when the existing connection goes down. This feature cannot be used for DNS-based load balancing."
+          ]
+        }
+      ]
+    },
+    "siem-rate": {
+      "statement": "SIEM Rate should be left as Unlimited unless the output stream must be throttled due to licensing or other constraints; a limit must be between 100 and 1,000,000, and one that is too low for the traffic volume causes log loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "SIEM Rate: Leave as Unlimited, unless you need to throttle the output stream due to licensing or other constraints.",
+            "This number must be between 100 and 1,000,000. A limit that is too low for the traffic volume causes log loss."
+          ]
+        }
+      ]
+    },
+    "tcp-output-types": {
+      "statement": "A TCP web feed's output is a comma-separated (CSV) list by default, with Tab-separated as an alternative and feed output types for specific SIEMs in the same menu. The Firewall feed article says Name-Value Pairs or Tab-separated can be chosen if the SIEM accepts them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Feed Output Type: The output is a comma-separated (CSV) list by default. Choose Tab-separated to create a tab-separated list.",
+            "This menu also lists feed output types for specific SIEMs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "You can choose Name-Value Pairs or Tab-separated if your SIEM accepts any of these formats."
+          ]
+        }
+      ]
+    },
+    "http-enable": {
+      "statement": "In addition to TCP-based feeds, NSS logs can optionally be streamed to a SIEM over HTTP connections, and the AWS guide lists `nss configure-nssas` among the steps to add HTTP-based feeds. Self-signed or internally issued certificates that pass the SIEM connectivity test can also be used only after they are configured in the VM instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "In addition to TCP-based NSS feeds, you can optionally stream NSS logs to SIEM over HTTP connections. To add HTTP-based NSS feeds, you must:",
+            "nss configure-nssas"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-web-logs.json",
+          "quotes": [
+            "Self-signed or internally issued certificates that pass the SIEM connectivity test can also be used only after you configure them in your VM instance."
+          ]
+        }
+      ]
+    },
+    "http-destination": {
+      "statement": "An HTTP feed takes an API URL, the HTTP/S URL of the SIEM log collection API endpoint, HTTP header values such as a token, and a Max Batch Size, a size limit for an individual HTTP request payload to the SIEM's best practice.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-web-logs.json",
+          "quotes": [
+            "Max Batch Size: Enter a size limit for an individual HTTP request payload to the SIEM's best practice.",
+            "API URL: Enter the HTTP/S URL of the SIEM log collection API endpoint.",
+            "Value 1: Enter the token value for the HTTP header."
+          ]
+        }
+      ]
+    },
+    "http-json": {
+      "statement": "An HTTP web feed's Feed Output Type says the output is JSON, and Tab-separated is also offered. When JSON is selected, JSON Array Notation is enabled by default, which orders individual logs in a list separated by commas and surrounded by square brackets, and the article says the setting can be disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-web-logs.json",
+          "quotes": [
+            "Feed Output Type: The output is JSON.",
+            "Choose Tab-separated to create a tab-separated list.",
+            "JSON Array Notation: When JSON is selected, the JSON Array Notation setting is enabled by default.",
+            "Individual logs are ordered in a list, separated by commas, and surrounded by square brackets",
+            "You can disable this setting."
+          ]
+        }
+      ]
+    },
+    "cloud-settings": {
+      "statement": "A Cloud NSS web feed has a SIEM Type chosen from a list and a JSON output by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-web-logs.json",
+          "quotes": [
+            "SIEM Type: Choose a SIEM type from the list.",
+            "Feed Output Type: The output is JSON by default."
+          ]
+        }
+      ]
+    },
+    "mcas-fixed": {
+      "statement": "An MCAS NSS feed is a connection between the NSS and MCAS; its SIEM IP Address is the local host IP address, pre-populated and not editable, and its Feed Output Format fields are pre-populated and cannot be edited. An NSS virtual appliance deployed before the Internet Access (ZIA) 5.6 release needs the latest version of Java installed in its VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-mcas-nss-feeds.json",
+          "quotes": [
+            "Each feed is a connection between the NSS and MCAS.",
+            "SIEM IP Address: This is the local host IP address to stream logs from the NSS to MCAS. The field is pre-populated and cannot be edited.",
+            "Feed Output Format: These are the fields that display in the output. The fields are pre-populated and cannot be edited.",
+            "If you deployed an NSS virtual appliance before the Internet Access (ZIA) 5.6 release, ensure you have the latest version of Java installed into your VM."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "settings-by-kind": {
+      "kind": "semantic",
+      "title": "Which settings each feed kind has",
+      "status": "open",
+      "detail": "Comparing the web-log articles for TCP, HTTP, Cloud NSS and MCAS showed that only the TCP feed has a SIEM IP/FQDN with a TCP port and a Duplicate Logs setting; HTTP and Cloud have an API URL, HTTP headers, Max Batch Size and JSON Array Notation; only Cloud has SIEM Type and OAuth 2.0 and no NSS Server field; MCAS has no SIEM Rate and no editable output format. These are absences seen by diffing articles and cannot be quoted, so they are not claimed.",
+      "blocks": "saying whether a given setting exists for a feed kind",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "max-batch-size": {
+      "kind": "semantic",
+      "title": "Max Batch Size unit, default and range",
+      "status": "open",
+      "detail": "The HTTP and Cloud NSS articles say to enter a size limit for an individual HTTP request payload to the SIEM's best practice, with no unit, default or range.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "siem-types": {
+      "kind": "semantic",
+      "title": "Cloud NSS SIEM types and OAuth 2.0 applicability",
+      "status": "open",
+      "detail": "The Cloud NSS articles do not list the SIEM types or say which of them use OAuth 2.0. The OpenAPI /nssFeeds surface, the Terraform zia_cloud_nss_feed schema and the SDK models were not checked for this report.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "http-cloud-duplicate-logs": {
+      "kind": "semantic",
+      "title": "What an HTTP or Cloud NSS feed replays after an outage",
+      "status": "open",
+      "detail": "No HTTP or Cloud NSS feed article showed a Duplicate Logs setting when diffed against the TCP article. What is replayed to an HTTP or Cloud SIEM after an outage, beyond the one-hour batch retry, is not stated.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

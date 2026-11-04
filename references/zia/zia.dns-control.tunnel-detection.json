@@ -45,6 +45,10 @@
     },
     {
       "text": "The detection signals, the log fields and a carve-out for legitimate tunnels are open {{gap:tunnel-mechanics}}."
+    },
+    {
+      "label": "DNS application groups.",
+      "text": "{{dag-contents}} {{dag-use}} {{dag-fields}} {{dag-investigation}} The selectable tunnels and applications and any group-count limit are open {{gap:dag-members-limits}}."
     }
   ],
   "checks": [
@@ -171,6 +175,62 @@
         }
       ]
     },
+    "dag-contents": {
+      "statement": "DNS application groups group DNS tunneling traffic and other web applications for policy: legitimate, commonly blocked and unrecognized DNS tunnels and DNS network applications (not to be confused with DPI-based network applications), managed in the DNS Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-application-groups.json",
+          "quotes": [
+            "With DNS application groups, you can create groups based on DNS tunneling traffic as well as other web applications to manage them using policies.",
+            "Group legitimate DNS tunnels, commonly blocked DNS tunnels, unrecognized DNS tunnels, and DNS network applications (not to be confused with DPI-based network applications) to manage them collectively in the DNS Control policy."
+          ]
+        }
+      ]
+    },
+    "dag-use": {
+      "statement": "DNS application groups manage DNS tunnels and web applications through DNS Control rules; the help's example is one group of tunnels and web applications allowed for specific users and another of tunnels blocked for all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dns-application-groups.json",
+          "quotes": [
+            "You can group together DNS tunnels and web applications using DNS application groups to manage them via DNS Control rules.",
+            "For example, you can create a group to include DNS tunnels and web applications that can be allowed for specific users and another group with DNS tunnels that should be blocked for all users."
+          ]
+        }
+      ]
+    },
+    "dag-fields": {
+      "statement": "A DNS application group's name cannot exceed 255 characters, any number of DNS tunnels and network applications can be selected, and the description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dns-application-groups.json",
+          "quotes": [
+            "Name: Enter a name for the application group, not exceeding a maximum length of 255 characters.",
+            "You can select any number of DNS tunnels and network applications within the group.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "dag-investigation": {
+      "statement": "DNS tunnels detected in the network can be investigated and analyzed using Zscaler DNS logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dns-application-groups.json",
+          "quotes": [
+            "Investigate and analyze the DNS tunnels detected in your network using Zscaler DNS logs."
+          ]
+        }
+      ]
+    },
     "category-selection": {
       "statement": "Selecting a parent tunnel category in a rule includes all tunnels in it.",
       "tier": "A",
@@ -187,6 +247,16 @@
     }
   },
   "gaps": {
+    "dag-members-limits": {
+      "kind": "semantic",
+      "title": "Which tunnels and applications a DNS application group can hold, and how many groups",
+      "status": "open",
+      "detail": "The About and Configuring pages do not list the selectable DNS tunnels and applications, and the limits table has no row for the number of DNS application groups.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
     "tunnel-mechanics": {
       "kind": "semantic",
       "title": "Detection signals, log fields, and a carve-out for legitimate tunnels",

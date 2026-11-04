@@ -40,11 +40,15 @@
     {
       "rel": "see-also",
       "to": "zdx.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications.rum"
     }
   ],
   "prose": [
     {
-      "text": "An application is the unit ZDX probes and scores. {{app-kinds}}"
+      "text": "An application is the unit ZDX probes and scores. {{app-kinds}} {{internet-web-app-limit}}"
     },
     {
       "heading": "Kinds of application"
@@ -59,7 +63,7 @@
     },
     {
       "label": "Unified communication.",
-      "text": "{{uc-tenant-onboarding}} {{teams-transport-relay}} The call-quality data itself is read per device: [[zdx.devices.call-quality]]."
+      "text": "{{uc-tenant-onboarding}} {{teams-transport-relay}} {{uc-cloud-path-only}} {{uc-tiers}} The call-quality data itself is read per device: [[zdx.devices.call-quality]]."
     },
     {
       "label": "Status.",
@@ -87,7 +91,7 @@
       "heading": "Configuring applications through the API"
     },
     {
-      "text": "{{config-api}} {{app-class}} {{rum-config}} {{config-no-sdk}}"
+      "text": "{{config-api}} {{app-class}} {{rum-config}} What Real User Monitoring needs and what it shows is in [[zdx.applications.rum]]. {{config-no-sdk}}"
     }
   ],
   "checks": [
@@ -513,6 +517,75 @@
         "config-api"
       ],
       "conditions": "Absence by search: `git grep config/` over zscaler/zdx in zscaler-sdk-go and zscaler-sdk-python at the pin finds nothing, and the generated surface (`node scripts/kb.mjs surface /v1/config/applications`) lists no SDK reaching those paths."
+    },
+    "uc-cloud-path-only": {
+      "statement": "The Microsoft Teams, Webex and Zoom Call Quality applications take only Cloud Path probes, as Web probes are not allowed for them; for Microsoft Teams ZDX Autosense can dynamically detect a destination IP address and provide an automated Cloud Path probe when a Microsoft Teams Call Quality tenant is onboarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "The metrics for Cloud Path probes configured as part of the Microsoft Teams Call Quality application.",
+            "Web probes are not allowed for this application.",
+            "which can dynamically detect a destination IP address and provide an automated Cloud Path probe when you onboard a Microsoft Teams Call Quality tenant"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-webex-call-quality-zdx.json",
+          "quotes": [
+            "Only Cloud Path probes can be configured, as Web probes are not allowed for this application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zoom-call-quality-zdx.json",
+          "quotes": [
+            "You can configure only Cloud Path probes, as Web probes are not allowed for this application."
+          ]
+        }
+      ]
+    },
+    "uc-tiers": {
+      "statement": "In the subscription table UCaaS Monitoring is not supported on Standard, is Microsoft Teams Call Quality only on Microsoft 365, and is supported on Advanced and Advanced Plus, with a UCaaS tenant limit of 40 on those three tiers; ZDX Autosense is supported for Webex and Zoom Call Quality on Advanced and Advanced Plus only, and for Microsoft Teams Call Quality on Microsoft 365, Advanced and Advanced Plus (columns in the order of the table's header row).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| UCaaS Monitoring | Not supported | Microsoft Teams Call Quality (only) | Supported | Supported |",
+            "| UCaaS Monitoring (tenant limit) | Not supported | 40 | 40 | 40 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Analytics"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| ZDX Autosense (Webex Call Quality) | Not supported | Not supported | Supported | Supported |",
+            "| ZDX Autosense (Zoom Call Quality) | Not supported | Not supported | Supported | Supported |",
+            "| ZDX Autosense (Microsoft Teams Call Quality) | Not supported | Supported | Supported | Supported |"
+          ]
+        }
+      ]
+    },
+    "internet-web-app-limit": {
+      "statement": "The subscription table gives the total number of Internet Web Applications as 512 on Standard, Microsoft 365, Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Total Number of Internet Web Applications | 512 | 512 | 512 | 512 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Applications and Probes"
+        }
+      ]
     },
     "python-metric-name-doc": {
       "statement": "The Python `get_app_metrics` docstring lists `pft`, `dns` and `availability` as the available `metric_name` values, as the contract's enum does, while the Go `GetAppMetrics` comment repeats the operation description's longer list (Server Response Time and the Cloud Path latency segments).",

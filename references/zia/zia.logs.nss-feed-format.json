@@ -51,7 +51,7 @@
     },
     {
       "label": "Encoding.",
-      "text": "{{url-hex-encoding}} {{escape-character}} {{eedone-flag}} {{cloud-json-escaping}}"
+      "text": "{{url-hex-encoding}} {{escape-character}} {{escape-scope}} The two statements of what the field encodes differ in breadth {{divergence:escape-field-scope}}. {{eedone-flag}} {{cloud-json-escaping}}"
     },
     {
       "label": "VM NSS and Cloud NSS.",
@@ -59,13 +59,13 @@
     },
     {
       "label": "Time zones.",
-      "text": "Behavior with several feeds or regions is open {{gap:multi-feed-timezone}}."
+      "text": "{{time-zone-setting}} Behavior with several feeds or regions is open {{gap:multi-feed-timezone}}."
     },
     {
       "text": "Field inventories: [[zia.logs.web-records]], [[zia.logs.firewall-records]]."
     },
     {
-      "text": "{{tab-delimiters}}"
+      "text": "{{tab-delimiters}} {{syslog-formats}}"
     }
   ],
   "checks": [
@@ -93,6 +93,54 @@
     }
   ],
   "claims": {
+    "escape-scope": {
+      "statement": "The TCP web feed article says the service encodes characters in URLs, hostnames, and referrer URLs only, and that if custom encoding was done for a record, the %s{eedone} field is YES for that record.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#eedone"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Note that the service encodes characters in URLs, hostnames, and referrer URLs only. If custom encoding was done for a record, the %s{eedone} field is YES for that record."
+          ]
+        }
+      ]
+    },
+    "time-zone-setting": {
+      "statement": "A TCP web feed's Time Zone is by default the organization's time zone and applies to the time field in the output file; the list of time zones is derived from the IANA Time Zone database, and direct GMT offsets can also be specified.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#time"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Time Zone: By default, this is set to the organization's time zone. The time zone you set applies to the time field in the output file.",
+            "The list of time zones is derived from the IANA Time Zone database. Direct GMT offsets can also be specified."
+          ]
+        }
+      ]
+    },
+    "syslog-formats": {
+      "statement": "Zscaler supports many syslog formats, including industry standard formats and custom log strings; CEF and LEEF are two primary standards used by SIEMs, and LEEF is a customized event format created by IBM QRadar.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-syslog-overview.json",
+          "quotes": [
+            "Zscaler supports many syslog formats. This includes industry standard formats and the ability to create custom log strings.",
+            "The Common Event Format (CEF) and Log Event Extended Format (LEEF) are two primary standards used by SIEMs.",
+            "LEEF is a customized event format created by IBM QRadar."
+          ]
+        }
+      ]
+    },
     "field-limit": {
       "statement": "Zscaler recommends no more than 50 fields in an NSS feed, to fit syslog message size limits; a SIEM that can ingest larger messages can take more.",
       "tier": "A",
@@ -274,6 +322,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "escape-field-scope": {
+      "summary": "The general guidelines and the TCP web feed article differ in which fields the Feed Escape Character encodes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+            "quotes": [
+              "The service encodes the characters that you enter in this field."
+            ]
+          },
+          "says": "The service encodes the characters entered in the Feed Escape Character field, with no limit on the fields stated."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+            "quotes": [
+              "Note that the service encodes characters in URLs, hostnames, and referrer URLs only."
+            ]
+          },
+          "says": "The service encodes characters in URLs, hostnames, and referrer URLs only."
+        }
+      ],
+      "impact": "Whether a custom escape character is encoded in fields other than URLs, hostnames and referrer URLs depends on which article is read; the TCP feed article is the narrower one."
     }
   },
   "gaps": {

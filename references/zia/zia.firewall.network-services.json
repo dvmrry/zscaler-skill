@@ -56,7 +56,19 @@
     },
     {
       "label": "Size.",
-      "text": "{{service-count-cap}} The per-rule cap on services is in [[zia.firewall.limits]]."
+      "text": "{{service-count-cap}} The per-rule cap on services is in [[zia.firewall.limits]]. The description length differs between the help pages {{divergence:description-length}}."
+    },
+    {
+      "label": "Predefined services.",
+      "text": "{{predefined-set}} {{predefined-editability}} {{predefined-ports}} {{zscaler-proxy-service}}"
+    },
+    {
+      "label": "How the help says they match.",
+      "text": "{{services-uses}} {{first-packet}} {{custom-match-logic}} {{port-entry-format}} {{definition-label}} Whether the eight-entry cap is per field is open {{gap:port-array-precedence}}."
+    },
+    {
+      "label": "Network service groups.",
+      "text": "{{service-groups}} {{service-group-sizes}}"
     }
   ],
   "checks": [
@@ -415,14 +427,220 @@
       ]
     },
     "service-count-cap": {
-      "statement": "An organization can have up to 832 firewall network services.",
+      "statement": "The limits table lists 832 firewall network services per organization, and the About Network Services page says an organization can add up to 832 custom network services in addition to the predefined ones.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
           "quotes": [
+            "All values are per organization unless noted otherwise.",
             "| Firewall Network Services | 832 services |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "In addition to the predefined services, you can add up to 832 custom network services and control them using policies."
+          ]
+        }
+      ]
+    },
+    "predefined-set": {
+      "statement": "Zscaler provides over 50 predefined network services along with the TCP and UDP ports (source and destination) over which they typically operate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Zscaler provides over 50 predefined network services along with the TCP and UDP ports (for source and destination) over which these services typically operate."
+          ]
+        }
+      ]
+    },
+    "predefined-editability": {
+      "statement": "The ports assigned to predefined network services can be customized by adding new ports and modifying or deleting existing ones, except for six view-only predefined services (ESP, GRE, ICMP, TCP, UDP and Zscaler Proxy Network Services). Predefined services cannot be deleted. Editing a service offers Description, TCP Ports and UDP Ports, and custom services can be edited the same way.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Additionally, you can customize the ports assigned to the predefined network services by adding new ports and modifying and deleting existing ones.",
+            "The following predefined network services are view-only and cannot be modified: ESP, GRE, ICMP, TCP, UDP, and Zscaler Proxy Network Services",
+            "Predefined network services cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-modifying-predefined-network-services.json",
+          "quotes": [
+            "In the Edit Network Service drawer, you can modify:",
+            "Description: Additional notes or information about the network service.",
+            "TCP Ports: TCP source and destination ports used by the network service.",
+            "UDP Ports: UDP source and destination ports used by the network service.",
+            "Similarly, you can edit custom network services and modify their port assignments."
+          ]
+        }
+      ]
+    },
+    "predefined-ports": {
+      "statement": "The About Network Services table gives TCP and UDP destination ports per predefined service, for example DNS on 53 for both, HTTP on TCP 80, HTTPS on TCP 443, HTTP Proxy on TCP 3128 and 8080, QUIC on UDP 443, FTP on TCP 21, SSH on TCP 22, NTP on UDP 123 and Traceroute on UDP 33400-34000; ICMP is listed N/A for both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "| Name | TCP Destination Ports | UDP Destination Ports | Description |",
+            "| DNS | 53 | 53 |",
+            "| HTTP | 80 | N/A |",
+            "| HTTPS | 443 | N/A |",
+            "| HTTP Proxy | 3128, 8080 | N/A |",
+            "| QUIC | N/A | 443 |",
+            "| FTP | 21 | N/A |",
+            "| SSH | 22 | N/A |",
+            "| NTP | N/A | 123 |",
+            "| Traceroute | N/A | 33400-34000 |",
+            "| ICMP | N/A | N/A |"
+          ]
+        }
+      ]
+    },
+    "zscaler-proxy-service": {
+      "statement": "The predefined Zscaler Proxy Network Services entry lists TCP ports 21, 443, 80, 8080, 8800, 9400, 9443 and 9480, and includes all Zscaler-specific web proxy ports including customer-specific Dedicated Proxy Ports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "| Zscaler Proxy Network Services | 21, 443, 80, 8080, 8800, 9400, 9443, 9480 | N/A |",
+            "This network service includes all Zscaler-specific web proxy ports including customer-specific Dedicated Proxy Ports."
+          ]
+        }
+      ]
+    },
+    "services-uses": {
+      "statement": "Network services with specific source or destination ports and protocols can be used to configure 5-tuple Firewall Filtering, NAT, IPS Control and Forwarding rules with allow, block or redirect actions, and custom network services let Firewall, DNS and NAT policies apply to non-standard traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Configure 5-tuple Firewall Filtering rules, NAT rules, IPS Control rules, and Forwarding rules based on network services that include specific source or destination ports and protocols and enforce condition-based actions to allow, block, or redirect your network traffic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "Custom network services allow you to define your own protocol and port combinations so you can apply precise Firewall, DNS, and NAT policies to non-standard or specialized traffic that is not covered by predefined services."
+          ]
+        }
+      ]
+    },
+    "first-packet": {
+      "statement": "Network services are identified at the first packet, leading to immediate policy action, whereas deep packet inspection typically needs multiple packets to identify network applications. Zscaler recommends ranking Firewall Filtering rules for network services, and for network service groups, higher than rules for network applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-services.json",
+          "quotes": [
+            "Network services configured in Zscaler are identified at the first packet, leading to immediate policy action.",
+            "multiple packets are typically required by deep packet inspection to identify network applications before a policy action can take place",
+            "Zscaler recommends that you rank Firewall Filtering rules for network services higher than rules for network applications"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-service-groups.json",
+          "quotes": [
+            "Zscaler recommends that you rank Firewall Filtering rules for network service groups higher than rules for network applications"
+          ]
+        }
+      ]
+    },
+    "custom-match-logic": {
+      "statement": "A custom network service combines protocols and ports at the source and destination: entries within the source, or within the destination, have an OR relationship, and source and destination combine with AND, that is (TCP Source Ports OR UDP Source Ports) AND (TCP Destination Ports OR UDP Destination Ports).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "A custom network service is defined as a combination of protocols and ports used at the source and destination.",
+            "(TCP Source Ports OR UDP Source Ports) AND (TCP Destination Ports OR UDP Destination Ports)",
+            "Within the source or destination, all entities have an OR relationship. Between source and destination, the relationship is AND.",
+            "traffic matches this network service only if it originates from TCP port 111 and is destined to either TCP port 444 or UDP port 333."
+          ]
+        }
+      ]
+    },
+    "port-entry-format": {
+      "statement": "The TCP Source Ports field takes a port number (for example 50) or a range (for example 1000–1050), and the page says a maximum of 8 entries is allowed for each port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "TCP Source Ports: Enter the port number (e.g., 50) or range (e.g., 1000–1050) used by the network service.",
+            "A maximum of 8 entries is allowed for each port."
+          ]
+        }
+      ]
+    },
+    "definition-label": {
+      "statement": "The console populates Definition as Custom automatically for admin-defined services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-services.json",
+          "quotes": [
+            "Definition: Custom is automatically populated for admin-defined services."
+          ]
+        }
+      ]
+    },
+    "service-groups": {
+      "statement": "Predefined and custom network services can be grouped and reused across policies, and network service groups can be used to configure 5-tuple Firewall Filtering, NAT, IPS Control and Forwarding rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-network-service-groups.json",
+          "quotes": [
+            "You can group predefined and custom network services together and reuse them across policies.",
+            "Configure 5-tuple Firewall Filtering rules, NAT rules, IPS Control policies, and Forwarding rules based on network service groups"
+          ]
+        }
+      ]
+    },
+    "service-group-sizes": {
+      "statement": "An organization can create up to 121 network service groups, each holding up to 8,000 network services; the add form lets any number of custom and predefined services be selected, and a group's description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-network-service-groups.json",
+          "quotes": [
+            "You can create a maximum of 121 network service groups and add up to 8,000 network services to a group.",
+            "You can select any number of custom and predefined services.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Network Service Groups | 121 groups |",
+            "| Network Services per Group | 8,000 network services |"
           ]
         }
       ]
@@ -491,6 +709,32 @@
     }
   },
   "divergences": {
+    "description-length": {
+      "summary": "The Configuring Network Services page limits a service description to 10,240 characters; the limits table gives 1,024 bytes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-network-services.json",
+            "quotes": [
+              "The description cannot exceed 10,240 characters."
+            ]
+          },
+          "says": "The description cannot exceed 10,240 characters."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Network Service Description | 1,024 bytes |"
+            ]
+          },
+          "says": "Network Service Description is limited to 1,024 bytes."
+        }
+      ],
+      "impact": "A description between 1,024 bytes and 10,240 characters is allowed by one page and over the limit by the other; the pages do not say which governs."
+    },
     "sdk-field-sets": {
       "summary": "The Python and Go SDKs model different fields on a network service.",
       "positions": [
@@ -551,9 +795,9 @@
     },
     "port-array-precedence": {
       "kind": "semantic",
-      "title": "Ordering and caps among the four port arrays",
-      "status": "open",
-      "detail": "No source states a cap on ports per service or a precedence among source and destination arrays when both are set.",
+      "title": "Whether the eight-entry port cap is per port field",
+      "status": "partial",
+      "detail": "The match logic among the four port arrays is now stated (custom-match-logic). The Configuring page says a maximum of 8 entries is allowed for each port, under the four port fields, without saying whether each port means each field.",
       "resolves_with": [
         "lab-test",
         "support-ticket"

@@ -40,6 +40,10 @@
     {
       "rel": "see-also",
       "to": "zpa.troubleshooting.log-fields"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.diagnostics"
     }
   ],
   "prose": [
@@ -65,6 +69,10 @@
     {
       "label": "Client-to-client.",
       "text": "{{fqdn-error-codes}} The registered flag is true or false in the table but 0 in the example {{divergence:fqdn-registered-value}}. The default template reads both fields as fqdn_registered and fqdn_register_error, not the table names {{divergence:fqdn-template-variables}}. What these hold without client-to-client is open {{gap:c2c-fields-population}}."
+    },
+    {
+      "label": "In Diagnostics.",
+      "text": "The User Status diagnostics are one of the views in [[zpa.troubleshooting.diagnostics]]. {{diag-status-values}} {{disconnect-reason-code}} {{zscaler-ip}} {{pse-selection}} {{hop-two-parts}} {{client-version-and-types}} {{diag-byte-directions}} {{pcc-fields}}"
     }
   ],
   "checks": [
@@ -101,6 +109,121 @@
     }
   ],
   "claims": {
+    "diag-status-values": {
+      "statement": "User Status diagnostics show a record's status as Authenticated (an authenticated user has connected to Private Access, true for first time authentication and subsequent reauthentications), Authentication Failed (the user was unable to authenticate) or Disconnected (the user successfully disconnected).",
+      "tier": "A",
+      "conditions": "These are the console labels; no captured page names them as the SessionStatus values.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Authenticated: Authenticated represents that an authenticated user has connected to Private Access. This is true for first time authentication and subsequent reauthentications.",
+            "Authentication Failed: The user was unable to authenticate.",
+            "Disconnected: The user successfully disconnected."
+          ]
+        }
+      ]
+    },
+    "disconnect-reason-code": {
+      "statement": "In User Status diagnostics the Disconnect Reason Code field is visible and indicates the internal code for why the user disconnected, and records can be filtered by a specific reason code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "The Disconnect Reason Code field is visible and indicates the internal code for why the user disconnected.",
+            "Connection: Reason Code: See logs that resulted in a specific reason code."
+          ]
+        }
+      ]
+    },
+    "zscaler-ip": {
+      "statement": "Zscaler IP is the virtual IP that is assigned to Zscaler Client Connector for server-to-client connectivity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Zscaler IP: The virtual IP that is assigned to Zscaler Client Connector for server-to-client connectivity."
+          ]
+        }
+      ]
+    },
+    "pse-selection": {
+      "statement": "For every status code, User Status diagnostics show the Private Service Edge selection method (for example Default, Preferred or Always) associated with the user's redirection policy, and whether the domain being accessed by Zscaler Client Connector matches the regular expression (Client-To-Client Enrolled).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "after": "For every status code, the following fields are displayed:",
+          "quotes": [
+            "Private Service Edge Selection: The Private Service Edge selection method (e.g, Default, Preferred, or Always) associated with the user's redirection policy.",
+            "Client-To-Client Enrolled: Indicates whether the domain being accessed by the Zscaler Client Connector matches the regular expression or not. To learn more, see Validating a Client Hostname."
+          ]
+        }
+      ]
+    },
+    "hop-two-parts": {
+      "statement": "There are two parts to every hop in User Status diagnostics: the user's Zscaler Client Connector connecting to a Private Service Edge, and then the Private Service Edge connecting to a Public Service Edge. The first part is the logs that already appear for the session, and a link shows the second part.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "There are two parts to every hop: the user's Zscaler Client Connector connecting to a Private Service Edge, and then the Private Service Edge connecting to a Public Service Edge.",
+            "The first part is the logs that already appear for the session. Click the link to view the log details for the second part of the hop."
+          ]
+        }
+      ]
+    },
+    "client-version-and-types": {
+      "statement": "In User Status diagnostics Client Version is the version number of the client the user uses (for example the Zscaler Client Connector version), and Client Type is Branch Connector, Zscaler Client Connector, Client Connector Partner, Web Browser, Web Browser Unauthenticated, ZIA Inspection or ZIA Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Client Version: The version number of the client the user uses (e.g., the Zscaler Client Connector version on the user's device).",
+            "Client Type: The name of the client the user's device is connecting from (i.e., Branch Connector, Zscaler Client Connector, Client Connector Partner, Web Browser, Web Browser Unauthenticated, ZIA Inspection, or ZIA Public Service Edge)."
+          ]
+        }
+      ]
+    },
+    "diag-byte-directions": {
+      "statement": "User Status diagnostics byte counters include bytes transmitted to and received from a client by a Public or Private Service Edge (Tx to Client, Rx from Client) and bytes transmitted by a Public Service Edge to a Private Service Edge (Tx to Private Service Edge).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Tx to Client: See bytes transmitted by a Public Service Edge or Private Service Edge to a client.",
+            "Rx from Client: See bytes received by a Public Service Edge or Private Service Edge from a client.",
+            "Tx to Private Service Edge: See bytes transmitted by a Public Service Edge to a Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "pcc-fields": {
+      "statement": "User Status diagnostics can show users' logs by Private Cloud Controller name, and show the name of the Private Cloud Controller group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-user-status-diagnostics.json",
+          "quotes": [
+            "Private Cloud Controller Name: See logs of users by Private Cloud Controller name.",
+            "Private Cloud Controller Group Name: The name of the Private Cloud Controller group."
+          ]
+        }
+      ]
+    },
     "session-status-values": {
       "statement": "SessionStatus is ZPN_STATUS_AUTHENTICATED when the user successfully authenticated in Private Access and ZPN_STATUS_AUTH_FAILED when the user failed to authenticate; the third value, ZPN_STATUS_DISCONNECTED, is described as 'The user connected from a Public Service Edge for Private Access or a Private Service Edge for Private Access'.",
       "tier": "A",
@@ -253,7 +376,7 @@
         "tenant-data",
         "lab-test"
       ],
-      "detail": "Unverified legacy statement (ledger log-19): the sources do not say whether a session emits one record per status (an AUTHENTICATED record then a DISCONNECTED record) or one consolidated record, whether TotalBytesRx and TotalBytesTx are filled only on DISCONNECTED records or as running totals, whether TimestampUnAuthentication is filled only on disconnect, or whether an AUTH_FAILED record carries byte counters. The only example is an AUTHENTICATED record with both byte counters populated and TimestampUnAuthentication empty (totals-undefined-scope). The legacy also states that User Status records are produced when a ZCC client connects or disconnects and describe one session state change; no capture says when the log is generated. Deduplicate by SessionID until a capture across a known session lifecycle is available.",
+      "detail": "Unverified legacy statement (ledger log-19): the User Status diagnostics say Authenticated covers both first authentication and subsequent reauthentications (diag-status-values), but the sources do not say whether a session emits one record per status (an AUTHENTICATED record then a DISCONNECTED record) or one consolidated record, whether a reauthentication writes its own record, whether TotalBytesRx and TotalBytesTx are filled only on DISCONNECTED records or as running totals, whether TimestampUnAuthentication is filled only on disconnect, or whether an AUTH_FAILED record carries byte counters. The only example is an AUTHENTICATED record with both byte counters populated and TimestampUnAuthentication empty (totals-undefined-scope). The legacy also states that User Status records are produced when a ZCC client connects or disconnects and describe one session state change; no capture says when the log is generated. Deduplicate by SessionID until a capture across a known session lifecycle is available.",
       "former_ids": [
         "log-19"
       ]

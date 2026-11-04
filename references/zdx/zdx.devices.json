@@ -36,6 +36,22 @@
     {
       "rel": "see-also",
       "to": "zdx.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.health-score"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.devices.endpoint-analytics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.dashboards"
     }
   ],
   "prose": [
@@ -44,7 +60,7 @@
     },
     {
       "label": "Detail.",
-      "text": "{{device-detail}} {{network-wifi}} {{os-build}} Whether the Wi-Fi fields are filled for wired or cellular interfaces is not documented {{gap:wifi-field-population}}."
+      "text": "{{device-detail}} {{network-wifi}} {{os-build}} {{console-device-info}} {{tunnel-type}} {{shared-device-counts}} Whether the Wi-Fi fields are filled for wired or cellular interfaces is not documented {{gap:wifi-field-population}}."
     },
     {
       "label": "Filters.",
@@ -56,7 +72,7 @@
     },
     {
       "label": "More per device.",
-      "text": "Health metrics and events are in [[zdx.devices.health-and-events]], geolocation in [[zdx.devices.geolocation]], call quality in [[zdx.devices.call-quality]], and per-device Web and Cloud Path probe reads in [[zdx.probes:cloudpath-hop-data]]. Paging and time ranges are in [[zdx.reports]]."
+      "text": "Health metrics and events are in [[zdx.devices.health-and-events]], geolocation in [[zdx.devices.geolocation]], call quality in [[zdx.devices.call-quality]], and per-device Web and Cloud Path probe reads in [[zdx.probes:cloudpath-hop-data]]. The console's Device Health Score and hardware and usage profiles are in [[zdx.devices.health-score]], its hardware, process, software and patch inventory in [[zdx.devices.inventory]], and Microsoft Endpoint Analytics scores in [[zdx.devices.endpoint-analytics]]. Paging and time ranges are in [[zdx.reports]]."
     },
     {
       "label": "Groups of devices.",
@@ -201,6 +217,54 @@
             "description": "The OS build version on the device.",
             "type": "string"
           }
+        }
+      ]
+    },
+    "console-device-info": {
+      "statement": "In the console, the user details page displays the devices in use with device information such as the OS type and version, CPU, memory, and private and public IP; which devices appear depends on the time selected and factors such as device network issues and offline or sleep status. A device's information window organizes further details under Hardware, Network or Software tabs, and the Software tab shows the ZDX and Client Connector versions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "This section displays the devices in use and specific device information, such as the OS type and version, CPU, Memory, Private IP, Public IP, etc.",
+            "Devices in this section are displayed depending on the time selected and factors such as device network issues, offline/sleep status, etc.",
+            "The User Device Information window displays additional device information organized under the Hardware, Network, or Software tabs.",
+            "For example, on the Software tab, you can view the ZDX and Zscaler Client Connector versions for the device."
+          ]
+        }
+      ]
+    },
+    "tunnel-type": {
+      "statement": "A device's Tunnel Type in the console depends on the device profile and is one of Tunnel 1.0 or TWLP, Tunnel 2.0 in DTLS Mode, Tunnel 2.0 in TLS Mode or Tunnel Unknown; Unknown means ZDX could not detect it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "The Tunnel Type that displays depends on the device profile. The available tunnel types are:",
+            "Tunnel 1.0 or TWLP",
+            "Tunnel 2.0 in DTLS Mode",
+            "Tunnel 2.0 in TLS Mode",
+            "- Tunnel Unknown",
+            "If a Tunnel Type is Unknown, it means ZDX could not detect it."
+          ]
+        }
+      ]
+    },
+    "shared-device-counts": {
+      "statement": "When a device is shared between multiple users, the user count is higher than the device count; in the Devices Overview's example there are two users and one device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-monitoring-devices-overview.json",
+          "quotes": [
+            "When a device is shared between multiple users, the user count is higher than the device count.",
+            "In this scenario, there are two users and one device."
+          ]
         }
       ]
     },

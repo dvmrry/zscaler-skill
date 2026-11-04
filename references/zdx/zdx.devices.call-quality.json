@@ -34,6 +34,22 @@
       "text": "{{meeting-fields}}"
     },
     {
+      "label": "Platforms.",
+      "text": "{{platforms-monitored}} {{teams-data-timing}} {{webex-data-timing}} {{zoom-data-timing}} {{zoom-requirements}}"
+    },
+    {
+      "label": "The Call Quality page and the Meetings dashboard.",
+      "text": "{{call-quality-page}} {{meeting-reporting-rules}} {{meeting-details}} {{user-detail-ranges}} {{meetings-dashboard}}"
+    },
+    {
+      "label": "Scoring.",
+      "text": "{{mos-bands}} {{metric-thresholds}} The MOS scale starts at 1 while the Poor band starts at 0 {{gap:mos-range}}."
+    },
+    {
+      "label": "Zoom monitoring criteria.",
+      "text": "{{zoom-criteria}}"
+    },
+    {
       "label": "Open.",
       "text": "Which applications populate this read and which metric names appear in its series are not enumerated {{gap:cqm-scope}}. How each SDK types the metrics is in [[zdx.sdk-python.response-models]]."
     }
@@ -48,6 +64,281 @@
     }
   ],
   "claims": {
+    "platforms-monitored": {
+      "statement": "Microsoft Teams, Webex and Zoom Call Quality each allow monitoring actual one-to-one calls or meetings among two or more participants in a configured tenant. For Teams, the Call Quality ZDX Score can reflect either a Mean Opinion Score (MOS) average or metric thresholds for latency, jitter and packet loss, and user and device information from Microsoft for call participants is mapped to ZDX users and devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "Microsoft Teams Call Quality allows you to monitor actual one-to-one calls or meetings among two or more participants in a configured Microsoft Teams tenant.",
+            "The ZDX Score for Call Quality can reflect either a Mean Opinion Score (MOS) average, or metric thresholds for latency, jitter, and packet loss.",
+            "User and device information garnered from Microsoft for call participants is mapped to ZDX users and devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-webex-call-quality-zdx.json",
+          "quotes": [
+            "Webex Call Quality allows you to monitor actual one-to-one calls or meetings among two or more participants in a configured Webex tenant."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zoom-call-quality-zdx.json",
+          "quotes": [
+            "Zoom Call Quality allows you to monitor actual one-to-one calls or meetings among two or more participants in a configured Zoom tenant."
+          ]
+        }
+      ]
+    },
+    "teams-data-timing": {
+      "statement": "Microsoft Teams call data is retrieved using the Microsoft Graph API when a call has ended; the Graph API only provides data for the entire call after it has completed, so partial data for meetings in progress is not captured, and call data might take 15 minutes to 1 hour to be available after a meeting has ended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "When a call has ended, Call Quality data is retrieved using the Microsoft Graph API.",
+            "Currently, the Microsoft Graph API only provides data for the entire call after the call has completed, and does not provide incremental data while a call is in progress.",
+            "Partial data for meetings in progress is not captured. Call data from the Microsoft Graph API might take 15 minutes to 1 hour to be available after a meeting has ended."
+          ]
+        }
+      ]
+    },
+    "webex-data-timing": {
+      "statement": "Webex call data is retrieved using the Webex API and captured in real time, available 5 minutes after the start of a call; call data for meetings in progress is captured every 5 minutes and shown as In Progress, and complete call data is available approximately 10 minutes after a call has ended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-webex-call-quality-zdx.json",
+          "quotes": [
+            "Call Quality data is retrieved using the Webex API, and data is captured in real time, available 5 minutes after the start of a call.",
+            "While incremental data is available for calls in progress, complete call data is available approximately 10 minutes after a call has ended.",
+            "Ongoing calls are shown as In Progress to indicate the call has not ended. Call data for meetings in progress is captured every 5 minutes. Availability of call data begins 5 minutes after a meeting has started."
+          ]
+        }
+      ]
+    },
+    "zoom-data-timing": {
+      "statement": "Zoom call data is retrieved using the Zoom API and captured in real time as a meeting is in progress, every 5 minutes, with complete call data available approximately 10 minutes after the call has ended. Zoom Call Quality receives webhook notifications from Zoom when a meeting starts or stops, ZDX then makes periodic QoS user API calls, and only meetings with two or more participants that last more than one minute are collected and displayed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zoom-call-quality-zdx.json",
+          "quotes": [
+            "Call Quality data is retrieved using the Zoom API, and data is captured in real time as a meeting is in progress.",
+            "While incremental data is available for calls in progress, complete call data is available approximately 10 minutes after a call has ended.",
+            "Call data for meetings in progress is captured every 5 minutes.",
+            "Only meetings with two or more participants that last more than one minute are collected and displayed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zoom-call-quality-zdx-integration-requirements.json",
+          "quotes": [
+            "Zoom Call Quality for ZDX receives webhook notifications from Zoom for your organization when a meeting starts or stops.",
+            "ZDX then makes periodic Quality of Service (QoS) user API calls to retrieve meeting QoS data and makes the data available via APIs to display on the UI."
+          ]
+        }
+      ]
+    },
+    "zoom-requirements": {
+      "statement": "Zoom Call Quality needs a Zoom API tenant or Zoom QSS tenant onboarded, a ZDX subscription and ZDX admin access, and the Zoom scopes dashboard_meetings:read:admin (meeting data), meeting:read:admin (webhook start and stop meeting notifications) and user:read:admin (user data). Due to the Zoom API rate limit of 60,000 per day, Zoom Call Quality might be impacted by other applications using the API, which could cause some meeting information to be unavailable. The subscription table lists ZDX Autosense (Zoom Call Quality) as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| ZDX Autosense (Zoom Call Quality) | Not supported | Not supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Applications and Probes"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zoom-call-quality-zdx.json",
+          "quotes": [
+            "you must first configure the application and onboard a Zoom API tenant or Zoom QSS tenant",
+            "Due to the Zoom API rate limit of 60,000 per day, Zoom Call Quality might be impacted by other applications using the API, which could cause some meeting information to be unavailable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zoom-call-quality-zdx-integration-requirements.json",
+          "quotes": [
+            "You must already have a ZDX subscription and ZDX admin access.",
+            "| dashboard_meetings:read:admin | Required by the Zoom API for meeting data. |",
+            "| meeting:read:admin | Required by the Zoom API webhook start and stop meeting notifications. |",
+            "| user:read:admin | Required by the Zoom API for user data. |"
+          ]
+        }
+      ]
+    },
+    "call-quality-page": {
+      "statement": "A Microsoft Teams Call Quality page filters by time range, Departments, Zscaler Locations, User Groups, Geolocations, Location Groups and Last Mile ISPs; the time range is between 2 Hours and 48 Hours or a custom range, with a default of 2 Hours. It shows the ZDX Score for Call Quality over the entire duration of a call for all users, the meeting participant locations, the impacted meetings with the lowest ZDX Score at the top, and the Cloud Path probes configured as part of the Call Quality application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "From the Microsoft Teams Call Quality page, you can set filters for time range, Departments, Zscaler Locations, User Groups, Geolocations, Location Groups, and Last Mile ISPs to help assess Call Quality data.",
+            "For time range, select a period between 2 Hours and 48 Hours, or a custom range to specify a date and time. The default time range is 2 Hours.",
+            "ZDX Score Over Time: The ZDX Score for Call Quality reflects the entire duration of a call for all users.",
+            "Regions by ZDX Score: The Microsoft Teams meeting participant locations.",
+            "Impacted Meetings: The meetings with low ZDX Scores, with the lowest ZDX Score at the top.",
+            "Probe Status: The metrics for Cloud Path probes configured as part of the Microsoft Teams Call Quality application."
+          ]
+        }
+      ]
+    },
+    "meeting-reporting-rules": {
+      "statement": "For Microsoft Teams, meetings are not reported if none of the participants are monitored ZDX users, and the internal meeting ID is displayed, not the actual meeting topic name. Participants who join from multiple devices or leave and rejoin are counted per session, up to 1,000 meetings are displayed, and blank ZDX Score and MOS fields indicate that no score is available; Zoom also displays a meeting UUID and the meeting ID visible to the end user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "Meetings are not reported if none of the participants are monitored ZDX users for Call Quality. At least one meeting participant must be a monitored ZDX user.",
+            "For confidentiality, the internal meeting ID is displayed, and not the actual meeting topic name.",
+            "Participants who join a call from multiple devices or who leave and rejoin a call are counted per session.",
+            "Up to 1,000 meetings are displayed.",
+            "Blank fields for the ZDX Score and MOS indicate that no score is available."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zoom-call-quality-zdx.json",
+          "quotes": [
+            "Meeting UUID: The meeting's Universally Unique Identifier that can be used for troubleshooting purposes.",
+            "Meeting ID: The meeting identifier visible to the end user."
+          ]
+        }
+      ]
+    },
+    "meeting-details": {
+      "statement": "A MOS is displayed only if metrics for latency, jitter and packet loss are all available. A meeting's sessions and user devices give the session ID, device OS, IP address, geolocation and audio type, and some Teams IP addresses might be truncated by Microsoft for privacy reasons; details are unavailable for external users, guest users, ZIA users without ZDX enabled, devices that do not map to a registered ZDX device, users not monitored for Call Quality, and users with insufficient information to map to a ZDX device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "A MOS Score is displayed only if metrics for latency, jitter, and packet loss are all available for MOS input and MOS output.",
+            "Sessions and User Devices: In addition to meeting start and duration times, ZDX Score, and MOS, you can also view the Session ID (this is the internal Microsoft Teams session ID), the device OS, IP Address, Geolocation, and the Audio type.",
+            "Some IP addresses shown might be truncated by Microsoft for privacy reasons.",
+            "External users who do not belong to the configured Microsoft Teams Call Quality tenant.",
+            "Guest users who are either not part of a Microsoft Teams tenant account or they haven't logged in to their Microsoft Teams account, but participate in the Teams meeting using their web browser.",
+            "Some ZIA users might not have ZDX enabled, and therefore, their user details are unavailable.",
+            "Some user devices might not map to a corresponding registered ZDX device.",
+            "Some ZDX users are not being monitored for Call Quality.",
+            "Insufficient information is available to map a user to a ZDX device."
+          ]
+        }
+      ]
+    },
+    "user-detail-ranges": {
+      "statement": "The values for Audio, Video and Sharing Quality are displayed with latency and jitter ranges starting at 0 ms, and average loss and maximum loss from 0 to 100%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "The values for Audio, Video, and Sharing Quality are displayed as follows:",
+            "Latency: Range starts at 0ms",
+            "Jitter: Range starts at 0ms",
+            "Average Loss: 0 to 100%",
+            "Max Loss: 0 to 100%"
+          ]
+        }
+      ]
+    },
+    "mos-bands": {
+      "statement": "If metrics for latency, jitter and packet loss are all available, the MOS, which uses a transmission rating factor (R-Factor) derived from those metrics, determines the ZDX Score: a MOS of 0 to 3.6 is Poor, greater than 3.6 but less than 4.34 is Okay, and 4.34 or greater is Good.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "If metrics for latency, jitter, and packet loss are all available for calculation, the MOS is used to determine the ZDX Score.",
+            "MOS uses a transmission rating factor (R-Factor) that generates range levels it derives from those particular metrics.",
+            "If the MOS is 0 to 3.6, the ZDX Score = Poor.",
+            "If the MOS is greater than 3.6 but less than 4.34, the ZDX Score = Okay.",
+            "If the MOS is 4.34 or greater, the ZDX Score = Good."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-meetings-dashboard.json",
+          "quotes": [
+            "If the MOS is 0 to 3.6 the ZDX Score is Poor.",
+            "If the MOS is greater than 3.6 but less than 4.34, the ZDX Score is Okay.",
+            "If the MOS is 4.34 or greater, the ZDX Score is Good."
+          ]
+        }
+      ]
+    },
+    "metric-thresholds": {
+      "statement": "If only one or two of the metrics is available, metric thresholds are used: latency above 500ms, jitter above 30ms or packet loss above 0.1% are the thresholds listed, and the ZDX Score uses the lowest metric-based score of the available metrics (latency 550ms scored 30 and jitter 26ms scored 70 give 30). If all three metrics are unavailable, the ZDX Score for Call Quality cannot be calculated and data is not displayed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-microsoft-teams-call-quality-zdx.json",
+          "quotes": [
+            "If only one or two of the metrics is available for calculation, metric thresholds are used to determine the ZDX Score.",
+            "If the latency range is above 500ms",
+            "If the jitter range is above 30ms",
+            "If packet loss is above 0.1%",
+            "The ZDX Score is calculated by using the lowest metric-based score of two metrics, or the lowest metric-based score of one metric.",
+            "For example, if latency is 550ms with a corresponding metric-based score of 30, and jitter is 26ms with a corresponding metric-based score of 70, the ZDX Score is based on the lower metric-based score, which is 30.",
+            "If all three metrics for latency, jitter, and packet loss are unavailable, the ZDX Score for Call Quality cannot be calculated and data is not displayed."
+          ]
+        }
+      ]
+    },
+    "zoom-criteria": {
+      "statement": "For Zoom, Inclusion Criteria monitors and displays meetings only for the selected ZDX users, and Exclusion Criteria excludes selected users from monitoring. If the host is excluded the meeting metrics are not monitored; if another participant is excluded the meeting metrics are visible but the excluded participant's monitoring metrics are not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zoom-call-quality-zdx.json",
+          "quotes": [
+            "Inclusion Criteria: Meetings are monitored and displayed only for your selected ZDX users",
+            "Exclusion Criteria: Meetings exclude selected users from monitoring. Exclusions remove matching users from the set defined.",
+            "Result: Meeting metrics for the meeting are not monitored because the host is excluded.",
+            "Result: Meeting metrics for the meeting are visible, but monitoring metrics for the excluded participant are not visible."
+          ]
+        }
+      ]
+    },
+    "meetings-dashboard": {
+      "statement": "The Meetings dashboard provides an overview of the performance of meetings and video conferencing applications in the organization. Its MOS Score is the Mean Opinion Score of the meeting on a scale of 1 (worst) to 5 (best), calculated from metrics such as latency, jitter and packet loss, and its list gives the host, the number of active participants as reflected in the session data, and per participant the session ID, device OS, IP address, geolocation and individual MOS and ZDX scores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-meetings-dashboard.json",
+          "quotes": [
+            "The Meetings dashboard provides an overview of the performance of meetings and video conferencing applications in your organization.",
+            "MOS Score: The Mean Opinion Score of the meeting, on a scale of 1 (worst) to 5 (best). MOS is calculated based on metrics such as latency, jitter, and packet loss.",
+            "Host: The user who hosted the meeting.",
+            "Active Participants: The number of participants as reflected in the session data.",
+            "Participants: The list of users, the Session ID (this is the internal meeting session ID), the user's start and end times, their device OS, IP Address, Geolocation, and individual MOS and ZDX scores."
+          ]
+        }
+      ]
+    },
     "cqm-read": {
       "statement": "The call-quality read returns the Call Quality metric trend for a device for a CQM application, for the last 2 hours if no time range is given.",
       "tier": "A",
@@ -110,6 +401,17 @@
     }
   },
   "gaps": {
+    "mos-range": {
+      "kind": "semantic",
+      "title": "How the MOS range of 1 to 5 relates to a Poor band that starts at 0",
+      "status": "open",
+      "detail": "The Meetings dashboard rates MOS on a scale of 1 (worst) to 5 (best), while the Call Quality score bands say a MOS of 0 to 3.6 is Poor; no article says whether 0 is a reachable MOS or only the band's lower bound.",
+      "blocks": "reading a MOS against the Poor band",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
     "cqm-scope": {
       "kind": "semantic",
       "title": "Which applications have call-quality data and which metrics it carries",

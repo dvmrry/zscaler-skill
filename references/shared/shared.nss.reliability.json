@@ -38,19 +38,25 @@
       "heading": "NSS to SIEM (VM-based)"
     },
     {
-      "text": "{{vm-buffer}} {{duplicate-logs}} {{duplicate-logs-example}} {{no-clean-replay}} {{cbc-buffer}} Whether that duration applies to ZIA NSS VMs, and what an outage longer than the buffer loses, is open {{gap:buffer-bound}}."
+      "text": "{{vm-buffer}} {{duplicate-logs}} {{duplicate-logs-example}} {{no-clean-replay}} {{cbc-buffer}} {{buffer-one-hour-zia}} {{duplicate-logs-recommendation}} What an outage longer than the buffer loses is open {{gap:buffer-bound}}."
     },
     {
       "heading": "Zscaler cloud to NSS"
     },
     {
-      "text": "{{nanolog-interruption}} {{vm-recovery-support}} {{recovery-bound}} The reference point of \"up to one hour back\" is not stated {{gap:recovery-reference-point}}."
+      "text": "{{nanolog-interruption}} {{vm-recovery-support}} The troubleshooting article states the retransmission with no enablement condition {{divergence:recovery-enablement}}. {{log-recovery-named}} What that subscription covers, and whether it is the one-hour recovery, is open {{gap:log-recovery-subscription}}. {{nss-down-one-hour}} {{recovery-bound}} The reference point of \"up to one hour back\" is not stated {{gap:recovery-reference-point}}."
     },
     {
       "heading": "Cloud NSS"
     },
     {
       "text": "Cloud NSS recovery: [[zia.logs.nss-feed-format:cloud-from-nanolog]] Whether it also needs a Support request is open {{gap:cloud-recovery-enablement}}. Batch handling by HTTP status: {{cloud-nss-http-codes}} {{http-feed-codes}}"
+    },
+    {
+      "heading": "Two VMs"
+    },
+    {
+      "text": "{{ha-active-active}} {{ha-active-passive}} {{standby-not-upgraded}} The VM commands and certificate handling are in [[shared.nss.vm-operations]]."
     },
     {
       "heading": "After the window"
@@ -229,6 +235,105 @@
         }
       ]
     },
+    "buffer-one-hour-zia": {
+      "statement": "The article on deploying NSS virtual appliances says the NSS buffers the logs for at least one hour, and that if a SIEM goes offline for maintenance or the connection between the NSS and the SIEM is disrupted, the NSS buffers the logs and sends them when the connection is re-established.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-nss-virtual-appliances.json",
+          "quotes": [
+            "The NSS buffers the logs for at least one hour.",
+            "If a security information and event management (SIEM) system goes offline for maintenance or if the connection between the NSS and the SIEM is disrupted, the NSS buffers the logs and sends them when the connection is re-established."
+          ]
+        }
+      ]
+    },
+    "duplicate-logs-recommendation": {
+      "statement": "On a TCP web feed, Duplicate Logs sets the number of minutes the NSS sends duplicate logs so that no logs are skipped during downtime. Zscaler recommends 5 minutes, or more if required, which allows the NSS to send up to 60 minutes (one hour) of logs to the SIEM after the connection is restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-web-logs.json",
+          "quotes": [
+            "Duplicate Logs: To ensure that no logs are skipped during downtime, specify the number of minutes that the NSS sends duplicate logs.",
+            "Zscaler recommends setting the number to 5 minutes, or more if required. This allows the NSS to send up to 60 minutes (one hour) of logs to the SIEM after the connection is restored."
+          ]
+        }
+      ]
+    },
+    "nss-down-one-hour": {
+      "statement": "In the event of a connection loss between the NSS server and the cloud Nanolog, the cloud retransmits the logs to the NSS up to a maximum of one hour, and if the NSS is down for more than an hour, the logs falling out of the one-hour window are not retrieved by the NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-deployed-nss-servers.json",
+          "quotes": [
+            "In the event of a connection loss between the NSS server and the cloud Nanolog, the cloud retransmits the logs to the NSS up to a maximum of one hour.",
+            "If the NSS is down for more than an hour, the logs falling out of the one-hour window aren't retrieved by the NSS."
+          ]
+        }
+      ]
+    },
+    "ha-active-active": {
+      "statement": "Zscaler recommends two NSS servers per NSS type, deployed as an active-active pair created in the Admin Console with separate SSL certificates, optionally streaming to two separate SIEMs. Zscaler does not recommend two NSS VMs of the same type streaming to a single SIEM, because each sends copies of the same logs, which the SIEM might not be able to deduplicate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Zscaler recommends leveraging two NSS servers per NSS type (i.e., NSS for Web and NSS for Firewall) and deploying each pair in an active-active configuration.",
+            "In this configuration, you create two NSS servers of the same NSS type in the Zscaler Admin Console with separate SSL certificates.",
+            "Optionally, for optimal reliability, you can configure the NSS VMs to stream logs to two separate SIEMs.",
+            "Zscaler does not recommend configuring two NSS VMs of the same NSS type to stream logs to a single SIEM. In this case, each NSS VM sends copies of the same logs to the SIEM, which might not be able to deduplicate them."
+          ]
+        }
+      ]
+    },
+    "ha-active-passive": {
+      "statement": "In the active-passive configuration one NSS server is created and its SSL certificate deploys one active VM, with the second VM as a cold standby. Both use the same certificate but should not connect to the Nanolog at the same time, which results in connection flapping, and if the active VM fails, failover should happen ideally within one hour of the failure to prevent data loss.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "In this configuration, you create one NSS server (for Web or Firewall) in the Zscaler Admin Console and use the generated SSL certificate to deploy one active NSS VM; the second VM serves as a cold standby.",
+            "Both NSS VMs use the same SSL certificate in this configuration, but they should not connect to the Zscaler Nanolog at the same time as this results in connection flapping.",
+            "If the active NSS VM fails, you must perform failover activities, ideally within one hour of the failure to prevent data loss."
+          ]
+        }
+      ]
+    },
+    "standby-not-upgraded": {
+      "statement": "Standby VM nodes are not configured for automatic ZSOS upgrades, and Zscaler recommends redeploying a standby VM at least once a year to prevent outdated ZSOS settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Standby VM nodes are not configured for automatic ZSOS upgrades. Zscaler recommends redeploying a standby VM at least once a year to prevent outdated ZSOS settings."
+          ]
+        }
+      ]
+    },
+    "log-recovery-named": {
+      "statement": "The AWS deployment guide says to contact Zscaler Support to learn more about NSS for Web, NSS for Firewall, and NSS Log Recovery subscriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "To learn more about NSS for Web, NSS for Firewall, and NSS Log Recovery subscriptions, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
     "cloud-nss-http-codes": {
       "statement": "A Cloud NSS feed treats HTTP 200 or 204 from the SIEM as a successful batch, treats 400 as a parsing error and drops the batch, and retries the same batch on any other code for up to one hour before dropping it.",
       "tier": "A",
@@ -246,12 +351,49 @@
       ]
     }
   },
+  "divergences": {
+    "recovery-enablement": {
+      "summary": "The vendor docs differ on whether the one-hour recovery needs enabling through Zscaler Support.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-nanolog-streaming-service.json",
+            "quotes": [
+              "To enable the NSS one-hour recovery for your organization, contact Zscaler Support."
+            ]
+          },
+          "says": "The one-hour recovery is enabled for an organization by contacting Zscaler Support."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-troubleshooting-deployed-nss-servers.json",
+            "quotes": [
+              "In the event of a connection loss between the NSS server and the cloud Nanolog, the cloud retransmits the logs to the NSS up to a maximum of one hour."
+            ]
+          },
+          "says": "The troubleshooting article states the one-hour retransmission with no enablement condition."
+        }
+      ],
+      "impact": "Whether the one-hour retransmission is on by default or needs a Support request cannot be settled from the vendor text; the AWS guide also names an NSS Log Recovery subscription without describing it."
+    }
+  },
   "gaps": {
+    "log-recovery-subscription": {
+      "kind": "semantic",
+      "title": "What the NSS Log Recovery subscription covers",
+      "status": "open",
+      "detail": "The AWS deployment guide says to contact Zscaler Support to learn more about NSS for Web, NSS for Firewall and NSS Log Recovery subscriptions. Nothing captured says what NSS Log Recovery covers or whether it is the one-hour recovery.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
     "buffer-bound": {
       "kind": "semantic",
-      "title": "ZIA NSS buffer duration and loss beyond the buffer",
+      "title": "Loss beyond the ZIA NSS buffer",
       "status": "open",
-      "detail": "Unverified legacy statement: \"Buffer is bounded by VM memory. Long outages overflow, drop\" and \"A SIEM that's offline longer than the VM memory buffer = data loss even with one-hour recovery enabled.\" The ZIA help says only that the NSS buffers logs in VM memory for transient network issues; the at-least-one-hour figure comes from the Cloud & Branch Connector article (cbc-buffer). Whether it applies to ZIA NSS VMs, and what happens when an outage outlasts the buffer, is not stated.",
+      "detail": "Unverified legacy statement: \"Buffer is bounded by VM memory. Long outages overflow, drop\" and \"A SIEM that's offline longer than the VM memory buffer = data loss even with one-hour recovery enabled.\" The duration is now settled for ZIA NSS VMs (buffer-one-hour-zia: at least one hour). What happens when an outage outlasts the buffer, and whether memory bounds it, is not stated.",
       "blocks": "saying how long a SIEM can be down before a VM-based NSS loses logs",
       "resolves_with": [
         "source-read",

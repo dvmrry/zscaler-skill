@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "id": "zdx.probes.web-probe-errors",
+  "title": "Web probe error messages in ZDX: what each reports and what the help suggests",
+  "aliases": [
+    "web probe errors",
+    "web probe error icons",
+    "web probe is rate limited",
+    "http response code not a success code",
+    "tcp connection reset web probe",
+    "http connect request failed zdx"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.probes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.cloud-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Web probe errors are the messages shown for a Web probe in the user details; the probe is defined in [[zdx.probes]], and the Cloud Path equivalents are in [[zdx.probes.cloud-path]]. {{error-icons}}"
+    },
+    {
+      "label": "DNS and TCP.",
+      "text": "{{dns-failure}} {{direct-tcp}}"
+    },
+    {
+      "label": "Method and response code.",
+      "text": "{{http-method}} {{response-code}} The API contract's default success codes differ from this list, see [[zdx.probes]]."
+    },
+    {
+      "label": "Through the Public Service Edge.",
+      "text": "{{connect-errors}}"
+    },
+    {
+      "label": "To the application.",
+      "text": "{{app-request-errors}} {{https-errors}}"
+    },
+    {
+      "label": "Timeout and rate limiting.",
+      "text": "{{timeout-and-rate-limit}}"
+    }
+  ],
+  "claims": {
+    "error-icons": {
+      "statement": "Web probe errors show as icons in the Web probe Metrics section of the user details, as a warning (action might be necessary to achieve accurate results), a critical error (could affect the user experience) or a Private Access Web probe that is rate limited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "At times, you might see error icons in the Web probe Metrics section of the User details.",
+            "This is a warning message. This indicates that action might be necessary to resolve an issue and achieve accurate results.",
+            "This is a critical error. This indicates an issue that could affect the user experience.",
+            "This indicates a Private Access Web probe is rate limited."
+          ]
+        }
+      ]
+    },
+    "dns-failure": {
+      "statement": "A domain that is invalid or not resolvable fails DNS resolution after redirection, which could be an issue with the application or its domain; the help says to verify the domain configured in the application is still valid and to check the application redirection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| The domain is invalid or not resolvable. Verify your domain. | After redirection, DNS resolution failed. This could be an issue with the application or its domain. | Verify the domain configured in the application is still valid or that it exists. Also check the application redirection. |"
+          ]
+        }
+      ]
+    },
+    "direct-tcp": {
+      "statement": "Direct TCP errors: reset (could be a firewall or security policies, lack of server resources, server error or congestion), timed out waiting for a response (check the configured application and network devices that might silently drop SYN packets), aborted after a TCP reset message was received once the connection was established (high numbers can point to network or server problems), refused (no port is listening or a firewall is blocking it; check the port and that security policies allow it) and a generic TCP connection error (contact Zscaler Support).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| TCP connection was reset | The TCP connection was reset. This could be due to a firewall or security policies, lack of server resources, server error, or congestion. |",
+            "| TCP connection timed out | The TCP connection timed out while waiting for a response from the application. | Check that the application configured for the Web probe is correct. Also check for any network devices that might be dropping SYN packets silently. |",
+            "| TCP connection aborted | The TCP connection was aborted, as a TCP connection reset message was received after the connection was established. | High numbers of aborted connections can point to network or server problems. |",
+            "| TCP connection refused | The TCP connection was refused. This means that no port is listening or that a firewall is blocking the port. |",
+            "Check the configuration to verify that the correct port was used and your server is listening on that port. Also verify that your security policies allow traffic to this port.",
+            "| TCP connection error | There was a generic TCP connection error | Contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "http-method": {
+      "statement": "An unsupported HTTP method error means Zscaler does not currently support the request method, since only the GET method can be configured from the UI; the help suggests checking the Web probe configuration and considering adding a 40X or 50X code to build a valid success code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| The Web probe HTTP method is not supported by the application | Zscaler does not currently support this HTTP request method. Currently, you can configure only the GET method from the UI. | Check the Web probe configuration. Consider adding a 40X/50X code to build a valid success code in the Web probe configuration. |"
+          ]
+        }
+      ]
+    },
+    "response-code": {
+      "statement": "An HTTP response code outside the configured list of successful codes fails the probe; the help says the Web probe is configured to consider HTTP connections in the ranges 100-199, 200-299 and 300-399 successful, and suggests reconfiguring the success codes to include 400-499 client errors, and 500-599 server errors if those are also transiently received.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| HTTP response code xxx not a success code | The HTTP response code was a mismatch and is not in the configured list of successful HTTP codes. |",
+            "The Web probe is configured to consider successful HTTP connections in the range (100-199), (200-299), and (300-399). The response code received was not in this range.",
+            "Consider reconfiguring the HTTP success code to include (400-499) client errors. If (500-599) server errors are also transiently received, you might consider adding them as an HTTP success code."
+          ]
+        }
+      ]
+    },
+    "connect-errors": {
+      "statement": "HTTP CONNECT errors come from the Public Service Edge for Internet & SaaS: reset or timed out when it received no response from the destination server (check authentication and a valid policy, or the URL in the Web probe configuration), aborted or refused after a TCP reset from the destination server (check the URL, port and security policy), an invalid HTTP response code (contact Zscaler Support), and a generic failure to send the connection (verify the Public Service Edge is not blocked by the firewall).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| TCP connection was reset during HTTP CONNECT request | The Public Service Edge for Internet & SaaS timed out the HTTP connection as no response was received from the destination server. | Check that you are authenticated to use the Zscaler service and there is a valid policy. |",
+            "| TCP connection timed out during HTTP CONNECT request | The Public Service Edge for Internet & SaaS timed out the HTTP connection as no response was received from the destination server. | Check that the URL in the Web probe configuration is correct. |",
+            "| TCP connection aborted during HTTP CONNECT request | The Public Service Edge for Internet & SaaS aborted the HTTP connection after receiving a TCP reset from the destination server. |",
+            "| TCP connection refused during HTTP CONNECT request | The Public Service Edge for Internet & SaaS refused the HTTP connection after receiving a TCP reset from the destination server. |",
+            "Check the configuration to verify that the URL is correct.",
+            "Check the configuration to verify that the correct port was used and the destination server is listening on that port. Also check the security policy.",
+            "| Invalid HTTP response received during HTTP CONNECT request | The Public Service Edge for Internet & SaaS HTTP response code had an error. | Contact Zscaler Support. |",
+            "| HTTP CONNECT request failed | There was a generic exception in sending the connection to the Public Service Edge for Internet & SaaS. | Verify that the Public Service Edge for Internet & SaaS is not blocked by the firewall. |"
+          ]
+        }
+      ]
+    },
+    "app-request-errors": {
+      "statement": "Errors during the HTTP request to the application: reset or aborted by the application server (probably due to a high load on the application), timed out (no response from the server in the configured timeout, 60 seconds by default), refused (verify the configured port is open on the server and whether a firewall in the path blocks the connection) and a generic application server error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| TCP connection was reset during HTTP request to application. | The TCP connection was reset by the application server while the HTTP request was in progress. | The application server closed the TCP connection. This is probably due to a high load on the application. |",
+            "| TCP connection timed out during HTTP request to application | The TCP connection timed out while sending the HTTP request to the application server. | A response was not received from the server in the configured timeout (60 seconds by default). |",
+            "| TCP connection aborted during HTTP request to application | The TCP connection was aborted by the application server during the HTTP request. | The application server sent a TCP connection reset. This is probably due to a high load on the application. |",
+            "| TCP connection refused during HTTP request to application | The TCP connection was refused by the server during the HTTP request. | Verify that the configured port is open on the server. Also check if there is a firewall in the path that is blocking the connection. |",
+            "| TCP connection error during HTTP request to application | A generic application server error was received. |"
+          ]
+        }
+      ]
+    },
+    "https-errors": {
+      "statement": "HTTPS errors: a failure due to an invalid certificate received from the application server (verify its validity and that it has not expired), an SSL context exception, and a generic SSL error that could have multiple possible causes; the row \"An SSL context exception error occurred\" says the application server SSL handshake has a generic exception and lists an improperly formatted SSL certificate, an improperly installed certificate, a wrong cipher and a problem in the certificate's chain of trust as possible causes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| HTTPS connection failed due to invalid certificate | The certificate received from the application server is invalid. | Verify the validity of the certificate and that the certificate has not expired. |",
+            "| HTTPS connection failed due to SSL context exception | An SSL context exception error occurred. |",
+            "| HTTPS connection failed due to SSL error | A generic SSL exception occurred. This could be due to multiple possible causes. |",
+            "| An SSL context exception error occurred. | The application server SSL handshake has a generic exception. Possible causes could be: Improperly formatted SSL certificate Improperly installed certificate Wrong cipher Problem in the certificate’s chain of trust |"
+          ]
+        }
+      ]
+    },
+    "timeout-and-rate-limit": {
+      "statement": "A Web probe request times out when the HTTP request exceeds the configured timeout (60 by default; verify the URL or change the timeout); a Web probe is rate limited when it failed due to Private Access rate limiting to control the probe threshold, and for internal applications through Private Access the help says to configure probes only for users, user groups and departments that use the application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "| Web probe request timed out | The probe timed out as there was no response. The Web probe HTTP request exceeded the configured timeout value (60, by default) in the probe configuration. | Verify that the URL is correctly configured or change the default timeout value. |",
+            "| Web probe is rate limited | The Web probe failed due to Private Access rate limiting to control the probe threshold. | When configuring Web probes for internal applications through Private Access, configure probes only for users, user groups, and departments that use the application. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rate-limit-threshold": {
+      "kind": "semantic",
+      "title": "What Private Access rate limiting of Web probes limits",
+      "status": "open",
+      "detail": "The Web Probe Errors page says a rate-limited Web probe failed due to Private Access rate limiting to control the probe threshold; it gives no threshold. The article on Private Access Web probe rate limiting (zpa-about-zdx-web-probe-rate-limiting.json) was outside the extraction and is not read.",
+      "blocks": "telling an operator how many Web probes for a Private Access application are too many",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

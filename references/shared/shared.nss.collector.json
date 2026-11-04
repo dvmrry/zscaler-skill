@@ -28,11 +28,15 @@
     },
     {
       "label": "Prerequisites.",
-      "text": "{{collector-deployment}}"
+      "text": "{{collector-deployment}} The collector deployment guide names the subscription differently {{divergence:collector-subscription}}."
     },
     {
       "label": "What it does with a log.",
       "text": "{{collector-processing}} {{collector-retention}}"
+    },
+    {
+      "label": "The server and the VM.",
+      "text": "{{supported-vendors}} {{collector-record}} {{collector-page}} {{collector-vm}} {{user-provisioning}} {{pan-syslog-profile}}"
     },
     {
       "label": "Limits and loss.",
@@ -137,6 +141,104 @@
         }
       ]
     },
+    "supported-vendors": {
+      "statement": "Zscaler supports log ingestion from Palo Alto Networks, Blue Coat, and Fortinet, and the collector's third-party log vendor name is entered as PANFW, FORTIFW, or BLUECOAT after the command sudo nss collector-configure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-nss-collector-servers.json",
+          "quotes": [
+            "Zscaler supports log ingestion from Palo Alto Networks, Blue Coat, and Fortinet."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-collector-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "Enter the command sudo nss collector-configure and then enter the third-party log vendor name (PANFW, FORTIFW, or BLUECOAT)."
+          ]
+        }
+      ]
+    },
+    "collector-record": {
+      "statement": "When disabled, the NSS Collector does not process or stream logs from third-party security solutions. When the server is added to the Admin Console, Zscaler generates the packaged software for installation and issues an SSL certificate, which must be installed on the collector VM so it can authenticate as a client with the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-nss-collector-servers.json",
+          "quotes": [
+            "When disabled, the NSS Collector does not process or stream logs from third-party security solutions.",
+            "When the NSS Collector server is added to the Zscaler Admin Console, Zscaler generates the packaged software for installation and issues an SSL certificate to the server.",
+            "The SSL certificate must be installed on the NSS Collector VM so that the NSS Collector can authenticate as a client with the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "collector-page": {
+      "statement": "The NSS Collector Servers page shows each server's Vendor, the third-party vendor of the firewall or web proxy services, and an SSL Certificate option to download the certificate for the server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-nss-collector-servers.json",
+          "quotes": [
+            "Vendor: The third-party vendor of the firewall or web proxy services used by your organization.",
+            "SSL Certificate: The option to download the SSL certificate for the server."
+          ]
+        }
+      ]
+    },
+    "collector-vm": {
+      "statement": "The vSphere collector guide lists 2 CPU cores, one for the control plane and one for the data plane, and 8 GB for up to 15K users. Its em1 (second network adapter) is the service IP address used for data connections to the Zscaler cloud, and communication from the collector to the Zscaler cloud must be excluded from SSL inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-collector-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "2 CPU cores: NSS Collector uses one core for the control plane and another core for the data plane.",
+            "8 GB for up to 15K users",
+            "| em1 (Second network adapter) | Service IP Address | This is used for data connections to the Zscaler cloud. |",
+            "Communication from the NSS Collector to the Zscaler cloud must be excluded from Secure Sockets Layer (SSL) inspection"
+          ]
+        }
+      ]
+    },
+    "user-provisioning": {
+      "statement": "Users whose traffic traversed third-party vendor devices need to be provisioned through one of the mechanisms supported by Zscaler. The collector matches the user information with the Internet Access users and forwards the logs pertaining to those users to Zscaler, and the username and password information in the Palo Alto Networks firewall must match the user details configured in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-collector-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "users whose traffic traversed through third-party vendor devices need to be provisioned through one of the mechanisms supported by Zscaler.",
+            "When the NSS Collector server receives the log data, it matches the user information with the Internet Access users and then forwards the logs pertaining to Internet Access users to Zscaler for processing.",
+            "The username and password information in the Palo Alto Networks firewall must match the user details configured in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "pan-syslog-profile": {
+      "statement": "For Palo Alto Networks, the syslog server profile selects TCP as the transport, supports default and custom ports, selects IETF as the syslog format and LOG_USER as the facility. The traffic log uses a custom format beginning CEF:0|Palo Alto Networks|PAN-OS|$sender_sw_version|$subtype|$type|1|rt=$cef-formatted-receive_time, and the Log at Session Start and Log at Session End options are enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-collector-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "Transport: Select TCP as the transport protocol for your syslog messages.",
+            "Port: Specify the port number of the syslog server. Default and custom ports are supported.",
+            "Format: Select IETF as the syslog format.",
+            "Facility: Select LOG_USER from the drop-down menu to log user-based traffic.",
+            "CEF:0|Palo Alto Networks|PAN-OS|$sender_sw_version|$subtype|$type|1|rt=$cef-formatted-receive_time",
+            "Enable Log at Session Start and Log at Session End options."
+          ]
+        }
+      ]
+    },
     "collector-limits": {
       "statement": "An organization can have up to 4 NSS Collector servers; the collector does not support historical load, so records older than one hour are dropped from the stream, and it restricts streaming to the Zscaler cloud to 10K events per second, dropping events that exceed the rate.",
       "tier": "A",
@@ -151,6 +253,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "collector-subscription": {
+      "summary": "The vendor docs name different subscriptions for the NSS Collector.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-nanolog-streaming-service.json",
+            "quotes": [
+              "The NSS Collector requires a subscription to the NSS VM or Cloud NSS."
+            ]
+          },
+          "says": "The NSS Collector requires a subscription to the NSS VM or Cloud NSS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-collector-deployment-guide-vmware-vsphere.json",
+            "quotes": [
+              "Ensure you have a subscription to NSS Collector and review the following specifications and requirements:"
+            ]
+          },
+          "says": "The collector deployment guide says to ensure a subscription to NSS Collector."
+        }
+      ],
+      "impact": "Which subscription entitles a tenant to deploy the collector cannot be settled from the vendor text."
     }
   },
   "gaps": {

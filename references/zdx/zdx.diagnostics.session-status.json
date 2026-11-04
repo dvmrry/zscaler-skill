@@ -27,11 +27,11 @@
     },
     {
       "label": "In progress.",
-      "text": "{{in-progress-statuses}} How often the probes themselves run during a session is open {{gap:probe-cadence-during-session}}."
+      "text": "{{in-progress-statuses}} How often information is collected during a session is in [[zdx.diagnostics:session-collection-interval]]; how often the probes themselves run is only partly answered {{gap:probe-cadence-during-session}}."
     },
     {
       "label": "History.",
-      "text": "{{history-statuses}} Whether the reason for an abort is recorded anywhere is open {{gap:abort-reason}}."
+      "text": "{{history-statuses}} Whether the reason for an abort is recorded anywhere is open {{gap:abort-reason}}. {{results-by-status}}"
     },
     {
       "label": "The API's statuses.",
@@ -97,6 +97,21 @@
         }
       ]
     },
+    "results-by-status": {
+      "statement": "In a session's results, the data of an In Progress session is updated every minute, a Completed session shows complete session data, all other sessions show partial session data, and an Expired session shows no data in the session report; each configured session has a version compatibility that must be met to view the results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "Data for In Progress sessions is updated every minute. Completed sessions show complete session data. All other sessions show partial session data.",
+            "If the session status is Expired, then no data is seen in the session report.",
+            "Each configured session has a version compatibility that must be met to view the results."
+          ]
+        }
+      ]
+    },
     "api-statuses": {
       "statement": "The API reports a deep trace's `status` as one of `not_started`, `in_progress`, `error` and `done`.",
       "tier": "A",
@@ -135,12 +150,21 @@
         "zdx-30"
       ],
       "title": "How often probes run during a Diagnostics Session",
-      "status": "open",
-      "detail": "Unverified legacy statement: sessions run at 1-minute resolution, a higher fidelity than the baseline 5-minute probe cadence. The status page says an In Progress session provides updated session data every minute; no captured source says whether the probes themselves run more often than their configured interval during a session.",
+      "status": "partial",
+      "detail": "The About Diagnostics help says that during a session information is collected every minute for the Web probe and the Cloud Path probe, as well as device statistics (claim session-collection-interval in zdx.diagnostics). That is how often information is collected; no captured source says whether the probes themselves run more often than their configured interval during a session.",
       "blocks": "telling an operator what resolution a session's probe data has",
       "resolves_with": [
         "source-read",
         "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-diagnostics.json",
+          "quotes": [
+            "During a session, information is collected every minute for the Web probe and Cloud Path probe, as well as device statistics."
+          ]
+        }
       ]
     },
     "abort-reason": {

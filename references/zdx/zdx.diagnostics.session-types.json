@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "id": "zdx.diagnostics.session-types",
+  "title": "The four Diagnostics session types in the console: Deep Tracing, Hi-Fi Cloud Path, Bandwidth Test and Packet Capture Probing",
+  "aliases": [
+    "deep tracing session",
+    "hi-fi cloud path",
+    "high fidelity cloud path",
+    "bandwidth test",
+    "packet capture probing",
+    "pcap session",
+    "special application diagnostics",
+    "diagnostics session options",
+    "force reverse cloud path"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.session-status"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.start-request"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A console Diagnostics session is one of four types, chosen when it is started; the sessions as a whole are in [[zdx.diagnostics]]. {{types-and-combinations}}"
+    },
+    {
+      "label": "Duration and device.",
+      "text": "{{duration-options}} {{device-grayed-out}} How long a Deep Tracing or Hi-Fi Cloud Path session runs on its own is not stated {{gap:standalone-durations}}."
+    },
+    {
+      "label": "Deep Tracing.",
+      "text": "{{deep-tracing-options}} {{deep-tracing-results}}"
+    },
+    {
+      "label": "Hi-Fi Cloud Path.",
+      "text": "{{hifi-options}}"
+    },
+    {
+      "label": "Packet Capture Probing.",
+      "text": "{{pcap-options}} Whether the console's capture filter is the contract's PCAP filter expression is not stated {{gap:pcap-filter-link}}."
+    },
+    {
+      "label": "Results of Hi-Fi Cloud Path and Bandwidth Test.",
+      "text": "{{hifi-bandwidth-identity}} {{bandwidth-results}}"
+    },
+    {
+      "label": "Versions.",
+      "text": "The minimum versions are not given in the articles {{gap:minimum-versions}}."
+    }
+  ],
+  "claims": {
+    "types-and-combinations": {
+      "statement": "Which minimum versions of Client Connector and ZDX Module a session needs depends on its type; Packet Capture Probing can be selected as an add-on with Deep Tracing, Bandwidth Test or Hi-Fi Cloud Path, which cannot be added to each other, and Packet Capture Probing cannot be selected when there are no compatible devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "Depending on which type of session you select, the minimum versions of Zscaler Client Connector and ZDX Module are required.",
+            "You can select Packet Capture Probing as an add-on with Deep Tracing, Bandwidth Test, or Hi-Fi Cloud Path.",
+            "You cannot select Deep Tracing, Bandwidth Test, or Hi-Fi Cloud Path as an add-on to each other.",
+            "If there are no compatible devices for selection, then you cannot select Packet Capture Probing as an option."
+          ]
+        }
+      ]
+    },
+    "duration-options": {
+      "statement": "For a Bandwidth Test no session duration can be set; with Packet Capture Probing selected together with Bandwidth Test, Deep Tracing or Hi-Fi Cloud Path the Run Session For option takes 5, 15, 30 or 60 minutes, and with Packet Capture Probing alone also 24 or 48 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "If you select Bandwidth Test, you cannot set a duration for the session.",
+            "However, if you select both Packet Capture Probing and either Bandwidth Test, Deep Tracing, or Hi-Fi Cloud Path, you can set the duration to 5 minutes, 15 minutes, 30 minutes, or 60 minutes using the Run Session For option.",
+            "Additionally, if you select only Packet Capture Probing, you can set the session duration to 5 minutes, 15 minutes, 30 minutes, 60 minutes, 24 hours, or 48 hours."
+          ]
+        }
+      ]
+    },
+    "device-grayed-out": {
+      "statement": "A device that has an ongoing troubleshooting session or a version incompatibility appears grayed out in the device menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "If the device has an ongoing troubleshooting session or there is a version incompatibility, the device appears grayed out in the menu."
+          ]
+        }
+      ]
+    },
+    "deep-tracing-options": {
+      "statement": "A Deep Tracing session analyzes issues a user, device or application faces when connecting to the network: with Device Probing enabled device data is available, and with it disabled user device statistics are not collected; the session needs at least one probe (Web or Cloud Path) and a Cloud Path probe can take optional thresholds for Packet Loss (in %) and Latency (in ms); selecting a Cloud Path probe configured to follow a Web probe selects that Web probe; network applications require only a single Cloud Path probe and no Web probe; and a special application added by a URL or tenant URL, for an application without an existing probe, is not included in the sessions limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "You can start a Deep Tracing session to analyze issues that a user, device, or application is facing when connecting to the network.",
+            "Device Probing: Enable or disable this option. When this option is enabled, device data is available. When this option is disabled, user device statistics are not collected and device data is unavailable.",
+            "In this option, you can add a URL or a tenant URL to start a Deep Tracing session for an application without an existing probe.",
+            "The special application added here is not included as part of the sessions limit.",
+            "Choose at least one probe: Web or Cloud Path.",
+            "When you add a Cloud Path probe, you can optionally enter thresholds for Packet Loss (in %) and Latency (in ms).",
+            "If you select a Cloud Path probe that has been configured to follow a Web probe, the Web probe is selected.",
+            "Network applications require only a single Cloud Path probe and do not require a Web probe."
+          ]
+        }
+      ]
+    },
+    "deep-tracing-results": {
+      "statement": "Deep Tracing results show Web Probe Metrics (Page Fetch Time, Zscaler Time to First Byte, DNS Resolve Time and Availability) unless no Web probe was selected, and the Cloud Path section only if a Cloud Path probe was selected, with a gap in the charts and an error message when there is no data for two consecutive time points; Device Health (CPU Utilization, Memory, Battery Level, Disk and Network), Top Processes by CPU, Disk I/O, Memory and Network I/O with the Process ID, and User Device Events are listed unless Device Probing was disabled; network applications have no Web Probe Metrics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "Web Probe Metrics: This section shows data for the Page Fetch Time, Zscaler TIme to First Byte, DNS Resolve Time, and Availability.",
+            "If you had not selected a Web probe while configuring a session, this section is not displayed.",
+            "Device Health: Displays graphs for CPU Utilization, Memory, Battery Level, Disk information, and Network information are displayed.",
+            "Top Processes: Lists the top processes that are consuming resources by CPU Usage, Disk Inbound/Outbound (I/O), Memory Usage, and Network I/O, with the Process ID in parentheses.",
+            "If the Device Probing option is disabled during configuration, this section is not listed.",
+            "User Device Events: Shows the events for a device for the selected period of time.",
+            "Network applications do not have a web front end, and therefore, Web Probe Metrics are not available."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "If you did not select a Cloud Path probe while configuring a session, this section is not displayed.",
+            "If there is no data for two consecutive time points, a gap in the charts is displayed. An error message in the chart indicates the issue."
+          ],
+          "after": "## Deep Tracing"
+        }
+      ]
+    },
+    "hifi-options": {
+      "statement": "A Hi-Fi (High Fidelity) Cloud Path session is one where a Cloud Path run sends a high number of packets: Packet Count is the number of probe packets sent per hop discovery with the same TTL value, between 20 and 300 (default 300); Protocol is ICMP, TCP or UDP, with a port number for TCP or UDP; the time interval and the timeout (the time to wait for a response to a probe packet before considering loss) must each be within 1000 to 3000; Destination is IP/FQDN or Zscaler Service Edge; and a setting forces a reverse traceroute when a network device blocks the forward Cloud Path, or otherwise calculates reverse latency from the Public Service Edge for Internet & SaaS to the egress.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "If you want to capture the Cloud Path network connectivity or latency details, you can start a Hi-Fi (High Fidelity) Cloud Path session where a Cloud Path run sends a high number of packets.",
+            "Packet Count: Enter the number of probe packets to send per hop discovery that have the same TTL value between 20 and 300. The default is 300.",
+            "Protocol: Select ICMP, TCP, or UDP. If you select TCP or UDP, enter your port number.",
+            "The time interval must be within the range of 1000 to 3000.",
+            "Timeout (ms): Enter the time to wait for a response to a probe packet before considering loss. The timeout must be within the range of 1000 to 3000.",
+            "Destination: Select IP/FQDN or Zscaler Service Edge.",
+            "This option allows you to force a reverse traceroute when a network device blocks the forward Cloud Path.",
+            "If that isn't possible, this setting provides calculations for reverse latency from the Public Service Edge for Internet & SaaS to the egress in the Cloud Path."
+          ]
+        }
+      ]
+    },
+    "pcap-options": {
+      "statement": "Packet Capture Probing takes a Packet Capture Filter of destination IP addresses and/or ports, a Network Interface (default All Interfaces), a Frame Size Limit from 100 to 65,536 bytes (default 1514) and, for ZDX version 4.5 and later, a Disk Space Limit of 100 MB, 200 MB, 500 MB, 1 GB, 2 GB or 4 GB for the PCAP file; its result gives the file path, packet capture filter and network interface, and is viewed in the History table once the session completes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-starting-new-diagnostics-session.json",
+          "quotes": [
+            "Packet Capture Filter: Enter destination IP addresses and/or ports to filter Packet Captures (e.g., ip host 1.1.1 and port 80 or port 53).",
+            "Network Interface: Choose a Network Interface. The default is All Interfaces.",
+            "Frame Size Limit: Choose the frame size limit of the Packet Capture from 100 to 65,536 bytes. The default value is 1514 bytes.",
+            "Disk Space Limit: (For ZDX version 4.5 and later) Select the storage space for the PCAP file from 100 MB, 200 MB, 500 MB, 1 GB, 2 GB, or 4 GB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "A packet capture probing (PCAP) session provides information on the file path, packet capture filter, and network interface. After a PCAP session completes, you can view the results on the History table in the Diagnostics page."
+          ]
+        }
+      ]
+    },
+    "hifi-bandwidth-identity": {
+      "statement": "Hi-Fi Cloud Path results give the Zscaler data center's name, proxy hostname and the ZDX cloud name and the ISP the user device is connected to, with a map of where the impacted device and data center are; Bandwidth Test results give the data center's proxy hostname and the user's ISP, with the same map.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "Data Center Name: The name of the Zscaler data center.",
+            "Proxy Hostname: The proxy hostname of the Zscaler data center.",
+            "Cloud Name: The ZDX cloud name.",
+            "ISP: The internet service provider (ISP) the user device is connected to.",
+            "You can also view a map of where the impacted device and data center are."
+          ],
+          "after": "## Hi-Fi Cloud Path"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "Proxy Hostname: The proxy hostname of the Zscaler data center.",
+            "ISP: The internet service provider (ISP) the user device is connected to.",
+            "You can also view a map of where the impacted device and data center are."
+          ],
+          "after": "## Bandwidth Test"
+        }
+      ]
+    },
+    "bandwidth-results": {
+      "statement": "A Bandwidth Test shows download and upload bandwidth speeds for the tunnel when the device is on Z-Tunnel 1.0 or Z-Tunnel 2.0, and DNAT download and upload speeds when the device is connected directly with IPSec and GRE tunnels, which needs the minimum ZDX Module version; its basic diagnostics are a Fragmentation Test (whether fragmentation is supported), UDP Connectivity and DNS Connectivity latency, and ICMP latency and jitter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-viewing-diagnostics-session-results.json",
+          "quotes": [
+            "If the device is connected via Z-Tunnel 1.0 or Z-Tunnel 2.0, then the download and upload bandwidth speeds are displayed for those tunnels.",
+            "If the device is connected directly to the network with Internet Protocol Security (IPSec) and Generic Routing Ecapsulation (GRE) tunnels, then the Destination Network Address Translation (DNAT) download and upload bandwidth speeds are displayed.",
+            "To capture DNAT information, the minimum required ZDX Module version is required.",
+            "Fragmentation Test: Indicates whether fragmentation is supported.",
+            "UDP Connectivity: The latency of the UDP connection.",
+            "DNS Connectivity: The latency of the DNS connection.",
+            "ICMP: The latency and jitter metrics of the ICMP."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "standalone-durations": {
+      "kind": "semantic",
+      "title": "What durations a Deep Tracing or Hi-Fi Cloud Path session takes on its own",
+      "status": "open",
+      "detail": "The start article gives durations only for Packet Capture Probing alone or with another type, and none for a Bandwidth Test; About Diagnostics gives 5 to 60 minutes in general (claim session-duration-and-export in zdx.diagnostics). It does not say which durations Deep Tracing or Hi-Fi Cloud Path take without Packet Capture Probing.",
+      "blocks": "telling an operator which session lengths the console offers for Deep Tracing",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "pcap-filter-link": {
+      "kind": "semantic",
+      "title": "Whether the console's Packet Capture Filter is the contract's PCAP filter expression",
+      "status": "open",
+      "detail": "The console's Packet Capture Probing takes a Packet Capture Filter, and the contract's /v1/config/tracing area validates a PCAP filter expression for live troubleshooting sessions (claim live-troubleshooting-api in zdx.diagnostics); no source links the two, or links the console's Device Probing option to the contract's probe_device or the Hi-Fi Cloud Path session to the HIFI_MTR monitor type.",
+      "blocks": "choosing between the console's session types and the contract's live troubleshooting sessions",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "minimum-versions": {
+      "kind": "semantic",
+      "title": "The minimum Client Connector and ZDX Module versions per session type",
+      "status": "open",
+      "detail": "The articles say each session type needs minimum Client Connector and ZDX Module versions and link the Supported Versions and Feature Compatibility article without giving numbers; only the Packet Capture disk space limit is tied to a version (ZDX version 4.5 and later). That article (zdx-supported-versions-feature-compatibility.json) was outside the extraction and is not read.",
+      "blocks": "telling an operator whether a device can run a session type",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

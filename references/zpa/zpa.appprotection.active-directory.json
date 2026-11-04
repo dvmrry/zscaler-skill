@@ -47,8 +47,12 @@
       "text": "{{ad-in-profile}} {{ad-dashboard}} The log types for the results are in [[zpa.appprotection.logging]]."
     },
     {
-      "label": "What the controls detect.",
-      "text": "Which attacks the Active Directory controls cover is open {{gap:attack-coverage}}."
+      "label": "On the dashboard.",
+      "text": "{{ad-dashboard-widgets}} {{ad-tgt-excluded-errors}}"
+    },
+    {
+      "label": "What the dashboard counts.",
+      "text": "{{ad-indicators}} Which attacks the Active Directory controls detect is open {{gap:attack-coverage}}."
     },
     {
       "text": "How the API and the Python SDK expose these controls: [[zpa.appprotection.api-surface]]."
@@ -116,6 +120,77 @@
         }
       ]
     },
+    "ad-dashboard-widgets": {
+      "statement": "The Active Directory Protection dashboard shows data over 1 Hour to 14 Days or a Custom Range, with a minimum of 4 and a maximum of 8 charts selectable. Widgets list the top 10 LDAP suspicious queries, SMB suspicious activity and Kerberos TGT suspicious activity by user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-active-directory-protection-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View Active Directory Protection data over a period between 1 Hour to 14 Days, or you can select Custom Range.",
+            "A minimum of 4 charts and a maximum of 8 charts can be selected.",
+            "The widget displays the top 10 LDAP suspicious queries within the selected time frame and lists them by user.",
+            "The widget displays the top 10 SMB suspicious activity within the selected time frame and lists them by user.",
+            "The widget displays the top 10 Kerberos TGT suspicious activity within the selected time frame and lists them by user."
+          ]
+        }
+      ]
+    },
+    "ad-indicators": {
+      "statement": "For a selected user the dashboard counts Account Harvesting Indications as Active Directory login failures, Kerberoasting Requests as ticket requests with weak encryption such as RC4 and DES, and KRB TGS Activity as TGS requests for various services in the Active Directory domain. The Top Users by SMB Suspicious Activity widget lists the top 10 SMB suspicious activity by user, and that activity data consists of session and user enumeration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-active-directory-protection-dashboard.json",
+          "quotes": [
+            "Account Harvesting Indications: The number of Active Directory login failures seen for the selected user.",
+            "Kerberoasting Requests: The number of instances the user requested a ticket with a weak encryption (e.g., RC4 and DES encryption).",
+            "KRB TGS Activity: The number of instances where the user sends a TGS request for various services in Active Directory domain.",
+            "The widget displays the top 10 SMB suspicious activity within the selected time frame and lists them by user. This activity data consists of session and user enumeration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-active-directory-protection-dashboard.json",
+          "after": "Number of Top Users by LDAP Suspicious Activity: The number of suspicious queries for the selected user.",
+          "quotes": [
+            "Top Users by SMB Suspicious Activity"
+          ]
+        }
+      ]
+    },
+    "ad-tgt-excluded-errors": {
+      "statement": "The Kerberos TGT errors widget error counts do not include these common errors: KDC_ERR_PREAUTH_REQUIRED (25), KRB_AP_ERR_TKT_EXPIRED (32), KRB_ERR_RESPONSE_TOO_BIG (52), KDC_ERR_BADOPTION (13), KDC_ERR_NEVER_VALID (11), KRB_AP_ERR_SKEW (37), KDC_ERR_ETYPE_NOSUPP (14), KDC_ERR_S_PRINCIPAL_UNKNOWN (7) and KRB_AP_ERR_MODIFIED (41). The Kerberos TGS errors widget carries its own statement that its counts exclude common errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-active-directory-protection-dashboard.json",
+          "quotes": [
+            "The widget displays the top 10 Kerberos TGT errors within the selected time frame and lists them by user. The error counts displayed do not include these common errors:",
+            "The widget displays the top 10 Kerberos TGS errors within the selected time frame and lists them by user. The error counts displayed do not include these common errors:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-active-directory-protection-dashboard.json",
+          "quotes": [
+            "KDC_ERR_PREAUTH_REQUIRED (25)",
+            "KRB_AP_ERR_TKT_EXPIRED (32)",
+            "KRB_ERR_RESPONSE_TOO_BIG (52)",
+            "KDC_ERR_BADOPTION (13)",
+            "KDC_ERR_NEVER_VALID (11)",
+            "KRB_AP_ERR_SKEW (37)",
+            "KDC_ERR_ETYPE_NOSUPP (14)",
+            "KDC_ERR_S_PRINCIPAL_UNKNOWN (7)",
+            "KRB_AP_ERR_MODIFIED (41)"
+          ],
+          "after": "The widget displays the top 10 Kerberos TGT errors within the selected time frame and lists them by user."
+        }
+      ]
+    },
     "ad-segment-setting": {
       "statement": "An application segment has an Active Directory Inspection setting, off by default, and its data is on the AD Protection Diagnostics page.",
       "tier": "A",
@@ -150,7 +225,7 @@
       "kind": "data",
       "title": "Which attacks the Active Directory controls detect",
       "status": "open",
-      "detail": "Unverified legacy statement: AppProtection inspects Kerberos, SMB and LDAP for \"AD enumeration patterns (LDAP queries that look like reconnaissance)\", \"Kerberoasting (suspicious AS-REQ / TGS-REQ patterns)\", \"DCSync-like access patterns\" and \"SMB lateral-movement signatures\". The captured pages name the protocols and the controls page, not the attacks. The control list for a tenant would resolve it.",
+      "detail": "The Active Directory Protection dashboard page states what its indicators count (claim ad-indicators), which is not what the controls detect; it does not tie the counts to named attacks or to the controls, so the question stays open. Unverified legacy statement: AppProtection inspects Kerberos, SMB and LDAP for \"AD enumeration patterns (LDAP queries that look like reconnaissance)\", \"Kerberoasting (suspicious AS-REQ / TGS-REQ patterns)\", \"DCSync-like access patterns\" and \"SMB lateral-movement signatures\". The captured pages name the protocols and the controls page, not the attacks. The control list for a tenant would resolve it.",
       "resolves_with": [
         "tenant-data",
         "source-read"

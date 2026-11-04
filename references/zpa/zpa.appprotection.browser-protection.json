@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.browser-protection",
+  "title": "Browser Protection: monitored users, browser fingerprints and Clientless Access diagnostics",
+  "aliases": [
+    "browser protection dashboard",
+    "clientless access diagnostics",
+    "browser fingerprint",
+    "monitored users"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.entitlement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Browser Protection is monitored in the console through a dashboard and a Clientless Access diagnostics log type. Whether it is part of the subscription is in [[zpa.appprotection.entitlement]], and the AppProtection views are in [[zpa.appprotection.monitoring]]."
+    },
+    {
+      "label": "Dashboard.",
+      "text": "{{dashboard}} {{fingerprint-frequency}}"
+    },
+    {
+      "label": "Clientless Access diagnostics.",
+      "text": "{{clientless-diag}} {{fingerprint-session}} {{fingerprint-fields}} {{user-portal-field}} The values of some fields are not listed {{gap:undefined-values}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a changed fingerprint is the same session showing different attributes such as location or screen resolution.",
+      "uses": [
+        "fingerprint-session"
+      ]
+    },
+    {
+      "do": "Whether the JA3 field is empty because the JA3 hash was not selected in the Browser Protection profile.",
+      "uses": [
+        "fingerprint-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "dashboard": {
+      "statement": "The Browser Protection dashboard shows data over 1 Hour to 14 Days or a Custom Range. It categorizes users as Monitored and Unmonitored by their percentages in the selected time frame, and a table gives each monitored user's number of unique fingerprints, the browser sessions with Fingerprint enabled that the user has accessed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-browser-protection-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View Browser Protection data over a period between 1 Hour to 14 Days, or you can select Custom Range to specify a custom start and end date.",
+            "The categories are Monitored and Unmonitored, representing the monitored and unmonitored users and shows them based on their percentages within the selected time frame.",
+            "Number of Unique Fingerprints: The number of browser sessions with Fingerprint enabled that the monitored user has accessed."
+          ]
+        }
+      ]
+    },
+    "fingerprint-frequency": {
+      "statement": "The dashboard page says that if frequent changes exist on a fingerprint, there is a high possibility of malicious activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-browser-protection-dashboard.json",
+          "quotes": [
+            "If frequent changes exist on a fingerprint, there is a high possibility of malicious activity."
+          ]
+        }
+      ]
+    },
+    "clientless-diag": {
+      "statement": "By default the Clientless Access diagnostics table displays the total number of clientless access requests made by monitored users; it also counts requests with fingerprints and requests with fingerprints that changed over the specified time range. A filter shows requests for a browser fingerprint changed after the monitored user logged in, and another one currently present.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-clientless-access-diagnostics.json",
+          "quotes": [
+            "By default, the table displays the Total number of clientless access requests made by monitored users.",
+            "Requests with Fingerprints Changed: The total number of clientless access requests with fingerprints that have changed over the specified time range.",
+            "Requests with Fingerprints: The total number of clientless access requests with fingerprints.",
+            "Browser Fingerprint: Changed After Login: See requests for a specific browser fingerprint that was changed after the monitored user logged in.",
+            "Browser Fingerprint: Present: See requests for a specific browser fingerprint that is currently present."
+          ]
+        }
+      ]
+    },
+    "fingerprint-session": {
+      "statement": "A filter shows all fingerprints captured for a session. All fingerprints should be the same for all domains the user accesses in the same session, and a change means attributes of the fingerprint, such as location or screen resolution, have changed for the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-clientless-access-diagnostics.json",
+          "quotes": [
+            "This filter shows all fingerprints captured for a given session. All fingerprints should be the same for all domains accessed by the user in the same session. If there is a change, it means attributes for the fingerprint have changed for the user (i.e., location, screen resolution, etc.)."
+          ]
+        }
+      ]
+    },
+    "fingerprint-fields": {
+      "statement": "A Clientless Access entry shows whether a mobile device was used for the request (True or False) and the latitude and longitude of the fingerprint's location. The JA3 fingerprint shows only if the JA3 hash was selected when configuring Browser Protection profiles, and results might differ by machine and browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-clientless-access-diagnostics.json",
+          "quotes": [
+            "Mobile Device: If a mobile device was used for the request, it shows as True. If a mobile device was not used for the request it shows as False.",
+            "Location: The latitude and longitude of the fingerprint's location.",
+            "JA3: The JA3 fingerprint. This field only shows if you selected the JA3 hash when configuring Browser Protection Profiles.",
+            "You might see different results based on the machine and browser you are using."
+          ]
+        }
+      ]
+    },
+    "user-portal-field": {
+      "statement": "The User Portal field is the name, ID and domain of the application segment, and when User Portal criteria are selected it replaces the Application Segment, Application ID and Application Domain fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-clientless-access-diagnostics.json",
+          "quotes": [
+            "User Portal: The name, ID, and domain of the application segment.",
+            "When you select User Portal criteria, this field replaces the Application Segment, Application ID, and Application Domain fields."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "undefined-values": {
+      "kind": "semantic",
+      "title": "Field values the Clientless Access diagnostics page names but does not list",
+      "status": "open",
+      "detail": "The Clientless Access diagnostics page names an Exporter Name field and a Fingerprint Generated field without listing their values, and its Posture Profiles Verified field reads 'then TBD is displayed for this field' as placeholder text.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    }
+  }
+}

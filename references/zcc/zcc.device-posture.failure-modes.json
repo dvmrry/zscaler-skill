@@ -42,7 +42,7 @@
     },
     {
       "label": "The check failed.",
-      "text": "Each type's pass condition is in [[zcc.device-posture.check-types]], including the cases where an unreadable registry key or a readable Linux key fails it: [[zcc.device-posture.check-types:registry-key]], [[zcc.device-posture.linux-client-certificate:key-permission-enforced]]."
+      "text": "Each type's pass condition is in [[zcc.device-posture.check-types]], including the cases where an unreadable registry key or a readable Linux key fails it: [[zcc.device-posture.check-types:registry-key]], [[zcc.device-posture.linux-client-certificate:key-permission-enforced]]. {{macos-sequoia-firewall}} {{legacy-unauthorized-modification-15}}"
     },
     {
       "label": "The check could not run.",
@@ -81,6 +81,37 @@
     }
   ],
   "claims": {
+    "macos-sequoia-firewall": {
+      "statement": "Client Connector versions for macOS have a known issue with firewall posture checks on macOS Sequoia: due to changes in how macOS stores firewall configuration in macOS Sequoia, the firewall posture check for Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) fails. The same vendor page says both that it is recommended to remove the firewall posture check from the policy until a fix is available, and that customers using earlier versions must upgrade to Client Connector version 4.2.0.294, 4.3.0.237 or 4.3.1.56 to ensure the fix is applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-firewall-posture-check-failure-macos-sequoia.json",
+          "quotes": [
+            "Zscaler Client Connector versions for macOS have a known issue with firewall posture checks on macOS Sequoia.",
+            "Due to changes in how macOS stores firewall configuration in macOS Sequoia, the firewall posture check for Zscaler Internet Access (ZIA) and Zscaler Private Access (ZPA) fails.",
+            "If you are using the firewall posture check today, it is recommended to remove the firewall posture check from the policy until a fix is available.",
+            "Customers using earlier versions of Zscaler Client Connector must upgrade to Zscaler Client Connector version 4.2.0.294, 4.3.0.237, or 4.3.1.56 to ensure the fix is applied."
+          ]
+        }
+      ]
+    },
+    "legacy-unauthorized-modification-15": {
+      "statement": "Legacy (1.5.x mobile): for Client Connector version 1.5.2 for iOS and version 1.5.0 for Android, there is a known issue with the Unauthorized Modification device posture profile, where unmodified devices fail the posture check. To use this profile, the posture profile and ZPA access policy must be updated, and Client Connector version 1.5.3 for iOS and 1.5.3 for Android must be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-unauthorized-modification-device-posture-profile.json",
+          "quotes": [
+            "For Zscaler Client Connector version 1.5.2 for iOS and version 1.5.0 for Android, there is a known issue with the Unauthorized Modification device posture profile, where unmodified devices fail the posture check.",
+            "To use this device posture profile, you must update your posture profile and ZPA access policy.",
+            "You must also use Zscaler Client Connector version 1.5.3 for iOS and Zscaler Client Connector version 1.5.3 for Android."
+          ]
+        }
+      ]
+    },
     "failure-message": {
       "statement": "A posture profile can carry an optional message, and a website URL, shown when a user is blocked from a Private Access app because posture failed: the user gets a pop-up with a Learn More link that opens the message in Client Connector's Notifications window. The message shows only when the access policy has Device Posture Failure Notification enabled and the user's app profile has a notification template with Show Device Posture Failure Remediation Notification enabled, only on Client Connector 4.8 and later for Windows and 5.0 and later for macOS, and Zscaler Support must enable the feature.",
       "tier": "A",

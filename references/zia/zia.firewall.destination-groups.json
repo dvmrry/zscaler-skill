@@ -53,6 +53,14 @@
     {
       "label": "Size.",
       "text": "{{fqdn-per-group-caps}} What happens past the FQDN cap is open {{gap:fqdn-cap-overflow}}. Other caps are in [[zia.firewall.limits]]. {{endpoint}}"
+    },
+    {
+      "label": "What the help says a group holds.",
+      "text": "{{dg-purpose}} {{dg-ip-families}} {{dg-sni-ignored}} {{dg-console-types}} {{dg-other-type}} {{dg-name-description}}"
+    },
+    {
+      "label": "Wildcard FQDNs.",
+      "text": "{{wildcard-match}} {{wildcard-syntax}} {{wildcard-nonweb}}"
     }
   ],
   "checks": [
@@ -366,6 +374,154 @@
         }
       ]
     },
+    "dg-purpose": {
+      "statement": "Destination IP groups can be applied to policies such as Firewall Filtering, NAT Control, DNS Control, IPS Control and Forwarding Control, and combine destination IP addresses and FQDNs, destination countries and URL categories into groups for security policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-destination-ip-groups.json",
+          "quotes": [
+            "You can apply destination IP groups to policies, such as Firewall Filtering, NAT Control, DNS Control, IPS Control, and Forwarding Control.",
+            "Combine destination IP addresses and FQDNs, destination countries, and URL categories into groups so you can manage them collectively in security policies."
+          ]
+        }
+      ]
+    },
+    "dg-ip-families": {
+      "statement": "Destination IPv4 and IPv6 addresses are managed in separate groups. Two predefined groups, All IPv4 and All IPv6, contain all addresses of their type; custom IPv6 groups are not currently supported, and only the predefined All IPv6 group is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-destination-ip-groups.json",
+          "quotes": [
+            "Destination IPv4 and IPv6 addresses are managed in separate groups.",
+            "The Zscaler service provides two predefined groups (All IPv4 and All IPv6) that contain all addresses of their respective types.",
+            "Custom groups based on IPv6 addresses are not currently supported.",
+            "Currently, only the predefined All IPv6 group is available."
+          ]
+        }
+      ]
+    },
+    "dg-sni-ignored": {
+      "statement": "In SSL/TLS Inspection and DNS Control policies, IP-based destination groups used in rule criteria are ignored during policy evaluation if an SNI value is present in HTTPS requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-destination-ip-groups.json",
+          "quotes": [
+            "In SSL/TLS Inspection and DNS Control policies, IP-based destination groups used in rule criteria are ignored during policy evaluation if an SNI value is present in HTTPS requests."
+          ]
+        }
+      ]
+    },
+    "dg-console-types": {
+      "statement": "A custom destination group can be created by specifying IPv4 addresses (an individual address or an address range), FQDNs, wildcard FQDNs, server-location countries or custom URL categories. The console offers FQDN for applications with multiple or frequently changing IPv4 addresses, Wildcard FQDN to extend the policy to subdomains of the stated URL, and Other when no IPv4 addresses, FQDNs or domains are associated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "You can create custom destination groups by specifying IP addresses (IPv4 only), FQDNs, wildcard FQDNs, countries where servers are located, or custom URL categories.",
+            "An individual address (e.g., 192.0.2.1)",
+            "An address range (e.g., 192.0.2.1 – 192.0.2.5)",
+            "FQDN: You can add FQDNs for applications with multiple IPv4 addresses or with IPv4 addresses that frequently change.",
+            "Wildcard FQDN: You can add wildcard FQDNs to extend the policy to the subdomains of the stated URL.",
+            "Other: You can select this option if you don't want to associate IPv4 addresses, FQDNs, or domains with the destination group."
+          ]
+        }
+      ]
+    },
+    "dg-other-type": {
+      "statement": "A destination group can identify destinations by the server's location (Any includes all countries) and by the domain's URL category, using any number of custom URL categories; multiple countries or categories, or both, can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "Countries: You can identify destinations based on the location of a server. Select Any to include all countries in the group or select specific countries.",
+            "Categories: You can identify destinations based on the URL category of the domain. Select any number of custom URL categories to include in the group.",
+            "You can select multiple countries or categories, or both."
+          ]
+        }
+      ]
+    },
+    "dg-name-description": {
+      "statement": "A destination group name may contain only alphanumeric characters, underscores, hyphens and periods, and its description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "Name: Enter a name for the destination address group. Only alphanumeric characters, underscores, hyphens, and periods are allowed.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "wildcard-match": {
+      "statement": "In the help's example the wildcard FQDN *.safemarch.com matches atlanta.safemarch.com, serv3.serv2.serv1.atlanta.safemarch.com/company/webinars, safemarch.com and safemarch.com/company/webinars.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "For example, the wildcard FQDN *.safemarch.com would match the following URLs:",
+            "serv3.serv2.serv1.atlanta.safemarch.com/company/webinars",
+            "- safemarch.com/company/webinars"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "- atlanta.safemarch.com",
+            "- safemarch.com"
+          ],
+          "after": "would match the following URLs:"
+        }
+      ]
+    },
+    "wildcard-syntax": {
+      "statement": "The wildcard character preceding the leading period is optional (*.safemarch.com and .safemarch.com are equivalent), and a wildcard is allowed only as the leftmost label, only once per entry, and only as a prefix search (sub1.*.safemarch.com, *.*.safemarch.com and partial matches such as .safe*.com are not allowed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "The wildcard character (*) preceding the leading period is optional (i.e., *.safemarch.com and .safemarch.com are equivalent).",
+            "The wildcard character is allowed only as the leftmost label in wildcard FQDN entries.",
+            "a wildcard is only used for full-text matches and cannot be used for partial matches (i.e., .*safemarch.com, .safe*.com, or .sa*march.com is not a legitimate wildcard FQDN).",
+            "Only wildcard FQDNs using a prefix search are supported (e.g., *.safemarch.com is supported but sub1.*.safemarch.com is not supported).",
+            "A wildcard can be used only once in an entry (i.e., *.*.safemarch.com is not allowed)."
+          ]
+        }
+      ]
+    },
+    "wildcard-nonweb": {
+      "statement": "To evaluate wildcard FQDNs against non-web traffic, Zscaler requires the IP address the FQDN resolves to. The page also says to forward all DNS traffic to the Zscaler service if wildcard FQDNs are configured in policies, and that a subscription or Internet & SaaS (ZIA) edition with DNS Control is required, which it says is included in Advanced Firewall and DNS Control subscriptions and Internet & SaaS editions. Wildcard FQDN matching against web traffic (HTTP and TLS/SNI) can function without meeting these conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-destination-ip-groups.json",
+          "quotes": [
+            "To evaluate wildcard FQDNs against non-web traffic, Zscaler requires the IP address to which the FQDN resolves.",
+            "forward all of your DNS traffic to the Zscaler service if you intend to configure wildcard FQDNs in policies",
+            "Additionally, a subscription or Internet & SaaS (ZIA) edition with DNS Control is required.",
+            "This functionality is included in Advanced Firewall and DNS Control subscriptions and Internet & SaaS editions.",
+            "Wildcard FQDN match against web traffic (HTTP and TLS/SNI) can function without meeting these conditions."
+          ]
+        }
+      ]
+    },
     "fqdn-per-group-caps": {
       "statement": "Destination groups hold up to 8,000 IP entries and FQDNs per group, but only 100 FQDNs per group (8,000 with Advanced Firewall).",
       "tier": "A",
@@ -441,7 +597,7 @@
       "kind": "semantic",
       "title": "What a DSTN_DOMAIN group contains",
       "status": "open",
-      "detail": "DSTN_DOMAIN appears only in the four-value enum lists. No example or per-type field rule exists for it, unlike DSTN_FQDN.",
+      "detail": "DSTN_DOMAIN appears only in the four-value enum lists. No example or per-type field rule exists for it, unlike DSTN_FQDN. The console help names four group types (an IP address type, FQDN, Wildcard FQDN and Other) but no capture maps them to the API values DSTN_IP, DSTN_FQDN, DSTN_DOMAIN and DSTN_OTHER, and none says DSTN_DOMAIN is Wildcard FQDN.",
       "resolves_with": [
         "lab-test",
         "support-ticket"

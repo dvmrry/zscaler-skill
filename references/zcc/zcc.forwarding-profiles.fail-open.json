@@ -54,7 +54,7 @@
     },
     {
       "label": "Captive portals.",
-      "text": "{{captive-portal-minutes}} {{captive-portal-advice}} Whether users who take longer than the window are then blocked is open {{gap:captive-portal-expiry}}. How the app detects a portal is not described {{gap:captive-portal-detection-method}}."
+      "text": "{{captive-portal-minutes}} {{captive-portal-advice}} Whether traffic is blocked once the window ends is open {{gap:captive-portal-expiry}}. What the app shows when a portal is not resolved in the time configured in the Admin Console: {{captive-portal-error-state}} The full Service Status table is in [[zcc.troubleshooting.service-status-errors]] and the registry values in [[zcc.troubleshooting.registry-keys]]. How the app detects a portal is not described {{gap:captive-portal-detection-method}}."
     },
     {
       "label": "App profile settings.",
@@ -211,6 +211,26 @@
       ],
       "conditions": "Quoted the reference architecture for \"as low as is reasonable\", which was unquoted (verifier)."
     },
+    "captive-portal-error-state": {
+      "statement": "When the user has not resolved a captive portal within the time configured in the Admin Console, Client Connector shows Captive Portal Error in the Service Status; the message disappears when the user reconnects, and the action is Retry and then resolving the captive portal. The registry value CAPTIVE_PORTAL_ERROR for ZPA_State and ZWS_State means a captive portal is detected and the open timeout expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-client-connector-connection-status-errors.json",
+          "quotes": [
+            "| Captive Portal Error | The user has not resolved the captive portal within the time configured in the Zscaler Admin Console. The error message disappears when the user reconnects. | Click Retry and then resolve the captive portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-zscaler-app-registry-keys.json",
+          "quotes": [
+            "| ZPA_State ZWS_State | CAPTIVE_PORTAL_ERROR | A captive portal is detected, and the open timeout expires. |"
+          ]
+        }
+      ]
+    },
     "strict-enforcement-notify": {
       "statement": "For clients installed in Strict Enforcement mode (Windows 4.6 and later), Notify End User shows a message to users who try to reach the internet before logging in, repeated after a rate limit (default 2 minutes), with text of at most 200 characters.",
       "tier": "A",
@@ -230,9 +250,9 @@
   "gaps": {
     "captive-portal-expiry": {
       "kind": "semantic",
-      "title": "What a user sees who has not finished a captive portal when the window ends",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"If a user logs into the portal slowly, they hit the re-enforcement window and are blocked until they disconnect/reconnect.\" The vendor says only that services re-enable after the period.",
+      "title": "Whether traffic is blocked for a user who has not finished a captive portal when the window ends",
+      "status": "partial",
+      "detail": "Settled: Client Connector shows Captive Portal Error in the Service Status when the portal is not resolved in the configured time, the message clears on reconnect, and the registry value is CAPTIVE_PORTAL_ERROR. Open, as an unverified legacy statement: \"If a user logs into the portal slowly, they hit the re-enforcement window and are blocked until they disconnect/reconnect.\" The vendor says only that services re-enable after the period, and neither the status table nor the registry table says whether traffic is blocked in the error state.",
       "resolves_with": [
         "lab-test"
       ]

@@ -48,6 +48,18 @@
     {
       "rel": "see-also",
       "to": "zdx.score.calculation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.cloud-path"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.web-probe-errors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.managed"
     }
   ],
   "prose": [
@@ -64,6 +76,14 @@
       "text": "{{web-no-cache}} {{web-metrics}}"
     },
     {
+      "label": "On the user page.",
+      "text": "{{pft-components}} {{ttfb-components}} {{pft-redirects}} {{user-page-web-notes}}"
+    },
+    {
+      "label": "In the console.",
+      "text": "{{console-get-only}} The success codes differ between the contract and the help {{divergence:web-success-codes}}. The error messages a Web probe shows are in [[zdx.probes.web-probe-errors]]."
+    },
+    {
       "label": "Policy.",
       "text": "{{ssl-exempt}} SSL Inspection itself is in [[zia.ssl-inspection]]. How probe traffic shows in ZIA logs and what a blocking policy does to a probe's metrics is unverified {{gap:probe-policy-outcomes}}."
     },
@@ -75,7 +95,7 @@
       "heading": "Cloud Path probes"
     },
     {
-      "text": "{{cloud-path-shapes}} {{unreachable-hop}} {{cloud-path-metrics}}"
+      "text": "{{cloud-path-shapes}} {{unreachable-hop}} {{cloud-path-metrics}} The console's Hop View and Command Line View, tunnels and the Cloud Path error messages are in [[zdx.probes.cloud-path]]."
     },
     {
       "label": "Per device.",
@@ -97,7 +117,7 @@
       "heading": "How often probes run"
     },
     {
-      "text": "The score article's 5-minute cadence is in [[zdx.score.calculation:hourly-lowest]]. {{page-frequency}} {{monitor-frequency}}"
+      "text": "The score article's 5-minute cadence is in [[zdx.score.calculation:hourly-lowest]]. {{page-frequency}} {{monitor-frequency}} The score article's 5 minutes and the subscription table's probing interval differ by tier, see [[zdx.score.calculation]]."
     },
     {
       "label": "Adaptive.",
@@ -107,7 +127,11 @@
       "heading": "Probe kinds and views"
     },
     {
-      "text": "{{page-views}} {{monitor-types}} How the contract's monitor types and the Zscaler Managed probes map to the two probe types in the help is not stated {{gap:managed-and-monitor-types}}."
+      "text": "{{page-views}} {{monitor-types}} How the contract's monitor types and the Zscaler Managed probes map to the two probe types in the help is not stated {{gap:managed-and-monitor-types}}; Managed Monitoring itself is in [[zdx.probes.managed]]."
+    },
+    {
+      "label": "Limits.",
+      "text": "{{probe-limits}} The table has a second, unqualified active-probes row {{divergence:active-probes-rows}}."
     },
     {
       "label": "Retention.",
@@ -115,7 +139,7 @@
     },
     {
       "label": "Diagnostics Sessions.",
-      "text": "How often probes run during a Diagnostics Session is open, [[zdx.diagnostics.session-status:probe-cadence-during-session]]; the sessions themselves are in [[zdx.diagnostics]]."
+      "text": "How often information is collected during a Diagnostics Session is in [[zdx.diagnostics:session-collection-interval]], while how often the probes themselves run is open [[zdx.diagnostics.session-status:probe-cadence-during-session]]; the sessions themselves are in [[zdx.diagnostics]]."
     }
   ],
   "checks": [
@@ -455,6 +479,182 @@
           }
         }
       ]
+    },
+    "pft-components": {
+      "statement": "On the user page a Web probe's Page Fetch Time is the time for the selected application to transfer or load a page for a user, and its components include PAC Parsing Time, DNS Time, TCP Connection Time, SSL Handshake Time and Server Processing Time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "Page Fetch Time: The time duration for a selected application to transfer or load a page for a user. This data is useful to know as it is an indication of a user's digital experience with an application. It encompasses the following:",
+            "PAC Parsing Time: The time duration to process a Proxy Auto-Configuration (PAC) file.",
+            "DNS Time: The time duration taken during a DNS query to translate a domain name into a corresponding IP address.",
+            "TCP Connection Time: The time duration to establish a TCP connection between the browser and a server.",
+            "SSL Handshake Time: The time duration for a client and server to establish a secure connection.",
+            "Server Processing Time: The time duration from when the server processes a request to when it begins to send a response back."
+          ]
+        }
+      ]
+    },
+    "ttfb-components": {
+      "statement": "Zscaler Time to First Byte is the time from when a user's browser sends a request to an application until it receives the first byte of data from the server, and includes Redirect Time, TCP Connection Time, SSL Handshake Time, Server Processing Time and Response Transmission Time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "Zscaler Time to First Byte: The time duration from when a user's browser sends a request to an application until it receives the very first byte of data from the server.",
+            "- Redirect Time",
+            "- Reponse Transmission Time"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "- TCP Connection Time",
+            "- SSL Handshake Time",
+            "- Server Processing Time"
+          ],
+          "after": "    - Zscaler Time to First Byte: The time duration from when a user's browser sends a request to an application until it receives the very first byte of data from the server. Zscaler TTFB is a great indicator of a website's initial loading speed and server responsiveness. This includes:"
+        }
+      ]
+    },
+    "pft-redirects": {
+      "statement": "Users with an Advanced Plus subscription can view a tooltip with DNS, SSL, TCP, Server Processing Time and Time to Last Byte metrics that comprise the total Page Fetch Time, with additional graphs for PAC parsing time, DNS time, TCP connect time, HTTP connect time and SSL time, where applicable with individual server redirects per graph (Client to Public Service Edge, Public Service Edge to the application, or Client to the application), the last redirect indicating the time to the final destination; the subscription table supports Page Fetch Time Server Redirects only on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "Users with an Advanced Plus subscription can view a tooltip with DNS, SSL, TCP, Server Processing Time (SPT), and TTLB (Time to Last Byte) metrics that comprise the total Page Fetch Time.",
+            "Additional graphs are displayed for PAC parsing time, DNS time, TCP connect time, HTTP connect time, and SSL time. Where applicable, individual server redirects are included for each graph to reflect one of the following:",
+            "- Client to Public Service Edge",
+            "- Public Service Edge to the application",
+            "- Client to the application",
+            "If more than one redirect is displayed, the last redirect indicates the time to the final destination."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Page Fetch Time Server Redirects | Not supported | Not supported | Not supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Applications and Probes"
+        }
+      ]
+    },
+    "user-page-web-notes": {
+      "statement": "On the user page Web probe metrics are not provided for Network applications; traffic steered through Source IP Anchoring shows via SIPA and is highlighted in the timeline graphs, and icons can indicate warnings, errors or Private Access rate limiting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-user-details.json",
+          "quotes": [
+            "Web probe metrics are not provided for Network applications.",
+            "Whenever traffic is steered through Source IP Anchoring (SIPA), via SIPA is displayed and the corresponding traffic within the timeline is highlighted in the graphs.",
+            "At times, you might see icons that indicate warnings, errors, or Private Access rate limiting."
+          ]
+        }
+      ]
+    },
+    "console-get-only": {
+      "statement": "The Web Probe Errors help says only the GET method can currently be configured for a Web probe from the UI, and that a request times out when no response is received from the server in the configured timeout (60 seconds by default).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-web-probe-errors.json",
+          "quotes": [
+            "Currently, you can configure only the GET method from the UI.",
+            "A response was not received from the server in the configured timeout (60 seconds by default)."
+          ]
+        }
+      ]
+    },
+    "probe-limits": {
+      "statement": "The subscription table's row named Active Probes (per tenant) limits active probes to 3 on Standard, 7 on Microsoft 365, 30 on Advanced and 100 on Advanced Plus, its row Active Probes (per user) to 3, 7, 30 and 30 in the same order, and the total number of Cloud Path and Web monitoring probes to 512 on all four.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Active Probes (per tenant) | 3 | 7 | 30 | 100 |",
+            "| Active Probes (per user) | 3 | 7 | 30 | 30 |",
+            "| Total Number of Cloud Path and Web Monitoring Probes | 512 | 512 | 512 | 512 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ],
+          "after": "## Applications and Probes"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "web-success-codes": {
+      "summary": "The HTTP success codes of a Web probe: the API contract defaults a WEB monitor to 200-299 and 304; the Web Probe Errors help says the Web probe is configured to consider 100-199, 200-299 and 300-399 successful.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zdx.openapi.json",
+            "pointer": "/paths/~1v1~1config~1applications~1{aid}~1monitors/post/requestBody/content/application~1json/schema/discriminator/x-zscaler-inline-mapping/WEB/properties/responseCodes",
+            "expect": {
+              "default": [
+                "200-299",
+                "304"
+              ]
+            }
+          },
+          "says": "A WEB monitor's `responseCodes` defaults to 200-299 and 304."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-web-probe-errors.json",
+            "quotes": [
+              "The Web probe is configured to consider successful HTTP connections in the range (100-199), (200-299), and (300-399). The response code received was not in this range."
+            ]
+          },
+          "says": "The Web probe considers HTTP connections in the ranges 100-199, 200-299 and 300-399 successful."
+        }
+      ],
+      "impact": "A 1xx or other 3xx response (a 302, say) is a failure under the contract's default list and a success under the help's; the sources do not say which list a console-created probe uses."
+    },
+    "active-probes-rows": {
+      "summary": "The Applications and Probes table has two rows for active probes: one named Active Probes (per tenant) with 3, 7, 30 and 100, and one named Active Probes with 6, 13, 30 and 1,000 (Standard, Microsoft 365, Advanced, Advanced Plus).",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Active Probes (per tenant) | 3 | 7 | 30 | 100 |"
+            ],
+            "after": "## Applications and Probes"
+          },
+          "says": "The row Active Probes (per tenant) gives 3, 7, 30 and 100."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Active Probes | 6 | 13 | 30 | 1,000 |"
+            ],
+            "after": "## Applications and Probes"
+          },
+          "says": "The row Active Probes gives 6, 13, 30 and 1,000."
+        }
+      ],
+      "impact": "The two rows give different figures for active probes on every tier but Advanced; the table does not say what the unqualified row counts or which one governs."
     }
   },
   "gaps": {
@@ -510,8 +710,8 @@
     "managed-and-monitor-types": {
       "kind": "semantic",
       "title": "How Zscaler Managed probes and the contract's monitor types map to Web and Cloud Path probes",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Zscaler Hosted Probes are a separate probe type where Zscaler runs the probe on its own infrastructure rather than the customer's ZCC; useful for apps users don't actively access.\" The Probes page shows a Managed view of Zscaler Managed probes, and the configuration contract has collections for Zscaler Hosted Monitoring and End User Monitoring and four monitor types (WEB, TRACERT, TRACERT_V2, HIFI_MTR), while the help names two probe types.",
+      "status": "partial",
+      "detail": "The help now says Zscaler Managed Probes are Web and Cloud Path probes grouped into collections and run from Zscaler data centers (see zdx.probes.managed). What is still unstated is how they map to the contract's monitor types and collections: the Probes page shows a Managed view of Zscaler Managed probes, and the configuration contract has collections for Zscaler Hosted Monitoring and End User Monitoring and four monitor types (WEB, TRACERT, TRACERT_V2, HIFI_MTR), while the help names two probe types.",
       "blocks": "answers about where a managed probe runs and which metrics it yields",
       "resolves_with": [
         "source-read"

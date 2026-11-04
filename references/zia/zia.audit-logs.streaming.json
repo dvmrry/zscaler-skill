@@ -46,11 +46,11 @@
     },
     {
       "label": "Which NSS can push it.",
-      "text": "{{vm-nss-subscriptions}} {{vm-nss-no-admin-audit}}"
+      "text": "{{vm-nss-subscriptions}} {{vm-nss-no-admin-audit}} {{vm-feeds-exist}} {{initial-delay}} {{kproxy-allow}}"
     },
     {
       "label": "Cloud NSS.",
-      "text": "{{cloud-nss-admin-audit}} {{audit-log-type-filter}} {{multifeed-admin-audit}} What an ADMIN_AUDIT feed's records look like is open {{gap:feed-contents}}. Traffic log fields are the generated types [[zia/web-log]], [[zia/firewall-log]] and [[zia/dns-log]], with behavior in [[zia.logs.web-records]] and [[zia.logs.firewall-records]]; none describe this feed."
+      "text": "{{cloud-nss-admin-audit}} {{audit-log-type-filter}} {{application-filter}} {{multifeed-admin-audit}} What an ADMIN_AUDIT feed's records look like is open {{gap:feed-contents}}. Traffic log fields are the generated types [[zia/web-log]], [[zia/firewall-log]] and [[zia/dns-log]], with behavior in [[zia.logs.web-records]] and [[zia.logs.firewall-records]]; none describe this feed."
     },
     {
       "label": "As code.",
@@ -147,6 +147,97 @@
         "audit-log-type-values"
       ]
     },
+    "vm-feeds-exist": {
+      "statement": "A TCP NSS feed article lets an admin configure up to 16 TCP NSS feeds for the admin audit logs that the NSS sends to the SIEM, with Log Type Admin Audit; the NSS feed articles also include one for HTTP NSS admin audit feeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "You can configure up to 16 TCP NSS feeds to specify the data from the admin audit logs that the NSS sends to the SIEM.",
+            "Log Type: Choose Admin Audit."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "It can take up to two hours for the audit logs to start streaming to HTTP NSS and your security information and event management (SIEM) system after the feed is configured."
+          ]
+        }
+      ]
+    },
+    "initial-delay": {
+      "statement": "The initial audit log NSS feed can take up to 2 hours to stream to the NSS and the SIEM. With the Authentication Service the initial feed can take up to 5 hours, though that delay does not occur if SCIM logs are already being streamed. The HTTP NSS article says it can take up to two hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "The initial audit log Nanolog Streaming Service (NSS) feed can take up to 2 hours to stream to the NSS and your security information and event management (SIEM) system.",
+            "If you have Authentication Service, the initial feed can take up to 5 hours to stream to the NSS and your SIEM system. However, this delay does not occur if you have already configured and are streaming SCIM Logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "It can take up to two hours for the audit logs to start streaming to HTTP NSS and your security information and event management (SIEM) system after the feed is configured."
+          ]
+        }
+      ]
+    },
+    "kproxy-allow": {
+      "statement": "If the organization has a policy to block unauthenticated traffic, Zscaler IP addresses must be allowed to prevent streaming issues with admin audit logs, and they are included in the Professional Services URL category. The article also describes configuring a user-defined URL category that includes the custom URL http://kproxy.hdeu1.zdataservices.net/.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "If your organization has a policy to block unauthenticated traffic, ensure that Zscaler IP addresses are allowed in order to prevent streaming issues with admin audit logs. Zscaler IP addresses are included in the Professional Services URL category.",
+            "Configure a user-defined URL category that includes the following custom URL: http://kproxy.hdeu1.zdataservices.net/"
+          ]
+        }
+      ]
+    },
+    "application-filter": {
+      "statement": "The admin audit feed's Application filter on TCP feeds offers Branch Connector Portal Audit Log, Client Connector Portal Audit Log, ZIA Portal Audit Log and ZIdentity Admin Audit Log; the HTTP and Cloud NSS articles also list Risk360 Admin Portal Audit Log and ZDX Portal Audit Log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "Branch Connector Portal Audit Log: Allows real-time streaming of the Zscaler Cloud & Branch Connector audit logs to SIEM.",
+            "Client Connector Portal Audit Log: Allows real-time streaming of the Zscaler Client Connector audit logs to SIEM.",
+            "ZIA Portal Audit Log: Allows real-time streaming of the Internet Access (ZIA) audit logs to SIEM.",
+            "ZIdentity Admin Audit Log: Allows real-time streaming of the Authentication Service audit logs to SIEM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "Risk360 Admin Portal Audit Log: Allows real-time streaming of the Risk360 audit logs to SIEM.",
+            "ZDX Portal Audit Log: Allows real-time streaming of the Digital Experience (ZDX) audit logs to SIEM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-admin-audit-logs.json",
+          "quotes": [
+            "Risk360 Admin Portal Audit Log: Allows real-time streaming of the Risk360 audit logs to SIEM.",
+            "ZDX Portal Audit Log: Allows real-time streaming of the Digital Experience (ZDX) audit logs to SIEM."
+          ]
+        }
+      ],
+      "gaps": [
+        "audit-log-type-values"
+      ]
+    },
     "multifeed-admin-audit": {
       "statement": "The Go SDK also accepts NSS_ADMIN_AUDIT as a multi-feed type.",
       "tier": "A",
@@ -181,7 +272,7 @@
       "kind": "data",
       "title": "Values accepted by audit_log_type",
       "status": "open",
-      "detail": "Unverified legacy statement: \"the Cloud NSS feed model carries a dedicated audit_log_type filter field for narrowing which audit log categories are streamed\". The value set is not shown by the provider, SDK or the captured Cloud NSS pages.",
+      "detail": "Unverified legacy statement: \"the Cloud NSS feed model carries a dedicated audit_log_type filter field for narrowing which audit log categories are streamed\". The provider and SDK do not show the value set. The console's Application filter labels are now captured (application-filter), but they are console labels, not the API auditLogType values, so the mapping between them is unverified.",
       "resolves_with": [
         "lab-test",
         "tenant-data",

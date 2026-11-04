@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "id": "zpa.troubleshooting.support-information",
+  "title": "ZPA Support Information sessions: remote commands on App Connectors, Private Service Edges and Private Cloud Controllers",
+  "aliases": [
+    "support information",
+    "zpa remote commands",
+    "zpa pcap from connector",
+    "zpa journalctl",
+    "zpa support session"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.signals"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.health"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{time-range}}"
+    },
+    {
+      "label": "Sessions and targets.",
+      "text": "{{filter-exclusive}} {{managed-read-only}} {{microtenant-scope}} {{targets}}"
+    },
+    {
+      "label": "Commands.",
+      "text": "{{commands}} {{restart-rules}} {{pcap}} {{pcap-scope}}"
+    },
+    {
+      "label": "JOURNALCTL.",
+      "text": "{{journalctl}} {{journalctl-output}} The release-note entry for the command is in [[zpa.troubleshooting.signals:journalctl-july14]] and the one for Get Network Interfaces in [[zpa.app-connectors.deployment:get-network-interfaces-july13]]."
+    },
+    {
+      "label": "Session status, retention and limits.",
+      "text": "{{session-statuses}} {{retention-and-timeout}} {{disconnected-and-paused}} The pause reasons are in [[zpa.app-connectors.health:pause-reasons]]. {{session-output}} {{per-session-limits}}"
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Support Information creates sessions that run commands on App Connectors and Private Service Edges, and filters and shows the outputs of those sessions for troubleshooting; the page also names Private Cloud Controllers as data sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "Using Support Information, you can create sessions that run commands on App Connectors and Private Service Edges, and then filter and view the outputs of these sessions to assist in troubleshooting.",
+            "Private Cloud Controllers: The name of the Private Cloud Controllers that data is collected from."
+          ]
+        }
+      ]
+    },
+    "time-range": {
+      "statement": "The Support Information page shows sessions of the last 14 days by default, with ranges from 1 hour to 14 days, and a Custom Range start date must be within the last 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "By default, the data for all users is displayed for sessions that occurred in the last 14 days.",
+            "select an option from 1 hour to 14 days. If you select Custom Range, a calendar appears for you to select a start and end date. The start date must be within the last 6 months."
+          ]
+        }
+      ]
+    },
+    "filter-exclusive": {
+      "statement": "Filters for App Connectors or App Connector groups, Private Service Edges or Private Service Edge groups, and Private Cloud Controllers or Private Cloud Controller groups cannot be applied at the same time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "You cannot apply filters for App Connectors or App Connector groups, Private Service Edges or Private Service Edge groups, and Private Cloud Controllers or Private Cloud Controller groups at the same time."
+          ]
+        }
+      ]
+    },
+    "managed-read-only": {
+      "statement": "Sessions that are managed by Zscaler are read only and cannot be configured, edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "Sessions that are managed by Zscaler are read only and cannot be configured, edited, or deleted."
+          ]
+        }
+      ]
+    },
+    "microtenant-scope": {
+      "statement": "Within a Microtenant, an admin can select only the App Connectors, App Connector groups, Private Service Edges, Private Service Edge groups, Private Cloud Controllers and Private Cloud Controller groups that belong to the admin or are configured within the Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "If you are within a Microtenant, you can only select App Connectors, App Connector groups, Private Service Edges, Private Service Edge groups, Private Cloud Controllers, and Private Cloud Controller groups that belong to you or are configured within the Microtenant."
+          ]
+        }
+      ]
+    },
+    "targets": {
+      "statement": "Targets are hostnames or IP addresses separated by commas, with ports after a colon; several ports on one host repeat the host. Ports are not allowed for DNS lookup and restart commands. A session allows at most 10 targets, and a PCAP command at most one target per session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "Separate multiple hostnames with a comma (,) and ports with a colon (:) (e.g., test.com, example.com:80, example.com:443, 10.1.1.1:8080).",
+            "Multiple ports on the same FQDN or IP address require the same FQDN or IP address entered multiple times, separated by commas (e.g., example.com:80, example.com:443). Ports are not allowed for DNS lookup and restart commands.",
+            "The maximum number of targets allowed is 10.",
+            "A maximum of one target is allowed per session for a PCAP command."
+          ]
+        }
+      ]
+    },
+    "commands": {
+      "statement": "The commands listed include DNSLOOKUP A RECORD, DNSLOOKUP AAAA RECORD and DNSLOOKUP SRV RECORD, DROP DB RESTART PROCESS (deletes the local database in the Private Cloud Controller and restarts its process), RESTART PROCESS, RESTART SYSTEM, ICMP PING, TCP PING, PCAP, GET NETWORK INTERFACES (all interfaces or a specific target interface, for an App Connector, Private Service Edge or Private Cloud Controller) and JOURNALCTL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "| DNSLOOKUP AAAA RECORD | The DNS lookup command to resolve AAAA record.",
+            "| DROP DB RESTART PROCESS | The command to delete the local database in the Private Cloud Controller and to restart the Private Cloud Controller process.",
+            "| RESTART PROCESS | The command to restart the App Connector, Private Service Edge, or Private Cloud Controller process.",
+            "| TCP PING | The Transmission Control Protocol (TCP) ping command to test reachability to a port, or range of ports, for a list of hostnames or IP addresses.",
+            "| DNSLOOKUP A RECORD |",
+            "| DNSLOOKUP SRV RECORD |",
+            "| RESTART SYSTEM |",
+            "| ICMP PING |",
+            "| PCAP |",
+            "| JOURNALCTL |",
+            "| GET NETWORK INTERFACES | The command to display all the interfaces or a specific target interface for an App Connector, Private Service Edge, or Private Cloud Controller."
+          ]
+        }
+      ]
+    },
+    "restart-rules": {
+      "statement": "Canceling a restart command in the Processing state is not supported, and restart commands cannot be run at the same time as a DNS lookup command or another restart command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "Canceling a restart command that is in the Processing state is not supported. Restart commands cannot be run at the same time as a DNS lookup command or another restart command."
+          ]
+        }
+      ]
+    },
+    "pcap": {
+      "statement": "A PCAP command runs for 30 seconds to 5 minutes (1 minute by default) and can be limited to a network interface. One PCAP command is allowed per session; a session's PCAP is at most 1 GB, in individual PCAP files of at most 100 MB, and an FQDN argument is at most 51 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "Duration: The duration for which the command is run. The minimum duration is 30 seconds, and the maximum duration is 5 minutes. If no value is entered, the default duration is 1 minute. This field appears only when the PCAP command is selected.",
+            "A maximum of one PCAP command per session is allowed. The maximum PCAP file size for a single session is 1 GB, while the maximum size of the individual PCAP files is 100 MB",
+            "FQDN: Fully resolvable by the device as done by tcpdump. The maximum allowed characters is 51",
+            "Interface: Enter a network interface name to limit the PCAP command to capture packets on a particular interface (e.g., eth0, eth1, eno)."
+          ]
+        }
+      ]
+    },
+    "pcap-scope": {
+      "statement": "PCAP lets admins troubleshoot connectivity between an App Connector, Private Service Edge or Private Cloud Controller and the Public Service Edge for Adaptive Access Engine, or between those components and applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "This allows admins to troubleshoot connectivity between an App Connector, Private Service Edge, or Private Cloud Controller and Public Service Edge for Adaptive Access Engine, or between an App Connector, Private Service Edge, or Private Cloud Controller and applications."
+          ]
+        }
+      ]
+    },
+    "journalctl": {
+      "statement": "JOURNALCTL returns service logs or full system logs, with a Max Log Lines field, shown only when a JOURNALCTL command is selected, that defaults to 1,000 with a maximum of 100,000, and a maximum date and time of 4 hours from the current date and time. It is not available on Docker-based App Connectors or Private Service Edges, which don't run systemd or journald; their logs are collected via Docker logs or the containers' JSON logs on the host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "Max Log Lines: The maximum number of log lines to return. This setting has a default of 1,000 and a maximum value of 100,000. This field appears only when a JOURNALCTL command is selected.",
+            "Log Type: Select whether to return service logs or full system logs.",
+            "For JOURNALCTL, the maximum date and time is 4 hours from the current date and time.",
+            "Docker-based App Connectors or Private Service Edges don't run systemd or journald so this command isn't available.",
+            "Instead, collect logs via Docker logs or by exporting the containers' JSON logs on the host (/var/lib/docker/containers/*/…json.log)."
+          ]
+        }
+      ]
+    },
+    "journalctl-output": {
+      "statement": "JOURNALCTL logs are in general compressed into an LZ4-formatted file and uploaded to an AWS S3 bucket; when compression is skipped (a log file below 4 KB, or the service unavailable when the log is fetched) the file is uploaded uncompressed as downloaded_file.log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "In general, logs are compressed into an LZ4-formatted file (e.g., admin-probe-journalctl-<uuid>.lz4). The compressed file is then uploaded to an AWS S3 bucket for storage.",
+            "If the log file size is below 4 KB (e.g., logs collected over a very short interval). If the service is unavailable when the log is fetched.",
+            "When compression is skipped, the log file is uploaded in its raw uncompressed format as downloaded_file.log."
+          ]
+        }
+      ]
+    },
+    "session-statuses": {
+      "statement": "A session's status is Pending, Processing, Completed, Failed, Cancelled or Partially_completed. Sessions can only be canceled in the Pending or Processing state, and sessions in those states auto-refresh every 60 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "| Pending | Default status of a command when it's first inserted into the database. Sessions can only be canceled when they're in the Pending or Processing state.",
+            "| Processing | App Connector, Private Service Edge, or Private Cloud Controller picked up the command to run. |",
+            "| Completed | Command was successful. |",
+            "| Failed | Command failed. |",
+            "| Cancelled |",
+            "| Partially_completed | Part of the command succeeded and part of it failed. |",
+            "Sessions with a Pending or Processing status auto-refresh every 60 seconds to reflect the most current status."
+          ]
+        }
+      ]
+    },
+    "retention-and-timeout": {
+      "statement": "By default all sessions are deleted after 14 days regardless of status, and sessions in a Pending or Processing state are moved to a Cancelled state after 600 seconds (10 minutes), and continue to be moved every 10 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "By default, all sessions are deleted after 14 days, regardless of the status of the session. Sessions that are in a Pending or Processing state are moved to a Cancelled state after 600 seconds (10 minutes), and continue to be moved every 10 minutes."
+          ]
+        }
+      ]
+    },
+    "disconnected-and-paused": {
+      "statement": "An App Connector or Private Service Edge in a disconnected state is always in a Failed state for a session; a session that contains some App Connectors or Private Service Edges in a disconnected state and some in a connected state is Partially_completed, and the final session status depends on the combined status of the entities. A paused App Connector or Private Service Edge rejects and does not process new incoming sessions until the paused state expires, and the commands can move to Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "If an App Connector or Private Service Edge is in a disconnected state, then the status for that App Connector or Private Service Edge is always in a Failed state.",
+            "If there is a session that contains some App Connectors or Private Service Edges in a disconnected state and some in a connected state, then the session status is Partially_completed. The final session status depends on the combined status of the entities.",
+            "Session commands can get rejected and move to a Failed state when an App Connector or Private Service Edge is in a paused state. The App Connector or Private Service Edge rejects and does not process any new incoming sessions until the paused state expires."
+          ]
+        }
+      ]
+    },
+    "session-output": {
+      "statement": "Session results download as a JSON file, and the Session Output window shows the status of the commands on the App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-and-viewing-support-information.json",
+          "quotes": [
+            "Click the Download icon to download a JSON file of the session results. Click the App Connector group to open the Session Output window and view the status of the commands on the App Connector.",
+            "Download: Download the session data in JSON format."
+          ]
+        }
+      ]
+    },
+    "per-session-limits": {
+      "statement": "The ranges and limitations page gives Support Information limits of 100 App Connectors, 100 Private Service Edges and 100 Private Cloud Controllers per session, 10 actions and 10 targets per session, and 5 concurrent sessions per customer, counted only for sessions in a Pending or Processing state.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| App Connectors | 100 App Connectors per session |",
+            "| Private Service Edges | 100 Private Service Edges per session |",
+            "| Private Cloud Controllers | 100 Private Cloud Controllers per session |",
+            "| Actions | 10 Actions per session |",
+            "| Targets | 10 Targets per session |",
+            "| Concurrent Sessions | 5 Concurrent Sessions per customer The 5 Concurrent Sessions per customer limit is only on sessions that are in a Pending or Processing state."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

@@ -62,6 +62,10 @@
       "text": "{{agg-flag}} {{last-session}} {{undercount}} {{avgduration}} {{srcip-country-agg}} {{aggregation-rule}} How the byte and duration counters behave on an aggregate is still open {{gap:aggregate-counters}}. Why allowed aggregates lack a country is open {{gap:srcip-country-aggregate}}."
     },
     {
+      "label": "Which records a feed sends.",
+      "text": "{{firewall-log-type}}"
+    },
+    {
       "label": "Action and threat.",
       "text": "{{action-two-values}} {{rulelabel-unqualified}} Precedence among firewall, IPS and DNAT is open {{gap:action-precedence}}. {{severity-typo}} {{threat-score-source}} {{flags-1-0}}"
     },
@@ -111,6 +115,23 @@
     }
   ],
   "claims": {
+    "firewall-log-type": {
+      "statement": "A TCP Firewall feed's Firewall Log Type offers Full Session Logs, Aggregate Logs, or both, Full Session Logs being the option that log each session that matches the rule individually except web (HTTP/HTTPS) and FTP/FTPS sessions that match the same Allow rule over a time window, and Aggregate Logs, which group sessions by user, rule, network service and network application and record them periodically within an approximately 15-minute window. Full session logs do not include sessions recorded as part of aggregated entries, and the excluded web and FTP sessions are always available as aggregated entries, with detailed transactions in Web logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Both Session and Aggregate Logs",
+            "Full Session Logs: Logs each session that matches the rule individually, except for web (HTTP/HTTPS) and FTP/FTPS sessions that match the same Allow rule over a time window.",
+            "Full session logs do not include sessions that are recorded as part of aggregated entries.",
+            "Aggregate Logs: Groups individual sessions based on {user, rule, network service, network application}, and records them periodically within an approximately 15-minute time window.",
+            "These sessions are always available as aggregated entries in Firewall logs (with detailed web and FTP transactions in Web logs)."
+          ]
+        }
+      ]
+    },
     "agg-flag": {
       "statement": "The aggregate field indicates whether the Firewall session is aggregated, and numsessions is the number of sessions that were aggregated.",
       "tier": "A",

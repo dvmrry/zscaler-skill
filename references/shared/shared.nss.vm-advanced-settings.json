@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "id": "shared.nss.vm-advanced-settings",
+  "title": "Advanced NSS VM settings: extra interfaces, local NTP, explicit proxy, hostname and SSH",
+  "aliases": [
+    "nss explicit proxy",
+    "dnsoverproxy",
+    "nss no default route",
+    "nss split interface",
+    "nss second management interface",
+    "nss second service interface",
+    "nss ntp",
+    "nss ssh key authentication"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.nss"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.vm-network"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Extra interfaces.",
+      "text": "{{second-management-interface}} {{second-service-interface}} {{split-interface}} Which platforms offer these is disputed in the vendor docs: [[shared.nss.vm-platforms]]."
+    },
+    {
+      "label": "Time.",
+      "text": "{{local-ntp}}"
+    },
+    {
+      "label": "Explicit proxy.",
+      "text": "{{explicit-proxy}} {{dnsoverproxy}}"
+    },
+    {
+      "label": "Host and SSH.",
+      "text": "{{hostname}} {{ssh-hardening}}"
+    }
+  ],
+  "claims": {
+    "second-management-interface": {
+      "statement": "When the default management interface cannot be used for SSH due to VLAN restrictions, Zscaler recommends adding an additional interface just for management, so the first interface is used only for control connections to the cloud. The manual method lists em2 in network_interfaces=\"em0 em1 em2 lo0\" and the default gateway is automatically added via the em0 interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-nss-settings.json",
+          "quotes": [
+            "Sometimes, the default management interface can't be used for SSH due to VLAN restrictions. In those cases, Zscaler recommends that you add an additional interface just for management, so the first interface is used only for control connections to the cloud.",
+            "network_interfaces=\"em0 em1 em2 lo0\"",
+            "The default gateway is automatically added via the em0 interface."
+          ]
+        }
+      ]
+    },
+    "second-service-interface": {
+      "statement": "Some organizations might need one interface to connect to the Zscaler cloud and another to connect to the SIEM. The example sets smnet_dev=em2=zs1:192.168.223.41/24, and if the SIEM is in a different subnet an smnet_route line is added; if it is in the same subnet the second line is not required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-nss-settings.json",
+          "quotes": [
+            "Some organizations might need to use one interface to connect to the Zscaler cloud and another interface to connect to the SIEM.",
+            "smnet_dev=em2=zs1:192.168.223.41/24 smnet_route=10.0.0.0/8/192.168.223.1",
+            "If your SIEM is in the same subnet, then the second line is not required. If your SIEM is in a different subnet, add smnet_route and define values in the second line."
+          ]
+        }
+      ]
+    },
+    "split-interface": {
+      "statement": "To configure both a second management interface and service interface, the vSphere guide says first to run the command that establishes the network settings, and during a split-interface configuration the NSS asks for an smnet_route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-nss-deployment-guide-vmware-vsphere.json",
+          "quotes": [
+            "To configure both a second management interface and service interface, first ensure that you run the following command to establish your network settings:",
+            "During a split-interface configuration, the NSS asks for an smnet_route."
+          ]
+        }
+      ]
+    },
+    "local-ntp": {
+      "statement": "A local NTP server is used through a crontab entry `*/10 * * * * ntpdate -u <ntp-server-name>`; the time synchronization command runs every 10 minutes and the logs for the NTP process are in /var/log/cron.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-nss-settings.json",
+          "quotes": [
+            "*/10 * * * * ntpdate -u <ntp-server-name>",
+            "The time synchronization command runs every 10 minutes. You can find logs for the NTP process in /var/log/cron."
+          ]
+        }
+      ]
+    },
+    "explicit-proxy": {
+      "statement": "Some customers have a no-default-route environment, which prevents the NSS from establishing connections to the Zscaler cloud. The article lists the Nanolog (SMSM), the Zscaler Central Authority (SMCA), the update server (SMCDSS) for software updates and the Kafka server for audit log streaming as connections, and says connections from the NSS to the SIEM and NTP connections are not tunneled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-nss-settings.json",
+          "quotes": [
+            "Some customers might have a no-default route environment. This prevents the NSS from establishing connections to the Zscaler cloud.",
+            "Nanolog (SMSM)",
+            "Zscaler Central Authority (CA) (SMCA)",
+            "Update server (SMCDSS) for software updates",
+            "Kafka server for audit log streaming",
+            "Connections from the NSS to the SIEM are not tunneled.",
+            "NTP connections are not tunneled."
+          ]
+        }
+      ]
+    },
+    "dnsoverproxy": {
+      "statement": "With the dnsoverproxy flag set to 1, the NSS in explicit proxy mode makes a CONNECT request to msmca.<cloudname> for the Zscaler CA, zdistribute.<cloudname> for the update server and kproxy.hdeu1.zdataservices.net for the Kafka server, and the explicit proxy performs the name resolution. With the flag set to 0, the NSS needs DNS resolution for the connections to the current master CA IP address, update server and Kafka server. `nss configure proxy remove` is the quoted command for removing the configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-nss-settings.json",
+          "quotes": [
+            "If you configure the dnsoverproxy flag to 1, then the NSS in explicit proxy mode makes a CONNECT request to the following domains, and the explicit proxy performs the name resolution:",
+            "msmca.<cloudname> for the connection to the Zscaler CA",
+            "zdistribute.<cloudname> for the connection to the update server",
+            "kproxy.hdeu1.zdataservices.net for the connection to the Kafka server",
+            "If you configure the dnsoverproxy flag to 0, then the NSS needs DNS resolution for the connections to the current master CA IP address, update server, and Kafka server.",
+            "nss configure proxy remove"
+          ]
+        }
+      ]
+    },
+    "hostname": {
+      "statement": "The VM hostname is set with a hostname=<name> entry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-nss-settings.json",
+          "quotes": [
+            "hostname=<name>"
+          ]
+        }
+      ]
+    },
+    "ssh-hardening": {
+      "statement": "SSH can be limited to a source range with an entry such as AllowUsers zsroot@10.66.70.*. For key-based authentication the user public key file is uploaded to authorized_keys under /home/zsroot/.ssh and ChallengeResponseAuthentication and PasswordAuthentication are set to no, which the article says are set to yes by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-advanced-nss-settings.json",
+          "quotes": [
+            "AllowUsers zsroot@10.66.70.*",
+            "Upload your user public key file to the file authorized_keys under the directory /home/zsroot/.ssh.",
+            "ChallengeResponseAuthentication no PasswordAuthentication no",
+            "These entries are set to yes by default."
+          ]
+        }
+      ]
+    }
+  }
+}

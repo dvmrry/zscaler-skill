@@ -52,6 +52,10 @@
     {
       "rel": "see-also",
       "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.diagnostics"
     }
   ],
   "prose": [
@@ -60,7 +64,7 @@
     },
     {
       "label": "Session and status.",
-      "text": "{{tunnel-control-session}} {{tunnel-status-values}} The App Connector values are in [[zpa.app-connectors.health]]. What triggers a record is open {{gap:emission-trigger}}, as is how to read a pattern of them {{gap:status-reading-guide}}."
+      "text": "{{tunnel-control-session}} {{tunnel-status-values}} The App Connector values are in [[zpa.app-connectors.health]]. Whether records are also emitted periodically, beyond the authentication that {{emission-live|ref}} names, is open {{gap:emission-trigger}}, as is how to read a pattern of them {{gap:status-reading-guide}}."
     },
     {
       "label": "Timestamps.",
@@ -77,6 +81,10 @@
     {
       "label": "Custom field.",
       "text": "{{connection-log-type}}"
+    },
+    {
+      "label": "In Diagnostics and Live Logs.",
+      "text": "The status diagnostics are views in [[zpa.troubleshooting.diagnostics]]. {{emission-live}} {{status-semantics}} {{status-ip-fields}} {{ac-connection-types}} {{pse-connection-types}} {{restart-reason}} The restart reasons themselves are not listed {{gap:restart-reasons-unlisted}}."
     }
   ],
   "checks": [
@@ -115,6 +123,112 @@
     }
   ],
   "claims": {
+    "emission-live": {
+      "statement": "Live Logs says that when App Connectors authenticate to the Zscaler cloud, the Public Service Edges or Private Service Edges record the data and send the App Connector logs to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-live-logs.json",
+          "quotes": [
+            "When App Connectors authenticate to the Zscaler cloud, the Public Service Edges or Private Service Edges record the data and send the App Connector logs to Private Access."
+          ]
+        }
+      ]
+    },
+    "status-semantics": {
+      "statement": "In the App Connector Status diagnostics, Authenticated means the App Connector successfully authenticated, Authentication Failed that it was unable to authenticate to the Zscaler cloud, and Disconnected that it successfully disconnected; the Private Service Edge page describes Disconnected as the Private Service Edge successfully disconnecting from the Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-app-connector-status-diagnostics.json",
+          "quotes": [
+            "Authenticated: The App Connector successfully authenticated.",
+            "Authentication Failed: The App Connector was unable to authenticate to the Zscaler cloud.",
+            "Disconnected: The App Connector successfully disconnected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-zpa-service-edge-status-diagnostics.json",
+          "quotes": [
+            "Disconnected: The Private Service Edge successfully disconnected from the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "status-ip-fields": {
+      "statement": "In the status diagnostics, App Connector IP is the IP address (and source port) used by the App Connector to connect to the Public or Private Service Edge, and a Private Service Edge's Public IP is the address (and source port) used by the Private Service Edge to connect to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-app-connector-status-diagnostics.json",
+          "quotes": [
+            "App Connector IP: The IP address (and source port) used by the App Connector to connect to the Public Service Edge or Private Service Edge."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-zpa-service-edge-status-diagnostics.json",
+          "quotes": [
+            "Public IP: The IP address (and source port) used by the Private Service Edge to connect to Private Access."
+          ]
+        }
+      ]
+    },
+    "ac-connection-types": {
+      "statement": "The App Connector Status diagnostics list the type of connection the App Connector made as a Connection Type; the list includes the Private Cloud Controller AppProtection Log Connection and the Private Cloud Controller Stats Connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-app-connector-status-diagnostics.json",
+          "quotes": [
+            "Connection Type: The type of connection the App Connector made. The different connection types are:",
+            "Private Cloud Controller AppProtection Log Connection",
+            "Private Cloud Controller Stats Connection"
+          ]
+        }
+      ]
+    },
+    "pse-connection-types": {
+      "statement": "The Private Service Edge Status diagnostics name the Service Edge Control Connection, the Service Edge Log Connection and the Private Cloud Controller Control Connection as connection types; for a Private Cloud Controller the only supported connection type is the Private Cloud Controller Control Connection, with a Session Type such as TLS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-zpa-service-edge-status-diagnostics.json",
+          "quotes": [
+            "Service Edge Control Connection",
+            "Service Edge Log Connection",
+            "Private Cloud Controller Control Connection"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-private-cloud-controller-status-diagnostics.json",
+          "quotes": [
+            "Session Type: The session type associated with the connection (e.g., TLS).",
+            "Connection Type: The type of connection the Private Cloud Controller made. The supported connection type is Private Cloud Controller Control Connection."
+          ]
+        }
+      ]
+    },
+    "restart-reason": {
+      "statement": "An App Connector Status entry that shows Unavailable for the restart reason means the reason for the restart is not available among the listed restart reasons.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-app-connector-status-diagnostics.json",
+          "quotes": [
+            "If the Unavailable status is displayed, the reason for the restart is not available among the listed restart reasons."
+          ]
+        }
+      ]
+    },
     "tunnel-control-session": {
       "statement": "For Private Service Edge Status and Private Cloud Controller Status logs the expected SessionType is ZPN_TUNNEL_CONTROL, the session from the Private Service Edge or Private Cloud Controller towards the closest Public Service Edge for Private Access; the App Connector Status value is ZPN_ASSISTANT_BROKER_CONTROL (see zpa.app-connectors.health).",
       "tier": "A",
@@ -378,13 +492,13 @@
     "emission-trigger": {
       "kind": "semantic",
       "status": "open",
-      "title": "When App Connector, Private Service Edge and Private Cloud Controller Status records are emitted",
+      "title": "Whether App Connector, Private Service Edge and Private Cloud Controller Status records are also emitted periodically",
       "blocks": "reading status records as an event log of authentication changes",
       "resolves_with": [
         "tenant-data",
         "lab-test"
       ],
-      "detail": "Unverified legacy statement: Status logs are event-driven, one record each time the entity changes its authentication state against a Service Edge (connect, disconnect, authentication failure), unlike the Metrics logs on a recurring interval, and each carries a CPU, memory and interface snapshot taken at that moment. The captures define the SessionStatus values and give CPU, memory and interface fields but do not say what triggers a record or whether records are also emitted periodically."
+      "detail": "Unverified legacy statement: Status logs are event-driven, one record each time the entity changes its authentication state against a Service Edge (connect, disconnect, authentication failure), unlike the Metrics logs on a recurring interval, and each carries a CPU, memory and interface snapshot taken at that moment. Live Logs says the Service Edges record the data when App Connectors authenticate (emission-live), so authentication is a stated trigger for App Connector logs. The captures do not say whether disconnects or failures also trigger records, whether Private Service Edge and Private Cloud Controller records follow the same trigger, or whether records are also emitted periodically."
     },
     "total-bytes-scope": {
       "kind": "semantic",
@@ -426,6 +540,16 @@
         "support-ticket"
       ],
       "detail": "Unverified legacy statement: a persistent ZPN_STATUS_AUTH_FAILED with no later AUTHENTICATED record within a few minutes indicates a certificate, enrollment or network problem needing hands-on work; more than two disconnects from one connector in 30 minutes (more than three per hour for a Private Service Edge) warrants investigation; a connector bouncing between different ZENs points at Service Edge availability rather than the connector. The captures define the status values only. Connector health signals are in zpa.app-connectors.health."
+    },
+    "restart-reasons-unlisted": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "The App Connector restart reasons the status diagnostics can show",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "detail": "The App Connector Status diagnostics say an entry shows the reason for a restart and shows Unavailable when it is not among the listed restart reasons, but the captured page does not list the reasons. Live Logs says App Connector logs are recorded on authentication (emission-live), which does not settle emission-trigger."
     },
     "pse-optional-fields": {
       "kind": "semantic",

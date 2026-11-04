@@ -1,0 +1,296 @@
+{
+  "schema_version": 1,
+  "id": "zpa.appprotection.monitoring",
+  "title": "AppProtection dashboards and diagnostics: violations, API protection, Protocol Discovery and MITRE ATT&CK",
+  "aliases": [
+    "appprotection dashboard",
+    "api protection dashboard",
+    "protocol discovery dashboard",
+    "appprotection diagnostics",
+    "mitre att&ck appprotection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.controls"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.segment-opt-in"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.appprotection.active-directory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the console views of AppProtection results, as opposed to the LSS log type in [[zpa.appprotection.logging]]. The controls they report on are in [[zpa.appprotection.controls]], and the Active Directory dashboard is in [[zpa.appprotection.active-directory]]."
+    },
+    {
+      "label": "Dashboard.",
+      "text": "{{dashboard-range}} {{dashboard-widgets}}"
+    },
+    {
+      "label": "Diagnostics.",
+      "text": "{{diag-counters}} {{diag-filters}} {{diag-sensitive-types}} {{diag-fields}} {{control-200005}}"
+    },
+    {
+      "label": "API Protection.",
+      "text": "{{api-protection}}"
+    },
+    {
+      "label": "Protocol Discovery.",
+      "text": "{{protocol-discovery}} {{protocol-discovery-diag}} The diagnostics article describes the segments in two ways {{divergence:protocol-discovery-scope}}. Enabling AppProtection from the dashboard is in [[zpa.appprotection.segment-opt-in]]."
+    },
+    {
+      "label": "MITRE ATT&CK.",
+      "text": "{{mitre}} The meaning of the tile side colors is open {{gap:mitre-colors}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether traffic blocked by control 200005 is cleared by re-saving each AppProtection profile as the help describes.",
+      "uses": [
+        "control-200005"
+      ]
+    },
+    {
+      "do": "Whether a missing API Protection tab is because the feature is not enabled in the account.",
+      "uses": [
+        "api-protection"
+      ]
+    }
+  ],
+  "claims": {
+    "dashboard-range": {
+      "statement": "The AppProtection dashboard shows data over 1 Hour to 14 Days or a Custom Range, with the end date set to the current time, by default the last hour. Its log information is limited to 14 days, with LSS for longer access, and a minimum of 4 and a maximum of 8 charts can be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-appprotection-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View AppProtection data over a period between 1 Hour to 14 Days, or you can select Custom Range.",
+            "The end date automatically sets to the system's current time. By default, the dashboard displays information for events that occurred in the last hour.",
+            "Log information in the dashboard is limited to 14 days. For longer access to the logs, use the Log Streaming Service (LSS).",
+            "A minimum of 4 charts and a maximum of 8 charts can be selected."
+          ]
+        }
+      ]
+    },
+    "dashboard-widgets": {
+      "statement": "The AppProtection dashboard categorizes security violations in the selected time frame by the ThreatLabZ, WebSocket and OWASP predefined top 10 control categories and by severity (Critical, High, Medium, Low). It shows the transaction distribution of traffic with and without violations, and lists top control violations in the ControlNumber:ControlName format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-appprotection-dashboard.json",
+          "quotes": [
+            "The widget displays security violations within the selected time frame and categorizes them by the ThreatLabZ, WebSocket, and OWASP predefined top 10 control categories.",
+            "The widget displays security violations within the selected time frame and categorizes them by severity rating (i.e., Critical, High, Medium, Low).",
+            "The widget displays the transaction distribution of traffic with no violations and traffic with violations across an organization within the selected time frame.",
+            "The top control violations are categorized by control number and name, in the ControlNumber:ControlName format."
+          ]
+        }
+      ]
+    },
+    "diag-counters": {
+      "statement": "AppProtection diagnostics count transactions with security profile violations and transactions with no security profile violations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-approtection-diagnostics.json",
+          "quotes": [
+            "Security Profile Violations: The number of transactions with security profile violations.",
+            "No Violations: The number of transactions with no security profile violations."
+          ]
+        }
+      ]
+    },
+    "diag-filters": {
+      "statement": "AppProtection diagnostics can filter logs by the control violation action (Allow, Block or Redirect) and by API Discovery, where the API Request and API Discovery filters can be set to True or False.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-approtection-diagnostics.json",
+          "quotes": [
+            "AppProtection Control: Action: See logs by the AppProtection control violation action (i.e., Allow, Block, or Redirect).",
+            "API Discovery: See logs for API Discovery. You can set the API Request and API Discovery filters within it to True or False."
+          ]
+        }
+      ]
+    },
+    "diag-sensitive-types": {
+      "statement": "The diagnostics page describes sensitive information entries including AWS-ACCESS-KEY (access key for AWS), CREDIT-CARD (credit card number), GCP-API-KEY (API key for Google Cloud database), CPF (Brazilian CPF number), FACEBOOK-ACCESS-TOKEN (access token for Facebook) and SSN (Social Security number).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-approtection-diagnostics.json",
+          "quotes": [
+            "AWS-ACCESS-KEY: Access key for AWS",
+            "CREDIT-CARD: Credit card number",
+            "CPF: Brazilian CPF number",
+            "GCP-API-KEY: API key for Google Cloud database",
+            "FACEBOOK-ACCESS-TOKEN: Access token for Facebook",
+            "SSN: Social Security number"
+          ]
+        }
+      ]
+    },
+    "diag-fields": {
+      "statement": "An AppProtection diagnostics transaction shows processing times in milliseconds, an Execution Flow of multiple AppProtection control violations in a profile listed in chronological order by number, name, action, severity and category, whether the profile was SSL inspected, and the HTTP response code to the web request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-approtection-diagnostics.json",
+          "quotes": [
+            "Processing Times: The time to complete the transaction request listed in milliseconds.",
+            "Execution Flow: The execution of multiple AppProtection control violations within a profile. AppProtection control violations are listed in chronological order and displayed by number, name, action, severity, and category.",
+            "SSL Inspected: Displays whether the AppProtection profile was SSL inspected or not.",
+            "Response Code: The HTTP response code to the web request."
+          ]
+        }
+      ]
+    },
+    "control-200005": {
+      "statement": "If access is blocked by control 200005, the help says to edit the specific AppProtection profile, click Next on each tab without editing anything, and click Save, then repeat for the other AppProtection profiles to avoid the same control violation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-approtection-diagnostics.json",
+          "quotes": [
+            "If access is blocked by control 200005, go to the AppProtection Profile page and edit the specific AppProtection profile. Click Next on each tab without editing anything, then click Save. This specific control violation is then prevented.",
+            "Repeat this process for the rest of your AppProtection profiles to avoid this same control violation."
+          ]
+        }
+      ]
+    },
+    "api-protection": {
+      "statement": "The API Protection dashboard allows a minimum of 4 and a maximum of 7 charts. It shows recent API activity with sensitive information categories (US Social Security numbers, Brazilian CPF numbers and credit card numbers) and the top 10 API methods, and Zscaler stores only the category and how frequently it appeared. Its tab on the Active Directory Protection dashboard is visible only if the feature is enabled in the account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-api-protection-dashboard.json",
+          "quotes": [
+            "A minimum of 4 charts and a maximum of 7 charts can be selected.",
+            "The widget displays the amount of recent API activity with sensitive information categories (US Social Security numbers, Brazilian CPF numbers, and credit card numbers) in the selected time frame.",
+            "Zscaler does not store the details or specific information; only the sensitive information category and how frequently it appeared in the time frame are stored.",
+            "The widget displays the top 10 API methods (i.e., GET, POST, PUT, etc.) for APIs within the selected time frame."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-active-directory-protection-dashboard.json",
+          "quotes": [
+            "API Protection Dashboard: View the API Protection Dashboard for information about API traffic in API protection controls. This tab is only visible if the feature is enabled in your account."
+          ]
+        }
+      ]
+    },
+    "protocol-discovery": {
+      "statement": "The Protocol Discovery dashboard displays the protocols KRB, LDAP, SMB, HTTP and TLS detected for domains in application segments with AppProtection disabled, up to a domain's 100 most recent transactions and 6,000 application segments for the time range. Its time range is 1 hour to 7 days, with a Custom Range start date within the last 7 days, and items selected for inspection are removed from the widget after inspection is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-viewing-protocol-discovery-dashboard.json",
+          "quotes": [
+            "The Protocol Discovery dashboard displays protocols (KRB, LDAP, SMB, HTTP, and TLS) detected for domains with application segments that have AppProtection disabled.",
+            "The Protocol Discovery dashboard displays up to 100 of a domain's most recent transactions and 6,000 application segments for the time range selected.",
+            "Time Range Filter: View Protocol Discovery data over a period between 1 hour to 7 days, or you can select Custom Range. If you use Custom Range, the start date must be within the last 7 days.",
+            "After inspection has been enabled, the items that have been selected for inspection are removed from the widget."
+          ]
+        }
+      ]
+    },
+    "protocol-discovery-diag": {
+      "statement": "Protocol Discovery diagnostics logs are generated for domains with KRB, LDAP, SMB, TLS and HTTP traffic and are counted for application segments configured for TCP and UDP ports. An entry's Traffic Class is Classified if the App Connector identified the protocol and Unclassified if it could not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-accessing-protocol-discovery-diagnostics.json",
+          "quotes": [
+            "The logs are generated for domains with relevant protocol traffic (KRB, LDAP, SMB, TLS, and HTTP).",
+            "TCP: The total number of Protocol Discovery logs associated with application segments configured for detecting and inspecting traffic with TCP ports.",
+            "UDP: The total number of Protocol Discovery logs associated with application segments configured for detecting and inspecting traffic with UDP ports.",
+            "Traffic Class: Displays Classified if the App Connector identified the protocol. It is displayed as Unclassified if the App Connector is unable to identify the protocol."
+          ]
+        }
+      ]
+    },
+    "mitre": {
+      "statement": "The MITRE ATT&CK page shows the framework with all the TTPs that show any misconfiguration of policies, application segments, AppProtection profiles and Browser Protection profiles in Private Access. Tiles highlighted in blue are covered by Zscaler protection, and a green, red or orange color at their right side indicates whether the protection is configured, misconfigured or not configured at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-analyzing-risk-mitre-attck-appprotection.json",
+          "quotes": [
+            "shows the MITRE ATT&CK framework with all the TTPs that show any misconfiguration of policies, application segments, AppProtection profiles, and Browser Protection profiles in Private Access (ZPA).",
+            "The TTP tiles highlighted in blue indicate that they are covered by Zscaler protection. The green, red, or orange color at the right side of these tiles indicates whether the protection is configured, misconfigured, or not configured at all."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "protocol-discovery-scope": {
+      "summary": "The Protocol Discovery diagnostics article describes its data as for ports enabled with application segments associated with AppProtection, and its default log count as for domains with application segments that have AppProtection disabled.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-protocol-discovery-diagnostics.json",
+            "quotes": [
+              "You can view and filter Protocol Discovery data for the ports enabled with application segments associated with AppProtection."
+            ]
+          },
+          "says": "Diagnostics data is for the ports enabled with application segments associated with AppProtection."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-protocol-discovery-diagnostics.json",
+            "quotes": [
+              "By default, the table displays the Total number of Protocol Discovery logs generated for domains with application segments that have AppProtection disabled."
+            ]
+          },
+          "says": "The default table counts Protocol Discovery logs generated for domains with application segments that have AppProtection disabled."
+        }
+      ],
+      "impact": "Whether Protocol Discovery covers segments with AppProtection disabled, enabled, or both is not settled by the pages."
+    }
+  },
+  "gaps": {
+    "mitre-colors": {
+      "kind": "semantic",
+      "title": "Which tile color means configured, misconfigured or not configured",
+      "status": "open",
+      "detail": "The MITRE ATT&CK page lists green, red and orange against the three states 'configured, misconfigured, or not configured at all' but does not say which color is which.",
+      "resolves_with": [
+        "lab-test",
+        "tenant-data"
+      ]
+    }
+  }
+}
