@@ -53,7 +53,9 @@ below takes a source change to a reviewable pull request; each step is determini
 Keep scratch output outside the checkout (`$TMP` below).
 
 1. **Help captures.** `python3 scripts/help_capture.py check --replace --json > $TMP/drift.json` refetches
-   every capture and reports the ones whose page revision moved (exit 1 means drift); it rewrites them only once
+   every capture (help.zscaler.com and automate.zscaler.com pages, and www.zscaler.com product pages, which the
+   site rate-limits, so those are fetched three seconds apart) and reports the ones whose page revision moved
+   (exit 1 means drift); it rewrites them only once
    every page was checked, so a run that fails part way changes nothing. A page the site still fails to serve
    after retries is reported unavailable, like one under maintenance. After a
    change to the renderer itself, use `help_capture.py rerender` instead: it re-renders captures still at

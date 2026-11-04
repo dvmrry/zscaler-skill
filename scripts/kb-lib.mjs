@@ -217,7 +217,7 @@ function anchorTextOf(text, ev) {
   if (text === null || ev.pointer !== undefined || !text.startsWith("{")) return text;
   let doc;
   try { doc = JSON.parse(text); } catch { return text; }
-  return doc?.kind === "help-article" || doc?.kind === "automate-doc" || doc?.kind === "github-issue" ? captureText(doc.blocks) : text;
+  return doc?.kind === "help-article" || doc?.kind === "automate-doc" || doc?.kind === "zscaler-page" || doc?.kind === "github-issue" ? captureText(doc.blocks) : text;
 }
 
 /** A help capture's anchoring text; must equal `text_of` in scripts/help_capture.py (a test pins the two). */
@@ -732,7 +732,7 @@ function checkProse(g, node, err, warnings) {
 
 const HELP_ROOT = "vendor/zscaler-help";
 const ISSUE_ROOT = "vendor/github-issues";
-export const HELP_KINDS = new Set(["help-article", "help-api-spec", "help-index", "automate-doc"]);
+export const HELP_KINDS = new Set(["help-article", "help-api-spec", "help-index", "automate-doc", "zscaler-page"]);
 
 /** A help capture written by scripts/help_capture.py, or null for any other file. */
 export function helpCapture(full) {

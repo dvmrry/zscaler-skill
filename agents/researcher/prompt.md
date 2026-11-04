@@ -113,7 +113,7 @@ Halt and wait.
 
 ## Step 2 - Extract
 
-Run a read-only extraction pass. Use a separate read-only research agent when the runtime supports it; otherwise do the extraction in the current runtime without editing files. The one write is a capture: a help page the scope needs that is not under `vendor/zscaler-help/` yet is captured first with `python3 scripts/help_capture.py capture <url>`.
+Run a read-only extraction pass. Use a separate read-only research agent when the runtime supports it; otherwise do the extraction in the current runtime without editing files. The one write is a capture: a help page or www.zscaler.com page the scope needs that is not under `vendor/zscaler-help/` yet is captured first with `python3 scripts/help_capture.py capture <url>`. Never cite a page from a web-fetch or browser summary: that text is a model's or a person's rendering of the page, not the page, and quotes from it state words the vendor never wrote.
 
 The extraction pass must:
 
