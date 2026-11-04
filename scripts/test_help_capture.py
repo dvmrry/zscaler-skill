@@ -243,3 +243,16 @@ def test_a_full_check_reports_a_registered_unavailable_page_that_serves_again(tm
     assert pages == [{"file": "back.md", "status": "returned", "message": "serves again: help_capture.py recapture back.md"}]
     # Checking named captures leaves the register alone.
     assert help_capture.check(["missing.json"], replace=False) == 0
+
+
+def test_an_index_keeps_the_articles_of_nested_subcategories(monkeypatch):
+    import help_capture
+
+    payload = {"info": {"status": 200, "view_type": "documentation", "url": "/secure-ai-users/ai-guard-users"},
+               "body": {"title": "Secure Access to AI Apps Help", "categories": [{"tid": "1", "title": "AI Guard for Users", "children": [
+                   {"tid": "2", "title": "Getting Started", "articles": [{"nid": "9", "title": "AI Guard API", "url": "/secure-ai-users/ai-guard-api",
+                                                                           "pdf_url": "https://x/9.pdf", "view_type": "article"}]}]}]}}
+    monkeypatch.setattr(help_capture, "_payload", lambda url: payload)
+    pg = help_capture.page("https://help.zscaler.com/secure-ai-users/ai-guard-users")
+    assert pg["categories"] == [{"title": "AI Guard for Users", "articles": [], "children": [
+        {"title": "Getting Started", "articles": [{"nid": "9", "title": "AI Guard API", "url": "/secure-ai-users/ai-guard-api", "view_type": "article"}]}]}]

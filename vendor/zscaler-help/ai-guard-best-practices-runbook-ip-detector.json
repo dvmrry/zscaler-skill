@@ -1,0 +1,609 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices Runbook: IP Detector",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-users/best-practices-runbook-ip-detector",
+    "node": "1542965",
+    "revision": "3242679",
+    "updated": "2026-09-15",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "AI Guard works by enforcing enterprise policies on prompts and responses between users and public AI apps, such as ChatGPT, Perplexity, Claude, etc., and between private AI apps and foundational Large Language Models (LLMs), such as OpenAI, Anthropic, etc. You set a policy by enabling one or more included detectors on prompts and responses. These detectors are activated on prompts and responses based on the policies you define in the portal."
+    },
+    {
+      "text": "The Intellectual Property (IP) Detector flags when a user’s prompt reproduces or leaks specific sensitive content from a confidential context (numerical data, named entities, source code, proprietary text, etc.), even when rephrased, abbreviated, or written in another language."
+    },
+    {
+      "text": "This best practices runbook contains the following information on the IP detector:"
+    },
+    {
+      "item": "How the IP detector works.",
+      "depth": 0
+    },
+    {
+      "item": "The IP detector watches every prompt a user sends to an LLM and flags it when the user appears to be reproducing or extracting specific confidential content from the context document the customer has loaded. Unlike a topic detector (which catches what subject is being discussed), the IP detector catches whether actual private data is being reproduced.",
+      "depth": 0
+    },
+    {
+      "item": "The IP detector catches the following:",
+      "depth": 0
+    },
+    {
+      "item": "Near-verbatim reproduction: \"Revenue grew 23% YoY to $412M\" matches context containing those exact figures.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Paraphrase and synonym substitution: \"Q3 net profit came in at 4.78 million, margin around 23 percent\" matches the context \"Q3 net profit was $4,783,210 with a margin of 23.4%.\"",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Abbreviated and reformatted numbers: \"3rd ph needs 14.2 mil\" matches \"The required capital investment for Phase 3 is exactly $14.2 million.\"",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Named-entity carry-over: \"Dr. Evelyn Reed filed the algorithm patent\" matches context that names the same person and event.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Source code reproduction: Partial or reformatted code copied from a confidential context is captured at the token level.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Legal and contractual clause reproduction: Paraphrasing specific clause text is detected via semantic overlap.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Multilingual reproduction: Reproducing confidential English content in French, German, or any of 28 supported languages is detected.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "The IP detector does not trigger on the following:",
+      "depth": 0
+    },
+    {
+      "item": "Generic topic questions: \"What is a typical breakup fee in M&A?\" does not trigger even if the context contains a specific breakup fee figure.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Vague summarization requests: \"Give me a TL;DR or Can you summarize this?\" without quoting or reproducing content.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Codename mentions alone: \"What is Project Falcon?\" is not a leak; asking about a name is not the same as revealing its contents.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Educational and best-practice queries: \"How do I manage encryption keys?\" does not trigger even when asked against a context containing key material.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Incidental number overlap: Common numbers (years, percentages used in general context) that appear in the context do not trigger on their own.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "How to configure the detector.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the IP detector in an AI Guard policy:",
+      "depth": 0
+    },
+    {
+      "item": "In the AI Security Admin Portal left-side navigation, go to: AI Guard > Policy > Configurations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          69
+        ],
+        [
+          72,
+          80
+        ],
+        [
+          81,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Click Add More to open the Add New Configuration page. To edit an existing policy, in the Action column, click Edit Configuration for a policy.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          27,
+          48
+        ],
+        [
+          90,
+          96
+        ],
+        [
+          111,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "Under Basic Information, enter:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Policy Name",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Description",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Continue to Detectors. The Prompt Detectors tab opens.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          33,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Prompt Detectors tab, click on the Intellectual Property tile. The Configure window appears.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          42,
+          63
+        ],
+        [
+          74,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "The following configuration options are the initial recommendations for the IP detector:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Enabled: Enables the prompt detector and is on by default. Leave Enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          65,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page. The recommended setting is LOW for initial deployments. Raise to MEDIUM/HIGH only after a user confirms the false-positive rate is acceptable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          51,
+          67
+        ],
+        [
+          82,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Threshold: The lower the threshold setting, the more strict AI Guard is with activating the policy (i.e., allowing, blocking, or detecting the prompt). Keep the default (0.7) for production. For more information, refer to the next section.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          170,
+          173
+        ]
+      ]
+    },
+    {
+      "item": "Action: What happens by default when the detector triggers: Detect (log only), Allow (pass through), or Block (stop the prompt).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          60,
+          66
+        ],
+        [
+          79,
+          84
+        ],
+        [
+          104,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Sensitive Context: Enter the intellectual property information that you want to filter. For example:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Sensitive Context: \"Project Chimera's launch date is slated for Q4 2026, contingent on hardware finalization.\"",
+      "depth": 3
+    },
+    {
+      "item": "Prompt that triggers that context: \"Draft an update stating that the release for Chimera is planned for the end of 2026, as long as the hardware is ready in time.\"",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After configuring the prompt detectors, click Save Changes to close the window and click Next on the Prompt Detectors tab. The Response Detectors tab opens.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          46,
+          58
+        ],
+        [
+          89,
+          93
+        ],
+        [
+          101,
+          117
+        ],
+        [
+          127,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "Configuring response detectors follows the same steps as configuring prompt detectors, so refer back to the earlier steps for more information.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "After configuring your response detectors, click Next. The Review tab opens.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          49,
+          53
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "The Review tab shows you a summary of the policy configuration you created. Click Submit Policy if everything looks correct.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "In the AI Security Admin Portal left-side navigation, go to: AI Guard > Policy Testing.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          61,
+          69
+        ],
+        [
+          72,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Validate in Policy Testing with five to ten sample prompts to confirm your setup is working as expected. To learn more about policy testing, see AI Guard Policy Testing.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          12,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "After creating a policy and confirming it works as expected, the next step is to create a policy match. For more information on policy matching, see Managing AI Guard Policy Control.",
+      "depth": 0
+    },
+    {
+      "item": "Choosing the correct threshold.",
+      "depth": 0
+    },
+    {
+      "item": "The threshold is a number between 0.0 and 1.0 that controls how confident the model must be before it calls a prompt a match. Think of it as a volume knob: turn it up and only very obvious mentions trigger. Turn it down and more borderline cases trigger too.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The default for IP is 0.7. This was chosen based on Zscaler's internal validation set, a benchmark spanning 28 languages and roughly 9,000 labeled prompts covering IP mentions. At 0.7 the detector hits the sweet spot between catching real mentions and avoiding false alarms.",
+      "depth": 0,
+      "strong": [
+        [
+          22,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends that you leave the threshold at 0.7. We built and validated the detector around this default.",
+      "depth": 0,
+      "strong": [
+        [
+          60,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Refer to the following table when considering changing the threshold:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Range",
+          "What it means",
+          "When to use it"
+        ],
+        [
+          "0.85 to 1.00",
+          "Only near-verbatim or unmistakable reproductions trigger.",
+          "If you want to avoid false positives. Suitable for initial Block-mode roll-outs on high-value IP."
+        ],
+        [
+          "0.7 to 0.84",
+          "Default sweet spot. Catches real reproductions including paraphrases, number reformatting, and other languages. Rejects generic summaries and topic questions.",
+          "Production deployments. Start here unless you explicitly need tighter behavior."
+        ],
+        [
+          "0.5 to 0.69",
+          "Triggers on borderline cases, prompts that hint at or indirectly reference the confidential content.",
+          "Investigation or audit mode. NOT recommended for Block mode."
+        ],
+        [
+          "Below 0.5",
+          "Very permissive. Loose topical overlap triggers.",
+          "Not recommended for production. Useful only for internal debugging."
+        ]
+      ]
+    },
+    {
+      "item": "Troubleshooting and FAQ.",
+      "depth": 0
+    },
+    {
+      "heading": "FAQs",
+      "level": 2
+    },
+    {
+      "item": "Does it work on non-English prompts?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Yes, 28 languages are supported. The bi-encoder is multilingual.",
+      "depth": 1
+    },
+    {
+      "item": "Will it trigger on a summarization request like ‘Summarize this document’?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "No, not unless the input also reproduces specific content. A bare summarization request (Give me a TL;DR) contains no context tokens and will not trigger. A request that paraphrases specific confidential data while asking for a summary (Repeat the Q3 revenue of $412M in a slide format) will trigger because of the reproduced figure.",
+      "depth": 1
+    },
+    {
+      "item": "How does it handle codename mentions?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Codename mentions alone are not flagged. What is Project Falcon? will not trigger even if the context contains detailed Project Falcon content, because the input is not reproducing any of that content.",
+      "depth": 1
+    },
+    {
+      "item": "Can I export detection logs for analysis?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Yes. Go to Log Exports in the AI Security Admin Portal left navigation menu.",
+      "depth": 1
+    },
+    {
+      "item": "How often is the model updated?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Retrained periodically as new false-positive patterns surface. Updates are rolled out transparently, no customer action needed. Check release notes for version updates.",
+      "depth": 1
+    }
+  ]
+}

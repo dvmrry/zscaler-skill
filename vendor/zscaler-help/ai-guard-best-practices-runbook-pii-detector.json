@@ -1,0 +1,676 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices Runbook: PII Detector",
+  "source": {
+    "url": "https://help.zscaler.com/secure-ai-users/best-practices-runbook-pii-detector",
+    "node": "1542906",
+    "revision": "3246826",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "AI Guard works by enforcing enterprise policies on prompts and responses between users and public AI apps, such as ChatGPT, Perplexity, Claude, etc., and between private AI apps and foundational Large Language Models (LLMs), such as OpenAI, Anthropic, etc. You set a policy by enabling one or more included detectors on prompts and responses. These detectors are activated on prompts and responses based on the policies you define in the portal."
+    },
+    {
+      "text": "The Personally Identifiable Information (PII) Detector flags user prompts that contain real personal information (such as: credit card numbers, SSNs, emails, phone numbers, government IDs, bank identifiers) and ignores look-alike content that doesn't carry real identifying data (i.e.: test card numbers or fake SSNs)."
+    },
+    {
+      "text": "This best practices runbook contains the following information on the PII detector:"
+    },
+    {
+      "item": "How the PII detector works.",
+      "depth": 0
+    },
+    {
+      "item": "The PII detector catches the following categories:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Category",
+          "Trigger Examples"
+        ],
+        [
+          "Credit Card",
+          "4532-1234-5678-9010"
+        ],
+        [
+          "Email",
+          "pat.doe@example.com"
+        ],
+        [
+          "Phone",
+          "555-019-9999"
+        ],
+        [
+          "IP Address",
+          "192.168.1.1"
+        ],
+        [
+          "IBAN",
+          "GB29 NWBK 6016 1331 9268 19"
+        ],
+        [
+          "SWIFT Code",
+          "CHASUS33"
+        ],
+        [
+          "Date of Birth",
+          "DOB: March 15, 1985"
+        ],
+        [
+          "US SSN",
+          "234-56-7891"
+        ],
+        [
+          "US ITIN",
+          "912-79-1234"
+        ],
+        [
+          "US Passport",
+          "T12345678"
+        ],
+        [
+          "US Bank Number",
+          "123456789012"
+        ]
+      ]
+    },
+    {
+      "item": "The PII Detector catches all of the following:",
+      "depth": 0
+    },
+    {
+      "item": "Valid PII across formats: Plain prose, JSON, XML, SQL, log lines, code. The container format doesn't matter.",
+      "depth": 1
+    },
+    {
+      "item": "PII with or without surrounding context.",
+      "depth": 1
+    },
+    {
+      "item": "Multiple PII in a single prompt, each is detected independently.",
+      "depth": 1
+    },
+    {
+      "item": "Near-misses with strong context. Even when the value isn't a perfect format match (typo, missing digit, slight formatting issue), the model-based signal can still trigger if the surrounding context clearly identifies it as PII. For example: My card is 4532-1234-5678-901 (one digit short of a credit card number) in a payment-form context is still flagged.",
+      "depth": 1
+    },
+    {
+      "item": "Masked card references: ---1234 or card ending in 5904.",
+      "depth": 1
+    },
+    {
+      "item": "Document-level catches when the model is highly confident but can't pinpoint a position (response shows",
+      "depth": 1
+    },
+    {
+      "item": "start: null, end: null).",
+      "depth": 1
+    },
+    {
+      "item": "How to configure the detector.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the PII detector in an AI Guard policy:",
+      "depth": 0
+    },
+    {
+      "item": "In the AI Security Admin Portal left-side navigation, go to: AI Guard > Policy > Configurations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          69
+        ],
+        [
+          72,
+          80
+        ],
+        [
+          81,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Click Add More to open the Add New Configuration page. To edit an existing policy, in the Action column, click Edit Configuration for a policy.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          27,
+          48
+        ],
+        [
+          90,
+          96
+        ],
+        [
+          111,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "Under Basic Information, enter:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Policy Name",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Description",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Continue to Detectors. The Prompt Detectors tab opens.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          33,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Prompt Detectors tab, click on the PII tile. The Configure window appears.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          42,
+          45
+        ],
+        [
+          56,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "The following configuration options are the initial recommendations for the PII detector:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Enabled: Enables the prompt detector and is on by default. Leave Enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          65,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Severity: Corresponds to the severity icons in the Prompt Detectors column on the Policies page. The recommended setting is LOW for initial deployments. Raise to MEDIUM/HIGH only after a user confirms the false-positive rate is acceptable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          51,
+          67
+        ],
+        [
+          82,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Allow Masking: When enabled, this will mask the PII information when shown in the dashboard.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Threshold: The lower the threshold setting, the more strict AI Guard is with activating the policy (i.e., allowing, blocking, or detecting the prompt). Keep the default (0.5) for production. For more information, refer to the next section.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          170,
+          173
+        ]
+      ]
+    },
+    {
+      "item": "Default State: What happens by default when the detector triggers: Detect (log only), Allow (pass through), or Block (stop the prompt).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          67,
+          73
+        ],
+        [
+          86,
+          91
+        ],
+        [
+          111,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "Entities: The list of PII labels to watch for. Each entry has its own Action override (Detect / Allow / Block / Disabled). Start with three to five high-value PII labels. The more you select, the more noise and errors may appear.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          70,
+          76
+        ],
+        [
+          87,
+          93
+        ],
+        [
+          96,
+          101
+        ],
+        [
+          104,
+          109
+        ],
+        [
+          112,
+          120
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After configuring the prompt detectors, click Save Changes to close the window and click Next on the Prompt Detectors tab. The Response Detectors tab opens.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          46,
+          58
+        ],
+        [
+          89,
+          93
+        ],
+        [
+          101,
+          117
+        ],
+        [
+          127,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "Configuring response detectors follows the same steps as configuring prompt detectors, so refer back to the earlier steps for more information.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "After configuring your response detectors, click Next. The Review tab opens.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          49,
+          53
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "The Review tab shows you a summary of the policy configuration you created. Click Submit Policy if everything looks correct.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "In the AI Security Admin Portal left-side navigation, go to: AI Guard > Policy Testing.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          61,
+          69
+        ],
+        [
+          72,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Validate in Policy Testing with five to ten sample prompts to confirm your setup is working as expected. To learn more about policy testing, see AI Guard Policy Testing.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          12,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "After creating a policy and confirming it works as expected, the next step is to create a policy match. For more information on policy matching, see Managing AI Guard Policy Control.",
+      "depth": 0
+    },
+    {
+      "item": "Choosing the correct threshold.",
+      "depth": 0
+    },
+    {
+      "item": "The threshold is a number between 0.0 and 1.0 that controls how confident the model must be before it calls a prompt a match. Think of it as a volume knob: turn it up and only very obvious mentions trigger. Turn it down and more borderline cases trigger too.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The default for PII is 0.5. This was chosen based on Zscaler's internal validation set, a benchmark spanning 28 languages and roughly 9,000 labeled prompts covering PII mentions. At 0.5 the detector hits the sweet spot between catching real mentions and avoiding false alarms.",
+      "depth": 0,
+      "strong": [
+        [
+          23,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends that you leave the threshold at 0.5. We built and validated the detector around this default.",
+      "depth": 0,
+      "strong": [
+        [
+          60,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Refer to the following table when considering changing the threshold:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Range",
+          "What it means",
+          "When to use it"
+        ],
+        [
+          "0.7 to 1.00",
+          "Stricter. Only high-confidence matches trigger.",
+          "If you are sensitive to noise from extended categories (PERSON, LOCATION, DATE/TIME)."
+        ],
+        [
+          "0.5 to 0.69",
+          "Default sweet spot. Catches supported PII.",
+          "Production deployments. Start here unless you need tighter or looser behavior."
+        ],
+        [
+          "0.3 to 0.49",
+          "More permissive.",
+          "Within the focused PII categories, false positives are currently very low. Best used when extended categories are restricted via entity."
+        ]
+      ]
+    },
+    {
+      "item": "Troubleshooting and FAQ.",
+      "depth": 0
+    },
+    {
+      "heading": "FAQs",
+      "level": 2
+    },
+    {
+      "item": "Why isn't the detector triggering when it should?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "The PII may be invalid. Invalid SSNs (area 000, area 900+) and similar government-ID values are rejected on purpose, even with strong context.",
+      "depth": 2
+    },
+    {
+      "item": "Too many individual PII categories have been disabled in the policy.",
+      "depth": 2
+    },
+    {
+      "item": "The PII is heavily obfuscated (base64, hex, reversed digits, zero-width characters).",
+      "depth": 2
+    },
+    {
+      "item": "PII information is split across labels (Area: ..., Group: ..., Serial: ...).",
+      "depth": 2
+    },
+    {
+      "item": "The separators may be unusual (pipe, comma, slash, parenthesis).",
+      "depth": 2
+    },
+    {
+      "item": "Why is it triggering when it shouldn't?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Check Dashboard > Transaction Details > Detection Summary for which specific PII categories were detected and update your policy accordingly.",
+      "depth": 2
+    },
+    {
+      "item": "Why doesn't 000-00-0000 trigger as a SSN?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          12,
+          23
+        ],
+        [
+          24,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Area 000 is invalid per Social Security Administration (SSA) rules.",
+      "depth": 2
+    },
+    {
+      "item": "Why does card ending in 5904 trigger?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          9,
+          28
+        ],
+        [
+          29,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Masked references are intentionally flagged.",
+      "depth": 2
+    },
+    {
+      "item": "Why is my SSN with | separators not caught?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          19,
+          20
+        ],
+        [
+          21,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Separator handling beyond - and space is in active development.",
+      "depth": 2
+    },
+    {
+      "item": "I sent valid PII inside JSON / XML / SQL, will AI Guard catch it?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Yes, wrapping doesn't matter, only validity does.",
+      "depth": 2
+    },
+    {
+      "item": "Will it catch a typo'd PII number if the context is strong?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Yes, the model side can flag near-misses even when the span detector misses, as long as the surrounding context clearly identifies it as PII.",
+      "depth": 2
+    },
+    {
+      "item": "What does start: null, end: null in an error message mean?",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          10,
+          22
+        ],
+        [
+          23,
+          32
+        ],
+        [
+          33,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "This can appear when using AI to analyze a document. If an error message contains start: null, end: null, the PII detector has found PII, but its position within the document couldn't be determined.",
+      "depth": 2
+    }
+  ]
+}

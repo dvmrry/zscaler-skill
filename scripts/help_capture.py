@@ -377,6 +377,17 @@ def _articles(items: list[dict] | None) -> list[dict]:
     return [{k: a[k] for k in ("nid", "title", "url", "view_type") if k in a} for a in items or []]
 
 
+def _categories(items: list[dict] | None) -> list[dict]:
+    """An index's categories with their articles; a category's subcategories (`children`) nest the same way."""
+    out = []
+    for c in items or []:
+        cat = {"title": c["title"], "articles": _articles(c.get("articles"))}
+        if c.get("children"):
+            cat["children"] = _categories(c["children"])
+        out.append(cat)
+    return out
+
+
 def page(url: str) -> dict:
     """One help page, classified by what the site serves for it.
 
@@ -407,8 +418,8 @@ def page(url: str) -> dict:
                 "file_url": body["file_url"], "spec": _get(body["file_url"]),
                 "updated": _last_modified(body["file_url"]), "updated_basis": "file-last-modified"}
     if view == "documentation":
-        cats = [{"title": c["title"], "articles": _articles(c.get("articles"))} for c in body.get("categories") or []]
-        return {**base, "kind": "help-index", "categories": cats, "articles": _articles(body.get("articles"))}
+        return {**base, "kind": "help-index", "categories": _categories(body.get("categories")),
+                "articles": _articles(body.get("articles"))}
     if not body.get("content"):
         raise SystemExit(f"no article at {url}")
     notes = _release_notes_html(body.get("release_notes")) if view == "release_notes" else ""
