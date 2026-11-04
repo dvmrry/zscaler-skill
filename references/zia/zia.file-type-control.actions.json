@@ -52,6 +52,10 @@
       "text": "Caution for traffic with no user to acknowledge is open {{gap:caution-without-a-user}}, and the fate of unscannable or unknown files that no rule names is open {{gap:unscannable-and-unknown-default}}."
     },
     {
+      "label": "Recommended policy.",
+      "text": "{{recommended-policy}} {{recommended-example-rules}} The page's text and its example rules differ on executable uploads {{divergence:recommended-uploads-vs-examples}}."
+    },
+    {
       "text": "FTP Control has no action selector of its own; see [[zia.ftp-control.settings]]. {{ftp-via-protocol-criterion}} See [[zia.file-type-control.api-shape]] for the wire values. How the criteria decide a match is in [[zia.file-type-control.criteria]], and where File Type Control sits relative to DLP and scanning is in [[zia.file-type-control.pipeline]]."
     }
   ],
@@ -215,6 +219,81 @@
           ]
         }
       ]
+    },
+    "recommended-policy": {
+      "statement": "Zscaler recommends the Caution action for Executable downloads and the Block action for Executable uploads, each for websites under any URL category. With Advanced Sandbox, the Sandbox policy can be configured to quarantine executable downloads for the first-time action, and depending on corporate policy additional rules can block downloads from URL categories such as Adult Material, Drugs, Gambling, Illegal or Questionable, Militancy/Hate and Extremism, Tasteless, Violence and Weapons/Bombs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-file-type-control-policy.json",
+          "quotes": [
+            "- Caution action for Executable downloads from websites under any URL category",
+            "- Block action for Executable uploads to websites under any URL category",
+            "If you have Advanced Sandbox, you can configure your Sandbox policy to quarantine executable downloads for the first-time action.",
+            "Depending on your corporate policy, you can also add additional rules to block downloads from specific URL categories, such as Adult Material, Drugs, Gambling, Illegal or Questionable, Militancy/Hate and Extremism, Tasteless, Violence, and Weapons/Bombs, etc."
+          ]
+        }
+      ]
+    },
+    "recommended-example-rules": {
+      "statement": "The recommended-policy page's example Rule #1 has Rule Order 1, File Types Executable, Action Caution and Upload/Download set to Download; its example Rule #2 has Rule Order 2, File Types set to all file types, Action Allow and Upload/Download set to Download. This describes the two examples only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-file-type-control-policy.json",
+          "quotes": [
+            "- Rule Order: 1",
+            "- File Types: Executable",
+            "- Action: Caution",
+            "- Upload/Download: Download"
+          ],
+          "after": "## File Type Control Rule #1"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-file-type-control-policy.json",
+          "quotes": [
+            "- Rule Order: 2",
+            "- File Types: Select all file types",
+            "- Action: Allow",
+            "- Upload/Download: Download"
+          ],
+          "after": "## File Type Control Rule #2"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "recommended-uploads-vs-examples": {
+      "summary": "The Recommended File Type Control page recommends Block for Executable uploads in its text, while its two example rules are both Download rules and neither blocks.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-recommended-file-type-control-policy.json",
+            "quotes": [
+              "- Block action for Executable uploads to websites under any URL category"
+            ]
+          },
+          "says": "The recommended policy is the Block action for Executable uploads to websites under any URL category."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-recommended-file-type-control-policy.json",
+            "quotes": [
+              "- File Types: Select all file types",
+              "- Action: Allow",
+              "- Upload/Download: Download"
+            ],
+            "after": "## File Type Control Rule #2"
+          },
+          "says": "The example Rule #2 allows all file types for Download; it is neither an upload rule nor a Block rule (claim recommended-example-rules also records Rule #1 as Caution for Download)."
+        }
+      ],
+      "impact": "Reproducing the page's example rules leaves executable uploads unblocked, while reproducing its text blocks them; the page does not say whether the examples are partial."
     }
   },
   "gaps": {

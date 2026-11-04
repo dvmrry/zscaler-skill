@@ -56,7 +56,7 @@
     },
     {
       "label": "Filters.",
-      "text": "{{filter-operators}} {{columns-per-family}} {{delayed-logs}} What makes a log delayed is open {{gap:delayed-logs-meaning}}. {{device-obfuscation}} {{road-warrior}} {{url-search}}"
+      "text": "{{filter-operators}} {{columns-per-family}} {{tunnel-filters}} {{insights-vs-logs-filter-combos}} {{delayed-logs}} What makes a log delayed is open {{gap:delayed-logs-meaning}}. {{device-obfuscation}} {{road-warrior}} {{url-search}}"
     },
     {
       "label": "Web columns.",
@@ -76,7 +76,7 @@
     },
     {
       "label": "Extranet.",
-      "text": "{{extranet-columns}} The Extranet logs have no NSS type and an empty Status filter {{gap:extranet-logs}}."
+      "text": "{{extranet-columns}} {{extranet-partner-filters}} {{extranet-endpoint-and-byte-filters}} {{extranet-device-and-location-filters}} The Extranet logs have no NSS type and an empty Status filter {{gap:extranet-logs}}."
     },
     {
       "label": "Sandbox Verdict.",
@@ -534,6 +534,125 @@
             "Extranet Location IP: The partner side public IP which is used to establish the IPSec VPN tunnel.",
             "Extranet Location Port: The partner side port which is used to establish the IPSec VPN tunnel.",
             "Protocol: Indicates the protocol that is used to establish a connection. ICMP, TCP, and UDP are the options available."
+          ]
+        }
+      ]
+    },
+    "tunnel-filters": {
+      "statement": "Tunnel Insights Logs filters are Extranet Name (default Any), Location (default All, with Hide Deleted to remove deleted locations), Location Group (default None), Location Type (default None), Tunnel Destination IP and Tunnel Source IP (each taking individual addresses separated by commas, a range or a subnet mask), Tunnel Type (default All; All, GRE or IPSec) and VPN Credential (default All). The page says multi-value filters take up to 200 values in a single filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-filters.json",
+          "quotes": [
+            "Following are the tunnel log filters you can select:",
+            "Certain filters, like Users, Departments, Locations, and others, support the selection of multiple values.",
+            "For these, you can select up to 200 values in a single filter.",
+            "- Extranet Name: Use this filter to view the metrics associated with a specific extranet name. The default option for this filter is Any.",
+            "- Location: Use this filter to view metrics associated with a specific location. The default option for this filter is All. Select Hide Deleted if you want to remove deleted locations from the list.",
+            "- Location Group: Use this filter to view metrics associated with a specific location group. The default option for this filter is None.",
+            "- Location Type: Use this filter to view transactions associated with a specific location type. The default option for this filter is None.",
+            "- Tunnel Type: Use this filter to view metrics based on different types of tunnels. The default option for this filter is All.",
+            "- All - GRE - IPSec",
+            "- VPN Credential: Use this filter to view metrics associated with a specific VPN credential. The default option for this filter is All."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-filters.json",
+          "quotes": [
+            "individual IP addresses separated by commas (e.g., 192.0.2.0, 192.0.2.1)",
+            "a range of IP addresses (e.g., 192.0.2.0-192.0.2.100)",
+            "a subnet mask (e.g., 192.0.2.0/24)"
+          ],
+          "after": "- Tunnel Destination IP:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-tunnel-insights-logs-filters.json",
+          "quotes": [
+            "individual IP addresses separated by commas (e.g., 192.0.2.0, 192.0.2.1)",
+            "a range of IP addresses (e.g., 192.0.2.0-192.0.2.100)",
+            "a subnet mask (e.g., 192.0.2.0/24)"
+          ],
+          "after": "- Tunnel Source IP:"
+        }
+      ]
+    },
+    "extranet-partner-filters": {
+      "statement": "Extranet Insights Logs filters include Extranet Name (limiting the data to the business partner name configured by the organization), Extranet Location (default Any), Extranet Location IP, Extranet Location Port, Extranet Gateway IP, Extranet Gateway Port (the page says to enter a value from 1 to 65,536), Extranet Tunnel Data Center, Client Tunnel IP and VPN Credentials (default All).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-extranet-insights-logs-filters.json",
+          "quotes": [
+            "- Extranet Name: Use this filter to limit the data to the business partner name configured by your organization.",
+            "- Extranet Location: Use this filter to view the transactions associated with a specific extranet location. The default option for this filter is Any.",
+            "- Extranet Location IP: Use this filter to view transactions associated with a specific extranet location IP address.",
+            "- Extranet Location Port: Use this filter to limit the data to the extranet location port.",
+            "- Extranet Gateway IP: Use this filter to view transactions associated with a specific extranet gateway IP address.",
+            "- Extranet Gateway Port: Use this filter to limit the data to the extranet gateway port. Enter a value from 1 to 65,536.",
+            "- Extranet Tunnel Data Center: Use this filter to limit the data to the extranet tunnel data center.",
+            "- Client Tunnel IP: Use this filter to limit the data to traffic associated with a specific client tunnel IP address.",
+            "- VPN Credentials: Use this filter to view metrics associated with a specific VPN credential. The default option for this filter is All."
+          ]
+        }
+      ]
+    },
+    "extranet-endpoint-and-byte-filters": {
+      "statement": "Among the Extranet Insights Log filters are Client Destination Name (a destination FQDN), Client Source IP, Server Destination IP and Server Source IP, and the Client Source, Server Destination and Server Source ports. Client Source IP and Server Destination IP are entered by choosing Match with an IP address, a range or an IP address and netmask. Inbound Bytes limits the data to packets sent from the server to the client within a size range, and Outbound Bytes to packets received by the server within a size range. The Protocol filter defaults to None and lists ICMP, TCP and UDP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-extranet-insights-logs-filters.json",
+          "quotes": [
+            "Following are the Extranet Insights Log filters that you can select:",
+            "- Client Destination Name: Use this filter to limit the data to traffic associated with a specific destination FQDN.",
+            "- Client Source IP: Use this filter to limit the data about traffic associated with a specific client source IP address. Choose Match and enter an IP address, a range of IP addresses, or an IP address and netmask, as shown in the examples below the text box.",
+            "- Server Destination IP: Use this filter to limit the data to traffic associated with a specific server destination IP address. Choose Match and enter an IP address, a range of IP addresses, or an IP address and netmask, as shown in the examples below the text box.",
+            "- Server Source IP: Use this filter to limit the data to traffic associated with a specific server source IP address.",
+            "- Client Source Port: Use this filter to limit the data to traffic associated with a specific client source port.",
+            "- Server Destination Port: Use this filter to limit the data to traffic associated with a specific server destination IP port.",
+            "- Server Source Port: Use this filter to limit the data to traffic associated with a specific server source port.",
+            "- Inbound Bytes: Use this filter to limit the data to packets sent from the server to the client that were within a specific size range. The corresponding column shows the total inbound bytes for aggregated sessions, which were limited to the selected filter range.",
+            "- Outbound Bytes: Use this filter to limit the data to packets that were received by the server within a specific size range.",
+            "The default option for this filter is None. You can search for specific protocols. The following protocols appear under this filter:",
+            "- ICMP - TCP - UDP"
+          ]
+        }
+      ]
+    },
+    "extranet-device-and-location-filters": {
+      "statement": "In the Extranet Insights Logs filters, Device Hostname, Device Name and Device Owner are not available to admins with device information obfuscation enabled, and the Device Name and Device Owner filters take all or part of the value with an operator such as Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null or Is Null. The Location filter includes Road Warrior, the default location for transactions that did not originate from a predefined location, and lists 200 results at a time; Location Type defaults to None and its list includes Workload Traffic Group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-extranet-insights-logs-filters.json",
+          "quotes": [
+            "- Device Hostname: The hostname information from support devices. This filter is not available for admins with device information obfuscation enabled.",
+            "Enter all or part of the device name in the text field and an operator such as: Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. This filter is not available for admins with device information obfuscation enabled.",
+            "Enter all or part of the device owner in the text field and an operator such as: Contains, Starts With, Ends With, Exact Match, Does Not Contain, Does Not End With, Not Null, or Is Null. This filter is not available for admins with device information obfuscation enabled.",
+            "The list includes Road Warrior, the default location for transactions that did not originate from a predefined location. This filter lists 200 results at a time.",
+            "- Location Type: Use this filter to limit the data to a specific location type. The default option for this filter is None.",
+            "- Unassigned Locations - Workload Traffic Group - OS Type:"
+          ]
+        }
+      ]
+    },
+    "insights-vs-logs-filter-combos": {
+      "statement": "Some filter combinations that appear together in Insights Logs when applied do not appear together in Insights; the page's example is the Department and Location filters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-extranet-insights-logs-filters.json",
+          "quotes": [
+            "Some filter combinations that appear together in Insights Logs when applied, don't appear together in Insights.",
+            "For example, the Department and Location filters appear together in Insights Logs when applied, but don't appear together in Insights."
           ]
         }
       ]

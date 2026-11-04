@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "id": "zcc.entitlements.device-groups",
+  "title": "Device groups: posture-based groups of devices for service entitlement, their limits, expressions and the mobile switch",
+  "aliases": [
+    "device groups",
+    "Device Groups page",
+    "Use Device Groups in Service Entitlement",
+    "device posture group",
+    "different entitlements for one user's devices"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.deception"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.zpa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.device-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.platform-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{uses}}"
+    },
+    {
+      "label": "Creating one.",
+      "text": "{{definition}} {{limit}} The limit leaves a question open {{gap:limit-scope}}."
+    },
+    {
+      "label": "Expressions.",
+      "text": "{{expression}}"
+    },
+    {
+      "label": "Use Device Groups in Service Entitlement.",
+      "text": "{{mobile-evaluation}}"
+    },
+    {
+      "label": "Android and iOS.",
+      "text": "{{mobile-prerequisite}} The iOS version floors on two pages are not reconciled {{gap:ios-floor}}. The switch leaves other questions open {{gap:mobile-switch-scope}}."
+    },
+    {
+      "label": "Finding one.",
+      "text": "{{search}}"
+    },
+    {
+      "text": "Per service: [[zcc.entitlements.zpa]], [[zcc.entitlements.zdx]], [[zcc.entitlements.deception]], and Internet & SaaS in [[zcc.entitlements]]. Device groups in app profile rules: [[zcc.app-profiles.selection]]. The posture profiles they are built from: [[zcc.device-posture]]. The switch on the Platform Settings page: [[zcc.platform-settings]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an Android or iOS device that gets no service by device group, whether Use Device Groups in Service Entitlement is enabled in Platform Settings and the client version meets the page's floor.",
+      "uses": [
+        "mobile-prerequisite",
+        "mobile-evaluation",
+        "ios-floor"
+      ]
+    },
+    {
+      "do": "For a device that matches the wrong group, the device group's posture expression, where, per the page, AND joins postures inside a 'group' and OR joins 'groups'.",
+      "uses": [
+        "expression"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Device groups let an admin assign entitlements and configure policy settings based on device posture profiles, so a user with multiple devices can be assigned different entitlements and forwarding policies; the vendor's example enrolls a personal device in one service such as Private Access and an employer-provided device in Private Access and Digital Experience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-device-groups.json",
+          "quotes": [
+            "Configuring Zscaler services for device groups allows you to assign entitlements and configure policy settings based on device posture profiles.",
+            "The personal device can be enrolled in one service, such as Private Access, and the employer-provided device can be enrolled in Private Access and Digital Experience.",
+            "Assign a user with multiple devices to different entitlements and forwarding policies."
+          ]
+        }
+      ]
+    },
+    "uses": {
+      "statement": "Device groups are assigned to policies and service entitlements, such as enrolling device groups in Private Access, Internet & SaaS, Digital Experience and Zscaler Deception.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-create-device-groups.json",
+          "quotes": [
+            "Assign these groups to policies and service entitlements, such as enrolling device groups in Private Access, Internet & SaaS, Digital Experience, and Zscaler Deception."
+          ]
+        }
+      ]
+    },
+    "limit": {
+      "statement": "Up to 4 device groups can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-create-device-groups.json",
+          "quotes": [
+            "You can add up to 4 device groups."
+          ]
+        }
+      ]
+    },
+    "definition": {
+      "statement": "A device group has a name, the applicable platforms, one or more device postures and an optional description; groups are managed on the Device Groups page (Infrastructure > Client Connector > Device Groups).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-create-device-groups.json",
+          "quotes": [
+            "Define Device Group: Enter a name for the device group.",
+            "Platform: Select the applicable platforms.",
+            "Device Group Configuration: Select one or more device postures from the Select Device Posture drop-down menu.",
+            "(Optional) Device Group Description: Add a description of the device group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-device-groups.json",
+          "quotes": [
+            "On the Device Groups page (Infrastructure > Client Connector > Device Groups), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "expression": {
+      "statement": "When several device postures are selected, the AND operator is added after each; Add starts an OR alternative; up to 5 device postures can be added; and the page says that within a group the logic is AND and between groups it is OR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-create-device-groups.json",
+          "quotes": [
+            "When selecting multiple device postures, the AND operator is added after each device posture.",
+            "(Optional) Click Add to use the OR operator and then select a device posture from the drop-down menu.",
+            "You can continue to add up to 5 device postures.",
+            "Within a group, the logic is AND. Between groups, the logic is OR."
+          ]
+        }
+      ]
+    },
+    "mobile-prerequisite": {
+      "statement": "To create device groups for Android or iOS, Use Device Groups in Service Entitlement must first be enabled in Platform Settings (for Android, on the Platform Settings tab); that option applies to Client Connector 3.7 and later for Android and 4.4 and later for iOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-create-device-groups.json",
+          "quotes": [
+            "To create device groups for Android or iOS, you must first enable Use Device Groups in Service Entitlement in Platform Settings."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-device-groups.json",
+          "quotes": [
+            "This option applies to Zscaler Client Connector version 3.7 and later for Android and Zscaler Client Connector version 4.4 and later for iOS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-device-groups.json",
+          "after": "To enable Use Device Groups in Service Entitlement for Android:",
+          "quotes": [
+            "On the Platform Settings tab, enable Use Device Groups in Service Entitlement."
+          ]
+        }
+      ]
+    },
+    "mobile-evaluation": {
+      "statement": "Use Device Groups in Service Entitlement enables Zscaler services selectively, only on managed devices that meet specific posture configurations during enrollment, and applies to Internet & SaaS, Private Access and Digital Experience; Client Connector evaluates device posture during enrollment and keep-alive intervals and enables or disables services according to the user group and device group configuration set in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-device-groups.json",
+          "quotes": [
+            "The Use Device Groups in Service Entitlement feature allows Zscaler service to be enabled selectively only on managed devices that meet specific posture configurations during enrollment, ensuring enforcement of policies solely on company-controlled devices.",
+            "Applies to Internet & SaaS, Private Access, and Digital Experience.",
+            "Zscaler Client Connector evaluates device posture during enrollment and keep-alive intervals, dynamically enabling or disabling services based on user groups and device group configurations set in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "search": {
+      "statement": "The Device Groups page can be searched by Group Name or by Device Posture, and a Device Posture search needs the exact posture name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-searching-device-groups.json",
+          "quotes": [
+            "You can search by Group Name and Device Posture.",
+            "When searching by Device Posture, you must enter the exact Device Posture name."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "limit-scope": {
+      "kind": "semantic",
+      "title": "What the 4-device-group limit counts",
+      "status": "open",
+      "detail": "The Creating Device Groups page says up to 4 device groups can be added and does not say whether the limit is per tenant or per platform.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "ios-floor": {
+      "kind": "semantic",
+      "title": "Whether iOS device groups need 4.4 or 4.5",
+      "status": "open",
+      "detail": "The Enabling Device Groups page scopes the Use Device Groups in Service Entitlement option to Client Connector 4.4 and later for iOS, while the app profile article says 'Device groups are available only on Zscaler Client Connector version 4.5 and later for iOS devices' for device groups in app profile rules. The pages describe two controls and do not say whether iOS device groups for service entitlement need the app profile floor too; Android agrees at 3.7.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-device-groups.json",
+          "quotes": [
+            "This option applies to Zscaler Client Connector version 3.7 and later for Android and Zscaler Client Connector version 4.4 and later for iOS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "Device groups are available only on Zscaler Client Connector version 4.5 and later for iOS devices."
+          ]
+        }
+      ]
+    },
+    "mobile-switch-scope": {
+      "kind": "semantic",
+      "title": "What the Use Device Groups in Service Entitlement pages leave out",
+      "status": "open",
+      "detail": "The page does not say what 'keep-alive intervals' are (the keepalive interval is itself disputed, see zcc.devices.lifecycle:keepalive-interval), whether Windows or macOS need any switch for device groups, or why the 'Applies to' line omits Deception.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

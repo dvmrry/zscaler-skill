@@ -57,7 +57,7 @@
     },
     {
       "label": "Custom types.",
-      "text": "{{custom-file-types}} The update path is open {{divergence:custom-file-type-update-path}}."
+      "text": "{{custom-file-types}} {{custom-file-types-console}} What the ServiceNow restriction means and how many custom types an organization can hold are open {{gap:servicenow-restriction}} {{gap:custom-file-type-count}}. The update path is open {{divergence:custom-file-type-update-path}}."
     },
     {
       "text": "The help page and the Python SDK disagree on the maximum rule name length {{divergence:rule-name-length}}. Which field combinations the API accepts is open {{gap:filtering-action-dependencies}}."
@@ -803,6 +803,27 @@
           }
         }
       ]
+    },
+    "custom-file-types-console": {
+      "statement": "The console Help describes custom file types as simple extension-based detections, and the feature is enabled by contacting Zscaler Support. A custom file type name can contain only alphanumeric characters, underscores, hyphens, periods, parentheses and spaces; the maximum extension length is 10 characters; existing Zscaler extensions cannot be added; custom file types are restricted for the ServiceNow application; and only standard file extensions are supported.",
+      "tier": "A",
+      "binds": [
+        "zia/custom-file-types#name",
+        "zia/custom-file-types#extension"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-file-types.json",
+          "quotes": [
+            "Creating and configuring custom file types with simple extension-based detections provides you with greater flexibility when creating File Type Control policies.",
+            "To enable this feature, contact Zscaler support.",
+            "File type names can only contain alphanumeric characters, underscores, hyphens, periods, parentheses, and spaces.",
+            "The maximum extension length is 10 characters.",
+            "Existing Zscaler extensions cannot be added to custom file types. Custom file types are restricted for the ServiceNow application. Only standard file extensions are supported."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -863,6 +884,26 @@
     }
   },
   "gaps": {
+    "servicenow-restriction": {
+      "kind": "semantic",
+      "title": "What \"restricted for the ServiceNow application\" means for custom file types",
+      "status": "open",
+      "detail": "The Configuring Custom File Types page says custom file types are restricted for the ServiceNow application and does not say what is restricted or how it shows in a rule.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "custom-file-type-count": {
+      "kind": "semantic",
+      "title": "How many custom file types an organization can hold",
+      "status": "open",
+      "detail": "The contract has a count operation for custom file types, and the Configuring Custom File Types page states no limit on their number; no limit has been checked.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
     "filtering-action-dependencies": {
       "kind": "semantic",
       "title": "Field combinations the API accepts or rejects",

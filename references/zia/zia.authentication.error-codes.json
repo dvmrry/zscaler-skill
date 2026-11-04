@@ -41,7 +41,7 @@
     },
     {
       "label": "Kerberos codes.",
-      "text": "{{krb-simple-codes}} {{krb-471000-pac-and-gpo}} {{krb-471000-trust-and-connectivity}} {{krb-token-and-name}} Code 48100 is printed with five digits {{gap:printed-forms}}. The deployment and trust facts behind these causes are in [[zia.authentication.kerberos]]."
+      "text": "{{krb-simple-codes}} {{krb-471000-pac-and-gpo}} {{krb-471000-trust-and-connectivity}} {{krb-token-and-name}} {{kerberos-standalone-page}} Code 48100 is printed with five digits {{gap:printed-forms}}. The deployment and trust facts behind these causes are in [[zia.authentication.kerberos]]."
     },
     {
       "label": "Identity Proxy codes.",
@@ -221,6 +221,26 @@
             "| 471000 (Occurrence 5) |  | The user's computer cannot connect to the domain controller.",
             "Symptoms: When you run klist purge to clear the tickets, refresh the browser, and then run klist again, Kerberos tickets are not displayed, including those of the domain controller.",
             "If the user is using DirectAccess, run netsh name show effectivepolicy to determine if the DirectAccess client considers the workstation as being in the intranet or outside."
+          ]
+        }
+      ]
+    },
+    "kerberos-standalone-page": {
+      "statement": "A standalone Internet & SaaS Error Codes for Kerberos Authentication page opens by saying the Zscaler service displays a page with an error code if Kerberos authentication fails, and has rows for codes 391000, 441000 and 461000, 451000, 471000 (Occurrence 1), 48100 (printed with five digits) and 510000.",
+      "tier": "A",
+      "conditions": "A diff of the page's intro and twelve rows against the Kerberos table of zia-internet-saas-authentication-error-codes.json returned empty, so the page can serve as a second source for claims krb-simple-codes, krb-471000-pac-and-gpo, krb-471000-trust-and-connectivity and krb-token-and-name; the quotes here are a sample of rows, not all twelve.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-zia-error-codes-kerberos-authentication.json",
+          "quotes": [
+            "If Kerberos authentication fails, the Zscaler service displays a page with an error code.",
+            "| 391000 | The page cannot load. | Generic error code. | Contact Zscaler Support. |",
+            "| 441000, 461000 | The user cannot be found. | The user was deleted or cannot be found in the registered domain. | Add the user. |",
+            "| 451000 | The domain does not exist. | The realm is not a registered domain on the Zscaler service. | Contact Zscaler Support to add the realm as a registered domain. |",
+            "| 471000 (Occurrence 1) | The proxy authorization header does not contain the encoded Kerberos ticket. In almost all cases, this means that NTLM was used.",
+            "| 48100 | Invalid encoding of Kerberos credentials. | Possible header corruption. Ensure that there is no intermediate proxy or L7 device that might be corrupting the header. | Contact Zscaler Support. |",
+            "| 510000 | The user name is too long. | The user's login name exceeds the maximum allowed characters. | Contact Zscaler Support. |"
           ]
         }
       ]

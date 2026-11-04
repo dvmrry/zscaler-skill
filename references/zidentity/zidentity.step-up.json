@@ -47,7 +47,7 @@
     },
     {
       "label": "What it is.",
-      "text": "[[zia.authentication.step-up:what-it-is]] {{use-cases}}"
+      "text": "[[zia.authentication.step-up:what-it-is]] {{use-cases}} {{purpose}}"
     },
     {
       "label": "The flow.",
@@ -59,7 +59,7 @@
     },
     {
       "label": "OIDC.",
-      "text": "[[zia.authentication.step-up:oidc-only]] Another help page puts it as a recommendation, because most IdPs support step-up only over OIDC {{divergence:oidc-strictness}}. What a SAML-only tenant sees when a rule demands a level is not documented {{gap:saml-outcome}}."
+      "text": "[[zia.authentication.step-up:oidc-only]] {{oidc-acr-any-idp}} Another help page puts it as a recommendation, because most IdPs support step-up only over OIDC {{divergence:oidc-strictness}}. What a SAML-only tenant sees when a rule demands a level is not documented {{gap:saml-outcome}}."
     },
     {
       "label": "Setting it up.",
@@ -109,7 +109,7 @@
   ],
   "claims": {
     "prerequisites": {
-      "statement": "The Auth0 guide's step-up section lists as prerequisites Zscaler Client Connector version 4.7 or later deployed for the users, Authentication Service enabled for both admins and users, and step-up authentication enabled for Authentication Service, Internet & SaaS (ZIA) and Private Access (ZPA) tenants; the Entra ID guide gives the third without the word tenants.",
+      "statement": "The Auth0 guide's step-up section and the Configuring Step-Up Authentication page list as prerequisites Zscaler Client Connector version 4.7 or later deployed for the users, Authentication Service enabled for both admins and users, and step-up authentication enabled for Authentication Service, Internet & SaaS (ZIA) and Private Access (ZPA) tenants; the Entra ID guide gives the third without the word tenants.",
       "tier": "A",
       "evidence": [
         {
@@ -127,11 +127,20 @@
           "quotes": [
             "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA)."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-step-authentication.json",
+          "quotes": [
+            "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+            "Authentication Service is enabled for both admins and users.",
+            "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA) tenants."
+          ]
         }
       ]
     },
     "setup-order": {
-      "statement": "The Auth0 guide gives step-up setup as four steps: configure authentication levels in the Zscaler Admin Console, enable ACR values and configure policies in the external IdPs, map authentication levels and ACR values in the Zscaler Admin Console, and configure access policies in supported Zscaler services; for Private Access that is Access Policies with Conditional Access as the Rule Action and the Step-up Authentication Level field, and for Internet & SaaS the URL Filtering Policy and Cloud App Control Policies with Conditional Access as the Action and the Authentication Level field.",
+      "statement": "The Auth0 guide and the Configuring Step-Up Authentication page give step-up setup as four steps: configure authentication levels, enable ACR values and configure policies in the external IdPs, map authentication levels and ACR values (the Auth0 guide places the first and third of these steps in the Zscaler Admin Console), and configure access policies in supported Zscaler services; for Private Access that is Access Policies with Conditional Access as the Rule Action and the Step-up Authentication Level field, and for Internet & SaaS the URL Filtering Policy and Cloud App Control Policies with Conditional Access as the Action and the Authentication Level field.",
       "tier": "A",
       "evidence": [
         {
@@ -144,6 +153,47 @@
             "d. Configure access policies in supported Zscaler services.",
             "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
             "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-step-authentication.json",
+          "quotes": [
+            "1. Configure authentication levels.",
+            "2. Enable ACR values and configure the necessary policies in the external IdPs.",
+            "3. Map authentication levels and ACR values.",
+            "4. Configure access policies in supported Zscaler services.",
+            "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
+            "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field."
+          ]
+        }
+      ]
+    },
+    "purpose": {
+      "statement": "The Configuring Step-Up Authentication page describes step-up as allowing dynamic requests for stronger authentication when users attempt to access sensitive resources or when risk signals indicate a potential threat.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-step-authentication.json",
+          "quotes": [
+            "to allow dynamic requests for stronger authentication when users attempt to access sensitive resources or when risk signals indicate a potential threat."
+          ]
+        }
+      ]
+    },
+    "oidc-acr-any-idp": {
+      "statement": "The Configuring Step-Up Authentication page says step-up is supported only with OIDC-based external IdP integrations and that any IdP that supports OIDC authentication with ACR values can be configured for it, beyond the Entra ID and PingOne guides it lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-step-authentication.json",
+          "quotes": [
+            "Step-up authentication is supported only with OIDC-based external IdP integrations. Any IdP that supports OIDC-based authentication with ACR values can be configured for step-up authentication.",
+            "Authentication Service supports step-up authentication for OIDC-based external IdP integrations beyond what is listed here:",
+            "Enabling Step-Up Authentication in Entra ID",
+            "Enabling Step-Up Authentication in PingOne"
           ]
         }
       ]
@@ -179,6 +229,16 @@
             ]
           },
           "says": "Step-up is supported only with OIDC-based external IdP integrations."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-configuring-step-authentication.json",
+            "quotes": [
+              "Step-up authentication is supported only with OIDC-based external IdP integrations. Any IdP that supports OIDC-based authentication with ACR values can be configured for step-up authentication."
+            ]
+          },
+          "says": "The Configuring Step-Up Authentication page repeats that step-up is supported only with OIDC-based external IdP integrations, and that any IdP supporting OIDC with ACR values can be configured for it."
         },
         {
           "evidence": {

@@ -71,7 +71,7 @@
     },
     {
       "label": "Which records a feed sends.",
-      "text": "{{firewall-log-type}}"
+      "text": "{{firewall-log-type}} {{firewall-log-type-http-cloud}} The grouping keys differ between the feed articles and the NSS output format page {{divergence:aggregation-keys}}."
     },
     {
       "label": "Action and threat.",
@@ -369,6 +369,41 @@
             "Full session logs do not include sessions that are recorded as part of aggregated entries.",
             "Aggregate Logs: Groups individual sessions based on {user, rule, network service, network application}, and records them periodically within an approximately 15-minute time window.",
             "These sessions are always available as aggregated entries in Firewall logs (with detailed web and FTP transactions in Web logs)."
+          ]
+        }
+      ]
+    },
+    "firewall-log-type-http-cloud": {
+      "statement": "The HTTP Firewall and Cloud Firewall feed articles offer the same Firewall Log Type options as the TCP Firewall article: Full Session Logs (each matching session individually, except web (HTTP/HTTPS) and FTP/FTPS sessions that match the same Allow rule over a time window, which Firewall logs always record as aggregated entries), Aggregate Logs (sessions grouped on {user, rule, network service, network application} and recorded periodically within an approximately 15-minute time window), or Both Session and Aggregate Logs, which includes all log data from both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-tcp-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Full Session Logs: Logs each session that matches the rule individually, except for web (HTTP/HTTPS) and FTP/FTPS sessions that match the same Allow rule over a time window.",
+            "Aggregate Logs: Groups individual sessions based on {user, rule, network service, network application}, and records them periodically within an approximately 15-minute time window.",
+            "Both Session and Aggregate Logs"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+          "quotes": [
+            "Full Session Logs: Logs each session that matches the rule individually, except for web (HTTP/HTTPS) and FTP/FTPS sessions that match the same Allow rule over a time window.",
+            "Firewall logs always record those web and FTP sessions as aggregated entries.",
+            "Aggregate Logs: Groups individual sessions based on {user, rule, network service, network application}, and records them periodically within an approximately 15-minute time window.",
+            "Both Session and Aggregate Logs: Includes all log data captured in full session logs and aggregated logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-nss-feeds-for-firewall-logs.json",
+          "quotes": [
+            "Full Session Logs: Logs each session that matches the rule individually, except for web (HTTP/HTTPS) and FTP/FTPS sessions that match the same Allow rule over a time window.",
+            "Firewall logs always record those web and FTP sessions as aggregated entries.",
+            "Aggregate Logs: Groups individual sessions based on {user, rule, network service, network application}, and records them periodically within an approximately 15-minute time window.",
+            "Both Session and Aggregate Logs: Includes all log data captured in full session logs and aggregated logs."
           ]
         }
       ]
@@ -705,7 +740,7 @@
   },
   "divergences": {
     "aggregate-counters-source": {
-      "summary": "The Firewall Insights Logs columns article describes aggregated byte counters as totals across all sessions in the aggregate and the duration as the sum of session durations, while the NSS firewall output format says an aggregated log's remaining fields are taken from the last session in the 15-minute window.",
+      "summary": "The Firewall Insights Logs columns article describes aggregated byte counters as totals across all sessions in the aggregate and the duration as the sum of session durations, while the NSS firewall output format says an aggregated log's remaining fields are taken from the last session in the 15-minute window; the HTTP Firewall feed article's byte filters agree with the totals, and its Durations filter gives the average.",
       "positions": [
         {
           "evidence": {
@@ -728,9 +763,56 @@
             ]
           },
           "says": "A single log records the remaining fields from the last session in the 15-minute window, and inbytes is described as the number of bytes sent from the server to the client, with no aggregate wording."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+            "quotes": [
+              "For aggregated sessions, this is the total bytes sent from the server across all sessions in the aggregate.",
+              "For aggregated sessions, this indicates the average session duration."
+            ]
+          },
+          "says": "The HTTP Firewall feed article's byte filters say the value for aggregated sessions is the total bytes across all sessions in the aggregate, agreeing with the Insights Logs columns, while its Durations filter says it indicates the average session duration, against the Insights sum."
         }
       ],
-      "impact": "Summing inbytes, outbytes and durationms over aggregate records gives different results if they hold the last session's values rather than totals; the pages do not say which applies to a feed."
+      "impact": "Summing inbytes, outbytes and durationms over aggregate records gives different results if they hold the last session's values rather than totals; the HTTP Firewall feed article gives byte totals and an average Duration for aggregated sessions, and no page says which of these a feed's own inbytes, outbytes and duration fields hold."
+    },
+    "aggregation-keys": {
+      "summary": "The HTTP and Cloud Firewall feed articles group aggregate logs on four keys, while the NSS firewall output format lists five aggregation fields; IP Category is clearly absent from the feed articles' list, and their \"rule\" may or may not be the output format's Rule Slot.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-http-nss-feeds-firewall-logs.json",
+            "quotes": [
+              "Aggregate Logs: Groups individual sessions based on {user, rule, network service, network application}, and records them periodically within an approximately 15-minute time window."
+            ]
+          },
+          "says": "Aggregate Logs group individual sessions on user, rule, network service and network application, recorded within an approximately 15-minute time window."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-cloud-nss-feeds-for-firewall-logs.json",
+            "quotes": [
+              "Aggregate Logs: Groups individual sessions based on {user, rule, network service, network application}, and records them periodically within an approximately 15-minute time window."
+            ]
+          },
+          "says": "The Cloud Firewall feed article gives the same four keys."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-firewall-logs.json",
+            "quotes": [
+              "Logs are aggregated for each of the following fields within a 15-minute time window: User, Rule Slot, Network Service, Network Application, and IP Category."
+            ]
+          },
+          "says": "Logs are aggregated for User, Rule Slot, Network Service, Network Application and IP Category within a 15-minute time window."
+        }
+      ],
+      "impact": "Whether sessions that differ only in IP Category aggregate into one record depends on which page is read; the pages do not say whether the feed articles' shorter list is complete (the TCP article's matching sentence is in firewall-log-type)."
     },
     "action-value-set": {
       "summary": "The NSS firewall output format describes the action field as Allowed or Blocked, while the Firewall Insights Logs Action filter lists firewall and IPS policy actions beyond those two.",

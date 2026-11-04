@@ -58,7 +58,7 @@
     },
     {
       "label": "Where clients come from.",
-      "text": "{{console-provisioning}} {{console-page}} Creating one through the API needs a token from an existing client, so the first one comes from the console: [[zidentity.api:bearer-on-every-operation]]. {{delete-unrecoverable}}"
+      "text": "{{console-provisioning}} {{console-page}} {{linked-services-required}} Creating one through the API needs a token from an existing client, so the first one comes from the console: [[zidentity.api:bearer-on-every-operation]]. {{delete-confirm}} {{delete-unrecoverable}} What an AI agent is on that page is open {{gap:ai-agents}}. {{edit-role-scope}}"
     },
     {
       "label": "Status.",
@@ -453,6 +453,48 @@
           ]
         }
       ]
+    },
+    "linked-services-required": {
+      "statement": "To use OneAPI, the Zscaler services must be linked to Authentication Service, and RBAC restricts an API client's access to specific API resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-oneapi-authentication.json",
+          "quotes": [
+            "To use OneAPI, the Zscaler services must be linked to Authentication Service.",
+            "Role-based access control (RBAC) is implemented to restrict the API client's access to specific API resources."
+          ]
+        }
+      ]
+    },
+    "edit-role-scope": {
+      "statement": "Editing an API client can change its client information, client authentication and resources (a different role); after a different role is assigned, the access token Authentication Service issues applies to the new scope for that service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-editing-or-deleting-api-client.json",
+          "quotes": [
+            "In the Edit API Client drawer, edit the information in the Client Information and Client Authentication sections, or select the Resources tab to select a different role as necessary.",
+            "After you assign a different role, the access token issued by Authentication Service is applicable to the new scope for that Zscaler service."
+          ]
+        }
+      ]
+    },
+    "delete-confirm": {
+      "statement": "Deleting an API client asks for CONFIRM in the Delete API Client window; the page that lists clients is titled API Clients and AI Agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-editing-or-deleting-api-client.json",
+          "quotes": [
+            "In the Delete API Client window, read the confirmation message, enter CONFIRM, then click Delete.",
+            "On the API Clients and AI Agents page, click the Edit icon for the required API client."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -571,11 +613,21 @@
       "kind": "semantic",
       "title": "Whether a tenant-wide default access token lifetime exists beside the per-client one",
       "status": "open",
-      "detail": "Unverified legacy statement: the tenant-wide default TTL is configurable via Authentication Session settings, and per-client lifetimes may override it. The captured API-client pages and the contract set the lifetime per client only; no captured page describes a tenant-wide token lifetime for API clients.",
+      "detail": "Unverified legacy statement: the tenant-wide default TTL is configurable via Authentication Session settings, and per-client lifetimes may override it. The captured Configuring the Authentication Session page lists only the admin inactivity timeout, the service-entitlement session, the service enrollment session timeout and forced Private Access reauthentication, and has no token-lifetime setting, so the pointer to Authentication Session settings is not borne out. The captured API-client pages and the contract set the lifetime per client only; no captured page describes a tenant-wide token lifetime for API clients. Whether such a default exists elsewhere is still unanswered.",
       "blocks": "explaining an `expires_in` that differs from the client's configured validity",
       "resolves_with": [
         "source-read",
         "lab-test"
+      ]
+    },
+    "ai-agents": {
+      "kind": "semantic",
+      "title": "What an AI agent is on the API Clients and AI Agents page",
+      "status": "open",
+      "detail": "The console page is titled API Clients and AI Agents on the edit and delete page, while the About API Clients page calls it the API Clients page; no captured page says what an AI agent there is or how it differs from an API client.",
+      "blocks": "telling whether an AI agent entry is an API client",
+      "resolves_with": [
+        "source-read"
       ]
     },
     "jwks-body-unobserved": {

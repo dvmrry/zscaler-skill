@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.authentication-session",
+  "title": "Authentication Service sessions: admin inactivity timeout, the service-enrollment session and forced Private Access reauthentication",
+  "aliases": [
+    "Authentication Session page",
+    "Administrator Inactivity Timeout Duration",
+    "Service Enrollment Session Timeout",
+    "Authentication Session for Service Entitlement",
+    "Force Authentication for Private Access Reauthentication",
+    "forceauth=true",
+    "prompt=login"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac.permissions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication Service tracks who is signed in with sessions, set on its Authentication Session page. {{session-based}}"
+    },
+    {
+      "label": "Admin inactivity.",
+      "text": "{{admin-inactivity-timeout}}"
+    },
+    {
+      "label": "Service enrollment.",
+      "text": "{{service-entitlement-session}} {{local-session-examples}} {{service-enrollment-timeout}} Neither timeout's default is open {{gap:timeout-defaults}}."
+    },
+    {
+      "label": "Private Access reauthentication.",
+      "text": "{{force-zpa-reauth}}"
+    },
+    {
+      "label": "IdP options.",
+      "text": "{{hosted-option-default}} Which setting those options belong to is open {{gap:idp-options-setting}}."
+    },
+    {
+      "label": "Token lifetime.",
+      "text": "Where an API client token lifetime is set is open {{gap:token-lifetime}}."
+    },
+    {
+      "label": "Permission.",
+      "text": "Changing these is the Authentication Session module: [[zidentity.admin-rbac.permissions:authentication-session]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a user is asked to reauthenticate because the session timeout expired or because Force Authentication for Private Access Reauthentication is enabled, and whether Authentication Session for Service Entitlement is enabled.",
+      "uses": [
+        "service-entitlement-session",
+        "force-zpa-reauth"
+      ]
+    },
+    {
+      "do": "Whether User Single Sign-On is enabled for the tenant, since the force reauthentication option is shown only then.",
+      "uses": [
+        "force-zpa-reauth"
+      ]
+    }
+  ],
+  "claims": {
+    "session-based": {
+      "statement": "Authentication Service uses session-based authentication to keep track of authenticated users or enrolled services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-authentication-session.json",
+          "quotes": [
+            "Authentication Service uses session-based authentication to keep track of the authenticated users or enrolled services."
+          ]
+        }
+      ]
+    },
+    "admin-inactivity-timeout": {
+      "statement": "Administrator Inactivity Timeout Duration is the period, in minutes, after which the user is logged out of the Authentication Service session, settable from 5 to 600 minutes (10 hours).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-authentication-session.json",
+          "quotes": [
+            "Administrator Inactivity Timeout Duration (in Minutes): Enter the timeout period after which the user is logged out of the Authentication Service session. You can set the timeout period from 5 to 600 minutes (10 hours)."
+          ]
+        }
+      ]
+    },
+    "service-entitlement-session": {
+      "statement": "Authentication Session for Service Entitlement applies the Authentication Service session to Zscaler services during user enrollment. It is disabled by default, since Authentication Service sends users to the organization's IdP; enabled, Authentication Service can verify active sessions locally based on the Service Enrollment Session Timeout instead of always redirecting users to the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-authentication-session.json",
+          "quotes": [
+            "Authentication Session for Service Entitlement: Enable to apply the authenticated session of Authentication Service to Zscaler services during user enrollment.",
+            "This option is disabled by default, as Authentication Service sends users to the organization's identity provider (IdP) for authentication.",
+            "If enabled, Authentication Service can locally verify active sessions based on the Service Enrollment Session Timeout value, instead of always redirecting users to the IdP."
+          ]
+        }
+      ]
+    },
+    "local-session-examples": {
+      "statement": "The page gives these examples beside the Authentication Session for Service Entitlement option: for Private Access reauthentication through Client Connector, and for browser-based access through Internet & SaaS or Private Access, a still-valid session is authenticated locally by Authentication Service and an expired one is redirected to the external IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-authentication-session.json",
+          "quotes": [
+            "Private Access (ZPA) reauthentication through Zscaler Client Connector: During reauthentication, if the existing session is still valid, Authentication Service authenticates the user locally. If the session is expired, the user is redirected to the external IdP.",
+            "Browser-based access through Internet & SaaS (ZIA) or Private Access: During user's access to Zscaler service through a browser, if the existing session is still valid, Authentication Service authenticates the user locally. If the session is expired, the user is redirected to the external IdP."
+          ]
+        }
+      ]
+    },
+    "service-enrollment-timeout": {
+      "statement": "Service Enrollment Session Timeout is the period, in minutes, after which the user's service session expires and the user must reauthenticate, settable from 5 to 600 minutes (10 hours).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-authentication-session.json",
+          "quotes": [
+            "Service Enrollment Session Timeout (in Minutes): Enter the timeout period after which the user's service session expires, and the user is required to reauthenticate. You can set the timeout period from 5 to 600 minutes (10 hours)."
+          ]
+        }
+      ]
+    },
+    "force-zpa-reauth": {
+      "statement": "Force Authentication for Private Access Reauthentication decides whether users are prompted when Private Access requests reauthentication: disabled, the IdP decides; enabled, Authentication Service tells the IdP to ignore existing sessions and force reauthentication each time, by sending forceauth=true (SAML) or prompt=login (OIDC). The option is shown only when User Single Sign-On is enabled for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-authentication-session.json",
+          "quotes": [
+            "Force Authentication for Private Access Reauthentication: This option determines whether to prompt the users to reauthenticate when Private Access requests reauthentication.",
+            "When this option is disabled, the IdP decides if reauthentication is required for a user.",
+            "When enabled, Authentication Service instructs the IdP to ignore existing user sessions and force reauthentication each time Private Access requests it by sending a parameter (for SAML protocol: forceauth=true and for OIDC protocol: prompt=login).",
+            "This option is shown only when User Single Sign-On (SSO) is enabled for your tenant."
+          ]
+        }
+      ]
+    },
+    "hosted-option-default": {
+      "statement": "By default only the Hosted option is shown for all tenants; options for third-party IdPs are also listed, depending on the external IdPs configured for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-configuring-authentication-session.json",
+          "quotes": [
+            "By default, only the Hosted option is shown for all tenants. The options for third-party IdPs are also listed, depending on the external IdPs configured for the tenant."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "timeout-defaults": {
+      "kind": "semantic",
+      "title": "The default of the admin inactivity and service enrollment timeouts",
+      "status": "open",
+      "detail": "The page gives the 5 to 600 minute range of each timeout and does not state a default for either.",
+      "blocks": "stating how long an idle admin or enrolled service stays signed in on an unconfigured tenant",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "idp-options-setting": {
+      "kind": "semantic",
+      "title": "Which Authentication Session setting the Hosted and third-party IdP options belong to",
+      "status": "open",
+      "detail": "The page says that by default only the Hosted option is shown, with options for third-party IdPs listed by the tenant's external IdPs; it does not say which setting they belong to.",
+      "blocks": "reading the Authentication Session page for a tenant with external IdPs",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "token-lifetime": {
+      "kind": "semantic",
+      "title": "Where an API client access token lifetime is set",
+      "status": "open",
+      "detail": "The Authentication Session page lists the admin inactivity timeout, the service-entitlement session, the service enrollment timeout and forced Private Access reauthentication, and no token-lifetime setting. That is an absence in one page, so where the lifetime is configured is not answered here (see zidentity.api-clients:tenant-default-lifetime).",
+      "blocks": "answering how long an API client token lives",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

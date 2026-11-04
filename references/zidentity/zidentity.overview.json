@@ -61,6 +61,34 @@
     {
       "rel": "see-also",
       "to": "shared.oneapi.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.attributes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.token-validators"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.authentication-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.sign-on-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.authentication-session"
     }
   ],
   "prose": [
@@ -73,15 +101,23 @@
     },
     {
       "label": "Admin controls.",
-      "text": "{{admin-controls}} Its own admin roles are in [[zidentity.admin-rbac]], and who administers which product is decided by entitlements, in [[zidentity.entitlements]]. Its audit log is a permission module of its own, [[shared.audit-logs:zidentity-audit-module]], with no API: [[shared.audit-logs:zid-no-audit-api]]."
+      "text": "{{admin-controls}} Its own admin roles are in [[zidentity.admin-rbac]], and who administers which product is decided by entitlements, in [[zidentity.entitlements]]. Its audit log is a permission module of its own, [[shared.audit-logs:zidentity-audit-module]], with no API: [[shared.audit-logs:zid-no-audit-api]]; what it records and how it streams are in [[zidentity.audit-logs]]. Source-IP limits on admins are the sign-on policy in [[zidentity.sign-on-policy]], and session timeouts are in [[zidentity.authentication-session]]."
     },
     {
       "label": "Authentication factors.",
-      "text": "{{mfa-default}} Whether admin MFA is on is shown per IdP: [[zidentity.overview.external-idps:admin-mfa-per-idp]]. Whether SMS and email one-time passwords are also factors is open {{gap:otp-factors}}."
+      "text": "{{mfa-default}} Whether admin MFA is on is shown per IdP: [[zidentity.overview.external-idps:admin-mfa-per-idp]]. The MFA and FIDO2 setup and the password policy are in [[zidentity.authentication-methods]]. Whether SMS is also a factor is open {{gap:otp-factors}}."
     },
     {
       "label": "Users, groups and IdPs.",
-      "text": "Users: [[zidentity.users]], and how they are provisioned: [[zidentity.users.provisioning]]. Groups: [[zidentity.groups]]. External OIDC and SAML IdPs: [[zidentity.overview.external-idps]]."
+      "text": "Users: [[zidentity.users]], and how they are provisioned: [[zidentity.users.provisioning]]. Groups: [[zidentity.groups]]. External OIDC and SAML IdPs: [[zidentity.overview.external-idps]]. User and session attributes: [[zidentity.attributes]]. The SCIM server: [[zidentity.users.provisioning.scim]]."
+    },
+    {
+      "label": "Token validators.",
+      "text": "JWT claim and signature checks for access to a Zscaler service, with Internet & SaaS as the page's example, are in [[zidentity.token-validators]]."
+    },
+    {
+      "label": "Linked Services.",
+      "text": "{{linked-services-page}} {{unlinked-tenant-no-access}} The values of the migration status column are open {{gap:migration-status-values}}."
     },
     {
       "label": "Step-up.",
@@ -223,14 +259,58 @@
         "shared.oneapi.base-urls:commercial-host"
       ],
       "conditions": "Follows from the token URL being built from the vanity domain while the gateway host is fixed per cloud, as the Go and Python SDKs and the OneAPI guide show; Zscaler does not state it as a rule."
+    },
+    "linked-services-page": {
+      "statement": "The Linked Services page (Administration > Subscription > Linked Services) shows the organization's subscribed Zscaler service tenants, each with its product, tenant ID, cloud name, organization name, Authentication Service migration status and whether it is linked or unlinked from Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-linked-services.json",
+          "quotes": [
+            "The linked services page shows your subscribed Zscaler service tenants.",
+            "On the Linked Services page (Administration > Subscription > Linked Services), you can do the following:",
+            "Product: The name of the Zscaler service.",
+            "Tenant ID: The tenant ID of the Zscaler service.",
+            "Cloud Name: The name of the Zscaler cloud on which the Zscaler service is used.",
+            "Organization Name: The name of the tenant organization.",
+            "Authentication Service Migration Status: The migration status of the tenant to Authentication Service.",
+            "Status: Whether the tenant is linked or unlinked from Authentication Service."
+          ]
+        }
+      ]
+    },
+    "unlinked-tenant-no-access": {
+      "statement": "If a tenant is unlinked, the users under that tenant cannot access the Zscaler service through Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-linked-services.json",
+          "quotes": [
+            "If a tenant is unlinked, the users under that tenant can't access the Zscaler service via Authentication Service."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "migration-status-values": {
+      "kind": "semantic",
+      "title": "The values of the Authentication Service Migration Status column",
+      "status": "open",
+      "detail": "The Linked Services page does not list the values the migration status column can take.",
+      "blocks": "reading a tenant's migration state from the page",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
     "otp-factors": {
       "kind": "semantic",
       "title": "Which second factors Authentication Service offers",
       "status": "open",
-      "detail": "Unverified legacy statement: the supported second factors are SMS one-time password, email one-time password, TOTP and FIDO (hardware security keys and platform authenticators such as Touch ID). The overview article names TOTP and FIDO only, as examples; the authentication-methods article is not captured.",
+      "detail": "Unverified legacy statement: the supported second factors are SMS one-time password, email one-time password, TOTP and FIDO (hardware security keys and platform authenticators such as Touch ID). Narrowed by the Multi-Factor Authentication page (zidentity.authentication-methods:factor-types, :email-otp-off): it names TOTP Authenticator, Security Key or Biometric and Email OTP, with Email OTP not enabled by default. It does not mention SMS, which is an absence in that page, so the SMS half stays open.",
       "blocks": "listing which MFA factors a tenant can enforce",
       "resolves_with": [
         "source-read"
@@ -240,7 +320,7 @@
       "kind": "semantic",
       "title": "Which admin and end-user logins go through Authentication Service, and how tenants move onto it",
       "status": "open",
-      "detail": "Unverified legacy statement: Authentication Service cannot be opted out of, even by a single-product tenant, and the per-product admin logins (ZIA admin portal credentials, separate ZPA login) are legacy paths deprecated by a one-way migration, coexisting during the migration window and then disabled; ZIA end-user traffic authentication (surrogate IP, cookie, Kerberos, SAML) stays ZIA-native, while ZPA end users authenticate through the configured IdP, which may be Authentication Service or an external IdP federated through it; the unified admin console (Experience Center) passes the Authentication Service session token to each product backend. The captured help describes Authentication Service as the identity and authentication service and the place entitlements are assigned, but ZPA emergency-access help still distinguishes end users who have not migrated to it (zpa.emergency-access.identity:idp-by-migration), so not every tenant's logins go through it, and no captured source describes the migration steps or the console session mechanism.",
+      "detail": "Unverified legacy statement: Authentication Service cannot be opted out of, even by a single-product tenant, and the per-product admin logins (ZIA admin portal credentials, separate ZPA login) are legacy paths deprecated by a one-way migration, coexisting during the migration window and then disabled; ZIA end-user traffic authentication (surrogate IP, cookie, Kerberos, SAML) stays ZIA-native, while ZPA end users authenticate through the configured IdP, which may be Authentication Service or an external IdP federated through it; the unified admin console (Experience Center) passes the Authentication Service session token to each product backend. The captured help describes Authentication Service as the identity and authentication service and the place entitlements are assigned, but ZPA emergency-access help still distinguishes end users who have not migrated to it (zpa.emergency-access.identity:idp-by-migration), so not every tenant's logins go through it, and no captured source describes the migration steps or the console session mechanism. Narrowed by Linked Services: the page shows each subscribed tenant's migration status and linked state, and an unlinked tenant's users cannot use Authentication Service for that service (linked-services-page, unlinked-tenant-no-access), but it does not say which logins go through Authentication Service.",
       "blocks": "deciding whether an admin or end-user login problem belongs to Authentication Service or to the product",
       "resolves_with": [
         "source-read",

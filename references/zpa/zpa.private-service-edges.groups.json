@@ -61,7 +61,11 @@
     },
     {
       "label": "Version profiles.",
-      "text": "{{version-profiles}} {{el8-names}} The meaning of el8 is unverified {{gap:el8-meaning}}. {{persist-local-version-profile}} The Terraform default for override_version_profile disagrees with the provider documentation {{divergence:override-version-profile-default}}. What the field does when false is unverified {{gap:override-profile-inheritance}}."
+      "text": "{{version-profiles}} {{el8-names}} The meaning of el8 is unverified {{gap:el8-meaning}}. {{persist-local-version-profile}} The Add page's default of Disabled against the schema default of true is open {{gap:persist-default-wrinkle}}. The Terraform default for override_version_profile disagrees with the provider documentation {{divergence:override-version-profile-default}}. What the field does when false is unverified {{gap:override-profile-inheritance}}."
+    },
+    {
+      "label": "The Add Private Service Edge Group form.",
+      "text": "{{group-form-fields}} {{private-cloud-field}} {{alternative-cloud-domain}} What alternative cloud domains exist and their API field are open {{gap:alternative-cloud-domain-details}}."
     },
     {
       "label": "Microtenants.",
@@ -235,7 +239,7 @@
       ]
     },
     "persist-local-version-profile": {
-      "statement": "A group's Persist Local Version Profile is either Inherit, applying the customer-level profile, or Override, choosing a profile for that group.",
+      "statement": "A group's Persist Local Version Profile is labelled two ways: the version profile page gives Inherit, applying the customer-level profile, or Override, choosing a profile for that group; the Add Private Service Edge Group page gives Enable, if the group should persist the local Version Profile, with Disabled selected by default.",
       "tier": "A",
       "evidence": [
         {
@@ -244,10 +248,65 @@
           "quotes": [
             "Persist Local Version Profile: Select Inherit to apply the version profile configured at the customer level or select Override to configure a version profile for the selected group."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Persist Local Version Profile: Enable if the Private Service Edge group should persist the local Version Profile. By default, Disabled is selected."
+          ]
         }
       ],
+      "conditions": "That Enable/Disabled and Override/Inherit are two labels of one control is an inference: both pages name the field Persist Local Version Profile and the version profile article speaks of groups that have Persist Local Profile enabled; no page maps one pair onto the other.",
       "binds": [
         "zpa/service-edge-groups#overrideVersionProfile"
+      ]
+    },
+    "group-form-fields": {
+      "statement": "Adding a Private Service Edge group takes a name (no special characters other than periods, hyphens and underscores), an optional description, a Status (Enabled), Persist Local Version Profile (Disabled is selected by default), a Version Profile (default value Default), a Private Service Edge Software Update Schedule by day of the week and start time, and a location whose map marker fills the Latitude, Longitude and Location Address fields, with the country code shown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Name: Enter a name for the group. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+            "Description: (Optional) Enter a description for the group.",
+            "Status: Make sure Enabled is selected.",
+            "Persist Local Version Profile: Enable if the Private Service Edge group should persist the local Version Profile. By default, Disabled is selected.",
+            "Version Profile: Displays the current Version Profile. The default value is set to Default.",
+            "Private Service Edge Software Update Schedule: Schedule the periodic software update for the group by selecting the day of the week and start time.",
+            "If you click the location marker on the map, the Latitude, Longitude, and Location Address fields are automatically populated.",
+            "Country Code: Displays the country code for the location address you’ve entered."
+          ]
+        }
+      ]
+    },
+    "private-cloud-field": {
+      "statement": "A Private Service Edge group can be associated with a Private Cloud for Business Continuity; if the Private Access cloud isn't available, its Private Service Edges contact the Private Cloud Controllers associated with the Private Cloud for the control channel, configuration updates and logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Private Cloud for Business Continuity: Select a Private Cloud to associate with the Private Service Edge group for Business Continuity.",
+            "In the event that the Private Access cloud isn't available, the Private Service Edges contact the Private Cloud Controllers associated with the Private Cloud for the Control channel, configuration updates, and logging."
+          ]
+        }
+      ]
+    },
+    "alternative-cloud-domain": {
+      "statement": "A Private Service Edge group's Alternative Cloud Domain field selects an Alternative Cloud Domain to override the default cloud domain for the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Alternative Cloud Domain: Select an Alternative Cloud Domain to override the default cloud domain for this Private Service Edge group."
+          ]
+        }
       ]
     },
     "auto-delete": {
@@ -309,6 +368,25 @@
     }
   },
   "gaps": {
+    "persist-default-wrinkle": {
+      "kind": "semantic",
+      "title": "The Add page default of Disabled against the Terraform schema default of true",
+      "status": "open",
+      "detail": "The Add page selects Disabled for Persist Local Version Profile by default, while the resource schema sets override_version_profile to default true (see the override-version-profile-default divergence). Whether these are the same setting is the inference recorded on persist-local-version-profile.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "alternative-cloud-domain-details": {
+      "kind": "semantic",
+      "title": "Which alternative cloud domains exist and the API field behind the setting",
+      "status": "open",
+      "detail": "The Configuring Private Service Edges page names the setting and says it overrides the default cloud domain; it does not say which alternative domains exist or when to use one, and the API or Terraform field was not found by a text search.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
     "upgrade-time-zone": {
       "kind": "semantic",
       "title": "Time zone of upgrade_time_in_secs",

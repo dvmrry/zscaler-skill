@@ -35,6 +35,10 @@
     {
       "rel": "see-also",
       "to": "zia.forwarding-control.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles"
     }
   ],
   "prose": [
@@ -44,6 +48,10 @@
     {
       "label": "Configuration.",
       "text": "{{configuration}} {{required-settings}} {{subscribe-and-associate}} {{setup}} The port number ranges, the number of ports a location can take and the name of the external-IP mapping setting are open {{gap:port-details}}."
+    },
+    {
+      "label": "Client Connector.",
+      "text": "{{client-connector-port}} The mode, versions and platforms are open {{gap:client-connector-port-details}}. Forwarding profiles: [[zcc.forwarding-profiles]]."
     },
     {
       "label": "What the port gives remote users.",
@@ -74,7 +82,7 @@
       ]
     },
     "authentication": {
-      "statement": "Users on a dedicated proxy port must authenticate, because anyone can send traffic to the port. Remote users need a PAC file to reach proxy ports; deploying Zscaler Client Connector is the more robust method.",
+      "statement": "Users on a dedicated proxy port must authenticate, because anyone can send traffic to the port. For remote users reaching proxy ports by PAC file, the page says they need to use one; deploying Zscaler Client Connector is the more robust method.",
       "tier": "A",
       "evidence": [
         {
@@ -214,6 +222,21 @@
       ],
       "conditions": "The article does not name the setting; zia.authentication.surrogate-ip:dedicated-port describes Surrogate IP on dedicated-port locations, but the setting is not named from this quote."
     },
+    "client-connector-port": {
+      "statement": "Client Connector can use a dedicated proxy port: on the Dedicated Proxy Port page (Infrastructure > Client Connector > Dedicated Proxy Port) an admin enables Dedicated Proxy Port and selects an available port, and Client Connector attempts connections with that port before using 443 or 80, in that order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-dedicated-proxy-ports.json",
+          "quotes": [
+            "From the navigation menu, go to Infrastructure > Client Connector > Dedicated Proxy Port.",
+            "Enable Dedicated Proxy Port.",
+            "Select an available port from the Select Dedicated Proxy Port drop-down menu. Zscaler Client Connector attempts connections with this port before using the following ports in this order: 443 or 80."
+          ]
+        }
+      ]
+    },
     "setup": {
       "statement": "Zscaler Support is contacted to subscribe to the proxy ports; Enforce Authentication is selected under Gateway Options; and after the ports are configured in the Admin Console, remote users' PAC files are edited to forward their traffic to the subscribed ports.",
       "tier": "A",
@@ -231,6 +254,16 @@
     }
   },
   "gaps": {
+    "client-connector-port-details": {
+      "kind": "semantic",
+      "title": "Which forwarding mode uses the Client Connector dedicated proxy port",
+      "status": "open",
+      "detail": "The Client Connector page does not say which tunnel mode uses the port, its Client Connector versions or platforms, or what happens after 443 and 80.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "port-details": {
       "kind": "semantic",
       "title": "Proxy port number ranges, per-location count and the external-IP mapping setting",

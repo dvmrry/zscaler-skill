@@ -52,11 +52,11 @@
     },
     {
       "label": "Preference for a Private Service Edge.",
-      "text": "{{trusted-network-priority}} {{trusted-networks-zcc-only}} {{grace-distance}} {{grace-distance-fields}} Whether grace distance is needed for on-premises users is unverified {{gap:grace-distance-required}}. The base ranking is not described {{gap:nearest-by-coordinates}}."
+      "text": "{{trusted-network-priority}} {{trusted-networks-zcc-only}} {{grace-distance}} {{grace-distance-fields}} {{grace-distance-limits}} Whether grace distance is needed for on-premises users is unverified {{gap:grace-distance-required}}. The base ranking is not described {{gap:nearest-by-coordinates}}."
     },
     {
       "label": "Remote users.",
-      "text": "{{publicly-accessible}} {{is-public-field}} {{outside-users-excluded}} The Public-tier reading of this field is in [[zpa.public-service-edges.public-flag]]."
+      "text": "{{publicly-accessible}} {{is-public-field}} {{outside-users-excluded}} {{publicly-accessible-when-needed}} {{disabled-without-trusted-network}} The Public-tier reading of this field is in [[zpa.public-service-edges.public-flag]]."
     },
     {
       "label": "Country policy.",
@@ -207,12 +207,12 @@
       "conditions": "Tier lowered from A: no quoted source ties is_public to the console's Publicly Accessible setting; the link rests on matching names and the OpenAPI description of isPublic as whether the group is public."
     },
     "outside-users-excluded": {
-      "statement": "A group without Publicly Accessible is not offered to users outside its mapped trusted networks.",
+      "statement": "A group that has trusted networks mapped but not Publicly Accessible is not offered to users outside those trusted networks.",
       "tier": "B",
       "derived_from": [
         "publicly-accessible"
       ],
-      "conditions": "Inferred from the console wording that the setting makes the group \"also\" available outside the trusted networks; no source states the off-state routing directly. Statement changed: the clause \"so those users are served by other Service Edges\" was dropped as unsupported."
+      "conditions": "Inferred from the console wording that the setting makes a group with specific trusted networks mapping \"also\" available outside the trusted networks; no source states the off-state routing directly. Scope narrowed to groups with a trusted-network mapping: for a group with no trusted network, the Configuring Private Service Edges page says the Private Service Edge's IP address is returned to on-premises and roaming users closest to it (disabled-without-trusted-network), which the earlier unscoped wording contradicted. The clause \"so those users are served by other Service Edges\" was dropped earlier as unsupported."
     },
     "grace-distance": {
       "statement": "Grace distance (console: Public Service Edge Proximity Override) allows a Private Service Edge group within a specified distance of the user to be prioritized over a closer Public Service Edge for Private Access.",
@@ -263,6 +263,57 @@
       "binds": [
         "zpa/service-edge-groups#graceDistanceValue",
         "zpa/service-edge-groups#graceDistanceValueUnit"
+      ]
+    },
+    "publicly-accessible-when-needed": {
+      "statement": "The Add page says a Private Service Edge that has a public IP address, or a published IP address set to the public IP address of a SNAT (firewall), is already publicly accessible and the field need not be enabled; a Private Service Edge with neither should have it set to Enabled and also needs a published domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "If the Private Service Edge has a public IP address or a published IP address set to a public IP address of a SNAT (i.e., firewall), you do not need to enable this field. It is already publicly accessible.",
+            "If the Private Service Edge does not have either of those, set this to Enabled. You also need to specify a published domain for the Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "disabled-without-trusted-network": {
+      "statement": "When Publicly Accessible is disabled on a group without a trusted network, the Private Service Edge's IP address is returned to the client for both on-premises and roaming users located closest to the Private Service Edge, so it should be reachable over a public IP address to mitigate connectivity issues for remote users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "When you disable Publicly Accessible without a trusted network, the IP address of the Private Service Edge is returned to the client for both on-premises and roaming users that are located closest to the Private Service Edge.",
+            "To mitigate connectivity issues for remote users who want to connect to this Private Service Edge, ensure it’s reachable over a public IP address."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-service-edge-groups.json",
+          "quotes": [
+            "When you disable Publicly Accessible without a trusted network, the IP address of the Private Service Edge is returned to the client for both on-premises and roaming users that are located closest to the Private Service Edge."
+          ]
+        }
+      ]
+    },
+    "grace-distance-limits": {
+      "statement": "In the console, the Distance field listed after Public Service Edge Proximity Override is the maximum distance to Private Service Edge groups that would override a Public Service Edge, in Miles or Kms; it must be a valid positive number (maximum 25,000 miles or 40,233.6 kilometers) with no more than two decimal places, and units must be selected. If several groups share the same latitude and longitude, the Distance of the group with the highest value is applied to all of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-service-edges.json",
+          "quotes": [
+            "Public Service Edge Proximity Override: Enable to allow Private Service Edge groups within the specified distance to be prioritized over a closer Public Service Edge for Private Access.",
+            "Distance: Enter the maximum distance to Private Service Edge groups that would override a Public Service Edge (select either Miles or Kms (kilometers) in the drop-down menu).",
+            "A valid positive number (maximum value is 25,000 miles or 40,233.6 kilometers) not exceeding two decimal places (e.g., 10.05) is required for distance and units must be selected.",
+            "If multiple Private Service Edge groups are configured with the same location (i.e., latitude and longitude), then the Distance from the Private Service Edge group that has the highest value is applied for all Private Service Edge groups."
+          ]
+        }
       ]
     },
     "public-ip-country": {

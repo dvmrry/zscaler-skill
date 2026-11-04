@@ -30,6 +30,10 @@
     {
       "rel": "see-also",
       "to": "zpa.scim.provisioning-timing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning.scim"
     }
   ],
   "prose": [
@@ -50,7 +54,11 @@
     },
     {
       "label": "SCIM in the IdP form.",
-      "text": "{{scim-endpoint-and-auth}} {{scim-bearer-token}} Who may see the token differs between pages {{divergence:bearer-token-visibility}}. {{scim-client-credentials}} {{addresses-scim-only}} Vendor-specific SCIM settings are in [[zidentity.overview.external-idps.integrations]]."
+      "text": "{{scim-endpoint-and-auth}} {{scim-bearer-token}} Who may see the token differs between pages {{divergence:bearer-token-visibility}}. {{scim-client-credentials}} {{addresses-scim-only}} Vendor-specific SCIM settings are in [[zidentity.overview.external-idps.integrations]]. The SCIM server itself, with its operations, attribute mapping and rate limits, is in [[zidentity.users.provisioning.scim]]."
+    },
+    {
+      "label": "JIT through a device token.",
+      "text": "{{device-token-auth}} {{device-token-domains-jit}} {{device-token-saml-sso}} {{device-token-user}} {{device-token-dynamic-group}} {{device-token-install}} Whether device-token users count as hosted or IdP users on the dashboard is open {{gap:device-token-dashboard}}."
     },
     {
       "label": "When an IdP is removed.",
@@ -422,6 +430,98 @@
           ]
         }
       ]
+    },
+    "device-token-auth": {
+      "statement": "Authentication Service manages device token authentication for Client Connector: device tokens created in Client Connector are passed to Authentication Service to be authenticated for registered domains, so the token is created in Client Connector first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-device-token-authentication.json",
+          "quotes": [
+            "Authentication Service manages the device token authentication for Zscaler Client Connector.",
+            "The device tokens created in Zscaler Client Connector are passed to Authentication Service to be authenticated for registered domains.",
+            "You need to first create the device token in Zscaler Client Connector before authenticating the device token in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "device-token-domains-jit": {
+      "statement": "The device token setting authenticates either all registered domains or only the selected domains (the Domains choice appears only when all domains is off), and Enable for JIT Provisioning enrolls users into Authentication Service automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-device-token-authentication.json",
+          "quotes": [
+            "Enable to allow all the domains: Enable to authenticate all registered domains with the device token.",
+            "Domains: Select the required domains that must be authenticated with the device token. This option appears only if the Enable to allow all the domains option is disabled.",
+            "Enable for JIT Provisioning: Enable to automatically enroll users to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "device-token-saml-sso": {
+      "statement": "With device tokens, users need not be tied to the organization's standard IdP to authenticate to Client Connector: where the organization uses SAML-based SSO, Authentication Service can use a device token to auto-provision and silently authenticate users and devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-using-authentication-service-with-zscaler-client-connector-device-tokens.json",
+          "quotes": [
+            "Authentication Service can authenticate users on Zscaler Client Connector using device tokens.",
+            "With this feature, users need not be tied to your organization’s standard IdP to authenticate to Zscaler Client Connector.",
+            "Instead, if your organization uses SAML-based single sign-on (SSO), Authentication Service can use a device token to auto-provision and silently authenticate users and devices to Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "device-token-user": {
+      "statement": "With JIT provisioning on, the device-token user is created in Authentication Service as <name-of-machine>@<domain> as defined at installation (the page's example: machine Alice and domain example.com give alice@example.com), and must be assigned the service entitlement for the login to succeed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-using-authentication-service-with-zscaler-client-connector-device-tokens.json",
+          "quotes": [
+            "The user is created in Authentication Service when JIT provisioning is enabled. This user must be assigned the service entitlement to ensure that the login is successful.",
+            "The format for the user is <name-of-machine>@<domain> as defined during installation.",
+            "For example, if the machine name is \"Alice\" and the domain used at the time of installation is \"example.com\", the format for the user created is alice@example.com."
+          ]
+        }
+      ]
+    },
+    "device-token-dynamic-group": {
+      "statement": "Instead of entitling each device-token user, the Dynamic Group Registered Domains group, which holds all users of the tenant's registered domains, can be assigned the service entitlement, so all its users get it automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-using-authentication-service-with-zscaler-client-connector-device-tokens.json",
+          "quotes": [
+            "Alternatively, you can use the Dynamic Group Registered Domains, a dynamic group, to assign service entitlement.",
+            "The Dynamic Group Registered Domains group includes all the users with the domains that are registered to this tenant. Hence, all users in the group are assigned service entitlement automatically."
+          ]
+        }
+      ]
+    },
+    "device-token-install": {
+      "statement": "To use Authentication Service as the users' IdP, the device token copied from Client Connector, the user domain and the cloud name are passed to users' devices during installation; the page points to install options for Windows MSI and EXE, macOS, and Android and iOS through MDM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-using-authentication-service-with-zscaler-client-connector-device-tokens.json",
+          "quotes": [
+            "To use Authentication Service as an IdP for your users, you must pass the device token generated and copied from Zscaler Client Connector, user domain, and cloud name to users' devices during installation.",
+            "For Windows with MSI Installer, see Customizing Zscaler Client Connector with Install Options for MSI.",
+            "For Windows with EXE Installer, see Customizing Zscaler Client Connector with Install Options for EXE.",
+            "For macOS with Installer App, see Customizing Zscaler Client Connector with Install Options for macOS.",
+            "For Android with MDM Deployment procedures, see Customizing Zscaler Client Connector with Install Options for Android.",
+            "For iOS with MDM Deployment procedures, see Customizing Zscaler Client Connector with Install Options for iOS."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -454,6 +554,17 @@
     }
   },
   "gaps": {
+    "device-token-dashboard": {
+      "kind": "semantic",
+      "title": "Whether device-token users count as hosted or IdP users on the dashboard",
+      "status": "open",
+      "detail": "The device token pages do not say whether the users they create count as hosted or IdP users on the user dashboard. The per-platform ZPA restrictions are only on the Client Connector side (zcc.install.enrollment:device-token).",
+      "blocks": "reading dashboard counts for device-token tenants",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "jit-secondary-groups": {
       "kind": "semantic",
       "title": "Whether JIT provisions system-defined groups for secondary IdPs",

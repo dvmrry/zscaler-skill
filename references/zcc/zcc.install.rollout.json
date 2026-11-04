@@ -57,6 +57,14 @@
       "text": "{{app-store-tabs}} The Android download is described differently by the MDM guides: [[zcc.install.android-deployment]]."
     },
     {
+      "label": "What the App Store page controls.",
+      "text": "{{app-store-control}} {{availability-sections}} The relation of those sections to the New Releases tab is open {{gap:availability-vs-new-releases}}. {{enable-before-install}}"
+    },
+    {
+      "label": "The version list.",
+      "text": "{{version-list}} {{device-count-basis}}"
+    },
+    {
       "label": "Before deploying.",
       "text": "{{platform-inventory}}"
     },
@@ -78,6 +86,80 @@
     }
   ],
   "claims": {
+    "app-store-control": {
+      "statement": "The Client Connector App Store page controls which version, if any, is available when end users update the app manually or when automatic app updates are configured; it can deploy the latest version to a user group for testing, upgrade selected groups gradually with a phased rollout, and delay the base ZDX Module rollout so a selected group can test it. An admin without access to the page contacts the organization's support team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "In the Zscaler Admin Console on the Zscaler Client Connector App Store page, you can control which version (if any) of Zscaler Client Connector is available when end users manually update the app or when you configure automatic app updates.",
+            "Automatically deploy the latest version of Zscaler Client Connector to a specific user group for testing purposes.",
+            "Gradually upgrade devices for selected groups using a phased rollout.",
+            "Delay a rollout of the base ZDX Module used with Digital Experience (ZDX) to allow for testing by a selected group.",
+            "If you don't have access to the Zscaler Client Connector App Store, contact your organization's support team."
+          ]
+        }
+      ]
+    },
+    "availability-sections": {
+      "statement": "The App Store page shows the latest released versions in the General Availability section and versions that are not yet fully qualified in the Limited Availability section; Zscaler Support enables versions in the Limited Availability section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "View the latest released versions in the General Availability section and versions that are not yet fully qualified in the Limited Availability section.",
+            "Contact Zscaler Support to enable versions in the Limited Availability section."
+          ]
+        }
+      ]
+    },
+    "enable-before-install": {
+      "statement": "Even when the latest version is selected to install on the Update Settings tab, the build must first be enabled on the New Releases tab; disabling a version on New Releases only disables it on the list and does not uninstall it from the system.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "Even if you select to install the latest version in the Update Settings tab, you must first enable the build in the New Releases tab. If you disable a version from the New Releases tab, the version is only disabled on the list and is not uninstalled from your system."
+          ]
+        }
+      ]
+    },
+    "version-list": {
+      "statement": "The App Store lists the available Client Connector versions for Windows, macOS, Linux and Android with the latest version always at the top, and its Registered Devices column shows the number of devices currently enrolled in the Zscaler service with each app version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "View the list of available Zscaler Client Connector versions for Windows, macOS, Linux, and Android. The latest version is always listed at the top.",
+            "In the Registered Devices column, view the number of devices currently enrolled in the Zscaler service with this app version."
+          ]
+        }
+      ]
+    },
+    "device-count-basis": {
+      "statement": "The Registered Devices count is calculated on the Unique-ID and can instead be based on the Hardware Fingerprint, which Zscaler Support changes: with 5 users sharing one laptop the count shows 5 on the Unique-ID and 1 on the Hardware Fingerprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-app-store.json",
+          "quotes": [
+            "In the Registered Devices column, view the number of devices currently enrolled in the Zscaler service with this app version.",
+            "The device count is calculated based on the Unique-ID. You can change this calculation to base the count on the Hardware Fingerprint.",
+            "For example, if you have 5 users sharing a single laptop, the device count shows 5 when based on the Unique-ID but shows 1 when based on the Hardware Fingerprint.",
+            "To change the calculation basis, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
     "downloads": {
       "statement": "IT admins can download Client Connector for Windows, macOS, Linux or Android from the Client Connector App Store in the Admin Console (Infrastructure > Client Connector > App Store), either the latest version or one of the older versions still available. App updates can also be configured to update Client Connector automatically on end users' Windows, Linux or macOS devices.",
       "tier": "A",
@@ -304,6 +386,16 @@
     }
   },
   "gaps": {
+    "availability-vs-new-releases": {
+      "kind": "semantic",
+      "title": "How the General and Limited Availability sections relate to the New Releases tab",
+      "status": "open",
+      "detail": "The About the App Store page names General Availability and Limited Availability sections and the downloads page names the New Releases tab; neither says how a version in a section is enabled or listed on that tab.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "phase-details": {
       "kind": "semantic",
       "title": "How long each rollout phase lasts and what triggers a rollback",

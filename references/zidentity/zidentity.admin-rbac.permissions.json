@@ -29,7 +29,15 @@
     },
     {
       "label": "Modules and levels.",
-      "text": "{{modules}} {{levels}}"
+      "text": "{{modules}} {{levels}} {{add-role-levels}}"
+    },
+    {
+      "label": "Module pages.",
+      "text": "{{module-pages}} Its module list is scoped to that page, as the matrix list in {{modules|ref}} is scoped to the matrix. {{guest-domains-levels}} {{executive-insights-module}}"
+    },
+    {
+      "label": "Setting a role's levels.",
+      "text": "{{no-escalation}}"
     },
     {
       "heading": "Dependencies between modules"
@@ -42,15 +50,19 @@
         },
         {
           "label": "User credentials.",
-          "text": "{{credentials-need-users}}"
+          "text": "{{credentials-need-users}} {{users-groups-excludes-security}}"
         },
         {
           "label": "Roles.",
-          "text": "{{roles-module}}"
+          "text": "{{roles-module}} {{assigned-role-edit}}"
         },
         {
           "label": "Administrative entitlements.",
-          "text": "{{admin-entitlements-role-assignment}}"
+          "text": "{{admin-entitlements-role-assignment}} {{admin-entitlements-product-full}} {{admin-entitlements-by-users-groups}}"
+        },
+        {
+          "label": "Service entitlements.",
+          "text": "{{service-entitlements-by-users-groups}}"
         }
       ]
     },
@@ -102,6 +114,19 @@
       "uses": [
         "admin-entitlements-role-assignment"
       ]
+    },
+    {
+      "do": "For an admin who sees only some services on Administrative Entitlements, whether their product role has Role Management Full in each product.",
+      "uses": [
+        "admin-entitlements-product-full"
+      ]
+    },
+    {
+      "do": "Before saying a role has a Linked Services or Remote Assistance module, which page's module list the answer rests on: the Adding Admin Roles page lists Linked Services and the matrix lists Remote Assistance.",
+      "uses": [
+        "modules",
+        "module-pages"
+      ]
     }
   ],
   "claims": {
@@ -151,7 +176,7 @@
       ]
     },
     "levels": {
-      "statement": "The levels used in the matrix are Full, Restricted Full (Administrative Entitlements and API Clients & Resources), View Only and None, and the External Identities row also describes a Restricted View level that shows each IdP's configuration except the Bearer Token. The page's own example of combining roles names a Restrictive View level for External Identities.",
+      "statement": "The matrix rows quoted here use the levels Full, Restricted Full (Administrative Entitlements and API Clients & Resources), View Only and None, and the External Identities row also describes a Restricted View level that shows each IdP's configuration except the Bearer Token. The page's own example of combining roles names a Restrictive View level for External Identities.",
       "tier": "A",
       "evidence": [
         {
@@ -163,7 +188,7 @@
             "|  | None | Not allowed to view the contents of sign-on policy. |",
             "|  | View Only | View external identities (both primary and secondary IdPs). View all configurations per IdP. Restricted View View external identities (both primary and secondary IdPs). View configuration per IdP except for Bearer Token.",
             "|  | None | Not allowed to access or view external identities. |",
-            "one role has an External Identities permission of Restrictive View"
+            "For example, if a user has two roles, and one role has an External Identities permission of Restrictive View and the other has an External Identities permission of View, the effective permission level is View."
           ]
         },
         {
@@ -181,6 +206,13 @@
           "quotes": [
             "|  | Restricted Full | Add API Clients Edit or delete API Clients"
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "Condition: The Restricted View access allows View-Only access to External Identities but doesn't allow the role to view or access the Bear Token field (Administration > Authentication > External Identities > Edit Primary or Secondary Identity Provider > Provisioning Details)."
+          ]
         }
       ]
     },
@@ -194,6 +226,13 @@
           "quotes": [
             "| Admin Sign on Policy | Full | View sign-on policy. Edit all configurations in sign-on policy. Exception: If the admin does not have the permission for “IP Locations - Full” or “IP Locations - View”, they are not allowed to access sign-on policy.",
             "|  | View Only | View sign-on policy and rules. Exception: If the admin does not have the permission for “IP Locations - Full” or “IP Locations - View” they are not allowed to access sign-on policy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "Condition: The role must also have Full or View Only access to IP Locations to manage or view Sign-On Policy."
           ]
         }
       ]
@@ -209,6 +248,13 @@
             "| User Credentials | Full | Access, view, and change security settings (all attributes and settings) only when admins have “Users and Groups - View” or “Users and Groups - Full” permissions.",
             "|  | View Only | View security settings (all attributes and settings) only when admins have “Users and Groups - View” or “Users and Groups - Full” permissions.",
             "Admins without the \"Users and Groups -Full\" permission cannot change a user's primary and secondary email address even though they are used as credentials."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "Condition: The role must have Full or View Only access to Users and Groups to manage or view the Security Settings of users."
           ]
         }
       ]
@@ -246,6 +292,14 @@
             "|  | Restricted Full | Access, view, and search administrative entitlements.",
             "Admin with \"Roles - Full\" permission can assign roles. Admin with \"Roles - View Only\" permission cannot assign roles.",
             "If an admin has permissions in individual tenants to manage administrators, they can: Assign users and user groups. Remove user assignments and user group assignments."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "Access, view, and search administrative entitlements.",
+            "Assign users, remove user assignments, assign user groups, and remove user group assignments if they have permission on individual tenants to manage administrators."
           ]
         }
       ]
@@ -304,6 +358,164 @@
             "| Audit Logs | View Only | View audit logs |",
             "|  | None | Not allowed to view audit logs |",
             "Not allowed to view audit logs |\n| Guest Domain | Full |"
+          ]
+        }
+      ]
+    },
+    "add-role-levels": {
+      "statement": "The Adding Admin Roles page describes four access levels per module: Full (full access), View Only (view details only), Restricted View (view specific details) and None (no access).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "Full: Allows admins full access to the module.",
+            "View Only: Allows admins to only view the details.",
+            "Restricted View: Allows admins to view specific details in the module.",
+            "None: Admins don't have access to the module."
+          ]
+        }
+      ]
+    },
+    "module-pages": {
+      "statement": "The Adding Admin Roles page maps modules to console pages: Authentication Methods covers Password Policy and Authentication Methods; Users & Groups covers Users, User Groups and Attributes; IP Locations & Groups covers Trusted IP Locations and Trusted IP Location Groups; Linked Services covers Linked Services; Service Entitlements covers End User Entitlements; Audit Logs covers Data Explorer > Audit Logs > Authentication Service; API Clients & Resources covers API Clients and API Resources; Token Validator covers Token Validators; Log Streaming covers Authentication Service Log Streaming.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "- Authentication Methods - Set the access level to: - Administration > Authentication > Password Policy - Administration > Authentication > Authentication Methods",
+            "- Users & Groups - Set the access level to: - Administration > Authentication > Users - Administration > Authentication > User Groups - Administration > Authentication > Attributes",
+            "- IP Locations & Groups - Set the access level to Administration > Authentication > Trusted IP Locations and Administration > Authentication > Trusted IP Location Groups.",
+            "- Linked Services - Set the access level to Administration > Subscription > Linked Services.",
+            "- Service Entitlements - Set the access level to Administration > Subscription > End User Entitlements.",
+            "- Audit Logs - Set the access level to Data Explorer > Audit Logs > Authentication Service.",
+            "- API Clients & Resources - Set the access level to Administration > API > API Clients and Administration > API > API Resources.",
+            "- Token Validator - Set the access level to Administration > Authentication > Token Validators.",
+            "- Log Streaming - Set the access level to Data Explorer > Log Streaming > Authentication Service Log Streaming."
+          ]
+        }
+      ]
+    },
+    "users-groups-excludes-security": {
+      "statement": "Users & Groups does not give access to a user's Security Settings (Administration > Authentication > Users > Edit User > Security Settings); that needs Full or View Only on User Credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "after": "- Users & Groups - Set the access level to:",
+          "quotes": [
+            "Condition: This permission doesn't allow access to Administration > Authentication > Users > Edit User > Security Settings. The role must have Full or View Only access to User Credentials to manage or view the Security Settings of users."
+          ]
+        }
+      ]
+    },
+    "admin-entitlements-product-full": {
+      "statement": "An admin with the Administrative Entitlements module reaches the Administrative Entitlements configuration only for services where they are a service admin and their product role has that product's Role Management permission at Full (Internet & SaaS, Private Access, Digital Experience, Client Connector, Branch and Cloud Connector). The page's example: an admin without full access to administrative controls in Private Access sees only Internet & SaaS listed, not Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "The admins that are assigned this role can access the configuration on the Administrative Entitlements: Administrative page only for the services to which they are assigned as service admins, where their role includes the following permission set to Full:",
+            "Administration > Role Management > Internet & SaaS in Internet & SaaS (ZIA).",
+            "Administration > Role Management > Private Access in Private Access (ZPA).",
+            "Administration > Role Management > Digital Experience in Digital Experience Monitoring.",
+            "Administration > Role Management > Client Connector in Zscaler Client Connector.",
+            "Administration > Role Management > Branch and Cloud Connector in Zscaler Cloud & Branch Connector.",
+            "the admin only sees the Internet & SaaS service listed on the About Administrative Entitlements page and not the Private Access service, because the admin doesn't have full access to administrative controls in the Private Access service."
+          ]
+        }
+      ]
+    },
+    "admin-entitlements-by-users-groups": {
+      "statement": "On the Administrative Entitlements page, admins with Full on users and groups view user and group details and all assignments and assign and remove users and groups; the page also lists what admins with View Only on users and groups can do there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "after": "Admins with Full access to users and groups can do the following on the Administrative Entitlements page:",
+          "quotes": [
+            "View the users and user groups details.",
+            "View all users and user group assignments.",
+            "Assign users and user groups.",
+            "Remove users and user group assignments.",
+            "Admins with View Only access to users and groups can do the following on the Administrative Entitlements page:"
+          ]
+        }
+      ]
+    },
+    "service-entitlements-by-users-groups": {
+      "statement": "On the Service Entitlements page, admins with Full on users and groups view users, groups and assignments; admins with View Only on users and groups view the subscribed services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "Admins with Full access to users and groups can do the following on the Service Entitlements page:",
+            "View users and user groups and assignments.",
+            "Admins with View Only access to users and groups can do the following on the Service Entitlements page:",
+            "View the subscribed services."
+          ]
+        }
+      ]
+    },
+    "assigned-role-edit": {
+      "statement": "Editing or deleting an admin role that is currently assigned to admins needs Full on Administrative Entitlements and Full or View Only on Users & Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "Condition: To edit or delete admin roles that are currently assigned to admins, you must have Full access to Administrative Entitlements and Full or View Only access to Users & Groups."
+          ]
+        }
+      ]
+    },
+    "no-escalation": {
+      "statement": "An admin configuring a role can set each permission only equal to or lower than their own role's level, so a lower-scoped admin cannot create a higher-scoped one; the page's example: an admin whose role has Roles Full and IP Locations View Only can give new roles IP Locations View or None, not Full.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "When configuring an Authentication Service role, an admin can only set the permission level equal to or less than their role scope.",
+            "if admin access is set to Full for Roles and View Only for IP Locations for a role, the admin assigned to that role can only add new roles with IP Locations to either View or None, but not as Full.",
+            "This ensures that admins with lower scope and permission can't configure an admin with a higher scope and permission."
+          ]
+        }
+      ]
+    },
+    "guest-domains-levels": {
+      "statement": "Guest Domains takes Full, View Only or None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "- Guest Domains - Set the access level to Full, View Only, or None."
+          ]
+        }
+      ]
+    },
+    "executive-insights-module": {
+      "statement": "The Executive Insights permission is given to the leadership team (CEO, COO, CFO and others) to let them access the Executive Insights app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-authentication-service-admin-roles.json",
+          "quotes": [
+            "The Executive Insights role is assigned to the leadership team (chief executive officer (CEO), chief operating officer (COO), chief financial officer (CFO), etc.) in your organization, allowing them to access the Executive Insights app."
           ]
         }
       ]

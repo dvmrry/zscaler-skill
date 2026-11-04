@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.zcc",
+  "title": "Client Connector admin roles: the Administration Management page, Full, View Only, None and Customize, the permission sections and token obfuscation",
+  "aliases": [
+    "client connector admin roles",
+    "zcc admin roles",
+    "zcc role management",
+    "client connector role management",
+    "zcc admin permissions",
+    "obfuscate passwords and tokens"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.cloud-connector"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.admin-users-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.api.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-roles-control}} {{role-page}}"
+    },
+    {
+      "label": "Where roles are assigned.",
+      "text": "{{auth-service}} {{role-name}}"
+    },
+    {
+      "label": "Permission levels.",
+      "text": "{{permission-levels}}"
+    },
+    {
+      "label": "What each section covers.",
+      "text": "{{dashboard}} {{enrolled-devices}} {{app-profiles}} {{administration-settings}}"
+    },
+    {
+      "label": "Sensitive data.",
+      "text": "{{obfuscation}} Whether obfuscation affects admins with full access is open {{gap:obfuscation-scope}}."
+    },
+    {
+      "label": "Open.",
+      "text": "Which settings offer only View Only or None {{gap:view-only-settings}}, how Partner Devices follows the Enrolled Devices levels {{gap:partner-devices-levels}} and what the default policy exception leaves admins on App Profiles {{gap:default-policy-exception}} are not stated. Whether a predefined super admin role exists (the page names a super admin who creates roles) and whether Unified RBAC applies are not described {{gap:super-admin-and-unified-rbac}}. What admins did is in [[zcc.audit-logs]]; the admin copy the API keeps is in [[zcc.api.admin-users-wire]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an admin who cannot open or change a Client Connector page, the role's permission for the section or setting that covers it, and whether Full is needed for the action (removing devices or machine tunnels, configuring app profile rules, configuring Administration settings).",
+      "uses": [
+        "permission-levels",
+        "enrolled-devices",
+        "app-profiles",
+        "administration-settings"
+      ]
+    },
+    {
+      "do": "For an admin who sees obfuscated passwords or tokens, the Obfuscate Passwords and Tokens option in the role's Sensitive Data section.",
+      "uses": [
+        "obfuscation"
+      ]
+    },
+    {
+      "do": "That admin roles are assigned in Authentication Service.",
+      "uses": [
+        "auth-service"
+      ]
+    }
+  ],
+  "claims": {
+    "what-roles-control": {
+      "statement": "Client Connector roles control access to Admin Console settings and are assigned to Internet & SaaS, Private Access and Digital Experience (ZDX) administrators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-role-management.json",
+          "quotes": [
+            "You can create roles to control access to Zscaler Admin Console settings and assign these roles to Internet & SaaS, Private Access, and Digital Experience (ZDX) administrators."
+          ]
+        }
+      ]
+    },
+    "role-page": {
+      "statement": "Roles are listed on the Administration Management page (Administration > Role Management > Client Connector), which shows each role's Role Name (a role created by the super admin), Full Access (settings the role can configure) and View-Only Access (settings it can only view), and where roles are added, edited, deleted and viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-role-management.json",
+          "quotes": [
+            "On the Administration Management page (Administration > Role Management > Client Connector), you can:",
+            "Role Name: Name of role created by the super admin.",
+            "Full Access: Settings that the role has access to configure.",
+            "View-Only Access: Settings that the role can only view.",
+            "Add a role.",
+            "Edit a role.",
+            "Delete a role.",
+            "View a role."
+          ]
+        }
+      ]
+    },
+    "auth-service": {
+      "statement": "Admin roles must be assigned in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "Admin roles must be assigned in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "permission-levels": {
+      "statement": "A role's permission for a setting is Full (view and configure settings), View Only (view settings), None (the setting is hidden) or Customize; for some settings only View Only or None is available. Full, View Only or None applies to the setting's entire section, and Customize mixes permissions per setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "Full: View and configure settings.",
+            "View Only: View settings.",
+            "None: Setting is hidden.",
+            "You can choose one of the following permissions: Full, View Only, None, or Customize.",
+            "For some settings, only View Only or None is available.",
+            "When you choose Full, View Only, or None, that permission applies to the setting's entire section. When you choose Customize, you can select a mix of permissions for each setting."
+          ]
+        }
+      ]
+    },
+    "role-name": {
+      "statement": "A role name cannot contain special characters other than periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "The name you enter cannot contain special characters, except periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "dashboard": {
+      "statement": "On the Dashboard, admins can view data for all or specific users, device states and operating systems; View Only is the Dashboard's default permission and cannot be changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "On the Dashboard, admins can view data for all or specific users, all or specific device states, and all or specific operating systems.",
+            "View Only is the default permission for the Dashboard and cannot be changed."
+          ]
+        }
+      ]
+    },
+    "enrolled-devices": {
+      "statement": "The Enrolled Devices section covers Device Overview (enrolled and removed devices), Machine Tunnel (list, details and removal of machine tunnels) and Partner Devices. Full allows all settings on the Device Overview and Machine Tunnel pages, and removing devices and machine tunnels needs full access; View Only allows viewing, filtering, sorting, exporting and searching on those pages; None gives no access to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "Device Overview: View, sort, filter, and export data for enrolled devices and removed devices.",
+            "Machine Tunnel: View a list of machine tunnels, details about each machine tunnel, and remove machine tunnels.",
+            "Partner Devices: View, sort, filter, and export data for Partner Devices.",
+            "Full: Allows access to all settings on the Device Overview page and the Machine Tunnel page. Admins must have full access to remove devices and machine tunnels.",
+            "View Only: Allows access to view, filter, sort, export, and search data on the Device Overview page and the Machine Tunnel page.",
+            "None: Does not allow access to the Device Overview page and the Machine Tunnel page."
+          ]
+        }
+      ]
+    },
+    "app-profiles": {
+      "statement": "The App Profiles section lets admins view a platform's app profile rules, all configured rules, a rule's policy token and the default policy, and configure, edit or delete rules; the permission is chosen per platform. Full allows all App Profiles settings for all platforms, and configuring, editing and deleting rules needs full access, except for the default policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "Admins can view app profile rules for a specific platform, a list of all configured app rules, the policy token for an app profile rule, and the default policy. Admins can also configure, edit, or delete an app profile rule.",
+            "For each platform listed, choose one of the following permissions:",
+            "Full: Allows access to all settings for all platforms on the App Profiles page. Admins must have full access to configure, edit, and delete app profile rules, except the default policy.",
+            "View Only: Allows access to only view data on the App Profiles page.",
+            "Customize: Allows you to choose a permission level for each platform."
+          ]
+        }
+      ]
+    },
+    "administration-settings": {
+      "statement": "The Administration section's settings, each given a permission, are Client Connector App Store, Client Connector Notifications, Audit Logs, Forwarding Profile, Trusted Networks, Client Connector Support, Zscaler Service Entitlement, User Agent, Client Connector IdP, Device Posture, Business Continuity, Application Bypass Info, Dedicated Proxy Port, Public API, Platform Settings (formerly Authentication Settings), Device Groups, Private Access Partner Logins, Location-Based Policies and Administration Management. Admins must have full access to configure settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "- Client Connector App Store",
+            "- Client Connector Notifications",
+            "- Audit Logs",
+            "- Forwarding Profile",
+            "- Trusted Networks",
+            "- Client Connector Support",
+            "- Zscaler Service Entitlement",
+            "- User Agent",
+            "- Client Connector IdP",
+            "- Device Posture",
+            "- Business Continuity",
+            "- Application Bypass Info",
+            "- Dedicated Proxy Port",
+            "- Public API",
+            "- Platform Settings (formerly Authentication Settings)",
+            "- Device Groups",
+            "- Private Access Partner Logins",
+            "- Location-Based Policies",
+            "- Administration Management",
+            "For each setting, select one of the following permissions:",
+            "Full: Allows access to all settings in the Administration menu. Admins must have full access to configure settings."
+          ]
+        }
+      ]
+    },
+    "obfuscation": {
+      "statement": "The Sensitive Data section includes Obfuscate Passwords and Tokens: when enabled, all passwords, OTP, policy tokens, device tokens and machine tokens in the Admin Console are obfuscated, and the page says the feature is applicable to admins who have read-only access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-roles.json",
+          "quotes": [
+            "The Sensitive Data section includes the option to obfuscate passwords and tokens in the Zscaler Admin Console.",
+            "Obfuscate Passwords and Tokens: When enabled, all passwords, OTP, Policy Tokens, Device Tokens, and Machine Tokens in the Zscaler Admin Console are obfuscated. This feature is applicable to admins who have read-only access."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "obfuscation-scope": {
+      "kind": "semantic",
+      "title": "Whether obfuscation affects Client Connector admins with full access",
+      "status": "open",
+      "detail": "The page says Obfuscate Passwords and Tokens is applicable to admins who have read-only access and does not say whether it affects admins with full access.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "view-only-settings": {
+      "kind": "semantic",
+      "title": "Which Client Connector settings offer only View Only or None",
+      "status": "open",
+      "detail": "The page says that for some settings only View Only or None is available and does not list them.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "partner-devices-levels": {
+      "kind": "semantic",
+      "title": "How Partner Devices follows the Enrolled Devices permission levels",
+      "status": "open",
+      "detail": "The Full, View Only and None lines for Enrolled Devices name the Device Overview and Machine Tunnel pages only; the page lists Partner Devices as a third item and does not say how the levels apply to it.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "default-policy-exception": {
+      "kind": "semantic",
+      "title": "What admins can do with the default policy on App Profiles",
+      "status": "open",
+      "detail": "Full access is needed to configure, edit and delete app profile rules 'except the default policy'; the page does not say what an admin may do with the default policy at each level.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "super-admin-and-unified-rbac": {
+      "kind": "semantic",
+      "title": "A predefined Client Connector super admin role and Unified RBAC",
+      "status": "open",
+      "detail": "The Role Name description mentions a role created by the super admin, but the captured pages do not describe a predefined super admin role for Client Connector, and do not mention Unified RBAC, which the pages for other products' roles do.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

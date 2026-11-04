@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.audit-logs",
+  "title": "Authentication Service audit logs and log streaming: what is recorded, record fields, filters and export, and NSS streaming",
+  "aliases": [
+    "Authentication Service audit logs",
+    "ZIdentity audit logs",
+    "Data Explorer Audit Logs Authentication Service",
+    "Authentication Service Log Streaming",
+    "ZIdentity Admin Audit Log",
+    "stream Authentication Service logs to SIEM"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.nss.feeds"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs.streaming"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac.permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Authentication Service keeps its own audit log, read in the console and streamed through NSS. {{what-is-recorded}}"
+    },
+    {
+      "label": "Authentication events.",
+      "text": "{{authentication-events}}"
+    },
+    {
+      "label": "Reading the log.",
+      "text": "{{page-filters-export}} {{record-fields}} {{actions-and-categories}} {{config-diff}}"
+    },
+    {
+      "label": "What is not recorded or not known.",
+      "text": "Retention is open {{gap:retention}}, and so are the objects of Link and Unlink {{gap:link-objects}}. Whether admin role and administrative-entitlement assignments are recorded is the open question in [[zidentity.admin-rbac:assignment-audit]]. There is no pull API: [[shared.audit-logs:zid-no-audit-api]]."
+    },
+    {
+      "label": "Log streaming.",
+      "text": "{{log-streaming}} {{log-streaming-permission}} {{log-streaming-allowlist}} The feeds are ZIA NSS feeds: [[shared.nss.feeds:auth-scim-delay]], [[shared.nss.feeds:cloud-one-feed]], [[zia.audit-logs.streaming:application-filter]]."
+    },
+    {
+      "label": "Permission.",
+      "text": "Viewing the log is the Audit Logs module: [[zidentity.admin-rbac.permissions:audit-logs-view-only]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the activity was done through the UI, Client Connector or API, and whether it is an authentication event or a configuration change, to pick the filter.",
+      "uses": [
+        "record-fields",
+        "authentication-events"
+      ]
+    },
+    {
+      "do": "Before relying on a streaming feed, whether Authentication Service Log Streaming is enabled, which needs an admin with Full on the Log Streaming module, and whether the Authentication Service IP ranges are allowlisted, which the page says to ensure.",
+      "uses": [
+        "log-streaming",
+        "log-streaming-permission",
+        "log-streaming-allowlist"
+      ]
+    }
+  ],
+  "claims": {
+    "what-is-recorded": {
+      "statement": "Authentication Service audit logs record user activity in Authentication Service: configuration changes, user management (creating, updating and deleting users), tenant management, authentication settings changes, service assignments and authentication events, including changes an administrator makes to policies or configurations through Authentication Service or the APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-audit-logs.json",
+          "quotes": [
+            "Audit logs are records of activities performed by users in Authentication Service.",
+            "These logs enable administrators to track configuration changes, user management (e.g., creating, updating, and deleting users), tenant management, authentication settings changes, service assignments, and authentication events.",
+            "Monitor the changes made by an administrator to policies or configurations via Authentication Service or APIs."
+          ]
+        }
+      ]
+    },
+    "authentication-events": {
+      "statement": "The key authentication events tracked include password logins by users or admins, authentication through external IdPs (for example SAML or OIDC), completion of MFA, and MFA performed within Authentication Service by IdP-managed users; events from logins through Client Connector or the browser can also be monitored on the Audit Logs page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-audit-logs.json",
+          "quotes": [
+            "Authentication Service audit logs track key authentication events, including:",
+            "Password-based logins by users or admins.",
+            "Authentication via external IdPs (e.g., SAML, OIDC).",
+            "Completion of multi-factor authentication (MFA).",
+            "MFA performed by IdP-managed users within Authentication Service.",
+            "Administrators can also monitor authentication events triggered by users logging in through Zscaler Client Connector or the browser from the Audit Logs page."
+          ]
+        }
+      ]
+    },
+    "page-filters-export": {
+      "statement": "The Audit Logs page (Data Explorer > Audit Logs > Authentication Service) filters by time range, action, category, subcategory, interface or result, searches by resource, admin ID or client IP, and downloads a CSV whose times are in PDT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-audit-logs.json",
+          "quotes": [
+            "On the Audit Logs page (Data Explorer > Audit Logs > Authentication Service), you can do the following:",
+            "Filter the data by time range, action, category, subcategory, interface, or result.",
+            "Search for the logs by resource, admin ID, or client IP.",
+            "Download a CSV file. The times in the CSV file are in PDT."
+          ]
+        }
+      ]
+    },
+    "record-fields": {
+      "statement": "Each entry has a timestamp, an action, a category (the Admin Console page), a sub-category (the entity under the category, such as users and groups under User Management), a resource, the admin ID (the user's login ID), the client IP, the interface (UI, Zscaler Client Connector or API) and the result (Success, Failure or Partially Failed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-audit-logs.json",
+          "quotes": [
+            "Timestamp: The date and time when the user performed the activity.",
+            "Action: The action performed by the user in Authentication Service.",
+            "Category: A UI page in the Zscaler Admin Console where the action is performed.",
+            "Sub-Category: The entity under the selected category. For example, users and groups under the User Management category.",
+            "Resource: The entity within the subcategory.",
+            "Admin ID: The user's login ID.",
+            "Client IP: The IP address for the user.",
+            "Interface: The means by which the user performs their actions. The interface is either UI, Zscaler Client Connector, or API-based.",
+            "Result: The outcome of an action (Success, Failure, or Partially Failed)"
+          ]
+        }
+      ]
+    },
+    "actions-and-categories": {
+      "statement": "Actions are Create, Update, Delete, Password Change, Reset Password, Import, Link, Unlink, Admin or User Login and Admin or User Logout; categories are User Management, Guest Domains, Tenants, Authentication Settings and Authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-audit-logs.json",
+          "quotes": [
+            "- Password Change",
+            "- Reset Password",
+            "- Admin or User Login",
+            "- Admin or User Logout",
+            "- User Management",
+            "- Guest Domains",
+            "- Authentication Settings",
+            "- Create - Update - Delete",
+            "- Import - Link - Unlink",
+            "- Tenants - Authentication Settings - Authentication"
+          ]
+        }
+      ]
+    },
+    "config-diff": {
+      "statement": "Selecting a configuration change shows visual differences between the pre- and post-change configuration, for updates and for additions or deletions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-audit-logs.json",
+          "quotes": [
+            "Click on the configuration changes you want to view.",
+            "You are able to view visual differences between the pre- and post-configuration changes.",
+            "View additions or deletions."
+          ]
+        }
+      ]
+    },
+    "log-streaming": {
+      "statement": "NSS and Cloud NSS integration lets Authentication Service stream authentication, admin audit and SCIM logs in real time to SIEMs linked with Zscaler services such as ZIA; on the Log Streaming page (Data Explorer > Log Streaming > Authentication Service Log Streaming), enabling Authentication Service Log Streaming streams them to the Internet & SaaS tenant, whose linked tenants are listed with their IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-log-streaming.json",
+          "quotes": [
+            "The integration of Nanolog Streaming Service (NSS) and Cloud NSS with Authentication Service enables administrators to stream authentication, admin audit, and System for Cross-domain Identity Management (SCIM) logs to external security information and event management (SIEM) systems",
+            "that are linked with Zscaler services (e.g., Internet & SaaS (ZIA)) for centralized monitoring and analysis.",
+            "By enabling log streaming, you can securely export Authentication Service logs in real time",
+            "On the Log Streaming page (Data Explorer > Log Streaming > Authentication Service Log Streaming), you can do the following:",
+            "Zscaler Cloud and Internet Access Tenant ID: View the Internet & SaaS tenants that are linked with your organization with its unique identifier.",
+            "Authentication Service Log Streaming: Enable to stream authentication, admin audit, and SCIM logs to the Internet & SaaS tenant."
+          ]
+        }
+      ]
+    },
+    "log-streaming-permission": {
+      "statement": "Enabling log streaming needs Full permission on the Log Streaming module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-log-streaming.json",
+          "quotes": [
+            "Authentication Service administrators assigned with Full permission to access the Log Streaming module can enable the log streaming option."
+          ]
+        }
+      ]
+    },
+    "log-streaming-allowlist": {
+      "statement": "Log streaming requires allowlisting the Authentication Service IP ranges for the Zscaler cloud, listed in Zscaler Cloud Configuration Requirements; the page's example maps the login URL acme.zslogin.net to the zslogin.net cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-log-streaming.json",
+          "quotes": [
+            "For log streaming, ensure that you allowlist the required IP ranges for Authentication Service.",
+            "You can view the firewall requirements for your Zscaler cloud in Zscaler Cloud Configuration Requirements.",
+            "For example, if you use acme.zslogin.net to log in, view the IP ranges to allowlist for the zslogin.net cloud."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "retention": {
+      "kind": "semantic",
+      "title": "How long Authentication Service audit logs are kept",
+      "status": "open",
+      "detail": "The About Audit Logs page does not state a retention period.",
+      "blocks": "knowing how far back an audit question can be answered",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "link-objects": {
+      "kind": "semantic",
+      "title": "What the Link and Unlink actions apply to",
+      "status": "open",
+      "detail": "The action list names Link and Unlink without saying what is linked; the objects are not named (the Linked Services page links tenants, but the audit page does not say so).",
+      "blocks": "reading a Link or Unlink record",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

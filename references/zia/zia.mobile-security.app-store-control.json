@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "id": "zia.mobile-security.app-store-control",
+  "title": "Mobile App Store Control: browse-but-not-download rules, default, criteria, limits and the recommended rule",
+  "aliases": [
+    "Mobile App Store Control policy",
+    "app store blocking",
+    "Application Download",
+    "Not allowed the use of this Mobile App Store"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.mobile-security"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.mobile-security.malware-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.time-intervals.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore.restore-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose-browse-not-download}} {{default-allow}}"
+    },
+    {
+      "label": "Rules.",
+      "text": "{{rule-action}} {{criteria-and-limits}} The time-window cap differs from the limits table [[zia.time-intervals.limits:per-rule-cap]]. {{rule-details}}"
+    },
+    {
+      "label": "The policy page.",
+      "text": "{{policy-page}}"
+    },
+    {
+      "label": "Recommended rule.",
+      "text": "{{recommended-policy}}"
+    },
+    {
+      "text": "Which app stores a rule can select is open {{gap:app-store-list}}. Whether the policy has an API, SDK or Terraform surface is open {{gap:api-surface}}. The sibling policy is in [[zia.mobile-security.malware-protection]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the app store is listed in an enabled rule, since with no policy configured the default allows app downloads from all app stores.",
+      "uses": [
+        "default-allow",
+        "rule-details"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose-browse-not-download": {
+      "statement": "The Mobile App Store Control policy protects users from inadvertently downloading mobile apps from unauthorized or risky app stores: when an app store is listed in the policy, users can browse the restricted app stores but are blocked from downloading apps from those stores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-mobile-app-store-control.json",
+          "quotes": [
+            "The Mobile App Store Control policy protects users from inadvertently downloading mobile apps from unauthorized or risky app stores.",
+            "When an app store is listed in the policy, users can browse the restricted app stores, but are blocked from downloading apps from those stores."
+          ]
+        }
+      ]
+    },
+    "default-allow": {
+      "statement": "When no policy is configured, the default action is to allow app downloads from all app stores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-mobile-app-store-control.json",
+          "quotes": [
+            "When no policy is configured, the default action is to allow app downloads from all app stores."
+          ]
+        }
+      ]
+    },
+    "rule-action": {
+      "statement": "A rule's action is Allow or Block of application downloads from the app store; if an app store is blocked, users can browse it but are blocked from downloading apps from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-mobile-app-store-control-policy.json",
+          "quotes": [
+            "Action: Select to Allow or Block application downloads from the app store. If you choose to block an app store, users can browse the app store, but they are blocked from downloading apps from it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-mobile-app-store-control.json",
+          "quotes": [
+            "Rule Action: The action defined by the rule, either Block or Allow."
+          ]
+        }
+      ]
+    },
+    "criteria-and-limits": {
+      "statement": "A rule's App Stores criterion is Any or the app stores to block, Locations and Location Groups each take Any or up to 32, and Time Windows take Always or up to two. The page says to contact Zscaler Support to increase the limit of Users, Groups, Departments or Locations, and that any rule applying to unauthenticated traffic must apply to all Groups and Departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-mobile-app-store-control-policy.json",
+          "quotes": [
+            "App Stores: Select Any to apply the rule to all app stores, or select the checkboxes for the app stores you want to block.",
+            "Locations: Select Any to apply the rule to all locations, or select up to 32 locations.",
+            "Contact Zscaler Support to increase the limit of Users, Groups, Departments, or Locations.",
+            "Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups.",
+            "Time Windows: Select Always to apply the rule to all time windows, or select up to two time windows.",
+            "Any rule that applies to unauthenticated traffic must apply to all Groups and Departments."
+          ]
+        }
+      ]
+    },
+    "rule-details": {
+      "statement": "The rule name is system-generated, editable and cannot exceed 63 characters, and the description cannot exceed 10,240 characters. Admin Rank is 0 to 7 (0 is the highest) and appears if Admin Rank is enabled on the Advanced Settings page; admin ranking is disabled by default and is enabled in Internet Access > Setting > Advanced Settings. A new rule's status is Disabled by default and it must be enabled to be enforced; disabled rules can have a rule order, and during evaluation the service skips them and moves to the successive ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-mobile-app-store-control-policy.json",
+          "quotes": [
+            "Rule Name: A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.",
+            "The description cannot exceed 10,240 characters.",
+            "Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu. This option appears if you enabled Admin Rank on the Advanced Settings page.",
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic.",
+            "Disabled rules can have a rule order assigned. During evaluation, the service skips the disabled rules and moves to the successive ones."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-mobile-app-store-control.json",
+          "quotes": [
+            "By default, the admin ranking is disabled. To use this feature, you must enable Admin Rank in Internet Access > Setting > Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "policy-page": {
+      "statement": "The Mobile App Store Control page can display rules by Rule State, either Enabled or Disabled. Its columns include Admin Rank, visible only if admin ranking is enabled in the Advanced Settings, App Stores and Time Windows, and a policy rule can be duplicated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-mobile-app-store-control.json",
+          "quotes": [
+            "Rule State: Display the rules based on the state of the rule, either Enabled or Disabled.",
+            "Admin Rank: The assigned admin rank for the rule. This is visible only if admin ranking is enabled in the Advanced Settings.",
+            "App Stores: The app stores assigned to the rule.",
+            "Time Windows: The time windows for the rule.",
+            "8. Duplicate a policy rule."
+          ]
+        }
+      ]
+    },
+    "recommended-policy": {
+      "statement": "Zscaler's recommended Mobile App Store Control rule has Admin Rank 1, Rule Status Enabled, App Stores Any, Time Windows Always and Application Download Allow.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-mobile-app-store-control-policy.json",
+          "quotes": [
+            "Zscaler recommends that you configure the following Mobile App Store Control policy.",
+            "- Admin Rank: 1",
+            "- Rule Status: Enabled",
+            "- App Stores: Any",
+            "- Time Windows: Always",
+            "- Application Download: Allow"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "app-store-list": {
+      "kind": "semantic",
+      "title": "Which app stores a Mobile App Store Control rule can select",
+      "status": "open",
+      "detail": "The Configuring page says to select the checkboxes for the app stores to block and does not list the stores.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "api-surface": {
+      "kind": "semantic",
+      "title": "API, SDK and Terraform surface of Mobile App Store Control",
+      "status": "open",
+      "detail": "No OpenAPI path, Terraform resource or registered type was found by path or file name for this policy.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

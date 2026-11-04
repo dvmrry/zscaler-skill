@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "id": "zcc.support-options.authentication",
+  "title": "App Supportability sign-in settings: IdP username autofill, automatic Private Access reauthentication and registering devices with the ZPA IdP username",
+  "aliases": [
+    "automatically populate username for idp authentication",
+    "login_hint",
+    "automatic zpa reauthentication",
+    "automatically attempt zpa reauthentication",
+    "register device with zpa idp username",
+    "integrated windows authentication",
+    "iwa"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.platform-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.install.authentication-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.app-profiles.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.global-settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The App Supportability page has settings for IdP username autofill, automatic Private Access reauthentication and registering devices with the ZPA IdP username. {{username-autofill}}"
+    },
+    {
+      "label": "Username autofill.",
+      "text": "{{javascript-option}} {{login-hint-option}} {{username-format}} Whether the 4.9 line scopes the whole login_hint option or only Username Format is open {{gap:username-format-scope}}, and so are the JavaScript option's platforms beyond macOS 5.0 {{gap:javascript-platforms}}."
+    },
+    {
+      "label": "Automatic Private Access reauthentication.",
+      "text": "{{reauth-availability}} {{reauth-behavior}} {{reauth-timeout}} Whether the feature exists on Linux or mobile is open {{gap:reauth-platforms}}."
+    },
+    {
+      "label": "Integrated Windows Authentication.",
+      "text": "{{iwa-firefox}} {{iwa-other-browsers}} {{system-proxy}}"
+    },
+    {
+      "label": "Per app profile.",
+      "text": "{{reauth-per-profile}} {{reauth-lock-and-expiry}} The expiry setting itself is in [[zcc.app-profiles.advanced-settings]]."
+    },
+    {
+      "label": "Registering with the ZPA username.",
+      "text": "{{register-with-zpa-username}} What it changes in the device record, and its versions and platforms, are not stated {{gap:register-device-effects}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For automatic Private Access reauthentication that does not happen, the client version and platform, whether IWA is enabled for the browser, and whether the app profile follows the global setting or sets its own.",
+      "uses": [
+        "reauth-availability",
+        "iwa-firefox",
+        "iwa-other-browsers",
+        "reauth-per-profile"
+      ]
+    },
+    {
+      "do": "For a username that is not prefilled, which option is selected (login_hint takes precedence over JavaScript) and whether the client is macOS 5.0 or later, where the JavaScript option is not available.",
+      "uses": [
+        "javascript-option",
+        "login-hint-option"
+      ]
+    }
+  ],
+  "claims": {
+    "username-autofill": {
+      "statement": "Client Connector can fill the username field of the organization's IdP login form automatically, using either JavaScript or the login_hint parameter, when Automatically Populate Username for IdP Authentication is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-username-population-idp-authentication.json",
+          "quotes": [
+            "You can configure Zscaler Client Connector to automatically populate the username field for your organization's IdP login form using either JavaScript or the login_hint parameter.",
+            "Enable Automatically Populate Username for IdP Authentication."
+          ]
+        }
+      ]
+    },
+    "javascript-option": {
+      "statement": "Using JavaScript runs JavaScript in the IdP page during the SAML workflow to autofill the username; it is not available on Client Connector 5.0 and later for macOS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-username-population-idp-authentication.json",
+          "quotes": [
+            "Using JavaScript: Use this option to have Zscaler Client Connector use JavaScript in the IdP page during the SAML workflow to autofill the username field for your organization's IdP login form.",
+            "This option is not available for Zscaler Client Connector version 5.0 and later for macOS."
+          ]
+        }
+      ]
+    },
+    "login-hint-option": {
+      "statement": "Using login_hint SAML attribute has Client Connector send the login_hint parameter to both Internet & SaaS and Private Access during authentication, and they pass it to the IdP as the SAML Subject (NAMEID) to pre-populate the user name. If both options are selected, the login_hint parameter takes precedence over JavaScript.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-username-population-idp-authentication.json",
+          "quotes": [
+            "Using login_hint SAML attribute: Use this option to have Zscaler Client Connector send the login_hint parameter to both Internet & SaaS and Private Access during authentication.",
+            "Internet & SaaS and Private Access pass the login_hint parameter to the IdP as a SAML Subject (NAMEID) to pre-populate the user name.",
+            "If you select both options, the login_hint parameter takes precedence over JavaScript."
+          ]
+        }
+      ]
+    },
+    "username-format": {
+      "statement": "If Using login_hint SAML attribute is enabled, Username Format selects what is sent: SAM Account Name (the security account manager account name combined with the registry domain, as in jsmith@safemarch.com) or User Principal Name (the signed-in identity from a domain-joined device, or the SAM account name when the device is not domain-joined), which the page says reduces single sign-on disruptions when the IdP expects a UPN. A line after these items says it applies only to Client Connector 4.9 and later for Windows and that Zscaler Support enables the feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-username-population-idp-authentication.json",
+          "quotes": [
+            "Username Format: If Using login_hint SAML attribute is enabled, you can select which username format is sent:",
+            "SAM Account Name: Send the security account manager account name combined with the registry domain (e.g., jsmith and safemarch.com combined into jsmith@safemarch.com)",
+            "User Principal Name: Send the signed-in identity from a domain-joined device. If the device is not domain-joined, Zscaler Client Connector sends the SAM account name.",
+            "This option reduces disruptions in the single sign-on process caused when your IdP expects a user principal name (UPN).",
+            "Applies only to Zscaler Client Connector version 4.9 and later for Windows. Contact Zscaler Support to enable this feature."
+          ]
+        }
+      ]
+    },
+    "reauth-availability": {
+      "statement": "Automatic Private Access reauthentication is only available on Client Connector 3.0 and later for Windows and macOS. Its steps are to configure the IdP for single sign-on (SSO) and enable Integrated Windows Authentication (IWA); the page says IWA works with most browsers but not over some HTTP proxy servers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "quotes": [
+            "This feature is only available for Zscaler Client Connector version 3.0 and later for Windows and macOS.",
+            "Prior to configuring automatic Private Access reauthentication, you must:",
+            "Configure your IdP for single sign-on (SSO).",
+            "Enable Integrated Windows Authentication (IWA).",
+            "While IWA works with most browsers, it does not work over some HTTP proxy servers."
+          ]
+        }
+      ]
+    },
+    "iwa-firefox": {
+      "statement": "For IWA in Mozilla Firefox on Windows, the SSO domain is added to network.negotiate-auth.trusted-uris and network.automatic-ntlm-auth.trusted-uris is also configured. On macOS, network.negotiate-auth.delegation-uris and network.automatic-ntlm-auth.trusted-uris are configured, and the toggles for network.automatic-ntlm-auth.allow-proxies and network.negotiate-auth.allow-proxies are clicked to set them to true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "after": "To enable IWA on Mozilla Firefox for Windows:",
+          "quotes": [
+            "Configure network.negotiate-auth.trusted-uris:",
+            "Configure network.automatic-ntlm-auth.trusted-uris:",
+            "Add the SSO domain."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "after": "To enable IWA on Mozilla Firefox for macOS:",
+          "quotes": [
+            "Configure network.negotiate-auth.delegation-uris:",
+            "Configure network.automatic-ntlm-auth.trusted-uris:",
+            "Click the gray toggle for network.automatic-ntlm-auth.allow-proxies to set this value to true.",
+            "Click the gray toggle for network.negotiate-auth.allow-proxies to set this value to true."
+          ]
+        }
+      ]
+    },
+    "iwa-other-browsers": {
+      "statement": "For Google Chrome 8.0 and later, IWA is automatically enabled on Windows and macOS and the function is allowlist-driven; the policy is changed only through the command prompt (Windows, with --auth-server-whitelist) or terminal window (macOS, after creating a Kerberos ticket with kinit, with defaults write com.google.Chrome AuthServerWhitelist). For macOS devices running OS X, IWA is enabled automatically for Safari, after a Kerberos ticket is obtained. For Microsoft Edge 77 and later the SSO domain is entered as a Local Intranet site under Internet Options > Security. Admins use their organization's preferred method, for example a Microsoft Group Policy Object, to enable IWA for all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "quotes": [
+            "Google Chrome version 8.0 and later",
+            "For Windows and macOS, IWA is automatically enabled on Google Chrome and this function is allowlist-driven. The only way to change the policy is through the command prompt (Windows) or terminal window (macOS).",
+            "--auth-server-whitelist=\"https://www.example.com\".",
+            "Create a Kerberos ticket for the account using the following command: kinit username@example.com.",
+            "$ defaults write com.google.Chrome AuthServerWhitelist",
+            "Safari, after you obtain a Kerberos ticket",
+            "For macOS devices running OS X, IWA is enabled automatically for Safari.",
+            "Microsoft Edge version 77 and later",
+            "In the Windows Control Panel, select Network and Internet > Internet Options.",
+            "Click the Security tab and click Local Intranet > Sites.",
+            "In the Add this website to the zone field, enter the SSO domain.",
+            "Admins use their organization's preferred method to enable IWA for all users. For example, an admin might use Microsoft Group Policy Object (GPO) to enable IWA for all their users."
+          ]
+        }
+      ]
+    },
+    "system-proxy": {
+      "statement": "The reauthentication page says Client Connector enforces system proxy settings, all applications on the device must comply with these settings, and administrators review any custom proxy settings within applications and then restrict them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "quotes": [
+            "Zscaler Client Connector enforces system proxy settings, and all applications on the device must comply with these settings. Administrators review any custom proxy settings within applications, then restrict these settings."
+          ]
+        }
+      ]
+    },
+    "reauth-behavior": {
+      "statement": "When automatic Private Access reauthentication is enabled, Client Connector attempts to log in silently when users must reauthenticate to Private Access; if the attempt is unsuccessful, users are prompted to reauthenticate with their credentials in Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "quotes": [
+            "When enabled, Zscaler Client Connector attempts to log in silently when users must reauthenticate to Private Access.",
+            "If unsuccessful, users must reauthenticate manually.",
+            "If automatic reauthentication is unsuccessful, users are prompted to reauthenticate with their credentials using Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "reauth-timeout": {
+      "statement": "Timeout for Automatic ZPA Reauthentication (in seconds) sets the time it takes for the browser to reauthenticate automatically: 30 seconds by default, or 60, 90 or 120 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "quotes": [
+            "From the Timeout for Automatic ZPA Reauthentication (in seconds) drop-down menu, select the time it takes for the browser to automatically reauthenticate. The default is 30 seconds. You can also select 60, 90, or 120 seconds."
+          ]
+        }
+      ]
+    },
+    "reauth-per-profile": {
+      "statement": "On Client Connector 4.8 and later for Windows the feature can be enabled per app profile and by network type, and it also needs IWA. In the app profile, Follow Global Settings ZPA Reauthentication applies the App Supportability tab's setting and then prevents configuring Private Access reauthentication on that profile; Automatically Attempt ZPA Reauthentication by Location selects network types (On-Trusted, VPN-Trusted, Off-Trusted or Split VPN-Trusted), and Client Connector updates access when a network switch occurs; the timeout does not restart on a network switch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-automatic-zpa-reauthentication.json",
+          "quotes": [
+            "If you use Zscaler Client Connector version 4.8 and later for Windows, you can enable this feature per app profile and by network type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "This feature is available only with Zscaler Client Connector version 4.8 and later for Windows. You must also enable Integrated Windows Authentication (IWA). To learn more, see Configuring Automatic ZPA Reauthentication.",
+            "Follow Global Settings ZPA Reauthentication: Enable this option to apply the Automatically Attempt ZPA Reauthentication setting from the App Supportability tab to this app profile. If enabled, you cannot configure Private Access reauthentication on this profile.",
+            "Automatically Attempt ZPA Reauthentication by Location: Select one or more network types from which to allow users to continue to access Private Access. When a user changes locations and a network switch occurs, Zscaler Client Connector updates access based on these settings.",
+            "If a user changes locations and a network switch occurs, the timeout does not restart."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "Automatically Attempt ZPA Reauthentication by Location",
+          "quotes": [
+            "- On-Trusted Network",
+            "- VPN-Trusted Network",
+            "- Off-Trusted Network",
+            "- Split VPN-Trusted Network"
+          ]
+        }
+      ]
+    },
+    "reauth-lock-and-expiry": {
+      "statement": "In the Windows app profile, two options refine automatic reauthentication: Prevent Auto Reauth During Device Lock prevents it on a locked device until the device is unlocked (not affecting sleep mode without auto-lock, hibernate mode or a restart; 4.8 and later for Windows), and Instantly Enforce ZPA Reauth, when Force ZPA authentication to expire and Automatic ZPA Reauthentication are enabled, starts reauthentication immediately after a forced expiration instead of waiting for the user's next attempt to access Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "To add a new Windows policy rule:",
+          "quotes": [
+            "Prevent Auto Reauth During Device Lock: If Automatically Attempt ZPA Reauthentication is enabled, this option prevents the automatic reauthentication on a locked device until the device is unlocked",
+            "This setting does not affect automatic reauthentication while a device is in sleep mode (without being auto-locked), in hibernate mode, or after a system restart. Applies only to Zscaler Client Connector version 4.8 and later for Windows.",
+            "Instantly Enforce ZPA Reauth: If the Force ZPA authentication to expire option and Automatic ZPA Reauthentication are enabled, this option immediately initiates reauthentication after a forced expiration instead of waiting for the user's next attempt to access Private Access"
+          ]
+        }
+      ]
+    },
+    "register-with-zpa-username": {
+      "statement": "Register device with ZPA IdP Username registers a device in the Admin Console with the username entered for Private Access authentication instead of the username used for enrollment in the app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-registering-devices-zpa-idp-username.json",
+          "quotes": [
+            "You can register a device in the Zscaler Admin Console with the username entered for Private Access (ZPA) authentication instead of the username that is used for enrollment in the app.",
+            "Select Register device with ZPA IdP Username."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "username-format-scope": {
+      "kind": "semantic",
+      "title": "Whether the 4.9-for-Windows line scopes the whole login_hint option or only Username Format",
+      "status": "open",
+      "detail": "The line 'Applies only to Zscaler Client Connector version 4.9 and later for Windows. Contact Zscaler Support to enable this feature.' follows the Username Format items; the page does not say whether it scopes Username Format alone or the login_hint option as a whole.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "javascript-platforms": {
+      "kind": "semantic",
+      "title": "Platforms of the JavaScript username option beyond the macOS 5.0 exclusion",
+      "status": "open",
+      "detail": "The page says the JavaScript option is not available on Client Connector 5.0 and later for macOS and gives no other platform or version scope.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "reauth-platforms": {
+      "kind": "semantic",
+      "title": "Whether automatic Private Access reauthentication exists on Linux or mobile",
+      "status": "open",
+      "detail": "The page scopes the feature to Client Connector 3.0 and later for Windows and macOS and does not mention Linux, iOS or Android; the app profile capture gives the Linux, iOS and Android profiles a separate ZPA ReAuth Notification option (zcc.notifications:zpa-expiry-warning).",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "register-device-effects": {
+      "kind": "semantic",
+      "title": "What Register device with ZPA IdP Username changes and where it applies",
+      "status": "open",
+      "detail": "The page says the device is registered with the Private Access username instead of the enrollment username; it does not say what changes in the device record or give versions and platforms.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

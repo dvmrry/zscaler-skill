@@ -35,6 +35,14 @@
     {
       "rel": "see-also",
       "to": "zidentity.users.security-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.attributes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.provisioning.scim"
     }
   ],
   "prose": [
@@ -56,6 +64,22 @@
     {
       "label": "Active or inactive.",
       "text": "{{status}}"
+    },
+    {
+      "label": "Attributes and SCIM.",
+      "text": "The user attributes a profile can carry are in [[zidentity.attributes]], and the SCIM server that provisions them is in [[zidentity.users.provisioning.scim]]."
+    },
+    {
+      "label": "The dashboard.",
+      "text": "{{dashboard}} {{dashboard-user-counts}} {{dashboard-service-entitlements}} {{dashboard-auth-status}} {{dashboard-user-management}} Retention beyond 90 days and any export are open {{gap:dashboard-retention}}."
+    },
+    {
+      "label": "Guest domains.",
+      "text": "{{guest-domains}} {{arbitrary-guest-domains}} {{guest-domains-next}} How many guest domains can be listed is open {{gap:guest-domain-limit}}."
+    },
+    {
+      "label": "Departments.",
+      "text": "{{departments-admin-scope}} {{departments}} {{departments-csv}} Which product's admin scope a department applies to, and how it relates to ZIA departments, is open {{gap:department-scope}}."
     },
     {
       "label": "Bulk work in the console.",
@@ -408,9 +432,202 @@
           }
         }
       ]
+    },
+    "dashboard": {
+      "statement": "The user dashboard (Administration > Authentication > Overview) gives a view of all users managed from Authentication Service, their authentication status and user management activities, over a selected duration of 1 to 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "The Authentication Service user dashboard provides a comprehensive view of all users managed from Authentication Service, their authentication status, and user management activities in the Zscaler Admin Console.",
+            "On the Dashboard page (Administration > Authentication > Overview), you can do the following:",
+            "Select the duration between 1 and 90 days for which you want to view the data."
+          ]
+        }
+      ]
+    },
+    "dashboard-user-counts": {
+      "statement": "The dashboard counts Total Users (managed from Authentication Service), IdP Users (registered and guest users accessing a Zscaler service through Authentication Service) and Hosted Users (registered and guest users hosted on Authentication Service), split into registered domain users, whose login IDs use the organization's registered domain, and guest domain users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "Total Users: The total number of users that are managed from Authentication Service.",
+            "IdP Users: The number of registered and guest users accessing Zscaler service through Authentication Service.",
+            "Hosted Users: The number of registered and guest users hosted on Authentication Service.",
+            "Registered domain users: Users whose login IDs is created using the registered organization's domain (e.g., acme.zslogin.net).",
+            "Guest domain users: Users whose login IDs is created using guest domains."
+          ]
+        }
+      ]
+    },
+    "dashboard-service-entitlements": {
+      "statement": "The Service Entitlements widget counts users assigned to each Zscaler service and is visible only when service entitlement is enabled for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "Service Entitlements: The number of users assigned to different Zscaler services.",
+            "The Service Entitlements widget is visible only when the service entitlement is enabled for your tenant."
+          ]
+        }
+      ]
+    },
+    "dashboard-auth-status": {
+      "statement": "The dashboard shows the authentication status (Success or Failure) of hosted and external IdP users, graphing the users who logged in to the Admin Console with each authentication method with the date and time of the attempt; External IdP applies only to Zscaler services not migrated to Experience Center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "View the authentication status (Success or Failure) of hosted users and external IdP users.",
+            "The graph depicts the total number of users that logged in to Zscaler Admin Console using a specific authentication method along with the date and time of authentication attempt.",
+            "External IdP is applicable only to Zscaler services that are not migrated to Experience Center."
+          ]
+        }
+      ]
+    },
+    "dashboard-user-management": {
+      "statement": "The dashboard shows statistics for successful and for failed user management activities (Created, Updated and Deleted) by date and time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-authentication-service-user-dashboard.json",
+          "quotes": [
+            "View the statistics for successful user management activities (Created, Updated, and Deleted) on a specific date and time.",
+            "View the statistics for failed user management activities (Created, Updated, and Deleted) on a specific date and time."
+          ]
+        }
+      ]
+    },
+    "guest-domains": {
+      "statement": "Guest domains let third-party (guest) users access the Zscaler service; they can be assigned only to guest users who do not use Client Connector for authentication, and those guest users cannot be given administrative entitlements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-guest-domains.json",
+          "quotes": [
+            "You can add a list of guest domains to allow third-party users (guest users) to access the Zscaler service.",
+            "You can assign guest domains to only those guest users who do not have Zscaler Client Connector for authentication. These guest users cannot be assigned administrative entitlements."
+          ]
+        }
+      ]
+    },
+    "arbitrary-guest-domains": {
+      "statement": "Arbitrary Guest Domains, optional, lets third-party users authenticate with any domain even if it is not in the guest domain list, and is supported only with Privileged Remote Access (PRA).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-guest-domains.json",
+          "quotes": [
+            "Arbitrary Guest Domains: (optional) Enable to allow third-party users to authenticate using any domain even if it is not added to the list of guest domains.",
+            "Arbitrary Guest Domains are supported only with Privileged Remote Access (PRA)."
+          ]
+        }
+      ]
+    },
+    "guest-domains-next": {
+      "statement": "After adding guest domains, the third-party users are added to the Admin Console and the guest domains are added to the required IdP so those users can authenticate with SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-guest-domains.json",
+          "quotes": [
+            "Add the third-party users to the Zscaler Admin Console.",
+            "Add these guest domains to the required identity provider (IdP), so the third-party users can authenticate using single sign-on (SSO) and access the guest domains."
+          ]
+        }
+      ]
+    },
+    "departments-admin-scope": {
+      "statement": "Departments can define an administrator's scope, giving the admin control over a set of users in a department; an administrator can belong to only one department.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-departments.json",
+          "quotes": [
+            "When you add administrators, you can define their scope by department. Administrators can have control over a set of users in a department. An administrator can belong to only one department."
+          ]
+        }
+      ]
+    },
+    "departments": {
+      "statement": "A department has a name and an optional description of up to 10,240 characters, and a user can belong to only one department.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-departments.json",
+          "quotes": [
+            "You can add departments in the Zscaler Admin Console and assign the specific department to users. A user can belong to only one department.",
+            "Department Name: Enter a department name.",
+            "Description: Optionally, enter additional notes or information. The content cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "departments-csv": {
+      "statement": "Up to 1,000 departments can be imported by CSV, and the sample template is also used to add many users to an existing department or change the department of many users; Override Existing Entries replaces the existing department list with the file's.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-departments.json",
+          "quotes": [
+            "You can import up to 1,000 departments using a CSV file.",
+            "If you want to add multiple users to an existing department or change the department for multiple users, use the sample CSV file template.",
+            "Click Override Existing Entries if you want to replace the existing list of departments with those specified in the CSV file."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "dashboard-retention": {
+      "kind": "semantic",
+      "title": "How long the dashboard keeps data and whether it can be exported",
+      "status": "open",
+      "detail": "The dashboard shows 1 to 90 days; retention beyond that and any export are not stated. Whether device-token users count as hosted or IdP users is also not stated (see zidentity.users.provisioning).",
+      "blocks": "answering how far back user activity can be viewed",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "guest-domain-limit": {
+      "kind": "semantic",
+      "title": "How many guest domains can be added",
+      "status": "open",
+      "detail": "The Adding Guest Domains page gives no limit for the guest domain list.",
+      "blocks": "planning many guest domains",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "department-scope": {
+      "kind": "semantic",
+      "title": "Which product's admin scope a department applies to, and how it relates to ZIA departments",
+      "status": "open",
+      "detail": "The department pages do not say which product's admin scope a department defines or how Authentication Service departments relate to ZIA departments; the add step says to save and activate the change without describing the activation.",
+      "blocks": "scoping an admin by department across products",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "csv-columns": {
       "kind": "semantic",
       "title": "The CSV template's full column set, group assignment and delete rows",

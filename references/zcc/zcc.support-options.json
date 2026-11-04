@@ -38,6 +38,18 @@
     },
     {
       "rel": "see-also",
+      "to": "zcc.support-options.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options.cli"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.audit-logs"
+    },
+    {
+      "rel": "see-also",
       "to": "zcc.logging.collection"
     },
     {
@@ -58,19 +70,28 @@
       "text": "The App Supportability settings decide what users can do for themselves when Client Connector misbehaves, and what an admin can collect without them. Most of the mechanics live in the logging, password and app profile subjects linked below."
     },
     {
+      "text": "{{page-settings}}"
+    },
+    {
       "heading": "Report an Issue"
     },
     {
       "text": "{{entry-points}} {{routing}} {{requires-support-access}} {{report-an-issue-visibility}} What the form sends and who can read the logs: [[zcc.logging.collection:report-an-issue]], [[zcc.logging.collection:support-settings]], [[zcc.logging.collection:only-zscaler-decrypts]]."
     },
     {
-      "text": "What the log bundle contains is open {{gap:bundle-contents}}. Whether user submissions leave an audit trail is open {{gap:submission-audit}}."
+      "text": "What the log bundle contains is open {{gap:bundle-contents}}. Whether user submissions leave an audit trail is open {{gap:submission-audit}}; what the console audit log records for admins is in [[zcc.audit-logs]]."
     },
     {
       "heading": "Logs and log controls"
     },
     {
-      "text": "{{app-logs-option}} The fetch itself: [[zcc.logging.collection:fetch-prereq]], [[zcc.logging.collection:fetch-scope]]. Hide Logging Control and what users can do with logs: [[zcc.logging.user-access:hidden-blocks]], [[zcc.logging.user-access:export-encryption]]."
+      "text": "{{user-log-controls}} The overview words the export as a text file, against a ZIP file elsewhere [[zcc.end-user:export-logs-format]]. {{app-logs-option}} The fetch itself: [[zcc.logging.collection:fetch-prereq]], [[zcc.logging.collection:fetch-scope]]. Hide Logging Control and what users can do with logs: [[zcc.logging.user-access:hidden-blocks]], [[zcc.logging.user-access:export-encryption]]."
+    },
+    {
+      "heading": "Telemetry"
+    },
+    {
+      "text": "{{telemetry}} {{telemetry-tenant-switch}} {{telemetry-app-profile}} What it collects beyond the app profile's metric list, and whether the tenant switch reaches iOS profiles, are not stated {{gap:telemetry-scope}}."
     },
     {
       "heading": "Restart, repair, disable"
@@ -80,6 +101,12 @@
     },
     {
       "text": "Whether a per-service disable password gates only its own service is open {{gap:per-service-independence}}. Whether anti-tampering constrains Citrix VDI deployments is open {{gap:anti-tampering-vdi}}."
+    },
+    {
+      "heading": "Sign-in settings and the command line"
+    },
+    {
+      "text": "IdP username autofill, automatic Private Access reauthentication and registering devices with the ZPA IdP username: [[zcc.support-options.authentication]]. The command line (ZSACli and zscli): [[zcc.support-options.cli]]."
     },
     {
       "heading": "API"
@@ -115,6 +142,99 @@
     }
   ],
   "claims": {
+    "page-settings": {
+      "statement": "The App Supportability page (Infrastructure > Advanced Settings > App Supportability) configures user access to logging controls, to support options and to the restart and repair options; Client Connector Telemetry; automatic username population for IdP authentication; automatic ZPA reauthentication; and registering devices with the ZPA IdP username.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-app-supportability.json",
+          "quotes": [
+            "On the App Supportability page (Infrastructure > Advanced Settings > App Supportability):",
+            "Configure user access to logging controls for Zscaler Client Connector.",
+            "Configure user access to support options for Zscaler Client Connector.",
+            "Configure user access to the restart and repair options for Zscaler Client Connector.",
+            "Configure Zscaler Client Connector Telemetry.",
+            "Configure automatic username population for IdP authentication.",
+            "Configure automatic ZPA reauthentication.",
+            "Register devices with the ZPA IdP username."
+          ]
+        }
+      ]
+    },
+    "user-log-controls": {
+      "statement": "The App Supportability overview says users given access to logging controls can export logs as a text file, clear logs and change the logging mode, and that a support request can go only to the organization's support admin or also directly to Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-app-supportability.json",
+          "quotes": [
+            "Allow users to access logging controls. Users can export logs as a text file, clear logs, and change the logging mode.",
+            "You can specify whether their request goes only to your organization's support admin or whether it also goes directly to Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "telemetry": {
+      "statement": "Client Connector Telemetry gets telemetry and device event information from devices, collecting a subset of the information Digital Experience (ZDX) already collects; it also enables device event collection, which provides reporting such as the Device Events page and the Failed Posture Devices page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-zscaler-client-connector-telemetry.json",
+          "quotes": [
+            "Zscaler Client Connector Telemetry gets telemetry and device event information from devices.",
+            "It collects a subset of the information already collected by Digital Experience (ZDX).",
+            "It also enables device event collection, which provides valuable reporting such as the Device Events page and the Failed Posture Devices page."
+          ]
+        }
+      ]
+    },
+    "telemetry-tenant-switch": {
+      "statement": "Enabling or disabling Client Connector Telemetry for all users is a tenant setting whose default value is enabled. When enabled, the Telemetry option on all existing and new app profiles for Windows, macOS, Android and Linux is enabled and can be disabled per profile; when disabled, the option on all existing app profiles is also disabled and cannot be enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-zscaler-client-connector-telemetry.json",
+          "quotes": [
+            "You can use this setting to enable or disable Zscaler Client Connector Telemetry for all users. The default value is enabled.",
+            "When the option is enabled, the Zscaler Client Connector Telemetry option on all existing and new app profiles for Windows, macOS, Android, and Linux is enabled, but if required, you can disable the option on individual app profiles.",
+            "If you disable the option, the Zscaler Client Connector Telemetry option on all existing app profiles is also disabled, and you cannot enable it."
+          ]
+        }
+      ]
+    },
+    "telemetry-app-profile": {
+      "statement": "On the app profile, the Telemetry settings are available only on Client Connector 4.6 and later for Windows and 4.5.1 and later for macOS and are disabled if the tenant-wide option is disabled; the profile's Zscaler Client Connector Telemetry collects metrics including device events, statistics, profile, statistics for Client Connector processes and the top 5 processes, which the page says include no personally identifiable information, and its default value is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-zscaler-client-connector-telemetry.json",
+          "quotes": [
+            "On the App Supportability tab, select Enable Zscaler Client Connector Telemetry."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "quotes": [
+            "This feature is available only for Zscaler Client Connector version 4.6 and later for Windows. If the Enable Zscaler Client Connector Telemetry option is disabled, this option is disabled.",
+            "This feature is available only for Zscaler Client Connector version 4.5.1 and later for macOS. If the Enable Zscaler Client Connector Telemetry option is disabled, this option is disabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-zscaler-client-connector-app-profiles.json",
+          "after": "This feature is available only for Zscaler Client Connector version 4.6 and later for Windows. If the Enable Zscaler Client Connector Telemetry option is disabled, this option is disabled.",
+          "quotes": [
+            "Zscaler Client Connector Telemetry: Enable to collect metrics including device events, statistics, profile, statistics for Zscaler Client Connector processes, and the top 5 processes. These metrics do not include personally identifiable information (PII). The default value is enabled."
+          ]
+        }
+      ]
+    },
     "report-an-issue-visibility": {
       "statement": "The Report an Issue option appears in the app user interface only if the IT admin has enabled it in the Client Connector support configuration. On submitting the form, depending on the organization's setup, the app might send an email to the organization's support admin or submit a ticket directly to Zscaler Support, of which the support admin receives a copy, and the user receives an email acknowledging the support request.",
       "tier": "A",
@@ -209,16 +329,26 @@
     }
   },
   "gaps": {
+    "telemetry-scope": {
+      "kind": "semantic",
+      "title": "What Telemetry collects beyond the app profile's metric list, and whether the tenant switch reaches iOS profiles",
+      "status": "open",
+      "detail": "The tenant page says Telemetry collects a subset of what ZDX collects and names Windows, macOS, Android and Linux app profiles; the app profile capture lists its metrics and gives versions for Windows and macOS only. Whether iOS profiles are affected is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "bundle-contents": {
       "kind": "semantic",
       "title": "What the Report an Issue log bundle contains",
-      "status": "open",
+      "status": "partial",
       "former_ids": [
         "zcc-36",
         "zcc-65",
         "zcc-37"
       ],
-      "detail": "Unverified legacy statement: the bundle holds client operational logs, service logs and system metadata, and may include connection metadata (destination IPs, ports, hostnames), user identity (username, tenant domain), device identifiers (UDID, hostname) and activity timestamps; it is stored nowhere but the email and the ticket. File names, rotation, size limits and PII content are not documented. Former zcc-65 asked also which files the Export Logs ZIP holds, and whether either archive carries OS network configuration, driver information or other artifacts beyond Client Connector's own logs. Former zcc-37 asked whether Client Connector stages the bundle in a predictable local directory before uploading it, which matters to DLP controls that scan outbound email attachments.",
+      "detail": "Unverified legacy statement: the bundle holds client operational logs, service logs and system metadata, and may include connection metadata (destination IPs, ports, hostnames), user identity (username, tenant domain), device identifiers (UDID, hostname) and activity timestamps; it is stored nowhere but the email and the ticket. Partly answered since: when Client Connector collects traceroute information, the traceroute log files are included when a user reports an issue or exports logs ([[zcc.logging.collection:traceroute-in-logs]]). File names, rotation, size limits and PII content are not documented. Former zcc-65 asked also which files the Export Logs ZIP holds, and whether either archive carries OS network configuration, driver information or other artifacts beyond Client Connector's own logs. Former zcc-37 asked whether Client Connector stages the bundle in a predictable local directory before uploading it, which matters to DLP controls that scan outbound email attachments.",
       "blocks": "privacy and data-residency reviews of sending bundles to Zscaler Support",
       "resolves_with": [
         "support-ticket",
@@ -241,12 +371,12 @@
     "toggle-defaults": {
       "kind": "semantic",
       "title": "The App Supportability settings' values on a new tenant",
-      "status": "open",
+      "status": "partial",
       "former_ids": [
         "zcc-91",
         "zcc-34"
       ],
-      "detail": "Unverified legacy statement: support access, ticket submission, Hide Logging Control and admin log fetch are off on a new tenant, the admin email is empty, and app profiles set no password gate. The help article describes the options without defaults, and the SDK models declare the fields without default values.",
+      "detail": "Partly settled: the Telemetry tenant setting's default value is enabled (telemetry-tenant-switch). Still open for the rest. Unverified legacy statement: support access, ticket submission, Hide Logging Control and admin log fetch are off on a new tenant, the admin email is empty, and app profiles set no password gate. The help article describes the options without defaults, and the SDK models declare the fields without default values.",
       "blocks": "telling a tenant's deliberate choice from an untouched default in posture or hygiene reviews",
       "resolves_with": [
         "tenant-data"

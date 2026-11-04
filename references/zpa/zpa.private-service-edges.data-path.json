@@ -45,6 +45,10 @@
       "text": "{{ssl-interception-unsupported}} {{firewall-requirements}} {{app-connector-outbound-only}} {{tcp-443-inbound}} {{dnat-publish-ip}} {{outbound-tunnel-443}} {{restricted-outbound}} {{cidr-notice}} {{tls-bypass-list}} UDP is not stated {{gap:dtls-udp}}."
     },
     {
+      "label": "Published and listen addresses.",
+      "text": "{{publish-ips-or-domains}} {{automatically-publish-ipv6}} {{listen-ips}} The API and Terraform fields behind these settings were not checked {{gap:publish-listen-api-fields}}."
+    },
+    {
       "label": "Diagnostics.",
       "text": "{{upstream-connectivity-test}} {{connected-app-connectors-command}}"
     },
@@ -84,6 +88,51 @@
     }
   ],
   "claims": {
+    "publish-ips-or-domains": {
+      "statement": "A deployed Private Service Edge's Publish IPs or Domains are the IP addresses and domains that clients and App Connectors can use to open a connection to it; if not specified, they try to connect using the Listen IPs. The page's primary use case is specifying a Private Service Edge by name and using DNS to find it, and another is an IP address that is a static external IP address controlled by the Private Service Edge system (e.g., AWS) rather than part of the Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-service-edge.json",
+          "quotes": [
+            "Publish IPs or Domains: The IP addresses and domains that clients and App Connectors can use to open a connection to the Private Service Edge.",
+            "If this is not specified, then the clients and App Connectors try to connect using the Listen IPs.",
+            "The primary use case is where you want to specify a Private Service Edge by name and use a Domain Name System (DNS) to find it.",
+            "Another use case is where the IP address that clients and App Connectors use to connect to the Private Service Edge isn't actually a part of the Private Service Edge; it is a static external IP address that the Private Service Edge system (e.g., AWS) controls."
+          ]
+        }
+      ]
+    },
+    "automatically-publish-ipv6": {
+      "statement": "Automatically Publish IPv6, disabled by default, publishes both IPv4 and IPv6 addresses if a Publish IP address or domain isn't configured, so Zscaler Client Connector can receive both; disabled, only IPv4 addresses are published. The Private Service Edges must be set up for IPv6 to use it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-service-edge.json",
+          "quotes": [
+            "Automatically Publish IPv6: Enable to automatically publish both IPv4 and IPv6 IP addresses if a Publish IP address or domain isn't configured.",
+            "When enabled, Zscaler Client Connector can receive both IPv4 and IPv6 addresses. Disable to only publish IPv4 IP addresses. By default, this field is disabled.",
+            "If you want to use IPv6, make sure your Private Service Edges are set up for IPv6."
+          ]
+        }
+      ]
+    },
+    "listen-ips": {
+      "statement": "Listen IPs are the interface addresses of the Private Service Edge system on which it listens for connection requests from clients and App Connectors; if not configured, it automatically listens on all interfaces, and the page says the common use case is to specify no Listen IPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-service-edge.json",
+          "quotes": [
+            "Listen IPs: The interface addresses for the Private Service Edge system that the Private Service Edge listens to for connection requests from clients and App Connectors only at set addresses.",
+            "If not configured, the Private Service Edge automatically listens to all interfaces. The common use case is to not specify any Listen IPs."
+          ]
+        }
+      ]
+    },
     "cidr-notice": {
       "statement": "The Private Service Edge Linux guide says all of the Zscaler data centers containing Public Service Edges must be allowed, that a partial firewall configuration will result in connectivity problems for end users, and that Zscaler provides a 90-day notice for activating additional IP CIDR ranges.",
       "tier": "A",
@@ -350,6 +399,15 @@
     }
   },
   "gaps": {
+    "publish-listen-api-fields": {
+      "kind": "semantic",
+      "title": "API and Terraform fields for Publish IPs or Domains, Automatically Publish IPv6 and Listen IPs",
+      "status": "open",
+      "detail": "The Editing a Deployed Private Service Edge page names the console settings; the matching API and Terraform fields were not checked in zpa.api.service-edges-wire. The published-domain requirement in zpa.private-service-edges.client-selection gives no format.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
     "ztunnel-zcc-to-pse": {
       "kind": "semantic",
       "title": "Whether Zscaler Client Connector forms its Z-Tunnel to the Private Service Edge",

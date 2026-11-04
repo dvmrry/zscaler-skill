@@ -54,6 +54,10 @@
       "text": "Defining criteria once and selecting several networks in a profile: [[zpa.trusted-networks.zcc-relationship:zcc-defines-criteria]]. How the app evaluates them is [[zcc.trusted-networks.detection]]."
     },
     {
+      "label": "In the console.",
+      "text": "{{console-definition}} {{console-conditions}} {{search-criteria}}"
+    },
+    {
       "label": "Criteria are strings.",
       "text": "Each criterion is one comma-separated string: [[zcc.api.trusted-networks-wire:v1-criteria-strings]]. {{go-omitempty}}"
     },
@@ -107,6 +111,80 @@
     }
   ],
   "claims": {
+    "console-definition": {
+      "statement": "On the Trusted Networks page (Infrastructure > Location Management > Trusted Networks) a trusted network has a unique alphanumeric Network Name and conditions defined as criteria that Client Connector uses to verify that it is one of the organization's trusted networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-trusted-networks-zscaler-client-connector.json",
+          "quotes": [
+            "To have Zscaler Client Connector identify one of your organization’s trusted networks, you must define conditions for that network as criteria that Zscaler Client Connector uses for verification.",
+            "From the navigation menu, go to Infrastructure > Location Management > Trusted Networks.",
+            "For Network Definition: In the Network Name field, enter a unique alphanumeric name for the trusted network."
+          ]
+        }
+      ]
+    },
+    "console-conditions": {
+      "statement": "The page's conditions are DNS Server, DNS Search Domains, Hostname and IP, Network Range, Default Gateway, DHCP Server, Egress IP (applies only to Client Connector 4.6 and later for Windows) and Wi-Fi Name (applies only to 5.0 and later for Windows); with multiple conditions, Any has the app validate only one of them to decide the network is trusted and All has it validate all of them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-trusted-networks-zscaler-client-connector.json",
+          "quotes": [
+            "DNS Server: The DNS servers to which your corporate network sends DNS requests.",
+            "DNS Search Domains: The search domains configured as the primary domains for the network adapter used for connecting to Zscaler.",
+            "Hostname and IP: A hostname and the IP addresses to which the hostname resolves when users are on the corporate network.",
+            "Network Range: The network range for subnets and private IPs. Enter the valid network ranges, separated by commas.",
+            "Default Gateway: Enter the IP address of the default gateway to the internet.",
+            "DHCP Server: Enter the valid DHCP server, separated by commas.",
+            "Egress IP: Enter the egress IP address of the network.",
+            "Wi-Fi Name: Enter the name of the Wi-Fi network (SSID).",
+            "If specifying multiple conditions for the criteria, select one of the following options:",
+            "Any: Select if you want the app to validate only one of the conditions to determine if the network is trusted.",
+            "All: Select if you want the app to validate all of the conditions to determine if the network is trusted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-trusted-networks-zscaler-client-connector.json",
+          "after": "Egress IP: Enter the egress IP address of the network.",
+          "quotes": [
+            "Applies only to Zscaler Client Connector version 4.6 and later for Windows."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-configuring-trusted-networks-zscaler-client-connector.json",
+          "after": "Wi-Fi Name: Enter the name of the Wi-Fi network (SSID).",
+          "quotes": [
+            "Applies only to Zscaler Client Connector version 5.0 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "search-criteria": {
+      "statement": "The Trusted Networks page can be searched by Network Name, DNS Servers, DNS Search Domains, Hostname or IP, Network Range, Default Gateway, DHCP Server or Egress IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-searching-trusted-network.json",
+          "quotes": [
+            "- Network Name",
+            "- DNS Servers",
+            "- DNS Search Domains",
+            "- Hostname or IP",
+            "- Network Range",
+            "- Default Gateway",
+            "- DHCP Server",
+            "- Egress IP"
+          ]
+        }
+      ]
+    },
     "go-omitempty": {
       "statement": "The Go SDK omits `ssids` and `trustedEgressIps` from a written body when they are empty, while it always sends the other criteria, empty or not.",
       "tier": "A",

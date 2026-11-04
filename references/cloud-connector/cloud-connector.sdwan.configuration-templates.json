@@ -68,6 +68,10 @@
       "text": "{{static-routes}} {{one-arm-template}} Whether the device runs dynamic routing is tracked in [[cloud-connector.sdwan.device-modes:routing-protocols]]."
     },
     {
+      "label": "The April 10, 2023 cutover.",
+      "text": "{{april-2023-cutover}} What became of the earlier Branch Connectors is not stated {{gap:pre-2023-branch-connectors}}."
+    },
+    {
       "label": "Not stated.",
       "text": "The memory, cores and NICs per size are in [[cloud-connector.sdwan.virtual-deployment:sizing-branch-connector]]; the throughput of each size, and failover timing for VM, LAN and WAN uplink failover, are not stated {{gap:capacity-and-timing}}. Whether the LAN subinterface DHCP server is also disabled by default, and the HA ID range, are not stated {{gap:lan-details}}."
     }
@@ -94,6 +98,22 @@
     }
   ],
   "claims": {
+    "april-2023-cutover": {
+      "statement": "The ZPA console's About Branch Connectors page says all existing Branch Connectors appear as Cloud Connectors in the Admin Console after April 10, 2023, and that a new Branch Connector must be configured to be visible on the Branch Connector and Branch Connector Groups pages. Provisioning templates created before April 10, 2023 are no longer valid and must not be used; new provisioning templates must be used to properly provision a Branch Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-branch-connectors.json",
+          "quotes": [
+            "All existing Branch Connectors appear as Cloud Connectors in the Zscaler Admin Console after April 10, 2023.",
+            "You must configure a new Branch Connector in the Zscaler Admin Console for it to be visible in the Branch Connector and Branch Connector Groups pages of the Zscaler Admin Console.",
+            "Provisioning templates created before April 10, 2023, are no longer valid and must not be used.",
+            "New provisioning templates must be used to properly provision a Branch Connector."
+          ]
+        }
+      ]
+    },
     "required-for-both": {
       "statement": "A Branch Connector configuration template is required for both virtual machines and hardware devices; for a virtual device the administrator provides the configuration URL to the virtual device, and for a physical device the Zero Touch Provisioning process retrieves the configuration URL.",
       "tier": "A",
@@ -576,6 +596,16 @@
     }
   },
   "gaps": {
+    "pre-2023-branch-connectors": {
+      "kind": "semantic",
+      "title": "What happens to Branch Connectors that existed before April 10, 2023 and now show as Cloud Connectors",
+      "status": "open",
+      "detail": "The About Branch Connectors page does not say what happens to the groups, policies and upgrades of the earlier Branch Connectors that now appear as Cloud Connectors, or whether they must be redeployed.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
     "capacity-and-timing": {
       "kind": "semantic",
       "title": "Throughput of Small and Medium VM sizes, and failover timing",

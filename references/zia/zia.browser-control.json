@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "id": "zia.browser-control",
+  "title": "Browser Control: vulnerability checks and warnings, browser blocking, the Client Connector scope, the recommended policy and Secure Browsing reports",
+  "aliases": [
+    "Browser Control policy",
+    "Browser Vulnerability Protection",
+    "Browser Blocking",
+    "Allow All Browsers",
+    "outdated browsers",
+    "vulnerable plugins",
+    "Secure Browsing reports",
+    "Not allowed to use this browser"
+  ],
+  "binds": [
+    "zia/browser-control-settings",
+    "zia/supported-browser-versions"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/browser-control-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.atp.enforcement-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports.risk"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.multi-step-writes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sdk-python.service-behaviors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Browser Control warns users and can block browsers. {{purpose-and-coverage}}"
+    },
+    {
+      "label": "Vulnerability protection.",
+      "text": "{{vulnerability-protection-settings}} What the check frequency and the exemption lists default to is open {{gap:browser-defaults}}."
+    },
+    {
+      "label": "Browser blocking.",
+      "text": "{{browser-blocking}} The Help list does not line up with the registered type's version fields {{gap:browser-list-vs-fields}}. Which browsers fall outside the latest 12 versions is open {{gap:twelve-versions-scope}}."
+    },
+    {
+      "label": "Client Connector.",
+      "text": "{{client-connector-scope}} The page's first and last sentences differ on Browser Blocking {{divergence:client-connector-blocking}}."
+    },
+    {
+      "label": "Recommended policy and reports.",
+      "text": "{{recommended-policy}} {{secure-browsing-reports}}"
+    },
+    {
+      "text": "Browser Control's place in the threat-protection enforcement order is in [[zia.atp.enforcement-order]], and the audit sections that report on it are in [[zia.reports.risk]]. The registered type has Smart Isolation fields that the Help article does not mention {{gap:smart-isolation-fields}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user's traffic is Client Connector traffic, stating that the recommended-policy page differs on whether Browser Blocking still applies rather than choosing one reading.",
+      "uses": [
+        "client-connector-scope",
+        "client-connector-blocking"
+      ]
+    },
+    {
+      "do": "Whether the warning feature applies, since the page says it is only applicable with browser-based authentication.",
+      "uses": [
+        "vulnerability-protection-settings"
+      ]
+    }
+  ],
+  "claims": {
+    "purpose-and-coverage": {
+      "statement": "A Browser Control policy warns users from going to the internet when they use outdated or vulnerable browsers, plugins and applications. The Zscaler service examines browser versions and patches (including beta browsers), internet applications (for example Adobe Flash, Sun Java, Apple QuickTime) and media download applications (for example Windows Media Player). It can also block the use of browsers or specific browser versions that are older or have known vulnerabilities, and the Admin Console displays the latest 12 versions for most browsers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-control-policy.json",
+          "quotes": [
+            "You can define a Browser Control policy to warn users from going to the internet when they are using outdated or vulnerable browsers, plugins, and applications.",
+            "The Zscaler service examines browser versions and patches (including beta browsers), internet applications (e.g., Adobe Flash, Sun Java, Apple QuickTime), and media download applications (e.g., Windows Media Player).",
+            "You can also reduce the security risk of your organization by blocking the use of browsers or specific browser versions that are older or that have known vulnerabilities.",
+            "The Zscaler Admin Console displays the latest 12 versions for most browsers."
+          ]
+        }
+      ]
+    },
+    "vulnerability-protection-settings": {
+      "statement": "Browser Vulnerability Protection has Enable Checks & User Notification, which warns users of outdated or vulnerable browsers, plugins and applications. When enabled, How Often to Check is Daily, Monthly or Weekly; Disable Notification for Browsers disables warnings for all browsers; and any number of plugins and of applications can be chosen to be exempted from warnings. The page says this feature is only applicable with browser-based authentication (non-Zscaler Client Connector).",
+      "tier": "A",
+      "binds": [
+        "zia/browser-control-settings#enableWarnings",
+        "zia/browser-control-settings#pluginCheckFrequency",
+        "zia/browser-control-settings#bypassAllBrowsers",
+        "zia/browser-control-settings#bypassPlugins",
+        "zia/browser-control-settings#bypassApplications"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-control-policy.json",
+          "quotes": [
+            "Enable Checks & User Notification: Enable to warn users when they are using outdated or vulnerable browsers, plugins, and applications."
+          ],
+          "after": "- Browser Vulnerability Protection"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-control-policy.json",
+          "quotes": [
+            "How Often to Check: Choose how frequently the service checks browsers and relevant applications. It can check Daily, Monthly, or Weekly.",
+            "Disable Notification for Browsers: Enable to disable warnings for all browsers.",
+            "Disable Notification for Plugins: Choose the plugins to exempt from warnings. You can search for plugins and choose any number of them.",
+            "Disable Notification for Applications: Choose the applications to exempt from warnings. You can search for applications and choose any number of them.",
+            "This feature is only applicable when you are using browser-based authentication (non-Zscaler Client Connector)."
+          ]
+        }
+      ]
+    },
+    "browser-blocking": {
+      "statement": "Browser Blocking has Allow All Browsers, which lets all browsers and their versions access the internet; if it is disabled, specific browsers and their versions can be blocked for Chrome, Firefox, Microsoft Browsers, Opera, Safari and Brave.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-control-policy.json",
+          "quotes": [
+            "Allow All Browsers: Enable to allow all browsers and their respective versions access to the internet. If disabled, the following browser options appear, and you can block specific browsers and their versions:"
+          ],
+          "after": "- Browser Blocking"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-control-policy.json",
+          "quotes": [
+            "- Chrome - Firefox - Microsoft Browsers - Opera - Safari - Brave"
+          ]
+        }
+      ]
+    },
+    "client-connector-scope": {
+      "statement": "The Recommended Browser Control Policy page says Browser Control policy settings only work for non-Zscaler Client Connector traffic, that if Client Connector is enabled the Browser Vulnerability Protection settings do not take effect, and that Browser Blocking settings still take effect if Client Connector is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-browser-control-policy.json",
+          "quotes": [
+            "Browser Control policy settings only work for non-Zscaler Client Connector traffic.",
+            "If Zscaler Client Connector is enabled, the Browser Vulnerability Protection settings do not take effect.",
+            "Browser Blocking settings still take effect if Zscaler Client Connector is enabled."
+          ]
+        }
+      ]
+    },
+    "recommended-policy": {
+      "statement": "For vulnerable browsers Zscaler recommends enabling Enable Checks & User Notification and disabling Allow All Browsers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-browser-control-policy.json",
+          "quotes": [
+            "Zscaler recommends that you configure the following Browser Control policy when using vulnerable browsers:",
+            "- Enable Enable Checks & User Notification",
+            "- Disable Allow All Browsers"
+          ]
+        }
+      ]
+    },
+    "secure-browsing-reports": {
+      "statement": "Secure Browsing reports track the use of vulnerable browsers, plugins and applications; they are in the Secure Browsing section of the Standard Reports tab of Interactive Reports. Separately, in Data Explorer > Internet & SaaS > Web Insights, on the Insights tab, choosing User as the Data Type and the Secure Browsing Status filter set to Vulnerable lists users who are using vulnerable browsers, plugins and applications for which warnings are set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-secure-browsing-reports.json",
+          "quotes": [
+            "The Zscaler service has Secure Browsing reports, which you can run to track the use of vulnerable browsers, plugins, and applications, and then modify your Browser Control policy if needed.",
+            "1. From the navigation menu, go to Analytics > Reports > Interactive Reports.",
+            "2. On the Standard Reports tab, go to the Secure Browsing section to see the available browsing reports."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-secure-browsing-reports.json",
+          "quotes": [
+            "1. Go to Data Explorer > Internet & SaaS > Web Insights.",
+            "2. Select the Insights tab.",
+            "3. At the top, choose User as the Data Type.",
+            "5. Select the Secure Browsing Status filter, and then select Vulnerable.",
+            "The service lists users who are using vulnerable browsers, plugins, and applications for which you set warnings."
+          ],
+          "after": "# Viewing Top Users with Vulnerable Browsers, Plugins, and Applications"
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "client-connector-blocking": {
+      "summary": "The Recommended Browser Control Policy page says Browser Control settings only work for non-Client Connector traffic and, in its last sentence, that Browser Blocking still takes effect with Client Connector.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-recommended-browser-control-policy.json",
+            "quotes": [
+              "Browser Control policy settings only work for non-Zscaler Client Connector traffic."
+            ]
+          },
+          "says": "Browser Control policy settings only work for non-Client Connector traffic."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-recommended-browser-control-policy.json",
+            "quotes": [
+              "Browser Blocking settings still take effect if Zscaler Client Connector is enabled."
+            ]
+          },
+          "says": "Browser Blocking settings still take effect if Client Connector is enabled."
+        }
+      ],
+      "impact": "Whether a blocked browser is stopped for a Client Connector user depends on which sentence holds; the page gives no scope that reconciles them."
+    }
+  },
+  "gaps": {
+    "browser-defaults": {
+      "kind": "semantic",
+      "title": "Defaults of the check frequency and Allow All Browsers",
+      "status": "open",
+      "detail": "The Configuring Browser Control Policy page lists Daily, Monthly and Weekly for How Often to Check and the Allow All Browsers toggle without stating either default.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "browser-list-vs-fields": {
+      "kind": "semantic",
+      "title": "How the Help browser list maps to the registered type's version fields",
+      "status": "open",
+      "detail": "The Help list is Chrome, Firefox, Microsoft Browsers, Opera, Safari and Brave. The registered type has blocked version fields for Chrome, Firefox, Internet Explorer, Opera and Safari. The pages do not say which field holds Microsoft Browsers, and no field is named for Brave; this was found by comparing names.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "about": [
+        "zia/browser-control-settings"
+      ]
+    },
+    "twelve-versions-scope": {
+      "kind": "semantic",
+      "title": "Which browsers fall outside the latest 12 versions",
+      "status": "open",
+      "detail": "The page says the Admin Console displays the latest 12 versions for most browsers and does not say which browsers are the exceptions.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ],
+      "about": [
+        "zia/supported-browser-versions"
+      ]
+    },
+    "smart-isolation-fields": {
+      "kind": "semantic",
+      "title": "Smart Isolation fields on the Browser Control type",
+      "status": "open",
+      "detail": "The registered type carries Smart Isolation fields (enableSmartBrowserIsolation, smartIsolationProfile and others) that the Configuring Browser Control Policy page does not mention.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "about": [
+        "zia/browser-control-settings"
+      ]
+    }
+  }
+}

@@ -42,7 +42,7 @@
     },
     {
       "label": "Timeout and rate limiting.",
-      "text": "{{timeout-and-rate-limit}}"
+      "text": "{{timeout-and-rate-limit}} {{private-access-rate-limit}} Whether the per-second limit counts per application segment per Service Edge instance or across instances is open {{gap:rate-limit-threshold}}."
     }
   ],
   "claims": {
@@ -187,17 +187,35 @@
           ]
         }
       ]
+    },
+    "private-access-rate-limit": {
+      "statement": "Rate limits throttle the number of successful connections per application segment for Public Service Edges for Private Access or Private Service Edges for Private Access when using web probes for ZDX integrations: 50 web probe requests per second to the server for an individual Public Service Edge, and 35 for an individual Private Service Edge. In the page's example, with a maximum rate limit of 50 requests per second only 50 successful connections are allowed to the server within each second. The limits protect application servers, and adjusting them is done through Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-zdx-web-probe-rate-limiting.json",
+          "quotes": [
+            "Rate limits throttle the number of successful connections per application segment for Public Service Edges for Private Access or Private Service Edges for Private Access when using web probes for Digital Experience (ZDX) integrations.",
+            "50 web probe requests per second to the server for an individual Public Service Edge.",
+            "35 web probe requests per second to the server for an individual Private Service Edge.",
+            "For example, if the max rate limit is 50 requests per second, only 50 successful connections are allowed to the server within each second.",
+            "Rate limits protect your application servers when integrating with ZDX. To adjust the rate limits of web probes, contact Zscaler Support."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "rate-limit-threshold": {
       "kind": "semantic",
       "title": "What Private Access rate limiting of Web probes limits",
-      "status": "open",
-      "detail": "The Web Probe Errors page says a rate-limited Web probe failed due to Private Access rate limiting to control the probe threshold; it gives no threshold. The article on Private Access Web probe rate limiting (zpa-about-zdx-web-probe-rate-limiting.json) was outside the extraction and is not read.",
+      "status": "partial",
+      "detail": "The Web Probe Errors page says a rate-limited Web probe failed due to Private Access rate limiting to control the probe threshold; it gives no threshold. The About ZDX Web Probe Rate Limiting article gives the per-second limits (claim private-access-rate-limit). Still open: whether the per-second limit counts per application segment per Service Edge instance or across instances, since the article says 'successful connections per application segment' and 'for an individual' Service Edge without joining the two, and the range to which Zscaler Support can adjust the limit is not given.",
       "blocks": "telling an operator how many Web probes for a Private Access application are too many",
       "resolves_with": [
-        "source-read"
+        "source-read",
+        "support-ticket"
       ]
     }
   }

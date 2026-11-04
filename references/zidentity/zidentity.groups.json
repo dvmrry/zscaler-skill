@@ -73,6 +73,14 @@
       "text": "{{membership-ops}} {{console-ops}} What a bulk add does with a repeated user ID is open {{gap:bulk-add-duplicates}}."
     },
     {
+      "label": "Adding groups in the console.",
+      "text": "{{console-name-description}} The API contract gives a different description limit {{divergence:description-length}}. {{console-users-first}}"
+    },
+    {
+      "label": "Group CSV import.",
+      "text": "{{group-csv}} {{group-csv-override}} What the Disabled column does is open {{gap:csv-disabled-column}}."
+    },
+    {
       "label": "In product policy.",
       "text": "How a change in Authentication Service group membership reaches ZIA and ZPA policy, and how fast, is open {{gap:policy-effect}}; the provisioning side is in [[zidentity.users.provisioning]]."
     },
@@ -230,7 +238,7 @@
       ]
     },
     "create-fields": {
-      "statement": "Creating a group through the API takes a name (required, at most 128 characters) and a description (at most 256 characters); the request has no source, dynamic flag, entitlement flags or IdP.",
+      "statement": "Creating a group through the API takes a name (required, at most 128 characters) and a description (at most 256 characters in the contract); the request has no source, dynamic flag, entitlement flags or IdP.",
       "tier": "A",
       "evidence": [
         {
@@ -434,9 +442,95 @@
         }
       ],
       "conditions": "Absence claim (only two `...Enabled` booleans): `jq -c '.paths[\"/groups\"].post.responses[\"201\"].content[\"application/json\"].schema as $s | [($s.properties|keys), ($s.allOf|map(.title, (.properties|keys)))]'` on automate-zscaler/openapi/zid.openapi.json returns the record's members adminEntitlementEnabled, id, idp, isDynamicGroup, serviceEntitlementEnabled and source, plus description and name in its GroupProfilePubReqDto part; the same query on the `/groups/{id}` PUT 200 schema returns the same members."
+    },
+    "console-name-description": {
+      "statement": "In the console a group name can have up to 128 characters and the optional description up to 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-user-groups.json",
+          "quotes": [
+            "Group Name: Enter a group name. The name can contain up to 128 characters.",
+            "Description: Optionally, enter additional notes or information. The content cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "console-users-first": {
+      "statement": "The users to include are added before the group is created, or a group can be assigned to a user when the user is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-user-groups.json",
+          "quotes": [
+            "Before you create a user group, ensure that you have added the users that you want to include in a group, or you can also assign a group to the user when configuring a user."
+          ]
+        }
+      ]
+    },
+    "group-csv": {
+      "statement": "Up to 1,000 user groups can be imported at once by CSV; the template's header row has Action, Name, Description and Disabled columns, + adds a group (Name filled in, Description optional) and - deletes one (Name filled in), one group per line.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-group-details-csv-file.json",
+          "quotes": [
+            "You can import up to 1,000 user groups into Authentication Service at one time by using CSV files.",
+            "You can see the Action, Name, Description and Disabled columns.",
+            "+ (plus sign) to add a new group. When adding a user group, fill in the Name column. You can optionally enter your comments under the Description column.",
+            "- (minus sign) to delete a user group. When deleting a user group, fill in the Name column.",
+            "Each user group must be on a separate line."
+          ]
+        }
+      ]
+    },
+    "group-csv-override": {
+      "statement": "Override Existing Entries is selected to update existing user group details, delete users (the page's wording) or add new user groups, and left off to only add new groups; without it, importing a group that already exists shows an error that an identical group cannot be imported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-importing-group-details-csv-file.json",
+          "quotes": [
+            "(Optional) Select Override Existing Entries if you want to update your existing user group details, delete users, or add new user groups.",
+            "If you attempt to add a group that already exists and this option is not selected, an error message is displayed stating that an identical group cannot be imported.",
+            "Do not select this option if you only want to add new groups."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
+    "description-length": {
+      "summary": "The longest group description: 10,240 characters in the console, 256 in the API contract's create request.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-adding-user-groups.json",
+            "quotes": [
+              "Description: Optionally, enter additional notes or information. The content cannot exceed 10,240 characters."
+            ]
+          },
+          "says": "The Adding User Groups page says the description cannot exceed 10,240 characters; both sources give 128 for the name."
+        },
+        {
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zid.openapi.json",
+            "pointer": "/paths/~1groups/post/requestBody/content/application~1json/schema/properties/description",
+            "expect": {
+              "maxLength": 256
+            }
+          },
+          "says": "The group create request's description has maxLength 256."
+        }
+      ],
+      "impact": "A description between 257 and 10,240 characters may be accepted in the console and rejected through the API, or the contract may understate the limit; no source says which."
+    },
     "group-count-per-user": {
       "summary": "How many groups a user can belong to: 1,000 on the About User Groups page, 1,024 on the Adding Users page, 128 on the CSV import page.",
       "positions": [
@@ -475,6 +569,17 @@
     }
   },
   "gaps": {
+    "csv-disabled-column": {
+      "kind": "semantic",
+      "title": "What the group CSV's Disabled column does",
+      "status": "open",
+      "detail": "The import page names a Disabled column in the template but does not explain it, while the API group record has no status flag (see no-status-flag).",
+      "blocks": "building a group import file",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "dual-flag": {
       "kind": "semantic",
       "title": "What the SDKs' second dynamic-group flag is",

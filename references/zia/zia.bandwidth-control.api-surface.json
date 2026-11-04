@@ -56,7 +56,7 @@
     },
     {
       "label": "Rule fields.",
-      "text": "{{min-max-fields}} Those are the console's guaranteed and maximum percentages ([[zia.bandwidth-control.allocation]]). {{rule-scope-fields}} {{device-fields-not-in-help}} {{protocols-spec}} {{protocols-terraform}} The two protocol lists disagree {{divergence:protocol-vocabulary}}. {{tf-location-caps}} The Help location limit differs {{divergence:locations-per-rule}}. Rule order, state and rank semantics: [[zia.bandwidth-control.rules]]; provider reorder behavior: [[zia.terraform.rule-order.registry]]."
+      "text": "{{min-max-fields}} Those are the console's guaranteed and maximum percentages ([[zia.bandwidth-control.allocation]]). {{rule-scope-fields}} {{device-fields-not-in-help}} {{protocols-spec}} {{protocols-terraform}} {{help-protocol-choices}} The protocol lists disagree {{divergence:protocol-vocabulary}}. {{tf-location-caps}} The Help location limit differs {{divergence:locations-per-rule}}. Rule order, state and rank semantics: [[zia.bandwidth-control.rules]]; provider reorder behavior: [[zia.terraform.rule-order.registry]]."
     },
     {
       "label": "Class typing.",
@@ -383,6 +383,33 @@
         }
       ]
     },
+    "help-protocol-choices": {
+      "statement": "The Adding Rules article offers the Protocols condition \"If you have the Firewall subscription\", with eleven choices: DNS over HTTPS, FTP over HTTP, HTTP, HTTP Proxy, HTTPS, Native FTP, SSL/TLS (SSL/TLS traffic that isn't decrypted, for example hosts exempted from SSL/TLS Inspection), Tunnel (unidentified encrypted traffic, for example tunneling applications encapsulated in HTTP or HTTPS), Tunnel SSL/TLS (an undecodable protocol within an SSL/TLS connection), WebSocket and WebSocket SSL/TLS.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rules-bandwidth-control-policy.json",
+          "quotes": [
+            "Protocols: If you have the Firewall subscription, select the protocols to which the rule applies:",
+            "DNS over HTTPS: Bandwidth from DNS over HTTPS websites.",
+            "FTP over HTTP: Bandwidth from FTP over HTTP websites.",
+            "- HTTP: Bandwidth from HTTP websites.",
+            "HTTP Proxy: Bandwidth from HTTP proxy servers.",
+            "HTTPS: Bandwidth from HTTP websites encrypted by SSL/TLS.",
+            "Native FTP: Bandwidth from native FTP servers.",
+            "SSL/TLS: Bandwidth from SSL/TLS traffic that isn't decrypted. For example, bandwidth from hosts you've exempted from SSL/TLS Inspection.",
+            "Tunnel: Bandwidth from unidentified encrypted traffic. For example, bandwidth from tunneling applications (e.g., Telnet or SSH) that are encapsulated in HTTP or HTTPS.",
+            "Tunnel SSL/TLS: Undecodable protocol within an SSL/TLS connection.",
+            "WebSocket: Bandwidth from WebSocket websites.",
+            "WebSocket SSL/TLS: Bandwidth from WebSocket websites encrypted by SSL/TLS."
+          ]
+        }
+      ]
+    },
     "tf-location-caps": {
       "statement": "The Terraform bandwidth rule schema allows at most 8 locations and 32 location groups per rule.",
       "tier": "A",
@@ -668,6 +695,17 @@
             "after": "var supportedURLFilteringProtocols = []string{"
           },
           "says": "The provider validates against the URL Filtering list, which includes the WebSocket values."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-rules-bandwidth-control-policy.json",
+            "quotes": [
+              "WebSocket: Bandwidth from WebSocket websites.",
+              "WebSocket SSL/TLS: Bandwidth from WebSocket websites encrypted by SSL/TLS."
+            ]
+          },
+          "says": "The Adding Rules Help article lists eleven protocol choices including WebSocket and WebSocket SSL/TLS, which the API enum lacks and the provider list includes; its eleven choices contain no TCP, UDP or ZPA value, which the provider list includes (claim help-protocol-choices)."
         }
       ],
       "impact": "A configuration using a value only the provider accepts may be rejected by the service, and a value the provider rejects cannot be sent through Terraform even if the service accepts it."
@@ -694,6 +732,16 @@
             ]
           },
           "says": "Ranges and Limitations lists 32 locations per rule for all policy rule types."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-rules-bandwidth-control-policy.json",
+            "quotes": [
+              "Locations: Select Any to apply this rule to all locations, or select up to 32 locations."
+            ]
+          },
+          "says": "The Adding Rules Help article says a rule takes up to 32 locations."
         }
       ],
       "impact": "A rule that needs 9 to 32 locations cannot be written through the provider; use location groups (32) or split the rule, even if the service would accept more."

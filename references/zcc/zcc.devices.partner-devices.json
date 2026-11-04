@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "id": "zcc.devices.partner-devices",
+  "title": "Partner devices: the Partner Devices list, its filters, search, exports, the 24-hour removal of unregistered devices and the device details",
+  "aliases": [
+    "Partner Devices page",
+    "partner device fingerprint",
+    "Registered Partner Device Details",
+    "partner devices with access to my tenant"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.devices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.partner-tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.lifecycle"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.exports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.devices.record-fields"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} Partner logins themselves are in [[zcc.partner-tenants]]; the organization's own devices are in [[zcc.devices]]."
+    },
+    {
+      "label": "The list.",
+      "text": "{{filters}} The States filter's default is given two ways {{divergence:default-states}}. {{list-columns}} {{exact-match-search}}"
+    },
+    {
+      "label": "Actions and exports.",
+      "text": "{{actions}} Soft removal itself is in [[zcc.devices.lifecycle]]. {{exports}}"
+    },
+    {
+      "label": "Removal of unregistered devices.",
+      "text": "{{inactive-removal}} Whether this interacts with automated device cleanup is open {{gap:cleanup-interaction}}."
+    },
+    {
+      "label": "Device details.",
+      "text": "{{details-registration}} {{details-device}} {{details-status}} Which one-time passwords a partner device shows is open {{gap:partner-otp-and-services}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before saying which partner devices the list shows by default, the divergence over the States filter, and the filters actually set.",
+      "uses": [
+        "filters",
+        "default-states"
+      ]
+    },
+    {
+      "do": "For a partner device that cannot log in after being unregistered, whether it was removed after 24 hours of inactivity.",
+      "uses": [
+        "inactive-removal"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "In the Admin Console the Partner Devices page (Infrastructure > Client Connector > Partner Devices) lists the partner devices with access to the organization's tenant, which partner organizations get once access is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-partner-devices.json",
+          "quotes": [
+            "In the Zscaler Admin Console, you can view a list of partner devices with access to your organization's tenant.",
+            "You can give partner organizations access to your organization's tenant by enabling access.",
+            "On the Partner Devices page (Infrastructure > Client Connector > Partner Devices), you can do the following:"
+          ]
+        }
+      ]
+    },
+    "filters": {
+      "statement": "The list filters by Active From (7, 30, 60, 90, 120, 150 or 180 days, or older than 180 days), Users (all users or a specific user), States (Registered, Unregistered, Removal Pending, Removed or Quarantined) and OS (all operating systems or a specific one, all shown by default).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-partner-devices.json",
+          "quotes": [
+            "Active From: View devices active from 7 Days, 30 Days, 60 Days, 90 Days, 120 Days, 150 Days, 180 Days, or Older than 180 Days.",
+            "Users: View devices for all users or a specific user.",
+            "States: View devices that are identified as Registered, Unregistered, Removal Pending, Removed, or Quarantined.",
+            "OS: View devices for all operating systems or a specific operating system. By default, all operating systems are shown in the table."
+          ]
+        }
+      ]
+    },
+    "exact-match-search": {
+      "statement": "Partner devices can be found by exact match on Device ID, UDID, Machine Hostname (which the end user or the operating system can customize), Hardware Fingerprint, Client Connector Version or App Profile Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-partner-devices.json",
+          "quotes": [
+            "Perform an exact match search of partner devices by:",
+            "Device ID: The unique ID for each device in the Zscaler Admin Console database.",
+            "UDID: The Unique Device Identifier that Zscaler Client Connector generates for every new installation.",
+            "Machine Hostname: A name assigned to a device on a network. The end user or the operating system can customize the value.",
+            "Hardware Fingerprint: The unique ID created from the device’s hardware",
+            "Zscaler Client Connector Version: The Zscaler Client Connector version installed on the devices.",
+            "App Profile Name: A custom name that an administrator configures when creating or modifying app profiles for each OS (Windows, macOS, Linux, etc.)."
+          ]
+        }
+      ]
+    },
+    "list-columns": {
+      "statement": "For each partner device the list shows User ID, OS Type, Device Model, Client Connector Version and Device State, and each page shows up to 100 devices by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-partner-devices.json",
+          "quotes": [
+            "User ID: The enrolled user for the device.",
+            "OS Type: The device operating system.",
+            "Device Model: The device model.",
+            "Zscaler Client Connector Version: The Zscaler Client Connector version installed on the device.",
+            "Device State: The status of the device.",
+            "By default, each page shows up to 100 devices."
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "From the page, selected devices can be soft removed from the Admin Console (Delete in the Actions drop-down menu or the Delete icon), and the device fingerprint and the one-time password of each partner device can be viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-partner-devices.json",
+          "quotes": [
+            "Soft remove selected devices from the Zscaler Admin Console by either clicking Delete from the Actions drop-down menu or clicking the Delete icon.",
+            "View the device fingerprint for each partner device. You can also view the one-time password for each device."
+          ]
+        }
+      ]
+    },
+    "exports": {
+      "statement": "The device fingerprint of all partner devices exports as a CSV file with Device Details (All Fields, such as manufacturer, model, username, machine hostname and UDID, or Custom Fields such as User, OS Type, Device Model, OS Version and VPN State), Disable Reasons, and Service Status (Internet & SaaS, Private Access and Digital Experience as On, Off or Error, for services the organization has enabled).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-partner-devices.json",
+          "quotes": [
+            "Export the device fingerprint as a CSV file for all partner devices.",
+            "Device Details (All Fields): Includes fields such as manufacturer, model, username, machine hostname, UDID, etc.",
+            "Device Details (Custom Fields): Includes fields such as User, OS Type, Device Model, OS Version, and VPN State.",
+            "Disable Reasons: Displays the reason a device is disabled.",
+            "Service Status: The status of Internet & SaaS, Private Access, and Digital Experience (ZDX). Can be in an On, Off, or Error state. This only applies if you have those services enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "inactive-removal": {
+      "statement": "Unregistered partner devices are removed if they were inactive in the previous 24 hours, which allows the same user or a new user to log in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-device-fingerprint-partner-device.json",
+          "quotes": [
+            "Unregistered partner devices are removed if inactive in the previous 24 hours, allowing the same user or a new user to log in."
+          ]
+        }
+      ]
+    },
+    "details-registration": {
+      "statement": "The Registered Partner Device Details window gives, as registration details, the User ID (the Client Connector username), Device ID (an internal Zscaler identifier), Last Registration Time (the last login on the device), Last Deregistration Time (the last logout), Client Connector Version, Tunnel Version (the last Z-Tunnel version the device connected with) and Device State (the registration status).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-device-fingerprint-partner-device.json",
+          "quotes": [
+            "The Zscaler Client Connector Registered Partner Device Details window appears.",
+            "User ID: The username used for Zscaler Client Connector.",
+            "Device ID: An internal Zscaler identifier for the device.",
+            "Last Registration Time: The last time the user logged in to Zscaler Client Connector on the device.",
+            "Last Deregistration Time: The last time the user logged out of Zscaler Client Connector on the device.",
+            "Zscaler Client Connector Version: The Zscaler Client Connector version on the device.",
+            "Tunnel Version: The last Zscaler Tunnel (Z-Tunnel) version the device connected with.",
+            "Device State: The registration status of the device."
+          ]
+        }
+      ]
+    },
+    "details-device": {
+      "statement": "The window also gives Owner (the locally logged-in user on Windows and macOS, the Client Connector username on Android and iOS, shown if Collect Device Owner Information is enabled), Machine Hostname (shown if Collect Machine Hostname Information is enabled), Unique-ID, OS, Model, Manufacturer, MAC Address, Device Locale and Hardware Fingerprint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-device-fingerprint-partner-device.json",
+          "quotes": [
+            "Owner: If Collect Device Owner Information is enabled, this field displays the device owner information. For Windows and macOS, this is the locally logged-in user. For Android and iOS, this is the Zscaler Client Connector username.",
+            "Machine Hostname: If Collect Machine Hostname Information is enabled, this field displays the machine hostname.",
+            "Unique-ID: The device's unique identifier.",
+            "OS: The device's operating system.",
+            "Model: The device's model.",
+            "Manufacturer: The device’s manufacturer.",
+            "MAC Address: The device’s media access control address.",
+            "Device Locale: The device’s locale.",
+            "Hardware Fingerprint: The device fingerprint."
+          ]
+        }
+      ]
+    },
+    "details-status": {
+      "statement": "The window also gives ZPA Enabled, ZPA Health (active or inactive) and Last Seen Connected to ZPA, and Device State (the device's policy status), Last Seen with Client Connector Active, Last Configuration Download Time and Configuration Download Count (the number of times the app profile was updated since enrollment); the device can also be force removed from the Admin Console from this view.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-device-fingerprint-partner-device.json",
+          "quotes": [
+            "ZPA Enabled: Displays whether Private Access is enabled or disabled.",
+            "ZPA Health: Displays whether the health of Private Access is active or inactive.",
+            "Last Seen Connected to ZPA: The last known date and time of connection to Private Access.",
+            "Device State: The device’s policy status.",
+            "Last Seen with Zscaler Client Connector Active: The last time that Zscaler Client Connector was active on the device.",
+            "Last Configuration Download Time: The last time the Zscaler Client Connector profile was updated.",
+            "Configuration Download Count: The total number of times the app profile was updated since enrollment.",
+            "When viewing device fingerprint information for a partner device, you can also force remove the device from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "default-states": {
+      "summary": "The Partner Devices page gives two defaults for the list: the States filter says all states except Removed are shown, and a later sentence says the list is filtered to all users, all states and all operating systems.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-about-partner-devices.json",
+            "quotes": [
+              "By default, all states except Removed are shown in the table."
+            ]
+          },
+          "says": "States filter: by default all states except Removed are shown."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-about-partner-devices.json",
+            "quotes": [
+              "By default, the list is filtered to display devices for all users, all states, and all operating systems."
+            ]
+          },
+          "says": "Device list: by default the list shows all users, all states and all operating systems."
+        }
+      ],
+      "impact": "Whether removed partner devices appear in the list before any filter is set is not settled by the page."
+    }
+  },
+  "gaps": {
+    "cleanup-interaction": {
+      "kind": "semantic",
+      "title": "Whether the 24-hour removal of unregistered partner devices interacts with automated cleanup",
+      "status": "open",
+      "detail": "The partner device page states the 24-hour removal of inactive unregistered devices; whether it relates to the automated device cleanup in zcc.devices.cleanup is not described.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "partner-otp-and-services": {
+      "kind": "semantic",
+      "title": "Which one-time passwords and services a partner device shows",
+      "status": "open",
+      "detail": "The partner device pages say the one-time password of each device can be viewed but not which password types, and the details window lists only Private Access under its service fields where enrolled devices list more services; the page does not say whether the other services are absent for partner devices.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

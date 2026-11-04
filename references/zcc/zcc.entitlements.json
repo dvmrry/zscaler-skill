@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "zcc.entitlements",
-  "title": "ZCC service entitlement: who gets Private Access and ZDX",
+  "title": "ZCC service entitlement: who gets Private Access, ZDX, Deception and Internet & SaaS, by user group or device group",
   "aliases": [
     "zcc entitlements",
     "service entitlement",
@@ -33,6 +33,14 @@
     {
       "rel": "see-also",
       "to": "zcc.entitlements.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.deception"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.entitlements.device-groups"
     }
   ],
   "prose": [
@@ -40,12 +48,16 @@
       "text": "Entitlement decides whether the app enrolls a user or device into a service at all; the service's own policy decides what happens after. {{services-gated}} {{zia-device-groups}} {{needs-subscription}}"
     },
     {
+      "label": "Internet & SaaS for device groups.",
+      "text": "{{zia-device-groups-config}} {{zia-logout-option}}"
+    },
+    {
       "label": "When a change lands.",
       "text": "{{update-timing}} Whether a de-entitled user's active Private Access session drops at that update or stays up until the next login is open {{gap:active-session-on-removal}}."
     },
     {
       "label": "Per service.",
-      "text": "Private Access, including the machine tunnel switch: [[zcc.entitlements.zpa]]. Digital Experience: [[zcc.entitlements.zdx]]. Reading and writing entitlements through the API: [[zcc.api.entitlements-wire]]; through the Python SDK: [[zcc.sdk-python.entitlements]]. Terraform has no entitlement resource: [[zcc.terraform.coverage:no-entitlement-resource]]."
+      "text": "Private Access, including the machine tunnel switch: [[zcc.entitlements.zpa]]. Digital Experience: [[zcc.entitlements.zdx]]. Deception: [[zcc.entitlements.deception]]. The device groups they can be assigned to: [[zcc.entitlements.device-groups]]. Reading and writing entitlements through the API: [[zcc.api.entitlements-wire]]; through the Python SDK: [[zcc.sdk-python.entitlements]]. Terraform has no entitlement resource: [[zcc.terraform.coverage:no-entitlement-resource]]."
     },
     {
       "label": "After entitlement.",
@@ -65,6 +77,12 @@
       "do": "Whether the device has picked up the entitlement change: next connect, within 60 minutes if connected, or after Update Policy and reauthentication.",
       "uses": [
         "update-timing"
+      ]
+    },
+    {
+      "do": "For Internet & SaaS assigned by device group, whether ZIA Enabled by Default is disabled and the client is 3.9 or later.",
+      "uses": [
+        "zia-device-groups-config"
       ]
     },
     {
@@ -135,6 +153,43 @@
             "This updates your users' devices the next time they connect. If they are already connected, the devices automatically update in 60 minutes.",
             "To manually update their devices, users can go into Zscaler Client Connector and click Update Policy from the More window.",
             "After manually refreshing, they must reauthenticate on the Digital Experience window."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-internet-saas-device-groups.json",
+          "quotes": [
+            "Your users' devices are updated the next time they connect. If they're already connected, devices automatically update in 60 minutes.",
+            "After manually refreshing the device, they must reauthenticate on the Private Access page."
+          ]
+        }
+      ]
+    },
+    "zia-device-groups-config": {
+      "statement": "Enabling Internet & SaaS for device groups needs Client Connector 3.9 or later and Zscaler Support to enable the feature; it needs ZIA Enabled by Default disabled, since if that setting is enabled Internet & SaaS is available for all users and cannot be assigned to a device group. The groups are defined in the Device Groups section of the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-internet-saas-device-groups.json",
+          "quotes": [
+            "To enable Internet & SaaS for device groups, you must deploy Zscaler Client Connector 3.9 or later. Contact Zscaler Support to enable this feature.",
+            "To enable Internet & SaaS for device groups, ensure that ZIA Enabled by Default is disabled. If this setting is enabled, Internet & SaaS is available for all users and you cannot assign Internet & SaaS to a device group.",
+            "Groups are defined in the Device Groups section in Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "zia-logout-option": {
+      "statement": "Logout Zscaler Client Connector when ZIA Entitlement is Enabled automatically logs users out of Client Connector when Internet & SaaS is enabled for a device group, and users can then log in again to enable the Internet & SaaS service; the page says it applies to customers using Private Access only or Private Access and Deception, and that when it is disabled the app runs without the Internet & SaaS service until the next login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-enabling-internet-saas-device-groups.json",
+          "quotes": [
+            "Select Logout Zscaler Client Connector when ZIA Entitlement is Enabled to automatically log users out of Zscaler Client Connector when Internet & SaaS is enabled for a device group. Users can then log in again to enable the Internet & SaaS service.",
+            "This applies to customers using Private Access only or Private Access and Deception. When disabled, Zscaler Client Connector runs without the Internet & SaaS service until the next Zscaler Client Connector login."
           ]
         }
       ]

@@ -40,6 +40,22 @@
       "text": "Users and groups are made service admins of a subscribed service, with a role created for that service: [[shared.admin-rbac:entitlement-assigns-service-admins]]. {{admin-page}}"
     },
     {
+      "label": "Definition and services.",
+      "text": "{{definition}} {{services-with-roles}} {{breach-predictor-via-risk360}}"
+    },
+    {
+      "label": "Assigning.",
+      "text": "{{individual-over-group}} {{admin-group-assignment}} {{service-entitlement-assignment}} {{own-entitlement-locked}} {{zpa-microtenant}}"
+    },
+    {
+      "label": "Role sync and precedence.",
+      "text": "{{role-sync}} The interval is open {{gap:role-sync-interval}}. {{role-precedence}} What first means is open {{gap:first-meaning}}."
+    },
+    {
+      "label": "Device group restrictions.",
+      "text": "{{device-group-restrictions}} {{device-group-permission}} Which module grants viewing device groups is open {{gap:device-group-module}}, and whether restrictions reach administrative entitlements is open {{gap:device-restriction-admin}}."
+    },
+    {
       "label": "Service entitlements.",
       "text": "{{service-page}}"
     },
@@ -392,9 +408,240 @@
           }
         }
       ]
+    },
+    "definition": {
+      "statement": "Entitlements are the access privileges and permissions assigned to Authentication Service users and groups, of two kinds, Administrative and Service; administrative entitlements give a user or group administrative access to a Zscaler service with a role created in that service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "Entitlements refer to the type of access privileges and permissions that are assigned to Authentication Service users and user groups. Authentication Service supports Administrative and Service entitlements.",
+            "The Administrative entitlements are used to assign and manage Authentication Service users and user group's administrative access to a Zscaler service (e.g., Internet & SaaS (ZIA), Private Access (ZPA)) with the specific role that is created in the respective Zscaler service."
+          ]
+        }
+      ]
+    },
+    "services-with-roles": {
+      "statement": "The Managing Entitlements page lists the services whose roles are added for administrative entitlements: Authentication Service, Internet & SaaS, Private Access, ZDX, Client Connector, Cloud & Branch Connector, Deception, DSPM, Business Insights, Risk360, Workflow Automation, Breach Predictor, EASM, Zero Trust Branch, the Management Portal for Partners and Zscaler Cellular.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "Authentication Service, see Adding Authentication Service Admin Roles.",
+            "Internet & SaaS, see Adding Admin Roles.",
+            "Private Access, see Configuring Administrator Roles.",
+            "Digital Experience Monitoring (ZDX), see Adding ZDX Roles.",
+            "Zscaler Client Connector, see Adding Roles.",
+            "Zscaler Cloud & Branch Connector, see Adding Admin Roles.",
+            "Deception, see About Users & Roles.",
+            "Data Security Posture Management (DSPM), see About Access Roles.",
+            "Business Insights, see About Administrators in Business Insights.",
+            "Risk360, see Adding Admin Roles.",
+            "Workflow Automation, see Managing Admin Assignments.",
+            "Breach Predictor, see Using Breach Predictor.",
+            "EASM, see About Role Management.",
+            "Zero Trust Branch, see Understanding Zero Trust Branch Access Roles.",
+            "Management Portal for Partners, see About Roles in the Management Portal for Partners.",
+            "Zscaler Cellular, the Cellular Edge service must be enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "breach-predictor-via-risk360": {
+      "statement": "Authentication Service supports login to Breach Predictor through Risk360 even if the Risk360 or Breach Predictor tenants have not been migrated to Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "Authentication Service supports login to Zscaler Breach Predictor through Risk360, even if the Risk360 or Breach Predictor tenants have not been migrated to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "role-sync": {
+      "statement": "Product roles are synced into Authentication Service automatically at regular intervals, and a manual sync can be run from the View Roles page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "The roles on the respective service are automatically synced into Authentication Service at regular intervals.",
+            "To ensure that your Authentication Service database is up to date, you can perform a manual sync from the View Roles page."
+          ]
+        }
+      ]
+    },
+    "role-precedence": {
+      "statement": "When a user is in several groups with different levels of access, the group assigned first takes precedence; a role assigned to the user individually as a service admin role takes precedence over a different admin role from a group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-entitlements.json",
+          "quotes": [
+            "If a user is assigned to multiple user groups with different levels of access, then the group assigned first takes precedence, and the user can perform tasks according to the role assigned to that group.",
+            "However, if a user is assigned to a service admin role individually, and they are also a part of a user group with a different admin role, then the role assigned to the individual user takes precedence over the user group role."
+          ]
+        }
+      ]
+    },
+    "individual-over-group": {
+      "statement": "The Assigning Entitlements page repeats that an individually assigned service admin role takes precedence over a different role from the user's group, and requires users and groups to be added to Authentication Service before they are assigned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "If a user is assigned to a service's admin role individually, but they are also a part of a user group with a different admin role, then the role assigned to the individual user takes precedence over the user group role.",
+            "Before assigning users or user groups, you must first add these users and groups to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "own-entitlement-locked": {
+      "statement": "On tenants without Unified RBAC, admins cannot create, modify or delete the administrative entitlement and role assigned to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "For tenants that are not enabled with Unified RBAC, admins cannot create, modify or delete the entitlement and role assigned to them in Authentication Service Administrative entitlement."
+          ]
+        }
+      ]
+    },
+    "zpa-microtenant": {
+      "statement": "When assigning administrative entitlements, the Microtenant column appears only for Private Access; with Full an admin assigns, edits or deletes any Microtenant for other admins, as does Restricted Full with the Default Microtenant assigned, while Restricted Full with a non-default Microtenant reaches only the assigned Microtenant; with no Microtenant configured in Private Access, Default is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "The Microtenant column is visible only for the Private Access (ZPA) service. You can assign and manage Microtenants for other admins if you have the following administrative entitlement permissions:",
+            "| Full | Assign, edit, or delete any Microtenant to other admins |",
+            "| Restricted Full and assigned a Default Microtenant in Private Access | Assign, edit, or delete any Microtenant to other admins |",
+            "| Restricted Full and assigned a Microtenant but not Default Microtenant | Assign, edit, or delete assigned Microtenant to other admins |",
+            "If no Microtenant is configured in Private Access, select Default in the Microtenant column."
+          ]
+        }
+      ]
+    },
+    "service-entitlement-assignment": {
+      "statement": "Service entitlements assign individual users to a Zscaler service as end users; user groups can be assigned to the Zscaler service too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "The selected users are assigned to the Zscaler service as end users.",
+            "The selected user groups are assigned to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "admin-group-assignment": {
+      "statement": "Assigning a user group an administrative entitlement gives all users in the group administrative privileges for the service, with the role chosen per group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-assigning-entitlements-users-and-user-groups.json",
+          "quotes": [
+            "The selected user groups are assigned to the Zscaler service with administrative privileges for all users in the groups.",
+            "From the Role column, select the role that must be assigned to each user group."
+          ]
+        }
+      ]
+    },
+    "device-group-restrictions": {
+      "statement": "An Authentication Service admin can restrict which devices are used to access a Zscaler service so that only users on authorized devices can enroll: Enable Device Group Restrictions, set per service, lists the registered device IDs, the selected devices are allowed, and users then access the service from their registered device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-device-groups.json",
+          "quotes": [
+            "The Authentication Service admin can control or restrict the devices that are used to access the Zscaler services (Private Access, Internet & SaaS, etc.) and ensure that only users on authorized devices can enroll in Zscaler services.",
+            "On the Service Entitlements page, click the required Zscaler service (e.g., Zscaler Internet Access).",
+            "In the top-right corner, click Manage Device Group Restrictions.",
+            "In the Manage Device Group Restrictions window, enable the toggle for Enable Device Group Restrictions.",
+            "The list of registered device IDs is displayed.",
+            "Select the devices that must be allowed to access the Zscaler service.",
+            "Users can access the Zscaler service from their registered device."
+          ]
+        }
+      ]
+    },
+    "device-group-permission": {
+      "statement": "An admin who can access service entitlements but has no permission to view device groups sees only whether Enable Device Group Restrictions is on, and cannot change it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-managing-device-groups.json",
+          "quotes": [
+            "An administrator who can access the service entitlements in Authentication Service but does not have permissions to view the device groups can only see whether the Enable Device Group Restrictions option is enabled or not, but cannot change the setting."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "role-sync-interval": {
+      "kind": "semantic",
+      "title": "The interval of the automatic role sync",
+      "status": "open",
+      "detail": "The page says product roles are synced at regular intervals and offers a manual sync from View Roles; no interval is given.",
+      "blocks": "knowing how soon a new product role appears in Authentication Service",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "first-meaning": {
+      "kind": "semantic",
+      "title": "What the group assigned first means",
+      "status": "open",
+      "detail": "The page says the group assigned first takes precedence; it does not say whether first is assignment time or list order.",
+      "blocks": "predicting a user's role when several groups assign different roles",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "device-group-module": {
+      "kind": "semantic",
+      "title": "Which permission module grants viewing device groups",
+      "status": "open",
+      "detail": "Neither the module list of the permission matrix nor the module-to-page map of the Adding Admin Roles page names a module for device groups.",
+      "blocks": "granting an admin the right to change device group restrictions",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "device-restriction-admin": {
+      "kind": "semantic",
+      "title": "Whether device group restrictions apply to administrative entitlements",
+      "status": "open",
+      "detail": "Managing Entitlements offers managing the list of devices a user can use under both the Administrative and Service entitlements, while Managing Device Groups shows only the service page; whether restrictions apply to administrative entitlements is not stated.",
+      "blocks": "restricting admin access to authorized devices",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "scope-meaning": {
       "kind": "semantic",
       "title": "What the scope on an administrative entitlement means",

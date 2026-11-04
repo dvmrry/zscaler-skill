@@ -37,11 +37,11 @@
     },
     {
       "label": "Token request.",
-      "text": "{{token-endpoint}} {{audience-required}} {{secret-in-basic-or-body}} {{failure-400}} What happens when the audience is left out is open {{gap:missing-audience}}."
+      "text": "{{token-endpoint}} {{audience-required}} {{secret-in-basic-or-body}} The Authentication Service help describes the secret's form and place differently {{divergence:secret-delivery}}. {{failure-400}} What happens when the audience is left out is open {{gap:missing-audience}}."
     },
     {
       "label": "Client authentication methods.",
-      "text": "{{client-auth-methods}} {{method-fit}}"
+      "text": "{{client-auth-methods}} {{method-fit}} {{help-methods}} {{help-jwt-workflow}} Where a certificate client's public key comes from differs between the two pages {{divergence:certificate-key-source}}. {{help-secret-workflow}}"
     },
     {
       "label": "Private key JWT.",
@@ -470,6 +470,106 @@
         "shared.oneapi.authentication:sdk-jwt-assertion"
       ],
       "conditions": "Follows from the `exp` arithmetic; how much clock leeway the token endpoint allows is not documented. Depends on the proposed sdk-jwt-assertion claim being merged first."
+    },
+    "help-methods": {
+      "statement": "The Authentication Service help says OneAPI is based on the OAuth 2.0 authorization framework and that Authentication Service supports JWKS URL, Certificate or Public Key, and Client Secret authentication methods for OneAPI, any of which can be chosen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-oneapi-authentication.json",
+          "quotes": [
+            "OneAPI is based on the OAuth 2.0 authorization framework.",
+            "Authentication Service provides support for JSON Web Key Set (JWKS) URL, Certificate or Public Key, and Client Secret authentication methods for authenticating to OneAPI. You can choose any of these authentication methods."
+          ]
+        }
+      ]
+    },
+    "help-jwt-workflow": {
+      "statement": "That help's JWKS and Certificate workflow: the client generates a JWT on its own system signed with a private key, the matching public key is hosted at the JWKS URL on a web server Authentication Service can reach and trusts, and Authentication Service retrieves it from the JWKS URL to verify the signature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-oneapi-authentication.json",
+          "quotes": [
+            "The API client that is configured in the Authentication Service Admin Portal generates a JSON Web Token (JWT) on its local system, signing it with a private key.",
+            "The public key, corresponding to the private key used to sign the JWT is hosted at the JWKS URL on a web server that is accessible and trusted by Authentication Service.",
+            "Authentication Service retrieves the public key from the JWKS URL to verify the JWT’s signature."
+          ]
+        }
+      ]
+    },
+    "help-secret-workflow": {
+      "statement": "That help's Client Secret workflow: the secret is created when the API client is defined and stored on both sides; the client includes it in the request header, usually in an encrypted or hashed form, and Authentication Service validates it against its saved copy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-understanding-oneapi-authentication.json",
+          "quotes": [
+            "This secret is stored securely on both the API client and Authentication Service.",
+            "For OneAPI, the secret key is created when defining an API client.",
+            "When the API client makes a request, the secret is included in the request header, usually in an encrypted or hashed form for security purposes.",
+            "Authentication Service validates the secret against its saved copy."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "secret-delivery": {
+      "summary": "How a client secret is sent: in the request header, usually hashed or encrypted (Authentication Service help), or as Basic credentials or in the request payload (OneAPI guide).",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-understanding-oneapi-authentication.json",
+            "quotes": [
+              "When the API client makes a request, the secret is included in the request header, usually in an encrypted or hashed form for security purposes."
+            ]
+          },
+          "says": "The secret goes in the request header, usually in an encrypted or hashed form."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/getting-started.json",
+            "quotes": [
+              "you must send the client credentials through Basic authentication in the format clientID:ClientSecret or through request payload as client_id and client_secret parameters"
+            ]
+          },
+          "says": "The credentials go through Basic authentication as clientID:ClientSecret, or in the request payload as client_id and client_secret."
+        }
+      ],
+      "impact": "The two differ on the place (header only, or header or payload) and the form (hashed or encrypted, or Basic credentials); neither page says whether the header form is Basic authentication."
+    },
+    "certificate-key-source": {
+      "summary": "Where a certificate-based client's public key comes from: the help page groups Certificate with JWKS retrieval from the JWKS URL, while the OneAPI guide says the keys or certificates are uploaded to Authentication Service.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-understanding-oneapi-authentication.json",
+            "quotes": [
+              "The public key, corresponding to the private key used to sign the JWT is hosted at the JWKS URL on a web server that is accessible and trusted by Authentication Service.",
+              "Authentication Service retrieves the public key from the JWKS URL to verify the JWT’s signature."
+            ]
+          },
+          "says": "In the JWKS and Certificate workflow the public key is hosted at the JWKS URL and Authentication Service retrieves it from there."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/getting-started.json",
+            "quotes": [
+              "Certificates/Public Keys: The client assertion signature is validated using the public keys or X.509 certificates directly uploaded to the Authentication Service."
+            ]
+          },
+          "says": "For Certificates/Public Keys the signature is validated with keys or certificates directly uploaded to Authentication Service."
+        }
+      ],
+      "impact": "An answer about a certificate client that cites the JWKS retrieval gives a path the OneAPI guide assigns to the JWKS URL method only."
     }
   },
   "gaps": {

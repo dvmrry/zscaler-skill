@@ -49,11 +49,15 @@
     },
     {
       "label": "Handling.",
-      "text": "{{key-is-secret}} {{key-hidden-after-creation}} {{deception-managed-read-only}}"
+      "text": "{{key-is-secret}} {{key-hidden-after-creation}} The pages differ on whether such a key still appears in the table {{divergence:hidden-key-in-table}}. {{view-export-one-way}} {{deception-managed-read-only}}"
+    },
+    {
+      "label": "Editing and naming.",
+      "text": "{{editable-fields}} {{name-rules}} {{signing-cert-redeploy}}"
     },
     {
       "label": "Use limits.",
-      "text": "{{max-reuse}} {{exhausted-key-blocks-deploy}} {{multiple-keys-per-group}} Whether moving a connector between groups needs a new key is not stated {{gap:cross-group-move}}."
+      "text": "{{max-reuse}} {{max-reuse-recommendation}} {{imdsv2-headroom}} {{exhausted-key-blocks-deploy}} {{multiple-keys-per-group}} Whether moving a connector between groups needs a new key is not stated {{gap:cross-group-move}}."
     },
     {
       "label": "When enrollment fails on the key.",
@@ -81,7 +85,8 @@
     {
       "do": "Whether the key column is blank because the View or Export option was disabled, which makes the key unrecoverable.",
       "uses": [
-        "key-hidden-after-creation"
+        "key-hidden-after-creation",
+        "hidden-key-in-table"
       ]
     },
     {
@@ -297,6 +302,106 @@
         }
       ],
       "conditions": "The ZMS skill covers a different product's keys; it is cited only for how the same predicate is phrased."
+    },
+    "view-export-one-way": {
+      "statement": "View or Export Provisioning Key After Creation is enabled by default; if enabled it can be disabled at a later time, but if disabled it cannot be enabled again. Disabling it hides the provisioning key from the Provisioning Key column of the table and disables copying or downloading the key after creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "View or Export Provisioning Key After Creation: Disable this option to hide the provisioning key from the Provisioning Key column of the table and disable copying or downloading the key after creation.",
+            "If disabled, you cannot enable this option. If this option is enabled, you can disable it at a later time. This option is enabled by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-connector-provisioning-keys.json",
+          "quotes": [
+            "If disabled, you cannot enable this option. If this option is enabled, you can disable it at a later time. This option is enabled by default."
+          ]
+        }
+      ]
+    },
+    "name-rules": {
+      "statement": "The provisioning key name cannot contain special characters, with the exception of periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "The provisioning key name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "max-reuse-recommendation": {
+      "statement": "Zscaler recommends setting Maximum Reuse of Provisioning Key to the number of App Connectors planned for immediate deployment, to reduce the possibility of compromise.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "Maximum Reuse of Provisioning Key: The maximum number of instances that this key can be used to enroll an App Connector. Zscaler recommends setting this option to the number of App Connectors you plan to deploy immediately, to reduce the possibility of compromise."
+          ]
+        }
+      ]
+    },
+    "imdsv2-headroom": {
+      "statement": "For an App Connector provisioned in an AWS IMDSv2 required environment with version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change, so the provisioning key value should be increased to account for the additional key's creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "If an App Connector was provisioned in an AWS IMDSv2 required environment with version <=24.566.1, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change. Ensure that you increase the provisioning key value to account for the additional key's creation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-connector-provisioning-keys.json",
+          "quotes": [
+            "If an App Connector was provisioned in an AWS IMDSv2 required environment with App Connector version 24.566.1 or earlier, a new App Connector is automatically created during re-enrollment due to a hardware fingerprint change."
+          ]
+        }
+      ]
+    },
+    "signing-cert-redeploy": {
+      "statement": "The signing certificate (the enrollment (CA) certificate) of a key signs the certificates of all App Connectors deployed with the key. If App Connectors were deployed with a signing certificate that has expired and a new certificate is configured, they automatically redeploy using the new certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-app-connector-provisioning-keys.json",
+          "quotes": [
+            "Signing Certificate: The signing certificate (i.e., enrollment (CA) certificate) for this provisioning key.",
+            "All App Connectors deployed with this key will have their certificates signed with this signing certificate.",
+            "If any of your App Connectors were deployed with a signing certificate that has expired, and you’ve configured a new certificate, the App Connectors automatically redeploy using the new certificate."
+          ]
+        }
+      ]
+    },
+    "editable-fields": {
+      "statement": "On the Edit App Connector Provisioning Key page only these fields can be modified: Name, Maximum Reuse of Provisioning Key, App Connector Group, Signing Certificate and View or Export Provisioning Key After Creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-connector-provisioning-keys.json",
+          "quotes": [
+            "In the Edit App Connector Provisioning Key page, you can only modify the following fields:",
+            "Name: The provisioning key name.",
+            "Maximum Reuse of Provisioning Key: The maximum number of instances where this key can be used to enroll an App Connector.",
+            "App Connector Group: The App Connector group to associate with this provisioning key.",
+            "Signing Certificate: The signing certificate (i.e., enrollment (CA) certificate) for this provisioning key. For example, if your certificate expires, you might need to select a new certificate.",
+            "View or Export Provisioning Key After Creation: Disable this option to hide the provisioning key from the Provisioning Key column of the table"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -329,6 +434,34 @@
         "lab-test",
         "source-read"
       ]
+    }
+  },
+  "divergences": {
+    "hidden-key-in-table": {
+      "summary": "Whether a key whose View or Export option was disabled still appears in the provisioning keys table",
+      "positions": [
+        {
+          "says": "About App Connector Provisioning Keys describes a table entry that is blank when the option was disabled, so the row is shown with a blank key.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-connector-provisioning-keys.json",
+            "quotes": [
+              "This entry is blank if you disabled the View or Export Provisioning Key After Creation option when configuring App Connector groups."
+            ]
+          }
+        },
+        {
+          "says": "Editing App Connector Provisioning Keys says only keys that can be viewed or exported after creation appear in the table.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-editing-connector-provisioning-keys.json",
+            "quotes": [
+              "Only keys that can be viewed or exported after creation appear in the table."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a key with the option disabled is listed with a blank key or not listed at all is unsettled; the editing note may mean only exportable keys can be edited, but no page says so. Check the keys page before telling an admin where to find such a key."
     }
   }
 }

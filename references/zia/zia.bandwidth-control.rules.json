@@ -64,7 +64,11 @@
     },
     {
       "label": "Does the rule apply to this traffic?",
-      "text": "{{criteria-expression}} {{non-matching-location-or-time-skips-rule}} Location scope is covered in [[zia.bandwidth-control.location-scope]]."
+      "text": "{{criteria-expression}} {{criteria-expression-adding-page}} The two pages group Locations and Location Groups differently {{divergence:locations-location-groups-operator}}. {{non-matching-location-or-time-skips-rule}} Location scope is covered in [[zia.bandwidth-control.location-scope]]."
+    },
+    {
+      "label": "Writing a rule.",
+      "text": "{{scope-limits}} {{name-and-description-length}} The location limit differs between sources: [[zia.bandwidth-control.api-surface:locations-per-rule]]."
     },
     {
       "label": "Order.",
@@ -72,7 +76,7 @@
     },
     {
       "label": "Disabled rules and rank.",
-      "text": "{{disabled-holds-slot}} {{admin-rank}} Provider reorder and rank behavior for bandwidth rules is in [[zia.terraform.rule-order.registry]]."
+      "text": "{{disabled-holds-slot}} {{new-rule-disabled}} {{admin-rank}} {{admin-rank-range}} Provider reorder and rank behavior for bandwidth rules is in [[zia.terraform.rule-order.registry]]."
     }
   ],
   "checks": [
@@ -83,9 +87,11 @@
       ]
     },
     {
-      "do": "Whether the rule's location and time criteria match the traffic, since all the criteria must match.",
+      "do": "Whether the rule's location and time criteria match the traffic, stating that the pages differ on how Locations and Location Groups combine rather than choosing one.",
       "uses": [
-        "criteria-expression"
+        "criteria-expression",
+        "criteria-expression-adding-page",
+        "locations-location-groups-operator"
       ]
     },
     {
@@ -228,6 +234,104 @@
         }
       ]
     },
+    "criteria-expression-adding-page": {
+      "statement": "The Adding Rules article joins the categories with AND and groups the conditions as Where: [Locations AND Location Groups], When: Time, and What: [Protocols AND Bandwidth Classes].",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#locations",
+        "zia/bandwidth-control-rules#locationGroups",
+        "zia/bandwidth-control-rules#timeWindows",
+        "zia/bandwidth-control-rules#bandwidthClasses",
+        "zia/bandwidth-control-rules#protocols"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rules-bandwidth-control-policy.json",
+          "quotes": [
+            "The logical relationship between the categories is AND, and the rule conditions within each category have their own set of logical operators applied, explained as follows:",
+            "- Where: [ Locations AND Location Groups ] AND",
+            "- When: Time AND",
+            "- What: [ Protocols AND Bandwidth Classes ] AND"
+          ]
+        }
+      ]
+    },
+    "scope-limits": {
+      "statement": "A rule takes Any or up to 32 locations, which must have Bandwidth Control enabled with download and upload limits; the article says to contact Zscaler Support to increase the default limit for Locations. Location Groups take Any or up to 32 and, if none is selected, the field is Any by default and the criterion is ignored during policy evaluation. Time takes up to two time intervals and is Always by default. Any number of bandwidth classes can be selected once URLs or cloud applications have been added to predefined or custom bandwidth classes.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#locations",
+        "zia/bandwidth-control-rules#locationGroups",
+        "zia/bandwidth-control-rules#timeWindows",
+        "zia/bandwidth-control-rules#bandwidthClasses"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rules-bandwidth-control-policy.json",
+          "quotes": [
+            "Locations: Select Any to apply this rule to all locations, or select up to 32 locations.",
+            "You must enable Bandwidth Control for these locations and specify the download and upload bandwidth limits for each location.",
+            "Contact Zscaler Support to increase the default limit for Locations.",
+            "Location Groups: Select Any to apply the rule to all location groups, or select up to 32 location groups.",
+            "If you do not select specific location groups, the field is set to Any by default, and this criterion is ignored during policy evaluation.",
+            "Time: Select up to two time intervals during which the rule applies. By default, the field is set to Always.",
+            "You first must add URLs or cloud applications to predefined or custom bandwidth classes. Select any number of bandwidth classes."
+          ]
+        }
+      ]
+    },
+    "name-and-description-length": {
+      "statement": "The rule name is system-generated and can be edited, and cannot exceed 63 characters. The description cannot exceed 10,240 characters. A rule label is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rules-bandwidth-control-policy.json",
+          "quotes": [
+            "Rule Name: A system-generated rule name is automatically populated, and the name can be edited. The name cannot exceed 63 characters.",
+            "The description cannot exceed 10,240 characters.",
+            "Rule Label: (Optional) Click Add Rule Label and select a label from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "admin-rank-range": {
+      "statement": "Admin Rank is 0 to 7, with 0 the highest, and the option appears if Admin Ranking is enabled on the Advanced Settings page. An admin cannot select a rank higher than their own, and a rule with a higher admin rank always precedes a rule with a lower one.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#rank"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rules-bandwidth-control-policy.json",
+          "quotes": [
+            "Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu. This option appears if you enable Admin Ranking on the Advanced Settings page.",
+            "Your assigned admin rank determines the values you can select (e.g., you cannot select a rank higher than your own).",
+            "The rule's admin rank determines the value you can select for rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+          ]
+        }
+      ]
+    },
+    "new-rule-disabled": {
+      "statement": "A new rule's status is Disabled by default and the rule must be enabled to be enforced on traffic. Disabled rules can be assigned a rule order, and during evaluation the service skips them and moves to the successive ones.",
+      "tier": "A",
+      "binds": [
+        "zia/bandwidth-control-rules#state"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rules-bandwidth-control-policy.json",
+          "quotes": [
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic.",
+            "Disabled rules can have a rule order assigned. During evaluation, the service skips the disabled rules and moves to the successive ones."
+          ]
+        }
+      ]
+    },
     "non-matching-location-or-time-skips-rule": {
       "statement": "When a Bandwidth Control rule lists locations or a time window, it does not apply to traffic from another location or outside that window, however well the traffic's class and protocol match.",
       "tier": "B",
@@ -235,6 +339,34 @@
         "criteria-expression"
       ],
       "conditions": "Follows from the conditions being ANDed across Locations or Location Groups, Time, and Bandwidth Classes with Protocols."
+    }
+  },
+  "divergences": {
+    "locations-location-groups-operator": {
+      "summary": "How Locations and Location Groups combine in a Bandwidth Control rule: OR on the Configuring page, AND on the Adding Rules page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-bandwidth-control-policy.json",
+            "quotes": [
+              "Where [ Locations OR Location Groups ] AND"
+            ]
+          },
+          "says": "Where [ Locations OR Location Groups ] AND."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-rules-bandwidth-control-policy.json",
+            "quotes": [
+              "- Where: [ Locations AND Location Groups ] AND"
+            ]
+          },
+          "says": "Where: [ Locations AND Location Groups ] AND."
+        }
+      ],
+      "impact": "A rule that lists both Locations and Location Groups matches traffic from either under one reading and only traffic in both under the other; the pages do not say which governs."
     }
   },
   "gaps": {

@@ -55,6 +55,10 @@
       "text": "{{packet-capture}} {{export-vs-report-pcap}} The User Privacy switch that offers capture to users is [[zcc.web-privacy.collection:packet-capture]]."
     },
     {
+      "label": "Traceroute collection.",
+      "text": "{{traceroute-settings}} {{traceroute-in-logs}} The destinations and protocol, whether 0 also stops the other two collections, and the file names and sizes are not stated {{gap:traceroute-details}}."
+    },
+    {
       "label": "Operating-system logs.",
       "text": "What Client Connector writes to the operating system's own logs is not sourced {{gap:os-log-integration}}."
     }
@@ -89,6 +93,38 @@
     }
   ],
   "claims": {
+    "traceroute-settings": {
+      "statement": "On the Network Performance page (Infrastructure > Advanced Settings > Network Performance), Client Connector can collect traceroute information on the connection between devices and the Zscaler cloud and store the results to check or troubleshoot network performance: Collect Route Information Every (In Minutes) takes a value from 10 to 1440 minutes to enable traceroute and 0 to disable it, and two options also allow collection when the device changes network state (for example from Wi-Fi to cellular data) and when a user reports an issue or exports logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-network-performance.json",
+          "quotes": [
+            "You can use Zscaler Client Connector to collect traceroute information on the connection between devices and the Zscaler cloud, and store the results to check or troubleshoot network performance.",
+            "From the navigation menu, go to Infrastructure > Advanced Settings > Network Performance.",
+            "Collect Route Information Every (In Minutes):",
+            "To enable traceroute: Enter any value from 10 to 1440 minutes. Zscaler Client Connector collects traceroute information for the number of minutes specified.",
+            "To disable traceroute: Enter 0. Zscaler Client Connector will not collect traceroute information.",
+            "Collect Route Information on Network Change: Enable this option to allow Zscaler Client Connector to collect traceroute information when the device changes network states, e.g., moving from Wi-Fi to cellular data.",
+            "Collect Route Information on Reported Issues or Exported Logs: Enable this option to allow Zscaler Client Connector to collect traceroute information when a user reports an issue or exports logs."
+          ]
+        }
+      ]
+    },
+    "traceroute-in-logs": {
+      "statement": "When Client Connector collects traceroute information it is stored locally in a log file directory, and the traceroute log files are included when a user reports an issue or exports logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-network-performance.json",
+          "quotes": [
+            "When Zscaler Client Connector collects traceroute information, it's stored locally in a log file directory. When a user reports an issue or exports logs, these traceroute log files are included."
+          ]
+        }
+      ]
+    },
     "report-an-issue": {
       "statement": "A Report an Issue form sends the form data with encrypted logs attached by email to the organization's support admin and anyone in the CC field, and can also open a ticket with Zscaler Support carrying the same encrypted logs.",
       "tier": "A",
@@ -246,6 +282,16 @@
     }
   },
   "gaps": {
+    "traceroute-details": {
+      "kind": "semantic",
+      "title": "Traceroute destinations, protocol, the effect of 0 and file details",
+      "status": "open",
+      "detail": "The Network Performance page does not give the traceroute destinations or protocol, whether entering 0 also stops the collection on network change and on reported issues or exported logs, or the traceroute file names and sizes.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "os-log-integration": {
       "kind": "semantic",
       "title": "What Client Connector writes to operating-system logs",

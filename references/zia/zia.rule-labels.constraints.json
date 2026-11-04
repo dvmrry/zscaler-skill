@@ -39,7 +39,7 @@
     },
     {
       "label": "Provider length checks.",
-      "text": "{{terraform-length-validation}} Whether the server enforces the same lengths is open {{gap:description-max-length}}."
+      "text": "{{terraform-length-validation}} {{console-description-limit}} Whether the server enforces the same lengths is open {{gap:description-max-length}}."
     },
     {
       "label": "Names.",
@@ -95,6 +95,25 @@
           "quotes": [
             "ValidateFunc: validation.StringLenBetween(0, 255),",
             "ValidateFunc:     validation.StringLenBetween(0, 10240),"
+          ]
+        }
+      ]
+    },
+    "console-description-limit": {
+      "statement": "In the console Help, a rule label has a Name and an optional Description that cannot exceed 10,240 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/rule-labels#name",
+        "zia/rule-labels#description"
+      ],
+      "conditions": "The Adding a Rule Label page states no name length or character rule: its Name line reads \"Enter a name for the rule label.\"",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-rule-label.json",
+          "quotes": [
+            "Name: Enter a name for the rule label.",
+            "Description: (Optional) Enter additional notes or information. The description cannot exceed 10,240 characters."
           ]
         }
       ]
@@ -167,7 +186,7 @@
         "lab-test"
       ],
       "blocks": "stating the true limit rather than the provider's",
-      "detail": "The provider validates up to 10240 characters (claim terraform-length-validation); the Ranges & Limitations capture states no description length. Whether the server enforces the same figure is untested."
+      "detail": "The provider validates up to 10240 characters (claim terraform-length-validation), and the console Help gives the same figure (claim console-description-limit); the Ranges & Limitations capture states no description length. Whether the server enforces the same figure is untested."
     },
     "tenant-cap": {
       "kind": "semantic",

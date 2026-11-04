@@ -79,6 +79,10 @@
     {
       "rel": "see-also",
       "to": "zcc.z-tunnel"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.proxy-ports"
     }
   ],
   "prose": [
@@ -109,11 +113,47 @@
       "text": "When the app cannot protect traffic at all, the fail-open settings decide: [[zcc.forwarding-profiles.fail-open]]. Reading or writing profiles through the API, including the undocumented integer codes: [[zcc.api.forwarding-profile-wire]]."
     },
     {
+      "label": "Copying and finding profiles.",
+      "text": "{{copy}} Where the copy lands in the table conflicts with the default profile always being last, [[zcc.forwarding-profiles.assignment:default-profile]] {{divergence:copy-position}}. {{search}}"
+    },
+    {
+      "label": "Dedicated proxy port.",
+      "text": "Client Connector's dedicated proxy port page is described with the ZIA proxy ports: [[zia.forwarding-control.proxy-ports:client-connector-port]]."
+    },
+    {
       "label": "Unified tunnel.",
       "text": "Profiles can also carry an `enableUnifiedTunnel` flag and a unified tunnel list, whose entries each name a network type and carry separate ZIA and ZPA action codes: [[zcc.api.forwarding-profile-wire:unified-tunnel-shape]]. What unified tunnel mode changes for the device is open {{gap:unified-tunnel-semantics}}."
     }
   ],
   "claims": {
+    "copy": {
+      "statement": "A forwarding profile can be copied and customized instead of configuring each setting in a new profile; the default profile cannot be copied, and a maximum of 10 profiles can be copied at the same time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-copying-forwarding-profile.json",
+          "quotes": [
+            "You can copy an existing Forwarding Profile and customize the profile to fit your needs, instead of having to configure each setting in a new profile.",
+            "You cannot copy the default profile.",
+            "You can copy a maximum of 10 profiles at the same time."
+          ]
+        }
+      ]
+    },
+    "search": {
+      "statement": "The Forwarding Profile page can be searched by profile name, with Enter displaying the results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-searching-forwarding-profile.json",
+          "quotes": [
+            "In the Search by Profile Name field, enter search words and press Enter to display your search results."
+          ]
+        }
+      ]
+    },
     "purpose": {
       "statement": "A forwarding profile tells Client Connector how to treat traffic from users' systems in different network environments, for the Internet & SaaS and Private Access services.",
       "tier": "A",
@@ -126,6 +166,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "copy-position": {
+      "summary": "The Copying a Forwarding Profile page says a copied profile appears at the bottom of the Forwarding Profile table, while About Forwarding Profiles says the default profile is always the last profile in the table.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-copying-forwarding-profile.json",
+            "quotes": [
+              "Your copied profile appears at the bottom of the Forwarding Profile table."
+            ]
+          },
+          "says": "A copied profile appears at the bottom of the Forwarding Profile table."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-forwarding-profiles.json",
+            "quotes": [
+              "It is always the last forwarding profile in the table on the Forwarding Profile page."
+            ]
+          },
+          "says": "The default forwarding profile is always the last profile in the table (existing claim zcc.forwarding-profiles.assignment:default-profile)."
+        }
+      ],
+      "impact": "If copies go to the bottom, the default profile cannot always be last; the pages do not say which order the table shows after a copy."
     }
   },
   "gaps": {

@@ -55,11 +55,11 @@
     },
     {
       "label": "The application refuses the certificate.",
-      "text": "{{cert-pinning}} {{pinning-definition}} What the pinned item is differs between the pages {{divergence:pinned-item-is-client-or-server-certificate}}. {{pinning-undetectable}} {{pinning-failure-signatures}} {{pinned-apps-deploying}} {{pinning-exempt-by-app-or-domain}} {{pinned-native-apps}} {{pinned-app-remedies}} {{pinned-symptoms}} The Amazon Workspaces row's domain list overlaps an exemption the guide warns against {{divergence:amazon-workspaces-cloudfront-exemption}}. {{snowflake-pinning}} The same page also gives a trust-store replacement for Snowflake {{divergence:snowflake-trust-store-or-bypass}}. The second kind of refusal, an application that embeds its own CA bundle, is open {{gap:ca-bundle-pinned-vendor-apps}}."
+      "text": "{{cert-pinning}} {{pinning-definition}} {{pkp-definition}} What the pinned item is differs between the pages {{divergence:pinned-item-is-client-or-server-certificate}}. {{pinning-undetectable}} {{pinning-failure-signatures}} {{pinned-apps-deploying}} {{pinning-exempt-by-app-or-domain}} {{pinned-native-apps}} {{pinned-app-remedies}} {{pinned-symptoms}} The Amazon Workspaces row's domain list overlaps an exemption the guide warns against {{divergence:amazon-workspaces-cloudfront-exemption}}. {{snowflake-pinning}} The same page also gives a trust-store replacement for Snowflake {{divergence:snowflake-trust-store-or-bypass}}. The second kind of refusal, an application that embeds its own CA bundle, is open {{gap:ca-bundle-pinned-vendor-apps}}."
     },
     {
       "label": "The protocol cannot be decrypted.",
-      "text": "{{client-certs-and-ciphers}} {{mutual-tls}} The supported versions and suites are in [[zia.ssl-inspection.cipher-suites]]. The setting that blocks it is Block Undecryptable Traffic in [[zia.ssl-inspection.actions]]."
+      "text": "{{client-certs-and-ciphers}} {{mutual-tls}} {{primer-hostname-not-visible}} The proxy-mode page says differently for transparent mode {{divergence:hostname-visibility}}. The supported versions and suites are in [[zia.ssl-inspection.cipher-suites]]. The setting that blocks it is Block Undecryptable Traffic in [[zia.ssl-inspection.actions]]."
     },
     {
       "label": "The traffic never reaches the TCP path.",
@@ -194,6 +194,33 @@
             "Certificate pinning is a process in which a non-browser desktop/mobile application validates that the TLS certificates presented by the application's back end TLS web servers match a known set of certificates pinned or hardcoded in the application.",
             "Zscaler dynamically issues trusted MITM certificates signed by the Zscaler intermediate CA or by the customer's specific intermediate CA to intercept the TLS traffic.",
             "The certificate-pinned clients might not be able to match those certificates to the pinned application certificates, leading to a termination of the connection."
+          ]
+        }
+      ]
+    },
+    "pkp-definition": {
+      "statement": "The Understanding SSL/TLS article defines Public Key Pinning (PKP), also known as certificate pinning, as the process of associating a host with its expected public key, and says it is typically seen only if a web service or web application provider owns both the server-side code and the client-side code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ssltls.json",
+          "quotes": [
+            "Public Key Pinning (PKP), also known as certificate pinning, is the process of associating a host with its expected public key.",
+            "This is typically seen only if a web service (or Web Application) provider owns both the server-side code and the client-side code."
+          ]
+        }
+      ]
+    },
+    "primer-hostname-not-visible": {
+      "statement": "The Understanding SSL/TLS article says the actual hostname and domain name being accessed are not visible, and that how the Zscaler service determines the destination host name depends on whether it is operating in transparent mode or explicit mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-ssltls.json",
+          "quotes": [
+            "The actual hostname and domain name being accessed are not visible. How the Zscaler service determines the destination host name depends on whether it is operating in transparent mode or explicit mode."
           ]
         }
       ]
@@ -346,6 +373,33 @@
     }
   },
   "divergences": {
+    "hostname-visibility": {
+      "summary": "The SSL/TLS primer says the hostname and domain name being accessed are not visible; the proxy-mode page says that in transparent mode the service identifies the destination host using the Server Name Indication extension of the client hello when it includes SNI.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-ssltls.json",
+            "quotes": [
+              "The actual hostname and domain name being accessed are not visible. How the Zscaler service determines the destination host name depends on whether it is operating in transparent mode or explicit mode."
+            ]
+          },
+          "says": "The actual hostname and domain name being accessed are not visible, and the service's way of determining the destination host name depends on transparent or explicit mode."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-proxy-mode.json",
+            "quotes": [
+              "Using the Server Name Indication (SNI) extension if the initial HTTPS request (client hello) includes SNI, which is an extension to the TLS protocol."
+            ],
+            "after": "# Transparent Mode"
+          },
+          "says": "In transparent mode the Service Edge identifies the destination host using the SNI extension when the initial HTTPS request (client hello) includes SNI (existing claim zia.proxy-mode.transparent:host-identification)."
+        }
+      ],
+      "impact": "A reader of the primer alone concludes the host is hidden before decryption, while the proxy-mode page says that in transparent mode it is read from SNI when present; the primer's next sentence defers to the mode."
+    },
     "snowflake-trust-store-or-bypass": {
       "summary": "The trust-store article says Snowflake traffic needs a custom CA PEM file replacing the PEM under the Snowflake ODBC driver and, on the same page, that Snowflake uses certificate pinning and must be put on an SSL/TLS Inspection bypass list.",
       "positions": [

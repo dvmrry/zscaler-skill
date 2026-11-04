@@ -55,6 +55,10 @@
       "text": "{{oneapi-base-url}} [[shared.sdk-python.client-configuration:bearer-header]] The OneAPI credential variables and token endpoint are common to the Python SDK: [[zia.sdk-python.authentication:oneapi-env-vars]], [[zia.sdk-python.authentication:vanity-domain-token-url]]. Which roles or scopes an API client needs for ZCC is open {{gap:oneapi-zcc-scopes}}."
     },
     {
+      "label": "API keys.",
+      "text": "{{api-key-parts}} {{api-key-page}} {{api-key-fields}} {{api-key-version}} {{oneapi-elsewhere}} How the Session Validity Interval relates to the legacy token's expiry {{gap:session-validity-vs-token-expiry}}, what Read and Write allow per endpoint {{gap:key-role-scope}}, what the version line means for a portal API key {{gap:api-key-version-meaning}} and whether disabling a key revokes issued tokens {{gap:disable-revocation}} are not stated. The roles an admin needs for the page are in [[shared.admin-rbac.zcc:administration-settings]]."
+    },
+    {
       "label": "Postman.",
       "text": "{{postman-base-url}} {{postman-doubled-prefix}}"
     },
@@ -204,7 +208,7 @@
       ]
     },
     "legacy-secret-shown-once": {
-      "statement": "The client secret of a legacy API key can be copied only in the Client Connector Portal when the key is first created.",
+      "statement": "The client secret of an API key can be copied only when the key is first created: the legacy getting-started page says it is accessible only in the Client Connector Portal then, and the Adding and Editing an API Key pages say it is not available by editing the key or in the Admin Console after the window is closed.",
       "tier": "A",
       "evidence": [
         {
@@ -213,6 +217,97 @@
           "quotes": [
             "The client secret (i.e., secret key) is only accessible within the Zscaler Client Connector Portal when the API key is created for the first time.",
             "The client secret is only available to copy when adding an API key."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-editing-api-key.json",
+          "quotes": [
+            "The client secret is only available to copy when creating an API key. It is not available by editing the key."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-api-key.json",
+          "quotes": [
+            "The client secret is only available to copy when creating an API key. It is not available to access in the Zscaler Admin Console after you close the window, so store it in a secure location."
+          ]
+        }
+      ]
+    },
+    "api-key-parts": {
+      "statement": "An API key is required for the publicly available Client Connector APIs; it consists of a client ID and a client secret, both required for authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-api-key-management.json",
+          "quotes": [
+            "An API key is required to access the publicly available set of Zscaler Client Connector APIs.",
+            "An API key consists of a client ID and a client secret. Both are required for authentication prior to accessing a publicly available set of Zscaler Client Connector APIs."
+          ]
+        }
+      ]
+    },
+    "api-key-page": {
+      "statement": "Generating an API key only occurs in the Admin Console from the Public API page (Administration > API > Client Connector API), where keys can be added, listed, copied to the clipboard, edited and deleted. Client IDs are always accessible from the page; client secrets are only displayed when the key is first created and are not available in the saved configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-api-key-management.json",
+          "quotes": [
+            "Generating an API key only occurs in the Zscaler Admin Console from the Public API page.",
+            "Client IDs are always accessible from the page. Client secrets are only displayed when the key is first created, and they are not available in the saved configuration.",
+            "On the Public API page (Administration > API > Client Connector API), you can do the following:",
+            "Add an API key.",
+            "View a list of all the API keys.",
+            "Copy an API key to your clipboard.",
+            "Edit an API key.",
+            "Delete an API key."
+          ]
+        }
+      ]
+    },
+    "api-key-fields": {
+      "statement": "Adding a key takes a Name (alphanumeric, no spaces, at most 50 characters), a Status (enabled by default; if Disabled is selected the key is unavailable to use), a Role of Read or Write access, and a Session Validity Interval (in seconds), the amount of time the key is available to use, in a range from 30 to 999,999,999 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-api-key.json",
+          "quotes": [
+            "Name: Enter a name for the API key. The name must be alphanumeric, cannot contain spaces, and has a maximum of 50 characters.",
+            "Status: Make sure Enabled is selected.",
+            "If Disabled is selected, the key is unavailable to use. By default, this option is enabled.",
+            "Role: Select Read or Write access for the key.",
+            "Session Validity Interval (In Seconds): Enter the amount of time the key is available to use. Enter a range between 30 and 999,999,999 seconds."
+          ]
+        }
+      ]
+    },
+    "api-key-version": {
+      "statement": "The Adding an API Key page says using an API key is available for Client Connector version 3.6 and later for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-adding-api-key.json",
+          "quotes": [
+            "Using an API key is available for Zscaler Client Connector version 3.6 and later for Windows."
+          ]
+        }
+      ]
+    },
+    "oneapi-elsewhere": {
+      "statement": "To obtain API keys or secrets for Zscaler OneAPI endpoints, the API key management page points to About API Clients in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-api-key-management.json",
+          "quotes": [
+            "If you must obtain API keys or secrets to access Zscaler OneAPI endpoints, see About API Clients in Authentication Service."
           ]
         }
       ]
@@ -374,6 +469,45 @@
       "blocks": "telling a 401 or 403 on a OneAPI ZCC call apart from a missing grant",
       "resolves_with": [
         "support-ticket",
+        "lab-test"
+      ]
+    },
+    "session-validity-vs-token-expiry": {
+      "kind": "semantic",
+      "title": "How an API key's Session Validity Interval relates to the legacy token's 3600-second expiry",
+      "status": "open",
+      "detail": "Adding a key takes a Session Validity Interval of 30 to 999,999,999 seconds, the time the key is available to use (api-key-fields); the legacy getting-started page says the authentication token expiry is 3600 seconds by default (legacy-token-expiry). Neither page says whether the interval sets that token expiry.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "key-role-scope": {
+      "kind": "semantic",
+      "title": "What the Read and Write roles of an API key allow per endpoint",
+      "status": "open",
+      "detail": "The page offers Read or Write access for a key; beyond managePass, which needs a key created with Write access (zcc.passwords-and-otp.password-api:manage-pass-call), no captured source maps the roles to endpoints.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "api-key-version-meaning": {
+      "kind": "semantic",
+      "title": "What 'Client Connector version 3.6 and later for Windows' means for a portal API key",
+      "status": "open",
+      "detail": "The Adding an API Key page ties using an API key to a Client Connector version and platform and does not explain how a client version affects a key used against the portal API.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "disable-revocation": {
+      "kind": "semantic",
+      "title": "Whether disabling an API key revokes tokens already issued",
+      "status": "open",
+      "detail": "A Disabled key is unavailable to use; the pages do not say whether a token already issued from it keeps working.",
+      "resolves_with": [
         "lab-test"
       ]
     },

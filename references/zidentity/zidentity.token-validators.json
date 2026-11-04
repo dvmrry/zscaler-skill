@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "id": "zidentity.token-validators",
+  "title": "Token validators: JWT claim and signature checks for access to a Zscaler service (the page's example is Internet & SaaS), and the Test Token decoder",
+  "aliases": [
+    "token validator",
+    "Token Validators module",
+    "Test Token",
+    "Client JWKs URL"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zidentity.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.api-clients.access-tokens"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.admin-rbac.permissions"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A token validator tells Authentication Service which JSON Web Tokens to accept. {{what-it-is}} {{prerequisite}}"
+    },
+    {
+      "label": "Type and use.",
+      "text": "{{jwt-only}} {{used-in-zia}} What the audience is, which ZIA feature consumes a validator, and any ZPA use are open {{gap:audience-and-consumers}}."
+    },
+    {
+      "label": "Configuring one.",
+      "text": "{{configure-permission}} {{claim-requirements}} {{unique-issuer}} {{signature-validation}} The number of validators and the signing algorithms a validator accepts are open {{gap:limits-and-algorithms}}."
+    },
+    {
+      "label": "Testing a token.",
+      "text": "{{test-token}}"
+    },
+    {
+      "label": "Logs.",
+      "text": "Where the token validator logs the About page lists as a benefit are found is open {{gap:validator-logs}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant has two validators with the same issuer, which it cannot, and whether the token carries the claims the validator requires.",
+      "uses": [
+        "unique-issuer",
+        "claim-requirements"
+      ]
+    },
+    {
+      "do": "Whether the admin has Full on the Token Validators module to configure, or Full or View Only to test.",
+      "uses": [
+        "configure-permission",
+        "test-token"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Token validators validate JSON Web Tokens: a token must contain values that match a validator's configuration to gain access to a Zscaler service such as Internet & SaaS (ZIA). Validators are created in the Admin Console and used for authorization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-token-validators.json",
+          "quotes": [
+            "Token validators are used to validate JSON Web Tokens (JWT).",
+            "The tokens must contain values that match the configuration of the token validator to gain access to the Zscaler service, like Internet & SaaS (ZIA).",
+            "You can create token validators in the Zscaler Admin Console and use them for authorization."
+          ]
+        }
+      ]
+    },
+    "prerequisite": {
+      "statement": "Token validators require Internet & SaaS and Private Access (ZPA) tenants to be provisioned in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-token-validators.json",
+          "quotes": [
+            "Internet & SaaS and Private Access (ZPA) tenants must be provisioned in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "jwt-only": {
+      "statement": "A validator's Type is the token type it accepts for the authorization request, and Authentication Service currently supports only JWT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-about-token-validators.json",
+          "quotes": [
+            "Type: The type of token accepted by the token validator for the authorization request.",
+            "Currently, Authentication Service only supports JWT token."
+          ]
+        }
+      ]
+    },
+    "used-in-zia": {
+      "statement": "A token validator is used in Internet & SaaS: during authorization requests, Internet & SaaS can verify the user's identity using the claims configured in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-token-validator.json",
+          "quotes": [
+            "You can configure a token validator in the Zscaler Admin Console based on your requirements and use it in Internet & SaaS (ZIA).",
+            "During authorization requests, Internet & SaaS can verify the identity of the user using the configured claims in Authentication Service."
+          ]
+        }
+      ]
+    },
+    "configure-permission": {
+      "statement": "Configuring a token validator needs Full permission on the Token Validators module.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-token-validator.json",
+          "quotes": [
+            "Authentication Service Administrators assigned with Full permission to access the Token Validators module can configure the token validator."
+          ]
+        }
+      ]
+    },
+    "claim-requirements": {
+      "statement": "A validator's claim requirements, checked at the time of the authorization request, are a read-only Audience (copyable), a Subject Claim representing the user's identity, Claim Iss (the IdP's issuer URI) and any added claims; a manually added audience claim takes precedence over the displayed Audience.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-token-validator.json",
+          "quotes": [
+            "These claims are validated at the time of authorization request.",
+            "Audience: Displays the audience for whom this token is intended for. You cannot edit this field. Click the Copy icon to copy the audience, if required.",
+            "Subject Claim: Enter the subject claim that represents the identity of the user.",
+            "Claim Iss: Enter the issuer URI of the IdP.",
+            "Add Claim: Click Add Claim to add more claims for the JWT token.",
+            "The audience claim added manually has precedence over the audience displayed in the Audience field."
+          ]
+        }
+      ]
+    },
+    "unique-issuer": {
+      "statement": "A tenant can have several token validators, but not two with the same issuer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-token-validator.json",
+          "quotes": [
+            "You can configure multiple token validators for a Authentication Service tenant. However, the tenant cannot have a duplicate issuer."
+          ]
+        }
+      ]
+    },
+    "signature-validation": {
+      "statement": "Under Signature Validation an admin selects and configures any of the following validation types: a Client JWKs URL, where the keys for verification are obtained, and uploaded certificates and public keys in Base64-encoded PEM format with a .pem extension and no other periods in the file name; several certificate and public key files can be uploaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-adding-token-validator.json",
+          "quotes": [
+            "Under Signature Validation, select and configure any of the following validation types:",
+            "Client JWKs URL: Enter the Client JSON Web Key (JWK) URL where the key must be obtained for verification.",
+            "Certificates and Public Keys: Upload a certificate that contains the public key. The certificate must be in Base64-encoded PEM format.",
+            "The file extension must be .pem and have no other periods (.) in the file name.",
+            "You can upload multiple certificates and public keys files."
+          ]
+        }
+      ]
+    },
+    "test-token": {
+      "statement": "Test Token decodes a pasted JWT before it is used: the Decoded section shows the matching token validator, the header (algorithm, RS256 or ES256, and token type JWT), the payload claims and the signature. Admins with Full or View Only on the Token Validators module can test a token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zidentity-testing-access-token.json",
+          "quotes": [
+            "You can test the JSON Web Token (JWT) before the actual authorization request is sent using that token.",
+            "Authentication Service Administrators assigned with Full and View Only permissions to access the Token Validators module can test a token.",
+            "paste a valid JWT into the text field in the Encoded section. The results are automatically populated in the Decoded section.",
+            "Matching Token Validator: Displays the token validator from the configured list.",
+            "Header: Displays the algorithm (RS256 or ES256) and token type (JWT).",
+            "Payload Data: Displays the claims in the token (e.g., subject, issuer, audience, name, etc.).",
+            "Signature: Displays the signature used to validate the token."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "audience-and-consumers": {
+      "kind": "semantic",
+      "title": "What the audience value is, which ZIA feature consumes a validator, and any ZPA use",
+      "status": "open",
+      "detail": "The Audience field is read-only and its value is not stated, no page names the ZIA feature that consumes a validator, and although a Private Access tenant is a prerequisite, no ZPA use is described.",
+      "blocks": "configuring the IdP's token to match a validator",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "limits-and-algorithms": {
+      "kind": "semantic",
+      "title": "How many validators a tenant can have and which signing algorithms they accept",
+      "status": "open",
+      "detail": "No maximum number of validators is given. RS256 and ES256 appear only as the values the Test Token Header field displays; the pages do not say they are the only algorithms a validator accepts.",
+      "blocks": "planning validators for several IdPs and choosing a signing algorithm",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "validator-logs": {
+      "kind": "semantic",
+      "title": "Where token validator logs are found",
+      "status": "open",
+      "detail": "The About Token Validators page lists 'Monitor token validator logs' as a benefit without saying where those logs are.",
+      "blocks": "finding why a token was rejected",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}
