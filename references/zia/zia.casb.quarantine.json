@@ -54,7 +54,7 @@
     },
     {
       "label": "Restoring.",
-      "text": "How a quarantined file is restored is open {{gap:reversal}}."
+      "text": "{{restore-from-assets-report}} {{redacted-version-restore}} What stopping a scan does to quarantined files, and restores outside the Assets with Incidents page, are open {{gap:reversal}}. The report page is in [[zia.reports.saas-security]]."
     },
     {
       "text": "The location asked for at onboarding is in [[zia.casb.tenants]]. The rule fields that carry the location and the tombstone template are in [[zia.casb.dlp-rules]] and [[zia.casb.malware-rules]]."
@@ -77,8 +77,9 @@
       ]
     },
     {
-      "do": "Whether the question needs a restore procedure, which no source states.",
+      "do": "Which application the file is in before describing a restore, since the Assets with Incidents page limits some restores to Slack or Salesforce, and whether the question needs a restore outside that page, which no source states.",
       "uses": [
+        "restore-from-assets-report",
         "reversal"
       ]
     }
@@ -222,6 +223,38 @@
         }
       ]
     },
+    "restore-from-assets-report": {
+      "statement": "In the File Sharing section of the Assets with Incidents page, Restore restores a quarantined file to its original location, after which subsequent policy scans bypass the restored file until it is modified, and is available only for quarantined files; Restore Admin Quarantine restores a file previously quarantined to the admin-specified location. Elsewhere on the page, restoring a quarantined message or file is for Slack only, and restoring a quarantined malware file to its original location needs the file to have been quarantined with the Quarantine Malware action in the DLP Malware policy and is currently available only for Salesforce.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "quotes": [
+            "File Sharing Applications and Tenants",
+            "Restore: You can restore a quarantined file to its original location. The subsequent policy scans bypass the restored file until the file is modified. This action is available only for quarantined files.",
+            "Restore Admin Quarantine: You can restore a file that was previously quarantined to the admin-specified location.",
+            "Restore: You can restore a quarantined message or file that is malware-reported, with incidents, or DLP violations (for Slack only).",
+            "Restore: You can restore a quarantined malware file to its original location provided the file was initially quarantined using the Quarantine Malware action in the DLP Malware policy. This option is currently available only for Salesforce."
+          ]
+        }
+      ]
+    },
+    "redacted-version-restore": {
+      "statement": "In the File Sharing section of the Assets with Incidents page, Restore Most Recent Redacted Version restores the most recent file to which redaction characters were applied via a redaction profile, and Zscaler stores both the original and the redacted file version for possible recovery by administrators in the event of inadvertent file deletions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "quotes": [
+            "File Sharing Applications and Tenants",
+            "Restore Most Recent Redacted Version: You can restore the most recent file to which redaction characters were applied via a redaction profile.",
+            "Zscaler stores both the original file version and the redacted file version for possible recovery by administrators in the event of any inadvertent file deletions."
+          ]
+        }
+      ]
+    },
     "assets-report-review": {
       "statement": "After a message or file has been quarantined, admins can use the SaaS Security Assets Report to review and remove the quarantined content.",
       "tier": "A",
@@ -240,8 +273,8 @@
     "reversal": {
       "kind": "semantic",
       "title": "How a quarantined file is restored",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Quarantine can be reversed (file restoration) from within the SaaS platform or via the Zscaler console, depending on the application.\" and \"Stopping a scan after quarantine actions have been taken does not automatically restore quarantined files.\" Only the API description of `quarantineLocation` mentions restoring the data; no captured article describes a restore procedure or says what stopping a scan does to quarantined files.",
+      "status": "partial",
+      "detail": "Partly answered by restore-from-assets-report and redacted-version-restore: the Assets with Incidents page offers Restore actions by application category. Still open: restore from within the SaaS platform, and what stopping a scan does to quarantined files. Unverified legacy statement: \"Quarantine can be reversed (file restoration) from within the SaaS platform or via the Zscaler console, depending on the application.\" and \"Stopping a scan after quarantine actions have been taken does not automatically restore quarantined files.\" Only the API description of `quarantineLocation` mentions restoring the data; no captured article describes a restore procedure or says what stopping a scan does to quarantined files.",
       "resolves_with": [
         "lab-test",
         "support-ticket"

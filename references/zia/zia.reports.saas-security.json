@@ -1,0 +1,711 @@
+{
+  "schema_version": 1,
+  "id": "zia.reports.saas-security",
+  "title": "SaaS Security report pages: SaaS Assets Summary, Assets and Assets with Incidents, Activities, Copilot Readiness Assessment and SaaS Workflows",
+  "aliases": [
+    "saas assets summary report",
+    "saas assets report",
+    "assets with incidents",
+    "saas security activities report",
+    "microsoft copilot readiness assessment",
+    "saas workflows"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.insights-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.quarantine"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "portfolio.copilot-data-protection"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.app-governance"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the report pages for SaaS Security: what was found in connected SaaS applications, and the audit trail of user and admin activity in them. The scan log they drill into is [[zia.casb.insights-logs]], and restoring a quarantined file is in [[zia.casb.quarantine]]. The report hub is [[zia.reports]]."
+    },
+    {
+      "label": "SaaS Assets Summary Report.",
+      "text": "{{summary-what}} {{summary-categories}} {{incident-definition}} {{unknown-saas-user}} {{risky-apps-widget}} The ITSM list differs from the Assets Report's {{divergence:itsm-apps}}."
+    },
+    {
+      "label": "Assets Report.",
+      "text": "{{assets-what}} {{assets-current-vs-all}} {{assets-category-apps}} {{assets-exposure-values}} {{assets-3p-tab}} The previous-scan option and how long the data is kept are open {{gap:assets-scan-and-retention}}."
+    },
+    {
+      "label": "Assets with Incidents.",
+      "text": "{{awi-scan-scope}} {{awi-remediation-entry}} Restores are covered in [[zia.casb.quarantine:restore-from-assets-report]]. {{awi-file-sharing-actions}} {{awi-external-group}} {{awi-last-shared-caveats}} {{awi-genai-view-only}}"
+    },
+    {
+      "label": "Activities.",
+      "text": "{{activities-what}} {{activities-columns}} Whether the page is the source of the NSS SaaS Security Activity feed is open {{gap:activities-nss-feed}}."
+    },
+    {
+      "label": "Microsoft Copilot Readiness Assessment.",
+      "text": "{{copilot-apps}} {{copilot-sensitive-asset}} {{copilot-prereqs}} MIP labels are onboarded two ways on the page {{divergence:mip-onboarding}}. {{copilot-mip-label-files}} {{copilot-bulk-limits}} {{copilot-exposure}} The exposure boundaries differ between its widgets and the drill-down {{divergence:copilot-exposure-bands}}. {{drilldown-exposure}} The Risk column's values are open {{gap:copilot-risk-values}}."
+    },
+    {
+      "label": "SaaS Workflows.",
+      "text": "{{workflows-what}} {{workflows-logs}} Which workflows exist besides remediation jobs, and a job's result values, are open {{gap:workflows-scope}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a count in the Assets Report is for the current scan before comparing it with the SaaS Security Insights Logs, which show all scans.",
+      "uses": [
+        "assets-current-vs-all"
+      ]
+    },
+    {
+      "do": "Whether the application supports the remediation the question asks about before promising it, since Slack, Salesforce, Google Drive and Smartsheet each differ.",
+      "uses": [
+        "awi-remediation-entry",
+        "awi-file-sharing-actions",
+        "awi-genai-view-only"
+      ]
+    },
+    {
+      "do": "Whether the Copilot assessment prerequisites are met and which application the assets are in before reading a failed remediation as a product fault.",
+      "uses": [
+        "copilot-prereqs",
+        "copilot-bulk-limits",
+        "mip-onboarding"
+      ]
+    },
+    {
+      "do": "Which page's exposure boundaries a figure was read from, since the Copilot widgets and drill-down differ.",
+      "uses": [
+        "copilot-exposure",
+        "drilldown-exposure",
+        "copilot-exposure-bands"
+      ]
+    }
+  ],
+  "claims": {
+    "summary-what": {
+      "statement": "The SaaS Assets Summary Report summarizes SaaS Security discovery and remediation activities and is the starting point for investigating what data is affected and identifying risky users. It shows the past 24 hours by default, or the last 7, 15 or 30 days, or a custom range up to the last 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-assets-summary-report.json",
+          "quotes": [
+            "The SaaS Assets Summary Report allows you to view a summary of SaaS Security based discovery and remediation activities. This serves as the starting point when investigating what data is affected and identifying risky users.",
+            "View data from the past 24 hours, last 7 days, last 15 days, last 30 days, or customize up to the last 90 days. The default time is 24 hours."
+          ]
+        }
+      ]
+    },
+    "summary-categories": {
+      "statement": "The summary report's application categories are Collaboration (Slack, Webex Teams, Microsoft Teams, Zoom), CRM (Salesforce, Dynamic 365), Email (Exchange, Gmail), File Sharing (Box, OneDrive, SharePoint, ShareFile, Dropbox, Confluence, Smartsheet, Google Drive), Gen AI (ChatGPT), ITSM (ServiceNow, Jira Software, JumpCloud), Source Code Repository (GitHub, GitLab, Bitbucket) and Public Cloud Storage (Amazon S3, Google Cloud Platform, Microsoft Azure); Amazon S3, Google Cloud Platform and Microsoft Azure are enabled by contacting the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-assets-summary-report.json",
+          "quotes": [
+            "Collaboration Applications (Slack, Webex Teams, Microsoft Teams, and Zoom)",
+            "CRM Applications (Salesforce and Dynamic 365)",
+            "Email Applications (Exchange and Gmail)",
+            "File Sharing Applications (Box, OneDrive, SharePoint, ShareFile, Dropbox, Confluence, Smartsheet, and Google Drive)",
+            "Gen AI Applications (ChatGPT)",
+            "ITSM Applications (ServiceNow, Jira Software, and JumpCloud)",
+            "Source Code Repository Applications (GitHub, GitLab, and Bitbucket)",
+            "Public Cloud Storage Applications (Amazon S3, Google Cloud Platform, and Microsoft Azure)",
+            "To enable Amazon S3, Google Cloud Platform, and Microsoft Azure for your organization, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "incident-definition": {
+      "statement": "The summary report defines an incident as a triggered DLP or malware policy, caused when a file is scanned for the first time or when a change in the file violates the policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-assets-summary-report.json",
+          "quotes": [
+            "An incident is a triggered DLP or malware policy. This is caused when a file is scanned for the first time or when a change in the file violates the policy."
+          ]
+        }
+      ]
+    },
+    "unknown-saas-user": {
+      "statement": "The summary report describes unknown_saas_user* as a user who can access the SaaS application but is not added to the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-assets-summary-report.json",
+          "quotes": [
+            "The unknown_saas_user* is a user who can access the SaaS application but isn't added to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "risky-apps-widget": {
+      "statement": "The Risky Cloud SaaS Applications widget shows each application, its category, its threat index, its net usage (GB) and the recommended configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-assets-summary-report.json",
+          "quotes": [
+            "Risky Cloud SaaS Applications",
+            "You see the application, its category, its threat index, its net usage (GB), and the recommended configuration."
+          ]
+        }
+      ]
+    },
+    "assets-what": {
+      "statement": "The SaaS Assets Report shows the current state of files, email messages and objects, for a chosen application category, over the current day, current week, last 24 hours, last 7 days or a custom range up to the last 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-assets-report.json",
+          "quotes": [
+            "The SaaS Assets Report shows you the current state of your files, email messages, and objects.",
+            "Select an Application Category to view the report for that category.",
+            "You can choose to view scans for the current day, the current week, the last 24 hours, the last 7 days, or customize up to the last 90 days."
+          ]
+        }
+      ]
+    },
+    "assets-current-vs-all": {
+      "statement": "On the Assets Report the number of violations in a column is for current scan results, whereas the SaaS Security Insights Logs page shows all scans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-assets-report.json",
+          "after": "The Content Locations with Violations section shows which locations have violations.",
+          "quotes": [
+            "The number of violations listed in the column is for current scan results, whereas the SaaS Security Insights Logs page shows you all scans."
+          ]
+        }
+      ]
+    },
+    "assets-category-apps": {
+      "statement": "The Assets Report's category lists are collaboration (Slack, Webex Teams, Zoom, Microsoft Teams), CRM (Salesforce, Dynamic 365), email (Exchange, Gmail), file sharing (Box, Confluence, OneDrive, ShareFile, SharePoint, Dropbox, Smartsheet, Google Drive), Gen AI (ChatGPT), ITSM (Jira Software, ServiceNow) and source code repository (GitLab, Bitbucket, GitHub).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-assets-report.json",
+          "quotes": [
+            "collaboration applications (Slack, Webex Teams, Zoom, and Microsoft Teams):",
+            "CRM applications (Salesforce and Dynamic 365):",
+            "email applications (Exchange and Gmail):",
+            "file sharing applications (Box, Confluence, OneDrive, ShareFile, SharePoint, Dropbox, Smartsheet, and Google Drive):",
+            "Gen AI applications (ChatGPT):",
+            "ITSM applications (Jira Software and ServiceNow):",
+            "source code repository applications (GitLab, Bitbucket, and GitHub):"
+          ]
+        }
+      ]
+    },
+    "assets-exposure-values": {
+      "statement": "In the Assets Report the exposure of a container is public, private, external or internal, and the exposure of a repository is public or private.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-assets-report.json",
+          "quotes": [
+            "Exposure: The type of exposure for the container (i.e., public, private, external, or internal)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-assets-report.json",
+          "after": "- Source Code Repository Applications",
+          "quotes": [
+            "Exposure: The type of exposure for the repository (public or private)."
+          ]
+        }
+      ]
+    },
+    "assets-3p-tab": {
+      "statement": "The Assets Report's 3rd-Party Integrations tab shows 3rd-Party App Governance data for Slack, Microsoft Teams, OneDrive, SharePoint, Google Drive, Exchange, Gmail, Salesforce and Dynamic 365, with counts of integrations that are potentially harmful or vulnerable, dormant and overprivileged; seeing more information needs an Internet & SaaS (ZIA) super admin and an organization subscribed to 3rd-Party App Governance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-assets-report.json",
+          "quotes": [
+            "- Collaboration Applications (Slack, Microsoft Teams)",
+            "- File Sharing Applications (OneDrive, SharePoint, Google Drive)",
+            "- Email Applications (Exchange, Gmail)",
+            "- CRM Applications (Salesforce and Dynamic 365)",
+            "Potentially Harmful / Vulnerable: The number of integrations that are potentially harmful or vulnerable.",
+            "Dormant: The number of integrations that are dormant (i.e., abandoned, inactive, or not maintained).",
+            "Overprivileged: The number of integrations with excessive or underused permissions.",
+            "To see more information, you must be a Internet & SaaS (ZIA) super admin and your organization must be subscribed to 3rd-Party App Governance."
+          ]
+        }
+      ]
+    },
+    "awi-scan-scope": {
+      "statement": "The Assets with Incidents page opens with filters preset to the application or tenant and time frame chosen for further analysis, and lets the user view a Current Scan, a Previous Scan or All Scans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "quotes": [
+            "The filters are preset to the application or tenant, and time frame you choose to further analyze",
+            "Select to view a Current Scan, a Previous Scan, or All Scans."
+          ]
+        }
+      ]
+    },
+    "awi-remediation-entry": {
+      "statement": "On the Assets with Incidents page, Quarantine or Remove on a collaboration application message or file appears as a separate incident entry with the most current Last Scan Time and the Action updated to the remediation selected, and the Collaboration Scope column is only available for MS Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "quotes": [
+            "Collaboration Applications and Tenants",
+            "Quarantine: You can quarantine a message or file that is malware-reported, with incidents, or DLP violations.",
+            "When you select Quarantine or Remove as a remediation action, it appears as a separate incident entry. The new entry has the most current Last Scan Time value, and the Action category is updated to reflect the remediation action you selected.",
+            "Collaboration Scope: The collaboration scope and permissions for the SaaS application tenant files (e.g., External Collaborators - Edit). This column is currently only available for MS Teams."
+          ]
+        }
+      ]
+    },
+    "awi-file-sharing-actions": {
+      "statement": "Remediation actions are not supported for the Smartsheet application. For file sharing, the actions Remove Internal Sharing Links After Expiry, Remove External Sharing Links After Expiry, Remove Collaborators After Expiry and Remove Sharing After Expiry are each currently available only for Google Drive, a manual file expiration date must meet or exceed the original expiration period, and Remove Watermark is not available for image files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "quotes": [
+            "Remediation actions are currently not supported for the Smartsheet application.",
+            "Remove Internal Sharing Links After Expiry: You can set a manual expiration period to remove access to a file’s internal shareable links after expiration. This option is currently available only for Google Drive.",
+            "Remove External Sharing Links After Expiry: You can set a manual expiration period to remove access to a file’s external shareable links after expiration. This option is currently available only for Google Drive.",
+            "Remove Collaborators After Expiry: You can set a manual expiration period to remove a file’s collaborators after expiration, including collaborator groups after expiration. This option is currently available only for Google Drive.",
+            "Remove Sharing After Expiry: You can set a manual expiration period to remove access to any shareable links after expiration. This option is currently available only for Google Drive.",
+            "Manual file expiration dates must meet or exceed the original expiration period.",
+            "Remove Watermark: You can remove a watermark that was applied to a file via a watermark profile. This option is not available for image files."
+          ]
+        }
+      ]
+    },
+    "awi-external-group": {
+      "statement": "A group is classified as an external collaborator group if even one member is an external collaborator, regardless of how many internal members it contains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "quotes": [
+            "A group is classified as an external collaborator group if even one member is an external collaborator, regardless of how many internal members it contains"
+          ]
+        }
+      ]
+    },
+    "awi-last-shared-caveats": {
+      "statement": "A column on the file sharing tab does not populate user details, and another does not populate timeline details, for applications where it is not supported; for Smartsheet only the user who performed the first activity from the time of the file scan is displayed, and for Dropbox only the user who last modified a shared file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "quotes": [
+            "This column does not populate user details for the following applications as it is not supported:",
+            "This column does not populate timeline details for the following applications as it is not supported:",
+            "For Smartsheet, only the user who performed the first activity, from the time of the file scan, is displayed even though the file might have had multiple activities thereafter.",
+            "For Dropbox, only the user who last modified a shared file is displayed, even if another user shared it and modified it immediately."
+          ]
+        }
+      ]
+    },
+    "awi-genai-view-only": {
+      "statement": "For Gen AI applications the remediation action listed on the Assets with Incidents page is View Scan History, which redirects to the SaaS Security Insights Logs page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-assets-report-assets-with-incidents.json",
+          "after": "# Gen AI Applications and Tenants",
+          "quotes": [
+            "Remediation Action: You can take the following remediation action when you click on the ellipsis:",
+            "View Scan History: You can view the scan history. You'll be redirected to the SaaS Security Insights Logs page."
+          ]
+        }
+      ]
+    },
+    "activities-what": {
+      "statement": "The Activities page is an audit trail of the activities end users and admins perform in SaaS applications, filtered by tenant, user, activity role type and time frame (the last 24 hours, 7, 30 or 90 days, or custom); the Activity filter is currently not supported for Smartsheet, and sync activities apply only to File Sharing applications such as OneDrive and SharePoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-activities-report.json",
+          "quotes": [
+            "View an audit trail of all the activities end users and admins perform in SaaS applications.",
+            "Tenant: Filter by the name of the SaaS application tenant.",
+            "User: Filter activities by user.",
+            "Activity Role Type: Filter by the user's role.",
+            "The Activity filter is currently not supported for the Smartsheet application.",
+            "Sync activities apply to only File Sharing applications such as OneDrive and SharePoint.",
+            "Filter activities by the last 24 hours, the last 7 days, the last 30 days, the last 90 days, or choose a custom time frame."
+          ]
+        }
+      ]
+    },
+    "activities-columns": {
+      "statement": "The Raw Activities table shows the event time, source location (city and country), source IP and object names and types, and the page's activity filter options include Login Fail, Logout Compromised, Risky Download, Risky Share, Risky Upload and DLP Sensitive Email Sent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-activities-report.json",
+          "quotes": [
+            "Event Time: The time the activity was done.",
+            "Source Location: The city and country in which the activity was done.",
+            "Source IP: The IP address used.",
+            "Object 1 Name: The name of the object",
+            "Object 1 Type:",
+            "Object 2 Name:",
+            "Object 2 Type: The second type of object, if applicable, involved in the activity.",
+            "- Login Fail",
+            "- Logout Compromised",
+            "- Risky Download",
+            "- Risky Share",
+            "- Risky Upload",
+            "- DLP Sensitive Email Sent"
+          ]
+        }
+      ]
+    },
+    "copilot-apps": {
+      "statement": "The Microsoft Copilot Readiness Assessment supports Microsoft SharePoint, Microsoft OneDrive and Microsoft Teams, and Microsoft Exchange is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+          "quotes": [
+            "- Microsoft SharePoint",
+            "- Microsoft OneDrive",
+            "- Microsoft Teams",
+            "Microsoft Exchange is not supported."
+          ]
+        }
+      ]
+    },
+    "copilot-sensitive-asset": {
+      "statement": "The assessment defines a sensitive asset as any document with a DLP dictionary, DLP violation or DLP engine match, and its time range offers Current Day, Current Week, Last 24 Hours, Last 7 Days, Last 15 Days or Custom.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+          "quotes": [
+            "A sensitive asset is any document that has either a DLP dictionary, DLP violation, or a DLP engine match.",
+            "Time Range: Choose from Current Day, Current Week, Last 24 Hours, Last 7 Days, Last 15 Days, or Custom."
+          ]
+        }
+      ]
+    },
+    "copilot-prereqs": {
+      "statement": "For remediation actions on OneDrive, SharePoint and Teams to succeed, the organization's OneDrive, SharePoint and Teams tenants must be onboarded, DLP policies targeting them defined and activated, and active scanning configured and enabled for the onboarded tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+          "quotes": [
+            "To ensure successful execution of remediation actions for OneDrive, SharePoint, and Teams, the following prerequisites must be fulfilled:",
+            "Ensure your organization's OneDrive, SharePoint, and Teams tenants are successfully onboarded.",
+            "Define and activate Data Loss Prevention (DLP) policies, targeting the onboarded OneDrive, SharePoint, and Teams tenants.",
+            "Configure and enable active scanning for the onboarded tenants."
+          ]
+        }
+      ]
+    },
+    "copilot-mip-label-files": {
+      "statement": "Apply MIP Label applies a Microsoft Purview Information Protection (formerly Microsoft Information Protection) label to Excel, Word, PowerPoint and PDF files within MIP onboarded tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+          "after": "- View All Assets in Tabular Format",
+          "quotes": [
+            "Apply MIP Label: You can apply a Microsoft Purview Information Protection (formerly Microsoft Information Protection (MIP)) label to Excel, Word, PowerPoint, and PDF files within MIP onboarded tenants."
+          ]
+        }
+      ]
+    },
+    "copilot-bulk-limits": {
+      "statement": "Bulk actions take a maximum batch size of 1,000 assets and at most 10 bulk remediation jobs in progress at a time; an action on an asset must complete before another is applied to it, and bulk remediation is not supported for assets previously quarantined. Only Report Incident is supported for Microsoft Teams although other actions remain visible in the menu, and remediation is not supported for Teams channels with special characters in their names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+          "after": "- View All Assets in Tabular Format",
+          "quotes": [
+            "The maximum batch size for bulk actions is 1,000 assets.",
+            "A maximum of 10 bulk remediation jobs can be in progress at any given time.",
+            "After you have initiated an action on an asset, you must wait for its completion before applying another action to the same asset.",
+            "Bulk remediation action is not supported for assets that were previously quarantined.",
+            "Only Report Incident is supported for Microsoft Teams, although other actions remain visible in the menu.",
+            "Remediation actions are not supported for Microsoft Teams channels that contain special characters in their names."
+          ]
+        }
+      ]
+    },
+    "copilot-exposure": {
+      "statement": "In the Exposure widget, Org-Wide counts the assets that have an internal shareable link and External Link counts the assets that have external users or an external shareable link, and the widget's internal-collaborator bands are 10-99 users, 100-999 users, more than 1,000 users and 10,000 users or more. Assets Exposed Org-Wide and Assets Exposed Using External Link options are not supported for MS Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+          "after": "- 3. Asset Exposure",
+          "quotes": [
+            "- Org-Wide: Displays the total count of assets that have an internal shareable link."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+          "quotes": [
+            "- External Link: Displays the total count of assets that have external users or an external shareable link.",
+            "- Assets Shared With 10-99 Users: Displays the total count of assets that have between 10 and 99 internal collaborators.",
+            "- Assets Shared With 100-999 Users: Displays the total count of assets that have between 100 and 999 internal collaborators.",
+            "- Assets Shared With >1000 Users: Display the total count of assets that have greater than 1,000 internal collaborators.",
+            "- Assets Shared With >=10000 Users: Displays the total count of assets that have greater than or equal to 10,000 internal collaborators.",
+            "Assets Exposed Org-Wide and Assets Exposed Using External Link options are not supported for MS Teams."
+          ]
+        }
+      ]
+    },
+    "drilldown-exposure": {
+      "statement": "The View All drill-down of all assets filters exposure by Org-Wide, External Link, <10 Users, 10–99 Users, 100–999 Users, 1000–9999 Users and >=10000 Users, and lists each asset's risk, DLP classification and counts of internal and external collaborators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-drill-down-all-assets.json",
+          "quotes": [
+            "Exposure: Select the exposure level (Org-Wide, External Link, <10 Users, 10–99 Users, 100–999 Users, 1000–9999 Users, and >=10000 Users).",
+            "Risk: The risk posed by the asset.",
+            "DLP Classification: The DLP classification for the asset.",
+            "Internal Collaborators: The number of internal collaborators.",
+            "External Collaborators: The number of external collaborators."
+          ]
+        }
+      ]
+    },
+    "workflows-what": {
+      "statement": "SaaS Workflows automate routine, manual tasks across SaaS applications, orchestrating actions such as bulk remediation, access and content clean-up and exposure reduction, using predefined rules and logic. A remediation job's Job ID is generated by the bulk remediation action, an in-progress job shows the email address of the admin who created it, and jobs can be searched by part or all of the job ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-workflows.json",
+          "quotes": [
+            "SaaS Workflows in the Zscaler Admin Console offer a way to automate routine, manual tasks across your SaaS applications through the creation and execution of automated workflows.",
+            "orchestrating actions such as bulk remediation, access and content clean-up, and exposure reduction",
+            "The workflows operate based on a set of predefined rules and logic, ensuring consistency and accuracy across all operations.",
+            "Created By: Email address of the admin who created the job.",
+            "Job Search: Enter a part of the job ID or the complete job ID to find specific remediation jobs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-workflows.json",
+          "after": "- In Progress:",
+          "quotes": [
+            "Job ID: A unique ID generated by the bulk remediation action."
+          ]
+        }
+      ]
+    },
+    "workflows-logs": {
+      "statement": "Clicking View Logs on a SaaS Workflows job redirects to the SaaS Security Insights Logs page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-saas-workflows.json",
+          "quotes": [
+            "Clicking View Logs redirects you to the SaaS Security Insights Logs page."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "itsm-apps": {
+      "summary": "The SaaS Assets Summary Report page lists JumpCloud among its ITSM applications, while the Assets Report page lists only Jira Software and ServiceNow.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-saas-assets-summary-report.json",
+            "quotes": [
+              "ITSM Applications (ServiceNow, Jira Software, and JumpCloud)"
+            ]
+          },
+          "says": "The summary report's ITSM applications are ServiceNow, Jira Software and JumpCloud."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-assets-report.json",
+            "quotes": [
+              "ITSM applications (Jira Software and ServiceNow):"
+            ]
+          },
+          "says": "The Assets Report's ITSM applications are Jira Software and ServiceNow."
+        }
+      ],
+      "impact": "Whether JumpCloud data appears in the Assets Report is not settled by the two pages, so an answer about ITSM coverage has to name the report."
+    },
+    "copilot-exposure-bands": {
+      "summary": "The Copilot Readiness Assessment page's widgets and the drill-down page use different exposure boundaries for the 100-999 and 1,000 or more internal-collaborator bands.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+            "quotes": [
+              "- Assets Shared With 100-999 Users: Displays the total count of assets that have between 100 and 999 internal collaborators.",
+              "- Assets Shared With >1000 Users: Display the total count of assets that have greater than 1,000 internal collaborators."
+            ]
+          },
+          "says": "The Exposure widget's bands are 100-999 users and more than 1,000 users."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+            "after": "- 5. Top Owners",
+            "quotes": [
+              "- 100-1000: Displays the total count of assets that have between 100 and 1,000 internal collaborators.",
+              "- >1000: Displays the total count of assets that have greater than 1,000 internal collaborators."
+            ]
+          },
+          "says": "The Top Owners section's bands are 100-1000 and more than 1,000 internal collaborators."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-viewing-drill-down-all-assets.json",
+            "quotes": [
+              "Exposure: Select the exposure level (Org-Wide, External Link, <10 Users, 10–99 Users, 100–999 Users, 1000–9999 Users, and >=10000 Users)."
+            ]
+          },
+          "says": "The drill-down's exposure levels are <10, 10–99, 100–999, 1000–9999 and >=10000 users, so its upper bands start at 1000 and 10000 rather than at more than 1,000."
+        }
+      ],
+      "impact": "A count read from one widget may not match the same band on another page; 1,000 sits in the 100-1000 band on one page and the 1000-9999 band on another, so an answer has to name the page."
+    },
+    "mip-onboarding": {
+      "summary": "The Copilot Readiness Assessment page says MIP labels can be onboarded by a Zscaler-defined connector or certificate-based authentication, and also says applying labels requires certificate-based authentication.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+            "quotes": [
+              "Onboard Microsoft Information Protection (MIP) labels using either a Zscaler-defined connector or certificate-based authentication."
+            ]
+          },
+          "says": "The prerequisites list onboards MIP labels using either a Zscaler-defined connector or certificate-based authentication."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-microsoft-copilot-readiness-assessment.json",
+            "after": "- View All Assets in Tabular Format",
+            "quotes": [
+              "To apply labels, you must first onboard your MIP labels using certificate-based authentication."
+            ]
+          },
+          "says": "To apply labels, the MIP labels must first be onboarded using certificate-based authentication."
+        }
+      ],
+      "impact": "The page does not say whether the connector method covers every remediation action but not applying labels, or whether the two statements conflict, so a label question has to name which action is meant."
+    }
+  },
+  "gaps": {
+    "assets-scan-and-retention": {
+      "kind": "semantic",
+      "title": "What Previous Scan selects, and how long Assets Report and Activities data is kept",
+      "status": "open",
+      "detail": "The Assets with Incidents page offers Current Scan, Previous Scan and All Scans without defining Previous Scan, and the Assets and Activities pages offer time ranges up to 90 days without stating retention.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "activities-nss-feed": {
+      "kind": "semantic",
+      "title": "Whether the Activities page is the source of the NSS SaaS Security Activity feed",
+      "status": "open",
+      "detail": "The Activities page columns resemble the fields of the NSS SaaS Security Activity log, but no captured source maps the page to the feed.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "copilot-risk-values": {
+      "kind": "semantic",
+      "title": "What values the Copilot Readiness Risk column takes",
+      "status": "open",
+      "detail": "The drill-down page lists a Risk column as the risk posed by the asset and does not list its values.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "workflows-scope": {
+      "kind": "semantic",
+      "title": "Which workflows SaaS Workflows offers beyond remediation jobs, and what a job's result values are",
+      "status": "open",
+      "detail": "The page describes automated workflows in general and shows remediation jobs with a job ID, creator and View Logs; it does not list other workflows or the job result values.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

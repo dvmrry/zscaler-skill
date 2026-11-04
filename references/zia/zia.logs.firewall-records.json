@@ -51,6 +51,14 @@
     {
       "rel": "see-also",
       "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.tunnel-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.insights.logs"
     }
   ],
   "prose": [
@@ -59,7 +67,7 @@
     },
     {
       "label": "Aggregated sessions.",
-      "text": "{{agg-flag}} {{last-session}} {{undercount}} {{avgduration}} {{srcip-country-agg}} {{aggregation-rule}} How the byte and duration counters behave on an aggregate is still open {{gap:aggregate-counters}}. Why allowed aggregates lack a country is open {{gap:srcip-country-aggregate}}."
+      "text": "{{agg-flag}} {{last-session}} {{undercount}} {{avgduration}} {{srcip-country-agg}} {{aggregation-rule}} How the byte and duration counters behave on an aggregate is still open {{gap:aggregate-counters}}. Why allowed aggregates lack a country is open {{gap:srcip-country-aggregate}}. {{aggregate-totals}} The Insights Logs columns and the NSS page describe the aggregate counters differently {{divergence:aggregate-counters-source}}."
     },
     {
       "label": "Which records a feed sends.",
@@ -70,6 +78,14 @@
       "text": "{{action-two-values}} {{rulelabel-unqualified}} Precedence among firewall, IPS and DNAT is open {{gap:action-precedence}}. {{severity-typo}} {{threat-score-source}} {{flags-1-0}}"
     },
     {
+      "label": "What the Insights Logs show.",
+      "text": "The Insights Logs list more action values than the NSS description gives {{divergence:action-value-set}}. {{action-values}} {{internal-error}} {{missing-config}} {{rule-name-blocked-only}} The NSS page does not state whether the rule name is withheld for allowed traffic {{gap:rulelabel-display}}. {{bypass-traffic-rule}} {{severity-buckets}}"
+    },
+    {
+      "label": "Console columns.",
+      "text": "{{icmp-ports}} {{user-blank}} {{sipa-server-ip}} {{advanced-firewall-fqdns}} The console viewer is [[zia.insights.logs]]."
+    },
+    {
       "label": "Network fields.",
       "text": "{{bytes-direction}} {{nw-fields}} Their relation is open {{gap:nwapp-vs-nwsvc}}. {{country-forms}} {{country-forms-not-comparable}}"
     },
@@ -78,7 +94,7 @@
       "text": "{{names-differ}}"
     },
     {
-      "text": "How the feed encodes fields: [[zia.logs.nss-feed-format]]. Web counterpart: [[zia.logs.web-records]]."
+      "text": "How the feed encodes fields: [[zia.logs.nss-feed-format]]. Web counterpart: [[zia.logs.web-records]]. Tunnel counterpart: [[zia.logs.tunnel-records]]."
     }
   ],
   "checks": [
@@ -96,7 +112,10 @@
       "uses": [
         "action-two-values",
         "rulelabel-unqualified",
-        "action-precedence"
+        "action-precedence",
+        "action-value-set",
+        "rule-name-blocked-only",
+        "rulelabel-display"
       ]
     },
     {
@@ -115,6 +134,228 @@
     }
   ],
   "claims": {
+    "action-values": {
+      "statement": "The Firewall Insights Logs Action filter, for firewall and IPS policy actions, includes the traffic that might be blocked due to a web policy violation after passing through the firewall module; its values include Allow due to insufficient app data, Block/Drop, Block/ICMP, Block/Reset, IPS Drop, IPS Reset, Dropped due to internal error, Bypassed due to missing config and Timed out while waiting for a config.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Action: Use this filter to limit the data to specific firewall and IPS policy actions.",
+            "This filter includes the traffic that might be blocked due to a web policy violation (as indicated in the Web Insights logs) after passing through the firewall module.",
+            "The transaction is logged as \"Allow due to insufficient app data\".",
+            "Block/Drop: Firewall policy rule is set to silently block packets that match the rule.",
+            "Block/ICMP: Policy rule was set to drop all packets that match the rule",
+            "Block/Reset: Firewall policy rule is set to Block/Reset.",
+            "IPS Drop: IPS policy rule is set to silently block packets that match the rule.",
+            "IPS Reset: IPS policy rule is set to Block/Reset.",
+            "Dropped due to internal error: This action is logged when the Firewall has received the user-side traffic but it fails to establish the internet-side connection",
+            "Bypassed due to missing config: This action is logged when",
+            "Timed out while waiting for a config: This action is logged when"
+          ]
+        }
+      ]
+    },
+    "internal-error": {
+      "statement": "Dropped due to internal error is logged when the firewall received the user-side traffic but failed to establish the internet-side connection, so the flow was dropped; it might occur when the Service Edge infrastructure is momentarily overused.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Dropped due to internal error: This action is logged when the Firewall has received the user-side traffic but it fails to establish the internet-side connection",
+            "resulting in the traffic flow being dropped. This might occur when the Service Edge infrastructure is momentarily overused."
+          ]
+        }
+      ]
+    },
+    "missing-config": {
+      "statement": "Bypassed due to missing config is logged when the Public Service Edge cannot establish a connection with the Zscaler Central Authority, so the flow passes through Zscaler Firewall or DNS without policy; it might occur when a specific user's or location's traffic arrives at the Service Edge for the first time. Timed out while waiting for a config is logged when the connection is established but the configuration does not arrive within the expected time, typically 5 seconds. The columns page says both might additionally appear under specific circumstances when Best Effort Policies or Fail Closed mode is used with partial configurations.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#action"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "fails to establish a connection with the Zscaler Central Authority (CA), resulting in the traffic flow passing through Zscaler Firewall or DNS without policy application.",
+            "This might occur when traffic flow from a specific user or location arrives at the Service Edge for the first time and a connection to the CA is required to apply policies.",
+            "Timed out while waiting for a config: This action is logged when the Public Service Edge has established a connection with the CA",
+            "a connection to the CA is established but there is no response from the CA within the expected time frame.",
+            "the requested configuration does not arrive from the CA within the expected time period (typically 5 seconds)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "If Best Effort Policies or Fail Closed mode is used when partial configurations are available on a Service Edge, the following policy actions might additionally appear under specific circumstances: Bypassed due to missing config and Timed out while waiting for config."
+          ]
+        }
+      ]
+    },
+    "aggregate-totals": {
+      "statement": "The Firewall Insights Logs columns article describes, for aggregated sessions, the bytes sent from the server and the bytes received by the server as totals across all sessions in the aggregate, and the duration as the sum of the individual session durations; the Extranet columns article says the same.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#inbytes",
+        "zia/firewall-log#outbytes",
+        "zia/firewall-log#durationms"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "For aggregated sessions, this is the total bytes sent from the server across all sessions in the aggregate.",
+            "For aggregated sessions, this is the total bytes received by the server across all sessions in the aggregate.",
+            "For aggregated sessions, this indicates the sum of individual session durations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-extranet-insights-logs-columns.json",
+          "quotes": [
+            "For aggregated sessions, this is the total bytes sent from the server across all sessions in the aggregate.",
+            "For aggregated sessions, this is the total bytes received by the server across all sessions in the aggregate.",
+            "For aggregated sessions, this indicates the sum of individual session durations."
+          ]
+        }
+      ]
+    },
+    "rule-name-blocked-only": {
+      "statement": "The Firewall Insights Logs Rule Name column is displayed in the logs only when the traffic is blocked, and by default not for allowed traffic.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#rulelabel"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "Rule Name: The name of the rule",
+            "This column is displayed in the logs only when the traffic is blocked. By default, this column is not displayed for allowed traffic."
+          ]
+        }
+      ]
+    },
+    "bypass-traffic-rule": {
+      "statement": "The Zscaler Bypass Traffic rule appears in firewall logs when the web module does not accept control from the firewall module because the handshake ends abruptly during flow establishment, or when traffic comes from a firewall-enabled sublocation whose parent location or another sublocation under it is not firewall-enabled, owing to latency in identifying the location differences, as in X-Forwarded-For setups.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#rulelabel"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "The web module does not accept the control for the traffic evaluation from the firewall module because the handshake abruptly terminates during flow establishment.",
+            "The traffic is forwarded from a firewall-enabled sublocation but not enabled for the parent location or another sublocation under the same parent location.",
+            "This happens due to the latency in identifying these location differences, such as in the X-Forwarded-For (XFF) configuration."
+          ]
+        }
+      ]
+    },
+    "icmp-ports": {
+      "statement": "For ICMP the Firewall Insights Logs source port shows the ICMP Identifier and the destination port shows as the ICMP Sequence Number.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#csport",
+        "zia/firewall-log#cdport"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "This means, for ICMP, the source port shows the ICMP Identifier.",
+            "This means, for ICMP, the destination port shows as ICMP Sequence Number."
+          ]
+        }
+      ]
+    },
+    "user-blank": {
+      "statement": "A blank User in Firewall Insights Logs means location-based authentication is set.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#login"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "User: The user name. If this is blank, then location-based authentication is set."
+          ]
+        }
+      ]
+    },
+    "sipa-server-ip": {
+      "statement": "With Source IP Anchoring for a URL or domain, the Firewall Insights Logs show the IP address 0.0.0.1 for the server to indicate the internal redirection, because the client request is forwarded to Private Access and the server IP is not logged at the proxy layer.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#sdip"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "When you use Source IP Anchoring for the URL or domain, Zscaler doesn't log the server IP address at the proxy layer because the client request is forwarded to Private Access (ZPA), and the proxy code is already completed.",
+            "Therefore, the IP address 0.0.0.1 is logged to indicate the internal redirection within Zscaler."
+          ]
+        }
+      ]
+    },
+    "severity-buckets": {
+      "statement": "The Firewall Insights Logs threat severity values follow the threat score: Critical for 90–100, High for 75–89, Medium for 46–74, Low for 1–45 and None for 0.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#threat_severity"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "Critical: If the value of the threat score is 90–100.",
+            "High: If the value of the threat score is 75–89.",
+            "Medium: If the value of the threat score is 46–74.",
+            "Low: If the value of the threat score is 1–45.",
+            "None: If the value of the threat score is 0."
+          ]
+        }
+      ]
+    },
+    "advanced-firewall-fqdns": {
+      "statement": "Client Destination Name and DNAT Destination Name are FQDN columns for Advanced Firewall, each holding the last session's value on an aggregate.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-log#cdfqdn"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-columns.json",
+          "quotes": [
+            "Client Destination Name: The client destination FQDN for Advanced Firewall. For aggregated sessions, this is the client destination FQDN of the last session in the aggregate.",
+            "DNAT Destination Name: The DNAT FQDN for Advanced Firewall. For aggregated sessions, this is the DNAT FQDN of the last session in the aggregate."
+          ]
+        }
+      ]
+    },
     "firewall-log-type": {
       "statement": "A TCP Firewall feed's Firewall Log Type offers Full Session Logs, Aggregate Logs, or both, Full Session Logs being the option that log each session that matches the rule individually except web (HTTP/HTTPS) and FTP/FTPS sessions that match the same Allow rule over a time window, and Aggregate Logs, which group sessions by user, rule, network service and network application and record them periodically within an approximately 15-minute window. Full session logs do not include sessions recorded as part of aggregated entries, and the excluded web and FTP sessions are always available as aggregated entries, with detailed transactions in Web logs.",
       "tier": "A",
@@ -462,12 +703,83 @@
       ]
     }
   },
+  "divergences": {
+    "aggregate-counters-source": {
+      "summary": "The Firewall Insights Logs columns article describes aggregated byte counters as totals across all sessions in the aggregate and the duration as the sum of session durations, while the NSS firewall output format says an aggregated log's remaining fields are taken from the last session in the 15-minute window.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-firewall-insights-logs-columns.json",
+            "quotes": [
+              "For aggregated sessions, this is the total bytes sent from the server across all sessions in the aggregate.",
+              "For aggregated sessions, this indicates the sum of individual session durations."
+            ]
+          },
+          "says": "For aggregated sessions the bytes sent from the server are a total across all sessions in the aggregate and the duration is the sum of the individual session durations."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-firewall-logs.json",
+            "quotes": [
+              "For consecutive sessions with the same values across these fields, Zscaler only records a single log, in which the remaining fields are taken from the last session in the 15-minute time window.",
+              "| %ld{inbytes} | The number of bytes sent from the server to the client | 10,000 | Inbound Bytes |"
+            ]
+          },
+          "says": "A single log records the remaining fields from the last session in the 15-minute window, and inbytes is described as the number of bytes sent from the server to the client, with no aggregate wording."
+        }
+      ],
+      "impact": "Summing inbytes, outbytes and durationms over aggregate records gives different results if they hold the last session's values rather than totals; the pages do not say which applies to a feed."
+    },
+    "action-value-set": {
+      "summary": "The NSS firewall output format describes the action field as Allowed or Blocked, while the Firewall Insights Logs Action filter lists firewall and IPS policy actions beyond those two.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-firewall-logs.json",
+            "quotes": [
+              "| %s{action} | The action that the service took on the transaction: Allowed or Blocked | Blocked | Action |"
+            ]
+          },
+          "says": "The action is Allowed or Blocked."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-firewall-insights-logs-filters.json",
+            "quotes": [
+              "Action: Use this filter to limit the data to specific firewall and IPS policy actions.",
+              "Block/Drop: Firewall policy rule is set to silently block packets that match the rule.",
+              "IPS Drop: IPS policy rule is set to silently block packets that match the rule."
+            ]
+          },
+          "says": "The Action filter lists specific firewall and IPS policy actions, among them Block/Drop and IPS Drop."
+        }
+      ],
+      "impact": "A query that matches the action field against Allowed and Blocked misses the console's other values if a feed carries them; the pages do not say whether the console values are what the feed's action field holds."
+    }
+  },
   "gaps": {
+    "rulelabel-display": {
+      "kind": "semantic",
+      "title": "Whether allowed firewall transactions carry a rule name in the feed",
+      "status": "open",
+      "detail": "The Firewall Insights Logs Rule Name column is displayed only when the traffic is blocked (rule-name-blocked-only). The NSS firewall output format describes rulelabel as the name of the rule applied to the transaction and says nothing about display, so no source shows whether the feed's rulelabel is empty for allowed traffic or the restriction is a console display rule.",
+      "about": [
+        "zia/firewall-log#rulelabel"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
     "aggregate-counters": {
       "kind": "data",
       "title": "How byte and duration counters behave on an aggregated record",
       "status": "partial",
-      "detail": "Unverified legacy statement: the CSV does not say what triggers aggregation (idle timeout, volume, rule) or whether it is configurable, nor how inbytes, outbytes, durationms and avgduration behave on aggregates (sum, maximum or last session), since they carry no last-session wording. The trigger is now sourced (aggregation-rule: Standard Firewall subscription, allowed sessions, a 15-minute window over five fields). Still open: whether inbytes, outbytes and durationms count only the last session, as 'the remaining fields are taken from the last session' would suggest, or the whole aggregate, given that numsessions and avgduration are aggregate values. A burst of identical allowed sessions from one source on a Standard Firewall tenant would show it.",
+      "detail": "Unverified legacy statement: the CSV does not say what triggers aggregation (idle timeout, volume, rule) or whether it is configurable, nor how inbytes, outbytes, durationms and avgduration behave on aggregates (sum, maximum or last session), since they carry no last-session wording. The trigger is now sourced (aggregation-rule: Standard Firewall subscription, allowed sessions, a 15-minute window over five fields). Still open: whether inbytes, outbytes and durationms count only the last session, as 'the remaining fields are taken from the last session' would suggest, or the whole aggregate, given that numsessions and avgduration are aggregate values. A burst of identical allowed sessions from one source on a Standard Firewall tenant would show it. The Firewall Insights Logs columns article describes the byte counters as totals across the aggregate and the duration as the sum of the sessions (aggregate-totals), against the NSS last-session wording; see the divergence aggregate-counters-source.",
       "blocks": "Summing bytes or counting sessions from aggregated records.",
       "former_ids": [
         "log-11"

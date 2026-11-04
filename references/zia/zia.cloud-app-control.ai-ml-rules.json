@@ -65,6 +65,10 @@
     {
       "label": "Tenant restriction for AI apps.",
       "text": "{{tenant-profiles-visibility}} The Tenant Profiles feature itself, its supported application list, and the Claude token question belong to [[zia.tenant-profiles]]."
+    },
+    {
+      "label": "Embedded AI outside the AI & ML category.",
+      "text": "{{embedded-ai-atlassian}} Whether one retention ceiling covers both prompt-capture options is open {{gap:embedded-ai-prompt-retention}}."
     }
   ],
   "checks": [
@@ -205,6 +209,23 @@
           ]
         }
       ]
+    },
+    "embedded-ai-atlassian": {
+      "statement": "On the Productivity & CRM Tools rule page, Embedded AI selects Allow to use the embedded AI applications on Atlassian sites or Block to prevent their use, and is Allow by default. Embedded AI Prompts, when enabled, allows Zscaler to store end-user prompts up to 2 KB in size in logs for up to 6 months, or for the period defined by the organization, and authorized users with access to Zscaler logs can view the prompts entered in the Gen AI applications embedded in the Atlassian application. These options appear only if Gen AI is enabled for the organization.",
+      "tier": "A",
+      "conditions": "This claim is about the Productivity & CRM Tools category, not the AI & ML category; it sits here beside capture-prompts because both store end-user prompts.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-productivity-crm-tools-rule-cloud-app-control.json",
+          "quotes": [
+            "Embedded AI: Select Allow to use the embedded AI applications on Atlassian sites or Block to prevent the use of embedded AI applications on Atlassian sites. By default, this feature is set to Allow.",
+            "Embedded AI Prompts: Enabling this feature allows Zscaler to store end-user prompts up to 2 KB in size in logs for up to 6 months, or for the period defined by your organization.",
+            "Authorized users with access to Zscaler logs are able to view the prompts entered by end users in the Gen AI applications embedded in the Atlassian application.",
+            "These options appear only if Gen AI is enabled for your organization."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -241,6 +262,17 @@
     }
   },
   "gaps": {
+    "embedded-ai-prompt-retention": {
+      "kind": "semantic",
+      "title": "Whether the 6-month prompt retention ceiling also covers Capture Prompts on an AI & ML rule",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ],
+      "blocks": "stating a retention ceiling for prompts captured by an AI & ML rule",
+      "detail": "The 6-month ceiling is stated only on the Productivity & CRM Tools page for Embedded AI Prompts. Claim capture-prompts, from the AI & ML page, gives only the period defined by the organization, and no captured page says whether one ceiling covers both."
+    },
     "prompt-capture-vs-denied-access": {
       "kind": "semantic",
       "title": "Prompt capture when Gen AI Application Access is not Allow",

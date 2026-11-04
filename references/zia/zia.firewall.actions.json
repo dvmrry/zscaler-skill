@@ -55,7 +55,7 @@
       "text": "{{filtering-action-values}} {{ips-action-values}} {{bypass-ips-is-bypass}}"
     },
     {
-      "text": "What the three block variants and EVAL_NWAPP do on the wire is open {{gap:action-semantics}}. {{full-logging-block-only}} The log fields that record the action are in [[zia.firewall.traffic-path]]."
+      "text": "{{block-wire-behavior}} What EVAL_NWAPP does, and whether a rule with it ends evaluation, is open {{gap:action-semantics}}. {{full-logging-block-only}} The log fields that record the action are in [[zia.firewall.traffic-path]]."
     }
   ],
   "checks": [
@@ -73,13 +73,41 @@
       ]
     },
     {
-      "do": "Whether an answer about what the client sees on a block action rests on a source, since none documents it.",
+      "do": "Whether an answer about what the client sees on a block action rests on the Insights console descriptions, and whether an answer about EVAL_NWAPP rests on a source, since none documents it.",
       "uses": [
+        "block-wire-behavior",
         "action-semantics"
       ]
     }
   ],
   "claims": {
+    "block-wire-behavior": {
+      "statement": "The Firewall Insights Logs Action filter describes Block/Drop as silently blocking matching packets; Block/ICMP as dropping them and sending the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10; and Block/Reset as, for TCP traffic, dropping all matching packets and sending the client a TCP reset, and for non-TCP traffic the same as Block/Drop. IPS Drop and IPS Reset are the IPS rule counterparts.",
+      "tier": "A",
+      "conditions": "The console action names Block/Drop, Block/ICMP and Block/Reset are the page's own; they are matched to the API values BLOCK_DROP, BLOCK_ICMP and BLOCK_RESET by name only, and no source states the mapping.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Block/Drop: Firewall policy rule is set to silently block packets that match the rule.",
+            "Block/ICMP: Policy rule was set to drop all packets that match the rule",
+            "and to send the client an ICMP error message of Type 3 (Destination Unreachable) and code 9 or 10 (network/host administratively prohibited).",
+            "IPS Drop: IPS policy rule is set to silently block packets that match the rule.",
+            "IPS Reset: IPS policy rule is set to Block/Reset."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "For TCP traffic, the Zscaler service drops all packets that match the rule and sends the client a TCP reset.",
+            "For non-TCP traffic, same as Block/Drop."
+          ],
+          "after": "Block/Reset: Firewall policy rule is set to Block/Reset."
+        }
+      ]
+    },
     "filtering-action-values": {
       "statement": "A Firewall Filtering rule's action is one of ALLOW, BLOCK_DROP, BLOCK_RESET, BLOCK_ICMP or EVAL_NWAPP.",
       "tier": "A",
@@ -192,10 +220,10 @@
   "gaps": {
     "action-semantics": {
       "kind": "semantic",
-      "title": "Wire behavior of the block actions and EVAL_NWAPP",
-      "status": "open",
-      "detail": "No captured source describes what BLOCK_DROP, BLOCK_RESET and BLOCK_ICMP send to the client, or what EVAL_NWAPP does and whether a rule with it terminates evaluation. The SDKs and Terraform only enumerate the values.",
-      "blocks": "telling an operator what a user or attacker sees for each block action, and how EVAL_NWAPP rules compose",
+      "title": "What EVAL_NWAPP does, and the API-to-console mapping of the block actions",
+      "status": "partial",
+      "detail": "The Firewall Insights Logs Action filter now describes what Block/Drop, Block/ICMP and Block/Reset do on the wire (block-wire-behavior). Still open: what EVAL_NWAPP does and whether a rule with it terminates evaluation, which the SDKs and Terraform only enumerate, and the mapping of the console names to BLOCK_DROP, BLOCK_ICMP and BLOCK_RESET, which no source states.",
+      "blocks": "telling an operator what EVAL_NWAPP rules do and how they compose, and tying the console wording to the API values",
       "resolves_with": [
         "lab-test",
         "support-ticket"

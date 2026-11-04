@@ -61,6 +61,14 @@
     },
     {
       "text": "{{per-rule-cascade}} {{cac-rule-order}} {{mcp-order-surface}} {{mcp-skill-first-match-shadowing}} {{document-cascading}} {{prefer-cac-for-predefined-apps}} Each pass of the pipeline evaluates CAC before URL Filtering: see [[zia.ssl-inspection.pipeline]]."
+    },
+    {
+      "label": "Cascade per action.",
+      "text": "{{cascade-per-action}} Whether a Conditional allow offers it is open {{gap:cascade-conditional}}."
+    },
+    {
+      "label": "Rank, view and expiry.",
+      "text": "{{admin-rank}} {{rules-view-predefined-first}} {{rule-expiration}} What the organization's default rules are is open {{gap:expiry-default-rules}}."
     }
   ],
   "checks": [
@@ -289,9 +297,123 @@
           ]
         }
       ]
+    },
+    "cascade-per-action": {
+      "statement": "On the Consumer rule page, the Cascade to URL Filtering option is offered under the Allow, Caution and Isolate actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Choose to display an EUN that cautions users before allowing them access to the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "You can select this action for only one of the following request methods: CONNECT, GET, or HEAD.",
+          "quotes": [
+            "Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Ensure to create isolation profiles for your organization.",
+          "quotes": [
+            "Cascade to URL Filtering: Enable this option to enforce the URL Filtering policy on a transaction"
+          ]
+        }
+      ]
+    },
+    "admin-rank": {
+      "statement": "On the Consumer rule page, with Admin Rank enabled the rule's admin rank is a value from 0 to 7 (0 is the highest), the admin cannot select a rank higher than their own, the admin's assigned rank determines the rule order values they can select, and a rule with a higher admin rank always precedes a rule with a lower admin rank. The About page says the Admin Rank column is visible only if Admin Rank is enabled in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "You can change the value, but if you’ve enabled Admin Rank, your assigned admin rank determines the rule order values you can select.",
+            "Edit Admin Rank: Enter a value from 0 to 7 (0 is the highest rank).",
+            "You cannot select a rank that is higher than your own.",
+            "so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "Admin Rank: The Admin Rank for this rule. This is only visible if you have enabled it in the Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "rules-view-predefined-first": {
+      "statement": "The Cloud App Control policy page can display rules by the selected application category, which is selected by default, or in a view that lists all Cloud App Control rules with the predefined rules first, followed by configured rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "Displays the rules based on the selected application category. By default, this option is selected.",
+            "Displays all the Cloud App Control rules with the predefined rules listed first, followed by configured rules."
+          ]
+        }
+      ]
+    },
+    "rule-expiration": {
+      "statement": "On the Consumer rule page, Enable Rule Expiration sets a validity period for the rule with a start date and time, an end date and time and a time zone. The page says the feature can temporarily allow or block access to an application if configured rules block or allow it, respectively; after the rule expires, Zscaler either blocks or allows the traffic based on the default rules configured for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Enable Rule Expiration: Enable this option to set a validity period for the rule.",
+            "Start Date and Time: Select a start date and time. The rule is valid starting on this date and time.",
+            "End Date and Time: Select an end date and time. The rule ceases to be valid on this date and time.",
+            "Time Zone: Select the time zone in which the rule is valid.",
+            "You can use the rule expiration feature to temporarily allow or block access for a set period of time to an application if any configured rules block or allow access to it, respectively.",
+            "After the rule expires, Zscaler either blocks or allows the traffic based on the default rules configured for your organization."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "cascade-conditional": {
+      "kind": "semantic",
+      "title": "Whether a Conditional allow can cascade to URL Filtering",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying which actions cascade to URL Filtering",
+      "detail": "Claim cascade-per-action lists Allow, Caution and Isolate on the Consumer rule page. The Conditional section of the Consumer page shows no Cascade to URL Filtering option in the captured text, and no page says whether cascading applies to a Conditional allow."
+    },
+    "expiry-default-rules": {
+      "kind": "semantic",
+      "title": "What 'the default rules configured for your organization' are for an expired rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying what traffic does after a rule expires",
+      "detail": "The Consumer rule page says that after expiry Zscaler blocks or allows the traffic based on the organization's default rules, without defining them. Claim no-cac-rule-url-filtering-runs gives the Cloud App Control default as Allow All, but no page ties expiry to it."
+    },
     "default-allow-vs-explicit": {
       "kind": "semantic",
       "former_ids": [

@@ -60,6 +60,18 @@
     },
     {
       "text": "{{not-analyzed-checklist}} Whether SSL inspection is checked before or after the report lookup is open {{gap:check-order-vs-report}}."
+    },
+    {
+      "label": "Prerequisites in the help.",
+      "text": "{{malware-protection-prerequisite}} The default-rule page says Sandbox analyzes only downloaded files, which the Private Access upload claim in [[zia.sandbox.rules:zpa-uploads]] contradicts {{divergence:downloads-only}}."
+    },
+    {
+      "label": "File types in the help.",
+      "text": "{{selectable-file-types}} {{static-precheck-help}}"
+    },
+    {
+      "label": "Files outside the default rule.",
+      "text": "{{outside-default-rule-allowed}} What happens on Advanced Sandbox to a file no rule matches is open {{gap:advanced-out-of-scope-action}}."
     }
   ],
   "checks": [
@@ -81,6 +93,12 @@
       "do": "Whether the SSL rule that matched the source URL is a DO_NOT_INSPECT or DO_NOT_DECRYPT rule.",
       "uses": [
         "needs-decryption"
+      ]
+    },
+    {
+      "do": "Whether the file was an upload or a download, since the help pages disagree on whether Sandbox analyzes uploads.",
+      "uses": [
+        "downloads-only"
       ]
     }
   ],
@@ -275,6 +293,102 @@
           ]
         }
       ]
+    },
+    "malware-protection-prerequisite": {
+      "statement": "Files are sent for sandboxing only if Inspect Inbound Traffic and Inspect Outbound Traffic are enabled in the Malware Protection policy, and SSL/TLS inspection must be enabled for any traffic the Sandbox policy is configured for.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "quotes": [
+            "You must enable inbound and outbound traffic inspection in your Malware Protection policy to have files sent for sandboxing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "Enable Inspect Inbound Traffic and Inspect Outbound Traffic for the Malware Protection policy.",
+            "SSL/TLS inspection must be enabled for any traffic you want to configure the Sandbox policy for."
+          ]
+        }
+      ]
+    },
+    "outside-default-rule-allowed": {
+      "statement": "A file that does not match the default Sandbox rule's criteria is allowed to download even if it is malicious. With Standard Sandbox, such an allowed malicious file shows Not Subscribed in the Threat Name column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "quotes": [
+            "If a file doesn't match the criteria of the default Sandbox rule, then the file download is allowed even if it's malicious.",
+            "If a malicious file is allowed because it doesn't match the criteria of the default Sandbox rule, the Zscaler service displays Not Subscribed in the Threat Name column."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "If you have Standard Sandbox and a malicious file is allowed because it doesn't match criteria of the default Sandbox rule, the service displays Not Subscribed in the Threat Name column."
+          ]
+        }
+      ],
+      "conditions": "The help calls the lower tier Standard Sandbox where the MCP-sourced claims tier-limits and basic-lacks-features say Basic; no capture equates the two names."
+    },
+    "static-precheck-help": {
+      "statement": "For unknown PDF and Microsoft Office files the service first runs a static analysis for active content: files with active content go to behavioral analysis, and files without it are classified benign and allowed to download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "The Zscaler service does an initial sandbox static analysis for unknown PDF or Microsoft Office files to check if they contain active content. If they do, they are sent to the sandbox for behavioral analysis. If they don't, they are classified as benign and allowed to download."
+          ]
+        }
+      ]
+    },
+    "selectable-file-types": {
+      "statement": "The Sandbox policy page lists these file types a rule can select: 7-Zip, Bzip2, Optical Disc Image, Tape Archive, Roshal Archive, Zip, ZIP with Suspicious Script File, Microsoft Software Installer, Visual Basic Script, Windows Executable, Windows Library, Windows PowerShell Script, Windows Batch File, Microsoft Excel, PowerPoint, RTF and Word, Android Application Package, PDF, Windows Script, Python Source Code, Pickle, Python Dynamic Module, Python Script, Adobe Flash, HTML Application and Java Applet, each with the extensions the page gives.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "The file types you can select for your Sandbox policy include the following:",
+            "7-Zip (.7z)",
+            "Bzip2 (.bz, .bz2)",
+            "Optical Disc Image (.iso)",
+            "Tape Archive (.tar)",
+            "Roshal Archive (.rar)",
+            "Zip Archive File (.zip)",
+            "ZIP with Suspicious Script File (.js, .vbs, svg, .ps1, .hta, .cmd, .lnk)",
+            "Microsoft Software Installer (.msi)",
+            "Visual Basic Script (.vbs)",
+            "Windows Executable (.exe)",
+            "Windows Library (.dll64, .dll, .ocx, .sys)",
+            "Windows PowerShell Script (.ps1)",
+            "Windows Batch File (.cmd, .bat)",
+            "Microsoft Excel (.xls, .xlsx, .xlsm, .xla, .xlam, .xlsb, .slk, .xltm)",
+            "Microsoft PowerPoint (.ppt, .pptx, .pptm, .potx, .ppsx, .ppam, .potm, .ppsm)",
+            "Microsoft RTF (.rtf)",
+            "Microsoft Word (.doc, .docx, .docm, .dotx, .dotm)",
+            "Android Application Package (.apk)",
+            "Portable Document Format (.pdf)",
+            "Windows Script (.wrc, .wsf, .wsh)",
+            "Python Source Code (.py)",
+            "Pickle (.p, .pkl, .pickle)",
+            "Python Dynamic Module (.pyd)",
+            "Python Script (.pyw)",
+            "Adobe Flash (.swf)",
+            "HTML Application (.hta)",
+            "Java Applet (.jar, .class, .applet)"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -309,11 +423,20 @@
     "advanced-out-of-scope-action": {
       "kind": "semantic",
       "title": "Unverified legacy statement: what happens to out-of-scope files on Advanced Sandbox",
-      "status": "open",
-      "detail": "Unverified legacy statement: The earlier reference said Advanced out-of-scope files are \"subject to policy\", and that Basic passes them through silently. The MCP skill says only that Sandbox won't analyze them and that over-size files go to File Type Control; no source describes the Advanced case.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: The earlier reference said Advanced out-of-scope files are \"subject to policy\", and that Basic passes them through silently. The MCP skill says only that Sandbox won't analyze them and that over-size files go to File Type Control. The default-rule help page narrows the question for the default rule: a file that does not match its criteria is allowed even if malicious. It does not say what happens on Advanced Sandbox to a file that no rule matches.",
       "resolves_with": [
         "operator-experience",
         "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "quotes": [
+            "If a file doesn't match the criteria of the default Sandbox rule, then the file download is allowed even if it's malicious."
+          ]
+        }
       ]
     }
   },
@@ -348,6 +471,33 @@
         "rule": "source-rank",
         "note": "The vendor help page outranks the MCP skill; the general 20 MB figure for other types remains unconfirmed by help (see gap other-types-ceiling)."
       }
+    },
+    "downloads-only": {
+      "summary": "The default-rule help page says Sandbox analyzes only downloaded (inbound) files, while the Sandbox overview says uploads to Private Access assets are sandboxed.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-default-sandbox-rule.json",
+            "quotes": [
+              "The Sandbox only analyzes files that are downloaded (inbound)."
+            ]
+          },
+          "says": "Sandbox analyzes only downloaded (inbound) files. The sentence sits on the default-rule page and may describe only that rule, but it is not worded that way."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-sandbox.json",
+            "quotes": [
+              "If you use Internet & SaaS to inspect Private Access (ZPA) traffic",
+              "uploads to Private Access assets are sandboxed if the file is unknown to the Zscaler service"
+            ]
+          },
+          "says": "When Internet & SaaS inspects Private Access traffic, uploads to Private Access assets are sandboxed if the file is unknown (the existing claim zia.sandbox.rules:zpa-uploads)."
+        }
+      ],
+      "impact": "Whether an upload can be sandboxed depends on which page is used; the Malware Protection prerequisite that requires outbound inspection as well is unexplained by the inbound-only sentence."
     }
   }
 }

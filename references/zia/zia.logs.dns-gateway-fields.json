@@ -32,7 +32,7 @@
   ],
   "prose": [
     {
-      "text": "Three fields carry the DNS Gateway outcome. {{dnsgw-slot-proto}}"
+      "text": "Three fields carry the DNS Gateway outcome. {{dnsgw-slot-proto}} The DNS Insights Logs article describes the Resolver Gateway column differently {{divergence:resolver-gateway-meaning}}. The column text is in [[zia.logs.dns-outcome:resolver-gateway-column]]."
     },
     {
       "label": "Flags.",
@@ -107,6 +107,35 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "resolver-gateway-meaning": {
+      "summary": "The NSS DNS output format describes dnsgw_slot as the name of the DNS Gateway rule, mapped to the Resolver Gateway column, while the DNS Insights Logs article describes Resolver Gateway as the resolver used and a separate DNS Gateway Flags column as the request status at the gateway level.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "nss-feed-output-format-dns-logs.json",
+            "quotes": [
+              "| %s{dnsgw_slot} | The name of the DNS Gateway rule | DNS GATEWAY Rule 1 | Resolver Gateway |"
+            ]
+          },
+          "says": "dnsgw_slot is the name of the DNS Gateway rule and maps to the Resolver Gateway column."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-dns-insights-logs-columns.json",
+            "quotes": [
+              "Resolver Gateway: The name of the DNS resolver (primary or secondary, within the configured DNS Gateway of the triggered rule) that was successfully used to resolve the DNS request or displays the error resolution, if any.",
+              "DNS Gateway Flags: The DNS request status at the DNS Gateway level."
+            ]
+          },
+          "says": "Resolver Gateway is the name of the primary or secondary resolver that resolved the request, or the error resolution, and the gateway-level status is the separate DNS Gateway Flags column."
+        }
+      ],
+      "impact": "Whether the Resolver Gateway value is a rule name or a resolver name depends on which page is read; dnsgw-slot-proto states the NSS side."
     }
   },
   "gaps": {

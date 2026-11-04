@@ -37,6 +37,14 @@
     {
       "rel": "see-also",
       "to": "zpa.app-connectors.selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.containers"
     }
   ],
   "prose": [
@@ -45,7 +53,7 @@
     },
     {
       "label": "Network behavior.",
-      "text": "{{outbound-only}} {{connects-to-nearest-service-edge}} {{no-ssl-interception}}"
+      "text": "{{outbound-only}} {{connects-to-nearest-service-edge}} {{no-ssl-interception}} {{control-channel-traffic}} {{firewall-all-data-centers}} {{ssl-bypass-and-oauth-fqdn}} {{zdx-firewall}}"
     },
     {
       "label": "Redundancy.",
@@ -57,11 +65,15 @@
     },
     {
       "label": "Forms and platforms.",
-      "text": "{{distribution-forms}} {{supported-platforms}} {{stig-images}} {{other-environments-use-rpm}}"
+      "text": "{{distribution-forms}} {{supported-platforms}} {{stig-images}} {{other-environments-use-rpm}} Per-platform procedures are in [[zpa.app-connectors.platforms]] and container deployments in [[zpa.app-connectors.containers]]."
+    },
+    {
+      "label": "Host security and disk.",
+      "text": "{{os-security}} {{privileged-console}} {{disk-by-directory}}"
     },
     {
       "label": "Limits and sizing.",
-      "text": "{{tenant-limit-100}} {{ranges-limits-100}} The group-level maximum is open {{gap:max-connectors-per-group}}. {{sizing-lives-in-prerequisites}} {{sizing-baseline}} {{sizing-instance-types}} {{sizing-cpu-benchmark}} {{sizing-zdx}} {{sizing-appprotection}} {{sizing-vmware-reservation}} {{throughput-500}} {{throughput-double-encryption}} {{throughput-varies}} {{scale-out-small-and-two-minimum}} {{platform-prerequisites}} A concurrent-user sizing statement is unsourced {{gap:vm-sizing}}."
+      "text": "{{tenant-limit-100}} {{ranges-limits-100}} The group-level maximum is open, and the container guides' per-group threshold of 100 for provisioning-key use is quoted in the gap {{gap:max-connectors-per-group}}. {{sizing-lives-in-prerequisites}} {{sizing-baseline}} {{sizing-instance-types}} {{sizing-cpu-benchmark}} {{sizing-zdx}} {{sizing-appprotection}} {{sizing-vmware-reservation}} {{throughput-500}} {{throughput-double-encryption}} {{throughput-varies}} {{scale-out-small-and-two-minimum}} {{platform-prerequisites}} The Hyper-V guide's own core counts differ {{divergence:hyper-v-vm-cores}}, and the architecture requirement differs from the Docker page {{divergence:docker-arm64}}. A concurrent-user sizing statement is unsourced {{gap:vm-sizing}}."
     },
     {
       "label": "Reference Terraform modules and July 2026 remote settings.",
@@ -85,6 +97,20 @@
       "uses": [
         "tenant-limit-100",
         "max-connectors-per-group"
+      ]
+    },
+    {
+      "do": "Which core count and architecture apply to a Hyper-V or Docker connector, since the guides disagree with the sizing and platform rules.",
+      "uses": [
+        "hyper-v-vm-cores",
+        "docker-arm64"
+      ]
+    },
+    {
+      "do": "Whether the firewall allows every Zscaler data center with Public Service Edges and the SSL bypass list holds *.prod.zpath.net for connector traffic.",
+      "uses": [
+        "firewall-all-data-centers",
+        "ssl-bypass-and-oauth-fqdn"
       ]
     },
     {
@@ -730,6 +756,191 @@
       ],
       "conditions": "The v2.0.1 absence rests on a recursive text search of vendor/terraform-aws-zpa-app-connector-modules for instance_refresh that found no match. Changed upstream in v2.1.0 (checked 2026-10-18): previously \"At the pinned AWS module (v2.0.1) the App Connector Auto Scaling Group references a launch template and no file in the module repository contains an instance_refresh block.\""
     },
+    "disk-by-directory": {
+      "statement": "The App Connector Linux guide recommends a minimum disk size per directory of 10 GB for /, 10 GB for /tmp, 10 GB for /home, 5 GB for /var, 5 GB for /var/tmp, 10 GB for var/log and 10 GB for var/log/audit, and says Disk Space Exceeded Limit notifications only consider the partition where the App Connector's binary file (image.bin) is located.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "| / | 10 GB |",
+            "| /tmp | 10 GB |",
+            "| /home | 10 GB |",
+            "| /var | 5 GB |",
+            "| /var/tmp | 5 GB |",
+            "| var/log | 10 GB |",
+            "| var/log/audit | 10 GB |",
+            "Disk Space Exceeded Limit notifications only consider the partition where the App Connector's binary file (image.bin) is located."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "| / | 10 GB |",
+            "| /tmp | 10 GB |",
+            "| /home | 10 GB |",
+            "| /var | 5 GB |",
+            "| /var/tmp | 5 GB |",
+            "| var/log | 10 GB |",
+            "| var/log/audit | 10 GB |",
+            "Disk Space Exceeded Limit notifications only consider the partition where the App Connector's binary file (image.bin) is located."
+          ]
+        }
+      ],
+      "conditions": "The table's column heading is not quoted; the sizes are read as the guide's per-directory disk recommendations."
+    },
+    "control-channel-traffic": {
+      "statement": "The App Connector Linux guide says that after enrollment an outbound TLS tunnel over port 443 is established to the Private Access cloud infrastructure, uses minimal bandwidth, and carries periodic keepalives to Public or Private Service Edges, application learning, application health reporting, and App Connector software upgrades completed on a weekly schedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "After an App Connector is enrolled, an outbound TLS tunnel over port 443 is established to the Private Access (ZPA) cloud infrastructure.",
+            "This communication channel provides various functionality and utilizes minimal bandwidth",
+            "Periodic keepalives to Public Service Edges or Private Service Edges for Private Access",
+            "Application learning",
+            "Application health reporting",
+            "App Connector software upgrades (upgrades are completed based on a weekly schedule)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "After an App Connector is enrolled, an outbound TLS tunnel over port 443 is established to the Private Access (ZPA) cloud infrastructure.",
+            "This communication channel provides various functionality and utilizes minimal bandwidth",
+            "Periodic keepalives to Public Service Edges or Private Service Edges for Private Access",
+            "Application learning",
+            "Application health reporting",
+            "App Connector software upgrades (upgrades are completed based on a weekly schedule)"
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "os-security": {
+      "statement": "The App Connector Linux guide says App Connector VMs distributed by Zscaler for private clouds run without remotely accessible services and with swap partitions disabled, the passwd command must be used to change the credentials on the default admin account, the operating systems are essentially unmodified (currently based on RHEL 9.x) and patchable with yum, and Zscaler recommends hardening the OS, including the sshd-config file, after initial deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "The App Connector VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running.",
+            "Swap partitions are disabled on the App Connector VMs to ensure that memory growth does not have an impact on App Connector performance.",
+            "For enhanced security, you must use the passwd command to change the credentials on the default admin account.",
+            "Because these are essentially unmodified operating systems (currently based on RHEL 9.x), you can patch these systems when necessary by using the standard yum OS update mechanism.",
+            "Zscaler recommends that you harden the operating system, including the sshd-config file, on the VM images in accordance with your organization's security standards after initial deployment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "The App Connector VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running.",
+            "Swap partitions are disabled on the App Connector VMs to ensure that memory growth does not have an impact on App Connector performance.",
+            "For enhanced security, you must use the passwd command to change the credentials on the default admin account.",
+            "Because these are essentially unmodified operating systems (currently based on RHEL 9.x), you can patch these systems when necessary by using the standard yum OS update mechanism.",
+            "Zscaler recommends that you harden the operating system, including the sshd-config file, on the VM images in accordance with your organization's security standards after initial deployment."
+          ]
+        }
+      ]
+    },
+    "privileged-console": {
+      "statement": "The App Connector Linux guide says Zscaler recommends treating access to App Connectors as privileged so only authorized personnel can access an App Connector's console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "Zscaler recommends treating access to App Connectors as privileged, so only authorized personnel can access an App Connector's console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends treating access to App Connectors as privileged, so only authorized personnel can access an App Connector's console."
+          ]
+        }
+      ]
+    },
+    "firewall-all-data-centers": {
+      "statement": "The App Connector Linux guide says all Zscaler data centers containing Public Service Edges for Private Access must be allowed because a partial firewall configuration can result in connectivity problems for end users, and a 90-day notice is provided for activating additional IP CIDR ranges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "All Zscaler data centers containing Public Service Edges for Private Access must be allowed. A partial firewall configuration can result in connectivity problems for end users.",
+            "provide a 90-day notice for activating additional IP CIDR ranges"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "All Zscaler data centers containing Public Service Edges for Private Access must be allowed. A partial firewall configuration can result in connectivity problems for end users.",
+            "provide a 90-day notice for activating additional IP CIDR ranges"
+          ]
+        }
+      ],
+      "conditions": "The 90-day quote is a fragment; the statement does not name who gives the notice."
+    },
+    "ssl-bypass-and-oauth-fqdn": {
+      "statement": "The App Connector Linux guide says *.prod.zpath.net must be in the SSL bypass list for traffic originating from the App Connector, and that if OAuth 2.0 is used the OAuth server FQDN zpa-oauth.private.zscaler.com must be in the allowlist and user devices must be allowed to make an outbound connection to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "Ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the App Connector.",
+            "If you are using OAuth 2.0, ensure that the OAuth server FQDN zpa-oauth.private.zscaler.com is in the allowlist, and user devices are allowed to make an outbound connection to the zpa-oauth.private.zscaler.com server."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "Ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the App Connector.",
+            "If you are using OAuth 2.0, ensure that the OAuth server FQDN zpa-oauth.private.zscaler.com is in the allowlist, and user devices are allowed to make an outbound connection to the zpa-oauth.private.zscaler.com server."
+          ]
+        }
+      ]
+    },
+    "zdx-firewall": {
+      "statement": "The App Connector Linux guide says that for Private Access integration with ZDX the App Connector firewall requirements must align with the ZDX configuration, the firewall must allow egress traffic on the TCP, UDP and ICMP protocols, and App Connectors must be able to egress traffic to port 443 for Zscaler Service Edge connections and the ports of all configured applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "For Private Access integration with ZDX, App Connector firewall requirements must align with the respective ZDX configuration.",
+            "You must configure the firewall to allow egress traffic on the TCP, UDP, and ICMP protocols.",
+            "App Connectors must be able to egress traffic to port 443 for Zscaler Service Edge connections and the ports of all configured applications"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-prerequisites.json",
+          "quotes": [
+            "For Private Access integration with ZDX, App Connector firewall requirements must align with the respective ZDX configuration.",
+            "You must configure the firewall to allow egress traffic on the TCP, UDP, and ICMP protocols.",
+            "App Connectors must be able to egress traffic to port 443 for Zscaler Service Edge connections and the ports of all configured applications"
+          ]
+        }
+      ]
+    },
     "sizing-baseline": {
       "statement": "Zscaler's recommended App Connector specification is 4 GB RAM, 2 CPU cores (Xeon E5 class) on physical machines without hyperthreading or 4 cores on VMs with hyperthreading, 64 GB thin-provisioned disk and at least 1 NIC; AWS and GCP require at least 4 cores, and Azure VMs older than V3 need 2 cores while V3 and later need 4.",
       "tier": "A",
@@ -934,7 +1145,7 @@
         "zpa/app-connectors",
         "zpa/app-connector-groups"
       ],
-      "conditions": "The App Connector Management table notes no scope of its own, so the article's per-organization default applies: these are read as tenant-wide limits alongside tenant-limit-100. They are not per-group maximums."
+      "conditions": "The App Connector Management table notes no scope of its own, so the article's per-organization default applies: these are read as tenant-wide limits alongside tenant-limit-100. Whether any figure is a per-group maximum is open: see gap max-connectors-per-group, which quotes the Kubernetes and OpenShift guides' threshold of 100 'in an App Connector group'."
     },
     "get-network-interfaces-july13": {
       "statement": "The July 13, 2026 release summary lists support for a Get Network Interfaces command that collects a list of the network interfaces an App Connector uses, to help with remote troubleshooting.",
@@ -1016,6 +1227,61 @@
       ]
     }
   },
+  "divergences": {
+    "hyper-v-vm-cores": {
+      "summary": "The App Connector Hyper-V guide's own prerequisites give 4 CPU cores for virtual machines with hyperthreading (the rule in sizing-baseline), while its procedure enters 2 virtual processors.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-app-connector-deployment-guide-microsoft-hyper-v.json",
+            "quotes": [
+              "4 CPU cores (Xeon E5 class) for virtual machines (VMs) with hyperthreading"
+            ]
+          },
+          "says": "The prerequisites call for 4 CPU cores for VMs with hyperthreading."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-app-connector-deployment-guide-microsoft-hyper-v.json",
+            "quotes": [
+              "Click Processor, and enter 2 for the number of virtual processors."
+            ]
+          },
+          "says": "The Hyper-V procedure enters 2 for the number of virtual processors."
+        }
+      ],
+      "impact": "A Hyper-V connector built exactly by the procedure has 2 virtual processors, half the rule for VMs with hyperthreading; the guide does not say whether the procedure's 2 is a starting value or the intended size."
+    },
+    "docker-arm64": {
+      "summary": "The platform prerequisites (platform-prerequisites) require an Intel x86_64/AMD64-based architecture, while the App Connector Docker guide offers the image for ARM64 as well.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-connector-deployment-prerequisites.json",
+            "quotes": [
+              "Intel x86_64/AMD64-based architecture"
+            ]
+          },
+          "says": "The platform prerequisites list an Intel x86_64/AMD64-based architecture."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-app-connector-deployment-guide-docker.json",
+            "quotes": [
+              "The App Connector Docker image is available on Docker Hub for both the ARM64 and AMD64 platforms:",
+              "A minimum of 2 cores and 4 GB RAM is required for ARM64 systems."
+            ]
+          },
+          "says": "The Docker image is available for ARM64 as well as AMD64, with a stated ARM64 minimum of 2 cores and 4 GB RAM."
+        }
+      ],
+      "impact": "The x86_64/AMD64 requirement cannot be read as covering every App Connector form: the Docker page supports ARM64, while the Kubernetes and OpenShift guides allow only x86 for the same image. The prerequisites page does not say it excludes the Docker deployment."
+    }
+  },
   "gaps": {
     "vm-sizing": {
       "kind": "semantic",
@@ -1031,13 +1297,29 @@
       "kind": "semantic",
       "title": "Maximum App Connectors per group",
       "status": "partial",
-      "detail": "Tracked as legacy ledger item zpa-29. The help states a tenant-wide limit (100 by default, see tenant-limit-100) but no source states a per-group maximum. Legacy wording: \"Max connectors per group - high limits but not explicitly enumerated.\"",
+      "detail": "Tracked as legacy ledger item zpa-29. The help states a tenant-wide limit (100 by default, see tenant-limit-100). The App Connector Kubernetes and OpenShift guides say \"The threshold for App Connectors using the provisioning keys in an App Connector group is 100.\" That is the only per-group figure captured: it is stated in the container guides in the context of provisioning-key use by ephemeral pods, and it does not say whether 100 is a cap on connectors per group or the tenant limit, nor whether it applies outside container deployments. Legacy wording: \"Max connectors per group - high limits but not explicitly enumerated.\"",
       "resolves_with": [
         "support-ticket",
         "source-read"
       ],
       "former_ids": [
         "zpa-29"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-kubernetes.json",
+          "quotes": [
+            "The threshold for App Connectors using the provisioning keys in an App Connector group is 100."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-openshift.json",
+          "quotes": [
+            "The threshold for App Connectors using the provisioning keys in an App Connector group is 100."
+          ]
+        }
       ]
     },
     "aws-asg-instance-refresh": {

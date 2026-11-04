@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "id": "zia.reports.data-protection",
+  "title": "DLP reports: Email Security (Email DLP), Endpoint DLP and Data Discovery",
+  "aliases": [
+    "email security report",
+    "email dlp report",
+    "endpoint dlp report",
+    "data discovery report"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-data-scan"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.outbound-email-policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.engines"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the console reports that summarize DLP activity for email and endpoints, and the content found by DLP policies and dictionaries. The report hub is [[zia.reports]]; endpoint data scan, investigation and operational reporting are in [[zia.dlp.endpoint-data-scan]]."
+    },
+    {
+      "label": "Email Security Report.",
+      "text": "{{email-report-what}} {{email-severity-action}} {{email-detailed-view}} {{email-per-recipient}}"
+    },
+    {
+      "label": "Endpoint DLP Report.",
+      "text": "{{edlp-report-what}} {{edlp-detailed-view}} The severity and action values for Endpoint DLP incidents, and whether its incidents equal Endpoint DLP log records, are open {{gap:edlp-values}}."
+    },
+    {
+      "label": "Data Discovery Report.",
+      "text": "{{data-discovery-what}} {{data-discovery-filters}} {{data-discovery-details}}"
+    },
+    {
+      "text": "Time zone and retention for the three reports are open {{gap:report-time-and-retention}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a count is per recipient (the Email Security Report) or per mail (the Insights Logs) before comparing the report with the logs.",
+      "uses": [
+        "email-per-recipient"
+      ]
+    },
+    {
+      "do": "Which time range the report was set to before comparing figures, since the three reports offer different ranges.",
+      "uses": [
+        "email-report-what",
+        "edlp-report-what",
+        "data-discovery-what"
+      ]
+    }
+  ],
+  "claims": {
+    "email-report-what": {
+      "statement": "The Email Security Report, which the same page also calls the Email Data Loss Prevention (DLP) Report, gives visibility into emails with sensitive data and users with incidents, in an Overview tab and an Incidents tab, and can be filtered for the last 1 day, 7 days or month.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-security-report.json",
+          "quotes": [
+            "The Email Data Loss Prevention (DLP) Report gives visibility and insight into emails with sensitive data and users with incidents within your organization. The report is divided into two tabs: Overview and Incidents.",
+            "The Email Security Report provides the following benefits and enables you to:",
+            "Filter the report for the last 1 day, 7 days, or last month."
+          ]
+        }
+      ]
+    },
+    "email-per-recipient": {
+      "statement": "Values on the Email Security Report page and the Insights Logs page might vary, because the Email Security Report Details values are tracked per recipient while the Insights Logs are tracked per mail and each email can contain multiple recipients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-security-report-incidents.json",
+          "quotes": [
+            "The values shown in the Email Security Report page and the Insights Logs page might vary, as the values in the Email Security Report Details page are tracked per recipient, but the logs in the Insights Logs are tracked per mail, and each email can contain multiple recipients."
+          ]
+        }
+      ]
+    },
+    "email-severity-action": {
+      "statement": "The Email Security Report's Incidents page shows incidents for the overall recipients by severity (High, Medium, Low or Information) and by action (Allow, Custom Header Insertion or Block).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-security-report-incidents.json",
+          "quotes": [
+            "Incidents by Severity: View incidents for each of the severity types (High, Medium, Low, or Information) for the overall recipients.",
+            "Incidents by Action: View incidents for each action (Allow, Custom Header Insertion, or Block) for the overall recipients."
+          ]
+        }
+      ]
+    },
+    "email-detailed-view": {
+      "statement": "The Email Security Report's detailed view has three columns, Domain, Content Type (DLP Dictionaries, DLP Engines or ML Categories) and Users, and once an item in a column is selected the CSV export is no longer available for that column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-email-security-report-incidents.json",
+          "quotes": [
+            "The detailed view is divided into three columns; Domain, Content Type (DLP Dictionaries, DLP Engines, or ML Categories), and Users.",
+            "When you select an item in a column, the option to export as a CSV file is no longer available for that column."
+          ]
+        }
+      ]
+    },
+    "edlp-report-what": {
+      "statement": "The Endpoint DLP Report gives visibility into activities end users take with sensitive data on endpoints, including printing, saving to removable storage, uploading to personal cloud accounts and network shares, in an Overview tab and an Incidents tab, and can be filtered for the last 7 days, 15 days or month. Activities with Sensitive Data counts the activities where sensitive data is involved in the transaction, and Incidents counts the incidents matching Endpoint DLP rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-dlp-report.json",
+          "quotes": [
+            "gives visibility and insight into activities that end users take with sensitive data on endpoints, including printing, as well as saving to removable storage, uploading to personal cloud accounts, and network shares.",
+            "network shares. The report is divided into two tabs: Overview and Incidents.",
+            "Filter the report for the last 7 days, 15 days, or last month.",
+            "Activities with Sensitive Data: View the number of activities where sensitive data is involved in the transaction.",
+            "Incidents: View the number of incidents matching Endpoint DLP rules."
+          ]
+        }
+      ]
+    },
+    "edlp-detailed-view": {
+      "statement": "The Endpoint DLP Incidents page's detailed view has three columns, Channel, Content Type (DLP Dictionaries, DLP Engines or ML Categories) and Users, and can be filtered for the last 7 days, 15 days or month.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-dlp-report-incidents.json",
+          "quotes": [
+            "The detailed view is divided into 3 columns: Channel, Content Type (DLP Dictionaries, DLP Engines, or ML Categories), and Users.",
+            "Filter the report for the last 7 days, 15 days, or month."
+          ]
+        }
+      ]
+    },
+    "data-discovery-what": {
+      "statement": "The Data Discovery Report gives information based on the organization's DLP policies and dictionaries and on machine-learning data from Zscaler's analysis of the organization's content. It shows the last 7 days by default with 1-day, 30-day and 90-day time frames also offered, and its widgets are not editable and cannot be moved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-discovery-report.json",
+          "quotes": [
+            "The report provides not only information based on your organization's DLP policies and dictionaries, but also on machine-learning data based on Zscaler analysis of the content in your organization.",
+            "By default, the Data Discovery Report displays data for the last 7 days, but it also offers 1-day, 30-day, and 90-day time frames.",
+            "The widgets on the Data Discovery Report page are not editable and cannot be moved."
+          ]
+        }
+      ]
+    },
+    "data-discovery-filters": {
+      "statement": "The Data Discovery Report filters on policy action (All, Allow or Block), application status (All, Sanctioned or Unsanctioned) and traffic direction (All, Download or Upload); the ML Categories content type filters on Zscaler's machine-learning analysis, divided into Document Type categories, and the Sankey chart shows up to 10 content categories at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-discovery-report.json",
+          "quotes": [
+            "Policy Actions - Select All, Allow, or Block.",
+            "Application Status - Select All, Sanctioned, or Unsanctioned.",
+            "Traffic Direction - Select All, Download, or Upload.",
+            "ML Categories: Filter data based on machine-learning analysis by the Zscaler service. The content is divided into Document Type categories.",
+            "A Sankey chart based on the selection in the Content Type filter that shows information for up to 10 content categories at a time."
+          ]
+        }
+      ]
+    },
+    "data-discovery-details": {
+      "statement": "On Data Discovery Details, Content Type is always the first column and the Applications and Users columns can be reordered, which resets the data on the page; setting Content Type to ML Categories adds a Subcategory column with the specific subdocument classification of the detected sensitive file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-data-discovery-details.json",
+          "quotes": [
+            "Content Type is always the first column, but you can switch the order of the Applications and Users columns. Rearranging the columns resets the data on the page.",
+            "If you set the Content Type to ML Categories, an additional column, Subcategory, is populated with specific subdocument classification of the detected sensitive file."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "edlp-values": {
+      "kind": "semantic",
+      "title": "What severity and action values Endpoint DLP incidents carry, and whether report incidents equal Endpoint DLP log records",
+      "status": "open",
+      "detail": "The Email Security Report Incidents page names its severity and action values; the Endpoint DLP Report pages do not, and they do not say whether an incident is one Endpoint DLP log record.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "report-time-and-retention": {
+      "kind": "semantic",
+      "title": "Which time zone and retention apply to the Email Security, Endpoint DLP and Data Discovery reports",
+      "status": "open",
+      "detail": "The pages give the selectable time ranges but state neither the time zone they are computed in nor how long report data is kept.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

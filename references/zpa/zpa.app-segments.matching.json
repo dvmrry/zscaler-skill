@@ -50,7 +50,7 @@
     },
     {
       "label": "Names and addresses.",
-      "text": "{{raw-ip-no-dns-interception}}"
+      "text": "{{raw-ip-no-dns-interception}} {{domain-validation-match}} {{domain-validation-outcome}} Which outcome follows for a valid internal domain is open {{gap:domain-validation-outcome-pairing}}."
     },
     {
       "label": "When the port is not listed.",
@@ -96,6 +96,39 @@
     }
   ],
   "claims": {
+    "domain-validation-match": {
+      "statement": "When configuring DNS search domains in the Admin Console, a Private Access DNS search domain can be marked Domain Validation so that Client Connector can resolve invalid domains as NXDOMAINs. When a DNS request reaches the app, it checks whether the domain matches any such search domain, by a full match or a subdomain match; for the search domain corp.zscaler.com the page's example succeeds for internal.corp.zscaler.com and fails for my-corp.zscaler.com and it.my-corp.zscaler.com. Wildcard entries are not supported in the DNS Search Domains list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-domain-validation-zscaler-client-connector-private-access-applications.json",
+          "quotes": [
+            "In the Zscaler Admin Console when configuring DNS search domains, you can specify that Zscaler Client Connector can resolve invalid domains as NXDOMAINs (non-existent domains).",
+            "When a DNS request reaches Zscaler Client Connector, the app checks if the domain matches against any of the Private Access DNS search domains marked as Domain Validation in Zscaler Client Connector.",
+            "The match can be a full match or a subdomain match. For example, if the search domain is corp.zscaler.com:",
+            "The match succeeds for internal.corp.zscaler.com",
+            "The match fails for my-corp.zscaler.com and it.my-corp.zscaler.com",
+            "Wildcard entries are not supported in the DNS Search Domains list."
+          ]
+        }
+      ]
+    },
+    "domain-validation-outcome": {
+      "statement": "If the domain matches one in the Private Access DNS search domain list, Client Connector performs additional checks to determine if it needs to respond with NXDOMAIN, and for a matched domain checks its validity through the Private Access service. If the domain does not match any DNS search domain, the app does not respond to the DNS request and continues DNS processing with Internet & SaaS or passes the request to the local client configured DNS server for resolution.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-domain-validation-zscaler-client-connector-private-access-applications.json",
+          "quotes": [
+            "If the domain matches one within the Private Access DNS search domain list, Zscaler Client Connector performs additional checks to determine if it needs to respond with NXDOMAIN.",
+            "If the domain doesn’t match any DNS search domains, Zscaler Client Connector doesn’t respond to the DNS request, and continues DNS processing with Internet & SaaS or passes the request to the local client configured DNS server for resolution.",
+            "For a matched domain, Zscaler Client Connector checks for its validity via the Private Access service."
+          ]
+        }
+      ]
+    },
     "granularity-ranking": {
       "statement": "Granularity is judged on the domain or address: an exact host is more specific than a wildcard that contains it, and for IPs a /32 host is more specific than the /24 that contains it.",
       "tier": "B",
@@ -236,6 +269,25 @@
     }
   },
   "gaps": {
+    "domain-validation-outcome-pairing": {
+      "kind": "semantic",
+      "title": "What Client Connector returns for a domain the Private Access service verifies as valid",
+      "status": "open",
+      "detail": "The Domain Validation page says that if the Private Access service verifies the domain is a valid internal domain, Client Connector sends a synthetic IP in response to the DNS request or replies with NXDOMAIN, without saying which follows from what. The additional checks before an NXDOMAIN are not defined, and where the Domain Validation flag sits in the ZPA API was not checked.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-domain-validation-zscaler-client-connector-private-access-applications.json",
+          "quotes": [
+            "If the Private Access service verifies the domain is a valid internal domain, Zscaler Client Connector sends a synthetic IP in response to the DNS request or replies with NXDOMAIN."
+          ]
+        }
+      ]
+    },
     "same-specificity-tie": {
       "kind": "semantic",
       "former_ids": [

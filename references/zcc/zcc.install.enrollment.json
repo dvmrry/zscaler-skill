@@ -30,6 +30,10 @@
     {
       "rel": "see-also",
       "to": "zcc.install.strict-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.partner-tenants"
     }
   ],
   "prose": [
@@ -46,7 +50,7 @@
     },
     {
       "label": "Client Connector as the IdP.",
-      "text": "{{device-token}} {{ios-auth-by-tunnel}} {{android-auto-enroll}} Whether a missing companion key fails visibly is open {{gap:auto-enroll-missing-keys}}."
+      "text": "{{device-token}} {{zcc-idp-scope}} {{zcc-idp-mechanism}} {{device-token-creation}} {{ios-auth-by-tunnel}} {{android-auto-enroll}} Whether a missing companion key fails visibly is open {{gap:auto-enroll-missing-keys}}."
     },
     {
       "label": "User and device.",
@@ -61,7 +65,7 @@
       "text": "{{mobile-key-casing}}"
     },
     {
-      "text": "Strict enforcement, which requires the cloud name, is in [[zcc.install.strict-enforcement]]; how these keys are delivered per platform is in [[zcc.install]]."
+      "text": "Strict enforcement, which requires the cloud name, is in [[zcc.install.strict-enforcement]]; how these keys are delivered per platform is in [[zcc.install]]. Partner logins to other tenants are in [[zcc.partner-tenants]]."
     }
   ],
   "checks": [
@@ -85,6 +89,66 @@
     }
   ],
   "claims": {
+    "zcc-idp-scope": {
+      "statement": "The Admin Console can act as the identity provider for Internet & SaaS only. Users need not be tied to the organization's standard IdP to authenticate to the Zscaler service; where the organization uses SAML-based single sign-on, Client Connector can use a device token to auto-provision and silently authenticate users and devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-admin-console-identity-provider.json",
+          "quotes": [
+            "This information applies to Internet & SaaS only.",
+            "With this feature, users do not need to be tied to your organization’s standard IdP in order to authenticate to the Zscaler service.",
+            "Instead, if your organization uses SAML-based single sign-on (SSO), Zscaler Client Connector can use a device token to auto-provision and silently authenticate users and devices for the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "zcc-idp-mechanism": {
+      "statement": "The device token is generated in the Admin Console and passed to Client Connector in an installer option, and the Zscaler Client Connector Portal must be selected as the authentication method. The app gathers the user ID and other parameters from devices and sends them to the Zscaler cloud in SAML requests, which the Admin Console parses and verifies so the cloud can provision and silently authenticate users. The device token, user domain and cloud name must all be passed to users' devices during installation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-admin-console-identity-provider.json",
+          "quotes": [
+            "You can generate the device token in the Zscaler Admin Console and pass the token to Zscaler Client Connector in an installer option.",
+            "In addition, in the Zscaler Admin Console, you must select the Zscaler Client Connector Portal as your authentication method.",
+            "The app is then able to gather user ID and other relevant parameters from devices and send the information to the Zscaler cloud in SAML requests.",
+            "The Zscaler Admin Console parses and verifies the SAML requests, enabling the Zscaler cloud to provision and silently authenticate users.",
+            "To use Zscaler Client Connector as an IdP for your users, you must pass the device token, user domain, and cloud name to users' devices during installation."
+          ]
+        }
+      ]
+    },
+    "device-token-creation": {
+      "statement": "A new device token is created with Create Device Token from the Client Connector IdP page (Infrastructure > Client Connector > Client Connector IdP), where the list of created tokens can be viewed and a token deleted; Zscaler must enable the feature. The password entered to create a token must be at least six characters and include at least one alphabetic character and a number, is only for generating the token, and is unneeded after that. Up to 16 tokens can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-creating-device-token.json",
+          "quotes": [
+            "Zscaler must enable this feature.",
+            "From the navigation menu, go to Infrastructure > Client Connector > Client Connector IdP.",
+            "Click Create Device Token.",
+            "Enter Password: Enter a password that is at least six characters and includes at least one alphabetic character and a number.",
+            "This password is only for generating the token and is unneeded after that.",
+            "You can create up to 16 tokens."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-about-zscaler-client-connector-idp.json",
+          "quotes": [
+            "On the Client Connector IdP page (Infrastructure > Client Connector > Client Connector IdP), you can do the following:",
+            "Create a new device token.",
+            "View a list of created device tokens.",
+            "Delete a device token."
+          ]
+        }
+      ]
+    },
     "user-domain": {
       "statement": "userDomain (MSI `USERDOMAIN`) is the organization's domain name; with several domains it is the primary domain, which is valid only with a single IdP across those domains. It must be the exact domain in the SAML NameID. It lets users skip the enrollment page; when SSO is enabled they go straight to the SSO login page, and where SSO is integrated with the app (IWA on Windows, the Microsoft Enterprise SSO plug-in on macOS) users also skip the SSO page and are enrolled and logged in automatically. With non-persistent Citrix VDIs on Windows, this option requires IWA.",
       "tier": "A",

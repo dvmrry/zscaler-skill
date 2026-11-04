@@ -1,0 +1,779 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.ips-signatures",
+  "title": "Custom IPS signatures: enablement, two-stage validation and statuses, supported Snort-like syntax, limits, CSV import and export, and custom threat categories",
+  "aliases": [
+    "custom ips signature",
+    "custom signature rules",
+    "snort-like syntax",
+    "static validation",
+    "dynamic validation",
+    "promote ready",
+    "custom threat category"
+  ],
+  "binds": [
+    "zia/ips-signature-rules"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/ips-signature-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.api.legacy-ips-signature-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.firewall-records"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-and-where}} {{threat-category-binding}} The IPS policy that references the categories is in [[zia.firewall.ips]]. The help pages give the signature cap two ways {{divergence:custom-rule-cap}}."
+    },
+    {
+      "label": "Lifecycle.",
+      "text": "{{two-stage-validation}} {{statuses}} {{storage-and-propagation}} {{zscaler-may-disable}} The resource thresholds are open {{gap:disablement-thresholds}}."
+    },
+    {
+      "label": "Fields and static validation.",
+      "text": "{{field-limits}} {{static-validation-criteria}} The help pages list the supported protocols two ways {{divergence:signature-protocols}}. {{scan-and-packet-limits}} The maximum scan size is stated two ways {{divergence:max-scan-size}}, and whether max_count can raise the packet limit is open {{gap:packet-limit-max-count}}. Whether a sid and rev are required is open {{gap:sid-rev-requirement}}."
+    },
+    {
+      "label": "Syntax.",
+      "text": "{{supported-options}} The page's flow option list omits the stream keyword that two pages recommend {{divergence:flow-stream}}. {{http-options}} The http_version values are stated two ways in one table row {{divergence:http-version-values}}. {{pcre-limits}} {{general-limitations}}"
+    },
+    {
+      "label": "Decrypted web traffic.",
+      "text": "{{decrypted-web-scope}} What the suspicious URL destinations are is open {{gap:decrypted-url-scope}}."
+    },
+    {
+      "label": "CSV import and export.",
+      "text": "{{csv-import-export}} The help and the Go SDK differ on how values are quoted {{divergence:csv-quoting}}. The API side of export, validate and import is in [[zia.api.legacy-ips-signature-wire]]."
+    },
+    {
+      "label": "Threat categories and visibility.",
+      "text": "{{custom-threat-categories}} {{page-pagination}} {{visibility}} The firewall log flag is in [[zia.logs.firewall-records]], and the caps are in [[zia.firewall.limits]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a custom signature's cap and protocol list are read from the tenant's console or the API, since the help pages disagree.",
+      "uses": [
+        "custom-rule-cap",
+        "signature-protocols"
+      ]
+    },
+    {
+      "do": "Whether a CSV import is formatted from the Sample Import CSV file on the Custom Signature Rules page, since the help and the Go SDK differ on quoting.",
+      "uses": [
+        "csv-import-export",
+        "csv-quoting"
+      ]
+    },
+    {
+      "do": "Whether a rule that inspects both HTTP header and body is tested with flow:stream, since the supported-options list omits it.",
+      "uses": [
+        "supported-options",
+        "flow-stream"
+      ]
+    }
+  ],
+  "claims": {
+    "what-and-where": {
+      "statement": "Custom IPS signatures are written in Snort-like syntax, deployed in the Zscaler cloud without extra infrastructure, kept private to the organization, and applied to non-web traffic and to web traffic after SSL/TLS decryption on Public, Private and Virtual Service Edges. Enabling Custom IPS Signature Rules for an organization is done through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-custom-ips-signature-rules.json",
+          "quotes": [
+            "Custom IPS signatures can be created in the Zscaler Admin Console using Snort-like syntax, which supports a lightweight rules description language.",
+            "These rules can be deployed in the Zscaler cloud without requiring any additional infrastructure and can be applied to both non-web and web (after decryption via SSL/TLS Inspection) traffic transiting the Service Edges for Internet & SaaS (ZIA), including Public, Private, and Virtual Service Edges.",
+            "Maintain control over your custom IPS signatures as private configurations that are accessible only to your organization.",
+            "To enable Custom IPS Signature Rules for your organization, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "threat-category-binding": {
+      "statement": "Each custom signature is assigned a threat category, and an IPS Control rule uses the signature by naming that threat category as a condition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ips-signature-rules.json",
+          "quotes": [
+            "Each custom signature rule is assigned a threat category, and the threat category is configured as a condition in IPS Control rules to inspect traffic against the associated signatures and enforce the policy action when there is a match."
+          ]
+        }
+      ]
+    },
+    "two-stage-validation": {
+      "statement": "Signatures are validated in two stages before deployment. Static validation checks syntax, duplicate signatures and other predefined conditions, runs automatically on save even if not run manually, and a rule is saved only if it passes. Dynamic validation runs the signature against designated packet captures for resource use and performance, takes a few minutes, and is started with Save & Promote or Promote All. A failed dynamic validation shows the reason and remedies, and the rule must be changed and resubmitted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ips-signature-rules.json",
+          "quotes": [
+            "When adding a new custom signature rule, you can check its validity based on specific predefined conditions, such as syntax errors, duplicate signatures, and more. Even if the rule is not explicitly manually validated during configuration, it is automatically validated upon saving.",
+            "The rule is saved only if validation is successful.",
+            "In dynamic validation, the signatures are run against designated packet captures to ensure efficient resource usage, optimal performance, minimal costs",
+            "Click Save & Promote to trigger both static and dynamic validation of the rule in sequence.",
+            "Alternatively, if you want to perform dynamic validation for multiple rules at once, use the Promote All button on the Custom Signature Rules page.",
+            "Dynamic validation might take a few minutes and the rule is assigned the Validation Pending status during this period.",
+            "If dynamic validation fails, the rule is assigned the Validation Failed status and the reason for failure, along with recommendations or remedies, is displayed to the user in the rule window. The rule must be modified and submitted for validation again."
+          ]
+        }
+      ]
+    },
+    "statuses": {
+      "statement": "A signature's status marks its lifecycle: Promote Ready (passed static validation, ready for dynamic), Validation Pending (dynamic validation running), Validation Failed, Enable Ready (dynamic validation passed), Enabled (usable in IPS rules through its threat category) and Disabled. Enabling is manual: the Enable Signature Rule toggle is unavailable until the rule is Enable Ready.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-custom-ips-signature-rules.json",
+          "quotes": [
+            "Promote Ready: Indicates that the signature rule is ready to be sent for dynamic validation. Rules that are saved after successful static validation are assigned this status.",
+            "Validation Pending: Indicates that the dynamic validation is currently in progress, which can take a few minutes.",
+            "Validation Failed: Indicates that the dynamic validation has failed. The rule must be modified and submitted for validation again.",
+            "Enable Ready: Indicates that dynamic validation is completed successfully and that the rule is ready to be enabled.",
+            "Enabled: Indicates that the custom signature rule is enabled and is ready to be used in IPS Control rules via the assigned threat category.",
+            "Disabled: Indicates that the rule is disabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ips-signature-rules.json",
+          "quotes": [
+            "The Enable Signature Rule toggle button is not accessible until the rule moves to the Enable Ready state with the successful completion of dynamic validation.",
+            "You need to manually enable the rule using the following steps to deploy it on the Zscaler cloud:"
+          ]
+        }
+      ]
+    },
+    "storage-and-propagation": {
+      "statement": "Enabled signatures propagate on the Zscaler cloud and are stored in the Zscaler Central Authority separately for each tenant; the Service Edge downloads the policies and signatures with the organization's configuration from the CA and enforces them inline.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-custom-ips-signature-rules.json",
+          "quotes": [
+            "After validation, you can enable the custom IPS signatures to propagate them on the Zscaler cloud, and they are stored in the Zscaler Central Authority (CA) for each tenant separately.",
+            "The Service Edge for Internet & SaaS downloads your policies and custom signatures as part of your organization configurations from the CA and enforces matching policies inline on your user traffic transiting the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "zscaler-may-disable": {
+      "statement": "Zscaler's Escalation Engineers may disable a signature that exceeds processing or memory thresholds at the organization or user level. The rule is then marked Disabled with the reason shown in the Admin Console; the status change takes place at disablement with no prior notice, later notices through other channels might not follow, and the engineer might see the signature content to give guidance on improving it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "The designated Escalation Engineers identify custom IPS signatures exceeding specific resource consumption thresholds (processing and memory) at the organization or user levels and might disable signatures found to contribute to over-utilization of resources.",
+            "When a signature is disabled, it is marked by the Disabled status and the reason for disablement is displayed in the Zscaler Admin Console for your organization's Security Operations administrator to view and take action.",
+            "The status change takes place at the time of disablement and organizations are not notified prior to that. Also, following the status change, subsequent notifications through other channels might not be provided.",
+            "During the course of the signature disablement, the Escalation Engineer might see the signature content to provide guidance on improving the signature to be more performant or consume fewer cloud resources, or both."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-custom-ips-signature-rules.json",
+          "quotes": [
+            "Signatures found to cause resource overconsumption and potential performance issues might be temporarily disabled."
+          ]
+        }
+      ]
+    },
+    "field-limits": {
+      "statement": "A signature's name is unique, at most 255 characters, alphanumeric plus period, underscore and hyphen, with spaces allowed but not leading; a threat category is required; the description is optional and at most 255 characters; and the signature rule text cannot exceed 16,000 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ips-signature-rules.json",
+          "quotes": [
+            "Name: Enter a unique name for the custom signature rule, not exceeding 255 characters. The name can contain alphanumeric characters and certain special characters, such as period (.), underscore (_), and hyphen (-). It can contain spaces but not in the leading position.",
+            "Threat Category: Select a threat category that must be assigned to the custom signature rule.",
+            "Description: (Optional) Provide a description of your custom signature rule. The description cannot exceed 255 characters.",
+            "The rule cannot exceed 16,000 characters."
+          ]
+        }
+      ]
+    },
+    "static-validation-criteria": {
+      "statement": "The page's Static Validation Criteria include: content and PCRE patterns of at least 5 characters; a PCRE option only alongside at least one content option; at most 10 detection filters and 10 event filters, one track_by field per filter, and a seconds field of at most 3600 seconds; at most 5 rules matching any address and any port on both source and destination; at most 16 invocations per flow (request and response), with the 17th packet in a flow not having signature validation; no source or destination IPs in 127.0.1.0 to 127.255.255.255 or 240.0.1.0 to 255.255.255.254; no export or flowbits option; and no duplicate signatures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ips-signature-rules.json",
+          "quotes": [
+            "Signature Rule: Enter the signature rule based on the Snort-like syntax, ensuring that it meets the requirements for static validation.",
+            "The minimum pattern length for content and PCRE options is 5 characters.",
+            "A PCRE option can be used only in the presence of at least one content option in the rule.",
+            "The maximum number of detection filters and event filters allowed is 10 each.",
+            "The maximum number of track_by fields allowed per filter is one.",
+            "The upper limit for the seconds field in detection and event filters is 3600 seconds or 1 hour.",
+            "The maximum number of rules designed to match any IP addresses and any ports for both source and destination is limited to 5.",
+            "The maximum number of invocations per flow including both request and response is 16.",
+            "Within a flow, the maximum number of packets on which a rule can be applied is 16 (in other words, the 17th packet in the flow does not have signature validation).",
+            "For source and destination IP addresses, the following ranges are not allowed:",
+            "127.0.1.0 to 127.255.255.255",
+            "240.0.1.0 to 255.255.255.254",
+            "The export option is not supported.",
+            "The flowbits option is not supported.",
+            "Duplicate signatures are not allowed."
+          ]
+        }
+      ]
+    },
+    "scan-and-packet-limits": {
+      "statement": "Zscaler scans by default 4,000 bytes per session (both directions), up to a maximum set with the max_scan_size option in a rule, bidirectionally unless the rule sets flow:to_server or flow:from_server; the default packet limit is 16 packets across both directions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "Default scan size limit: 4,000 bytes per session (includes traffic originating from the server and the client)",
+            "Maximum scan size limit: 32,000 bytes per session (specified using the max_scan_size option in a rule)",
+            "The scan size limit applies to traffic in bidirectional flow unless the rule specifies either flow:to_server or flow:from_server option.",
+            "Default packet limit: 16 packets (includes traffic originating from the server and the client)"
+          ]
+        }
+      ]
+    },
+    "supported-options": {
+      "statement": "The specifications page lists these supported Snort options and filters: byte_extract, byte_jump and byte_test (without the dce option), content (at least 5 bytes; repeated content needs the distance option between occurrences), depth, detection_filter and event_filter (tracked by Snort attributes plus Zscaler's by_srcport and by_dstport; event_filter only inside a rule), distance, dsize, fast_pattern (3 to 16 bytes; the longest content is used if unset; no negation), flags, flow (to_server, to_client, from_client, from_server, established always enabled, no_stream), isdataat, nocase, offset, pcre (needs a content keyword; limited flags and constructs), stream_size and within.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "| byte_extract | Allows writing rules against length-encoded protocols. It extracts a specified number of bytes from the payload and saves it to a variable, which can be referenced later in the same rule. | The dce option is not supported. |",
+            "| byte_jump | Allows rules to read the length of a portion of data, then skip that far into the packet. | The dce option is not supported. |",
+            "| byte_test | Tests a byte field against a specific value (with operator). | The dce option is not supported. |",
+            "The content data must be at least 5 bytes long. If the content option is used more than once within a rule, the distance option must be specified between the content options.",
+            "| depth | A modifier for content/PCRE",
+            "The event_filter option must be specified within a rule and cannot be used as standalone configurations.",
+            "| distance | A modifier for content/PCRE",
+            "| dsize | Tests the packet payload size. |",
+            "If fast_pattern is not specified in a rule, the longest content within the rule becomes the fast pattern.",
+            "The length of a fast pattern ranges from 3 bytes to 16 bytes.",
+            "Fast patterns do not support the negation (!) operator.",
+            "| flags | Checks if specific TCP flag bits are present.",
+            "Supported options are: to_server to_client from_client from_server established (always enabled) no_stream",
+            "| isdataat | Verifies that the payload has data at a specified location. |",
+            "| nocase | A modifier for content/PCRE",
+            "| offset | A modifier for content/PCRE",
+            "The pcre keyword requires at least one content keyword to be present in the rule. Only limited PCRE flags and constructs are supported.",
+            "| stream_size | Allows a rule to match traffic based on the number of bytes observed",
+            "| within | A modifier for content/PCRE"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "after": "| event_filter | Limits the number of times a particular event is logged",
+          "quotes": [
+            "In addition, the Zscaler service provides exclusive by_srcport and by_dstport options to track by source port and destination port respectively."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "after": "| detection_filter |",
+          "quotes": [
+            "The rate can be tracked using standard attributes supported by Snort, such as source IP and destination IP.",
+            "In addition, the Zscaler service provides exclusive by_srcport and by_dstport options to track by source port and destination port respectively."
+          ]
+        }
+      ]
+    },
+    "http-options": {
+      "statement": "The specifications page's table lists these HTTP options and keywords for custom signatures, each with a Snort3 equivalent: http_uri, http_upath, http_uquery, http_host, http_accept, http_accept_encoding, http_accept_language, http_connection, http_contentencoding, http_contentmd5, http_contenttype, http_cookie, http_location, http_referer, http_server, http_setcookie, http_useragent, http_resp_code (Int32), http_contentlength, http_header, http_request_body, http_request_header, http_request_line, http_response_body, http_response_header, http_response_line and http_urilen. Supported http_method values are options, get, head, post, put, delete, trace and connect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "The following table provides the list of HTTP options and keywords supported in custom IPS signatures using Snort-like syntax:",
+            "| Zscaler Option/Keyword | Snort3 Option Equivalent | Description | Rule Examples |",
+            "| http_uri | http_uri |",
+            "| http_upath | http_uri: path |",
+            "| http_uquery | http_uri: query |",
+            "| http_host | http_uri: host |",
+            "| http_accept | http_header: field accept |",
+            "| http_accept_encoding | http_header: field accept-encoding |",
+            "| http_accept_language | http_header: field accept-language |",
+            "| http_connection | http_header: field connection |",
+            "| http_contentencoding | http_header: field content-encoding |",
+            "| http_contentmd5 | http_header: field content-md5 |",
+            "| http_contenttype | http_header: field content-type |",
+            "| http_cookie | http_header: field cookie |",
+            "| http_location | http_header: field location |",
+            "| http_referer | http_header: field referer |",
+            "| http_server | http_header: field server |",
+            "| http_setcookie | http_header: field set-cookie |",
+            "| http_useragent | http_header: field user-agent |",
+            "| http_resp_code | http_stat_code |",
+            "Data type: Int32",
+            "Supported methods are: smhttp_method_options smhttp_method_get smhttp_method_head smhttp_method_post smhttp_method_put smhttp_method_delete smhttp_method_trace smhttp_method_connect",
+            "| http_contentlength | http_header: field content-length; |",
+            "| http_header | http_header |",
+            "| http_request_body | http_raw_body |",
+            "| http_request_header | http_raw_header |",
+            "| http_request_line | http_raw_request or http_raw_code |",
+            "| http_response_body | http_server_body or http_raw_body |",
+            "| http_response_header | http_raw_header |",
+            "| http_response_line | http_raw_status or http_raw_code |",
+            "| http_urilen | http_uri; bufferlen |"
+          ]
+        }
+      ]
+    },
+    "decrypted-web-scope": {
+      "statement": "Custom IPS inspects decrypted web traffic only when the request or response is Text, HTML, CSV or JavaScript content over HTTP/S (GET, POST or PUT) or FTP, scanning URL, HTTP headers and HTTP body up to 500 KB per invocation, with its URL Categories criterion given on the page only as Suspicious URL destinations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "Decrypted web traffic is inspected by Custom IPS only when the request or response matches the following criteria:",
+            "Content Type: Text, HTML, CSV, or JavaScript",
+            "Protocol: HTTP/S (GET, POST or PUT) or FTP",
+            "Scanned Content: URL, HTTP Headers, and HTTP Body",
+            "Scan Size: 500 KB per invocation",
+            "URL Categories: Suspicious URL destinations."
+          ]
+        }
+      ],
+      "gaps": [
+        "decrypted-url-scope"
+      ]
+    },
+    "general-limitations": {
+      "statement": "Only the alert rule action is supported, and IP addresses and port numbers do not support variables. Alerts for packets directed towards any destination (an any any combination) are limited to 5, and the bidirectional (<>) operator is not supported. A rule holds at most 16 payload detection options (byte_extract, byte_jump, byte_test, content, isdataat, pcre, stream_size). detection_filter and event_filter are each limited to 10. Traffic data is not buffered, though stream state is kept and pattern matches across a packet boundary are found, so negative offsets for pattern modifiers such as distance are not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "Only the alert rule action is supported. Only TCP, UDP, and IP protocols are supported. IP addresses and port numbers do not support variables.",
+            "Alerts for packets directed towards any destination (configured using \"any any\" combination) are limited to 5. The bidirectional (<>) operator is not supported.",
+            "A rule can contain a maximum of 16 Payload Detection rule options, which can include one or more options from the following list: byte_extract, byte_jump, byte_test, content, isdataat, pcre, and stream_size.",
+            "The detection_filter and event_filter options are each limited to 10.",
+            "The Zscaler service does not buffer traffic data internally. However, it does maintain state for streams and identifies pattern matches across a packet’s boundary. As data is not buffered, negative offsets for pattern modifiers (e.g., distance) are not supported."
+          ]
+        }
+      ]
+    },
+    "pcre-limits": {
+      "statement": "Only the PCRE flags i and R are supported as listed, G, m and s are always enabled, and other PCRE flags are not supported. Lookahead and lookbehind assertions (positive and negative), conditional patterns and capturing groups are not supported, and Zscaler strongly recommends against capturing groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "| i | Treats upper and lowercase letters in a pattern as equivalent. | Supported |",
+            "| R | Matches a pattern relative to the end of the last pattern matched. | Supported |",
+            "Other PCRE flags are currently not supported.",
+            "The assertions listed in the following table are not supported:",
+            "| (?=...) | Positive lookahead zero length assertion |",
+            "| (?!...) | Negative lookahead zero length assertion |",
+            "| (?<=...) | Positive lookbehind zero length assertion |",
+            "| (?<!...) | Negative lookbehind zero length assertion |",
+            "Conditional pattern |",
+            "| (...) | Capturing group |",
+            "Zscaler strongly recommends against using capturing groups."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "after": "| G | Inverts",
+          "quotes": [
+            "| Always enabled |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "after": "| m | By default",
+          "quotes": [
+            "| Always enabled |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "after": "| s | Allows a dot metacharacter",
+          "quotes": [
+            "| Always enabled |"
+          ]
+        }
+      ]
+    },
+    "csv-import-export": {
+      "statement": "Custom signatures can be imported (to add, modify and delete) and exported as CSV. Import values must be wrapped in three single quotes (''') rather than double quotes to prevent parsing errors with certain PCRE options, and the file must follow the Sample Import CSV file format; the exported CSV cannot be used for import because import requires a different format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-importing-exporting-custom-signature-rules.json",
+          "quotes": [
+            "The import action allows you to add, modify, and delete custom IPS signature rules.",
+            "you must enclose comma-separated values for individual fields within three single quotes (''') instead of double quotes (\") to prevent parsing errors that might occur with certain Perl Compatible Regular Expressions (PCRE) rule options.",
+            "Make sure that the CSV file you are importing uses the same format as the Sample Import CSV file provided on the Custom Signature Rules page.",
+            "Click the Export to CSV icon. Your custom IPS signature rule information is exported to a CSV file.",
+            "This CSV file cannot be used to import custom IPS signature rules because the import requires a CSV file in a different format."
+          ]
+        }
+      ]
+    },
+    "custom-threat-categories": {
+      "statement": "Besides the predefined threat categories, an organization can add a maximum of 64 custom threat categories, each with a unique name of up to 255 characters (any characters, spaces included) and an optional description of up to 255 characters; the Threat Categories page shows each category's IPS Signature Rule Count, the number of custom signature rules in it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-threat-categories.json",
+          "quotes": [
+            "You can add a maximum of 64 custom threat categories.",
+            "IPS Signature Rule Count: The number of custom signature rules that are included in the threat category."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-threat-categories.json",
+          "quotes": [
+            "Name: Enter a unique name for the threat category. The name can contain any characters, including spaces, within a character limit of 255.",
+            "Description: (Optional) Enter a description for the threat category. The description cannot exceed 255 characters."
+          ]
+        }
+      ]
+    },
+    "visibility": {
+      "statement": "Logs of IPS traffic matching custom signatures appear in Firewall and Web Insights, can be charted in the IPS Overview dashboard, and can be streamed to a SIEM through NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-custom-ips-signature-rules.json",
+          "quotes": [
+            "Firewall and Web Insights provide visibility into the logs recorded for IPS traffic that matches with your custom IPS signatures.",
+            "You can also track this data using interactive charts in the IPS Overview dashboard.",
+            "Using Nanolog Streaming Service (NSS), you can stream your logs in real time from the Zscaler Nanolog to your SIEM system."
+          ]
+        }
+      ]
+    },
+    "page-pagination": {
+      "statement": "The Custom Signature Rules and Threat Categories pages each display up to 500 entries per page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-custom-ips-signature-rules.json",
+          "quotes": [
+            "The custom signature rules are paginated with up to 500 rules displayed per page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-threat-categories.json",
+          "quotes": [
+            "The threat categories are paginated with up to 500 categories displayed per page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "disablement-thresholds": {
+      "kind": "semantic",
+      "title": "The resource thresholds at which Zscaler disables a custom signature",
+      "status": "open",
+      "detail": "The specifications page says signatures exceeding specific processing and memory thresholds might be disabled, but gives no threshold values.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "packet-limit-max-count": {
+      "kind": "semantic",
+      "title": "Whether max_count can raise the packet limit above 16",
+      "status": "open",
+      "detail": "The specifications page gives a default packet limit of 16 packets and uses max_count:10 in an example, while the configuring page gives 16 as the maximum invocations per flow. Whether max_count can go above 16 is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "Default packet limit: 16 packets (includes traffic originating from the server and the client)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ips-signature-rules.json",
+          "quotes": [
+            "The maximum number of invocations per flow including both request and response is 16."
+          ]
+        }
+      ]
+    },
+    "sid-rev-requirement": {
+      "kind": "semantic",
+      "title": "Whether a custom signature must carry a sid and rev",
+      "status": "open",
+      "detail": "The help's static-validation criteria list no sid or rev requirement, and several specification examples have no sid, while the MCP-sourced zia.firewall.ips:signature-needs-sid says both are required. This is an absence in the criteria list, not a contradiction.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-ips-signature-rules.json",
+          "quotes": [
+            "Signature Rule: Enter the signature rule based on the Snort-like syntax, ensuring that it meets the requirements for static validation."
+          ]
+        }
+      ]
+    },
+    "decrypted-url-scope": {
+      "kind": "semantic",
+      "title": "What the suspicious URL destinations are for decrypted web inspection",
+      "status": "open",
+      "detail": "The specifications page gives URL Categories: Suspicious URL destinations for decrypted web traffic without defining them. It may be the Suspicious Destinations list on the threat categories page (see zia.firewall.ips:risky-behaviors-and-suspicious-destinations), but no page says so.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+          "quotes": [
+            "URL Categories: Suspicious URL destinations."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "custom-rule-cap": {
+      "summary": "The custom IPS signature rule cap is 1,000 on the About and Configuring pages and 500 on the import page and in Ranges & Limitations.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-custom-ips-signature-rules.json",
+            "quotes": [
+              "You can define a maximum of 1,000 custom IPS signature rules."
+            ]
+          },
+          "says": "A maximum of 1,000 custom IPS signature rules."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-custom-ips-signature-rules.json",
+            "quotes": [
+              "You can add a maximum of 1,000 custom signature rules. To learn more, see Ranges & Limitations.",
+              "The maximum number of rules cannot exceed 1,000."
+            ]
+          },
+          "says": "A maximum of 1,000 custom signature rules, and the page points to Ranges & Limitations for the cap, which says 500."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-importing-exporting-custom-signature-rules.json",
+            "quotes": [
+              "A CSV file allows you to import up to 500 custom IPS signature rules, which is also the maximum number of custom IPS signature rules allowed for an organization."
+            ]
+          },
+          "says": "500, the import limit and also the maximum allowed for an organization."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "Custom IPS Signature Rules | 500"
+            ]
+          },
+          "says": "500 (the evidence behind the existing claim zia.firewall.limits:custom-ips-caps)."
+        }
+      ],
+      "impact": "An answer about how many custom signatures a tenant can hold depends on which page is used; the existing zia.firewall.limits:custom-ips-caps rests on the 500 side."
+    },
+    "signature-protocols": {
+      "summary": "The Configuring page says TCP, UDP and HTTP are the only supported protocols for a custom signature, while the Specifications page says TCP, UDP and IP.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-custom-ips-signature-rules.json",
+            "quotes": [
+              "TCP, UDP, and HTTP are the only supported protocols."
+            ]
+          },
+          "says": "TCP, UDP and HTTP."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+            "quotes": [
+              "Only TCP, UDP, and IP protocols are supported."
+            ]
+          },
+          "says": "TCP, UDP and IP."
+        }
+      ],
+      "impact": "Whether a signature can use the http or the ip protocol in its rule header depends on which page is used; the parser's response to validation is the arbiter."
+    },
+    "flow-stream": {
+      "summary": "The Specifications page's list of supported flow options has no stream, yet that page and the Configuring page tell rule writers to use flow:stream.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+            "quotes": [
+              "Supported options are: to_server to_client from_client from_server established (always enabled) no_stream"
+            ]
+          },
+          "says": "The supported flow options are to_server, to_client, from_client, from_server, established (always enabled) and no_stream; stream is not listed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+            "after": "| depth |",
+            "quotes": [
+              "To match a pattern over a stream, use the flow:stream keyword."
+            ]
+          },
+          "says": "To match a pattern over a stream, use the flow:stream keyword."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-custom-ips-signature-rules.json",
+            "quotes": [
+              "should use stream mode (i.e., flow:stream) for optimal results."
+            ]
+          },
+          "says": "Rules that inspect both HTTP header and HTTP body should use stream mode (flow:stream)."
+        }
+      ],
+      "impact": "Whether flow:stream is accepted by the parser is not settled by the supported-options list; a rule that inspects both header and body is the case where it matters."
+    },
+    "csv-quoting": {
+      "summary": "The help page says import values must be wrapped in three single quotes instead of double quotes, while the Go SDK documents RFC 4180 doubled inner double quotes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-importing-exporting-custom-signature-rules.json",
+            "quotes": [
+              "you must enclose comma-separated values for individual fields within three single quotes (''') instead of double quotes (\")"
+            ]
+          },
+          "says": "Wrap each field value in three single quotes rather than double quotes."
+        },
+        {
+          "evidence": {
+            "source": "sdk-go",
+            "path": "zscaler/zia/services/ips_control_policies/ips_signature_rules/ips_signature_rules.go",
+            "quotes": [
+              "Inner double quotes inside the rule text column must be escaped using the",
+              "RFC 4180 doubled-quote convention (\"\") rather than backslash escapes — the"
+            ]
+          },
+          "says": "Inner double quotes in the rule text column are doubled per RFC 4180, not escaped with backslashes (the existing claim zia.api.legacy-ips-signature-wire:import-csv-format)."
+        }
+      ],
+      "impact": "How a CSV import file is quoted depends on whether the console help or the Go SDK documentation is followed."
+    },
+    "http-version-values": {
+      "summary": "One row of the HTTP options table lists http_version values two ways: HTTP/1.0 and HTTP/1.1 in one column, and http_1_0, http_1_1, http_2 and http_3 in the description.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+            "quotes": [
+              "http_version [Supported Versions: \"HTTP/1.0\", \"HTTP/1.1\"]"
+            ]
+          },
+          "says": "Supported versions HTTP/1.0 and HTTP/1.1."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+            "quotes": [
+              "Supported HTTP versions are: http_1_0 http_1_1 http_2 http_3"
+            ]
+          },
+          "says": "Supported versions http_1_0, http_1_1, http_2 and http_3."
+        }
+      ],
+      "impact": "Whether a signature can match HTTP/2 or HTTP/3 through http_version depends on which part of the row is read."
+    },
+    "max-scan-size": {
+      "summary": "The Configuring page gives the maximum scan size as 32 KB, while the Specifications page gives 32,000 bytes per session.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-custom-ips-signature-rules.json",
+            "quotes": [
+              "The maximum scan size supported is 32 KB."
+            ]
+          },
+          "says": "32 KB."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-specifications-limitations-custom-ips-signature-rules.json",
+            "quotes": [
+              "Maximum scan size limit: 32,000 bytes per session"
+            ]
+          },
+          "says": "32,000 bytes per session."
+        }
+      ],
+      "impact": "The two figures differ by 768 bytes if 32 KB means 32,768; whether the difference is rounding or two limits is not stated."
+    }
+  }
+}

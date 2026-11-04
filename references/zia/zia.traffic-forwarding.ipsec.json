@@ -64,7 +64,7 @@
     },
     {
       "label": "Negotiation.",
-      "text": "{{ike-versions}} {{ikev1-modes}} {{ikev2-parameters}} {{nat-traversal}} {{dpd}} {{local-id}}"
+      "text": "{{ike-versions}} {{ikev1-modes}} {{ikev2-parameters}} Whether the IPSec protocol is ESP only or also AH is described two ways {{divergence:ipsec-protocol}}. {{nat-traversal}} {{dpd}} {{local-id}}"
     },
     {
       "label": "MTU and IPv6.",
@@ -278,6 +278,35 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "ipsec-protocol": {
+      "summary": "The NSS tunnel output format says Zscaler only supports ESP for the IPSec tunnel protocol, while the IKEv2 supported parameters table lists AH and ESP.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-nss-feed-output-format-tunnel-logs.json",
+            "quotes": [
+              "| %s{tunnelprotocol} | The IPSec tunnel protocol type. Zscaler only supports ESP. | None ISAKMP AH ESP IPCOMP | IPSec Protocol |"
+            ]
+          },
+          "says": "Zscaler only supports ESP."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-ipsec-vpns.json",
+            "quotes": [
+              "| Protocol | N/A | AH ESP |"
+            ],
+            "after": "| IKEv2 Supported Parameters |  |  |"
+          },
+          "says": "The IKEv2 table lists the protocol as AH ESP."
+        }
+      ],
+      "impact": "Whether an AH tunnel is supported depends on which page is read; the pages do not say whether the table row lists supported or merely defined values."
     }
   },
   "gaps": {

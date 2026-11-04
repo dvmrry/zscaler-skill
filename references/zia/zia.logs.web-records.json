@@ -50,7 +50,7 @@
     },
     {
       "label": "What a record is.",
-      "text": "{{per-transaction}} The unit of one record is not defined {{gap:record-granularity}}."
+      "text": "{{per-transaction}} {{get-per-transaction}} The unit of one record is not defined beyond that {{gap:record-granularity}}."
     },
     {
       "label": "Two names.",
@@ -87,6 +87,29 @@
     }
   ],
   "claims": {
+    "get-per-transaction": {
+      "statement": "Each GET request is logged as a transaction, and opening a single web page typically takes several GET requests to fetch the page's objects; the Web and Mobile Insights Logs columns pages both say so.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#url"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Opening a single web page typically requires multiple GET requests in order to fetch all the objects of the page. Each GET request is logged as a transaction."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-mobile-insights-logs-columns.json",
+          "quotes": [
+            "Opening a single web page typically requires multiple GET requests in order to fetch all the objects of the page. Each GET request is logged as a transaction."
+          ]
+        }
+      ]
+    },
     "per-transaction": {
       "statement": "Web log fields describe a transaction: time is the time and date of the transaction, epochtime its epoch time, and recordid a unique record identifier for each log.",
       "tier": "A",
@@ -216,7 +239,7 @@
       "kind": "data",
       "title": "What exactly one web record covers",
       "status": "open",
-      "detail": "Unverified legacy statement: one record is one HTTP or HTTPS transaction observed by a ZIA Public Service Edge. The field CSV describes fields of the transaction but does not define the unit. For HTTPS without inspection the CONNECT and tunneled traffic may be recorded differently. A deliberate test of a plain, an inspected and an uninspected HTTPS request would show it.",
+      "detail": "Unverified legacy statement: one record is one HTTP or HTTPS transaction observed by a ZIA Public Service Edge. The field CSV describes fields of the transaction but does not define the unit. The Web and Mobile Insights Logs URL columns say each GET request is logged as a transaction (get-per-transaction), which settles the plain-request unit for GET only. For HTTPS without inspection the CONNECT and tunneled traffic may be recorded differently. A deliberate test of a plain, an inspected and an uninspected HTTPS request would show it.",
       "blocks": "Counting transactions from record counts.",
       "resolves_with": [
         "tenant-data"

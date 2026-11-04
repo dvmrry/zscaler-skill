@@ -59,7 +59,7 @@
     },
     {
       "label": "Whether to exempt.",
-      "text": "{{bypass-only-controlled}} {{bypass-purposes}} {{finance-health-recommendation}} {{opt-out-design}}"
+      "text": "{{bypass-only-controlled}} {{bypass-purposes}} {{finance-health-recommendation}} {{opt-out-design}} {{phased-rollout-start}} The rollout's final step excepts Finance and Health, which differs from the other two pages {{divergence:finance-health-rollout}}."
     },
     {
       "label": "Which variant.",
@@ -142,6 +142,21 @@
           "quotes": [
             "Build with the intention of Opt-Out in mind. Set your final policy to inspect everything not explicitly exempted previously.",
             "Any new groups, applications, categories, or locations are automatically inspected until configured otherwise."
+          ]
+        }
+      ]
+    },
+    "phased-rollout-start": {
+      "statement": "The deployment best practices say to enable SSL/TLS Inspection on a small location or test lab before enabling it on all locations, to start by enabling it for risky URL categories only, such as Privacy Risk and Legal Liability, and to include all other categories in the list of URL categories for which SSL/TLS transactions are not to be decrypted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-ssltls-inspection.json",
+          "quotes": [
+            "Enable SSL/TLS Inspection on a small location or test lab before enabling it on all locations in your organization to understand how this feature works.",
+            "Start by enabling SSL/TLS Inspection for risky URL categories only, such as Privacy Risk and Legal Liability categories.",
+            "Include all other categories in the list of URL categories for which SSL/TLS transactions are not to be decrypted."
           ]
         }
       ]
@@ -270,6 +285,46 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "finance-health-rollout": {
+      "summary": "The deployment best practices end a phased rollout by enabling inspection for all URL categories except Finance and Health; the rollout best practices recommend inspecting all URL categories, and the leading practices guide says to end with a rule that inspects everything not explicitly exempted.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-ssltls-inspection.json",
+            "quotes": [
+              "Start by enabling SSL/TLS Inspection for risky URL categories only, such as Privacy Risk and Legal Liability categories.",
+              "Then, when your organization is ready, enable SSL/TLS Inspection for all URL categories except Finance and Health, to allay privacy concerns within the organization."
+            ]
+          },
+          "says": "Start with risky categories only, then, when ready, enable inspection for all URL categories except Finance and Health, to allay privacy concerns."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "best-practices-testing-and-rolling-out-ssltls-inspection.json",
+            "quotes": [
+              "Some organizations choose to bypass SSL/TLS Inspection for Finance and Health URL categories due to privacy concerns.",
+              "Zscaler recommends that you enable SSL/TLS Inspection for all URL categories."
+            ]
+          },
+          "says": "Some organizations bypass Finance and Health for privacy concerns, but Zscaler recommends enabling inspection for all URL categories (existing claim finance-health-recommendation)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
+            "quotes": [
+              "Build with the intention of Opt-Out in mind. Set your final policy to inspect everything not explicitly exempted previously."
+            ]
+          },
+          "says": "Build opt-out: the final policy inspects everything not explicitly exempted previously (existing claim opt-out-design)."
+        }
+      ],
+      "impact": "Whether Finance and Health are an expected final exemption or an optional one is stated differently; the deployment page also builds up from risky categories with a do-not-decrypt list of the rest, where the guide says \"Set your final policy to inspect everything not explicitly exempted\"."
     }
   },
   "gaps": {

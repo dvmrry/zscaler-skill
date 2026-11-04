@@ -48,7 +48,11 @@
     },
     {
       "label": "Getting in.",
-      "text": "{{portal-access}} {{sign-in-methods}} The sign-in providers the page names disagree {{divergence:sign-in-providers}}. {{admin-console-sso}}"
+      "text": "{{portal-access}} {{sign-in-methods}} The sign-in providers the page names disagree {{divergence:sign-in-providers}}. {{admin-console-sso}} The Admin Console report page names a different license for the same path {{divergence:report-license-gate}}."
+    },
+    {
+      "label": "The Admin Console report page.",
+      "text": "{{report-gate}} {{report-states}} {{report-actions}}"
     },
     {
       "label": "Roles and licensing.",
@@ -143,6 +147,55 @@
             "You must also have access to the Data Loss Prevention (DLP) feature and a 3rd-Party App Governance Admin or a Super Admin role assigned to you.",
             "go to Analytics > Reports > SaaS Security Report > 3rd-Party App Governance.",
             "You can also access the 3rd-Party App Governance Admin Portal from multiple locations on the SaaS Security Report and SaaS Assets Report, if you have a subscription to 3rd-Party App Governance."
+          ]
+        }
+      ]
+    },
+    "report-gate": {
+      "statement": "The 3rd-Party App Governance Report identifies all the third-party applications that employees are using, for the tenant selected under the Tenant option. With the Advanced Posture Management license enabled the user is redirected to the 3rd-Party App Governance Admin Portal; without it, the report page is visible with an upgrade banner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-third-party-app-governance-report.json",
+          "quotes": [
+            "The 3rd-Party App Governance Report identifies all the third-party applications that employees are using.",
+            "The data is displayed for the tenant you select under the Tenant option.",
+            "If you have the Advanced Posture Management license enabled, you are redirected to the 3rd-Party App Governance Admin Portal.",
+            "If you don't have the Advanced Posture Management license enabled, the 3rd-Party App Governance Report page with an upgrade banner is visible."
+          ]
+        }
+      ]
+    },
+    "report-states": {
+      "statement": "The report's application states are Discovered (discovered, but no action taken yet), Allowed (explicitly allowed), Blocked (explicitly blocked), Restricted (an admin has allowed the application to specific users) and Reauthorized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-third-party-app-governance-report.json",
+          "quotes": [
+            "Discovered: The number of third-party applications discovered, but no action is taken on them yet.",
+            "Allowed: The number of applications explicitly allowed for use.",
+            "Blocked: The number of applications explicitly blocked for use.",
+            "Restricted: An admin has allowed the use of this application to specific users.",
+            "Reauthorized: The number of reauthorized applications for use. (e.g., the user had explicitly blocked the application earlier)."
+          ]
+        }
+      ]
+    },
+    "report-actions": {
+      "statement": "On the report's application page an admin can allow the use of the application for all users, restrict it to specific users, or revoke it for all users (the Blocked state), and can download a CSV file with all the permissions listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-third-party-app-governance-report.json",
+          "quotes": [
+            "Allow Authorization for All Users: Allow the use of this application for all users.",
+            "Restrict Authorization to Specific Users: Restrict the use of this application to specific users.",
+            "Revoke Authorization for All Users: Revoke the use of this application for all users (this is the state Blocked).",
+            "Download: Download a CSV file with all the permissions listed."
           ]
         }
       ]
@@ -311,6 +364,34 @@
         }
       ],
       "impact": "The page does not say whether Okta sign-in appears as its own button or only through enterprise-tier SAML federation, so which sign-in options a user sees is not settled."
+    },
+    "report-license-gate": {
+      "summary": "The Admin Console route into the 3rd-Party App Governance Admin Portal is gated on a 3rd-Party App Governance subscription by the portal page and on the Advanced Posture Management license by the report page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-accessing-and-navigating-3rd-party-app-governance-admin-portal.json",
+            "quotes": [
+              "You can access the 3rd-Party App Governance Admin Portal from the Zscaler Admin Console using SSO, if you have subscribed to the 3rd-Party App Governance service.",
+              "go to Analytics > Reports > SaaS Security Report > 3rd-Party App Governance."
+            ]
+          },
+          "says": "The portal page gates the SSO route from Analytics > Reports > SaaS Security Report > 3rd-Party App Governance on having subscribed to the 3rd-Party App Governance service."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-third-party-app-governance-report.json",
+            "quotes": [
+              "If you have the Advanced Posture Management license enabled, you are redirected to the 3rd-Party App Governance Admin Portal.",
+              "(Analytics > Reports > SaaS Security Report > 3rd-Party App Governance)"
+            ]
+          },
+          "says": "The report page redirects to the portal from Analytics > Reports > SaaS Security Report > 3rd-Party App Governance when the Advanced Posture Management license is enabled."
+        }
+      ],
+      "impact": "Which license opens the portal from the Admin Console is not settled, which bears on the open license-relationship gap here and in zia.sspm; a licensing answer has to name both."
     }
   },
   "gaps": {
@@ -328,7 +409,7 @@
       "kind": "semantic",
       "title": "How the 3rd-Party App Governance license relates to Advanced SSPM",
       "status": "open",
-      "detail": "The portal needs a 3rd-Party App Governance subscription, the portal's NSS logs are linked to Advanced SSPM elsewhere in the graph, and the portal page does not define the enterprise tiers that allow SAML. The captured pages do not say how the licenses relate.",
+      "detail": "The portal page needs a 3rd-Party App Governance subscription while the report page names the Advanced Posture Management license for the same redirect (see the report-license-gate divergence), the portal's NSS logs are linked to Advanced SSPM elsewhere in the graph, and the portal page does not define the enterprise tiers that allow SAML. The captured pages do not say how the licenses relate.",
       "resolves_with": [
         "support-ticket",
         "source-read"

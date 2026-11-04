@@ -28,6 +28,18 @@
     {
       "rel": "see-also",
       "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.business-continuity"
     }
   ],
   "prose": [
@@ -45,6 +57,22 @@
     {
       "label": "Restart.",
       "text": "Whether a restart is graceful is unverified {{gap:restart-semantics}}."
+    },
+    {
+      "label": "Private Clouds.",
+      "text": "{{zscaler-managed-read-only}} {{private-cloud-status}} {{certificate-renewal-threshold}} {{primary-control-channel-path}} {{force-mode-and-lss}}"
+    },
+    {
+      "label": "Groups.",
+      "text": "{{group-membership}} {{group-fields}} {{group-count-column}}"
+    },
+    {
+      "label": "Provisioning keys.",
+      "text": "{{keys-identify-group}} {{key-secret}} {{key-name-prefix}} {{key-view-export}} {{key-reuse}} {{key-copy-error-401}} {{key-signing-certificate}} {{key-managed-read-only}}"
+    },
+    {
+      "label": "Deployed controllers.",
+      "text": "{{listen-ips}} {{replace-by-reenroll}} Sizing, network and enrollment are in [[zpa.private-service-edges.private-cloud-controller.deployment]]; console commands are in [[zpa.private-service-edges.private-cloud-controller.troubleshooting]]; the feature is in [[zpa.private-service-edges.business-continuity]]."
     },
     {
       "text": "The endpoints for controllers and controller groups are in [[zpa.private-service-edges.api-surface]]. Disaster recovery: [[zpa.private-service-edges.disaster-recovery]]."
@@ -72,6 +100,287 @@
     }
   ],
   "claims": {
+    "zscaler-managed-read-only": {
+      "statement": "Private Clouds, Private Cloud Controllers and Private Cloud Controller groups that are managed by Zscaler are read only and cannot be configured, edited or deleted. With Zscaler-managed Business Continuity, a Private Cloud Controller group, Private Service Edge group and App Connector group can still be associated to a Private Cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-business-continuity.json",
+          "quotes": [
+            "Private Clouds, Private Cloud Controllers, and Private Cloud Controller groups that are managed by Zscaler are read only and cannot be configured, edited, or deleted.",
+            "If you are using Zscaler-managed Business Continuity, you can still associate a Private Cloud Controller group, Private Service Edge group, and App Connector group to a Private Cloud."
+          ]
+        }
+      ]
+    },
+    "private-cloud-status": {
+      "statement": "Disabling a Private Cloud causes all associated Private Cloud Controllers to stop accepting connections from Client Connector, App Connectors and Private Service Edges for Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-clouds.json",
+          "quotes": [
+            "Disabling a Private Cloud causes all associated Private Cloud Controllers to stop accepting connections from Zscaler Client Connector, App Connectors, and Private Service Edges for Private Access (ZPA)."
+          ]
+        }
+      ]
+    },
+    "certificate-renewal-threshold": {
+      "statement": "A Private Cloud takes the number of days before the certificate expires at which to automatically renew the enrollment certificate for Private Cloud Controllers, App Connectors and Private Service Edges; the maximum supported value is 180 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-clouds.json",
+          "quotes": [
+            "Specify the number of days before the certificate expires to automatically renew the enrollment certificate for Private Cloud Controllers, App Connectors, and Private Service Edges.",
+            "The maximum supported value is 180 days."
+          ]
+        }
+      ]
+    },
+    "primary-control-channel-path": {
+      "statement": "A Private Cloud's control channel option Private Cloud Controller lets App Connectors and Private Service Edges use Private Cloud Controllers for control channels such as configuration downloads, configuration updates and logging during normal operations and when not in Business Continuity; the option Public Cloud has them establish a control channel to the Zero Trust Exchange during normal operations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-clouds.json",
+          "quotes": [
+            "Private Cloud Controller: Select to allow App Connectors and Private Service Edges to use Private Cloud Controllers for control channels like configuration downloads, configuration updates, and logging during normal operations and when not in Business Continuity.",
+            "Public Cloud: Select to use App Connectors and Private Service Edges to establish a control channel to Zero Trust Exchange (ZTE) during normal operations."
+          ]
+        }
+      ]
+    },
+    "force-mode-and-lss": {
+      "statement": "Force Business Continuity Mode forces Private Cloud Controllers, App Connectors and Private Service Edges to use Business Continuity and is only available when editing a Private Cloud; Stream Logs through LSS Connectors streams logs to SIEM servers during Business Continuity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-clouds.json",
+          "quotes": [
+            "Force Business Continuity Mode: Enable to force Private Cloud Controllers, App Connectors, and Private Service Edges to use Business Continuity. This option is only available when editing a Private Cloud.",
+            "Stream Logs through LSS Connectors: Enable to stream logs to SIEM servers during Business Continuity."
+          ]
+        }
+      ]
+    },
+    "group-membership": {
+      "statement": "Every Private Cloud Controller belongs to a specific group and must belong to a single group, and every group must always be associated with at least one provisioning key to serve any application. A group's automated update schedule is set to an off-hours maintenance window in a region, and the group sets the preferred local version profile and a controller location used in application path selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-cloud-controller-groups.json",
+          "quotes": [
+            "Every Private Cloud Controller belongs to a specific Private Cloud Controller group, and every Private Cloud Controller group must always be associated with at least one provisioning key to serve any application.",
+            "Group Private Cloud Controllers per region or functional area; each Private Cloud Controller must belong to a single group.",
+            "Configure the automated update schedule to an off-hours maintenance window in a region.",
+            "Configure the preferred local version profile for associated Private Cloud Controllers and a Private Cloud Controller's location used in application path selection."
+          ]
+        }
+      ]
+    },
+    "group-fields": {
+      "statement": "Configuring a Private Cloud Controller group selects the Private Cloud it belongs to, Persist Local Version Profile (Disabled by default), a Version Profile (default value Default), a periodic software update schedule by day of the week and start time, and the location where its controllers are set up.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-cloud-controllers.json",
+          "quotes": [
+            "Private Cloud for Business Continuity: Select the Private Cloud to which this Private Cloud Controller group should belong to.",
+            "Persist Local Version Profile: Enable if the Private Cloud Controller group should persist the local Version Profile. By default, Disabled is selected.",
+            "Version Profile: Displays the current Version Profile. The default value is set to Default.",
+            "Private Cloud Controller Software Update Schedule: Schedule the periodic Private Cloud Controller software update for the group by selecting or searching for the day of the week and start time.",
+            "Private Cloud Controller Location: Enter the location where the Private Cloud Controllers in the group are set up."
+          ]
+        }
+      ]
+    },
+    "group-count-column": {
+      "statement": "The Private Cloud Controller groups page shows, for each group, the Private Cloud Controller Count, the number of enrolled controllers associated with the group; a group's details, opened by clicking its name, include the Enrollment Certificate, the certificate the controller uses for enrollment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-private-cloud-controller-groups.json",
+          "quotes": [
+            "Private Cloud Controller Count: The number of enrolled Private Cloud Controllers associated with this group.",
+            "Click the name of a Private Cloud Controller group to see its details.",
+            "Enrollment Certificate: The certificate the Private Cloud Controller uses for enrollment."
+          ]
+        }
+      ]
+    },
+    "keys-identify-group": {
+      "statement": "The provisioning key functions like an ID for the Private Cloud Controller, enabling the Private Access cloud to verify the controller's authenticity and complete the deployment process; each key is associated with a specific group, and multiple keys can be associated with a single group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-private-cloud-controller-provisioning-keys.json",
+          "quotes": [
+            "The provisioning key functions like an ID for the Private Cloud Controller, enabling the Private Access (ZPA) cloud to verify the Private Cloud Controller's authenticity and complete the deployment process.",
+            "each key is associated with a specific Private Cloud Controller group",
+            "You can also associate multiple provisioning keys to a single Private Cloud Controller group."
+          ]
+        }
+      ]
+    },
+    "key-secret": {
+      "statement": "Provisioning keys should be treated as secrets and properly protected because they can create a resource for a tenant, and must be secured and not transmitted or stored in clear text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-private-cloud-controller-provisioning-keys.json",
+          "quotes": [
+            "Provisioning keys should be treated as secrets and properly protected because they can create a resource for a tenant.",
+            "The provisioning key must also be secured and not transmitted or stored in clear text."
+          ]
+        }
+      ]
+    },
+    "key-name-prefix": {
+      "statement": "The name entered for a provisioning key is automatically assigned as a prefix for the name of each controller enrolled with it (the help's example: AWS Oregon gives AWS Oregon-1 for the first). When editing a deployed controller's name, the prefix followed by the number of the nth controller deployed with its key should be kept.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-cloud-controllers.json",
+          "quotes": [
+            "This name is automatically assigned as a prefix for the name of each Private Cloud Controller enrolled with it.",
+            "For example, if you enter AWS Oregon as a provisioning key name in this step, the first Private Cloud Controller you enroll with this key is named AWS Oregon-1."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-private-cloud-controller.json",
+          "quotes": [
+            "If you edit the Private Cloud Controller name, be sure to keep the prefix followed by the number that indicates that this is the nth Private Cloud Controller that is deployed with its key"
+          ]
+        }
+      ]
+    },
+    "key-view-export": {
+      "statement": "View or Export Provisioning Key After Creation is enabled by default and, if disabled, cannot be enabled at a later time; an existing key offered in the drop-down is only one that can be viewed or exported after creation. If the option was disabled the key entry on the keys page is blank, and if the key does not appear and no backup is securely stored in an external credential vault, a new key must be generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-cloud-controllers.json",
+          "quotes": [
+            "View or Export Provisioning Key After Creation: Select this option if you want to view, copy, or download the provisioning key after creation. This option is enabled by default. If disabled, you cannot enable this option at a later time.",
+            "If you select an existing provisioning key, only keys that can be viewed or exported after creation appear in the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-private-cloud-controller-provisioning-keys.json",
+          "quotes": [
+            "This entry is blank if you disabled the View or Export Provisioning Key After Creation option when configuring a Private Cloud Controller.",
+            "If the provisioning key doesn't appear, and a backup of the provisioning key isn't securely stored in an external credential vault, a new key must be generated."
+          ]
+        }
+      ]
+    },
+    "key-reuse": {
+      "statement": "Maximum Reuse of Provisioning Key is the maximum number of instances where the key can be used to enroll a controller, and can be modified after adding the controller; the Instances of Provisioning Key Reuse field cannot be modified. Private Access tracks the number of controllers enrolled in the group and displays it in that field. If the Provisioning Key Utilization Count is reached the key cannot be copied, and the key can be edited to raise the limit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-cloud-controllers.json",
+          "quotes": [
+            "Maximum Reuse of Provisioning Key: Enter the maximum number of instances where this key can be used to enroll a Private Cloud Controller. After adding the Private Cloud Controller, this number can be modified.",
+            "The Instances of Provisioning Key Reuse field cannot be modified.",
+            "Private Access tracks the number of Private Cloud Controllers enrolled in this Private Cloud Controller group and automatically displays the number in this field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-private-cloud-controller-provisioning-keys.json",
+          "quotes": [
+            "If the Provisioning Key Utilization Count is reached, you cannot copy the key. A Warning icon appears next to the disabled Copy icon. You can edit the key to raise the limit."
+          ]
+        }
+      ]
+    },
+    "key-copy-error-401": {
+      "statement": "When a provisioning key is incorrectly copied, the Private Cloud Controller console shows, when it tries to enroll, error:Login request failed - http status(401) and notice:Certificate enrollment failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-private-cloud-controller-provisioning-keys.json",
+          "quotes": [
+            "When a provisioning key is incorrectly copied, the following error appears in your Private Cloud Controller console when it tries to enroll:",
+            "error:Login request failed - http status(401)",
+            "notice:Certificate enrollment failed."
+          ]
+        }
+      ]
+    },
+    "key-signing-certificate": {
+      "statement": "All controllers deployed with a key have their certificates signed with its signing certificate; if any are deployed with an expired signing certificate and a new certificate is configured, they automatically redeploy using the new certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-private-cloud-controller-provisioning-keys.json",
+          "quotes": [
+            "All Private Cloud Controllers deployed with this key have their certificates signed with this signing certificate.",
+            "If any of your Private Cloud Controllers are deployed with an expired signing certificate, and you've configured a new certificate, the Private Cloud Controllers automatically redeploy using the new certificate."
+          ]
+        }
+      ]
+    },
+    "key-managed-read-only": {
+      "statement": "If a provisioning key is configured using Zscaler Deception or is managed by Zscaler, the edit and delete options are unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-private-cloud-controller-provisioning-keys.json",
+          "quotes": [
+            "If a provisioning key is configured using Zscaler Deception or is managed by Zscaler, then the edit and delete options are unavailable."
+          ]
+        }
+      ]
+    },
+    "listen-ips": {
+      "statement": "A deployed controller's Listen IPs are the IP addresses of the Private Cloud Controller system that it listens to for connection requests from clients and App Connectors; if not configured it automatically listens to all interfaces, and the common use case is to not specify any.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-private-cloud-controller.json",
+          "quotes": [
+            "Listen IPs: The IP addresses for the Private Cloud Controller system that the Private Cloud Controller listens to for connection requests from clients and App Connectors.",
+            "If not configured, the Private Cloud Controller automatically listens to all interfaces. The common use case is to not specify any Listen IPs."
+          ]
+        }
+      ]
+    },
+    "replace-by-reenroll": {
+      "statement": "Completely replacing a deployed Private Cloud Controller requires deleting its configuration and re-enrolling it; the new provisioning key can be applied to the virtual machine image already deployed by replacing the old key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-private-cloud-controller.json",
+          "quotes": [
+            "If you want to completely replace a deployed Private Cloud Controller, you must delete the configuration and then re-enroll it.",
+            "However, you can apply the new Private Cloud Controller provisioning key to the virtual machine (VM) image you already deployed by replacing the old key."
+          ]
+        }
+      ]
+    },
     "controller-role": {
       "statement": "A Private Cloud Controller is a per-tenant controller that users, Private Service Edges and App Connectors use when the Private Access cloud is not available or reachable: it persists a complete copy of configuration and policies and, when Business Continuity is enabled, distributes them to onsite Private Service Edges and App Connectors, acts as an authentication redirection endpoint, allows log streaming to a SIEM, and redirects users to Private Service Edges.",
       "tier": "A",

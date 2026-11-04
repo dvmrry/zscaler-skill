@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "id": "zcc.end-user.troubleshooting",
+  "title": "What users get to troubleshoot: the Troubleshoot section, Report an Issue and Zscaler Diagnostics at the login screen",
+  "aliases": [
+    "Troubleshoot section",
+    "Repair App",
+    "Revert App",
+    "Disable Tamper Protection",
+    "Report an Issue form",
+    "Zscaler Diagnostics",
+    "Tunnel Status window",
+    "Start Packet Capture",
+    "Run Zscaler Diagnostics"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.end-user"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.support-options.restart-and-repair"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.log-modes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.logging.collection"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{windows-troubleshoot-section}} The page says Export Logs writes a ZIP file, which other end-user pages and the logging controls word differently [[zcc.end-user:export-logs-format]]."
+    },
+    {
+      "label": "Restart Service.",
+      "text": "The end-user pages and the support-options article disagree about whether restarting affects enforcement {{divergence:restart-enforcement}}; the admin setting that shows the option is in [[zcc.support-options.restart-and-repair]]."
+    },
+    {
+      "label": "Other operating systems.",
+      "text": "{{other-os-sections}}"
+    },
+    {
+      "label": "Modern UI.",
+      "text": "{{modern-troubleshooting}}"
+    },
+    {
+      "label": "Where the logs are.",
+      "text": "{{log-location}} The mode a user picks lasts for one session: [[zcc.logging.log-modes:session-only]]."
+    },
+    {
+      "label": "Report an Issue.",
+      "text": "{{report-form-fields}} {{report-form-mobile-limits}} Whether the option appears is an admin setting: [[zcc.support-options:report-an-issue-visibility]]."
+    },
+    {
+      "label": "At the login screen.",
+      "text": "{{zscaler-diagnostics}} {{tunnel-status-window}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which UI and OS the user is on, since the Troubleshoot section differs between Classic and Modern and between platforms.",
+      "uses": [
+        "windows-troubleshoot-section",
+        "other-os-sections",
+        "modern-troubleshooting"
+      ]
+    },
+    {
+      "do": "Before relying on a restart not affecting enforcement, the divergence with the article that says Restart Service fails open briefly.",
+      "uses": [
+        "restart-enforcement"
+      ]
+    },
+    {
+      "do": "For a user who cannot log in on Windows or macOS but needs the machine tunnel, whether ZPA Machine Authentication is enabled in the Windows policy.",
+      "uses": [
+        "zscaler-diagnostics"
+      ]
+    }
+  ],
+  "claims": {
+    "windows-troubleshoot-section": {
+      "statement": "The Classic Troubleshoot section on Windows has Start Packet Capture (if the admin enabled packet captures); Report an Issue (if the admin enabled in-app support access); Export Logs, which exports logs to a ZIP file to email to the organization's support admin; Restart Service, which restarts the app; Repair App, where the app attempts to repair itself by reinstalling app drivers and services and which Zscaler recommends trying before reporting an issue; Revert App (if the admin enabled the revert option), which reverts to the previous version and might require a password; Disable Tamper Protection, which asks for the Disable Anti-Tampering OTP; Clear Logs; and Log Mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+          "after": "The Troubleshoot section includes the following features on Windows devices:",
+          "quotes": [
+            "Start Packet Capture: If your organization's admin enabled packet captures, use this feature when reproducing an issue.",
+            "Report an Issue: If your organization's admin enabled in-app support access, use this feature to report an issue.",
+            "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin.",
+            "Restart Service: Click to restart the app.",
+            "Repair App: If you select this option, the app attempts to repair itself by reinstalling app drivers and services. Zscaler recommends trying this option before reporting an issue.",
+            "Revert App: If your organization’s admin enabled the revert option, click this option to revert to the previous version of Zscaler Client Connector. Depending on your organization’s policies, you might be required to enter a password.",
+            "Disable Tamper Protection: Click this option to disable anti-tampering protection. When prompted, provide the Disable Anti-Tampering OTP.",
+            "Clear Logs: Click this option to clear stored logs.",
+            "Log Mode: Change the mode in which Zscaler Client Connector generates logs."
+          ]
+        }
+      ]
+    },
+    "other-os-sections": {
+      "statement": "On macOS the Classic Troubleshoot section has Start Packet Capture, Report an Issue, Restart Service, Clear Logs, Log Mode, Export Logs, Revert App and Run Zscaler Diagnostics, which provides a one-time snapshot of the system's network state by performing various diagnostic tests and can also be run with the CLI. On Linux it has Export Logs, Start Packet Capture, Restart Service, Clear Logs and Log Mode. On Android and on Android on ChromeOS Restart Service can be clicked only once within a 30-second period, and iOS names the log setting Log Level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+          "after": "The Troubleshoot section includes the following features on macOS devices:",
+          "quotes": [
+            "Start Packet Capture: If your organization's admin enabled packet captures, use this feature when reproducing an issue.",
+            "Report an Issue: If your organization's admin enabled in-app support access, use this feature to report an issue.",
+            "Restart Service: Click to restart the app.",
+            "Clear Logs: Click this option to clear stored logs.",
+            "Log Mode: Change the mode in which Zscaler Client Connector generates logs.",
+            "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin.",
+            "Revert App: If your organization’s admin enabled the revert option, click this option to revert to the previous version of Zscaler Client Connector.",
+            "Run Zscaler Diagnostics: Provides a one-time snapshot of the system's network state by performing various diagnostic tests.",
+            "To run diagnostics using CLI, see Interacting with Zscaler Client Connector Remotely."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+          "after": "The Troubleshoot section includes the following features on Linux devices:",
+          "quotes": [
+            "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin.",
+            "Start Packet Capture: If your organization's admin enabled packet captures, use this feature when reproducing an issue.",
+            "Restart Service: Click this option to restart the app.",
+            "Clear Logs: Click this option to clear stored logs.",
+            "Log Mode: Change the mode in which Zscaler Client Connector generates logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+          "after": "The Troubleshoot section includes the following features on Android devices:",
+          "quotes": [
+            "However, you can click Restart Service only once within a 30-second period."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+          "after": "The Troubleshoot section includes the following features on Android on ChromeOS devices:",
+          "quotes": [
+            "However, you can click Restart Service only once within a 30-second period."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "Log Level: Change the mode in which the app generates logs."
+          ]
+        }
+      ]
+    },
+    "modern-troubleshooting": {
+      "statement": "The Modern UI Troubleshooting page on Windows has Restart Service, Repair App (the app attempts to repair itself by reinstalling app drivers and services), Start Packet Capture, Report an Issue, Revert App, Export Logs (to a ZIP file to email to the support admin), Log Mode, Advanced Settings (Zscaler Deception information if enabled for the user), Disable Tamper Protection (which asks for the Disable Anti-Tampering OTP) and Clear Logs, which removes the existing application logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-modern-ui.json",
+          "quotes": [
+            "The Troubleshooting page includes the following features on Windows devices:",
+            "Restart Service: Click Restart to restart the app.",
+            "Repair App: If you click Repair, the app attempts to repair itself by reinstalling app drivers and services.",
+            "Start Packet Capture: If your organization's admin enabled packet captures, use this feature when reproducing an issue.",
+            "Report an Issue: If your organization's admin enabled in-app support access, use this feature to report an issue.",
+            "Revert App: If your organization's admin enabled the revert option, click this option to revert to the previous version of Zscaler Client Connector.",
+            "Export Logs: Click this option to export logs to a ZIP file, then email that folder to your organization’s support admin.",
+            "Log Mode: Change the mode in which Zscaler Client Connector generates logs.",
+            "Advanced Settings: Shows Zscaler Deception information if enabled for this user.",
+            "Disable Tamper Protection: Click this option to disable anti-tampering protection. When prompted, provide the Disable Anti-Tampering OTP.",
+            "Clear Logs: Click Clear to remove the existing application logs."
+          ]
+        }
+      ]
+    },
+    "log-location": {
+      "statement": "In the Classic UI Windows steps, to see where the logs are stored the user clicks Report an Issue and then Show/Hide logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "To see where the logs are stored, click Report an Issue and then click Show/Hide logs."
+          ]
+        }
+      ]
+    },
+    "report-form-fields": {
+      "statement": "In the Windows Report an Issue form, the field to the right of Name is prepopulated with the email addresses of the organization's designated support admins, multiple addresses are separated with commas, and the support admins are always copied even if the field is left blank. Problem is a category chosen from a drop-down menu, with Other selected by default, and Private Access is for problems with the Private Access service. Priority is a severity level, with Normal selected by default: Urgent means the app cannot be used at all, High that it can be partially used but critical functions are not working, and Low that it can be used but minor functions are not working. Logs are always attached automatically, and the user can also see where encrypted logs are stored on the device.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reporting-issue-zscaler-client-connector-classic-ui.json",
+          "after": "- Windows - This section covers the following topics:",
+          "quotes": [
+            "The field to the right of the Name field is prepopulated with the email addresses of your organization's designated support admins.",
+            "If entering multiple addresses, separate them with commas.",
+            "Your organization's support admins are always copied on support requests, even if you leave this field blank.",
+            "Problem: From the drop-down menu, select a category that describes the problem. Other is selected by default.",
+            "Private Access: Select if you are having problems with the Private Access service.",
+            "Priority: From the drop-down menu, select a severity level for the problem. Normal is selected by default.",
+            "Urgent: App cannot be used at all.",
+            "High: App can be partially used but critical functions are not working.",
+            "Low: App can be used but minor functions are not working.",
+            "You can also see where encrypted logs are stored on your device",
+            "Logs will always be automatically attached when you report an issue."
+          ]
+        }
+      ]
+    },
+    "report-form-mobile-limits": {
+      "statement": "In the Android Report an Issue form the catch-all problem category is Others. On Android and on Android on ChromeOS comments cannot exceed 250 characters and an attached file should not exceed 1 MB; in the section that follows Android on ChromeOS, the Name takes alphabetic characters only and comments cannot exceed 1024 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reporting-issue-zscaler-client-connector-classic-ui.json",
+          "after": "- Android - This section covers",
+          "quotes": [
+            "Others: Select if you are unsure of the problem, or if the problem does not relate to the categories above.",
+            "Comments: Enter additional comments to describe the issue. The comments cannot exceed 250 characters.",
+            "The size of the file should not exceed1 MB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reporting-issue-zscaler-client-connector-classic-ui.json",
+          "after": "- Android on ChromeOS - This section covers",
+          "quotes": [
+            "Comments: Enter additional comments to describe the issue. The comments cannot exceed 250 characters.",
+            "The size of the file should not exceed 1 MB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-reporting-issue-zscaler-client-connector-classic-ui.json",
+          "after": "Attach File(<1MB): Attach an applicable file, e.g, a screenshot showing an error message. The size of the file should not exceed 1 MB.",
+          "quotes": [
+            "Name: Enter your name containing alphabetic characters only.",
+            "Enter comments here: Enter additional comments to describe the issue. The comments cannot exceed 1024 characters."
+          ]
+        }
+      ],
+      "conditions": "The section after Android on ChromeOS is headed iOS in the capture; the heading is too short to quote, so the statement names the section by position."
+    },
+    "zscaler-diagnostics": {
+      "statement": "Zscaler Diagnostics gives the same information as the Troubleshooting article, except that users can reach it without being logged in to Client Connector on a Windows or macOS device. It is available with Client Connector 3.2 or later for Windows, where the Windows policy setting for ZPA Machine Authentication must be enabled so users can authenticate and start the machine tunnel. On Windows the user enters the IdP credentials for Username and Password, or, on a separate device such as a mobile phone, enters the link shown in a browser and then the passcode, or scans the QR code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-diagnostics-classic-ui.json",
+          "quotes": [
+            "This is the same information as provided in Troubleshooting Zscaler Client Connector, except users can access this information without being logged in to Zscaler Client Connector on a Windows or macOS device.",
+            "This feature is available with Zscaler Client Connector version 3.2 or later for Windows.",
+            "The Windows Policy setting for ZPA Machine Authentication must be enabled so users can authenticate and start the machine tunnel.",
+            "Enter the IdP credentials for Username and Password.",
+            "On a separate device (e.g., a mobile phone), enter the link that displays in a browser and then enter the passcode. You can scan the QR code to automatically go to the verification site."
+          ]
+        }
+      ]
+    },
+    "tunnel-status-window": {
+      "statement": "After successful authentication the Tunnel Status window shows current information about the machine tunnel, including the number of packets sent or received and whether the tunnel runs on a trusted network, and users can stop the machine tunnel with Turn Off. On Windows, Restart Service restarts the machine tunnel and Update Policy manually refreshes the machine tunnel policy, and Include Packet Captures includes packet capture files when using Report an Issue. On macOS the machine tunnel starts from the Zscaler icon in the bottom-left corner of the login screen, which is visible only when a device logs out or reboots and not when a user locks the screen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-diagnostics-classic-ui.json",
+          "quotes": [
+            "After successful authentication, the Tunnel Status window displays current information about the machine tunnel, including the number of packets sent or received, and whether the tunnel is running on a trusted network.",
+            "Users have the option to stop the machine tunnel by clicking Turn Off.",
+            "Include Packet Captures: Select this option to include packet capture files when using the Report an Issue feature.",
+            "To start the machine tunnel from the macOS login screen, in the bottom-left corner of the screen, click the Zscaler icon.",
+            "This machine tunnel icon is only visible when a device logs out or reboots. The icon is not visible when a user locks the screen."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-using-zscaler-diagnostics-classic-ui.json",
+          "after": "To authenticate and start the machine tunnel from the Windows login screen:",
+          "quotes": [
+            "Restart Service: You can restart the machine tunnel.",
+            "Update Policy: You can manually refresh the machine tunnel policy."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "restart-enforcement": {
+      "summary": "The end-user troubleshooting pages say restarting Client Connector does not impact security enforcement, while the restart and repair support-options article says Restart Service or Repair App makes Client Connector fail open briefly.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+            "after": "The Troubleshoot section includes the following features on Windows devices:",
+            "quotes": [
+              "Restart Service: Click to restart the app. Restarting does not impact security enforcement."
+            ]
+          },
+          "says": "Classic UI, Windows: restarting does not impact security enforcement."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+            "after": "The Troubleshoot section includes the following features on macOS devices:",
+            "quotes": [
+              "Restart Service: Click to restart the app. Restarting does not impact security enforcement."
+            ]
+          },
+          "says": "Classic UI, macOS: restarting does not impact security enforcement."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-classic-ui.json",
+            "after": "The Troubleshoot section includes the following features on Linux devices:",
+            "quotes": [
+              "Restart Service: Click this option to restart the app. Restarting does not impact security enforcement."
+            ]
+          },
+          "says": "Classic UI, Linux: restarting does not impact security enforcement."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-troubleshooting-zscaler-client-connector-modern-ui.json",
+            "quotes": [
+              "Restart Service: Click Restart to restart the app. Restarting does not impact security enforcement."
+            ]
+          },
+          "says": "Modern UI, Windows: restarting does not impact security enforcement."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-using-zscaler-diagnostics-classic-ui.json",
+            "after": "To authenticate and start the machine tunnel from the Windows login screen:",
+            "quotes": [
+              "Restart Service: You can restart the machine tunnel. Restarting does not impact security enforcement."
+            ]
+          },
+          "says": "Zscaler Diagnostics at the Windows login screen: restarting the machine tunnel does not impact security enforcement."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-user-access-restart-and-repair-options-zscaler-client-connector.json",
+            "quotes": [
+              "Using Restart Service or Repair App causes Zscaler Client Connector to fail-open briefly. Disable access if this is not ideal."
+            ]
+          },
+          "says": "Using Restart Service or Repair App causes Client Connector to fail open briefly (existing claim zcc.support-options.restart-and-repair:brief-fail-open)."
+        }
+      ],
+      "impact": "Whether a user's restart opens a brief unfiltered window depends on which statement holds; the pages do not reconcile enforcement not being impacted with failing open."
+    }
+  }
+}

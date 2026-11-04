@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-connectors.platforms",
+  "title": "App Connector deployment by VM and cloud platform",
+  "aliases": [
+    "app connector software by platform",
+    "app connector deployment guide for linux",
+    "app connector deployment guide for amazon web services",
+    "app connector deployment guide for microsoft azure",
+    "app connector deployment guide for google cloud platform",
+    "app connector deployment guide for vmware platforms",
+    "app connector deployment guide for microsoft hyper-v",
+    "app connector deployment guide for nutanix ahv"
+  ],
+  "binds": [
+    "zpa/app-connectors"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.containers"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.gcp-reference-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The App Connector software page and the per-platform deployment guides say what differs by VM or cloud platform; the shared prerequisites text is in [[zpa.app-connectors.deployment]] and container platforms are in [[zpa.app-connectors.containers]]."
+    },
+    {
+      "label": "Software.",
+      "text": "{{software-by-platform}}"
+    },
+    {
+      "label": "Linux RPM.",
+      "text": "{{rpm-repository}} {{rpm-offline}}"
+    },
+    {
+      "label": "From the Linux guide.",
+      "text": "{{networking-defaults}} {{proxy-bypass}}"
+    },
+    {
+      "label": "Amazon Web Services.",
+      "text": "{{aws-placement}} {{aws-login-imdsv2}} {{aws-auto-scaling}} The same guide's private-subnet recommendation and its public IP setting differ {{divergence:aws-public-ip}}."
+    },
+    {
+      "label": "Microsoft Azure.",
+      "text": "{{azure}}"
+    },
+    {
+      "label": "Google Cloud Platform.",
+      "text": "{{gcp}} The firewall step's wording is open {{gap:gcp-firewall-wording}}. The reference Terraform module's GCP defaults are in [[zpa.app-connectors.gcp-reference-modules]]."
+    },
+    {
+      "label": "VMware.",
+      "text": "{{vmware-vcenter}} {{vmware-dhcp}} {{esxi-standalone}}"
+    },
+    {
+      "label": "Microsoft Hyper-V.",
+      "text": "{{hyper-v-host}} {{hyper-v-vm}} The processor count the procedure sets is compared with the sizing rule in [[zpa.app-connectors.deployment]]."
+    },
+    {
+      "label": "Nutanix AHV.",
+      "text": "{{nutanix}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which software form the connector was built from, before applying an RPM, VM image or cloud image instruction.",
+      "uses": [
+        "software-by-platform"
+      ]
+    },
+    {
+      "do": "Whether the AWS connector has a public IP and an inbound port 22 rule left open after enrollment.",
+      "uses": [
+        "aws-login-imdsv2",
+        "aws-placement",
+        "aws-public-ip"
+      ]
+    },
+    {
+      "do": "Whether a VMware standalone ESXi connector missed its provisioning key because of the extended OVF attributes.",
+      "uses": [
+        "esxi-standalone"
+      ]
+    },
+    {
+      "do": "Whether a connector that sends traffic to a proxy has a proxy-bypass file for traffic to the Service Edges.",
+      "uses": [
+        "proxy-bypass"
+      ]
+    }
+  ],
+  "claims": {
+    "software-by-platform": {
+      "statement": "The App Connector software page lists STIG OVAs for Nutanix AHV and VMware, AWS, GCP and Microsoft Azure Marketplace STIG images, RHEL 9 VHDX images for Microsoft Azure Local and Microsoft Hyper-V, Docker Hub, Kubernetes, a Helm Chart that must be installed to deploy on OpenShift, and RPM packages for RHEL 8 and RHEL 9 that need a RHEL operating system already deployed and running.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-app-connector-software-by-platform.json",
+          "quotes": [
+            "| Nutanix AHV | STIG OVA STIG OVA checksum |",
+            "| VMware | STIG OVA STIG OVA checksum |",
+            "| Amazon Web Services (AWS) | Private Access - AWS Marketplace (STIG Image) |",
+            "| Google Cloud Platform (GCP) | Private Access - GCP Marketplace (STIG Image) |",
+            "| Microsoft Azure | Private Access - Azure Marketplace (STIG Image) |",
+            "The following RHEL 9 App Connector images are available for Microsoft Azure Local: VHDX VHDX checksum",
+            "The following RHEL 9 App Connector images are available for Microsoft Hyper-V: VHDX VHDX checksum",
+            "| Docker | Docker Hub |",
+            "| Kubernetes | To learn more, see the App Connector Deployment Guide for Kubernetes. |",
+            "A Helm Chart must be installed in order to deploy an App Connector on OpenShift.",
+            "RHEL 8-based: RPM package GPG public key RHEL 9-based: RPM package GPG public key You must have the RHEL operating system deployed and running."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "rpm-repository": {
+      "statement": "In the App Connector Linux guide the zscaler repository for RHEL 9 has baseurl https://yum.private.zscaler.com/yum/el9 with gpgcheck=1 and the el9 gpg key, RHEL 8-based deployments use the el8 baseurl and gpgkey, the reader is to ensure the GPG fingerprint matches a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd, and in a proxy environment the proxy server IP address and port go in /etc/yum.conf.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "[zscaler] name=Zscaler Private Access Repository baseurl=https://yum.private.zscaler.com/yum/el9 enabled=1 gpgcheck=1 gpgkey=https://yum.private.zscaler.com/yum/el9/gpg",
+            "For Red Hat Enterprise Linux 8-based deployments, you must use: https://yum.private.zscaler.com/yum/el8 as the baseurl and gpgkey=https://yum.private.zscaler.com/yum/el8/gpg as the gpgkey.",
+            "ensure that the GPG fingerprint matches, a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd",
+            "If you have a proxy environment, you need to configure the proxy server IP address and proxy port in /etc/yum.conf."
+          ]
+        }
+      ]
+    },
+    "rpm-offline": {
+      "statement": "The App Connector Linux guide says that when the App Connector cannot download the RPM package it must be downloaded on a server; the GPG public key is then imported with rpm --import and the package installed with rpm -i.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "If the App Connector can't download the RPM package, you must download the package on a server.",
+            "[admin@zpa-connector ~]$ rpm --import <GPG public key file>",
+            "[admin@zpa-connector ~]$ rpm -i <RPM package file>"
+          ]
+        }
+      ]
+    },
+    "networking-defaults": {
+      "statement": "The App Connector Linux guide says that by default VM-based App Connectors, Private Service Edges and Private Cloud Controllers use DHCP networking on their primary interface; if DHCP is not available a static IP address can be configured on a VM-based App Connector, Private Service Edge, Private Cloud Controller or Network Connector, and a DNS resolver, NTP servers and static routing can be configured from the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "By default, virtual machine-based App Connectors, Private Service Edges, or Private Cloud Controllers are configured to use DHCP networking on their primary interface.",
+            "If DHCP is not available, you can configure a static IP address on a VM-based App Connector, Private Service Edge, Private Cloud Controller, or Network Connector.",
+            "You can configure a Domain Name System (DNS) Resolver, Network Time Protocol (NTP) servers, static routing, and other features from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "proxy-bypass": {
+      "statement": "The App Connector Linux guide says an App Connector configured to send traffic to a proxy can have a proxy bypass for traffic exempted from the proxy (traffic between the App Connector and the Public or Private Service Edges): entries in /opt/zscaler/var/proxy-bypass are IP addresses, subnets, domains or domains with a prefix wildcard, and zpa-connector is restarted with systemctl.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-linux.json",
+          "quotes": [
+            "If an App Connector is configured to send traffic to a proxy, you can set up a proxy bypass on it for the traffic that needs to be exempted from the proxy (i.e., traffic between the App Connector and the Public or Private Service Edges for Private Access).",
+            "$sudo vi /opt/zscaler/var/proxy-bypass",
+            "Enter the necessary bypass entries using IP addresses, subnets, domains, or domains with a prefix wildcard.",
+            "$ sudo systemctl restart zpa-connector"
+          ]
+        }
+      ]
+    },
+    "aws-placement": {
+      "statement": "The App Connector AWS guide says App Connectors are deployed in the customer's VPCs with a pair per VPC, Zscaler load balances across them, security groups should permit connections to the application servers on the appropriate TCP/UDP ports with ICMP reachability and DNS resolution, no inbound connectivity from the internet is required, Zscaler recommends a private subnet that reaches the internet through a NAT gateway, and only outbound access on TCP port 443 is needed to reach Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "For AWS, you must deploy App Connectors in your Virtual Private Clouds (VPCs). For each VPC, there should be a pair of App Connectors deployed for resilience and scalability.",
+            "Zscaler automatically load balances across the App Connectors.",
+            "The security groups should permit the App Connectors to connect to the application servers on the appropriate TCP/UDP ports, and enable ICMP reachability and DNS resolution to the applications.",
+            "There is no requirement for inbound connectivity to the App Connectors from the internet. Zscaler recommends deploying the App Connectors on a private subnet which connects to the internet through a NAT gateway.",
+            "An App Connector only needs outbound access on TCP port 443 to reach Private Access."
+          ]
+        }
+      ]
+    },
+    "aws-login-imdsv2": {
+      "statement": "The App Connector AWS guide says only certificate-based authentication is allowed with AWS App Connectors and SSH is enabled by default; the security group is updated to temporarily allow inbound port 22, which must be disabled afterwards, and if IMDSv2 is enabled App Connectors fetch the AWS VM ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Only certificate-based authentication is allowed with AWS App Connectors.",
+            "SSH access is enabled by default on AWS App Connectors, so there is no need to enable the service manually.",
+            "Update the security group associated with the App Connector to temporarily allow inbound access on port 22",
+            "In AWS, make sure you disable inbound access on port 22 for the security group associated with the App Connector.",
+            "If Instance Metadata Service Version 2 (IMDSv2) is enabled, App Connectors will fetch the AWS VM ID."
+          ]
+        }
+      ]
+    },
+    "aws-auto-scaling": {
+      "statement": "The App Connector AWS guide's launch-template procedure filters the AMI menu for zpa-connector, has user data that waits for the connector to download its latest build with sleep 60, enters 2 as the group size across 2 subnets, and enters 50 as the target value; it says each App Connector passes 400 to 500 Mbps and an additional one can be added at about 50% CPU utilization, and that OAuth 2.0 enrollment is unavailable with Auto Scaling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "From the AMI menu, filter for zpa-connector and select it from the list.",
+            "#Wait for the App Connector to download latest build sleep 60",
+            "Group size: Enter 2.",
+            "make sure that you select 2 subnets from the drop-down menu",
+            "Target value: Enter 50.",
+            "each App Connector is capable of passing 400 to 500 Mbps traffic. An additional App Connector can be added when this limit is reached, which occurs when the App Connector runs at about 50% CPU utilization.",
+            "OAuth 2.0 enrollment is unavailable with Auto Scaling."
+          ]
+        }
+      ]
+    },
+    "azure": {
+      "statement": "The App Connector Azure guide has the reader select the Zscaler Private Access Connector for Azure Compute - Gen 1 image; it says the VM allows inbound SSH on port 22 by default and Zscaler recommends restricting that inbound rule, has the reader create a rule allowing outbound connections for port 443, and says to disable the inbound rule on port 22 for the associated network security group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "Select the Zscaler Private Access Connector for Azure Compute - Gen 1 image using the drop-down menu.",
+            "By default, the VM allows inbound SSH connections for port 22. Zscaler recommends updating the inbound rule to be more restricted.",
+            "Create a rule that allows outbound connections for port 443.",
+            "In Azure, make sure you disable inbound access rule on port 22 for the network security group associated with the App Connector."
+          ]
+        }
+      ]
+    },
+    "gcp": {
+      "statement": "The App Connector GCP guide says each VPC must have at least a pair of App Connectors deployed and that they should be deployed across regions and zones, describes n2-standard-4 (4 vCPU, 2 core, 16 GB) and n2-highcpu-4 (4 vCPU, 2 core, 4 GB) as supported specifications, selects Allow full access to all Cloud APIs for Access scopes (said to allow access to the provisioning_key in the secret manager), and enters 2 and 4 as minimum and maximum instances, 80 for Target CPU utilization and 300 for Initialization period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "For each VPC, there must be at least a pair of App Connectors deployed for resilience and scalability. The App Connectors should be deployed across regions and zones",
+            "n2-standard-4: The supported specifications are 4 vCPU, 2 core, and 16 GB memory.",
+            "n2-highcpu-4: The supported specifications are 4 vCPU, 2 core, and 4 GB memory.",
+            "For Access scopes, select Allow full access to all Cloud APIs. This allows access to the provisioning_key present in the secret manager.",
+            "Select a minimum and maximum number of instances as 2 and 4, respectively.",
+            "Enter 80 in the Target CPU utilization field.",
+            "Enter 300 in the Initialization period field."
+          ]
+        }
+      ]
+    },
+    "vmware-vcenter": {
+      "statement": "The App Connector VMware guide's additional vCenter prerequisites are VMware vSphere Hypervisor (ESXi) version 7.0 Update 2 or later, vCenter access to deploy an OVA as a VM, configure the virtual NIC and modify the vApp attributes, and the vSphere Client Integration Plugin; its OVA link is https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-connector-el9-2026.07.ova, the disk format is Thin Provision, Power on after deployment is not selected, OVF environment transport is VMware Tools, Installation boot is Enable, and the local time is to be verified and updated with Network Time Protocol if wrong.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "VMware vSphere Hypervisor (ESXi) version 7.0 Update 2 or later"
+          ],
+          "after": "The following additional prerequisites apply to VMware vCenter only:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "Access to vCenter to deploy an OVA file as a virtual machine (VM)",
+            "Access to vCenter to configure the virtual NIC of the VM onto the appropriate Virtual Network or VLAN",
+            "Access to vCenter to modify the vApp attributes of the VM",
+            "VMware vSphere Client Integration Plugin installed",
+            "You can also use the following link to download the file for the vSphere Web Client: https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-connector-el9-2026.07.ova.",
+            "choose Thin Provision for the virtual disk format",
+            "For 3 Ready to Complete, ensure that Power on after deployment is not selected, then click Finish.",
+            "For OVF environment transport, select VMware Tools.",
+            "For Installation boot, select Enable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "Verify the local time on the VMware machine is correct. If it is not, update the time using Network Time Protocol."
+          ],
+          "after": "Deploying on VMware vCenter"
+        }
+      ],
+      "conditions": "The ESXi 7.0 Update 2 requirement is quoted from the list headed 'The following additional prerequisites apply to VMware vCenter only:'; the same requirement also appears under the guide's ESXi-only prerequisites, which are not quoted here."
+    },
+    "vmware-dhcp": {
+      "statement": "The App Connector VMware guide says the App Connector is preconfigured to obtain an IP address on its primary interface via DHCP, and that if the DHCP service is not available in the environment networking tasks must be completed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "The App Connector is preconfigured to obtain an IP address on its primary interface via DHCP.",
+            "If the DHCP service is not available in your environment, you must complete the following networking tasks:"
+          ],
+          "after": "Deploying on VMware vCenter"
+        }
+      ]
+    },
+    "esxi-standalone": {
+      "statement": "The App Connector VMware guide says the standalone vSphere Hypervisor edition is not able to parse the extended OVF attributes that allow the provisioning key to be provided during deployment; on that path Power on after deployment is selected, and systemctl daemon-reload is run and zpa-connector started.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "the standalone vSphere Hypervisor edition is not able to parse the extended OVF attributes that allow you to provide the App Connector provisioning key during deployment.",
+            "Ensure that Power on after deployment is selected, then click Finish.",
+            "[admin@zpa-connector ~]$ systemctl daemon-reload [admin@zpa-connector ~]$ systemctl start zpa-connector"
+          ]
+        }
+      ]
+    },
+    "hyper-v-host": {
+      "statement": "The App Connector Hyper-V guide's prerequisites list a physical server with Windows Server 2025 Standard or Datacenter Edition, Intel VT-x or AMD-V hardware virtualization support, SLAT support, a minimum of 16 GB RAM (recommended based on VM workload requirements) and sufficient local storage for the host OS and VM VHDX files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-microsoft-hyper-v.json",
+          "quotes": [
+            "Physical server with Windows Server 2025 Standard or Datacenter Edition OS virtualization support",
+            "Intel VT-x or AMD-V hardware virtualization support",
+            "Second Level Address Translation (SLAT) support",
+            "Minimum 16 GB RAM (recommended based on VM workload requirements)",
+            "Sufficient local storage for Host OS and VM VHDX files"
+          ]
+        }
+      ]
+    },
+    "hyper-v-vm": {
+      "statement": "The App Connector Hyper-V procedure requires a physical server with the Hyper-V manager role and uses the VHDX https://dist.private.zscaler.com/vms/Azure/2026.08/zpa-connector-el9-2026.08.vhdx; it selects Generation 1, enters 4096 as startup memory with Dynamic Memory not selected, and enters 2 virtual processors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-microsoft-hyper-v.json",
+          "quotes": [
+            "This procedure requires a physical server with the Hyper-V manager role.",
+            "https://dist.private.zscaler.com/vms/Azure/2026.08/zpa-connector-el9-2026.08.vhdx",
+            "On the Specify Generation page, select Generation 1, then click Next.",
+            "Startup memory: Enter 4096 for the amount of memory to use when starting up the virtual machine.",
+            "Use Dynamic Memory for this virtual machine: Make sure this checkbox is not selected.",
+            "Click Processor, and enter 2 for the number of virtual processors."
+          ]
+        }
+      ]
+    },
+    "nutanix": {
+      "statement": "The App Connector Nutanix AHV guide uses the VMware image https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-connector-el9-2026.07.ova: the VMDK is extracted from the OVA, imported with Image Type DISK, the CD-ROM disk is removed, and the disk is cloned with Operation Clone from Image Service and Bus Type IDE; Number Of Cores Per vCPU has a minimum required value of 4.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-nutanix-ahv.json",
+          "quotes": [
+            "Use the following link to download the latest VMware image from Zscaler: https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-connector-el9-2026.07.ova.",
+            "Extract the VMDK file from the OVA.",
+            "Image Type: Select DISK from the Image Type drop-down menu.",
+            "Under Disks, click the Delete icon to remove the CD-ROM disk type.",
+            "Number Of Cores Per vCPU: The number of cores for the virtual CPU. The minimum required value is 4.",
+            "Operation: Clone from Image Service",
+            "Bus Type: IDE"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "aws-public-ip": {
+      "summary": "The App Connector AWS guide recommends a private subnet that reaches the internet through a NAT gateway, while its instance procedure says to choose Enable for Auto-assign Public IP.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "Zscaler recommends deploying the App Connectors on a private subnet which connects to the internet through a NAT gateway."
+            ]
+          },
+          "says": "Zscaler recommends deploying App Connectors on a private subnet that connects to the internet through a NAT gateway."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "For Auto-assign Public IP, choose Enable."
+            ]
+          },
+          "says": "The instance procedure chooses Enable for Auto-assign Public IP."
+        }
+      ],
+      "impact": "A connector built exactly by the procedure gets a public IP address although the same page recommends a private subnet behind a NAT gateway; the page does not say which governs. The sentence it sits beside gives no inbound requirement from the internet either way."
+    }
+  },
+  "gaps": {
+    "gcp-firewall-wording": {
+      "kind": "semantic",
+      "title": "App Connector GCP guide firewall step names the Private Cloud Controller",
+      "status": "open",
+      "detail": "The App Connector GCP guide's firewall step says the Private Cloud Controller must have ingress and egress on TCP port 22 for SSH and egress on TCP port 443 to reach Private Access. The guide is about App Connectors and the sentence gives no inbound rule for TCP 443; whether it was copied from the Private Cloud Controller guide and what the intended App Connector rule is are not stated.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "The Private Cloud Controller must have ingress and egress traffic directions on TCP port 22 for SSH, and egress traffic directions on TCP port 443 to reach Private Access."
+          ]
+        }
+      ]
+    }
+  }
+}

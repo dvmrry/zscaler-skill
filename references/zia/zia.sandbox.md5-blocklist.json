@@ -44,6 +44,10 @@
       "text": "{{mcp-check}} Detonation reports are in [[zia.sandbox.report]]; the rules that handle everything else are in [[zia.sandbox.rules]]."
     },
     {
+      "label": "In the help.",
+      "text": "{{help-allow-and-deny-lists}}"
+    },
+    {
       "label": "Terraform.",
       "text": "{{tf-both-resources-registered}} {{tf-v2-encouraged}} Whether v2 is already required for new configurations is open {{gap:tf-v2-supersedes-v1}}. {{tf-v1-v2-same-endpoint}} Whether the two can be declared together is open {{gap:tf-v1-v2-coexistence}}."
     }
@@ -128,6 +132,29 @@
           "path": "zscaler/zia/sandbox.py",
           "quotes": [
             "\"type\": \"CUSTOM_FILEHASH_ALLOW\""
+          ]
+        }
+      ]
+    },
+    "help-allow-and-deny-lists": {
+      "statement": "The help places the custom MD5 lists on the Sandbox policy's Advanced Policy Settings page: a denylist of hashes to block specific files applicable to Sandbox analysis, and an allowlist of hashes to allow specific files access. When adding to the allowlist an entry can carry a comment after two forward slashes, which the page words as a comment on a URL entry, and Remove All deletes all the custom file MD5 hashes from the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-advanced-policy-settings.json",
+          "quotes": [
+            "On the Advanced Policy Settings page for the Sandbox policy, you can add custom MD5 hash values to the denylist for your organization to block specific files that are applicable to Zscaler Sandbox analysis.",
+            "You can also add custom MD5 hash values to the allowlist to allow specific files access.",
+            "Click Remove All to delete all the custom file MD5 hashes from the list."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-advanced-policy-settings.json",
+          "after": "To add a custom MD5 hash to the allowlist:",
+          "quotes": [
+            "(Optional) To add a comment to a URL, enter two forward slashes (//) after each URL entry."
           ]
         }
       ]
@@ -354,10 +381,19 @@
     "enum-and-help-framing": {
       "kind": "semantic",
       "title": "How Zscaler's help names this list and whether the type values are the documented set",
-      "status": "open",
-      "detail": "No help capture for this surface is vendored. Whether CUSTOM_FILEHASH_DENY and CUSTOM_FILEHASH_ALLOW are the complete documented values, or only what the Python SDK happens to use, is unknown.",
+      "status": "partial",
+      "detail": "A help capture for this surface now exists and names the lists as a denylist and an allowlist. It does not name CUSTOM_FILEHASH_DENY or CUSTOM_FILEHASH_ALLOW, so whether those are the complete documented values, or only what the Python SDK happens to use, is unknown.",
       "resolves_with": [
         "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-advanced-policy-settings.json",
+          "quotes": [
+            "You can also add custom MD5 hash values to the allowlist to allow specific files access."
+          ]
+        }
       ]
     },
     "tf-v2-supersedes-v1": {

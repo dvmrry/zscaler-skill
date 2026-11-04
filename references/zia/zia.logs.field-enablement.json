@@ -37,7 +37,11 @@
     },
     {
       "label": "Needs Zscaler Support.",
-      "text": "{{clt-sport}} {{srv-dport}} {{dlprulename}}"
+      "text": "{{clt-sport}} {{srv-dport}} {{dlprulename}} {{console-ports-disabled}}"
+    },
+    {
+      "label": "Needs a DLP setting.",
+      "text": "{{other-dlp-rules}}"
     },
     {
       "label": "Needs TLS Inspection.",
@@ -65,6 +69,54 @@
     }
   ],
   "claims": {
+    "other-dlp-rules": {
+      "statement": "The other DLP rules field is populated only when Evaluate All Rules Mode is enabled for inline DLP rule evaluation on the DLP Advanced Settings page.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#other_dlprulenames"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Other DLP Rules:",
+            "To populate this field, you must enable the Evaluate All Rules Mode for inline DLP rule evaluation in the DLP Advanced Settings page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "To populate this field, you must enable the Evaluate All Rules mode for inline DLP rule evaluation in the DLP Advanced Settings page (Administration > DLP Advanced Settings)."
+          ]
+        }
+      ]
+    },
+    "console-ports-disabled": {
+      "statement": "The Web Insights Logs columns page says the Client Source Port filter is disabled by default and enabled by contacting Zscaler Support, and says the same of a column; the filters page says the same of a filter.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#clt_sport"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Client Source Port: The source port number from which the traffic originated. This filter is disabled by default. To enable it, contact Zscaler Support.",
+            "This column is disabled by default. To enable it, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "This filter is disabled by default. To enable the filter, contact Zscaler SupportZscaler Support."
+          ]
+        }
+      ]
+    },
     "clt-sport": {
       "statement": "Logging of the web log client source port, clt_sport, is enabled by contacting Zscaler Support.",
       "tier": "A",

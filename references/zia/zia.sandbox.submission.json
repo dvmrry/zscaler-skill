@@ -30,6 +30,10 @@
     },
     {
       "text": "{{automate-publication}} Whether the two routes still work on a tenant is open {{gap:submission-route-status}}."
+    },
+    {
+      "label": "The Sandbox Scanning Portal.",
+      "text": "{{scanning-portal}} {{scanning-portal-results}} {{scanning-portal-check-status}} The portal's limits are open {{gap:portal-limits}}."
     }
   ],
   "checks": [
@@ -130,6 +134,66 @@
         "submission-route-status"
       ]
     },
+    "scanning-portal": {
+      "statement": "With Advanced Sandbox, suspicious files can be submitted by hand through the Sandbox Scanning Portal, where the engine executes and monitors them in a controlled sandbox, records and analyzes malicious behavior, and applies the organization's Malware Protection and Sandbox policies. No Sandbox analysis is done if the file is blocked by Malware Protection, is clean, or was analyzed before.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "quotes": [
+            "With Advanced Sandbox, you can manually submit suspicious files for behavioral analysis by uploading them to the Sandbox Scanning Portal.",
+            "Executes and monitors suspicious objects in a controlled sandbox",
+            "Records and analyzes any malicious behaviors",
+            "Applies the Malware Protection and Sandbox policies configured by your organization",
+            "The Zscaler service doesn't perform Sandbox analysis if the file is blocked by the Malware Protection policy, is clean, or was previously analyzed by the Sandbox engine."
+          ]
+        }
+      ]
+    },
+    "scanning-portal-results": {
+      "statement": "A portal upload's file name cannot contain spaces. Its status is a blocked sign (blocked by the Malware Protection or Sandbox policies, with the reason shown) or a check mark, which indicates one of the results the page lists, one being that the file was unknown and sent for analysis. File contents are treated as confidential and not viewable in the portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "quotes": [
+            "The file name cannot contain spaces.",
+            "Blocked: If you see a blocked sign, it indicates that the file was blocked based on the Malware Protection or Sandbox policies.",
+            "This column also displays why the file was blocked (e.g., due to a virus or malicious behavior).",
+            "Check Mark: If you see a check mark, it indicates one of the following results:",
+            "The file was unknown and sent for analysis.",
+            "All files are treated as confidential and the information they contain is not viewable in the Sandbox Scanning Portal."
+          ]
+        }
+      ]
+    },
+    "scanning-portal-check-status": {
+      "statement": "To tell whether a portal upload was clean or sent for analysis, the Sandbox logs must be viewed. Filtering by Sandbox MD5, no log means the file is clean and a log means it is unknown and sent for analysis. Filtering by Uploaded URL with https://filecheck.zscaler.com/<Uploaded URL>, a display of None means clean and Sent for Analysis means the engine is analyzing the file. Files uploaded simultaneously share the first segment of the Uploaded URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "quotes": [
+            "To check whether the file was clean or sent for analysis, you must view the Sandbox logs, which you can access from the Zscaler Admin Console.",
+            "Under Select Filters, choose Sandbox MD5.",
+            "If a log isn’t generated, then the file is clean. If a log is generated, then the file is unknown and sent for analysis.",
+            "The first segment of the Uploaded URL is the same for files you upload simultaneously to the Sandbox Scanning Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-sandbox-scanning-portal.json",
+          "after": "Filter by Uploaded URL",
+          "quotes": [
+            "Enter https://filecheck.zscaler.com/<Uploaded URL>.",
+            "If it displays None, the file is clean. If it displays Sent for Analysis, the Sandbox engine is analyzing the file."
+          ]
+        }
+      ]
+    },
     "daily-quota": {
       "statement": "Advanced Sandbox allows 100 API file submissions per day by default; the quota can be raised through the Zscaler account team or Support.",
       "tier": "A",
@@ -161,11 +225,30 @@
     "dynamic-analysis-duration": {
       "kind": "semantic",
       "title": "Unverified legacy statement: dynamic analysis takes 3 to 10 minutes",
-      "status": "open",
-      "detail": "Unverified legacy statement: The earlier reference gave this range. The only timing in the sources is the Go SDK's note that a report is available 10 minutes after submission.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: The earlier reference gave this range. The Go SDK notes that a report is available 10 minutes after submission. The end user notification help page says only that Sandbox analysis might take a few minutes, depending on the size and type of the file, and gives no figure (see zia.sandbox.quarantine:quarantine-page).",
       "resolves_with": [
         "lab-test",
         "operator-experience"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-sandbox-end-user-notifications.json",
+          "quotes": [
+            "The Sandbox analysis might take a few minutes, depending on the size and type of the file."
+          ]
+        }
+      ]
+    },
+    "portal-limits": {
+      "kind": "semantic",
+      "title": "The Sandbox Scanning Portal's size limit, quota and relation to the API submission quota",
+      "status": "open",
+      "detail": "The portal page states no file size limit, no daily quota, and no relation to the 100-per-day API submission quota. It also gives no retention period for the Sandbox Detail Report.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
       ]
     }
   }

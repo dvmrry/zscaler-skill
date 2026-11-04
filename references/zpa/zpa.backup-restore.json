@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "id": "zpa.backup-restore",
+  "title": "ZPA Backup and Restore: what a backup covers, the 10-backup limit, the golden backup, expiry, schedules and the PRA-tenant exclusion",
+  "aliases": [
+    "zpa backup",
+    "zpa restore",
+    "private access backup and restore",
+    "golden backup",
+    "scheduled backup",
+    "backup expiry",
+    "backup limit"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.backup-restore.restore-semantics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.backup-restore"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.pra"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}}"
+    },
+    {
+      "label": "Who cannot use it.",
+      "text": "{{pra-tenants-unsupported}}"
+    },
+    {
+      "label": "Coverage.",
+      "text": "{{coverage-application-management}} {{coverage-excluded}} The same article's unavailable and backed-up lists disagree about policies, certificates and user portals {{divergence:backup-coverage}}, and both name segment groups, servers and server groups {{divergence:segment-group-coverage}}."
+    },
+    {
+      "label": "Limits and expiry.",
+      "text": "{{limit-10}} {{expiry-10-days}} Whether a golden backup also expires is open {{gap:golden-expiry}}."
+    },
+    {
+      "label": "Golden backup.",
+      "text": "{{golden-backup}} Whether a golden backup can be deleted is worded two ways {{divergence:golden-deletion}}."
+    },
+    {
+      "label": "Creating and managing backups.",
+      "text": "{{page-columns}} {{scheduled-backups}} {{manual-and-edit-fields}} {{delete-removes-activities}} The backup status values are open {{gap:status-values}}."
+    },
+    {
+      "text": "What a restore overwrites, its reports and its inconsistencies are in [[zpa.backup-restore.restore-semantics]]; the ZIA counterpart is [[zia.backup-restore]] (the ZIA limit is in its restore-points subject)."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant has Privileged Remote Access, since create, restore, edit and schedule are then unsupported.",
+      "uses": [
+        "pra-tenants-unsupported"
+      ]
+    },
+    {
+      "do": "Whether an answer about what is backed up for policies, certificates and user portals rests on the disagreeing lists.",
+      "uses": [
+        "coverage-excluded",
+        "coverage-application-management",
+        "backup-coverage",
+        "segment-group-coverage"
+      ]
+    },
+    {
+      "do": "Whether a backup is within 10 days of creation and under the 10-backup count, since expired backups cannot be restored and a manual add is refused at 10.",
+      "uses": [
+        "limit-10",
+        "expiry-10-days"
+      ]
+    },
+    {
+      "do": "Whether a failed backup is being treated as the golden backup, and how deletion of the golden backup is documented.",
+      "uses": [
+        "golden-backup",
+        "golden-deletion"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Private Access Backup and Restore, a feature in limited availability, creates backups of application segments, policies and configuration settings and restores them; a backup represents the date and time it was created, and backups are automated using schedules or created manually on demand in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "This feature and its procedures are in limited availability. To learn more, contact Zscaler Support.",
+            "You can create a backup of application segments, policies, and configuration settings, and restore them using a backup.",
+            "A backup represents the date and time when a backup was created and allows you to restore application segments, policies, and configurations saved at that time.",
+            "Backups can be automated using schedules or created manually on demand in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "pra-tenants-unsupported": {
+      "statement": "The ability to create, restore, edit or schedule a backup is not supported if the tenant has Privileged Remote Access; the actions appear grayed out on the page and Zscaler Support must be contacted to disable PRA for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "The ability to create, restore, edit, or schedule a backup is not supported if your tenant has Privileged Remote Access (PRA).",
+            "These actions appear grayed-out on this page. Contact Zscaler Support to disable PRA for your tenant."
+          ]
+        }
+      ]
+    },
+    "coverage-application-management": {
+      "statement": "The service backs up application segments, Browser Access, Client Hostname Validation, DNS Search Domains, segment groups, servers and server groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "The service backs up the following policies and configuration settings:",
+            "Application segments",
+            "Client Hostname Validation",
+            "DNS Search Domains",
+            "Segment groups",
+            "- Servers",
+            "Server groups"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "Browser Access"
+          ],
+          "after": "Application segments"
+        }
+      ]
+    },
+    "coverage-excluded": {
+      "statement": "The article's list of features unavailable for the backup and restore service opens with AppProtection; Deception-enabled applications, segment groups, servers, server groups and access policies; extranet application support; Privileged Remote Access; Internet & SaaS-referenced server groups; and Zscaler-managed certificates and DNS, which makes Browser Access applications, user portals and PRA portals using them unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "The following features are unavailable for the backup and restore service:",
+            "AppProtection",
+            "Deception-enabled applications, segment groups, servers, server groups, and access policies.",
+            "Extranet application support",
+            "Internet & SaaS-referenced server groups. Any server groups referenced in Internet & SaaS are unavailable.",
+            "Zscaler-managed certificates and DNS. Browser Access applications, user portals, and PRA portals using these features are unavailable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "Privileged Remote Access (PRA)"
+          ],
+          "after": "The following features are unavailable for the backup and restore service:"
+        }
+      ]
+    },
+    "limit-10": {
+      "statement": "An organization can have up to 10 backups, including manual and scheduled backups. At the limit a backup cannot be added manually without deleting an existing one, while a scheduled backup is created by removing the oldest backup; if the oldest backup is a golden backup, the next oldest is removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "An organization can have up to 10 backups, including manual and scheduled backups.",
+            "If the number of backups reaches a limit of 10, you cannot add a new backup manually without deleting an existing one.",
+            "However, during scheduled automatic backups, the oldest backup is removed to create the new one when the limit is exceeded.",
+            "If the oldest backup is a golden backup, then the next oldest backup is deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-scheduled-backup-configurations.json",
+          "quotes": [
+            "If the number of backups reaches a limit of 10, then the next backup is created by removing the oldest backup in the list.",
+            "If the oldest backup is a golden backup, then the next oldest backup is removed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-backups-manually.json",
+          "quotes": [
+            "If the number of backups reaches a limit of 10, you cannot add a new backup manually without deleting an existing one."
+          ]
+        }
+      ]
+    },
+    "golden-backup": {
+      "statement": "One of the backups can be designated the golden backup, which is the last known good backup of policies and configuration settings; there can be only one at any given point in time. A backup with a failed status cannot be marked as a golden backup, and for a golden backup with a failed status Zscaler recommends selecting a new backup with a completed status as the golden backup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "which is the last known good backup of policies and configuration settings. There can be only one golden backup at any given point in time.",
+            "If a golden backup has a failed status, then it should not be marked as a golden backup.",
+            "then select a new backup with a completed status as a golden backup."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-backups.json",
+          "quotes": [
+            "If the backup status has failed, it can't be marked as a golden backup."
+          ]
+        }
+      ]
+    },
+    "expiry-10-days": {
+      "statement": "Backups expire after 10 days. If a backup has expired its Restore action is disabled, and a backup with less than 3 days before expiration shows a yellow Caution icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "Backups expire after 10 days.",
+            "If the backup has expired, the Restore action is disabled.",
+            "If the backup has less than 3 days before expiration, a yellow Caution icon"
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "The backup page lists each backup's Created By (the admin that created it), Creation Date, Expiration Date, and Status, which refreshes automatically every minute; clicking the backup name opens its Restore Activities window, and a Flag icon marks a golden backup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-backup-and-restore.json",
+          "quotes": [
+            "Click the backup name to open the Restore Activities window and view a list of restore activities applied to the selected backup by the admin, and view the restore reports for each individual backup.",
+            "Created By: The admin that created the backup.",
+            "Creation Date: The date and time that the backup was created.",
+            "Expiration Date: The expiration date for the backup.",
+            "Status: The status of the backup. Statuses refresh automatically every minute.",
+            "A backup with the Flag icon () next to it represents a golden backup"
+          ]
+        }
+      ]
+    },
+    "scheduled-backups": {
+      "statement": "The automatic backup scheduler is disabled by default. A schedule takes a Backup Prefix Name, a Frequency of Daily, Weekly or Monthly (Monthly by default) with a Date for Monthly or a Day of the week for Weekly, a Backup Creation Time and a Time Zone. The creation time in a scheduled backup's name might differ from the creation date on the page because of the user's selected time zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-scheduled-backup-configurations.json",
+          "quotes": [
+            "Schedule a Backup: Enable to configure the automatic backup scheduler. This is disabled by default.",
+            "Backup Prefix Name: Enter a name for the automatically created backup.",
+            "Frequency: Select a frequency from the drop-down menu for when the scheduled backup is created (Daily, Weekly, Monthly). By default, this is set to Monthly.",
+            "Date: Select the date on which you want the backup to be created. This field appears when the Frequency is selected as Monthly.",
+            "Day: Select the day of the week when you want the backup to be created. This field appears when the Frequency is selected as Weekly.",
+            "Backup Creation Time: Select the time at which you want the backup to be created.",
+            "Time Zone: Select the time zone in which the scheduled backup configuration should be valid.",
+            "The creation time in the backup name for the scheduled backup configuration might differ from the creation date shown on the Backup and Restore page due to the selected time zone of the user."
+          ]
+        }
+      ]
+    },
+    "manual-and-edit-fields": {
+      "statement": "A manual backup takes a Name, a Golden Backup option and an optional Description; in the Edit Backup drawer only the name, the Golden Backup setting and the description can be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-backups-manually.json",
+          "quotes": [
+            "Name: Enter a name to identify the backup.",
+            "Golden Backup: Enable this option if you want to set the backup as the golden backup.",
+            "Description: (Optional) Enter additional notes or information."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-backups.json",
+          "quotes": [
+            "In the Edit Backup drawer, you can only modify the following fields:",
+            "Name: The name of the backup.",
+            "Golden Backup: Enable or disable the Golden Backup.",
+            "Description: The description of the backup."
+          ]
+        }
+      ]
+    },
+    "delete-removes-activities": {
+      "statement": "Deleting a backup also deletes the linked restore activities; for example, information about who restored the backup and the restore reports are deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deleting-backups.json",
+          "quotes": [
+            "Deleting a backup also deletes the linked restore activities.",
+            "For example, after deleting a backup, information about who restored the backup and the restore reports are deleted."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "backup-coverage": {
+      "summary": "About Backup and Restore lists access, client forwarding and timeout policies, certificates and user portals as unavailable, then lists Certificate Management, Policy and User Portals as backed up; the restoring article documents restore inconsistencies for those same objects.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-backup-and-restore.json",
+            "quotes": [
+              "Browser Access certificates",
+              "Access policy",
+              "Client forwarding policy",
+              "Timeout policy",
+              "Portal Links"
+            ]
+          },
+          "says": "The list introduced as features unavailable for the backup and restore service continues with Browser Access certificates, access policy, client forwarding policy, timeout policy and portal links."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-backup-and-restore.json",
+            "quotes": [
+              "Certificate Management"
+            ]
+          },
+          "says": "After that list the same article lists Certificate Management at the top level, next to the backed-up items."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-restoring-policies-and-configurations-backup.json",
+            "quotes": [
+              "An inconsistency occurs for an access policy in the following scenarios when a backup is applied: The application or segment group are no longer present.",
+              "An inconsistency occurs for a client forwarding policy in the following scenarios when a backup is applied:",
+              "An inconsistency occurs for a timeout policy in the following scenarios when a backup is applied:",
+              "An inconsistency occurs for a certificate in the following scenarios when a backup is applied:",
+              "An inconsistency occurs for user portals in the following scenarios when a backup is applied:"
+            ]
+          },
+          "says": "The restoring article documents restore inconsistencies for access policies, client forwarding policies, timeout policies, certificates and user portals."
+        }
+      ],
+      "impact": "Whether access, client forwarding and timeout policies, certificates and user portals are backed up and restored is unsettled. The captured list structure suggests the trailing items may have been children of the second list mis-nested under the unavailable note, but no source says so. Do not state either coverage as settled."
+    },
+    "segment-group-coverage": {
+      "summary": "The same article lists segment groups, servers and server groups as backed up and, in the unavailable list, lists Deception-enabled segment groups, servers and server groups.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-backup-and-restore.json",
+            "quotes": [
+              "Segment groups",
+              "- Servers",
+              "Server groups"
+            ]
+          },
+          "says": "Segment groups, servers and server groups are in the list of what the service backs up."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-backup-and-restore.json",
+            "quotes": [
+              "Deception-enabled applications, segment groups, servers, server groups, and access policies."
+            ]
+          },
+          "says": "Deception-enabled applications, segment groups, servers, server groups and access policies are unavailable."
+        }
+      ],
+      "impact": "The articles do not say whether the unavailable entries are only the Deception-enabled objects or whether the plain objects overlap; the application-management coverage claim and the unavailable-list claim both name these objects. Do not state segment group, server or server group coverage without both lists."
+    },
+    "golden-deletion": {
+      "summary": "The same article says the golden backup cannot be deleted and also recommends deleting a failed golden backup.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-backup-and-restore.json",
+            "quotes": [
+              "You can designate one of the backups as the golden backup that allows you to restore the corresponding policies and configurations at any point in time. The golden backup cannot be deleted."
+            ]
+          },
+          "says": "The golden backup cannot be deleted."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-about-backup-and-restore.json",
+            "quotes": [
+              "If a golden backup has a failed status, Zscaler recommends that you delete the backup and then select a new backup with a completed status as a golden backup."
+            ]
+          },
+          "says": "For a golden backup with a failed status Zscaler recommends deleting the backup and selecting a new completed backup as golden."
+        }
+      ],
+      "impact": "The article does not say whether the golden flag must be cleared before a failed golden backup is deleted. Do not state that a golden backup can or cannot be deleted without both sentences."
+    }
+  },
+  "gaps": {
+    "golden-expiry": {
+      "kind": "semantic",
+      "title": "Whether the golden backup also expires after 10 days",
+      "status": "open",
+      "detail": "The article says the golden backup allows restoring at any point in time and also that backups expire after 10 days; it does not say whether the golden backup is exempt. It also does not address how a scheduled Monthly backup fits a 10-day expiry.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "status-values": {
+      "kind": "semantic",
+      "title": "The backup Status values and name and description limits",
+      "status": "open",
+      "detail": "The page says statuses refresh every minute and the golden-backup text mentions failed and completed statuses, but the status values are not listed. No name or description length limit is stated for a backup (ZIA states one in its ranges and limitations). The ZPA OpenAPI document has no backup or restore path and no Terraform resource was found.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

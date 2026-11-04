@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "id": "zia.endpoint-context",
+  "title": "Endpoint Context: endpoint application telemetry from Client Connector, the policies that use it, and the Application Investigation page",
+  "aliases": [
+    "endpoint context",
+    "endpoint application telemetry",
+    "application investigation",
+    "endpoint resources page"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-resources"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-inventory"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.criteria"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{threat-engines-all-customers}}"
+    },
+    {
+      "label": "Policy use.",
+      "text": "{{policy-criteria}} How a rule matches an endpoint application is open {{gap:rule-matching}}. The criteria are in [[zia.ssl-inspection.criteria]], [[zia.dns-control.criteria]] and [[zia.firewall.criteria]]."
+    },
+    {
+      "label": "Access and licensing.",
+      "text": "{{access-via-support}} The page names by licence are in [[zia.dlp.endpoint-resources:page-name-by-license]]. {{context-only-tags}} Which features need a licence is open {{gap:licence-split}}."
+    },
+    {
+      "label": "Customizing the data.",
+      "text": "{{customizing-data}} The resources and tags are in [[zia.dlp.endpoint-resources]]."
+    },
+    {
+      "label": "Application Investigation.",
+      "text": "{{application-investigation-page}} {{overview-widgets}} {{inventory-columns}} The detail pages are in [[zia.dlp.endpoint-inventory]]. Which operating systems are inventoried is open {{gap:inventoried-os}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which resources page the tenant has, from whether Endpoint Context, Endpoint DLP or both are licensed.",
+      "uses": [
+        "context-only-tags",
+        "zia.dlp.endpoint-resources:page-name-by-license"
+      ]
+    },
+    {
+      "do": "Whether a rule that matches an endpoint application is read from the policy's own criteria page, since how it matches is open.",
+      "uses": [
+        "policy-criteria",
+        "rule-matching"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Endpoint Context uses application data collected from Zscaler Client Connector to add endpoint telemetry to the identity, network and cloud telemetry the Zero Trust Exchange already has. The service inventories commonly abused OS applications and all non-OS applications on each endpoint, running or at rest, with a data set for each.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-context.json",
+          "quotes": [
+            "Zscaler Endpoint Context uses extensive application data that it collects from Zscaler Client Connector to provide the Zero Trust Exchange (ZTE) with additional endpoint-related telemetry to add to existing identity, network, and cloud telemetry already available.",
+            "The Zscaler service builds an inventory of commonly abused OS and all non-OS applications residing on each endpoint, both actively running and at rest, and enumerates a rich data set related to each application."
+          ]
+        }
+      ],
+      "gaps": [
+        "commonly-abused-os"
+      ]
+    },
+    "policy-criteria": {
+      "statement": "Endpoint application metadata is available as policy criteria, so a policy can act on the source endpoint application, a list of endpoint applications, or the application's risk from the risk-quantification process; the page points to the Firewall Filtering, DNS Control and SSL/TLS Inspection policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-context.json",
+          "quotes": [
+            "Extensive endpoint application metadata is now available for use as criteria in policy",
+            "the ability to dictate behavior of policies based on the source endpoint application, a list of endpoint applications, or the risk associated with the endpoint application from the risk-quantification process.",
+            "To learn more see Configuring the Firewall Filtering Policy, Configuring the DNS Control Policy, and Configuring SSL/TLS Inspection Policy."
+          ]
+        }
+      ],
+      "gaps": [
+        "risk-quantification"
+      ]
+    },
+    "threat-engines-all-customers": {
+      "statement": "Regardless of licensing, Endpoint Context gives every Internet & SaaS customer additional endpoint application and process metadata for the threat detection engines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-context.json",
+          "quotes": [
+            "Additionally, Endpoint Context benefits all Internet & SaaS customers, regardless of licensing, by providing additional endpoint application and process metadata for inclusion in threat detection engines."
+          ]
+        }
+      ]
+    },
+    "access-via-support": {
+      "statement": "The page says to contact Zscaler Support to learn more about accessing Endpoint Context for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dlp-endpoint-resources-context.json",
+          "quotes": [
+            "To learn more about accessing Endpoint Context for your organization, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "customizing-data": {
+      "statement": "For Endpoint Context, administrators can add endpoint application details as part of its endpoint telemetry, and can use resource tags to build custom application lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dlp-and-endpoint-resources-context.json",
+          "after": "The Zscaler service supports the following DLP and endpoint resources:",
+          "quotes": [
+            "Additionally, you can add endpoint application details as part of the endpoint-related telemetry available in Endpoint Context."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-resource-tags.json",
+          "quotes": [
+            "Additionally, you can use tags to build custom application lists for Endpoint Context."
+          ]
+        }
+      ]
+    },
+    "context-only-tags": {
+      "statement": "With Endpoint Context licensed but not Endpoint DLP, tags cannot be created for network shares, network printers or removable storage devices, and the Endpoint Resources page is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-resource-tags.json",
+          "quotes": [
+            "If your organization has licensed Endpoint Context but not Endpoint DLP, you do not have the option to create tags for network shares, network printers, or removable storage devices."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dlp-endpoint-resources-context.json",
+          "quotes": [
+            "The Endpoint Resources page is available if your organization has licensed Endpoint Context but not Endpoint DLP."
+          ]
+        }
+      ]
+    },
+    "application-investigation-page": {
+      "statement": "Endpoint Context's console page is Application Investigation (Cyberthreat Protection > Policy > Endpoint Context), with an Overview page and an Inventory page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-context.json",
+          "quotes": [
+            "On the Application Investigation page (Cyberthreat Protection > Policy > Endpoint Context), you can view the following pages:",
+            "On the Overview page, you can do the following:",
+            "On the Inventory page, you can do the following:"
+          ]
+        }
+      ]
+    },
+    "overview-widgets": {
+      "statement": "The Overview page shows detected applications by OS, certificate status, instances by threat type, top application versions with vulnerabilities (filterable by critical, high, medium or low), and top applications by category (for example AI Assistance, Browsers, File Sharing), by threat category, with a custom certificate trust store, by installs, and among AI applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-context.json",
+          "quotes": [
+            "See the list of detected applications by OS.",
+            "See a list of the top application versions with vulnerabilities. You can filter the list by vulnerability level (i.e., critical, high, medium, and low).",
+            "See the top applications by category (e.g., AI Assistance, Browsers, File Sharing).",
+            "See the top applications by threat category (e.g., malicious, suspicious).",
+            "See the top applications with a custom certificate trust store.",
+            "See the top applications installed on endpoints across your organization.",
+            "See the list of top AI applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-context.json",
+          "after": "On the Overview page, you can do the following:",
+          "quotes": [
+            "See the certificate status for all detected endpoint applications.",
+            "See the instances of applications sorted by threat type."
+          ]
+        }
+      ]
+    },
+    "inventory-columns": {
+      "statement": "The Inventory page lists each detected application with Application Name, Product Name, Last Execution (the last time an executable ran on an endpoint), Code Signing, Category, Distinct Versions, Instances, Threat Type (malicious, suspicious, benign, unknown) and Vulnerabilities by CVE severity (critical, high, medium, low).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-endpoint-context.json",
+          "quotes": [
+            "Application Name: The name of the application installed on endpoints.",
+            "Product Name: The product name of the application.",
+            "Last Execution: The last time an executable was run on an endpoint.",
+            "Code Signing: The certificate status for the application.",
+            "Category: The category of the application.",
+            "Distinct Versions: The number of distinct versions of the application running on endpoints across your organization.",
+            "Instances: The number of instances of the application running on endpoints across your organization.",
+            "Threat Type: The threat type for the application (i.e., malicious, suspicious, benign, unknown).",
+            "Vulnerabilities: The vulnerabilities by the CVE severity level of the application (i.e., critical, high, medium, low)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "commonly-abused-os": {
+      "kind": "semantic",
+      "title": "Which operating-system applications count as commonly abused",
+      "status": "open",
+      "detail": "The page says the inventory covers commonly abused OS applications and all non-OS applications, but does not enumerate the OS applications.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "inventoried-os": {
+      "kind": "semantic",
+      "title": "Which endpoint operating systems are inventoried",
+      "status": "open",
+      "detail": "The Endpoint Context page does not say which endpoint operating systems are inventoried. zia.dlp.endpoint-inventory says Windows and macOS.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "risk-quantification": {
+      "kind": "semantic",
+      "title": "How the endpoint application risk level is quantified",
+      "status": "open",
+      "detail": "The risk-quantification process behind Endpoint Application Risk Level is described only as based on multiple properties and behaviors.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "licence-split": {
+      "kind": "semantic",
+      "title": "Which Endpoint Context features need a licence",
+      "status": "open",
+      "detail": "The page says the threat-engine benefit applies regardless of licensing, but no capture separates which other Endpoint Context features need a licence.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "rule-matching": {
+      "kind": "semantic",
+      "title": "How a Firewall Filtering, DNS Control or SSL/TLS Inspection rule matches an endpoint application",
+      "status": "open",
+      "detail": "The Endpoint Context page names the three policies but not how a rule matches an endpoint application. The existing zia.firewall.criteria gap on endpoint application criteria covers the same question.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

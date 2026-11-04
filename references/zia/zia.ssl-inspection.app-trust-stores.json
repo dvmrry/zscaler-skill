@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "id": "zia.ssl-inspection.app-trust-stores",
+  "title": "Installing the inspection root in applications that keep their own trust store, per tool",
+  "aliases": [
+    "custom certificate application-specific trust store",
+    "pip certificate zscaler",
+    "npm cafile zscaler",
+    "java keytool zscaler root",
+    "git sslcainfo zscaler",
+    "docker zscaler certificate",
+    "firefox enterprise_roots",
+    "aws cli ca bundle zscaler"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection.uninspectable"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.firefox.proxy-and-trust"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.ssl-inspection.certificate-install"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{why-and-remedy}} Whether the root is already in the system store by default is stated differently across pages {{divergence:root-in-system-store}}."
+    },
+    {
+      "label": "Languages and package tools.",
+      "text": "{{python}} {{npm}} {{git-ruby}} {{composer}} {{java-keystores}}"
+    },
+    {
+      "label": "Command-line and cloud tools.",
+      "text": "{{curl-wget}} {{cloud-clis}} {{docker}}"
+    },
+    {
+      "label": "Operating system and browser stores.",
+      "text": "{{linux-system-stores}} {{macos-openssl-rust-fastlane}} {{windows-store}} {{firefox}}"
+    },
+    {
+      "text": "Which settings the page does not give is open {{gap:unverified-mechanisms}}; the Ubuntu and Debian update step is printed as a different command {{gap:ubuntu-update-command}}; what the page's certifi warning means is not stated {{gap:certifi-overwrite}}. Why applications refuse the root, and what to do when no root can be installed, is in [[zia.ssl-inspection.certificates]] and [[zia.ssl-inspection.uninspectable]]."
+    }
+  ],
+  "claims": {
+    "why-and-remedy": {
+      "statement": "Some applications maintain a custom trust store instead of the default system trust store, so they cannot validate Zscaler-generated server certificates and the TLS connection fails; users then need to manually add the custom root CA to that store or disable server certificate validation. Administrators provide users with the applicable root CA certificate (Zscaler root CA or custom root CA), and if they need to deploy CA certificates for a large group of users, they use MDM solutions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "Some applications maintain a custom trust store instead of using the default system trust store.",
+            "As a result, the application is not able to validate Zscaler-generated server certificates and the TLS connection fails.",
+            "In such cases, the users need to manually add the custom root Certificate Authority (CA) to the custom trust store, or disable server certificate validation.",
+            "provide your users with the root CA certificate (i.e., Zscaler root CA certificate or custom root CA certificate) that is applicable to your organization.",
+            "If you need to deploy CA certificates for a large group of users, use MDM solutions."
+          ]
+        }
+      ]
+    },
+    "python": {
+      "statement": "Different Python modules or installers implement their own certificate stores separately. The page gives, for pip, `pip config set global.cert ~/ca_certs`; exporting SSL_CERT_FILE, SSL_CERT_DIR and REQUESTS_CA_BUNDLE; installing the pip-system-certs package, which patches pip and requests at runtime to use certificates from the default system store; and, as a listed option with a caveat, appending the Zscaler root to the certifi bundle with `cat ZscalerRootCA.pem >> $(python -m certifi)`, after which the page says a custom CA certificate cannot be added using the certifi package option and can only be overwritten when the certifi package is updated. Requests automatically searches for a valid certificate in the REQUESTS_CA_BUNDLE environment variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "Different Python modules or installers implement their own certificate stores separately.",
+            "pip config set global.cert ~/ca_certs",
+            "export CERT_PATH=/etc/ssl/certs/ZscalerRootCA.pem export CERT_DIR=/etc/ssl/certs/ export SSL_CERT_FILE=${CERT_PATH} export SSL_CERT_DIR=${CERT_DIR} export REQUESTS_CA_BUNDLE=${CERT_PATH}",
+            "You can install the pip-system-certs package, which patches the PIP and the requests at runtime to use certificates from the default system store rather than the bundled CA certificates.",
+            "cat ZscalerRootCA.pem >> $(python -m certifi)",
+            "You cannot add a custom CA certificate using the certifi package option. You can only overwrite it when you update the certifi package.",
+            "Requests automatically search for any valid certificate in the REQUESTS_CA_BUNDLE environment variable."
+          ]
+        }
+      ]
+    },
+    "npm": {
+      "statement": "For npm, whose commands the page says were tested and verified on version 10.2.5, `npm config set cafile <Path to Certificate>/ca-bundle.pem` points npm at a PEM bundle that must include both root and intermediate certificates; the page also says to set the NODE_EXTRA_CA_CERTS environment variable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "The commands are tested and verified on npm version 10.2.5.",
+            "npm config set cafile <Path to Certificate>/ca-bundle.pem",
+            "Ensure that the PEM certificate bundle includes both root and intermediate certificates.",
+            "Set the NODE_EXTRA_CA_CERTS environment variable."
+          ]
+        }
+      ]
+    },
+    "linux-system-stores": {
+      "statement": "The page gives three Linux locations for copying both root and intermediate certificates as individual PEM files: /etc/pki/ca-trust/source/anchors/, /usr/local/share/ca-certificates/ and /etc/pki/trust/anchors/. It gives the commands update-ca-trust and, after the /etc/pki/trust/anchors/ step, sudo update-ca-certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "Copy both root and intermediate certificates as individual files in PEM format into the location, /etc/pki/ca-trust/source/anchors/.",
+            "update-ca-trust",
+            "Copy both root and intermediate certificates as individual files in PEM format into the location, /usr/local/share/ca-certificates/.",
+            "Copy both root and intermediate certificates as individual files in PEM format into the location, /etc/pki/trust/anchors/."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "after": "Copy both root and intermediate certificates as individual files in PEM format into the location, /etc/pki/trust/anchors/.",
+          "quotes": [
+            "sudo update-ca-certificates"
+          ]
+        }
+      ]
+    },
+    "java-keystores": {
+      "statement": "For Java the page downloads the certificate bundle in DER format to the JAVA_HOME/bin directory using the keytool utility and imports it with `keytool -import -trustcacerts` into the cacerts keystore. A Gradle plugin is a Java app that runs from the JRE embedded in Android Studio, so the certificates go into the JRE local keystore, and in Android Studio 2024.1.1 Patch 1 or later the JRE directory might not be present and the JBR directory is used instead. For Salesforce Apex Data Loader the root is added in the JDK keystore, and IntelliJ IDEA provides its own storage for trusted certificates on Windows, Linux and Mac.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "Download the certificate bundle in DER format to the JAVA_HOME/bin directory using the keytool utility.",
+            "keytool -import -trustcacerts -alias zscalerrootca -file zscalerrootca.der -keystore $JAVA_HOME/jre/lib/security/cacerts",
+            "If you are using a Gradle plugin, which is a Java app that runs from the JRE embedded in Studio, you need to add the certificates into the JRE local keystore.",
+            "Install Salesforce Apex Data Loader and Java Development Kit (JDK) and add the Zscaler root CA certificate in keystore.",
+            "IntelliJ IDEA provides its own storage for trusted certificates for Windows, Linux, and Mac platforms."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "after": "To add the certificate to the JRE local keystore:",
+          "quotes": [
+            "In later versions of Android Studio (Android Studio version 2024.1.1 Patch 1 or later), the JRE directory might not be present. Use the JBR directory instead."
+          ]
+        }
+      ]
+    },
+    "git-ruby": {
+      "statement": "For Git, which the page says was tested and validated on version 2.34.1, `git config --global http.sslcainfo ~/ca_certs/custom-ca-bundle.pem` points Git at a PEM bundle. For Ruby, verified and tested on version 3.0.2p107, the page sets the SSL_CERT_FILE environment variable to the Zscaler root with the command [System.Environment]::SetEnvironmentVariable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "The process is tested and validated on Git version 2.34.1.",
+            "git config --global http.sslcainfo ~/ca_certs/custom-ca-bundle.pem",
+            "The process is verified and tested on Ruby version - 3.0.2p107.",
+            "[System.Environment]::SetEnvironmentVariable(\"SSL_CERT_FILE\", \"C:\\<Path to Certificate>\\ZscalerRootCA.pem\", \"Machine\")"
+          ]
+        }
+      ]
+    },
+    "curl-wget": {
+      "statement": "For cURL the page adds `cacert=<Path to Certificate>/ZscalerRootCA.pem` to $HOME/.curlrc, passes `--cacert` on a curl command, or sets the CURL_CA_BUNDLE environment variable. For GNU Wget, which the page says was tested and verified on 1.20.3, it uses the `--ca-certificate=FILE` command or adds `ca_certificate` to $HOME/.wgetrc.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "echo \"cacert=<Path to Certificate>/ZscalerRootCA.pem\" >> $HOME/.curlrc",
+            "curl -vI4 https://www.apple.com --cacert ZscalerRootCertificate-2048-SHA256.crt",
+            "echo \"export CURL_CA_BUNDLE=<Path to Certificate>/ZscalerRootCA.pem\" >> $HOME/.bashrc",
+            "This is tested and verified on GNU Wget 1.20.3 built on linux-gnu version.",
+            "use the --ca-certificate=FILE command to trust the Zscaler certificate bundle.",
+            "echo \"ca_certificate=ZscalerRootCertificate-2048-SHA256.crt\" >> $HOME/.wgetrc"
+          ]
+        }
+      ]
+    },
+    "docker": {
+      "statement": "On Windows, macOS and Linux Docker uses the OpenSSL CA trust for its connections to download packages as a Dockerfile is processed; once the Dockerfile is loaded and processed, the containers make their connections, which need to trust the Zscaler certificate, so the container must have the Zscaler certificates installed. For a build in a development environment, the page locates OpenSSL and adds the Zscaler root certificate to the trusted root certificate store and updates it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "On Windows, macOS, and Linux, Docker uses the OpenSSL CA Trust for its connections to allow it to download packages as you instantiate them in your Dockerfile.",
+            "After the Dockerfile is loaded and processed, Docker containers make their connections, which need to trust the Zscaler certificate.",
+            "Therefore, ensure that your Docker container has the Zscaler certificates installed.",
+            "If the build is in a development environment, then the location of OpenSSL is determined, and the Zscaler root certificate is added to the trusted root certificate store and updated."
+          ]
+        }
+      ]
+    },
+    "firefox": {
+      "statement": "For Firefox, which the page says was tested and verified on version 127.0.2, the profile includes a cert#.db file, where # is the version number of the .db file, and the page says to copy this file into the Firefox profiles of other users. Firefox running version 49 or later can be configured to use the Windows root certificate store to automatically import and install SSL/TLS root certificates by setting security.enterprise_roots.enabled, whose value is false by default, to true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "This process is tested and verified on Firefox version 127.0.2.",
+            "The Firefox profile includes a cert#.db file, where # indicates the version number of the .db file that is available with your Firefox profile.",
+            "Copy this file into the Firefox profiles of your other users.",
+            "You can configure Mozilla Firefox running version 49 or later to use the Windows root certificate store to automatically import and install SSL/TLS root certificates for your user.",
+            "In the search bar, enter security.enterprise_roots.enabled.",
+            "By default, the value is set to false.",
+            "Click the toggle icon to set the value to true."
+          ]
+        }
+      ]
+    },
+    "windows-store": {
+      "statement": "For Microsoft Edge the page imports the Zscaler root certificate from the Trusted Root Certification Authorities tab. For Windows PowerShell, which the page says was tested and verified on version 5.1.19041.2673, it opens certmgr.msc from the Run command window and imports the root, which the page reports as imported to the Microsoft PowerShell directory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "From the Trusted Root Certification Authorities tab, click Import.",
+            "The Zscaler root certificate is successfully imported to the Microsoft Edge browser.",
+            "This process is tested and verified on Windows PowerShell version 5.1.19041.2673.",
+            "Open the Run command window and enter certmgr.msc in the Open: field and click OK.",
+            "The Zscaler root certificate is successfully imported to the Microsoft PowerShell directory."
+          ]
+        }
+      ]
+    },
+    "composer": {
+      "statement": "For Composer (PHP) the page adds the Zscaler certificate to openssl.cafile in the INI file under the PHP folder, for example openssl.cafile=\"C:\\ZscalerRootCertificate-2048-SHA256.crt\", and says the command was tested and verified on PHP version 8.3.7 and Composer version 6.3.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "To add the Zscaler custom CA certificate for Composer, add the following command to the openssl.cafile in the INI file under the PHP folder:",
+            "openssl.cafile=\"C:\\ZscalerRootCertificate-2048-SHA256.crt\"",
+            "This command is tested and verified on PHP version 8.3.7 and Composer version 6.3.0."
+          ]
+        }
+      ]
+    },
+    "cloud-clis": {
+      "statement": "For the AWS CLI the page runs `aws configure set default.ca_bundle` with a certificate in PEM format, and says Boto uses the AWS CLI config and the same environmental variables. For the Azure CLI it gives the certifi cacert.pem path for the 32-bit (x86) installation and the variable name REQUESTS_CA_BUNDLE. For the Google Cloud SDK it gives `gcloud config set core/custom_ca_certs_file`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "To add the custom certificate for AWS CLI to the trust store on the following platforms:",
+            "Boto uses the AWS CLI config and the same environmental variables.",
+            "C:\\Program Files (x86)\\Microsoft SDKs\\Azure\\CLI2\\Lib\\site-packages\\certifi\\cacert.pem",
+            "The path provided is for the 32-bit (x86) installation of the Azure CLI.",
+            "Variable name: REQUESTS_CA_BUNDLE",
+            "gcloud config set core/custom_ca_certs_file"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "after": "To add the custom certificate for AWS CLI to the trust store on the following platforms:",
+          "quotes": [
+            "aws configure set default.ca_bundle <certification in .pem format >"
+          ]
+        }
+      ]
+    },
+    "macos-openssl-rust-fastlane": {
+      "statement": "On macOS, which the page says was verified and tested on 14.4.1, the root is installed from the downloaded certificate file by opening it and clicking Install in the Keychain Access window. For OpenSSL the page passes `-CAfile` to openssl s_client, or saves a copy of the root named with its hash value and a .0 extension, because an application that meets a remote certificate checks for the cert.pem file or a file named after the certificate's hash value. For Rust, tested and verified on 1.75.0, and for Fastlane the page copies the root certificates into /usr/local/share/ca-certificates/.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+          "quotes": [
+            "The process is verified and tested on macOS ProductVersion: 14.4.1, BuildVersion: 23E224.",
+            "Double-click to open the file. Depending on the macOS version you are using, the Keychain Access window appears.",
+            "Click Install to install the downloaded Zscaler root CA certificate.",
+            "openssl s_client -connect www.zscaler.com:443 -servername www.zscaler.com -CAfile ZscalerRootCertificate-2048-SHA256.crt",
+            "Calculate the hash using openssl x509 -noout -hash -in ZscalerRootCertificate-2048-SHA256.pem and save the file with hash-value.0.",
+            "When an application encounters a remote certificate, it checks for the cert.pem file or file named after the certificate’s hash value.",
+            "This command is tested and verified on Rust version 1.75.0.",
+            "Copy the Zscaler root certificates as individual files into the location /usr/local/share/ca-certificates/.",
+            "To install the Zscaler root CA certificates for Fastlane, add the certificates to the /usr/local/share/ca-certificates/ directory."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "root-in-system-store": {
+      "summary": "The trust-store page says the root and intermediate certificates are by default already in the end user's system certificate store; the choosing-CA page says the service does not install a root certificate on the user's machine, and the deployment guide says clients must have the root installed.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-custom-certificate-application-specific-trust-store.json",
+            "quotes": [
+              "By default, the root and intermediate certificates, which are required to trust the organization's generated certificate, are already added to the end user's system certificate store."
+            ]
+          },
+          "says": "By default the root and intermediate certificates are already in the end user's system certificate store."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-choosing-ca-certificate-ssltls-inspection.json",
+            "quotes": [
+              "The Zscaler service does not install a Zscaler root certificate or a custom root certificate on the user's machine for SSL/TLS Inspection."
+            ]
+          },
+          "says": "The service does not install a Zscaler or custom root certificate on the user's machine."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "SSL_Inspection_Deployment_and_Operations_Guide.txt",
+            "quotes": [
+              "If you use the default Zscaler intermediate certificate, ensure all clients have installed the Zscaler root certificate."
+            ]
+          },
+          "says": "With the default Zscaler intermediate certificate, all clients must have the Zscaler root certificate installed."
+        }
+      ],
+      "impact": "Whether a machine already trusts the root without an administrator-driven install differs between the pages; the existing claim zia.ssl-inspection.certificates:root-must-be-trusted sits with the second and third positions, and the pages do not say what the first page's default refers to."
+    }
+  },
+  "gaps": {
+    "unverified-mechanisms": {
+      "kind": "semantic",
+      "title": "Mechanisms the trust-store page does not give (PIP_CERT, the .npmrc file, Docker certs.d)",
+      "status": "open",
+      "detail": "The page uses `pip config set global.cert`, `npm config set cafile` and installs into the container's OpenSSL store; it does not name PIP_CERT, the .npmrc file or Docker's /etc/docker/certs.d/ with a restart. Those stay unverified (see zia.ssl-inspection.certificates:toolchain-trust-mechanisms).",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "ubuntu-update-command": {
+      "kind": "semantic",
+      "title": "The Ubuntu and Debian trust-store update command",
+      "status": "open",
+      "detail": "After 'Update the CA store using the following command:' the page prints `sudo chmod 644 <root certificate file path>`, which is not a store-update command, so the page does not give the Ubuntu and Debian update command; candidate vendor defect.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "certifi-overwrite": {
+      "kind": "semantic",
+      "title": "What the certifi warning means",
+      "status": "open",
+      "detail": "After giving `cat ZscalerRootCA.pem >> $(python -m certifi)` the page says a custom CA certificate cannot be added with the certifi package option and can only be overwritten when the certifi package is updated; whether an appended root is lost on a certifi upgrade is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

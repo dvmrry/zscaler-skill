@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "id": "zcc.pac-files",
+  "title": "Client Connector's two PAC files: what the forwarding profile PAC and the app profile PAC do in Tunnel and Tunnel with Local Proxy modes, and the forwarding PAC in Enforce Proxy",
+  "aliases": [
+    "forwarding profile pac",
+    "app profile pac",
+    "pac files best practices",
+    "zapp_local_proxy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.internet-actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.z-tunnel.bypasses"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Client Connector uses two PAC files that do different jobs. {{two-pac-files}}"
+    },
+    {
+      "label": "Tunnel mode.",
+      "text": "{{tunnel-mode-fp-pac}} The Proxy Action Type names the page uses differ from the Forwarding Profiles page {{divergence:proxy-action-type-names}}. {{tunnel-mode-app-pac}}"
+    },
+    {
+      "label": "Tunnel with Local Proxy mode.",
+      "text": "{{local-proxy-fp-pac}}"
+    },
+    {
+      "label": "Enforce Proxy mode.",
+      "text": "{{enforce-proxy-pac}}"
+    },
+    {
+      "label": "IPv6.",
+      "text": "{{ipv6-zpa-bypass}}"
+    },
+    {
+      "label": "Bypasses.",
+      "text": "{{where-bypasses-go}} {{id-federation-bypass}}"
+    },
+    {
+      "label": "Gateways and fallback.",
+      "text": "{{two-gateway-returns}} {{gateway-fallback}}"
+    },
+    {
+      "label": "Rolling out and slowness.",
+      "text": "{{staged-rollout}} {{slowness-checks}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Where the Fallback to gateway domain setting lives is open {{gap:fallback-setting-location}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which forwarding mode the profile uses, then which of the two PAC files holds the exception for the traffic in question.",
+      "uses": [
+        "two-pac-files",
+        "tunnel-mode-app-pac",
+        "local-proxy-fp-pac"
+      ]
+    },
+    {
+      "do": "For Tunnel mode, the Proxy Action Type value actually set on the profile, since the page names it differently from the Forwarding Profiles page.",
+      "uses": [
+        "tunnel-mode-fp-pac",
+        "proxy-action-type-names"
+      ]
+    },
+    {
+      "do": "For slowness, whether the app profile PAC uses dnsResolve(), isResolvable() or isInNet(), and whether another process such as a GPO also applies proxy settings.",
+      "uses": [
+        "slowness-checks"
+      ]
+    },
+    {
+      "do": "In an IPv6 environment, whether the app profile PAC has IPv6 bypasses for Private Access apps.",
+      "uses": [
+        "ipv6-zpa-bypass"
+      ]
+    }
+  ],
+  "claims": {
+    "two-pac-files": {
+      "statement": "Client Connector uses PAC files in the forwarding profile and in the app profile. The forwarding profile PAC file directs system, browser and application traffic to the app; when the app receives traffic, the app profile PAC file directs it to the Zscaler cloud, by changing the proxy return statement to the IP address of the geographically closest data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "Zscaler Client Connector uses PAC files in the Forwarding Profile and in the App Profile.",
+            "The Forwarding Profile PAC file is used to direct system, browser, and application traffic to Zscaler Client Connector.",
+            "When Zscaler Client Connector receives traffic, the App Profile is used to direct that traffic to the Zscaler cloud.",
+            "Zscaler Client Connector directs traffic to the closest data center according to the App Profile PAC file by changing the proxy return statement to the IP address of the geographically closest data center."
+          ]
+        }
+      ]
+    },
+    "gateway-fallback": {
+      "statement": "If the primary and secondary data center from the PAC file both fail, Client Connector attempts to connect to gateway.<cloudname>.net, unless the Fallback to gateway domain setting is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "If the primary and secondary data center from the PAC file both fail, Zscaler Client Connector attempts to connect to gateway.<cloudname>.net, unless the Fallback to gateway domain setting is disabled."
+          ]
+        }
+      ]
+    },
+    "staged-rollout": {
+      "statement": "To prevent outages, Zscaler strongly recommends rolling out all PAC file changes to a small set of users before deploying them to all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "To prevent outages, Zscaler strongly recommends that you roll out all PAC file changes to a small set of users before deploying changes to all users."
+          ]
+        }
+      ]
+    },
+    "slowness-checks": {
+      "statement": "The vendor's checks for slowness with Client Connector include: whether the data center has issues; traceroute for ISP issues; checking for and removing dnsResolve(), isResolvable() and isInNet() from the app profile PAC file; whether network firewalls or scanning interfere; browsing to a website without a proxy, with the PAC file only, and with Client Connector; whether another process such as a GPO also applies proxy settings, which can conflict with the app and cause performance issues; and that the PAC return statement has double quotes, since missing double quotes can cause errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "Check if the data center has any issues.",
+            "Run traceroute to check for possible ISP issues.",
+            "From the App Profile PAC file, check for and remove the functions dnsResolve(), isResolvable(), and isInNet().",
+            "Check if any network firewalls or network scanning is interfering with traffic.",
+            "Check for possible server issues by browsing to a website without a proxy, with the PAC file only, and with Zscaler Client Connector.",
+            "Check if another process, such as Group Policy Object (GPO), is also applying proxy settings.",
+            "This can conflict with Zscaler Client Connector and cause performance issues on the device.",
+            "Ensure that the return statement in your PAC file has double quotes.",
+            "Missing double quotes can cause errors."
+          ]
+        }
+      ]
+    },
+    "where-bypasses-go": {
+      "statement": "SSL and authentication bypasses are applied in the Admin Console by configuring the SSL bypass list and the Authentication Bypass list; traffic that must not reach the Zscaler cloud and has to be bypassed on the client itself must be bypassed in the PAC files used for Client Connector. The page's example bypasses a domain and its subdomains with shExpMatch on host for both safemarch.com and *.safemarch.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "Apply bypasses in the Zscaler Admin Console by configuring bypasses in the SSL bypass list and in the Authentication Bypass list.",
+            "If you have traffic that you do not want to reach the Zscaler cloud, and it must be bypassed on the client itself, you must configure bypasses in the PAC files used for Zscaler Client Connector.",
+            "if (shExpMatch(host, \"safemarch.com\") || shExpMatch(host, \"*.safemarch.com\")) return \"DIRECT\";"
+          ]
+        }
+      ]
+    },
+    "two-gateway-returns": {
+      "statement": "For Zscaler Client Connector version 1.4 or later, multiple Public Service Edge for Internet & SaaS gateway destinations can be configured based on the destination the user is accessing. For optimal performance the page says not to define more than two return statements that contain Client Connector gateway IP addresses; its example, to send traffic for internal hosts to a specific data center and all other traffic to the geographically closest one, defines two return statements with the respective Public Service Edge for Internet & SaaS gateway IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "If you are using Zscaler Client Connector version 1.4 or later, you can configure multiple Public Service Edge for Internet & SaaS gateway destinations based on the destination the user is trying to access.",
+            "For optimal performance, do not define more than two return statements that contain Zscaler Client Connector gateway IP addresses.",
+            "For example, if you want traffic for internal hosts to go to a specific data center, but all other traffic to go to the geographically closest data center, define two return statements with the respective Public Service Edge for Internet & SaaS gateway IP addresses."
+          ]
+        }
+      ]
+    },
+    "tunnel-mode-fp-pac": {
+      "statement": "In Tunnel mode a forwarding profile PAC file is commonly used to get web traffic on nonstandard ports to the app (the page's example sends ports 8080 and 8081 to PROXY ${ZAPP_LOCAL_PROXY} and everything else DIRECT). The page says to select Apply on Network Change or Never for the Proxy Action Type: Apply on Network Change applies proxy settings once when the network changes and does not enforce them, and Never applies no PAC file configuration to the system. Routes and filters direct browser, system or application traffic to the app, which intercepts any traffic heading to port 80 and port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "In Tunnel mode, a Forwarding Profile PAC file is commonly used to get web traffic on nonstandard ports.",
+            "if ( shExpMatch(url,\"*:8080\") || shExpMatch(url,\"*:8081\")) return \"PROXY ${ZAPP_LOCAL_PROXY}\"; else return \"DIRECT\";",
+            "If you choose Tunnel mode when configuring the Forwarding Profile, select Apply on Network Change or Never for the Proxy Action Type.",
+            "When you select Apply on Network Change, Zscaler Client Connector applies proxy settings when the network changes once and does not enforce them.",
+            "When you select Never, Zscaler Client Connector does not apply any PAC file configurations to the system.",
+            "Routes and filters are used to direct browser, system, or application traffic to Zscaler Client Connector. Zscaler Client Connector intercepts any traffic heading to port 80 and port 443."
+          ]
+        }
+      ]
+    },
+    "tunnel-mode-app-pac": {
+      "statement": "In Tunnel mode the app profile PAC file directs traffic that the app received to the Zscaler cloud: from it the app chooses the data center and tunnels the traffic to it with the Connect Tunnel method, and if the PAC file contains exceptions for traffic the app sends that traffic directly to the destination server. The page says to configure exceptions for traffic that must be bypassed and to keep the PAC file as simple as possible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "In Tunnel mode, the App Profile PAC file directs traffic that Zscaler Client Connector received to the Zscaler cloud.",
+            "Using the PAC file, Zscaler Client Connector chooses the data center and tunnels the traffic to it with the Connect Tunnel method.",
+            "If the PAC file contains exceptions for traffic, Zscaler Client Connector sends that traffic directly to the destination server.",
+            "Configure exceptions in the PAC file for traffic that must be bypassed.",
+            "Keep the PAC file as simple as possible."
+          ]
+        }
+      ]
+    },
+    "local-proxy-fp-pac": {
+      "statement": "In Tunnel with Local Proxy mode the forwarding profile PAC file is responsible for directing system, browser and application traffic to the app, and an exception in it bypasses traffic so that it does not reach the app. When the app downloads this PAC file it replaces the macro with a loopback IP address and the port the app is listening to, then applies the PAC file to the system, browser and applications. If traffic does not follow the forwarding profile PAC file, it reaches neither the app nor the Zscaler cloud and is sent directly. When using the app profile PAC for this mode the page says to keep it as simple as possible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "In Tunnel with Local Proxy mode, the Forwarding Profile PAC file is responsible for directing system, browser, and application traffic to Zscaler Client Connector.",
+            "Configuring an exception in the PAC file allows you to bypass traffic so that it does not reach Zscaler Client Connector.",
+            "When Zscaler Client Connector downloads this PAC file, it replaces the macro with a loopback IP address and the port that Zscaler Client Connector is listening to.",
+            "Then Zscaler Client Connector applies this PAC file to the system, browser, and applications.",
+            "If traffic does not follow the Forwarding Profile PAC file, it does not reach Zscaler Client Connector and the Zscaler cloud. Instead, the traffic is sent directly.",
+            "When using the App Profile PAC for Tunnel with Local Proxy mode, you must keep the PAC file as simple as possible."
+          ]
+        }
+      ]
+    },
+    "ipv6-zpa-bypass": {
+      "statement": "In an IPv6 environment, the page says IPv6 bypasses are required for Private Access apps in the app profile PAC file when the forwarding PAC is configured to send traffic to the Client Connector listener; it says so in both its Tunnel mode and its Tunnel with Local Proxy sections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "after": "In Tunnel mode, a Forwarding Profile PAC file is commonly used",
+          "quotes": [
+            "In an IPv6 environment, IPv6 bypasses are required for Private Access apps in the App Profile PAC file when the Forwarding PAC is configured to send traffic to the Zscaler Client Connector listener."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "after": "Ensure that the proxy return statement has the following macro:",
+          "quotes": [
+            "In an IPv6 environment, IPv6 bypasses are required for Private Access apps in the App Profile PAC file when the Forwarding PAC is configured to send traffic to the Zscaler Client Connector listener."
+          ]
+        }
+      ]
+    },
+    "enforce-proxy-pac": {
+      "statement": "In Enforce Proxy mode, Client Connector acts similarly to a GPO pushing a PAC file on the system: it enforces the forwarding profile PAC file on the machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+          "quotes": [
+            "In Enforce Proxy mode, Zscaler Client Connector acts similarly to a GPO pushing a PAC file on the system. Zscaler Client Connector enforces the Forwarding Profile PAC file on your machine."
+          ]
+        }
+      ]
+    },
+    "id-federation-bypass": {
+      "statement": "To let users bypass Client Connector when they browse to the organization's identity federation URL for authentication, a custom PAC file is added to their app profile: on the PAC and Proxy tab, under PAC Configuration, its URL is entered as the Custom PAC URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-allowing-traffic-id-federation-url-bypassing-zscaler-client-connector.json",
+          "quotes": [
+            "To allow users to bypass Zscaler Client Connector when they browse to your organization’s identity federation URL for authentication, add a custom PAC file to their app profile:",
+            "On the PAC and Proxy tab, under PAC Configuration, for Custom PAC URL, enter the URL for the custom PAC file."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "proxy-action-type-names": {
+      "summary": "The PAC best-practices page tells Tunnel-mode users to select Apply on Network Change or Never for the Proxy Action Type; the Forwarding Profiles page, cited by zcc.forwarding-profiles.internet-actions:proxy-action-types, names the options Apply on Trusted Network Type Change and Apply on Any Network Change, and the no-default-route page also uses Apply on Trusted Network Type Change.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-best-practices-using-pac-files-zscaler-client-connector.json",
+            "quotes": [
+              "If you choose Tunnel mode when configuring the Forwarding Profile, select Apply on Network Change or Never for the Proxy Action Type."
+            ]
+          },
+          "says": "The options for Tunnel mode are Apply on Network Change and Never."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+            "quotes": [
+              "Apply on Trusted Network Type Change: If you select this option, Zscaler Client Connector only applies your proxy settings when the network type changes.",
+              "Apply on Any Network Change: If you select this option, Zscaler Client Connector only applies your proxy settings if there is any network change, but does not monitor for proxy changes afterward."
+            ]
+          },
+          "says": "The system proxy Proxy Action Type options in Tunnel mode (the scope of zcc.forwarding-profiles.internet-actions:proxy-action-types) are Enforce, Apply on Trusted Network Type Change, Apply on Any Network Change and Never; whether the page's other mode sections name these options differently was not checked."
+        }
+      ],
+      "impact": "Apply on Network Change matches neither name on the Forwarding Profiles page; it may mean Apply on Any Network Change, which the PAC page's description (applies once when the network changes, does not enforce) resembles, but no page says so, and Apply on Trusted Network Type Change differs in when it applies."
+    }
+  },
+  "gaps": {
+    "fallback-setting-location": {
+      "kind": "semantic",
+      "title": "Where the Fallback to gateway domain setting is configured",
+      "status": "open",
+      "detail": "The PAC best-practices page names the Fallback to gateway domain setting without saying whether it is on the app profile or the forwarding profile. The Fiddler article's Use Automatic Configuration Script field is likewise not mapped to the forwarding profile's PAC URL setting.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

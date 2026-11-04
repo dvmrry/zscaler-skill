@@ -31,6 +31,10 @@
     {
       "rel": "see-also",
       "to": "zpa.private-service-edges.groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.platforms"
     }
   ],
   "prose": [
@@ -39,11 +43,11 @@
     },
     {
       "label": "Platforms.",
-      "text": "{{supported-platforms}} {{stig-images}} {{host-os-enterprise-linux}} [[zpa.private-service-edges.what-it-is:zpa-appliance]] {{images-july23}} The August RPM release is not in the current capture {{gap:release-images}}. The reference Terraform modules are in [[zpa.private-service-edges.reference-modules]]."
+      "text": "{{supported-platforms}} The software page and the Nutanix guide differ from this list: [[zpa.private-service-edges.platforms]]. {{stig-images}} The Linux guide's STIG list differs from this one: [[zpa.private-service-edges.platforms]]. {{host-os-enterprise-linux}} [[zpa.private-service-edges.what-it-is:zpa-appliance]] {{images-july23}} The August RPM release is not in the current capture {{gap:release-images}}. The reference Terraform modules are in [[zpa.private-service-edges.reference-modules]]."
     },
     {
       "label": "Sizing and limits.",
-      "text": "{{throughput-sizing}} {{sizing-table}} {{platform-prereqs}} Session limits are not stated {{gap:session-limits}}. {{tenant-limits}} The per-group maximum is open {{gap:max-per-group}}."
+      "text": "{{throughput-sizing}} {{sizing-table}} Some platform procedures give lower values than this table: [[zpa.private-service-edges.platforms]]. {{platform-prereqs}} Session limits are not stated {{gap:session-limits}}. {{tenant-limits}} The per-group maximum is open {{gap:max-per-group}}."
     },
     {
       "label": "Capacity and availability.",
@@ -52,6 +56,14 @@
     {
       "label": "Host OS maintenance.",
       "text": "{{org-owns-host-os}} [[zpa.app-connectors.upgrades:os-update-cadence]] {{prebuilt-os-updates}} {{os-update-downtime}} [[zpa.app-connectors.upgrades:os-update-concurrency]]"
+    },
+    {
+      "label": "Linux guide requirements.",
+      "text": "{{stig-images-guides}} {{os-security}} {{client-connector-version}} {{internet-reachable}} Per-platform steps and where the pages disagree are in [[zpa.private-service-edges.platforms]]."
+    },
+    {
+      "label": "RHEL 9 migration.",
+      "text": "{{rhel9-migration-rules}} {{rhel9-migration-steps}} The repository address conflicts with the install step, recorded in [[zpa.private-service-edges.platforms]]."
     },
     {
       "text": "Enrolling a new instance: [[zpa.private-service-edges.enrollment]]. Software update scheduling for the group: [[zpa.private-service-edges.groups]]."
@@ -94,6 +106,94 @@
     }
   ],
   "claims": {
+    "stig-images-guides": {
+      "statement": "The Private Service Edge Linux guide says Security Technical Implementation Guide (STIG) images are provided for AWS, GCP, Microsoft Azure, Nutanix and VMware by default, and that the remaining private and public cloud VM images provided by Zscaler are essentially unmodified operating systems (currently based on RHEL 9.x).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-service-edge-deployment-guide-linux.json",
+          "quotes": [
+            "Security Technical Implementation Guide (STIG) images are provided for AWS, GCP, Microsoft Azure, Nutanix, and VMware by default.",
+            "The remaining private and public cloud VM images provided by Zscaler are essentially unmodified operating systems (currently based on RHEL 9.x)."
+          ]
+        }
+      ]
+    },
+    "os-security": {
+      "statement": "The Linux guide says the Private Service Edge VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running, swap partitions are disabled on the Private Service Edge and its VMs, and the credentials on the default admin account must be changed with the passwd command.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-service-edge-deployment-guide-linux.json",
+          "quotes": [
+            "The Private Service Edge VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running.",
+            "Swap partitions are disabled on the Private Service Edge and its VMs to ensure that memory growth does not have an impact on the Private Service Edge performance.",
+            "For enhanced security, you must use the passwd command to change the credentials on the default admin account."
+          ]
+        }
+      ]
+    },
+    "client-connector-version": {
+      "statement": "The Linux guide says Private Service Edges require that Client Connector be at least on version 2.1.2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-service-edge-deployment-guide-linux.json",
+          "quotes": [
+            "Private Service Edges require that Zscaler Client Connector be at least on version 2.1.2."
+          ]
+        }
+      ]
+    },
+    "internet-reachable": {
+      "statement": "The Linux guide says Private Service Edges are reachable over the internet for remote users in a disaster recovery scenario, or when the Private Service Edge is the closest Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-service-edge-deployment-guide-linux.json",
+          "quotes": [
+            "Private Service Edges are reachable over the internet for remote users in a disaster recovery scenario, or when the Private Service Edge is the closest Service Edge."
+          ]
+        }
+      ]
+    },
+    "rhel9-migration-rules": {
+      "statement": "The Private Service Edge RHEL 9 migration page says to use a fresh install for all deployments, that the EL9 repository must be used with a RHEL 9 base OS and older platform binaries (EL7/EL8) are not supported, that /opt/zscaler/var must be empty before install, that yum upgrades from EL7/EL8 to RHEL9 are not supported, and that it requires ESXi version 7.0 Update 2 or newer, including ESXi 8.x.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-private-service-edge-red-hat-enterprise-linux-9-migration.json",
+          "quotes": [
+            "Use a fresh install for all deployments.",
+            "The EL9 repository must be used with RHEL 9 base OS. Older platform binaries (EL7/EL8) are not supported.",
+            "Ensure that the/opt/zscaler/var folder is empty before install.",
+            "Yum upgrades from EL7/EL8 to RHEL9 are not supported.",
+            "Requires ESXi version 7.0 Update 2 or newer, including ESXi 8.x."
+          ]
+        }
+      ]
+    },
+    "rhel9-migration-steps": {
+      "statement": "The migration page's steps ensure the yum repository points to https://yum.zpagov.net/yum/el9, add trusted networks and enable Publicly Accessible (if applicable) on the new Private Service Edge groups, optionally disable the groups 15 minutes before the regional off-hours maintenance window to let connections drain, and during regional off hours remove trusted networks and disable public access (if applicable) on CentOS 7 groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-zpa-private-service-edge-red-hat-enterprise-linux-9-migration.json",
+          "quotes": [
+            "Ensure the yum repository is pointing to the new RHEL 9 link: https://yum.zpagov.net/yum/el9",
+            "Add trusted networks and enable Publicly Accessible (if applicable) on the new Private Service Edge groups.",
+            "(Optional) Disable the Private Service Edge groups 15 minutes prior to the regional off-hours maintenance window to allow connections to gradually drain down.",
+            "During regional off hours, remove trusted networks and disable public access (if applicable) on CentOS 7 Private Service Edge groups."
+          ]
+        }
+      ]
+    },
     "supported-platforms": {
       "statement": "Zscaler distributes Private Service Edge images for enterprise data centers and local private cloud environments such as VMware, and the platforms listed as supported by Private Access are AWS, Docker, GCP, Linux, Microsoft Azure, Microsoft Azure Local, Microsoft Hyper-V and VMware platforms.",
       "tier": "A",

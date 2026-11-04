@@ -57,6 +57,10 @@
       "text": "{{host-os-is-customer-job}} {{automated-os-updates-scope}} {{os-update-cadence}} {{os-update-concurrency}} {{disable-before-os-update}}"
     },
     {
+      "label": "Migrating to RHEL 9.",
+      "text": "{{rhel9-migration-rules}} {{rhel9-migration-steps}}"
+    },
+    {
       "label": "Release artifacts.",
       "text": "{{images-july23}} The August 4 Manager software and RPM entry is not in the current capture {{gap:july-august-release-artifacts}}."
     },
@@ -397,6 +401,47 @@
         }
       ],
       "conditions": "Statement extended with the intermediate logs-and-connectivity step the help places between the restart and the revert."
+    },
+    "rhel9-migration-rules": {
+      "statement": "The App Connector RHEL 9 migration page says to use a fresh install for all deployments, that the EL9 repository must be used with a RHEL 9 base OS and older platform binaries (EL7/EL8) are not supported, that /opt/zscaler/var must be empty before install, that yum upgrades from EL7/EL8 to RHEL 9 are not supported, and that only RHEL 9 repositories and RPMs are supported on RHEL 9.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-red-hat-enterprise-linux-9-migration.json",
+          "quotes": [
+            "Use a fresh install for all deployments.",
+            "The EL9 repository must be used with RHEL 9 base OS. Older platform binaries (EL7/EL8) are not supported.",
+            "Ensure that the/opt/zscaler/var folder is empty before install.",
+            "Yum upgrades from EL7/EL8 to RHEL9 are not supported.",
+            "Only RHEL 9 repositories and RPMs are supported on RHEL 9."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connectors"
+      ]
+    },
+    "rhel9-migration-steps": {
+      "statement": "The App Connector RHEL 9 migration page says to verify the version profile is set to Default, Previous Default or New Release, deploy new VMs from the RHEL 9 images with newly created provisioning keys, point the yum repository at https://yum.private.zscaler.com/yum/el9, add the new App Connector groups to each respective server group, optionally disable the App Connector groups 5 minutes before the regional off-hours maintenance window so connections gradually drain down, and remove the CentOS 7 App Connector groups during regional off hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-red-hat-enterprise-linux-9-migration.json",
+          "quotes": [
+            "Verify the version profile is set to Default, Previous Default, or New Release.",
+            "Follow the step-by-step guide to deploy new VMs using the RHEL 9 images and newly created provisioning keys.",
+            "Ensure the yum repository is pointing to the new RHEL 9 link: https://yum.private.zscaler.com/yum/el9",
+            "Add the new App Connector groups to each respective server group.",
+            "(Optional) Disable the App Connector groups 5 minutes prior to the regional off-hours maintenance window to allow connections to gradually drain down.",
+            "During regional off hours, remove the CentOS 7 App Connector groups."
+          ]
+        }
+      ],
+      "binds": [
+        "zpa/app-connector-groups"
+      ]
     },
     "images-july23": {
       "statement": "The July 23, 2026 release summary lists an App Connector Docker image updated to use high ciphers for microdnf calls, and updated Red Hat Enterprise Linux 9 App Connector images for AWS, GCP, Microsoft Azure, Nutanix AHV and VMware that include a 4 GB boot partition, which exceeds Red Hat's recommendations to help support seamless OS updates.",

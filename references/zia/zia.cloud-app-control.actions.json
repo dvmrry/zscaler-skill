@@ -63,6 +63,18 @@
       "text": "{{no-custom-eun}} {{rule-notification-fields}} The two do not obviously agree {{gap:custom-eun-meaning}}."
     },
     {
+      "label": "Notification message wording.",
+      "text": "Whether a rule's Client Connector notification message can be custom differs between sources {{divergence:streaming-media-custom-message}}. {{zcc-eun-granular-pages}} What a user sees when a Login granular action is blocked on a page with no such field is open {{gap:login-action-notification}}."
+    },
+    {
+      "label": "Console actions across the category pages.",
+      "text": "{{caution-one-method}} {{conditional-step-up}} {{isolate-profile}} {{isolate-not-doh}} What the DNS Over HTTPS Services page leaves out is open {{gap:doh-caution}}."
+    },
+    {
+      "label": "Quotas.",
+      "text": "{{daily-quotas}} {{quota-exceeded}} {{quota-video-conference}} What a quota does on a rule that cautions, conditionally allows or isolates, and what it counts, is open {{gap:quota-semantics}}."
+    },
+    {
       "label": "MCP workflow.",
       "text": "{{python-docstring-action-vocabulary}} {{docstring-misfiled-entries}} {{mcp-actions-tool-forwards}} The workflow skill does not reflect that {{divergence:mcp-representative-app-probing}}. {{mcp-skill-per-tuple-validation}} Only that skill states the whole-create rejection, and the product contract is open {{gap:per-tuple-validation-contract}}. Whether discovery needs a category representative app is also open {{gap:representative-app-actions}}."
     }
@@ -85,7 +97,8 @@
       "do": "Whether a template set on a CAC rule is shown to users, which needs a test rather than a reading of the rule form.",
       "uses": [
         "custom-eun-meaning",
-        "no-custom-eun"
+        "no-custom-eun",
+        "streaming-media-custom-message"
       ]
     }
   ],
@@ -598,9 +611,235 @@
           }
         }
       ]
+    },
+    "daily-quotas": {
+      "statement": "On the Consumer rule page, the Allow, Caution, Conditional and Isolate actions each carry an optional Daily Bandwidth Quota (MB) and an optional Daily Time Quota (min). On the Allow action, the bandwidth quota counts data uploaded to and downloaded from the cloud application, from 10 MB to 100K MB. The Allow action's time quota is the time elapsed in a session while uploading and downloading data, ignoring idle time, from 15 to 600 minutes. The Allow action's page text says to enforce a quota on each location, select no specific users, groups or departments; to enforce it on specific users, groups or departments, SSL/TLS Inspection and authentication must be enabled. For a user from a known location the quota resets at midnight in the location's time zone, and for remote users it resets by the organization's time zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to allow the users to access the selected applications.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional) The bandwidth quota includes data uploaded to and downloaded from the cloud application.",
+            "Daily Time Quota (min): (Optional) The time quota is based on the amount of time elapsed in a session while uploading and downloading data. The session idle times are ignored. The minimum value you can enter is 15 minutes and the maximum value is 600 minutes.",
+            "To enforce the quota on each location, do not select specific users, groups, or departments. To enforce the quota on specific users, groups, or departments, SSL/TLS Inspection and authentication must be enabled.",
+            "If a user comes from a known location, the quota is reset at midnight based on the location's time zone; for remote users, the quota is reset based on the organization’s time zone. The minimum value you can enter is 10 MB and the maximum value is 100K MB."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to display an EUN that cautions users before allowing them access to the selected applications.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional)",
+            "Daily Time Quota (min): (Optional)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Choose to conditionally allow the users to access the selected applications.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional)",
+            "Daily Time Quota (min): (Optional)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "after": "Ensure to create isolation profiles for your organization.",
+          "quotes": [
+            "Daily Bandwidth Quota (MB): (Optional)",
+            "Daily Time Quota (min): (Optional)"
+          ]
+        }
+      ]
+    },
+    "quota-exceeded": {
+      "statement": "A daily quota can be defined by bandwidth or time; when users browse the sites after their quota has been reached, the Zscaler service displays a message that explains that the content cannot be viewed because they exceeded their daily quota.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "Additionally, you can define a daily quota by bandwidth or time.",
+            "When users browse these sites after their quota has been reached, the Zscaler service displays a message that explains that the content cannot be viewed because they exceeded their daily quota."
+          ]
+        }
+      ]
+    },
+    "quota-video-conference": {
+      "statement": "On the Collaboration & Online Meetings rule page, if a user exceeds the daily quota while in a web video conference over an SSL/TLS connection, the service allows the user to finish the meeting but blocks additional video conferences; if the conference is not over an SSL/TLS connection (HTTP), the service ends the connection immediately.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "quotes": [
+            "If a user exceeds the daily quota while in a web video conference over an SSL/TLS connection, the service allows the user to finish the meeting but blocks additional video conferences.",
+            "If the video conference is not over an SSL/TLS connection (HTTP connection), the service ends the connection immediately."
+          ]
+        }
+      ]
+    },
+    "caution-one-method": {
+      "statement": "On the Consumer rule page, the Caution action can be selected for only one of the request methods CONNECT, GET or HEAD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Choose to display an EUN that cautions users before allowing them access to the selected applications.",
+            "You can select this action for only one of the following request methods: CONNECT, GET, or HEAD."
+          ]
+        }
+      ]
+    },
+    "conditional-step-up": {
+      "statement": "On the Consumer rule page, Conditional Access allows access to the selected applications by enforcing step-up authentication, to an authentication level that must be configured in the Admin Console beforehand; Zscaler Client Connector shows a pop-up prompting the user to verify access. The option is available only if the organization is provisioned with the Authentication Service for end users and the traffic forwarding method is Client Connector. When traffic is routed via a Private Service Edge or Virtual Service Edge for Internet & SaaS, conditional access is not supported and user access is blocked with a notification from the browser; it does not apply to isolation traffic, and the page says to raise a provisioning support ticket to enable the feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Conditional Access: Allows access to the selected applications by enforcing step-up authentication.",
+            "In the Authentication Level field, select an authentication level from the drop-down menu. The authentication levels must be configured in the Zscaler Admin Console before configuring a policy in the Zscaler Admin Console to select this option.",
+            "When you try to access applications that require additional authentication, Zscaler Client Connector displays a pop-up notification prompting you to verify your access.",
+            "This option is available only if your organization is provisioned with the Authentication Service for end users and the traffic forwarding method is Zscaler Client Connector.",
+            "However, if your traffic is routed via a Private Service Edge for Internet & SaaS (ZIA) or Virtual Service Edge for Internet & SaaS",
+            "conditional access is not supported and the user access to the applications is blocked with a notification from the browser. Conditional access doesn't apply to isolation traffic. To enable this feature, you can raise a provisioning support ticket."
+          ]
+        }
+      ]
+    },
+    "isolate-profile": {
+      "statement": "On the Consumer rule page, the Isolation Profile field appears when Isolate is selected and lets the admin choose the isolation profiles to which the rule applies; the page says to ensure isolation profiles are created for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-consumer-rule-cloud-app-control.json",
+          "quotes": [
+            "Isolation Profile: Appears when you select Isolate. You can choose the isolation profiles to which the rule applies.",
+            "Ensure to create isolation profiles for your organization."
+          ]
+        }
+      ]
+    },
+    "isolate-not-doh": {
+      "statement": "The Isolate action is available only if Zero Trust Browser (formerly Isolation) is enabled for the organization and if the rule is not for DNS over HTTPS apps. The DNS Over HTTPS Services rule page's action descriptions include Allow, Block and Conditional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-app-control.json",
+          "quotes": [
+            "The Isolate action is available only if Zero Trust Browser (formerly Isolation) is enabled for your organization and if the rule is not for DNS over HTTPS apps."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-dns-over-https-services-rule-cloud-app-control.json",
+          "quotes": [
+            "Choose to allow the users to access the selected applications.",
+            "Choose to block the users from accessing the selected applications.",
+            "Choose to conditionally allow the users to access the selected applications."
+          ]
+        }
+      ]
+    },
+    "zcc-eun-granular-pages": {
+      "statement": "The Collaboration & Online Meetings, File Sharing, Social Networking, Streaming Media, System & Development and Webmail rule pages each carry a Client Connector End User Notification field, to show or hide the Client Connector-based EUN message, which appears when the granular action is blocked for the selected applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-collaboration-online-meetings-rule-for-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-file-sharing-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-social-networking-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-system-development-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-webmail-rule-cloud-app-control.json",
+          "quotes": [
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear.",
+            "This field appears when the granular action is blocked for the selected applications."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "doh-caution": {
+      "kind": "semantic",
+      "title": "Whether Caution is offered on a DNS Over HTTPS Services rule",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "blocks": "saying which actions a DNS Over HTTPS Services rule offers",
+      "detail": "The About page excludes only Isolate for DNS over HTTPS apps, and the DNS Over HTTPS Services rule page's action descriptions have no Caution entry, but no captured page states that Caution is excluded."
+    },
+    "login-action-notification": {
+      "kind": "semantic",
+      "title": "What a user sees when a Login granular action is blocked on the IT Services or Productivity & CRM Tools page",
+      "status": "open",
+      "resolves_with": [
+        "lab-test"
+      ],
+      "blocks": "telling an operator what notification a blocked Login action shows",
+      "detail": "The IT Services and Productivity & CRM Tools rule pages describe a Login granular action but, unlike the six pages in claim zcc-eun-granular-pages, show no Client Connector End User Notification field in the captured text; only the Browser Notification Template field is there. No captured page says what a user sees when that action blocks."
+    },
+    "quota-semantics": {
+      "kind": "semantic",
+      "title": "What reaching a daily quota does on Caution, Conditional and Isolate rules, and what a quota counts",
+      "status": "open",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "predicting what happens to a user who exceeds a quota on a rule that is not an Allow rule",
+      "detail": "The About page says only that users see a quota message. No captured page says what reaching a quota does on a Caution, Conditional or Isolate rule, or whether a quota counts per user, per application or per rule. The video-conference exception in claim quota-video-conference is stated for the Collaboration & Online Meetings page only."
+    },
     "all-vs-available-differs": {
       "kind": "semantic",
       "title": "How allAvailableActions results differ from availableActions",
@@ -713,6 +952,32 @@
     }
   },
   "divergences": {
+    "streaming-media-custom-message": {
+      "summary": "Whether a Cloud App Control rule's Client Connector notification message can be a custom one",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "Cloud_App_Control_Deployment_and_Operations_Guide.txt",
+            "quotes": [
+              "Cloud App Control policies do not support custom End User Notifications (EUNs)."
+            ]
+          },
+          "says": "The deployment guide says Cloud App Control policies do not support custom End User Notifications; the existing claim no-custom-eun holds this quote."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-streaming-media-rule-cloud-app-control.json",
+            "quotes": [
+              "Notification Message: Select a custom notification message that you want to show as the Zscaler Client Connector-based EUN."
+            ]
+          },
+          "says": "The Streaming Media rule page words its Notification Message field as selecting a custom notification message to show as the Client Connector-based EUN."
+        }
+      ],
+      "impact": "An answer about custom notifications on a Cloud App Control rule should not rest on either source alone; the open gap custom-eun-meaning stays open."
+    },
     "mcp-representative-app-probing": {
       "summary": "Whether the MCP action-discovery tool matches the workflow skill's description of it",
       "positions": [

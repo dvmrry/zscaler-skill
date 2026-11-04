@@ -79,6 +79,22 @@
     {
       "label": "Through the API.",
       "text": "{{python-crud}} {{first-time-configurable-both-sdks}}"
+    },
+    {
+      "label": "Criteria in the console.",
+      "text": "{{advanced-needed-for-rules}} {{criteria-expression}} Whether the console offers the time and device fields that the API model carries is open {{gap:time-device-criteria}}. {{identity-location-caps}} {{zpa-segment-criterion}} {{sandbox-categories}} {{protocols-and-url-categories}}"
+    },
+    {
+      "label": "Actions in the console.",
+      "text": "{{console-actions}} The API's QUARANTINE_ISOLATE value has no console description in these pages {{gap:quarantine-isolate-console}}. {{ai-instant-verdict-thresholds}} {{minimum-threat-score-conditions}} {{allow-and-block-eun}}"
+    },
+    {
+      "label": "Order and status in the console.",
+      "text": "{{order-status-details}}"
+    },
+    {
+      "label": "Default and recommended rules in the help.",
+      "text": "{{default-rule-editable-fields}} {{default-rule-criteria}} The help pages disagree on how many Sandbox categories the default rule covers {{divergence:default-rule-categories}}, and the other side is [[zia.sandbox.coverage:help-default-rule]]. {{advanced-default-rules}} {{tolerance-recommendations}}"
     }
   ],
   "checks": [
@@ -93,6 +109,12 @@
       "do": "Whether the live rule list shows the default rule at its actual order, since the provider's 127 is not confirmed by the API.",
       "uses": [
         "default-order-semantics"
+      ]
+    },
+    {
+      "do": "Which Sandbox categories the default rule covers, read from the tenant's rule, since the help pages disagree on three or six.",
+      "uses": [
+        "default-rule-categories"
       ]
     }
   ],
@@ -404,6 +426,356 @@
           ]
         }
       ]
+    },
+    "advanced-needed-for-rules": {
+      "statement": "Adding rules to the Sandbox policy requires Advanced Sandbox; with it, different rules can apply to different sets of users or locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "If you have Advanced Sandbox, you can add rules to the Sandbox policy. You can configure different rules in your Sandbox policy to apply to different sets of users or locations."
+          ]
+        }
+      ]
+    },
+    "criteria-expression": {
+      "statement": "A Sandbox rule matches on the expression File Types AND [URL Categories OR Sandbox Categories] AND [Users OR Groups OR Departments] AND [Location Groups OR Locations] AND Protocols AND ZPA Application Segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "The Sandbox rules consist of a series of logical operators between their criteria.",
+            "File Types (AND) [URL Categories (OR) Sandbox Categories] (AND) [Users (OR) Groups (OR) Departments] (AND) [Location Groups (OR) Locations] (AND) Protocols (AND) ZPA Application Segment."
+          ]
+        }
+      ],
+      "gaps": [
+        "time-device-criteria"
+      ]
+    },
+    "identity-location-caps": {
+      "statement": "On a Sandbox rule, Users, Groups, Departments, Locations and Location Groups each take up to 32 values, and an empty field is Any (applies to all). Zscaler Support can raise the user, group, department and location limits. A rule that applies to unauthenticated traffic must apply to all groups and departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "Users: Select up to 32 users from the drop-down menu. Selecting no users sets the field to Any, which applies the rule to all users.",
+            "Groups: Select up to 32 groups from the drop-down menu. Selecting no groups sets the field to Any, which applies the rule to all groups.",
+            "Departments: Select up to 32 departments from the drop-down menu. Selecting no departments sets the field to Any, which applies the rule to all departments.",
+            "Contact Zscaler Support to increase the limit of Users, Groups, or Departments.",
+            "Locations: Select up to 32 locations from the drop-down menu. Selecting no locations sets the field to Any, which applies the rule to all locations.",
+            "Contact Zscaler Support to increase the limit of locations.",
+            "Location Groups: Select up to 32 location groups from the drop-down menu. Selecting no location groups sets the field to Any, which applies the rule to all location groups.",
+            "Any rule that applies to unauthenticated traffic must apply to all groups and departments."
+          ]
+        }
+      ]
+    },
+    "zpa-segment-criterion": {
+      "statement": "The ZPA Application Segment criterion takes up to 255 Private Access application segments and lists only segments with Source IP Anchoring enabled; no value ignores the criterion. Choosing Inspect App Segments applies the rule to all Private Access segments paired to the Internet & SaaS tenant, an option available only if SIPA App Segments is enabled for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "Select up to 255 Private Access application segments. Selecting no value ignores the criterion in the policy evaluation.",
+            "The list displays only those Private Access application segments that have the Source IP Anchoring option enabled.",
+            "If you select the Inspect App Segments option from the list, then the configured rule applies to all the Private Access application segments paired to your Internet & SaaS tenant."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "after": "paired to your Internet & SaaS tenant.",
+          "quotes": [
+            "This option is only available if SIPA App Segments is enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "sandbox-categories": {
+      "statement": "The Sandbox Categories criterion offers six malicious file types: Sandbox Adware, Sandbox Malware/Botnet (a catchall for malicious files outside the other categories), Sandbox P2P/Anonymizer, Sandbox Offsec Tools, Sandbox Ransomware and Sandbox Suspicious (files that show some malicious behaviors but are not fully classified as malware).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "Sandbox Adware: Files that automatically render advertisements/install adware.",
+            "Sandbox Malware/Botnet: Files that behave like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware.",
+            "This is a catchall category for any malicious file that doesn't fall under the other sandbox categories.",
+            "Sandbox P2P/Anonymizer: Files that contain anonymizers and P2P clients.",
+            "Sandbox Offsec Tools: Offensive security tools are often the same tools threat actors might leverage, but for different purposes.",
+            "Sandbox Ransomware: A type of malware that prevents or limits users from accessing their system",
+            "Sandbox Suspicious: Files that exhibit some malicious behaviors but are not fully classified as malware."
+          ]
+        }
+      ]
+    },
+    "protocols-and-url-categories": {
+      "statement": "A Sandbox rule's Protocols criterion is FTP over HTTP, HTTP, HTTPS (HTTP downloads encrypted by SSL/TLS) or Native FTP. Its URL Categories criterion is Any when empty and can also take custom TLD categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "FTP over HTTP: File downloads from FTP over HTTP websites.",
+            "HTTP: File downloads from HTTP websites.",
+            "HTTPS: File downloads from HTTP websites encrypted by SSL/TLS.",
+            "Native FTP: File downloads from native FTP servers.",
+            "Selecting no URL categories sets the field to Any, which applies the rule to all URL categories.",
+            "You can also select custom TLD categories from this field."
+          ]
+        }
+      ]
+    },
+    "console-actions": {
+      "statement": "A Sandbox rule's console actions include Action for Subsequent Downloads (files the Sandbox already analyzed), which is Allow or Block; Block shows a block notification and prevents the download of a malicious file. First-Time Action (unknown files) is Allow and scan (download allowed, file sent for behavioral analysis, a patient 0 event if found malicious), Allow and do not scan (download allowed, file not sent) or Quarantine (file held during analysis behind a quarantine notification, then downloadable if safe and blocked if unsafe).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "Action for Subsequent Downloads: Choose to Allow or Block downloads of sandbox-classified files (files the Sandbox previously analyzed) that match the criteria above.",
+            "If you choose Block and a user attempts to download a malicious sandbox-classified file, the service displays a block notification and prevents the download.",
+            "First-Time Action: Choose one of the following actions that the Zscaler service takes when a user downloads an unknown file:",
+            "Allow and scan: Allow users to download the unknown file. The service sends the unknown file to the sandbox for behavioral analysis.",
+            "If the file is found to be malicious, this becomes a patient 0 event.",
+            "Allow and do not scan: Allow users to download the unknown file. The service doesn't send the file to the sandbox for behavioral analysis.",
+            "Quarantine: Quarantines the file while its being analyzed. The service displays a quarantine notification. If the file is safe, the user can download the file after the analysis. If unsafe, the service blocks the download."
+          ]
+        }
+      ],
+      "gaps": [
+        "quarantine-isolate-console"
+      ],
+      "conditions": "Extends first-time-operation with the console's three First-Time Action names; no capture maps them to ALLOW_SCAN, ALLOW_NOSCAN or QUARANTINE, so the mapping is not stated here."
+    },
+    "ai-instant-verdict-thresholds": {
+      "statement": "AI Instant Verdict can be enabled when First-Time Action is Quarantine or Allow and Scan. A file the AI analysis scores above 90 is treated as high-confidence malicious and blocked; a score of 70 to 90 under an Allow and scan rule sends the file to quarantine for further analysis, after which Action for Subsequent Downloads decides. On the default rule the field cannot be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "If you choose Quarantine or Allow and Scan for First-Time Action, you can enable AI Instant Verdict to have the Zscaler service use AI analysis to instantly assign threat scores to unknown files.",
+            "If AI analysis assigns a threat score higher than 90, the Zscaler service identifies the file as high-confidence malicious and blocks download.",
+            "If AI analysis assigns a threat score between 70–90 and the Sandbox policy First-Time Action is Allow and scan, the file is sent to quarantine for further analysis.",
+            "After analysis, the service allows or blocks the file download based on your configured Action for Subsequent Downloads."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "quotes": [
+            "AI Instant Verdict: This field is applicable only if the First-Time Action is Quarantine or Allow and Scan. You can’t modify this field for the default sandbox rule."
+          ]
+        }
+      ]
+    },
+    "minimum-threat-score-conditions": {
+      "statement": "Minimum Threat Score (40 to 70) is available when the rule selects the Sandbox Suspicious category and First-Time Action is Quarantine; files below the value are allowed to download. Without it, Sandbox Suspicious files are blocked by default, and with Action for Subsequent Downloads set to Block, known Sandbox Suspicious files are blocked immediately unless the minimum score lets them through.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "If you choose Sandbox Suspicious for the Sandbox Categories and Quarantine for First-Time Action, you can enter a custom minimum threat score value between 40 and 70 to allow downloading of files below the entered value.",
+            "If Minimum Threat score is not configured, then the default action is Block based on the Sandbox Suspicious categorization.",
+            "If Action for Subsequent Downloads is set to Block, known files are immediately blocked under the Sandbox Suspicious category unless the minimum threat score allows the file below the configured score to be downloaded."
+          ]
+        }
+      ]
+    },
+    "order-status-details": {
+      "statement": "Sandbox rules are evaluated in ascending numerical order; with Admin Rank enabled the admin's rank bounds the rule order values that can be chosen. A disabled rule is not enforced but keeps its place in the order and is skipped. A rule needs a unique name and its description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "Policy rules are evaluated in ascending numerical order (Rule 1 before Rule 2, and so on), and the rule order reflects this rule's place in the order.",
+            "You can change the value, but if you've enabled Admin Rank, your assigned admin rank determines the rule order values you can select.",
+            "A disabled rule is not actively enforced and doesn't lose its place in the rule order scheme. The Zscaler service simply skips it and moves to the next rule.",
+            "Rule Name: Enter a unique name for the Sandbox rule, or use the default name.",
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "default-rule-editable-fields": {
+      "statement": "The default Sandbox rule cannot be deleted, and Zscaler recommends not changing it. Its Rule Status (enabled and enforced), Rule Label, ZPA Application Segment and Action for Subsequent Downloads (Block by default; Allow lets malicious files download but logs them) can be changed; its File Types, URL Categories, Protocols and First-Time Action cannot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "quotes": [
+            "You can change the settings of the default Sandbox rule, but you can't delete it. Zscaler recommends that you don't change the default settings.",
+            "Rule Status: The default Sandbox rule is enabled and enforced. You can modify this field, but Zscaler doesn't recommend doing so.",
+            "Rule Label: The default rule is associated with the selected label. You can modify this field.",
+            "ZPA Application Segment: Inspection of Private Access (ZPA) application segments for security and data protection services",
+            "You can make changes if necessary, but Zscaler recommends that you don't modify this field.",
+            "Action for Subsequent Downloads: The default action is to Block Sandbox classified files (files the Sandbox previously analyzed) that match the criteria above.",
+            "If you choose Allow, the service allows users to download the files even if they're malicious, but logs the transactions.",
+            "With Standard Sandbox, the service only analyzes files that are equal to 2 MB or less. You can't modify this field.",
+            "First-Time Action: If a user downloads a Windows executable or Windows library file from a suspicious URL, and it contains an unknown file, the default action is to allow users to download the file then send the file to the Sandbox engine for analysis. You can't modify this field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "after": "Action for Subsequent Downloads: The default action is to Block",
+          "quotes": [
+            "You can modify this field, but Zscaler doesn't recommend doing so."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "after": "URL Categories: The default rule analyzes the file types above",
+          "quotes": [
+            "- You can't modify this field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "after": "Protocols: The default rule applies to file downloads from the following protocols.",
+          "quotes": [
+            "- You can't modify this field."
+          ]
+        }
+      ]
+    },
+    "default-rule-criteria": {
+      "statement": "The default rule analyzes Windows executables and Windows library files, also inside ZIP archives, downloaded from URLs in Suspicious Destinations, and applies to the Sandbox Adware, Sandbox Malware/Botnet and Sandbox P2P/Anonymizer categories over the protocols the page lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-sandbox-rule.json",
+          "quotes": [
+            "The default rule analyzes Windows executables and Windows library files. It also analyzes these files if they’re contained in ZIP archive files.",
+            "URL Categories: The default rule analyzes the file types above if they are downloaded from URLs in Suspicious Destinations.",
+            "Sandbox Categories: The default rule applies to the following malicious file types:",
+            "Sandbox Adware: Files that automatically render advertisements/install adware.",
+            "Sandbox Malware/Botnet: Files that behave like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware.",
+            "Sandbox P2P/Anonymizer: Files that contain anonymizers and P2P clients.",
+            "Protocols: The default rule applies to file downloads from the following protocols."
+          ]
+        }
+      ]
+    },
+    "advanced-default-rules": {
+      "statement": "Advanced Sandbox ships three deactivated default rules meant as a starting point: Sandbox_Docs_Trusted (rule order 1; Microsoft Office group and PDF; First-Time Action Allow & Scan; intended for a custom URL category of trusted sites the admin creates and adds), Sandbox_Docs_Archives (order 2; Office, PDF and Archives groups; Quarantine; for all URL categories other than that trusted-sites category) and Sandbox_Exes_Web (order 3; Executable and Web Content groups; Quarantine). Each has admin rank 7, all Sandbox categories, all four protocols, AI Instant Verdict enabled and Block for subsequent downloads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-sandbox-policy.json",
+          "quotes": [
+            "Zscaler provides three deactivated default rules for Advanced Sandbox. You can modify and activate these rules as a starting point for achieving the recommended Sandbox policy.",
+            "Rule Order: 1",
+            "Rule Name: Sandbox_Docs_Trusted",
+            "File Types: Microsoft Office (group) & PDF",
+            "First-Time Action: Allow & Scan",
+            "This policy rule is intended to be used with a custom user-defined URL Category Trusted Sites (or other applicable name), which after creation needs to be added to the policy via the URL Category control.",
+            "Rule Order: 2",
+            "Rule Name: Sandbox_Docs_Archives",
+            "File Types: Microsoft Office (group), PDF, and Archives (group)",
+            "This rule must apply to all URL categories other than the custom user-defined URL Category Trusted Sites.",
+            "Rule Order: 3",
+            "Rule Name: Sandbox_Exes_Web",
+            "File Types: Executable (group), Web Content (group)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-sandbox-policy.json",
+          "after": "These are the default Advanced Sandbox rules:",
+          "quotes": [
+            "Admin Rank: 7",
+            "Sandbox Categories: All",
+            "Protocols: FTP over HTTP, HTTP, HTTPS, Native FTP",
+            "AI Instant Verdict: Enabled",
+            "Action for Subsequent Downloads: Block"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-sandbox-policy.json",
+          "after": "Advanced Sandbox Documents rule created during company creation.",
+          "quotes": [
+            "Admin Rank: 7",
+            "Sandbox Categories: All",
+            "Protocols: FTP over HTTP, HTTP, HTTPS, Native FTP",
+            "First-Time Action: Quarantine",
+            "AI Instant Verdict: Enabled",
+            "Action for Subsequent Downloads: Block"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-sandbox-policy.json",
+          "after": "This rule must apply to all URL categories other than the custom user-defined URL Category Trusted Sites.",
+          "quotes": [
+            "Admin Rank: 7",
+            "Sandbox Categories: All",
+            "Protocols: FTP over HTTP, HTTP, HTTPS, Native FTP",
+            "First-Time Action: Quarantine",
+            "AI Instant Verdict: Enabled",
+            "Action for Subsequent Downloads: Block"
+          ]
+        }
+      ]
+    },
+    "tolerance-recommendations": {
+      "statement": "Zscaler recommends configuring the Sandbox policy according to the organization's tolerance: low tolerance for downloading malware suggests Quarantine as First-Time Action on a majority of URL categories; low tolerance for download delays and end-user interruptions from quarantining files suggests Allow and Scan on all or a majority of URL categories; and, under Low Tolerance for Suspicious Files, a low tolerance for miscellaneous files employees might want to download or install suggests Allow and Scan on a variety of file types including Archives, Executables and PDF files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-sandbox-policy.json",
+          "quotes": [
+            "Zscaler recommends you configure the policy according to your organization’s tolerance:",
+            "Low Tolerance for Suspicious Files",
+            "a low tolerance for miscellaneous files employees might want to download or install",
+            "If your organization has low tolerance for downloading malware, you can choose Quarantine for First-Time Action on a majority of URL Categories.",
+            "If your organization has low tolerance for download delays and end–user interruptions from quarantining files, you can choose Allow and Scan for First-Time Action on all or a majority of URL Categories.",
+            "you can choose Allow and Scan for First-Time Action on a variety of file types including Archives, Executables, and PDF files."
+          ]
+        }
+      ]
+    },
+    "allow-and-block-eun": {
+      "statement": "No end user notification is shown for Allow on Action for Subsequent Downloads (a known-malicious file downloads), for Allow and do not scan, or for Allow and scan. Block on Action for Subsequent Downloads shows the block EUN, which is customized on the End User Notifications page under Security Violation Notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-sandbox-end-user-notifications.json",
+          "quotes": [
+            "If you choose Allow for Action for Subsequent Downloads, users can download a file if it's known to be malicious, and no EUN is displayed.",
+            "If you choose Allow and do not scan for First-Time Action, users can download an unknown file, and it's not sent for behavioral analysis. No EUN is displayed.",
+            "If you choose Allow and scan for First-Time Action, users can download an unknown file, and it's sent for behavioral analysis. No EUN is displayed.",
+            "If you choose Block for Action for Subsequent Downloads, users are unable to download the file if it's known to be malicious, and the block EUN is displayed:",
+            "You can customize this block notification on the End User Notifications page under Security Violation Notifications."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
@@ -442,10 +814,56 @@
     "sipa-cross-reference": {
       "kind": "semantic",
       "title": "Unverified legacy statement: ZPA Application Segments on a Sandbox rule mirror SSL Inspection's and relate to source IP anchoring",
-      "status": "open",
-      "detail": "Unverified legacy statement: The earlier reference linked the field to SSL Inspection's `zpa_app_segments` and to the SIPA doc. No source read connects them; the SIPA coverage belongs to the shared source-ip-anchoring area.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: The earlier reference linked the field to SSL Inspection's `zpa_app_segments` and to the SIPA doc. The Sandbox policy help page now ties the console's ZPA Application Segment list to Source IP Anchoring, and says Inspect App Segments needs SIPA App Segments enabled for the organization. No source read connects the field to SSL Inspection's `zpa_app_segments`, and the existing scope-fields claim (Go SDK) says the field applies only to the ZPA Gateway forwarding method.",
       "resolves_with": [
         "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "The list displays only those Private Access application segments that have the Source IP Anchoring option enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "after": "paired to your Internet & SaaS tenant.",
+          "quotes": [
+            "This option is only available if SIPA App Segments is enabled for your organization."
+          ]
+        }
+      ]
+    },
+    "time-device-criteria": {
+      "kind": "semantic",
+      "title": "Whether the console offers Time and device criteria on a Sandbox rule",
+      "status": "open",
+      "detail": "The help page's criteria expression names no Time criterion and no device criterion, while the existing scope-fields claim (Go SDK) lists time windows, devices and device groups, and the hub zia.sandbox is scoped-by zia.time-intervals.rule-usage. Whether the console offers them is not shown by the page.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-sandbox-policy.json",
+          "quotes": [
+            "File Types (AND) [URL Categories (OR) Sandbox Categories] (AND) [Users (OR) Groups (OR) Departments] (AND) [Location Groups (OR) Locations] (AND) Protocols (AND) ZPA Application Segment."
+          ]
+        }
+      ]
+    },
+    "quarantine-isolate-console": {
+      "kind": "semantic",
+      "title": "What the console calls the API's QUARANTINE_ISOLATE first-time action",
+      "status": "open",
+      "detail": "The help page names three First-Time Actions (Allow and scan, Allow and do not scan, Quarantine). The API's fourth value, QUARANTINE_ISOLATE, has no console description in these pages, and no capture maps the console names to ALLOW_NOSCAN or QUARANTINE.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
       ]
     },
     "first-match-semantics": {
@@ -456,7 +874,7 @@
       "resolves_with": [
         "lab-test"
       ],
-      "detail": "Unverified statement: Ordering follows the usual first-match model. The help page says rules are applied in the rule order list from first to last and evaluated in ascending numerical order, with the default rule last, but does not say that evaluation stops at the first match. What would resolve it: two enabled Sandbox rules that both match one file, with different actions, in a scratch tenant."
+      "detail": "Unverified statement: Ordering follows the usual first-match model. The help page says rules are applied in the rule order list from first to last and evaluated in ascending numerical order, with the default rule last, but does not say that evaluation stops at the first match. The Sandbox policy page adds only that a disabled rule is skipped. What would resolve it: two enabled Sandbox rules that both match one file, with different actions, in a scratch tenant."
     },
     "order-minus-one": {
       "kind": "semantic",
@@ -466,6 +884,50 @@
       "resolves_with": [
         "source-read"
       ]
+    }
+  },
+  "divergences": {
+    "default-rule-categories": {
+      "summary": "The help pages disagree on which Sandbox categories the default rule covers: three on the default-rule page and the Sandbox overview, six in the recommended-policy table.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-default-sandbox-rule.json",
+            "quotes": [
+              "Sandbox Categories: The default rule applies to the following malicious file types:",
+              "Sandbox Adware: Files that automatically render advertisements/install adware.",
+              "Sandbox Malware/Botnet: Files that behave like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware.",
+              "Sandbox P2P/Anonymizer: Files that contain anonymizers and P2P clients."
+            ]
+          },
+          "says": "Three categories: Sandbox Adware, Sandbox Malware/Botnet and Sandbox P2P/Anonymizer (the default rule page lists these three)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-sandbox.json",
+            "quotes": [
+              "It blocks files that contain the following types of malicious files:",
+              "Adware: Files that automatically render advertisements or install adware.",
+              "Malware & Botnets: Files that behave like APTs",
+              "P2P & Anonymizers: Files that exhibit behaviors consistent with P2P/anonymizer programs"
+            ]
+          },
+          "says": "The overview lists Adware, Malware & Botnets and P2P & Anonymizers, the same three (this is the position the existing claim zia.sandbox.coverage:help-default-rule rests on)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-recommended-sandbox-policy.json",
+            "quotes": [
+              "| Windows Executables (exe, exec63, scr). Windows Library (dll64, ocx, sys). ZIP (zip) | Suspicious Destinations | Sandbox Adware Sandbox Malware/Botnet Sandbox Offsec Tools Sandbox P2P/Anonymizer Sandbox Ransomware Sandbox Suspicious | Allow and scan first time | N/A | Block subsequent downloads |"
+            ]
+          },
+          "says": "Six categories: Adware, Malware/Botnet, Offsec Tools, P2P/Anonymizer, Ransomware and Suspicious."
+        }
+      ],
+      "impact": "An answer about whether the default rule would catch a ransomware, Offsec Tools or Suspicious verdict depends on which page is used; the tenant's own default rule is the arbiter."
     }
   }
 }

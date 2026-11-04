@@ -1043,12 +1043,37 @@
       ]
     },
     {
+      "id": "zia.insights.logs",
+      "title": "ZIA Insights Logs: log families, time frame, export and background queries, filters and console-only columns",
+      "claims": [
+        {
+          "id": "zia.insights.logs:road-warrior",
+          "statement": "The Firewall Insights Logs Location filter lists Road Warrior, the default location for transactions that did not originate from a predefined location, and shows 200 results at a time; the Web Insights Logs columns page says a transaction that did not originate from a location defined in the service is recorded as coming from a remote user.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#location",
+            "zia/firewall-log#location"
+          ]
+        }
+      ]
+    },
+    {
       "id": "zia.logs.field-enablement",
       "title": "Which ZIA log fields are not logged until enabled",
       "claims": [
         {
           "id": "zia.logs.field-enablement:clt-sport",
           "statement": "Logging of the web log client source port, clt_sport, is enabled by contacting Zscaler Support.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#clt_sport"
+          ]
+        },
+        {
+          "id": "zia.logs.field-enablement:console-ports-disabled",
+          "statement": "The Web Insights Logs columns page says the Client Source Port filter is disabled by default and enabled by contacting Zscaler Support, and says the same of a column; the filters page says the same of a filter.",
           "tier": "A",
           "confidence": "high",
           "binds": [
@@ -1083,6 +1108,15 @@
             "zia/firewall-log#sdport",
             "zia/web-log#clt_sport",
             "zia/web-log#srv_dport"
+          ]
+        },
+        {
+          "id": "zia.logs.field-enablement:other-dlp-rules",
+          "statement": "The other DLP rules field is populated only when Evaluate All Rules Mode is enabled for inline DLP rule evaluation on the DLP Advanced Settings page.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#other_dlprulenames"
           ]
         },
         {
@@ -1190,12 +1224,32 @@
       "title": "Value encodings and caveats of ZIA web log fields",
       "claims": [
         {
+          "id": "zia.logs.web-field-semantics:app-status-na",
+          "statement": "The cloud application sanctioned or unsanctioned status filter shows N/A when the URL is unknown and no cloud application is tagged in the transaction.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#app_status"
+          ]
+        },
+        {
           "id": "zia.logs.web-field-semantics:bypass-flag",
           "statement": "bypassed_traffic is a numeric flag where 1 means the traffic bypassed Zscaler Client Connector.",
           "tier": "A",
           "confidence": "high",
           "binds": [
             "zia/web-log#bypassed_traffic"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:byte-columns",
+          "statement": "In Web Insights Logs, Received Bytes is how many bytes the destination web server returned for each HTTP request, Sent Bytes the size of the HTTP request sent to it, and Total Bytes the sum of the two.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#respsize",
+            "zia/web-log#reqsize",
+            "zia/web-log#totalsize"
           ]
         },
         {
@@ -1206,6 +1260,24 @@
           "binds": [
             "zia/web-log#cip",
             "zia/web-log#cintip"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:client-handshake-failure-reasons",
+          "statement": "The filter for client SSL/TLS handshake failure reasons lists Access Denied, Bad Cert Status Resp or Hash Value, Bad or Unsupported Certificate, Bad Record Mac, Certificate Revoked or Expired, Certificate Unknown, Certificate Unobtainable, Close Notify or Client TCP Reset, Decode Error, Decrypt Error, Handshake Failure, Illegal Parameter, Insufficient Security, Internal Error, N/A, No Application Protocol, No Renegotiation, Other Handshake Error, Protocol Version, Record Overflow, Unexpected Message, Unknown CA, Unknown PSK Identity, Unrecognized Name, Unsupported Extension and User Canceled; the page refers to RFC 2246 The TLS Protocol.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#cltsslfailreason"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:dlp-policy-action-none",
+          "statement": "DLP Policy Action shows None when the rule has no Auditor or Incident Receiver notification configured.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#dlp_policy_action"
           ]
         },
         {
@@ -1228,6 +1300,16 @@
           "binds": [
             "zia/web-log#df_hostname",
             "zia/web-log#df_hosthead"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:flow-type-values",
+          "statement": "The Web and Firewall Insights Logs filters on flow type list Direct, Intranet, Loopback, Unclassified, VPN, VPN Tunnel, ZIA and ZPA.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#flow_type",
+            "zia/firewall-log#flow_type"
           ]
         },
         {
@@ -1269,6 +1351,24 @@
           ]
         },
         {
+          "id": "zia.logs.web-field-semantics:policy-action-values",
+          "statement": "Besides All (the default), the web Insights Logs policy action filter values are Allow; Allowed - No Active Content (unknown PDF or Microsoft Office downloads allowed as benign by Sandbox static analysis); Allowed and No Scan (unknown files allowed but not scanned under the Sandbox policy); Allowed with caution; Block; Blocked - Tenant Restricted (Tenant Restriction policies); Blocked with caution; and Isolate (sent to Zero Trust Browser).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#action"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:protocol-values",
+          "statement": "The web Insights Logs protocol values are DNS over HTTPS, FTP (native FTP servers), FTP over HTTP, HTTP, HTTP Proxy (HTTP CONNECT requests to a ZIA Public Service Edge IP), HTTPS (inspected), SSL/TLS (not inspected), Tunnel (unidentified encrypted traffic such as Telnet or SSH inside HTTP or HTTPS), Tunnel SSL/TLS (an undecodable protocol inside SSL/TLS), WebSocket and WebSocket SSL/TLS; inspection of bidirectional WebSocket text-based content is enabled by contacting Zscaler Support.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#proto"
+          ]
+        },
+        {
           "id": "zia.logs.web-field-semantics:reason-pointer",
           "statement": "The reason field's documentation refers readers to the Policy Reasons article for the reasons behind policy actions.",
           "tier": "A",
@@ -1306,6 +1406,16 @@
           ]
         },
         {
+          "id": "zia.logs.web-field-semantics:severity-buckets",
+          "statement": "The Web Insights Logs severity values map to the suspicious content value: Critical for 90–100, High for 75–89, Medium for 46–74, Low for 1–45 and None for 0.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#threatseverity",
+            "zia/web-log#riskscore"
+          ]
+        },
+        {
           "id": "zia.logs.web-field-semantics:severity-from-score",
           "statement": "threatseverity relates to the riskscore bucket, so a riskscore from 90 to 100 gives Critical.",
           "tier": "A",
@@ -1325,6 +1435,15 @@
           ]
         },
         {
+          "id": "zia.logs.web-field-semantics:sipa-server-ip",
+          "statement": "With Source IP Anchoring for a URL or domain, the Web Insights Logs show the IP address 0.0.0.1 for the server to indicate the internal redirection, because the client request is forwarded to Private Access and the server IP is not logged at the proxy layer.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#sip"
+          ]
+        },
+        {
           "id": "zia.logs.web-field-semantics:sizes",
           "statement": "respsize includes the response header and payload, and totalsize is the sum of the total request size and total response size.",
           "tier": "A",
@@ -1335,12 +1454,59 @@
           ]
         },
         {
+          "id": "zia.logs.web-field-semantics:ssl-policy-reason-values",
+          "statement": "The filter for SSL/TLS Inspection policy actions lists Blocked, Inspected, N/A and Not inspected because of failed client SSL/TLS handshake, HSM error, mutual TLS authentication, O365 bypass, SSL/TLS policy, UCaaS bypass, undecryptable traffic, Zscaler best practices or Zscaler service domains.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#externalspr"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:threat-engines",
+          "statement": "In the web Insights Logs filters, the threat category filter lists threats detected by Malware Protection and the advanced threat category filter lists threats detected by Advanced Threat Protection; one filter lists the values Advanced Threats, Sandbox and Viruses & Spyware, and another Malware, Sandbox, Spyware and Virus.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#malwarecat",
+            "zia/web-log#malwareclass"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:tunnel-handoff",
+          "statement": "Some web protocol filter values mean control was handed to the firewall, for example Tunnel and Tunnel SSL/TLS: the firewall completes the remaining inspection and applies a policy according to the rules, and the page recommends always checking the firewall logs to confirm.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#proto"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:url-categorization-method",
+          "statement": "URL Categorization Method gives the source of a URL's category: Database A (the service's proprietary URL database), Database B (a third-party vendor's database), AI/ML-based content categorization (pages in neither database classified with AI/ML tools), User-Defined (defined by an administrator) or None (in no database).",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#urlcatmethod"
+          ]
+        },
+        {
           "id": "zia.logs.web-field-semantics:url-no-scheme",
           "statement": "The url field excludes the protocol identifier, http:// or https://.",
           "tier": "A",
           "confidence": "high",
           "binds": [
             "zia/web-log#url"
+          ]
+        },
+        {
+          "id": "zia.logs.web-field-semantics:user-gateway-name",
+          "statement": "When an internet gateway location is specified and authentication is not required, the web Insights Logs user and department fields show the gateway location's name.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#login",
+            "zia/web-log#dept"
           ]
         }
       ]
@@ -1349,6 +1515,15 @@
       "id": "zia.logs.web-records",
       "title": "What a ZIA web log record is and how its fields are named",
       "claims": [
+        {
+          "id": "zia.logs.web-records:get-per-transaction",
+          "statement": "Each GET request is logged as a transaction, and opening a single web page typically takes several GET requests to fetch the page's objects; the Web and Mobile Insights Logs columns pages both say so.",
+          "tier": "A",
+          "confidence": "high",
+          "binds": [
+            "zia/web-log#url"
+          ]
+        },
         {
           "id": "zia.logs.web-records:insights-renames",
           "statement": "Some Insights names differ from the NSS meaning: reqsize appears as Sent Bytes, respsize as Received Bytes, and riskscore as Suspicious Content.",
@@ -1492,6 +1667,33 @@
       "detail": "Unverified legacy statement: ZIA web logs show ztunnelversion as ZTUNNEL_1_0 or ZTUNNEL_2_0. The NSS format tables give only ZTUNNEL_1_0 as an example; no captured source lists the value for Z-Tunnel 2.0.",
       "resolves_with": [
         "tenant-data"
+      ]
+    },
+    {
+      "id": "zia.insights.logs:mobile-vs-web",
+      "kind": "semantic",
+      "title": "Whether Mobile Insights Logs are a subset of the web records or a separate dataset",
+      "status": "open",
+      "about": [
+        "zia/web-log"
+      ],
+      "detail": "No NSS mobile log type exists. The web type carries mobappname, mobappcat and mobdevtype with the Insights labels Mobile Application, Mobile Application Category and Mobile Device Type, and About Insights Logs says Web logs cover transactions from any device. No source says whether Mobile Insights Logs show a subset of the web records or a separate dataset.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    {
+      "id": "zia.insights.logs:web-columns-no-nss-label",
+      "kind": "semantic",
+      "title": "Which Web Insights Logs columns the NSS web feed carries",
+      "status": "open",
+      "about": [
+        "zia/web-log"
+      ],
+      "detail": "These Web Insights Logs columns match no field label in the generated web log type: Proxy Latency, Client Trans. Time, Server Trans. Time, Configuration, Email Recipients, HTTP Header Profile, HTTP Header Insertion Profile, DLP Severity, SaaS Authenticated Username, Adaptive Access Profile, API Key Name, Event Time, Client Key Exchange Proposal, Client Digital Signature Proposal, the JA4 Fingerprint columns and the two columns asking whether a source or destination IP country is risky. Whether the NSS web feed carries them is open; resolve it against the NSS web output format page, not by name likeness.",
+      "resolves_with": [
+        "source-read"
       ]
     }
   ],

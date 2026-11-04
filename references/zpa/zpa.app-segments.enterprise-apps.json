@@ -1,0 +1,641 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.enterprise-apps",
+  "title": "Configuring application segments for specific enterprise applications: unified communications, FTP, RDP, DFS with Kerberos, Windows domain join, Citrix, GPO, Configuration Manager, IWA with Kerberos reauthentication and SAP",
+  "aliases": [
+    "unified communications bypass",
+    "UC traffic",
+    "passive FTP",
+    "RDP application segment",
+    "distributed file servers",
+    "DFS Kerberos",
+    "SRV records",
+    "domain join remote users",
+    "Citrix ICA",
+    "GPO traffic",
+    "Configuration Manager",
+    "SCCM",
+    "IWA Kerberos reauthentication",
+    "SAP application segment"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.bypass"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.peer-to-peer"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.vpn"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-groups.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.machine-tunnels.requirements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{unified-communications}}"
+    },
+    {
+      "label": "FTP and RDP.",
+      "text": "{{ftp-passive-only}} {{ftp-clients}} {{rdp-tcp-only}} {{rdp-legacy-client-version}}"
+    },
+    {
+      "label": "Distributed file servers.",
+      "text": "{{dfs-kerberos}} {{dfs-ports}} {{dfs-dedicated-connectors}} The ports for LDAPS differ between this article and the IWA reauthentication one {{divergence:port-636}}."
+    },
+    {
+      "label": "Windows domain join and GPO.",
+      "text": "{{windows-domain-join}} {{cached-credentials-methods}} {{gpo-supported}} Why Active Directory logon depends on a connection before login is still open {{gap:gpo-delivery-link}}."
+    },
+    {
+      "label": "Citrix.",
+      "text": "{{citrix-ica-fqdn}}"
+    },
+    {
+      "label": "Configuration Manager.",
+      "text": "{{sccm-no-client-ip}} {{sccm-ad-site-boundaries}} {{sccm-vpn-boundaries}} {{sccm-unsupported}} The server-to-client article names Configuration Manager as a remote assistance tool {{divergence:sccm-remote-assistance}}. How the hidden virtual interface is switched on is open {{gap:sccm-virtual-interface}}."
+    },
+    {
+      "label": "IWA with Kerberos reauthentication.",
+      "text": "{{iwa-kerberos-reauth}}"
+    },
+    {
+      "label": "SAP.",
+      "text": "{{sap-segments}} {{sap-dns-search-domain}} {{sap-acl-connector-ips}} The article recommends both per-application segments and a single segment {{divergence:sap-segment-layout}}."
+    },
+    {
+      "text": "Which segment wins when the same FQDN is defined twice is in [[zpa.app-segments.bypass]]; the IP ranges and location hint are in [[zpa.peer-to-peer]]; the cases Configuration Manager cannot cover go to [[zpa.vpn]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether UC applications sit in a segment with Bypass Always when a wildcard or subnet segment would otherwise discover them.",
+      "uses": [
+        "unified-communications"
+      ]
+    },
+    {
+      "do": "Whether an FTP failure is active mode or command-line FTP before looking at connectors, since only passive FTP is supported.",
+      "uses": [
+        "ftp-passive-only",
+        "ftp-clients"
+      ]
+    },
+    {
+      "do": "Whether Citrix is returning the server IP address in its ICA file rather than an FQDN.",
+      "uses": [
+        "citrix-ica-fqdn"
+      ]
+    },
+    {
+      "do": "Whether a Configuration Manager scenario is one the Configuration Manager article lists as unsupported, and how the server-to-client article treats remote assistance.",
+      "uses": [
+        "sccm-unsupported",
+        "sccm-remote-assistance"
+      ]
+    },
+    {
+      "do": "Whether a port list for LDAPS rests on the DFS article or the IWA article, since they differ on 636.",
+      "uses": [
+        "dfs-ports",
+        "iwa-kerberos-reauth",
+        "port-636"
+      ]
+    },
+    {
+      "do": "Whether SAP servers' ACLs include every App Connector in the group, since the servers see the connector's address.",
+      "uses": [
+        "sap-acl-connector-ips"
+      ]
+    }
+  ],
+  "claims": {
+    "unified-communications": {
+      "statement": "Unified communications (UC) traffic for off-network and on-network users should use edge servers, externally accessible Session Border Controllers or UC gateways, and Zscaler recommends not sending UC traffic to Private Access, as this has the potential to add latency and jitter. If a wildcard or IP subnet (for example *.company.com or 10.0.0.0/8) is used to discover applications through Private Access, the UC traffic applications must be defined with bypass settings that exclude the hosts from being discovered, and the page selects Always from the Bypass menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-bypassing-unified-communications-traffic.json",
+          "quotes": [
+            "Unified communications (UC) traffic for off-network and on-network users should use edge servers, externally accessible Session Border Controllers (SBCs), or UC gateways.",
+            "Zscaler also recommends not sending UC traffic to Private Access (ZPA), as this has the potential to add latency and jitter to the communication.",
+            "If you are using a wildcard for dynamically discovering applications or are using an IP subnet to discover applications through Private Access (e.g., using *.company.com or 10.0.0.0/8), you must define the UC traffic applications and configure bypass settings to exclude the hosts from being discovered.",
+            "For Additional Configuration, from the Bypass drop-down menu, select Always."
+          ]
+        }
+      ]
+    },
+    "ftp-passive-only": {
+      "statement": "Private Access only supports passive FTP mode; active mode, which needs a TCP connection initiated from the server to the client, is not supported, and an attempt fails if an FTP client tries active mode or sends an active mode request in parallel to the passive request. Only IP-based passive FTP applications are supported; the segment uses TCP port ranges 1 to 65535, App Connector health reporting None because each FTP data channel is pseudo-random and opened per client, and Bypass Use Client Forwarding Policy with a client forwarding policy rule Forward to ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-ftp-applications.json",
+          "quotes": [
+            "Private Access (ZPA) only supports passive FTP mode; active mode is not supported..",
+            "Active FTP requires a TCP connection initiated from the server to the client, while passive FTP only requires client-initiated TCP connections.",
+            "If an FTP client attempts active FTP mode or sends an active mode request in parallel to the passive request, the attempt fails.",
+            "For Applications, enter an IP address. Private Access only supports IP-based passive FTP applications.",
+            "For Client Connector Access, add the TCP port ranges (i.e., 1 to 65535).",
+            "App Connector health reporting must be set to None because each FTP data channel is pseudo-random and opened on a per client basis.",
+            "For Additional Configuration, from the Bypass drop-down menu, select Use Client Forwarding Policy. You need to create a client forwarding policy with the rule Forward to ZPA."
+          ]
+        }
+      ]
+    },
+    "ftp-clients": {
+      "statement": "Zscaler recommends that users access a proper FTP client (for example FireFTP, FileZilla or CuteFTP), because command line FTP on Windows and macOS does not implement passive FTP correctly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-ftp-applications.json",
+          "quotes": [
+            "Zscaler recommends that your users access a proper FTP client (i.e., FireFTP, FileZilla, CuteFTP, etc.).",
+            "Command line FTP on Windows and macOS does not implement passive FTP correctly."
+          ]
+        }
+      ]
+    },
+    "rdp-tcp-only": {
+      "statement": "For RDP applications, TCP port ranges are entered under Client Connector Access, the UDP port ranges are left empty, and Zscaler recommends that only TCP port ranges be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-rdp-applications.json",
+          "quotes": [
+            "TCP Port Ranges: Enter the TCP port ranges that can be used to access the defined applications.",
+            "UDP Port Ranges: Leave these fields empty.",
+            "Zscaler recommends that you only use TCP port ranges."
+          ]
+        }
+      ]
+    },
+    "rdp-legacy-client-version": {
+      "statement": "The RDP article recommends Client Connector version 2.0.1 or later with the Windows Filter Driver enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-rdp-applications.json",
+          "quotes": [
+            "Zscaler recommends that you use Zscaler Client Connector version 2.0.1 or later with the Windows Filter Driver enabled."
+          ]
+        }
+      ]
+    },
+    "dfs-kerberos": {
+      "statement": "Access to Distributed File Servers while using Kerberos for authentication can be configured with a wildcard domain, with separate applications for DFS (with Kerberos) and SRV resolution (when the same server is both file server and domain controller), or with separate applications for file servers, domain controllers and SRV resolution (when they are on separate servers). Private Access requires an application defined as a wildcard with any port to resolve SRV records, for which the page uses a dummy port (Port 1).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-distributed-file-servers.json",
+          "quotes": [
+            "The following methods can be used to configure access to Distributed File Servers (DFS) while using Kerberos for authentication:",
+            "Using a Wildcard Domain",
+            "Configure Separate Applications for DFS (with Kerberos) and SRV Resolution",
+            "This configuration can be used when the same server is set up as a file server and domain controller.",
+            "Configure Separate Applications for File Servers, Domain Controllers, and SRV Resolution",
+            "This configuration can be used when the domain controller and file server are set up on separate servers",
+            "you are using a dummy port (Port 1) for SRV to record DNS resolution."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-distributed-file-servers.json",
+          "quotes": [
+            "Private Access requires an application to be defined as a wildcard with any port to resolve SRV records."
+          ],
+          "after": "Configure Separate Applications for DFS (with Kerberos) and SRV Resolution"
+        }
+      ]
+    },
+    "dfs-ports": {
+      "statement": "The DFS article lists these ports: TCP 88 (Kerberos), 464 (Kerberos Password Change), 389 (LDAP), 3268 (Global Catalog), 3269 (Global Catalog SSL, optional), 135 (MSRPC), 139 and 445 (CIFS); and UDP 88 (Kerberos), 464 (Kerberos Password Change), 389 (LDAP), 138 (NetBT datagram, file server), 123 (NTP), 445 (CIFS) and 636 (LDAPS, optional).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-distributed-file-servers.json",
+          "quotes": [
+            "The following list provides port descriptions for TCP and UDP:",
+            "TCP/88: Kerberos",
+            "TCP/464: Kerberos Password Change",
+            "TCP/389: LDAP",
+            "TCP/3268: Global Catalog",
+            "TCP/3269: Global Catalog SSL (Optional)",
+            "TCP/135: MSRPC",
+            "TCP/139: Common Internet File Service (CIFS)",
+            "TCP/445: CIFS",
+            "UDP/88: Kerberos",
+            "UDP/464: Kerberos Password Change",
+            "UDP/389: LDAP",
+            "UDP/138: NetBT datagram (File Server)",
+            "UDP/123: NTP Service",
+            "UDP/445: CIFS",
+            "UDP/636: LDAPS (Optional)"
+          ]
+        }
+      ]
+    },
+    "dfs-dedicated-connectors": {
+      "statement": "Zscaler recommends a dedicated App Connector group for the File Server applications, because these applications can be latency sensitive and experience performance degradation if the associated App Connectors also provide access to other applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-distributed-file-servers.json",
+          "quotes": [
+            "Zscaler recommends a dedicated App Connector group for the File Server applications. These applications can be latency sensitive and experience performance degradation if the associated App Connectors also provide access to other applications."
+          ]
+        }
+      ]
+    },
+    "windows-domain-join": {
+      "statement": "For remote users on Windows devices logging in to an Active Directory domain for the first time, the device is provisioned by IT with a local account; the user logs in with it, enrolls in Private Access using Client Connector on the local account, updates cached credentials (a PowerShell script, the RunAs command in the Windows UI, or the RunAs command in a batch file), logs out of Client Connector and the local account, and then logs in with the Windows domain account. Using the Private Access connection the device can be joined to the domain, the remote user can log in and their credentials can be cached.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-domain-join-remote-users-windows-devices.json",
+          "quotes": [
+            "For remote users on Microsoft Windows devices logging in to an Active Directory (AD) domain for the first time, make sure that the device is provisioned by your organization's IT team with a local account on the device.",
+            "The user can then complete their first-time login using that local account to enroll in to Private Access (ZPA).",
+            "Using the Private Access connection, the device can be joined to the domain, the remote user can log in, and their credentials can be cached on the device.",
+            "User logs in to the device using their local account.",
+            "User enrolls in to Private Access using Zscaler Client Connector on the local account.",
+            "User updates cached credentials using one of the methods below.",
+            "A PowerShell Script",
+            "The RunAs Command in the Windows User Interface",
+            "The RunAs Command in a Batch File",
+            "User logs out of Zscaler Client Connector and out of the local account.",
+            "User logs in to the device with their Windows domain account."
+          ]
+        }
+      ]
+    },
+    "cached-credentials-methods": {
+      "statement": "A PowerShell script or the RunAs command can cache credentials on Windows 7 and 10; neither requires local administrator rights, and the local account can be limited so users do not continue to use it after enrollment. If the remote user's password is expired and they cannot log in to Windows, the password reset can be done in Private Access even when the device's Client Connector is not connected to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-domain-join-remote-users-windows-devices.json",
+          "quotes": [
+            "You can use a PowerShell script or the RunAs command to cache credentials on Windows 7 and 10 operating systems.",
+            "Neither require local administrator rights, and the local account can be configured to be limited to ensure that users do not continue to use it after they've been enrolled in to Private Access.",
+            "If the remote user's password is expired and they cannot log in to Windows, the password reset can be done in Private Access, even when the device's Zscaler Client Connector is not connected to Private Access."
+          ]
+        }
+      ]
+    },
+    "gpo-supported": {
+      "statement": "Microsoft Group Policy Object (GPO) network traffic is supported in Private Access with no additional configuration steps, and Zscaler recommends optimizing GPO performance in the environment if client-to-server network traffic is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-microsoft-gpo-network-traffic.json",
+          "quotes": [
+            "Microsoft Group Policy Object (GPO) network traffic is supported in Private Access (ZPA). No additional configuration steps are required.",
+            "Zscaler recommends optimizing GPO performance in your environment if you are using client-to-server network traffic."
+          ]
+        }
+      ]
+    },
+    "citrix-ica-fqdn": {
+      "statement": "Citrix App and Desktop applications are not accessible through Private Access when a wildcard (for example *.domain.com) or FQDN application (for example citrix.domain.com) is defined within an application segment, because Citrix's default ICA file returns the IP address of the Citrix server in the data center that services the request. The page says to configure Citrix to return the servers' FQDN instead, which lets XenApp establish a new connection to the FQDN that Private Access passes through; reaching them by IP address is described as not an ideal solution.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-citrix-app-and-desktop-applications.json",
+          "quotes": [
+            "Citrix App and Desktop applications are not accessible via Private Access (ZPA) when a wildcard (e.g., *.domain.com) or FQDN application (e.g., citrix.domain.com) is defined within an application segment.",
+            "This is due to Citrix's default ICA file returning the IP address of the Citrix server in their data center that services the application request.",
+            "Although it's possible for Private Access to access these applications using an IP address, this is not an ideal solution and is counter to our Zero Trust solution.",
+            "Instead, you should configure Citrix to return the FQDN for the servers in their data center.",
+            "This enables XenApp to establish a new connection to the FQDN, which Private Access then uses to pass the service through."
+          ]
+        }
+      ]
+    },
+    "sccm-no-client-ip": {
+      "statement": "Configuration Manager clients use boundary groups to identify the assigned distribution point; with a traditional VPN it is selected from the client IP address the VPN gateway assigns, but with Private Access the client is never placed on the network and never gets a data center network IP address. The article says Configuration Manager deployments can still be supported, with boundaries based on Active Directory site names (Zscaler's recommendation) or on a VPN interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-microsoft-configuration-manager.json",
+          "quotes": [
+            "Clients use boundary groups to identify the assigned distribution point where the client can install software.",
+            "With a traditional VPN, the distribution point is selected based on the client IP address assigned by the VPN gateway.",
+            "For Private Access (ZPA), the client is never placed on the network, which means the client never gets an IP address for the data center network.",
+            "However, it is possible to support Configuration Manager deployments over Private Access.",
+            "Boundaries Based on Active Directory Site Names",
+            "Zscaler recommends using Active Directory site name for boundaries.",
+            "Boundaries Based on a VPN Interface"
+          ]
+        }
+      ]
+    },
+    "sccm-ad-site-boundaries": {
+      "statement": "A domain-joined device detects its Active Directory site with DNS SRV record requests and then an LDAP ping, which does not send the IP address in its header, so the domain controller relies on the packet's source IP; for Private Access that is the App Connector's source IP, which needs to be added to the Active Directory site. The article's steps are to create an application segment that resolves SRV records (a wildcard covering the root of the AD domains is recommended), add the interface IP address of every App Connector that requires Configuration Manager updates to the correct AD site, and confirm the boundary type is Active Directory site.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-microsoft-configuration-manager.json",
+          "quotes": [
+            "Active Directory sites are detected by a domain-joined device by using DNS SRV record requests.",
+            "When the device receives the domain controller's IP address, it sends a Lightweight Directory Access Protocol (LDAP) ping to make sure that the domain controller belongs to the same Active Directory site as the device.",
+            "The LDAP ping does not send the IP address in its header, so the domain controller relies on the source IP address of the packet.",
+            "For Private Access, the IP address seen by the domain controller is the App Connector's source IP address, which needs to be added to the Active Directory site.",
+            "Create an application segment to allow the resolution of SRV records. The recommended method is to use a wildcard that covers the root of your Active Directory domains.",
+            "Add the App Connector's interface IP address to the correct Active Directory site. Complete this for all App Connectors that require Configuration Manager updates.",
+            "Confirm that the Configuration Manager boundary type is set to Active Directory site."
+          ]
+        }
+      ]
+    },
+    "sccm-vpn-boundaries": {
+      "statement": "Private Access does not create a local interface or assign a unique IP address by default, but can be configured to, creating a hidden virtual interface on the Windows endpoint whose IP follows the client-to-client IP bindings and can be used for Configuration Manager boundaries and client-to-client communication. Separate IP bindings are needed for each region assigned to a Configuration Manager boundary and distribution point group; the IP group uses Send Location Hint to Client Connector with a Location Hint matching the VPN Boundary name, and the boundary group type is VPN with the VPN setting Auto Detect and a Connection Name equal to the Location Hint text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-microsoft-configuration-manager.json",
+          "quotes": [
+            "While Private Access doesn't create a local interface or assign a unique IP address by default, it can be configured to do so without impacting Private Access operations.",
+            "This configuration creates a hidden virtual interface on the Windows endpoint.",
+            "The IP address used for this interface follows the same client-to-client IP bindings and can be utilized for both Configuration Manager boundaries and Private Access client-to-client communication.",
+            "Separate IP bindings must be created for each region you intend to assign to an Configuration Manager boundary and distribution point group.",
+            "When setting up an IP group for Configuration Manager, select the Send Location Hint to Client Connector option.",
+            "The value entered in the Location Hint field should match the VPN Boundary name configured in Configuration Manager.",
+            "Create a boundary group and set its type to VPN.",
+            "Make sure the VPN setting is set to Auto Detect.",
+            "In the Connection Name field, enter the exact text configured for the Location Hint in Private Access."
+          ]
+        }
+      ]
+    },
+    "sccm-unsupported": {
+      "statement": "The Configuration Manager article lists these server-to-client and peer-to-peer scenarios as not supported: Client to Client (Wake On LAN), Site server to Client (Wake On LAN) and Configuration Manager console to Client (Remote Assistance - Remote Desktop Protocol); if they are required it says to use VPN for Legacy Apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-microsoft-configuration-manager.json",
+          "quotes": [
+            "The following server-to-client and peer-to-peer Configuration Manager clients and site systems are not supported:",
+            "Client to Client (Wake On LAN)",
+            "Site server to Client (Wake On LAN)",
+            "Configuration Manager console to Client (Remote Assistance - Remote Desktop Protocol)",
+            "If these communication scenarios are required, use VPN for Legacy Apps."
+          ]
+        }
+      ]
+    },
+    "iwa-kerberos-reauth": {
+      "statement": "When SSO uses Microsoft IWA with Kerberos, three application segments are created, each with Bypass set to On Corporate Network, one per domain if FQDNs are used: the ADFS FQDN on TCP 443, the LDAP/Active Directory FQDN on TCP and UDP 389, 636 and 3268-3269, and the KDC FQDN on TCP and UDP 88. A timeout policy rule with Authentication Timeout Never applies to their segment groups. Without the application segment and the associated timeout access policy rule, an error message displays in Client Connector whenever users attempt to reauthenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-reauthentication-zpa-microsoft-iwa-kerberos.json",
+          "quotes": [
+            "If you do not set up an application segment with an associated timeout access policy rule as detailed in the following steps, an error message displays in Zscaler Client Connector whenever your users attempt to reauthenticate.",
+            "If you need to use FQDNs, you must create an application segment for each domain.",
+            "Under Applications, enter the FQDN for ADFS.",
+            "Under Client Connector Access, enter 443 in the TCP Port Ranges fields.",
+            "Under Applications, enter the FQDN for LDAP/Active Directory.",
+            "Under Client Connector Access, enter 389, 636, and 3268-3269 in the TCP Port Ranges and UDP Port Ranges fields.",
+            "Under Applications, enter the FQDN for KDC.",
+            "Under Client Connector Access, enter 88 in the TCP Port Ranges and UDP Port Ranges fields.",
+            "For Authentication Timeout: Select Never.",
+            "For Criteria: Click Add Criteria, click Applications, and for Segment Groups, select the groups you chose previously."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-reauthentication-zpa-microsoft-iwa-kerberos.json",
+          "quotes": [
+            "Under Additional Configuration, from the Bypass drop-down menu, select On Corporate Network."
+          ],
+          "after": "Under Applications, enter the FQDN for ADFS."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-reauthentication-zpa-microsoft-iwa-kerberos.json",
+          "quotes": [
+            "Under Additional Configuration, from the Bypass drop-down menu, select On Corporate Network."
+          ],
+          "after": "Under Applications, enter the FQDN for LDAP/Active Directory."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-reauthentication-zpa-microsoft-iwa-kerberos.json",
+          "quotes": [
+            "Under Additional Configuration, from the Bypass drop-down menu, select On Corporate Network."
+          ],
+          "after": "Under Applications, enter the FQDN for KDC."
+        }
+      ]
+    },
+    "sap-segments": {
+      "statement": "To control access to SAP applications, application segments must be created and DNS search domains configured. A wildcard with a wide port range allows broad access to SAP apps; the best-practice list says to create application segments using FQDNs, and to use a Wireshark trace or SAP configurations to identify the IP addresses of all SAP servers and create a segment that includes only those IP addresses and the appropriate TCP ports, without advertising the entire subnet range (for example 192.168.1.0/24).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-sap-applications.json",
+          "quotes": [
+            "To control access to SAP applications, you must create application segments and configure DNS search domains.",
+            "You can create an application segment with a wildcard and a wide port range to allow broad access to SAP apps.",
+            "Create application segments for SAP applications using FQDNs.",
+            "Use the Wireshark trace, or SAP configurations, to identify the IP addresses of all SAP servers, and create an application segment that includes only these IP addresses and the appropriate TCP ports.",
+            "Do not advertise the entire subnet range (e.g., 192.168.1.0/24)."
+          ]
+        }
+      ]
+    },
+    "sap-dns-search-domain": {
+      "statement": "With the SAP client, the connection is made to an SAP message server that returns a list of applications, and after the user selects one the client attempts to connect to the hostname or IP address on a specified port. If the SAP hostname is not an FQDN a DNS search domain is required; if the client has no search suffix it cannot complete the FQDN and falls back to the IP address provided by the message server, which might not be desirable or routable over Private Access. Configuring SAP to provide an FQDN instead of a short name removes the need for the search domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-sap-applications.json",
+          "quotes": [
+            "When using the SAP client, the connection is made to an SAP message server that returns a list of applications to connect to.",
+            "After the user selects the application, the SAP client attempts to connect to the hostname or IP address on a specified port.",
+            "If the SAP hostname is not an FQDN, a DNS search domain is required.",
+            "The client falls back to the IP address provided by the SAP message server, which might not be desirable or routable over Private Access.",
+            "However, you can also configure SAP to provide an FQDN instead of a short name, which removes the need to configure a DNS search domain."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-sap-applications.json",
+          "quotes": [
+            "If the client has no search suffix, it cannot complete the FQDN to connect to SAP."
+          ],
+          "after": "If the SAP hostname is not an FQDN, a DNS search domain is required."
+        }
+      ]
+    },
+    "sap-acl-connector-ips": {
+      "statement": "If an access control list is configured in the SAP message server or application server, the App Connector IP addresses are added to it: Private Access performs a source NAT for the client so all traffic is seen from the App Connector's IP address, and because it load balances user requests across the App Connectors in the segment's App Connector group, Zscaler recommends adding the IP addresses of all of the App Connectors in that group to the ACL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-supporting-sap-applications.json",
+          "quotes": [
+            "If there is an access control list (ACL) configured in the SAP message server or application server, add the App Connector IP addresses to it.",
+            "Since Private Access performs a source NAT for the client, all traffic is seen from the IP address of the App Connector.",
+            "For the App Connector group associated with the application segments, Private Access load balances user requests across App Connectors in this App Connector group.",
+            "Because of this, Zscaler recommendeds that the IP addresses for all the App Connectors in the App Connector group be added to the ACL."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sccm-remote-assistance": {
+      "summary": "The server-to-client article offers Configuration Manager remote assistance as its example tool; the Configuration Manager article lists console-to-client remote assistance as unsupported and sends it to VPN for Legacy Apps.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-server-client-connectivity.json",
+            "quotes": [
+              "The admin then uses their third-party tool (i.e., Microsoft Configuration Manager) to launch remote assistance to workstations by using the FQDNs or virtual Zscaler IP addresses."
+            ]
+          },
+          "says": "An admin uses Microsoft Configuration Manager to launch remote assistance to workstations using the FQDNs or virtual Zscaler IP addresses."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-supporting-microsoft-configuration-manager.json",
+            "quotes": [
+              "The following server-to-client and peer-to-peer Configuration Manager clients and site systems are not supported:",
+              "Configuration Manager console to Client (Remote Assistance - Remote Desktop Protocol)"
+            ]
+          },
+          "says": "Configuration Manager console to Client remote assistance over RDP is not supported."
+        }
+      ],
+      "impact": "One page names Configuration Manager as the remote assistance tool for server-to-client, and the other lists console-to-client remote assistance over RDP as unsupported; neither page reconciles the two or says which is current. Do not state that Configuration Manager remote assistance works or does not work over server-to-client without both articles."
+    },
+    "sap-segment-layout": {
+      "summary": "The SAP article says it is more secure to create application segments for individual apps, and its best practices also say to create a single application segment for all SAP applications.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-supporting-sap-applications.json",
+            "quotes": [
+              "However, it is more secure to create application segments for individual apps."
+            ]
+          },
+          "says": "Segments for individual SAP apps are more secure than a wildcard with a wide port range."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-supporting-sap-applications.json",
+            "quotes": [
+              "Create a single application segment for all SAP applications. This allows Private Access to load balance user requests for these applications.",
+              "However if segmentation is required, you must create multiple application segments for the SAP applications."
+            ]
+          },
+          "says": "A single segment for all SAP applications lets Private Access load balance requests; multiple segments are needed where segmentation is required."
+        }
+      ],
+      "impact": "The two recommendations are not reconciled in the article; keep both attributed and tie the choice to whether segmentation is required."
+    },
+    "port-636": {
+      "summary": "The DFS article lists port 636 (LDAPS, optional) under UDP only; the IWA reauthentication article enters 636 in both the TCP and UDP port range fields.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-access-distributed-file-servers.json",
+            "quotes": [
+              "UDP/636: LDAPS (Optional)"
+            ]
+          },
+          "says": "Port 636 is listed for LDAPS under UDP, as optional, and no TCP 636 appears in the list."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-supporting-reauthentication-zpa-microsoft-iwa-kerberos.json",
+            "quotes": [
+              "Under Client Connector Access, enter 389, 636, and 3268-3269 in the TCP Port Ranges and UDP Port Ranges fields."
+            ]
+          },
+          "says": "Port 636 is entered in the TCP and UDP port range fields for the LDAP/Active Directory FQDN."
+        }
+      ],
+      "impact": "The articles serve different setups, so the difference may be intentional; do not add TCP 636 to the DFS list or drop it from the IWA list on the strength of the other article."
+    }
+  },
+  "gaps": {
+    "gpo-delivery-link": {
+      "kind": "semantic",
+      "title": "Why Active Directory logon and GPO delivery depend on a pre-login connection",
+      "status": "open",
+      "detail": "The domain-join article describes first-login enrollment through a local account and a password reset without a Client Connector connection, and the GPO article says only that GPO traffic needs no configuration. Neither says why AD logon needs a pre-login tunnel; the machine tunnel question is the gpo-delivery gap in zpa.machine-tunnels.requirements.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "sccm-virtual-interface": {
+      "kind": "semantic",
+      "title": "How the Configuration Manager hidden virtual interface is turned on",
+      "status": "open",
+      "detail": "The article says Private Access can be configured to create a hidden virtual interface on the Windows endpoint; the only related setting it names is Send Location Hint to Client Connector. The example application segment definitions for DFS (wildcard domains and ports per method) were images and are not in the capture, so they are not claimed; the Citrix and SAP articles refer port and configuration details to vendor documentation.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

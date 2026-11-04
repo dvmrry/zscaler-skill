@@ -1,0 +1,761 @@
+{
+  "schema_version": 1,
+  "id": "zia.insights.logs",
+  "title": "ZIA Insights Logs: log families, time frame, export and background queries, filters and console-only columns",
+  "aliases": [
+    "insights logs",
+    "web insights logs",
+    "log viewer",
+    "export to background",
+    "job center",
+    "show delayed logs",
+    "download display logs",
+    "sandbox verdict insights logs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.insights"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.insights.data-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.web-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.firewall-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.dns-outcome"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.logs.tunnel-records"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb.insights-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox.verdicts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{families}} The NSS field types for these families are [[zia/web-log]], [[zia/firewall-log]], [[zia/dns-log]], [[zia/tunnel-log]], [[zia/endpoint-dlp-log]], [[zia/email-dlp-log]], [[zia/sandbox-verdict-log]] and [[zia/saas-security-log]]."
+    },
+    {
+      "label": "Time frame and export.",
+      "text": "{{custom-92}} {{download-display}} The export ceiling differs between pages {{divergence:export-ceiling}}. {{background-export}} How far back a window may start, and whether the retention applies to every family, is open {{gap:lookback-retention}}."
+    },
+    {
+      "label": "Filters.",
+      "text": "{{filter-operators}} {{columns-per-family}} {{delayed-logs}} What makes a log delayed is open {{gap:delayed-logs-meaning}}. {{device-obfuscation}} {{road-warrior}} {{url-search}}"
+    },
+    {
+      "label": "Web columns.",
+      "text": "{{web-latency-columns}} The Mobile page defines the client transaction time differently {{divergence:client-trans-time}}. {{web-configuration-column}} What sets the Behavior When Partial Configuration Available option is open {{gap:partial-config-setting}}. {{email-recipients-16}} Which console columns the NSS web feed carries is open {{gap:web-columns-no-nss-label}}."
+    },
+    {
+      "label": "Mobile.",
+      "text": "{{mobile-columns}} {{rule-name-blocked-mobile}} Whether Mobile logs are a subset of the web records is open {{gap:mobile-vs-web}}."
+    },
+    {
+      "label": "Endpoint DLP.",
+      "text": "{{edlp-actions-records}} {{edlp-zdp-mode}} {{edlp-confirm}} {{edlp-activity-channel-item}} The Channel filter lacks two channels the rules name {{gap:edlp-channels}}."
+    },
+    {
+      "label": "Email DLP.",
+      "text": "{{email-dlp-actions-records}} {{email-dlp-people}}"
+    },
+    {
+      "label": "Extranet.",
+      "text": "{{extranet-columns}} The Extranet logs have no NSS type and an empty Status filter {{gap:extranet-logs}}."
+    },
+    {
+      "label": "Sandbox Verdict.",
+      "text": "{{sandbox-verdict-prereq}} {{sandbox-verdict-columns}} The Sandbox Action filter default differs between Web and Mobile {{gap:sandbox-action-default}}."
+    },
+    {
+      "label": "Console columns and NSS fields.",
+      "text": "No source maps the Endpoint DLP, Email DLP and Sandbox Verdict console columns to NSS fields {{gap:console-to-nss-mapping}}. The Threat Severity filters omit None {{gap:severity-none-filter}}. A port is described as an address in two columns articles {{gap:port-described-as-address}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a large export is limited by the Insights Logs page's 1 million, by the Ranges and Limitations 100K, or by the 20 requests per hour, before promising a record count.",
+      "uses": [
+        "download-display",
+        "export-ceiling"
+      ]
+    },
+    {
+      "do": "Whether a long query was moved to the background and has passed the 72 hours its report stays available.",
+      "uses": [
+        "background-export"
+      ]
+    },
+    {
+      "do": "Whether a count from the console excludes delayed logs, which no source defines.",
+      "uses": [
+        "delayed-logs",
+        "delayed-logs-meaning"
+      ]
+    },
+    {
+      "do": "Which definition of Client Trans. Time the page in front of the admin uses, Web or Mobile.",
+      "uses": [
+        "web-latency-columns",
+        "client-trans-time"
+      ]
+    },
+    {
+      "do": "Whether a console column has an NSS label before mapping it to a feed field.",
+      "uses": [
+        "web-columns-no-nss-label",
+        "console-to-nss-mapping"
+      ]
+    }
+  ],
+  "claims": {
+    "families": {
+      "statement": "Insights Logs cover Web (transactions from any device), Mobile (transactions from the browsers of mobile devices only, shown by device OS), Firewall, DNS, Tunnel (GRE and IPSec tunnel health, status and algorithms), SaaS Security, Endpoint DLP, Email DLP, Extranet and Sandbox Verdict.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "Web: View transactions initiated from any device (e.g., Windows, Mac, Mobile Devices).",
+            "Mobile: View transactions initiated from the browsers of mobile devices only. The logs appear based on the device OS.",
+            "Firewall: View details such as the rule that was applied, the client and server details, and the network services and applications.",
+            "DNS: View data, such as the DNS request and response details.",
+            "Tunnel: View data about GRE and IPSec tunnels, such as their health, status, and authentication and encryption algorithms.",
+            "SaaS Security: View every scan performed by the Zscaler SaaS Connector of the data based on your SaaS application tenant.",
+            "Endpoint DLP: View activities specific to Endpoint Data Loss Prevention (DLP).",
+            "Email DLP Insights: View insights into Email Data Loss Prevention (DLP).",
+            "Extranet: View insights into extranets.",
+            "Sandbox Verdict Insights: View Sandbox analysis logs."
+          ]
+        }
+      ]
+    },
+    "custom-92": {
+      "statement": "On the Insights Logs pages a custom time frame can end up to 92 days after its start date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "In Custom, the end date can be up to 92 days after start date."
+          ]
+        }
+      ]
+    },
+    "download-display": {
+      "statement": "The About Insights Logs page says Download exports the transactions as CSV, up to 1 million records at a time in options of 100K, 250K, 500K or 1 million, and Display streams them on screen, up to 25K lines at a time in options of 1K, 5K, 10K or 25K. Exports are limited to 20 requests per hour, and the service stays usable while an export runs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "Download: Download the list of transactions as a CSV file. You can export up to 1 million records with the available options of 100K, 250K, 500K, or 1 million records at a time.",
+            "Display: View the transactions stream on the screen as they are being retrieved from the storage. You can view up to 25K lines of data at a time with options from 1K, 5K, 10K, or 25K records.",
+            "You can continue to use the service while the export is in progress. The limit for the number of times you can export is 20 requests/hour."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Export to CSV (Web, Mobile, Firewall, DNS, and Tunnel Insights Logs) | 20 requests/hour |"
+          ]
+        }
+      ]
+    },
+    "background-export": {
+      "statement": "A query that runs longer than 30 seconds can be moved to the background and followed in the Job Center, where it keeps running if the admin leaves the page and stops once it reaches the selected record limit. The organization may hold 10 background exports, completed or in progress; an admin exports one query to the background at a time and cannot start one while another query is in progress, but can run a foreground query while a background query runs. Reports can be downloaded or viewed for only 72 hours after they complete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "If the query takes longer than 30 seconds, the Export to Background option becomes available.",
+            "You can then monitor the query's progress in the Job Center, accessible via the Export button on the top right of the page.",
+            "The query continues to run in the background even if you navigate away from this page.",
+            "The report stops generating as soon as it reaches your selected record limit, even if more matching records are available.",
+            "The organization-wide limit for background query exports is 10, which includes all queries that are either completed or currently in progress.",
+            "Admins can export a single query to the background at a time, as long as the organization's maximum limit has not been reached.",
+            "An export in background query cannot be initiated by admins while another query is in progress.",
+            "Admins can run a foreground query even if a background query is currently running.",
+            "Reports are accessible for download or on-screen viewing for only 72 hours following the completion of execution."
+          ]
+        }
+      ]
+    },
+    "filter-operators": {
+      "statement": "In Insights Logs, multi-value filters such as Users, Departments and Locations take up to 200 values and can include or exclude them; certain filters, string-match ones such as Threat Category, also support the operators Does Not Contain, Does Not Start With, Does Not End With, Is Null and Is Not Null.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "Certain filters, like Users, Departments, Locations, and others, support the selection of multiple values. For these, you can select up to 200 values in a single filter. You can also choose to include or exclude the selected values.",
+            "Also, certain filters support additional operators (i.e., Does Not Contain, Does Not Start With, Does Not End With, Is Null, Is Not Null) for filters that perform string match, like Threat Category and others."
+          ]
+        }
+      ]
+    },
+    "columns-per-family": {
+      "statement": "The About Insights Logs page lists a columns article for each of Web, Mobile, Firewall, DNS, Tunnel, Endpoint DLP, Email DLP, Extranet and Sandbox Verdict Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-insights-logs.json",
+          "quotes": [
+            "Web Insights Logs: Columns - Mobile Insights Logs: Columns - Firewall Insights Logs: Columns - DNS Insights Logs: Columns - Tunnel Insights Logs: Columns - Endpoint DLP Insights Logs: Columns - Email DLP Insights Logs: Columns - Extranet Insights Logs: Columns - Sandbox Verdict Insights Logs: Columns"
+          ]
+        }
+      ]
+    },
+    "delayed-logs": {
+      "statement": "The Web, Mobile, Firewall and DNS Insights Logs filters each offer a way to view delayed logs; the Firewall and DNS pages call it Show Delayed Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Use this filter to view any delayed logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-mobile-insights-logs-filters.json",
+          "quotes": [
+            "Use this filter to view any delayed logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Show Delayed Logs: Use this filter to limit the data to traffic based on delayed logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-filters.json",
+          "quotes": [
+            "Show Delayed Logs: Use this filter to limit the data to traffic based on delayed logs."
+          ]
+        }
+      ],
+      "gaps": [
+        "delayed-logs-meaning"
+      ]
+    },
+    "device-obfuscation": {
+      "statement": "In the Firewall Insights Logs filters, Device Hostname, Device Name and Device Owner are not available to admins with device information obfuscation enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Device Hostname: The hostname information from support devices. This filter is not available for admins with device information obfuscation enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "This filter is not available for admins with device information obfuscation enabled."
+          ],
+          "after": "Device Name: Use this filter to view transactions associated with a specific device name."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "This filter is not available for admins with device information obfuscation enabled."
+          ],
+          "after": "Device Owner: Use this filter to view transactions associated with a specific device owner."
+        }
+      ]
+    },
+    "road-warrior": {
+      "statement": "The Firewall Insights Logs Location filter lists Road Warrior, the default location for transactions that did not originate from a predefined location, and shows 200 results at a time; the Web Insights Logs columns page says a transaction that did not originate from a location defined in the service is recorded as coming from a remote user.",
+      "tier": "A",
+      "binds": [
+        "zia/web-log#location",
+        "zia/firewall-log#location"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-insights-logs-filters.json",
+          "quotes": [
+            "Location: Use this filter to limit the data to a location's traffic.",
+            "The list includes Road Warrior, the default location for transactions that did not originate from a predefined location. This filter lists 200 results at a time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "If the transaction did not originate from a location that was defined in the service, then it is recorded as coming from a remote user."
+          ]
+        }
+      ]
+    },
+    "url-search": {
+      "statement": "In the Web Insights Logs search, a URL, Path, Host or Domain can be entered, and the console may recommend switching among them for optimized and accelerated results; for example, a search of www.zscaler.com as a URL can prompt a recommendation to search it as Host to minimize processing time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Click Host and enter all or part of the host name (e.g., www.zscaler.com).",
+            "For optimized and accelerated results, the Zscaler Admin Console might show recommendations to switch between URL, Path, Host, and Domain based on your seach inputs.",
+            "For example, if you select URL and enter www.zscaler.com in the Search field, the Internet & SaaS service shows a recommendation pop-up window to search it as Host to minimize the processing time in generating the logs."
+          ]
+        }
+      ]
+    },
+    "web-latency-columns": {
+      "statement": "On the Web Insights Logs page, Proxy Latency (ms) is the time the Public Service Edge added, Server Trans. Time (ms) the time the destination server took to accept the GET request and return all content to the cloud, and Client Trans. Time (ms) the sum of Proxy Latency, Server Trans. Time and the client's time to upload the whole request payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Proxy Latency (ms): The time, in milliseconds, added to the transaction by the Public Service Edge.",
+            "Server Trans. Time (ms): The time, in milliseconds, it took the destination server to accept the GET request and return all the content to the cloud infrastructure.",
+            "Client Trans. Time (ms): The sum of the values in the Proxy Latency and Server Trans. Time columns and the time taken by the client to upload the entire request payload."
+          ]
+        }
+      ],
+      "gaps": [
+        "web-columns-no-nss-label"
+      ]
+    },
+    "web-configuration-column": {
+      "statement": "The Web Insights Logs column with supported values Full and Partial marks policy applied from an incomplete or cached tenant, user or location configuration, an extremely rare result of transient network disruption, and the distinction applies only when Behavior When Partial Configuration Available is set to Best Effort Policies in Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Supported values are Full and Partial.",
+            "A partial configuration is an extremely rare occurrence caused by transient network disruptions, which can result in a Service Edge operating with incomplete or cached tenant, user, or location configurations.",
+            "This distinction applies only when the Best Effort Policies option is used for the Behavior When Partial Configuration Available setting in Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "email-recipients-16": {
+      "statement": "The Web Insights Logs Email Recipients column applies to email applications and shows up to 16 recipient addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "Email Recipients: The email addresses of the message recipients. This column applies to email applications and displays up to 16 addresses."
+          ]
+        }
+      ]
+    },
+    "mobile-columns": {
+      "statement": "Mobile Insights Logs add Mobile Application, Mobile Application Category, Mobile Application Class and Mobile Device Type columns; the filter on the action the service took for mobile device traffic offers All, Allow or Block, and the filter on application class offers All, General, Privacy or Security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-mobile-insights-logs-columns.json",
+          "quotes": [
+            "Mobile Application: The application that was used on a mobile device.",
+            "Mobile Application Category: The category of the application that was used on a mobile device.",
+            "Mobile Application Class: The class of the application that was used on a mobile device.",
+            "Mobile Device Type: The type of mobile device that was used to connect to the corporate network."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-mobile-insights-logs-filters.json",
+          "quotes": [
+            "Use this filter to view transactions according to the action taken by the service for mobile device traffic.",
+            "All - General - Privacy - Security"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-mobile-insights-logs-filters.json",
+          "quotes": [
+            "All - Allow - Block"
+          ],
+          "after": "Mobile Action"
+        }
+      ]
+    },
+    "rule-name-blocked-mobile": {
+      "statement": "The Mobile Insights Logs Rule Name column is displayed only when the traffic was blocked and by default not for allowed traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-mobile-insights-logs-columns.json",
+          "quotes": [
+            "Rule Name: The name of the rule that triggered the session or aggregated sessions. This column is only displayed in the logs if the traffic was blocked. By default, this column is not displayed for allowed traffic."
+          ]
+        }
+      ]
+    },
+    "edlp-actions-records": {
+      "statement": "In Endpoint DLP Insights Logs, Action Taken is Allow, Block, Confirm Allow, Confirm Block or Exempted, and Record Type is DLP Incident or Sensitive Activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-endpoint-dlp-insights-logs-filters.json",
+          "quotes": [
+            "Action Taken: Use this filter to limit the data to activities associated with a specific action taken. The following actions appear under this filter: - Allow - Block - Confirm Allow - Confirm Block - Exempted"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-endpoint-dlp-insights-logs-columns.json",
+          "quotes": [
+            "Record Type: The type of activity (i.e., DLP Incident or Sensitive Activity)."
+          ]
+        }
+      ]
+    },
+    "edlp-zdp-mode": {
+      "statement": "The Endpoint DLP ZDP Mode column shows Exemption Mode when the user has turned on exemption mode in Zscaler Client Connector to bypass the Endpoint DLP rules for an activity, and Block Mode when exemption mode is off.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-endpoint-dlp-insights-logs-columns.json",
+          "quotes": [
+            "When a user enables the exemption mode from the Zscaler Client Connector to bypass the Endpoint DLP policy rules to successfully perform an activity (e.g., copy a file), the ZDP Mode column displays Exemption Mode.",
+            "When the exemption mode is disabled, the column displays Block Mode."
+          ]
+        }
+      ]
+    },
+    "edlp-confirm": {
+      "statement": "The Endpoint DLP filter values for a user's confirmation are Cancel, Confirm or Timeout (timed out before the user confirmed), and the justification values are Other, the data contains only my personal information, the data does not contain sensitive information, a necessary business workflow, accidental, or the user didn't justify in time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-endpoint-dlp-insights-logs-filters.json",
+          "quotes": [
+            "Cancel - Confirm - Timeout (activities that were timed out before user confirmation)",
+            "Other - The data contains only my personal information. - The data does not contain sensitive information. - This activity is part of a necessary business workflow. - This activity was accidental. - User didn't provide justification in time."
+          ]
+        }
+      ]
+    },
+    "edlp-activity-channel-item": {
+      "statement": "The Endpoint DLP Insights Logs filters list the activity types Download, Email Sent, File Copy, File Read, File Write, Print and Upload; the channels Network Share, Personal Cloud Storage, Printing and Removable Storage; and the item types Clipboard Text, Email, Email Attachment, Embedded File, File, HTTP Request and Printed Text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-endpoint-dlp-insights-logs-filters.json",
+          "quotes": [
+            "Download - Email Sent - File Copy - File Read - File Write - Print - Upload",
+            "Network Share - Personal Cloud Storage - Printing - Removable Storage",
+            "Clipboard Text - Email - Email Attachment - Embedded File - File - HTTP Request - Printed Text"
+          ]
+        }
+      ]
+    },
+    "email-dlp-actions-records": {
+      "statement": "Email DLP Insights Logs filters offer the actions Allow, Block and Custom Header Insertion, and the record types DLP Incident, Scan and Sensitive Activity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-email-dlp-insights-logs-filters.json",
+          "quotes": [
+            "Allow - Block - Custom Header Insertion",
+            "DLP Incident - Scan - Sensitive Activity"
+          ]
+        }
+      ]
+    },
+    "email-dlp-people": {
+      "statement": "In Email DLP Insights Logs, User is the sender provisioned to Internet & SaaS and External User a sender who is not; Triggered Recipients received the email and a policy action was taken, Other Recipients received it with no policy triggered; Personal Email shows when the email goes to the user's personal address; Scan Time is the milliseconds from Zscaler receiving the email until policy evaluation completes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-email-dlp-insights-logs-columns.json",
+          "quotes": [
+            "User: The user who sent the email and is provisioned to Internet & SaaS (ZIA).",
+            "External User: The user who sent the email but is not provisioned to Internet & SaaS.",
+            "Triggered Recipients: The users who received email and a policy action was taken.",
+            "Other Recipients: The users who received emails, but no policy was triggered.",
+            "Personal Email: The personal email address. This is displayed when the email is sent to the user's personal email address.",
+            "Scan Time: The duration of time, in milliseconds, from the time Zscaler receives an email until policy evaluation is complete."
+          ]
+        }
+      ]
+    },
+    "extranet-columns": {
+      "statement": "Extranet Insights Logs carry the Zscaler data center IPSec IP and VPN port (Extranet Gateway IP and Port), the partner-side public IP and port that establish the IPSec VPN tunnel (Extranet Location IP and Port), and a Protocol of ICMP, TCP or UDP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-extranet-insights-logs-columns.json",
+          "quotes": [
+            "Extranet Gateway IP: The Zscaler data center IPSec IP.",
+            "Extranet Gateway Port: The Zscaler data center IPSec VPN port.",
+            "Extranet Location IP: The partner side public IP which is used to establish the IPSec VPN tunnel.",
+            "Extranet Location Port: The partner side port which is used to establish the IPSec VPN tunnel.",
+            "Protocol: Indicates the protocol that is used to establish a connection. ICMP, TCP, and UDP are the options available."
+          ]
+        }
+      ]
+    },
+    "sandbox-verdict-prereq": {
+      "statement": "Sandbox Verdict Insights Logs give an overview of recent cloud sandbox analysis activity; they are viewable by tenants already using Standard or Advanced Sandbox and are enabled through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-sandbox-verdict-insights-logs-filters.json",
+          "quotes": [
+            "Sandbox Verdict Insights Logs provides an overview of all the recent cloud sandbox analysis activity logs.",
+            "You can view the Sandbox Verdict Insights Logs if you are already using Standard or Advanced Sandbox. To enable Sandbox Verdict Insights Logs, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "sandbox-verdict-columns": {
+      "statement": "Sandbox Verdict Insights Logs show Analysis Completed Time, Download File Type, File MD5 (which opens the Sandbox Detail Report), File SHA256, Tactic (MITRE ATT&CK technique and tactic IDs), Threat Name and Verdict, whose verdicts include Benign, Suspicious and Sandbox subtypes such as Ransomware and Sandbox Offensive Security Tools; the Verdict filter offers verdict types related to Sandbox, Advanced Threat Protection, Malware Protection and others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-sandbox-verdict-insights-logs-columns.json",
+          "quotes": [
+            "Analysis Completed Time: Displays the timestamp of when the Sandbox analysis of the payload is completed.",
+            "Download File Type: Displays the downloaded file type.",
+            "File MD5: Displays the MD5 hash of suspicious files. Click the MD5 hash value to view the Sandbox Detail Report.",
+            "File SHA256: Displays the SHA-256 hash of suspicious files.",
+            "Threat Name: Displays the name of the threat detected.",
+            "Tactic: Displays the MITRE ATT&CK techniques and tactics IDs.",
+            "Verdict: Displays the verdict of the Sandbox analysis. Verdicts include Benign, Suspicious, or Sandbox subtypes (e.g., Ransomware, Sandbox Offensive Security Tools)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-sandbox-verdict-insights-logs-filters.json",
+          "quotes": [
+            "You can select one or more of the verdict types related to Sandbox, Advanced Threat Protection, Malware Protection, etc."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "export-ceiling": {
+      "summary": "The Insights Logs CSV export ceiling is 1 million records on the About Insights Logs page, 100K entries in the Ranges and Limitations table, and 100K lines on the SaaS Security Insights Logs page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-insights-logs.json",
+            "quotes": [
+              "You can export up to 1 million records with the available options of 100K, 250K, 500K, or 1 million records at a time."
+            ]
+          },
+          "says": "An export holds up to 1 million records, in options of 100K, 250K, 500K or 1 million."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Exported Transactions | 100K entries |"
+            ]
+          },
+          "says": "Exported Transactions is limited to 100K entries."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-saas-security-insights-logs.json",
+            "quotes": [
+              "It exports up to 100K lines of data at a time."
+            ]
+          },
+          "says": "The SaaS Security Insights Logs page exports up to 100K lines of data at a time."
+        }
+      ],
+      "impact": "An export between 100K and 1 million records is allowed by one page and over the limit on the others; the pages do not say whether the table row covers the Web, Mobile, Firewall, DNS and Tunnel exports or the SaaS Security page's 100K is the only scope of that figure."
+    },
+    "client-trans-time": {
+      "summary": "Client Trans. Time (ms) is defined with the client's upload time on the Web Insights Logs page and without it on the Mobile page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-web-insights-logs-columns.json",
+            "quotes": [
+              "Client Trans. Time (ms): The sum of the values in the Proxy Latency and Server Trans. Time columns and the time taken by the client to upload the entire request payload."
+            ]
+          },
+          "says": "The sum of Proxy Latency, Server Trans. Time and the client's time to upload the entire request payload."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-mobile-insights-logs-columns.json",
+            "quotes": [
+              "Client Trans. Time (ms): The sum of the values in the Proxy Latency and Server Time columns."
+            ]
+          },
+          "says": "The sum of the Proxy Latency and Server Time columns, with no upload time."
+        }
+      ],
+      "impact": "The same column name gives a different number on the two pages if the upload time is not zero; the pages do not say whether Mobile logs omit it or the Mobile page is incomplete."
+    }
+  },
+  "gaps": {
+    "delayed-logs-meaning": {
+      "kind": "semantic",
+      "title": "What makes a log delayed, and whether the default view leaves delayed logs out",
+      "status": "open",
+      "detail": "The Web, Mobile, Firewall and DNS Insights Logs filters offer a way to view delayed logs, and the Office 365 dashboard drill-downs are said to leave Show Delayed Logs disabled by default. No article says what makes a log delayed or whether the default view leaves delayed logs out, so a count from the console may not match a count from a feed.",
+      "blocks": "counting transactions from the console",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    },
+    "lookback-retention": {
+      "kind": "semantic",
+      "title": "How far back an Insights window may start and which families the retention covers",
+      "status": "open",
+      "detail": "Insights Logs allow a custom window of up to 92 days after its start date, and About Insights Logs gives 180 days of Nanolog storage (shared.log-correlation.streams:zia-retention). No article says how far back a window may start, whether the 180 days apply to Endpoint DLP, Email DLP, Sandbox Verdict and Extranet, how long dashboard data is kept, or whether the 72-hour availability applies to foreground downloads as well as background reports.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    },
+    "web-columns-no-nss-label": {
+      "kind": "semantic",
+      "title": "Which Web Insights Logs columns the NSS web feed carries",
+      "status": "open",
+      "detail": "These Web Insights Logs columns match no field label in the generated web log type: Proxy Latency, Client Trans. Time, Server Trans. Time, Configuration, Email Recipients, HTTP Header Profile, HTTP Header Insertion Profile, DLP Severity, SaaS Authenticated Username, Adaptive Access Profile, API Key Name, Event Time, Client Key Exchange Proposal, Client Digital Signature Proposal, the JA4 Fingerprint columns and the two columns asking whether a source or destination IP country is risky. Whether the NSS web feed carries them is open; resolve it against the NSS web output format page, not by name likeness.",
+      "about": [
+        "zia/web-log"
+      ],
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "mobile-vs-web": {
+      "kind": "semantic",
+      "title": "Whether Mobile Insights Logs are a subset of the web records or a separate dataset",
+      "status": "open",
+      "detail": "No NSS mobile log type exists. The web type carries mobappname, mobappcat and mobdevtype with the Insights labels Mobile Application, Mobile Application Category and Mobile Device Type, and About Insights Logs says Web logs cover transactions from any device. No source says whether Mobile Insights Logs show a subset of the web records or a separate dataset.",
+      "about": [
+        "zia/web-log"
+      ],
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "partial-config-setting": {
+      "kind": "semantic",
+      "title": "What Behavior When Partial Configuration Available does",
+      "status": "open",
+      "detail": "The configuration column and the firewall actions Bypassed due to missing config and Timed out while waiting for a config depend on an Advanced Settings option, Best Effort Policies or Fail Closed, that the graph does not describe. The source to read is the Configuring Advanced Settings help article, which was not checked here.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "edlp-channels": {
+      "kind": "semantic",
+      "title": "Whether Application File Access and Clipboard activities log under another Endpoint DLP channel",
+      "status": "open",
+      "detail": "The Endpoint DLP Insights Logs Channel filter lists Network Share, Personal Cloud Storage, Printing and Removable Storage, without the Application File Access and Clipboard channels that zia.dlp.endpoint-rules:channels names. Whether those activities log under another channel is open.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "extranet-logs": {
+      "kind": "semantic",
+      "title": "What the Extranet Insights Logs Status filter holds and which type carries the columns",
+      "status": "open",
+      "detail": "No extranet NSS type exists in the generated log types. The Extranet filters list a Status filter described as limiting the data to traffic associated with a specific status, with no values, and the Extranet Gateway Port filter says to enter a value from 1 to 65,536, one above the largest TCP or UDP port; the page is quoted here, not corrected.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "sandbox-action-default": {
+      "kind": "semantic",
+      "title": "Whether a default Sandbox Action filter value narrows the default log view",
+      "status": "open",
+      "detail": "The Sandbox Action filter defaults to Blocked in Web Insights Logs and to None in Mobile Insights Logs. Whether a default filter value narrows the default log view is not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "console-to-nss-mapping": {
+      "kind": "semantic",
+      "title": "Which NSS field each Endpoint DLP, Email DLP and Sandbox Verdict console column maps to",
+      "status": "open",
+      "detail": "The generated types zia/endpoint-dlp-log, zia/email-dlp-log and zia/sandbox-verdict-log carry no Insights labels, so no source maps a console column such as Action Taken, Record Type, ZDP Mode, Verdict or Tactic to its NSS field. The claims here are therefore not bound to those fields.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "severity-none-filter": {
+      "kind": "semantic",
+      "title": "Why the Threat Severity filters omit None",
+      "status": "open",
+      "detail": "The Web and Firewall Threat Severity columns include None for a score of 0, but the Threat Severity filters list only Critical, High, Medium and Low.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "port-described-as-address": {
+      "kind": "semantic",
+      "title": "Whether the columns articles' port-as-address wording is a vendor defect",
+      "status": "open",
+      "detail": "The Firewall and Extranet columns pages describe Client Destination Port as the client-side destination IP address, and the DNS logs filters page describes Rule Name as limiting the data to specific rules in the firewall policy while the DNS data types page describes it as rules in the DNS Control policy. Each could become an upstream claim or divergence once the pages are re-read.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

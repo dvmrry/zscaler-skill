@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "id": "zcc.end-user.service-windows",
+  "title": "What the Private Access, Internet Security, Digital Experience and Data Protection windows of the app show",
+  "aliases": [
+    "Private Access window",
+    "Internet Security window",
+    "Digital Experience window",
+    "Data Protection window",
+    "Endpoint DLP window",
+    "Request exemption",
+    "Disable Endpoint DLP OTP",
+    "VPN Tunnel section",
+    "Restart ZDX Service"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zcc.end-user"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.forwarding-profiles.network-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-settings"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Private Access.",
+      "text": "{{private-access-classic}} {{vpn-tunnel-section}}"
+    },
+    {
+      "label": "Network type on Android.",
+      "text": "{{android-network-types}}"
+    },
+    {
+      "label": "iOS.",
+      "text": "{{ios-private-access}}"
+    },
+    {
+      "label": "Modern UI.",
+      "text": "{{modern-private-access}}"
+    },
+    {
+      "label": "Internet Security.",
+      "text": "{{internet-security-classic}}"
+    },
+    {
+      "label": "Digital Experience.",
+      "text": "{{zdx-window}}"
+    },
+    {
+      "label": "Data Protection.",
+      "text": "{{data-protection-window}} {{dlp-policy-and-quarantine}}"
+    },
+    {
+      "label": "Exemption.",
+      "text": "{{dlp-exemption}} The length of an exemption is given two ways {{divergence:exemption-duration}}; the console setting is [[zia.dlp.endpoint-settings:exemption-duration]]. How a user enters exemption mode is partly answered here; whether it relates to the `zdpmode` log field and to the password that disables Endpoint DLP is still open [[zia.dlp.endpoint-settings:exemption-mode]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which UI (Classic or Modern) and which OS the user is on before reading a field name off these windows, since the names differ between them.",
+      "uses": [
+        "private-access-classic",
+        "modern-private-access",
+        "android-network-types"
+      ]
+    },
+    {
+      "do": "For how long a user's Endpoint DLP exemption lasts, the divergence and the Exemption Duration setting rather than the end-user page alone.",
+      "uses": [
+        "dlp-exemption",
+        "exemption-duration"
+      ]
+    }
+  ],
+  "claims": {
+    "private-access-classic": {
+      "statement": "The Classic Private Access window on Windows shows Username; Service Status, where Turn Off turns off the Zscaler Tunnel and disables the Private Access service while the user stays logged in, until Turn On; Authenticate Early, to reauthenticate Private Access before authentication expires; Time Connected; Network Type (Trusted Network, VPN-Trusted Network, Split VPN-Trusted Network or Off-Trusted Network); Authentication Status; Broker, the IP address of the server traffic is forwarded to; Client, the device's local IP address; Protocol (TLS or DTLS); and Total Bytes Sent and Total Bytes Received through the Z-Tunnel in real time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-classic-ui.json",
+          "after": "This window includes the following features on Windows devices.",
+          "quotes": [
+            "Username: Displays the username with which you are logged into the app.",
+            "Service Status: Displays the app connection status. Click Turn Off if you want to turn off the Zscaler Tunnel (Z-Tunnel) and disable the Private Access service while remaining logged in to the app. The Private Access service is disabled until you click Turn On.",
+            "Authenticate Early: Click Authenticate Early to reauthenticate Private Access before your authentication expires.",
+            "Time Connected: Displays your initial connection time for the present session.",
+            "Total Bytes Received: Displays, in real time, bytes of traffic received by your computer through the Z-Tunnel.",
+            "Network Type: Displays the type of network you are connected to (Trusted Network, VPN-Trusted Network, Split VPN-Trusted Network, or Off-Trusted Network).",
+            "Authentication Status: Displays the current authentication state (i.e., whether you are currently authenticated or not).",
+            "Broker: Displays the IP address of the server to which your traffic is being forwarded.",
+            "Client: Displays the local IP address of your device.",
+            "Protocol: Displays the protocol used for the tunnel (TLS or DTLS).",
+            "Total Bytes Sent: Displays, in real time, bytes of traffic sent from your computer through the Z-Tunnel."
+          ]
+        }
+      ]
+    },
+    "vpn-tunnel-section": {
+      "statement": "The Classic Private Access window on macOS has a VPN Tunnel section that displays only when the device is connected to the Zscaler cloud using a VPN connection. On Windows the section is likewise displayed only then, and has these fields: VPN Service Edge, the IP address of the VPN Service Edge traffic is forwarded to (shown as Network Service Edge in previous versions); Client IP, the address the VPN Service Edge assigned for the session; and the bytes sent and received through the VPN Tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-classic-ui.json",
+          "after": "This window includes the following features on Windows devices.",
+          "quotes": [
+            "This section displays only if you are connected to the Zscaler cloud using a VPN connection.",
+            "VPN Service Edge: Displays the IP address of the VPN Service Edge to which your traffic is being forwarded.",
+            "This field displays as Network Service Edge in previous versions of Zscaler Client Connector.",
+            "Client IP: Displays the IP address assigned to your device by the VPN Service Edge for the session.",
+            "Total Bytes Sent: Displays, in real time, bytes of traffic sent from your computer through the VPN Tunnel.",
+            "Total Bytes Received: Displays, in real time, bytes of traffic received from your computer through the VPN Tunnel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-classic-ui.json",
+          "after": "This window includes the following features on macOS devices.",
+          "quotes": [
+            "This section displays only if you are connected to the Zscaler cloud using a VPN connection."
+          ]
+        }
+      ]
+    },
+    "android-network-types": {
+      "statement": "In the Classic UI on Android and on Android on ChromeOS the Private Access window gives the network type as Trusted Network or Off-Trusted Network, as does the Classic Internet Security screen on Android; the Modern UI's Private Access screen on Android lists Trusted Network, VPN-Trusted Network, Split VPN-Trusted Network and Off-Trusted Network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-classic-ui.json",
+          "after": "This window includes the following features on Android devices:",
+          "quotes": [
+            "Network Type: Displays the type of network you're connected to (Trusted Network or Off-Trusted Network)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-classic-ui.json",
+          "after": "This window includes the following features of Android on ChromeOS devices:",
+          "quotes": [
+            "Network Type: Displays the type of network you're connected to (Trusted Network or Off-Trusted Network)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-internet-security-zscaler-client-connector-classic-ui.json",
+          "after": "This screen includes the following features on Android devices:",
+          "quotes": [
+            "Network Type: Displays the type of network you are connected to (Trusted Network or Off-Trusted Network)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-modern-ui.json",
+          "after": "This screen includes the following features on Android devices.",
+          "quotes": [
+            "Network Type: Displays the type of network you are connected to (Trusted Network, VPN-Trusted Network, Split VPN-Trusted Network, or Off-Trusted Network)."
+          ]
+        }
+      ]
+    },
+    "ios-private-access": {
+      "statement": "On iOS the Classic Private Access screen shows Network Status (Trusted Network, VPN Trusted Network, Split VPN Trusted Network or Off-Trusted Network), Broker, the broker Client Connector is connected to, Tunnel Version and Tunnel SDK Version; depending on the organization's policies a password might be required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-classic-ui.json",
+          "after": "This screen includes the following features on iOS devices.",
+          "quotes": [
+            "Depending on your organization’s policies, you might be required to enter a password.",
+            "Network Status: Displays the type of network you are connected to (Trusted Network, VPN Trusted Network, Split VPN Trusted Network, or Off-Trusted Network).",
+            "Broker: Displays the broker Zscaler Client Connector is connected to.",
+            "Tunnel Version: Displays the version of the Zscaler Tunnel (Z-Tunnel) that Zscaler Client Connector forwards your traffic through.",
+            "Tunnel SDK Version: The current tunnel SDK version."
+          ]
+        }
+      ]
+    },
+    "internet-security-classic": {
+      "statement": "The Classic Internet Security window on Windows shows Username; Service Status, where Turn Off disables the Internet & SaaS service while the user stays logged in (a password might be required) until Turn On; Server, the IP address of the server traffic is forwarded to; Client, the client IP address; Time Connected; Tunnel Version; and Total Bytes Sent and Received through the app. On Android and on Android on ChromeOS the server field is Proxy Server and Tunnel Version shows the version and protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-internet-security-zscaler-client-connector-classic-ui.json",
+          "after": "This window includes the following features on Windows devices.",
+          "quotes": [
+            "Service Status: Displays the app connection status. Click Turn Off if you want to disable the Internet & SaaS service while remaining logged in to the app. Depending on your organization's policies, you might be required to enter a password.",
+            "The Internet & SaaS service is disabled until you click Turn On.",
+            "Username: Displays the username with which you are logged in to the app.",
+            "Server: Displays the IP address of the server to which your traffic is being forwarded.",
+            "Client: Displays your client IP address.",
+            "Time Connected: Displays your initial connection time for the present session.",
+            "Tunnel Version: Displays the version of the Zscaler Tunnel (Z-Tunnel) that Zscaler Client Connector forwards your traffic through.",
+            "Total Bytes Sent: Displays, in real time, bytes of traffic sent from your computer through the app.",
+            "Total Bytes Received: Displays, in real time, bytes of traffic received by your computer through the app."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-internet-security-zscaler-client-connector-classic-ui.json",
+          "after": "This screen includes the following features on Android devices:",
+          "quotes": [
+            "Proxy Server: Displays the IP address of the server to which your traffic is being forwarded.",
+            "Tunnel Version: Displays the version and protocol of the Zscaler Tunnel (Z-Tunnel) that Zscaler Client Connector forwards your traffic through."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-internet-security-zscaler-client-connector-classic-ui.json",
+          "after": "This screen includes the following features on Android on ChromeOS devices:",
+          "quotes": [
+            "Proxy Server: Displays the IP address of the server to which your traffic is being forwarded.",
+            "Tunnel Version: Displays the version and protocol of the Zscaler Tunnel (Z-Tunnel) that Zscaler Client Connector forwards your traffic through."
+          ]
+        }
+      ]
+    },
+    "zdx-window": {
+      "statement": "The Classic Digital Experience window on Windows shows Service Status, where Turn Off turns off the Z-Tunnel and disables the Digital Experience service while the user stays logged in, until Turn On; Authentication Status; Server; Time Connected; and ZDX Service Version. Its troubleshooting actions are Clear ZDX Data, to clear the ZDX data the app stored, and Restart ZDX Service, which on Android 3.8 and later and on Android on ChromeOS 3.8 and later can be tapped only once within a 30-second period. In the Modern UI, Clear removes historical data collected by Digital Experience and Restart restarts the core services for Digital Experience monitoring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-digital-experience-zscaler-client-connector-classic-ui.json",
+          "after": "- Windows # Connectivity",
+          "quotes": [
+            "Service Status: Displays the app connection status. Tap Turn Off if you want to turn off the Zscaler Tunnel (Z-Tunnel) and disable the Digital Experience (i.e., ZDX) service while remaining logged in to the app.",
+            "The Digital Experience service is disabled until you tap Turn On.",
+            "Authentication Status: Displays the current authentication state, i.e., whether you are currently authenticated or not.",
+            "Server: Displays the IP Address of the server to which your traffic is being forwarded.",
+            "Time Connected: Displays your initial connection time for the present session.",
+            "ZDX Service Version: Displays the ZDX version your organization is using.",
+            "Clear ZDX Data: Tap to clear the ZDX data that Zscaler Client Connector stored.",
+            "Restart ZDX Service: Tap to restart the ZDX service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-digital-experience-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "You can tap Restart ZDX Service only once within a 30-second period. Applies to Zscaler Client Connector version 3.8 and later for Android.",
+            "You can tap Restart ZDX Service only once within a 30-second period. Applies to Zscaler Client Connector version 3.8 and later for Android on ChromeOS."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-digital-experience-zscaler-client-connector-modern-ui.json",
+          "quotes": [
+            "Clear ZDX Data: Click Clear to remove historical data collected by Digital Experience.",
+            "Restart ZDX Services: Click Restart to restart the core services for Digital Experience monitoring."
+          ]
+        }
+      ]
+    },
+    "data-protection-window": {
+      "statement": "The Data Protection window, for Windows and macOS devices, shows connectivity information and troubleshooting steps for the Data Protection feature, including Product Version, the current version of the feature. The service can be disabled with the Password to Disable Endpoint DLP in App Profiles or with a one-time password, which is the password listed under Disable Endpoint DLP OTP in Compliance Status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-zscaler-endpoint-dlp-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "This window features connectivity information and troubleshooting steps for the Data Protection feature on Windows and macOS devices.",
+            "You can disable the service using the Password to Disable Endpoint DLP in App Profiles or by using a One-Time Password (OTP).",
+            "Product Version: Displays the current version of the Data Protection feature."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-zscaler-endpoint-dlp-zscaler-client-connector-classic-ui.json",
+          "after": "You can disable the service using the Password to Disable Endpoint DLP",
+          "quotes": [
+            "Under Compliance Status, copy the password listed under Disable Endpoint DLP OTP."
+          ]
+        }
+      ]
+    },
+    "dlp-exemption": {
+      "statement": "A user blocked by Endpoint DLP for a rule violation can request an exemption from the block action and be monitored instead. In the Classic UI, Request exemption prompts for a password, the one-time password also works in offline mode, and the page says exemptions are granted for 12 hours. In the Modern UI the user enables the option, enters a Disable Reason on the Request exemption window and clicks Continue, might be prompted for a password, and a granted exemption shows a message that traffic is monitored but not blocked with an expiration time that the page gives as 12 hours after the exemption is granted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-zscaler-endpoint-dlp-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "Request exemption: Users that are blocked by the Endpoint DLP due to a rule violation can request to be exempted from the block action, and instead be monitored.",
+            "Clicking this option prompts you to enter a password.",
+            "The OTP also works if you are in offline mode. Exemptions are granted for 12 hours."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-data-protection-zscaler-client-connector-modern-ui.json",
+          "quotes": [
+            "To request an exemption, enable this option, enter a Disable Reason on the Request exemption window, and click Continue. You might be prompted to enter a password.",
+            "If the exemption is granted, a message displays that indicates traffic is monitored but not blocked and provides the expiration time (12 hours after the exemption is granted)."
+          ]
+        }
+      ]
+    },
+    "dlp-policy-and-quarantine": {
+      "statement": "The Endpoint DLP policy refreshes every 15 minutes, and Update DLP Policy refreshes it immediately. Open Quarantine Folder contains files moved there as a result of a block action for the personal cloud storage rules (for example Dropbox) or by other channels where the file source information is missing (for example copying an extracted ZIP file to a removable storage device).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-zscaler-endpoint-dlp-zscaler-client-connector-classic-ui.json",
+          "quotes": [
+            "The DLP policy refreshes every 15 minutes. If you want to update immediately, click Update DLP Policy.",
+            "Open Quarantine Folder: Contains the files that moved to this folder as a result of a block action for the personal cloud storage rules (e.g., Dropbox) or by other channels where the file source information is missing (e.g., copying an extract ZIP file to a removable storage device)."
+          ]
+        }
+      ]
+    },
+    "modern-private-access": {
+      "statement": "In the Modern UI the Private Access window on Windows shows Service Status (a password might be required if configured by the IT admin), Authentication Status, Authenticate Early, Time Connected, Network Type, Tunnel Version (the type of tunnel and the associated protocol), Client (the device's local IP address), Server (the IP address of the server traffic is forwarded to), and Total Traffic Received and Total Traffic Sent through the Z-Tunnel in real time; on Android and Android on ChromeOS the tunnel field is Protocol.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-modern-ui.json",
+          "after": "This window includes the following features on Windows devices.",
+          "quotes": [
+            "Service Status: Displays the app connection status.",
+            "A password might be required if configured by your IT admin.",
+            "Authentication Status: Displays the current authentication state (i.e., whether you are currently authenticated or not).",
+            "Authenticate Early: Click Authenticate Early to reauthenticate Private Access before your authentication expires.",
+            "Time Connected: Displays your initial connection time for the present session.",
+            "Network Type: Displays the type of network you are connected to (Trusted Network, VPN-Trusted Network, Split VPN-Trusted Network, or Off-Trusted Network).",
+            "Tunnel Version: Displays the type of tunnel and the associated protocol.",
+            "Client: Displays the local IP address of your device.",
+            "Total Traffic Received: Displays, in real time, bytes of traffic received by your computer through the Z-Tunnel.",
+            "Server: Displays the IP address of the server to which your traffic is being forwarded.",
+            "Total Traffic Sent: Displays, in real time, bytes of traffic sent from your computer through the Z-Tunnel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-modern-ui.json",
+          "after": "This screen includes the following features on Android devices.",
+          "quotes": [
+            "Protocol: Displays the type of tunnel and the associated protocol."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zcc-viewing-information-about-private-access-zscaler-client-connector-modern-ui.json",
+          "after": "This screen includes the following features on Android on ChromeOS devices.",
+          "quotes": [
+            "Protocol: Displays the type of tunnel and the associated protocol."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "exemption-duration": {
+      "summary": "The Classic and Modern end-user Endpoint DLP pages give the exemption as 12 hours, while the Endpoint Data Scan settings page makes the Exemption Duration selectable from 5 minutes to 12 hours.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-viewing-information-about-zscaler-endpoint-dlp-zscaler-client-connector-classic-ui.json",
+            "quotes": [
+              "The OTP also works if you are in offline mode. Exemptions are granted for 12 hours."
+            ]
+          },
+          "says": "Classic UI: exemptions are granted for 12 hours."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zcc-viewing-information-about-data-protection-zscaler-client-connector-modern-ui.json",
+            "quotes": [
+              "If the exemption is granted, a message displays that indicates traffic is monitored but not blocked and provides the expiration time (12 hours after the exemption is granted)."
+            ]
+          },
+          "says": "Modern UI: the expiration time is 12 hours after the exemption is granted."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-endpoint-data-scan-endpoint-settings-channels.json",
+            "quotes": [
+              "You can set the duration of 5 Minutes, 10 Minutes, 15 Minutes, 60 Minutes, 2 Hours, 6 Hours, or 12 Hours."
+            ]
+          },
+          "says": "The console's Exemption Duration can be set to 5 Minutes, 10 Minutes, 15 Minutes, 60 Minutes, 2 Hours, 6 Hours or 12 Hours (existing claim zia.dlp.endpoint-settings:exemption-duration)."
+        }
+      ],
+      "impact": "An exemption length other than 12 hours is configurable on the console page but stated as a fixed 12 hours on both end-user pages; the pages do not say whether the end-user text assumes the maximum setting or ignores the setting."
+    }
+  }
+}

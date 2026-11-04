@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "id": "zia.reports.web-and-cloud-apps",
+  "title": "Web and cloud app reports: Post-Quantum Cryptography Visibility, Instance and Resource Discovery, and Gen AI Security",
+  "aliases": [
+    "post-quantum cryptography visibility report",
+    "PQC visibility report",
+    "instance discovery report",
+    "resource discovery report",
+    "gen ai security report"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.tenant-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.ai-ml-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.advanced-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "portfolio.saas-security-report"
+    }
+  ],
+  "prose": [
+    {
+      "text": "These are the interactive and console reports that read web traffic for three questions: which TLS key exchange and signature algorithms clients and servers use, which SaaS tenants and resources users reach, and which Gen AI applications and prompts are in use. The report hub is [[zia.reports]]."
+    },
+    {
+      "label": "Post-Quantum Cryptography Visibility.",
+      "text": "{{pqc-nist}} {{pqc-logging}} {{pqc-report-location}} {{pqc-buckets}} {{pqc-tls13}} The article names console log columns only, so which web log fields they map to is open {{gap:pqc-column-fields}}."
+    },
+    {
+      "label": "Instance Discovery and Resource Discovery.",
+      "text": "{{instance-enable-and-use}} {{instance-levels}} {{resource-discovery-levels}} Azure appears at different levels on the two pages {{divergence:azure-instance-levels}}. {{resource-discovery-logs}} What else Instance Discovery needs, and what an instance profile is, are open {{gap:instance-prerequisites}}."
+    },
+    {
+      "label": "Gen AI Security Report.",
+      "text": "{{genai-time-and-slm}} {{genai-view-prompts}} The page gives two locations for the prompt settings {{divergence:genai-prompt-settings-path}}. {{genai-analyze-filters}} {{genai-top6}} The rule side is [[zia.cloud-app-control.ai-ml-rules]]; the report's retention is open {{gap:genai-retention}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Instance Discovery was enabled through the Zscaler Account team before concluding the report is empty or missing.",
+      "uses": [
+        "instance-enable-and-use"
+      ]
+    },
+    {
+      "do": "Which instance levels the application has before reading a level column, and which page the answer quotes, since the Azure levels differ between the Instance and Resource Discovery pages.",
+      "uses": [
+        "instance-levels",
+        "resource-discovery-levels",
+        "azure-instance-levels"
+      ]
+    },
+    {
+      "do": "Whether the traffic was TLS 1.3 before reading a Classical share as a gap in PQC support, since PQC cannot be negotiated in TLS 1.2 or earlier.",
+      "uses": [
+        "pqc-tls13",
+        "pqc-buckets"
+      ]
+    },
+    {
+      "do": "Whether prompt settings are enabled for the individual AI applications before expecting the View Prompts tab, and which console location the page means.",
+      "uses": [
+        "genai-view-prompts",
+        "genai-prompt-settings-path"
+      ]
+    }
+  ],
+  "claims": {
+    "pqc-nist": {
+      "statement": "The Post-Quantum Cryptography page names ML-KEM for key exchange and ML-DSA/SLH-DSA for digital signatures, and says TLS 1.3 can be extended to support ECC, PQC and Hybrid PQC key exchange.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-post-quantum-cryptography-visibility-report.json",
+          "quotes": [
+            "Module Lattice-Based Key Encapsulation Mechanism (ML-KEM) for key exchange",
+            "Module Lattice-Based Digital Signature Algorithm (ML-DSA)/Stateless Hash-based Digital Signature Standard (SLH-DSA) for digital signatures",
+            "TLS version 1.3 can be extended to offer support for various key exchange methods, including Elliptic Curve Cryptography (ECC), PQC, and Hybrid PQC."
+          ]
+        }
+      ]
+    },
+    "pqc-logging": {
+      "statement": "ZIA logs the TLS server's chosen key exchange and signature algorithms and the client's proposals for both SSL-intercepted and bypassed traffic, as the Client Digital Signature Proposal, Client Key Exchange Proposal and the client-side and server-side key exchange and digital signature algorithms. Client key exchange and signature algorithm offers are classified as PQC, Non-PQC, Hybrid or Unknown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-post-quantum-cryptography-visibility-report.json",
+          "quotes": [
+            "Logs the TLS server's chosen cryptographic parameters (key exchange and signature algorithms) and client proposals (supported groups and signature algorithms) for both SSL-intercepted and bypassed traffic as the following:",
+            "- Client Digital Signature Proposal",
+            "- Client Key Exchange Proposal",
+            "- Client-Side Key Exchange Algorithm",
+            "- Server-Side Key Exchange Algorithm",
+            "- Client-Side Digital Signature Algorithm",
+            "- Server-Side Digital Signature Algorithm",
+            "Client key exchange and signature algorithm offers are classified as PQC, Non-PQC, Hybrid (PQC combined with classical algorithms like ECC), or Unknown"
+          ]
+        }
+      ]
+    },
+    "pqc-report-location": {
+      "statement": "The Post-Quantum Cryptography Visibility Report is at Analytics > Reports > Interactive Reports > Standard Reports > Web Activity > Post-Quantum Cryptography Visibility.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-post-quantum-cryptography-visibility-report.json",
+          "quotes": [
+            "Analytics > Reports > Interactive Reports > Standard Reports > Web Activity > Post-Quantum Cryptography Visibility"
+          ]
+        }
+      ]
+    },
+    "pqc-buckets": {
+      "statement": "In the report's PQC vs. Classical Key Exchange chart, the Classical section holds transactions whose Client Key Exchange type is Classical or Unknown, and the PQC section holds those whose Client Key Exchange offer is PQC or Hybrid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-post-quantum-cryptography-visibility-report.json",
+          "quotes": [
+            "Classical: When you click within the Classical section, you can view all transactions where the Client Key Exchange has either the Classical or Unknown type set.",
+            "PQC: When you click within the PQC section of the chart, you can view all transactions where the Client Key Exchange offer has either the PQC or the Hybrid type set."
+          ]
+        }
+      ]
+    },
+    "pqc-tls13": {
+      "statement": "PQC support requires TLS 1.3 and cannot be negotiated in TLS 1.2 and earlier versions; the report shows TLS versions between the client and the Public Service Edge, and between the Public Service Edge and the server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-post-quantum-cryptography-visibility-report.json",
+          "quotes": [
+            "You can view insights into the TLS versions used for communications between the client and Public Service Edge for Internet & SaaS (ZIA).",
+            "You can view insights into the TLS versions used for communications between the Public Service Edge and the server."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-post-quantum-cryptography-visibility-report.json",
+          "after": "- 4. TLS Version - Client",
+          "quotes": [
+            "PQC support requires TLS 1.3 and cannot be negotiated in TLS 1.2 and earlier versions."
+          ]
+        }
+      ]
+    },
+    "instance-enable-and-use": {
+      "statement": "The Instance Discovery Report is enabled by contacting the Zscaler Account team. It discovers corporate and non-corporate tenants of SaaS applications for use in tenant profiles and instance profiles, to enforce control through cloud app control and DLP policies; it shows Google Cloud Platform data by default and can be filtered to the last 1 day, 7 days, 15 days, month or quarter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-instance-discovery-report.json",
+          "quotes": [
+            "To enable the Instance Discovery Report for your organization, contact your Zscaler Account team.",
+            "Discover corporate and non-corporate tenants of SaaS applications and use them in tenant profiles and instance profiles, to enforce control through cloud app control and DLP policies.",
+            "By default, the Google Cloud Platform data is displayed in the report."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-instance-discovery-report.json",
+          "after": "- Level One of Discovery",
+          "quotes": [
+            "Filter the report for the last 1 day, last 7 days, last 15 days, last month, or last quarter."
+          ]
+        }
+      ]
+    },
+    "instance-levels": {
+      "statement": "The Instance Discovery Report page's table gives the instance levels per application: Microsoft Azure Domain > Tenant > Resource, Google Cloud Platform Organization > Project > Resource, SharePoint Domain > Site, Slack Domain > Workspace, Salesforce and ServiceNow Tenant, and Domain only for Box, Google Drive, Google Gemini, Gmail, OneDrive, Microsoft Outlook, Microsoft Teams and Microsoft Copilot.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-instance-discovery-report.json",
+          "quotes": [
+            "| Microsoft Azure | Domain | Tenant | Resource |",
+            "| Google Cloud Platform | Organization | Project | Resource |",
+            "| SharePoint | Domain | Site | N/A |",
+            "| Slack | Domain | Workspace | N/A |",
+            "| Salesforce | Tenant | N/A | N/A |",
+            "| ServiceNow | Tenant | N/A | N/A |",
+            "| Box | Domain | N/A | N/A |",
+            "| Google Drive | Domain | N/A | N/A |",
+            "| Google Gemini | Domain | N/A | N/A |",
+            "| Gmail | Domain | N/A | N/A |",
+            "| OneDrive | Domain | N/A | N/A |",
+            "| Microsoft Outlook | Domain | N/A | N/A |",
+            "| Microsoft Teams | Domain | N/A | N/A |",
+            "| Microsoft Copilot | Domain | N/A | N/A |"
+          ]
+        }
+      ]
+    },
+    "resource-discovery-levels": {
+      "statement": "The Resource Discovery Report page lists level-one Domains for Box, Google Drive, Google Gemini, Gmail, Microsoft Outlook, Microsoft Teams, Microsoft Azure, Microsoft Copilot and OneDrive and level-one Tenants for Salesforce and ServiceNow, and for two-level applications lists Workspaces for Slack, Sites for SharePoint and Tenants for Microsoft Azure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-resource-discovery-report.json",
+          "quotes": [
+            "Domains: Box, Google Drive, Google Gemini, Gmail, Microsoft Outlook, Microsoft Teams, Microsoft Azure, Microsoft Copilot, and OneDrive.",
+            "Tenants: Salesforce and ServiceNow.",
+            "Workspaces: Slack",
+            "Sites: SharePoint",
+            "Tenants: Microsoft Azure"
+          ]
+        }
+      ]
+    },
+    "resource-discovery-logs": {
+      "statement": "On the Resource Discovery Report, View Logs opens the Web Insights Logs page filtered, for Google Cloud Platform for example, on organization ID (App Instance Level 1), project ID (App Instance Level 2) or resource type (App Instance Level 3), depending on the hierarchical level selected. For a resource card the details are shown as <organization ID>/<project ID>/<resource type>, and once an item in a column is selected the CSV export is no longer available for that column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-resource-discovery-report.json",
+          "quotes": [
+            "View Logs: You are redirected to the Web Insights Logs page, which shows the data filtered, for example for Google Cloud Platform, for organization ID (App Instance Level 1), project ID (App Instance Level 2), or resource type (App Instance Level 3).",
+            "The data shown depends on the hierarchical level you select to view the details on the Resource Discovery Report page.",
+            "If you selected More Details on any of the resource cards, then the details are shown in the format: <organization ID>/<project ID>/<resource type>.",
+            "When you select an item in a column, the option to export as a CSV file is no longer available for that column."
+          ]
+        }
+      ]
+    },
+    "genai-time-and-slm": {
+      "statement": "The Gen AI Security Report can be filtered for the last 1 day, 7 days, 15 days, month or quarter, and classifies the prompts entered into categories using small language models.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-gen-ai-security-report.json",
+          "quotes": [
+            "Filter the report for the Last 1 Day, Last 7 Days, Last 15 Days, Last Month, or Last Quarter.",
+            "Get visibility into the type of prompts being entered, by classifying them into categories using small language models."
+          ]
+        }
+      ]
+    },
+    "genai-view-prompts": {
+      "statement": "View Prompts redirects to Web Insights Logs with the prompt filter Not Null applied, and the View Prompts tab is visible only when the prompt settings are enabled for individual AI applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-gen-ai-security-report.json",
+          "quotes": [
+            "View Prompts: You are redirected to the Web Insights Logs page, which shows the prompts entered by each user for the AI applications.",
+            "The prompt filter Not Null is applied on redirection. To see the View Prompts tab, you must enable the prompt settings for individual AI applications in Data Security > Inline CASB > Advanced Policy Settings."
+          ]
+        }
+      ]
+    },
+    "genai-analyze-filters": {
+      "statement": "Analyze More filters the data on Policy Actions (All, Allowed, Blocked or Isolated), Application Status (All, Sanctioned or Unsanctioned) and Content Type (DLP Dictionaries, DLP Engines, Document Classification or Prompt Classification), and Create Policy opens the Add AI & ML Rule window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-gen-ai-security-report.json",
+          "quotes": [
+            "Filter the data for specific Policy Actions taken (All, Allowed, Blocked, or Isolated), Application Status (All, Sanctioned, or Unsanctioned), or Content Type (DLP Dictionaries, DLP Engines, Document Classification, or Prompt Classification)",
+            "Create Policy: You are redirected to the Add AI & ML Rule window where you can set the Cloud App Control Role, Criteria, Rule Expiration, and Action."
+          ]
+        }
+      ]
+    },
+    "genai-top6": {
+      "statement": "Gen AI Application Usage and Gen AI Usage Trends show the top 6 Gen AI applications used in the organization, and the report shows the total number of sensitive content items discovered per application, based on DLP engines and DLP dictionaries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-gen-ai-security-report.json",
+          "quotes": [
+            "Gen AI Application Usage: View the top 6 Gen AI applications used in the organization with policy actions (Allowed, Blocked, or Isolated) distribution",
+            "Gen AI Usage Trends: View the Gen AI application usage trends of the top 6 applications",
+            "View the total number of sensitive content items, based on DLP Engine and DLP Dictionaries, discovered per application."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "azure-instance-levels": {
+      "summary": "The Instance Discovery Report page gives Microsoft Azure three instance levels, while the Resource Discovery Report page lists Azure among the level-one Domains and under the two-level applications as Tenants.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-instance-discovery-report.json",
+            "quotes": [
+              "| Microsoft Azure | Domain | Tenant | Resource |"
+            ]
+          },
+          "says": "The Instance Discovery Report table gives Microsoft Azure the levels Domain, Tenant and Resource."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-viewing-resource-discovery-report.json",
+            "quotes": [
+              "Domains: Box, Google Drive, Google Gemini, Gmail, Microsoft Outlook, Microsoft Teams, Microsoft Azure, Microsoft Copilot, and OneDrive.",
+              "Applications Supporting Two Levels of Discovery",
+              "Tenants: Microsoft Azure"
+            ]
+          },
+          "says": "The Resource Discovery Report lists Microsoft Azure among the Domains for applications with one level, and lists Tenants: Microsoft Azure under Applications Supporting Two Levels of Discovery."
+        }
+      ],
+      "impact": "How many levels Azure has, and so which columns the Resource Discovery Report shows for it, depends on which page is read, so an answer has to name the page."
+    },
+    "genai-prompt-settings-path": {
+      "summary": "The Gen AI Security Report page names two different places for the prompt settings that make the View Prompts tab visible.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-gen-ai-security-report.json",
+            "quotes": [
+              "you must enable the prompt settings for individual AI applications in Data Security > Inline CASB > Advanced Policy Settings."
+            ]
+          },
+          "says": "The prompt settings for individual AI applications are in Data Security > Inline CASB > Advanced Policy Settings."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-gen-ai-security-report.json",
+            "quotes": [
+              "you must enable the prompt settings for individual AI applications in URL & Cloud App Control > Advanced Policy Settings > Gen AI Prompt Configuration."
+            ]
+          },
+          "says": "The prompt settings for individual AI applications are in URL & Cloud App Control > Advanced Policy Settings > Gen AI Prompt Configuration."
+        }
+      ],
+      "impact": "The same page gives two navigation paths and does not say which is current, so an answer that names a console location has to name both."
+    }
+  },
+  "gaps": {
+    "pqc-column-fields": {
+      "kind": "semantic",
+      "title": "Which web log fields the PQC report's columns come from",
+      "status": "open",
+      "detail": "The Post-Quantum Cryptography articles name console columns such as Client Key Exchange Proposal and Server-Side Key Exchange Algorithm. The web log type carries TLS key exchange and signature fields, but no captured article maps the report columns to them, so no column-to-field mapping is claimed.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "instance-prerequisites": {
+      "kind": "semantic",
+      "title": "What Instance Discovery needs beyond the Account team, and what an instance profile is",
+      "status": "open",
+      "detail": "The page says the report is enabled through the Zscaler Account team and that discovered tenants are used in tenant profiles and instance profiles. It does not state other prerequisites, such as SSL inspection, and no subject in the graph defines an instance profile.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "genai-retention": {
+      "kind": "semantic",
+      "title": "How long Gen AI Security Report data is kept",
+      "status": "open",
+      "detail": "The page offers filters up to the last quarter but states no retention period for the report data.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

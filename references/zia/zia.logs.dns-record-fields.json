@@ -63,7 +63,7 @@
     },
     {
       "label": "Transport and categories.",
-      "text": "{{protocol-values}} Encrypted DNS other than DoH is open {{gap:dot-doq-open}}. {{two-categories}} {{ecs-fields}}"
+      "text": "{{protocol-values}} Encrypted DNS other than DoH is open {{gap:dot-doq-open}}. {{two-categories}} {{ecs-fields}} {{dns-columns-misc}}"
     },
     {
       "text": "The outcome fields are in [[zia.logs.dns-outcome]] and the gateway fields in [[zia.logs.dns-gateway-fields]]."
@@ -107,6 +107,32 @@
     }
   ],
   "claims": {
+    "dns-columns-misc": {
+      "statement": "In DNS Insights Logs, a blank User means location-based authentication is set; a blank request category means the domain is not categorized and a blank response category that the resolved IP or CNAME is not; Server IP is the actual DNS server that resolves the request, which can differ from the one the user targeted depending on the NAT rule configuration for DNS traffic; the HTTP status code field applies only when the protocol between the service and the DNS server is DoH.",
+      "tier": "A",
+      "binds": [
+        "zia/dns-log#login",
+        "zia/dns-log#domcat",
+        "zia/dns-log#respipcat",
+        "zia/dns-log#sip",
+        "zia/dns-log#http_code"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-insights-logs-columns.json",
+          "quotes": [
+            "User: The user name. If this is blank, then location-based authentication is set.",
+            "Request Categories: The request category corresponding to the requested domain. If this is blank, then the domain is not categorized.",
+            "If this is blank, then the resolved IP or the canonical name (CNAME) is not categorized.",
+            "Server IP: The actual DNS server IP address that resolves the DNS request.",
+            "The user-targeted DNS server and the actual DNS server can vary depending on the NAT rule configuration for DNS traffic.",
+            "HTTP Status Code:",
+            "is applicable only when the protocol used between the Internet & SaaS (ZIA) service and the DNS server is DoH."
+          ]
+        }
+      ]
+    },
     "two-names": {
       "statement": "The DNS field table lists each field under an NSS format specifier and, where one exists, an Insights Logs column name, for example %s{time} as Logged Time and %s{req} as Requested Domain.",
       "conditions": "Statement word changed on recapture (2026-10-18): the source is now the DNS field table in nss-feed-output-format-dns-logs.json, not the CSV.",

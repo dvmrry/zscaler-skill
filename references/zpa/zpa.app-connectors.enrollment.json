@@ -34,6 +34,10 @@
     {
       "rel": "see-also",
       "to": "zpa.app-connectors.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.platforms"
     }
   ],
   "prose": [
@@ -42,7 +46,7 @@
     },
     {
       "label": "Methods.",
-      "text": "{{two-methods}} {{oauth-name-format}} {{groups-accept-user-codes}} {{module-onboarding-default}} {{module-onboarding-switch}} Provisioning keys are covered in [[zpa.app-connectors.provisioning-keys]]."
+      "text": "{{two-methods}} {{oauth-name-format}} {{groups-accept-user-codes}} {{module-onboarding-default}} {{module-onboarding-switch}} {{oauth-image-default}} {{key-file-and-sleep}} {{key-cloud-domain}} {{ssh-for-key}} Provisioning keys are covered in [[zpa.app-connectors.provisioning-keys]]."
     },
     {
       "label": "Certificate and trust.",
@@ -403,6 +407,66 @@
       "binds": [
         "zpa/app-connectors#fingerprint"
       ]
+    },
+    "oauth-image-default": {
+      "statement": "The App Connector AWS guide says the image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available; the OAuth token appears after a login prompt in the virtual serial console, tokens are valid for 2 hours, and the token is entered on the Add App Connectors page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "The image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available.",
+            "In the software component's virtual serial console, a login prompt appears followed by an OAuth Token value",
+            "Copy the OAuth token that appears. Tokens are valid for 2 hours.",
+            "Add an App Connector and enter the OAuth enrollment token on the Add App Connectors page."
+          ]
+        }
+      ]
+    },
+    "key-file-and-sleep": {
+      "statement": "The App Connector AWS guide says a provisioning key file is created with 644 permissions at /opt/zscaler/var/provision_key, and that if the key is not detected when the App Connector first starts it is in a sleep cycle and looks for the key again every 24 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "Create a provisioning key file with 644 permissions at /opt/zscaler/var/provision_key.",
+            "If the provisioning key is not detected when the App Connector first starts, the App Connector is in a sleep cycle and looks for the key again every 24 hours."
+          ]
+        }
+      ]
+    },
+    "key-cloud-domain": {
+      "statement": "The App Connector AWS guide says the domain in the provisioning key echo statement (its example is api.private.com) depends on which Private Access cloud the tenant is on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-connector-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "The domain (e.g., api.private.com) in the echo statement depends on what Private Access cloud you are on."
+          ]
+        }
+      ]
+    },
+    "ssh-for-key": {
+      "statement": "The App Connector Nutanix AHV guide says SSH is not enabled by default on Zscaler-provided virtual appliances and is required for a short time to configure the provisioning key, that after the initial boot it might take up to 15 minutes for the admin credentials to apply, and that SSH is to be disabled after the App Connector is enrolled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-app-connector-deployment-guide-nutanix-ahv.json",
+          "quotes": [
+            "On Zscaler-provided virtual appliances, SSH is not enabled by default.",
+            "It is required for a short time to configure the provisioning key for the App Connector.",
+            "After the initial boot of an App Connector instance, it might take up to 15 minutes for the admin credentials to apply.",
+            "After the App Connector is enrolled, disable SSH using the following command:"
+          ]
+        }
+      ],
+      "conditions": "Scoped to the Nutanix AHV guide's procedure. The AWS guide says SSH access is enabled by default on AWS App Connectors (zpa.app-connectors.platforms:aws-login-imdsv2), so 'not enabled by default' is not a rule for every Zscaler-provided image."
     },
     "single-account-never-clone": {
       "statement": "An enrolled connector is paired with a single customer account and cannot be enrolled again; connectors in VMs should never be cloned because the keys no longer match the virtual hardware fingerprints.",

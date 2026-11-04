@@ -1,0 +1,558 @@
+{
+  "schema_version": 1,
+  "id": "zpa.private-service-edges.private-cloud-controller.deployment",
+  "title": "Private Cloud Controller sizing, network requirements, platforms and enrollment",
+  "aliases": [
+    "private cloud controller sizing",
+    "private cloud controller prerequisites",
+    "private cloud controller deployment guide",
+    "deploying private cloud controllers",
+    "pcc software by platform"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.private-cloud-controller.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.business-continuity"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.data-path"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{enrollment}}"
+    },
+    {
+      "label": "Sizing and count.",
+      "text": "{{sizing}} {{pairs}} {{scale-out}} The AWS guide ties 400 to 500 Mbps per controller to about 50% CPU {{aws-auto-scaling|ref}}, which the same page's 250 Mbps SIEM throughput does not match {{divergence:aws-throughput}}. No PCC page gives a CPU-based scaling signal tied to SIEM throughput {{gap:pcc-scaling-signal}}."
+    },
+    {
+      "label": "Network.",
+      "text": "{{inbound-443}} {{dnat-publish-ip}} {{firewall}} {{control-tunnel}} Which sources reach a controller differs between pages {{divergence:inbound-sources}}. Where the publish IP is set is open {{gap:publish-ip-location}}."
+    },
+    {
+      "label": "Prerequisites.",
+      "text": "{{platform-prereqs}} {{client-connector-version}}"
+    },
+    {
+      "label": "Platforms.",
+      "text": "{{software-by-platform}} Azure has an image but no captured guide {{gap:azure-guide}}."
+    },
+    {
+      "label": "What differs by platform.",
+      "text": "{{linux-rpm}} {{verify-memory}} {{aws-placement}} {{aws-auto-scaling}} {{oauth-token}} {{gcp-network-autoscaling}} The GCP machine types are worded two ways {{divergence:gcp-machine-types}}. The GCP firewall sentence is open {{gap:gcp-firewall-wording}}. {{vmware}}"
+    },
+    {
+      "text": "The controller and Private Cloud objects: [[zpa.private-service-edges.private-cloud-controller]]. Business Continuity as a feature: [[zpa.private-service-edges.business-continuity]]. Console commands and restore: [[zpa.private-service-edges.private-cloud-controller.troubleshooting]]. The same Private Service Edge topics: [[zpa.private-service-edges.deployment]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which throughput figure a controller's sizing rests on: the prerequisites page's SIEM throughput table or the AWS guide's 400 to 500 Mbps, which the pages do not reconcile.",
+      "uses": [
+        "sizing",
+        "aws-auto-scaling",
+        "aws-throughput"
+      ]
+    },
+    {
+      "do": "Whether the firewall allows the controller's outbound connections to the Public Service Edges and does not intercept TLS for traffic from it.",
+      "uses": [
+        "firewall"
+      ]
+    },
+    {
+      "do": "Whether the sources allowed in to a controller match the pages, which differ on Public Service Edges.",
+      "uses": [
+        "inbound-443",
+        "inbound-sources"
+      ]
+    },
+    {
+      "do": "Whether the enrollment method is a provisioning key or an OAuth token, and the Manager software and controller version that OAuth enrollment needs.",
+      "uses": [
+        "platform-prereqs",
+        "oauth-token"
+      ]
+    }
+  ],
+  "claims": {
+    "enrollment": {
+      "statement": "Deploying a Private Cloud Controller means installing and enrolling it, which lets it obtain a TLS client certificate to authenticate itself to the Private Access cloud: it generates a local private key encrypted with a hardware fingerprint, uses it to generate a Certificate Signing Request, and uses a provisioning key to authenticate the CSR to the Private Access cloud. The signed certificate is pinned to the controller's hardware fingerprint, and once enrolled the controller is paired with a single customer account and cannot be enrolled again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-private-cloud-controllers.json",
+          "quotes": [
+            "Deployment consists of installing and enrolling the Private Cloud Controller, which allows it to obtain a TLS client certificate that it must use to authenticate itself to the Private Access (ZPA) cloud.",
+            "the Private Cloud Controller must first generate the local private key, which it encrypts using a hardware fingerprint.",
+            "The Private Cloud Controller uses the local private key to generate a Certificate Signing Request (CSR).",
+            "It uses a provisioning key to authenticate the CSR to the Private Access cloud.",
+            "The signed TLS client certificate is pinned to the Private Cloud Controller's hardware fingerprint.",
+            "After the Private Cloud Controller is enrolled, it is paired with a single customer account and cannot be enrolled again."
+          ]
+        }
+      ]
+    },
+    "pairs": {
+      "statement": "Zscaler recommends that Private Cloud Controllers be deployed in pairs (N+1), where N is the number of controllers the sizing requirements give, to ensure continuous availability during software upgrades.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-deploying-private-cloud-controllers.json",
+          "quotes": [
+            "Zscaler recommends that Private Cloud Controllers be deployed in pairs to ensure continuous availability during software upgrades."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "Zscaler recommends that you deploy Private Cloud Controllers in pairs (N+1), where N is the number of Private Cloud Controllers as per the sizing requirements."
+          ]
+        }
+      ]
+    },
+    "sizing": {
+      "statement": "The prerequisites page says each Private Cloud Controller supports between 100 to 250 Mbps of SIEM throughput; its table gives, by number of users: up to 2,000 users need 16 GB and 4 vCPUs or CPUs (100 Mbps), up to 4,000 need 32 GB and 8 (150 Mbps), up to 10,000 need 64 GB and 16 (250 Mbps). Disk space is 64 GB thin provisioned for all deployment platforms and the minimum is 1 NIC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "Each Private Cloud Controller supports between 100 to 250 Mbps of SIEM throughput.",
+            "| Up to 2,000 | 16 GB | 100 Mbps | 4 vCPUs or 4 CPUs |",
+            "| Up to 4,000 | 32 GB | 150 Mbps | 8 vCPUs or 8 CPUs |",
+            "| Up to 10,000 | 64 GB | 250 Mbps | 16 vCPUs or 16 CPUs |",
+            "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+            "Network Card: 1 NIC (minimum)"
+          ]
+        }
+      ]
+    },
+    "scale-out": {
+      "statement": "More Private Cloud Controllers can be deployed at any time using the same provisioning key to add them to the existing group. Throughput numbers are aggregate (total inbound and outbound), and Zscaler recommends more controllers with lower specifications rather than fewer with higher specifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "You can deploy additional Private Cloud Controllers at any time using the same provisioning key to add them to the existing Private Cloud Controller group",
+            "Throughput numbers are aggregate (i.e., total inbound and outbound). Each Private Cloud Controller supports up to 250 Mbps SIEM throughput.",
+            "Zscaler recommends that you have more Private Cloud Controllers with lower specifications rather than fewer Private Cloud Controllers with higher specifications."
+          ]
+        }
+      ]
+    },
+    "inbound-443": {
+      "statement": "Depending on the deployment use case, each Private Cloud Controller must be able to accept incoming connections from either internal or external sources or both on TCP port 443. Controllers are reachable over the internet for remote users in Business Continuity. For each controller placed behind a firewall, the conditions are that it accepts incoming connections from internal sources, remote users and on-premises users (as applicable and dependent on the use case) on TCP port 443 and has a unique private IP address that can be reached over the internal network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "Depending on your deployment use case, each Private Cloud Controller must be able to accept incoming connections from either internal or external sources or both internal and external sources on TCP port 443.",
+            "Private Cloud Controllers are reachable over the internet for remote users in Business Continuity.",
+            "The following conditions apply to each Private Cloud Controller that is placed behind a firewall:",
+            "They must accept incoming connections from internal sources, remote users, and on-premises users (as applicable and dependent on your use case) on TCP port 443.",
+            "They must have a unique private IP address that can be reached over the internal network."
+          ]
+        }
+      ]
+    },
+    "dnat-publish-ip": {
+      "statement": "In the scenario where a Private Cloud Controller is deployed behind a firewall, the firewall performs destination network address translation (DNAT) for its private IP address, and the public IP address advertised by the firewall must be configured as a publish IP address of the respective controller; in the case of disaster recovery this IP address must be added as the A record for that controller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "In the scenario where a Private Cloud Controller is deployed behind a firewall, the firewall performs destination network address translation (DNAT) for the Private Cloud Controller's private IP address.",
+            "It is necessary to configure the public IP address advertised by the firewall as a publish IP address of the respective Private Cloud Controller.",
+            "In the case of disaster recovery, you must add this IP address as the A record for that Private Cloud Controller."
+          ]
+        }
+      ]
+    },
+    "firewall": {
+      "statement": "Firewalls must be configured to let the Private Cloud Controller establish outbound connections to the IP addresses of the Public Service Edge for Private Access, and inbound connections from App Connectors, Private Service Edges and Client Connector. All Zscaler data centers containing Public Service Edges must be allowed, and Zscaler gives a 90-day notice for activating additional IP CIDR ranges. Controllers do not function if the TLS certificates presented by the Public Service Edges do not cryptographically verify against Zscaler-trusted public keys, and *.prod.zpath.net should be in the SSL bypass list for traffic originating from the controller.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "Your firewalls must be configured to let the Private Cloud Controller establish outbound connections to the IP addresses of the Public Service Edge for Private Access, and establish inbound connections from App Connectors, Private Service Edges, and Zscaler Client Connector.",
+            "All of the Zscaler data centers containing Public Service Edges must be allowed. A partial firewall configuration will result in connectivity problems for end users.",
+            "provide a 90-day notice for activating additional IP CIDR ranges",
+            "Private Cloud Controllers do not function if the TLS certificates presented by the Public Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+            "ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the Private Cloud Controller."
+          ]
+        }
+      ]
+    },
+    "control-tunnel": {
+      "statement": "After a Private Cloud Controller is enrolled, an outbound TLS tunnel over TCP port 443 is established to the Private Access cloud infrastructure, carrying periodic keepalives to the Public Service Edge, tenant-specific configuration and policy download, and controller software upgrades completed on a weekly schedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "After a Private Cloud Controller is enrolled, an outbound TLS tunnel over TCP port 443 is established to the Private Access cloud infrastructure.",
+            "Periodic keepalives to the Public Service Edge",
+            "Tenant-specific configuration and policy download",
+            "Private Cloud Controller software upgrades (upgrades are completed based on a weekly schedule)"
+          ]
+        }
+      ]
+    },
+    "platform-prereqs": {
+      "statement": "The prerequisites page lists an Intel x86_64/AMD 64-based architecture, root or sudo access to configure a new package repository and install packages, DNS resolution and network access, a static MAC address, and either an OAuth 2.0 enrollment token from a hyperscaler marketplace, virtual image or RPM installer provided by Zscaler or a provisioning key from the Admin Console. OAuth 2.0 enrollment needs Manager software and Private Cloud Controller version 25.47.3 or later, and a controller that only has an IPv6 address cannot access the OAuth server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "Intel x86_64/AMD 64-based architecture",
+            "Root or sudo access to the system to configure a new package repository and install packages",
+            "DNS resolution and network access",
+            "For OAuth 2.0 enrollment, Manager software and Private Cloud Controller version 25.47.3 or later",
+            "An OAuth 2.0 enrollment token obtained from a hyperscaler marketplace, virtual image, or RPM installer provided by Zscaler, or a Private Cloud Controller provisioning key obtained from the Zscaler Admin Console",
+            "If a Private Cloud Controller only has an IPv6 address, it cannot access the OAuth server.",
+            "A static MAC address"
+          ]
+        }
+      ]
+    },
+    "client-connector-version": {
+      "statement": "Private Cloud Controllers require that Client Connector is at least on version 4.6 or later for Windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+          "quotes": [
+            "Private Cloud Controllers require that the Zscaler Client Connector is at least on version 4.6 or later for Windows."
+          ]
+        }
+      ]
+    },
+    "software-by-platform": {
+      "statement": "Private Cloud Controllers are supported on Linux operating systems. The software page lists a STIG OVA for VMware, STIG Marketplace images for Amazon Web Services, Google Cloud Platform and Microsoft Azure, and an RPM package for RHEL 9-based deployments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-software-platform.json",
+          "quotes": [
+            "Private Cloud Controllers are supported on Linux operating systems.",
+            "| VMware | STIG OVA STIG OVA checksum |",
+            "| Amazon Web Services | Zscaler Private Access - AWS Marketplace (STIG Image) |",
+            "| Google Cloud Platform | Zscaler Private Access - GCP Marketplace (STIG Image) |",
+            "| Microsoft Azure | Zscaler Private Access - Azure Marketplace (STIG Image) |",
+            "The following RPM package is supported for RHEL 9-based Private Cloud Controller deployments"
+          ]
+        }
+      ]
+    },
+    "linux-rpm": {
+      "statement": "The Linux guide's repository definition uses baseurl https://yum.private.zscaler.com/yum/el9 with gpgcheck=1 and has the reader ensure that the GPG fingerprint matches (a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd). The provisioning key file is created with 644 permissions at /opt/zscaler/var/pcc/provision_key. If the controller cannot download the RPM package, the package is downloaded on a server and the steps run iptables -I INPUT 1 -j ACCEPT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-linux.json",
+          "quotes": [
+            "baseurl=https://yum.private.zscaler.com/yum/el9 enabled=1 gpgcheck=1 gpgkey=https://yum.private.zscaler.com/yum/el9/gpg",
+            "ensure that the GPG fingerprint matches (a6fe 2422 fce7 e8ac 672e 9e51 644e a315 8765 e1dd)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-linux.json",
+          "quotes": [
+            "Create a provisioning key file with 644 permissions at /opt/zscaler/var/pcc/provision_key."
+          ],
+          "after": "Populate and apply the Private Cloud Controller provisioning key."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-linux.json",
+          "quotes": [
+            "If the Private Cloud Controller can't download the RPM package, you must download the package on a server:",
+            "$ iptables -I INPUT 1 -j ACCEPT"
+          ]
+        }
+      ]
+    },
+    "verify-memory": {
+      "statement": "The Linux guide verifies memory against the prerequisites sizing: total available memory should be at least 16 GB, 32 GB or 64 GB as shown in the total column.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-linux.json",
+          "quotes": [
+            "Verify that the total available memory is at least 16 GB, 32 GB, or 64 GB as shown in the total column based on the Private Cloud Controller Deployment Prerequisites."
+          ]
+        }
+      ]
+    },
+    "aws-placement": {
+      "statement": "The AWS guide says Private Cloud Controllers must be deployed in the customer's VPCs, and that for each VPC there should be a pair deployed for resilience and scalability; Zscaler automatically load balances across them. Their security group should accept incoming connections from Client Connector and Public Service Edges, permit inbound and outbound access on port 443 and allow inbound SSH. The instance is launched from the AWS Marketplace AMIs, and Auto-assign Public IP set to Disable assigns a private IP address, which is recommended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "For AWS, you must deploy Private Cloud Controllers in your Virtual Private Clouds (VPCs). For each VPC, there should be a pair of Private Cloud Controllers deployed for resilience and scalability.",
+            "Zscaler automatically load balances across the Private Cloud Controllers.",
+            "Private Cloud Controllers should be in appropriate security groups to accept incoming connections from Zscaler Client Connector and Public Service Edges for Private Access (ZPA).",
+            "The Private Cloud Controllers' security group should permit inbound and outbound access on port 443. The security group should allow inbound SSH to the AWS EC2 instance.",
+            "Auto-assign Public IP: Choose Disable to assign a private IP address (recommended) to the Private Cloud Controller."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "On the Choose an Amazon Machine Image (AMI) page, click AWS Marketplace AMIs.",
+            "When the Zscaler Private Cloud Controller AMI appears, click Select."
+          ],
+          "after": "To deploy a Private Cloud Controller on AWS:"
+        }
+      ]
+    },
+    "aws-auto-scaling": {
+      "statement": "In the AWS guide's auto scaling steps, the desired capacity is 2 for the initial number of instances to launch and the target value is 50. The guide says each Private Cloud Controller is capable of passing 400 to 500 Mbps traffic, which occurs when it runs at about 50% CPU utilization, and that OAuth 2.0 enrollment is unavailable with auto scaling.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "OAuth 2.0 enrollment is unavailable with auto scaling.",
+            "Desired capacity: Enter 2 for the initial number of instances to launch.",
+            "Target value: Enter 50.",
+            "Each Private Cloud Controller is capable of passing 400 to 500 Mbps traffic.",
+            "which occurs when the Private Cloud Controller runs at about 50% CPU utilization"
+          ]
+        }
+      ]
+    },
+    "oauth-token": {
+      "statement": "The AWS guide says the image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available. The token appears after a login prompt in the software component's virtual serial console, is valid for 2 hours, and is entered on the Add Private Cloud Controller page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-amazon-web-services.json",
+          "quotes": [
+            "The image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available.",
+            "In the software component's virtual serial console, a login prompt appears followed by an OAuth Token value",
+            "Copy the OAuth token that appears. Tokens are valid for 2 hours.",
+            "Add a Private Cloud Controller and enter the OAuth enrollment token on the Add Private Cloud Controller page."
+          ]
+        }
+      ]
+    },
+    "gcp-network-autoscaling": {
+      "statement": "The GCP guide says the Private Cloud Controller must have ingress and egress traffic directions on TCP port 22 for SSH, and egress traffic directions on TCP port 443 to reach Private Access. Its autoscaling steps select a minimum and maximum of 2 and 4 instances, enter 80 in the Target CPU utilization field and 300 in the Initialization period field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "The Private Cloud Controller must have ingress and egress traffic directions on TCP port 22 for SSH, and egress traffic directions on TCP port 443 to reach Private Access.",
+            "Select a minimum and maximum number of instances as 2 and 4, respectively.",
+            "Enter 80 in the Target CPU utilization field.",
+            "Enter 300 in the Initialization period field."
+          ]
+        }
+      ]
+    },
+    "vmware": {
+      "statement": "The VMware guide requires VMware vCenter version ESXi 7.0 Update 2 or later, and says RHEL 9 deployments are supported on ESXi 7.0 Update 2 or later. The guide has the reader enter the Private Cloud Controller image URL https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-pcc-el9-2026.07.ova.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-vmware-platforms.json",
+          "quotes": [
+            "VMware vCenter version ESXi 7.0 Update 2 or later.",
+            "Enter the following URL for the Private Cloud Controller image into the provided field, then click Next: https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-pcc-el9-2026.07.ova",
+            "RHEL 9 deployments are supported on ESXi 7.0 Update 2 or later."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "aws-throughput": {
+      "summary": "The AWS Private Cloud Controller guide's auto scaling step gives 400 to 500 Mbps per controller; its prerequisites text gives up to 250 Mbps of SIEM throughput.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-private-cloud-controller-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "Throughput numbers are aggregate (i.e., total inbound and outbound). Each Private Cloud Controller supports up to 250 Mbps SIEM throughput."
+            ]
+          },
+          "says": "Each Private Cloud Controller supports up to 250 Mbps SIEM throughput, with aggregate throughput numbers."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-private-cloud-controller-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "Each Private Cloud Controller is capable of passing 400 to 500 Mbps traffic."
+            ]
+          },
+          "says": "Each Private Cloud Controller is capable of passing 400 to 500 Mbps traffic."
+        }
+      ],
+      "impact": "The page gives 250 Mbps of SIEM throughput as the controller's support figure and 400 to 500 Mbps of traffic in the auto scaling step; it does not say how the two measures relate."
+    },
+    "inbound-sources": {
+      "summary": "The AWS guide lists Public Service Edges among the sources a Private Cloud Controller accepts connections from; the prerequisites page makes Public Service Edges an outbound destination.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-private-cloud-controller-deployment-guide-amazon-web-services.json",
+            "quotes": [
+              "Private Cloud Controllers should be in appropriate security groups to accept incoming connections from Zscaler Client Connector and Public Service Edges for Private Access (ZPA)."
+            ]
+          },
+          "says": "The security groups accept incoming connections from Client Connector and Public Service Edges."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-private-cloud-controller-deployment-prerequisites.json",
+            "quotes": [
+              "Your firewalls must be configured to let the Private Cloud Controller establish outbound connections to the IP addresses of the Public Service Edge for Private Access, and establish inbound connections from App Connectors, Private Service Edges, and Zscaler Client Connector."
+            ]
+          },
+          "says": "Outbound connections go to the Public Service Edges; inbound connections come from App Connectors, Private Service Edges and Client Connector."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-business-continuity.json",
+            "quotes": [
+              "Private Cloud Controllers can receive inbound connections from end users, App Connectors, and Private Service Edges for Zscaler Private Access (ZPA) on port 443."
+            ]
+          },
+          "says": "Inbound connections come from end users, App Connectors and Private Service Edges on port 443."
+        }
+      ],
+      "impact": "An AWS security group built from the AWS guide admits Public Service Edges inbound and omits App Connectors and Private Service Edges, which the prerequisites and Business Continuity pages list; the pages do not say which governs."
+    },
+    "gcp-machine-types": {
+      "summary": "The GCP guide recommends n2-standard-4 or n2-highcpu-8, but the list under it describes n2-standard-4 and n2-standard-8.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-private-cloud-controller-deployment-guide-google-cloud-platform.json",
+            "quotes": [
+              "Zscaler recommends using the n2-standard-4 or n2-highcpu-8 machine types:"
+            ]
+          },
+          "says": "The recommended machine types are n2-standard-4 or n2-highcpu-8."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-private-cloud-controller-deployment-guide-google-cloud-platform.json",
+            "quotes": [
+              "n2-standard-4: The supported specifications are 4 vCPU, 2 core, and 16 GB memory.",
+              "n2-standard-8: The supported specifications are 8 vCPU, 4 core, and 32 GB memory."
+            ]
+          },
+          "says": "The specifications listed are for n2-standard-4 (4 vCPU, 2 core, 16 GB) and n2-standard-8 (8 vCPU, 4 core, 32 GB)."
+        }
+      ],
+      "impact": "The page gives no specification for n2-highcpu-8 and recommends no n2-standard-8, so the machine type for a larger controller is unclear."
+    }
+  },
+  "gaps": {
+    "pcc-scaling-signal": {
+      "kind": "semantic",
+      "title": "A scaling signal for Private Cloud Controllers",
+      "status": "open",
+      "detail": "The AWS guide's auto scaling step uses the App Connector and Private Service Edge wording of 400 to 500 Mbps at about 50% CPU. No captured Private Cloud Controller page ties a CPU figure to SIEM throughput or redirected users.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "publish-ip-location": {
+      "kind": "semantic",
+      "title": "Where a Private Cloud Controller's publish IP is set",
+      "status": "open",
+      "detail": "The prerequisites page says the public IP advertised by the firewall must be configured as a publish IP address of the controller. The captured pages do not say where in the Admin Console it is configured; a deployed controller's editable fields are given elsewhere as Name, Description, Listen IPs and Status.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "azure-guide": {
+      "kind": "semantic",
+      "title": "Deploying a Private Cloud Controller on Microsoft Azure",
+      "status": "open",
+      "detail": "The software page lists an Azure Marketplace STIG image, but no captured Private Cloud Controller deployment guide covers Azure; guides are captured for AWS, GCP, Linux and VMware.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "gcp-firewall-wording": {
+      "kind": "semantic",
+      "title": "The GCP guide's firewall rule for a Private Cloud Controller",
+      "status": "open",
+      "detail": "The GCP guide's firewall sentence gives ingress and egress only on TCP port 22 and egress on TCP 443, while the prerequisites page requires each controller to accept incoming connections on TCP port 443. The GCP page does not give an inbound 443 rule.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-private-cloud-controller-deployment-guide-google-cloud-platform.json",
+          "quotes": [
+            "The Private Cloud Controller must have ingress and egress traffic directions on TCP port 22 for SSH, and egress traffic directions on TCP port 443 to reach Private Access."
+          ]
+        }
+      ]
+    }
+  }
+}

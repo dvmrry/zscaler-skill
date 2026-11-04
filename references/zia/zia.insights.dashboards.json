@@ -1,0 +1,527 @@
+{
+  "schema_version": 1,
+  "id": "zia.insights.dashboards",
+  "title": "ZIA dashboards, widgets and notes: predefined dashboards, limits, units, time frames and drill-down",
+  "aliases": [
+    "predefined dashboards",
+    "web overview dashboard",
+    "dashboard widgets",
+    "view restricted",
+    "cloud application trend widget",
+    "total bandwidth consumption widget",
+    "dashboard notes"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.insights"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.insights.data-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.insights.logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.reports.interactive"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{predefined-by-subscription}} {{predefined-set}} {{email-overview-admins}} The Endpoint DLP dashboard is listed with no description {{gap:endpoint-dlp-dashboard}}."
+    },
+    {
+      "label": "Permissions and customization.",
+      "text": "{{view-restricted}} {{reset}} {{auto-reset-15}} {{exclude-location}}"
+    },
+    {
+      "label": "Time frame and units.",
+      "text": "{{time-frame}} {{units}} The widget data types and units are in [[zia.insights.data-types]]."
+    },
+    {
+      "label": "Widget limits and top items.",
+      "text": "{{limits}} The Ranges and Limitations table lists a widget row with no scope {{divergence:widget-limits}}. {{widget-data}} {{top5-other}} {{chart-type-top-n}} The same page gives both a top-5 and a top-100 rule {{divergence:widget-top-items}}. {{resize}}"
+    },
+    {
+      "label": "Particular widgets.",
+      "text": "{{security-dashboard}} {{cloud-app-trend}} {{cloud-app-csv-scores}} {{misc-apps}} {{bandwidth-95th}} {{firewall-top-apps}}"
+    },
+    {
+      "label": "Notes.",
+      "text": "{{notes}} {{notes-scope}} Interactive report widgets are in [[zia.reports.interactive]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a widget shows five items or a hundred before reading its Other bucket, since the same page gives both rules for bar charts and tables.",
+      "uses": [
+        "top5-other",
+        "chart-type-top-n",
+        "widget-top-items"
+      ]
+    },
+    {
+      "do": "Whether a widget limit is a per-dashboard or a per-report figure before quoting 12 or 20.",
+      "uses": [
+        "limits",
+        "widget-limits"
+      ]
+    },
+    {
+      "do": "Whether a missing widget is a permission result (View Restricted) or a dashboard that needs a reset.",
+      "uses": [
+        "view-restricted",
+        "reset",
+        "security-dashboard"
+      ]
+    }
+  ],
+  "claims": {
+    "predefined-by-subscription": {
+      "statement": "Predefined dashboards (previously called Web Overview) carry widgets according to the organization's subscriptions; for example a web-security-only subscription sees web widgets and not mobile ones. Each dashboard contains widgets that present interactive charts that jump to individual transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "Predefined dashboards (previously called Web Overview) are available in the Zscaler Admin Console.",
+            "These dashboards contain widgets according to your organization's subscriptions.",
+            "For example, if your organization has a subscription to the web security service only, you can see dashboards and widgets that report on web traffic, but not those that report on mobile traffic.",
+            "Each dashboard contains widgets that present data in interactive charts, so you can instantly jump from a chart to individual transactions."
+          ]
+        }
+      ]
+    },
+    "predefined-set": {
+      "statement": "The predefined dashboards are Web Overview (web traffic at a high level), Security (blocked threats by class), Web Browsing, Cloud Applications, Mobile Applications, Email Overview, DNS Overview, Firewall Overview, Bandwidth Control, Office 365, IPS Overview, Endpoint DLP and Email DLP Overview.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "Web Overview - This dashboard provides a high-level view of your organization's web traffic.",
+            "Security - The service classifies threats into two classes: Viruses and Spyware, and Advanced Threats. This dashboard provides data about the various threats that were blocked by the service in each class.",
+            "Web Browsing - This dashboard provides visibility into the browsing activity of your organization.",
+            "Cloud Applications - This dashboard provides visibility into the cloud applications used by your organization.",
+            "Mobile Applications - This dashboard provides visibility into the traffic from your organization's mobile devices.",
+            "Email Overview - This dashboard provides information about the email traffic of your organization.",
+            "DNS Overview - This dashboard provides data about the DNS traffic of your organization.",
+            "Firewall Overview - This dashboard provides data about the firewall traffic of your organization.",
+            "Bandwidth Control - This dashboard provides real-time visibility into your organization's bandwidth usage.",
+            "Office 365 - This dashboard provides real-time visibility into your organizations' Office 365 traffic.",
+            "IPS Overview - This dashboard provides real-time visibility into your organization's IPS traffic.",
+            "Endpoint DLP - Email DLP Overview - This dashboard provides real-time visibility into your organization's Email DLP traffic."
+          ]
+        }
+      ]
+    },
+    "email-overview-admins": {
+      "statement": "The Email Overview dashboard, which provides information about the email traffic of the organization, is visible only to users who are admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "This dashboard provides information about the email traffic of your organization.",
+            "This dashboard is only visible to users who are admins."
+          ]
+        }
+      ]
+    },
+    "view-restricted": {
+      "statement": "A dashboard or widget shows \"View Restricted\" when the admin lacks permission to view its content; depending on role permission and scope an admin can customize, view and edit the predefined dashboards, and customizations are visible only to that admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "A dashboard or widget displays the message \"View Restricted\" when you do not have the appropriate permissions to view its content.",
+            "Depending on your role permission and scope, you can customize, view and edit the predefined dashboards.",
+            "When you customize a dashboard, the changes are visible only to you."
+          ]
+        }
+      ]
+    },
+    "reset": {
+      "statement": "A customized dashboard must be reset to show newly released widgets, and a reset discards the admin's changes, including widgets the admin created. The service reopens the last dashboard viewed after the admin logs back in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "To view any newly-released widgets, the customized dashboards must be reset.",
+            "Reset the dashboard to its original settings and view any newly released widgets. You lose any changes you made, including new widgets that you created.",
+            "Log out, and when you log back in, the service remembers and displays the last dashboard you viewed."
+          ]
+        }
+      ]
+    },
+    "auto-reset-15": {
+      "statement": "Zscaler recommends setting dashboards to reset automatically every 15 minutes, in Account Settings, so the session does not time out and the data stays current.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "Zscaler recommends that you set your dashboards to automatically reset every 15 minutes.",
+            "This prevents your session from timing out and also keeps the information in your window up to date.",
+            "From the navigating menu, go to Account Settings to enable this."
+          ]
+        }
+      ]
+    },
+    "exclude-location": {
+      "statement": "User-related widgets include locations and users by default; the Exclude Location filter on a new or edited widget removes locations, for every user-related widget except those in the default Security dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "By default, user-related widgets include locations and users.",
+            "You can exclude locations by creating new or editing existing widgets and using the Exclude Location filter.",
+            "This filter applies to all user-related widgets except for widgets in the default Security dashboard."
+          ]
+        }
+      ]
+    },
+    "time-frame": {
+      "statement": "Dashboards show the last 24 hours by default and keep the chosen time frame across dashboards; only the Bandwidth Control and Office 365 dashboards offer 30 days, and a multi-day frame shows the sum of bytes or transactions per day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "By default, dashboards display data for the last 24 hours. The time frame is retained when you navigate to other dashboards.",
+            "The Bandwidth Control and Office 365 dashboards are the only dashboards that offer a 30-day time frame.",
+            "Selecting multiple days results in seeing the sum of bytes/transactions per day in charts."
+          ]
+        }
+      ]
+    },
+    "units": {
+      "statement": "Bandwidth widgets show a data rate in bps, Kbps, Mbps and Gbps; all other widgets, including Top Throttled Locations, show a data amount in bytes, KBs, MBs and GBs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "All bandwidth widgets show the data rate, so units are shown in bps, Kbps, Mbps, and Gbps.",
+            "Any other widgets, including the Top Throttled Locations widget, show the data amount itself, so units are shown in bytes, KBs, MBs, and GBs."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "A dashboard title holds up to 50 characters, a widget title up to 50 characters, a dashboard up to 12 widgets and a custom report up to 20 widgets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "A dashboard title can contain up to 50 characters.",
+            "Create a new widget. A dashboard can contain up to 12 widgets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-widgets.json",
+          "quotes": [
+            "Title: Enter a title, up to 50 characters, for the widget.",
+            "If you're adding a widget to a custom report, click the Add Widget. A report can display up to 20 widgets."
+          ]
+        }
+      ]
+    },
+    "widget-data": {
+      "statement": "A dashboard widget charts Web, Mobile, Firewall, DNS, EDLP, Email DLP or Extranet data, as the organization's subscriptions allow; Users, Departments and Locations filters take up to 200 values with include or exclude.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-widgets.json",
+          "quotes": [
+            "Choose Web, Mobile, Firewall, DNS, EDLP, Email DLP, or Extranet at the top of the window (the available options depend on your organization's subscriptions).",
+            "Certain filters, like Users, Departments, and Locations, support the selection of multiple values. For these, you can select up to 200 values in a single filter. You can also choose to include or exclude the selected values."
+          ]
+        }
+      ]
+    },
+    "top5-other": {
+      "statement": "A widget displays the top five items and groups the rest under Other, whose items Show Details lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "A widget displays the top five items and groups everything else under Other. Click Show Details to see the items that were grouped under Other."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-widgets.json",
+          "quotes": [
+            "A widget displays the top 5 items and groups everything else under Other."
+          ]
+        }
+      ]
+    },
+    "chart-type-top-n": {
+      "statement": "On the Configuring Widgets page, pie and line charts display the top 5 results and Other, the cumulative total of the remaining results, while bar charts and tables display the top 100 results with the rest grouped under Other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-widgets.json",
+          "quotes": [
+            "Pie and line charts display the top 5 results and Other, which is the cumulative total of the remaining results.",
+            "Bar charts and tables display the top 100 results and the remaining results are grouped under Other."
+          ]
+        }
+      ]
+    },
+    "resize": {
+      "statement": "Widgets with a table, bar chart or line chart can be resized within the dashboard's fixed 1024 x 768 resolution to fixed size options; pie chart widgets cannot be resized; a deleted widget cannot be restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-widgets.json",
+          "quotes": [
+            "On a dashboard or report, administrators can resize widgets that contain a table, a bar chart, or a line chart.",
+            "You can resize widgets within a dashboard, which has a fixed resolution of 1024 x 768.",
+            "Widgets with pie charts can't be resized. The size options of the widgets are fixed.",
+            "You can't restore a widget after you delete it."
+          ]
+        }
+      ]
+    },
+    "security-dashboard": {
+      "statement": "The service classifies threats on the Security dashboard into two classes, Viruses and Spyware and Advanced Threats; the Sandbox Patient 0 Events widget is available only with Advanced Sandbox, and a tenant with Advanced Sandbox that does not see it resets the Security dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "The service classifies threats into two classes: Viruses and Spyware, and Advanced Threats.",
+            "This widget is available only if you have Advanced Sandbox.",
+            "If you have Advanced Sandbox and don't see the Sandbox Patient 0 Events widget, reset the Security dashboard."
+          ]
+        }
+      ]
+    },
+    "cloud-app-trend": {
+      "statement": "The Cloud Application Trend widget shows, on hover, the risk scores Microsoft Cloud App Security (MCAS) provides with Zscaler's aggregated score, downloadable as CSV; this information is on the dashboard and in the CSV only, not in logs, and a blank cell means the service could not retrieve the data. The widget supports visibility into 1,000 applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "Zscaler has partnered with Microsoft Cloud App Security (MCAS) to provide a risk profile for each application.",
+            "To see the risk scores provided by MCAS, as well as the aggregated score provided by Zscaler, point to a cloud app in the widget.",
+            "You can also download the data as a CSV file for further analysis.",
+            "This information is available on the dashboard and as a CSV file only. It is not available in logs.",
+            "If a cell is blank, the Zscaler service has been unable to retrieve data for it.",
+            "The widget supports visibility into 1,000 applications."
+          ]
+        }
+      ]
+    },
+    "cloud-app-csv-scores": {
+      "statement": "In the Cloud Application Trend CSV, one Zscaler score runs 0 to 100 with lower safer, another Zscaler score runs 1 to 100 with higher riskier, the MCAS score runs 0 to 10 with higher safer and the Bitglass score runs 0 to 10 with higher safer; Usage is the total traffic proxied through Zscaler for the app, in bytes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "Scores range from 0–100 and the lower the score, the safer Zscaler considers the app.",
+            "Scores range from 1–100 and the higher the score, the riskier Zscaler considers the app.",
+            "Scores range from 0–10 and the higher the score, the safer MCAS considers the app.",
+            "Scores range from 0–10 and the higher the score, the safer Bitglass considers the app.",
+            "Usage: The total traffic proxied through Zscaler for this app. It's measured in bytes."
+          ]
+        }
+      ]
+    },
+    "misc-apps": {
+      "statement": "In the Cloud Applications widget a Miscellaneous <Cloud Application Category> Apps row groups newly added, lesser-known predefined applications of that category: its Net Usage (GB) is cumulative for the grouped apps and its per-application columns (Category, Threat Index, Risk Level) show No Data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "The Miscellaneous <Cloud Application Category> Apps (e.g., Miscellaneous Finance Apps) represents the newly added, lesser-known predefined applications for a category (e.g., Finance).",
+            "the Net Usage (GB) column displays the cumulative data for all the applications grouped inside it, and the columns specific to the individual applications (i.e., Category, Threat Index, and Risk Level) grouped inside it display \"No Data.\""
+          ]
+        }
+      ]
+    },
+    "bandwidth-95th": {
+      "statement": "The Total Bandwidth Consumption widget shows bandwidth in bits per second for the past 24 hours by default; with a 30-day time frame it adds a 95th percentile trend line of inbound or outbound traffic, whichever is highest, drillable to a 5-minute view, and shows that line only 30 days after the Bandwidth Control policy is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "The Total Bandwidth Consumption widget displays your organization's bandwidth usage (in bits per second) in a line chart.",
+            "By default, the dashboard displays bandwidth usage for the past 24 hours.",
+            "When you choose 30 days as the time frame, the widget displays the 95th percentile trend line, which is based on the 95th percentile of inbound or outbound traffic; whichever is highest.",
+            "From the 30-day view, you can drill down to a 5-minute view right on the chart.",
+            "The Total Bandwidth Consumption widget displays the 95th percentile line only 30 days after the Bandwidth Control policy has been enabled."
+          ]
+        }
+      ]
+    },
+    "firewall-top-apps": {
+      "statement": "The Firewall Overview Top Applications widget by default does not display internal apps and apps that the Zscaler firewall has not identified; editing the widget's Network Application filter adds them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "Top Applications"
+          ],
+          "after": "This dashboard provides data about the firewall traffic of your organization."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-dashboards.json",
+          "quotes": [
+            "By default, the widget does not display internal apps and apps that have not been identified by the Zscaler firewall.",
+            "To add the excluded apps, edit the widget. Then edit the Network Application filter and select the apps from the list."
+          ]
+        }
+      ]
+    },
+    "notes": {
+      "statement": "Dashboards and interactive reports (standard and custom) take up to 7 notes each, of up to 256 characters; any admin whose role has full Dashboard Access and Reporting Access can add notes or modify other admins' notes, and a posted note shows who last added or modified it and when.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-notes-dashboard-interactive-reports.json",
+          "quotes": [
+            "You can add notes to dashboards and interactive reports (both standard and custom reports) for a variety of annotation purposes.",
+            "You can add up to 7 notes per dashboard or report, and each note can contain up to 256 characters.",
+            "All admins can add notes or modify notes created by other admins, as long as the admin’s role has full permission to Dashboard Access and Reporting Access.",
+            "After they're posted, the notes automatically display the name of the admin who added or most recently modified the note, as well as the date and time the note was added or last modified."
+          ]
+        }
+      ]
+    },
+    "notes-scope": {
+      "statement": "A note attaches to its specific dashboard or report, not to a specific iteration of it; on the Web Overview dashboard the notes appear in the same place after the widgets or the time frame are changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-notes-dashboard-interactive-reports.json",
+          "quotes": [
+            "When you add notes to a dashboard, the notes become attached to that specific dashboard, but not to a specific iteration of that dashboard.",
+            "However, if you modify the Web Overview dashboard after adding notes to it (e.g., if you edit the widgets in the dashboard or if you change the time frame), the notes appear in the same place.",
+            "The notes you create are attached to a specific report, but not to a specific iteration of the report."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "widget-top-items": {
+      "summary": "The Configuring Widgets page says a widget displays the top 5 items and groups everything else under Other, and also that bar charts and tables display the top 100 results.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-widgets.json",
+            "quotes": [
+              "A widget displays the top 5 items and groups everything else under Other."
+            ]
+          },
+          "says": "A widget displays the top 5 items and groups everything else under Other."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-widgets.json",
+            "quotes": [
+              "Bar charts and tables display the top 100 results and the remaining results are grouped under Other."
+            ]
+          },
+          "says": "Bar charts and tables display the top 100 results, with the remaining results grouped under Other."
+        }
+      ],
+      "impact": "A bar chart or table widget shows 5 or 100 items depending on which sentence governs; the page does not say whether the top-5 sentence describes only pie and line charts."
+    },
+    "widget-limits": {
+      "summary": "About Dashboards gives 12 widgets per dashboard and Configuring Widgets gives 20 per custom report, while the Ranges and Limitations Reporting table lists 20 widgets with no scope.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-dashboards.json",
+            "quotes": [
+              "Create a new widget. A dashboard can contain up to 12 widgets."
+            ]
+          },
+          "says": "A dashboard can contain up to 12 widgets."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-widgets.json",
+            "quotes": [
+              "If you're adding a widget to a custom report, click the Add Widget. A report can display up to 20 widgets."
+            ]
+          },
+          "says": "A report can display up to 20 widgets."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Widgets | 20 widgets |"
+            ]
+          },
+          "says": "The Reporting table lists Widgets at 20, with no dashboard or report scope."
+        }
+      ],
+      "impact": "The unscoped 20 reads as a dashboard limit if taken alone, against the 12 per dashboard the other page gives; it matches the per-report 20, but the table does not say so."
+    }
+  },
+  "gaps": {
+    "endpoint-dlp-dashboard": {
+      "kind": "semantic",
+      "title": "What the Endpoint DLP predefined dashboard contains",
+      "status": "open",
+      "detail": "About Dashboards lists Endpoint DLP among the predefined dashboards with no description and no widgets.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

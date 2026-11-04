@@ -49,7 +49,11 @@
     },
     {
       "label": "Classification.",
-      "text": "{{classification-types}}"
+      "text": "{{classification-types}} {{sandbox-filter-results}} The Sandbox Verdict Insights Logs are in [[zia.insights.logs]]."
+    },
+    {
+      "label": "Web Insights columns.",
+      "text": "{{web-insights-policy-action}} {{web-insights-threat-category}} The column lists fewer malicious categories than the rule criterion offers {{gap:threat-category-values}}. {{web-insights-threat-name-md5-suspicious}} The two columns spell the unknown-file label differently {{gap:sent-label-spelling}}."
     },
     {
       "text": "{{benign-not-clean}} Eligibility, meaning whether Sandbox saw the file at all, is in [[zia.sandbox.coverage]]; URL Filtering order is in [[zia.url-filtering]]."
@@ -76,6 +80,22 @@
     }
   ],
   "claims": {
+    "sandbox-filter-results": {
+      "statement": "In the web Insights Logs Sandbox filter, one category is a catchall for any non-malicious file sample with a Sandbox Threat Score equal to or less than 70, the service calls samples scoring between 40 and 70 suspicious because they might need additional review, Sandbox Suspicious is for files that exhibit some malicious behaviors but are not fully classified as malware, and Sent for Analysis is for unknown results sent to the Sandbox for behavioral analysis.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "This is a catchall category for any non-malicious file sample with a Sandbox Threat Score equal to or less than 70.",
+            "The Zscaler service refers to file samples that have a score between 40 and 70 as “suspicious” because they might need additional review.",
+            "Sandbox Suspicious: This category refers to files that exhibit some malicious behaviors but are not fully classified as malware.",
+            "Sent for Analysis: View unknown results that have been sent to the Sandbox for behavioral analysis."
+          ]
+        }
+      ]
+    },
     "blocked-policy-type": {
       "statement": "The Blocked Policy Type field in Web Insights logs identifies which security control is responsible for a block: Sandbox, Malware Protection, or Advanced Threat Protection. The log also carries Policy Action and Threat Super Category.",
       "tier": "A",
@@ -181,6 +201,56 @@
         }
       ]
     },
+    "web-insights-policy-action": {
+      "statement": "In the Web Insights Sandbox logs, Policy Action records what the Sandbox engine did: Sent to Analysis (sent for behavioral analysis and the user can download), Quarantined (sent for analysis and the user cannot download until it completes) or Blocked (blocked immediately because of a previous Sandbox analysis of a known MD5).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Policy Action: Displays what the Sandbox engine has done with suspicious files.",
+            "Sent to Analysis: The file was sent to the Sandbox for behavioral analysis, and the user can download the file.",
+            "Quarantined: The file was sent to the Sandbox for behavioral analysis, and the user cannot download the file until the analysis is completed.",
+            "Blocked: The file was blocked immediately based on previous Sandbox analysis with a known MD5 hash."
+          ]
+        }
+      ]
+    },
+    "web-insights-threat-category": {
+      "statement": "The Threat Category column shows Benign, Sandbox Adware, Sandbox Anonymizer, Sandbox Malware or Sent for Analysis; when a file sent for analysis is classified malicious, the new category is appended (for example Sent for Analysis - Sandbox Malware/Anonymizer/Adware).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Threat Category: Displays the threat type of the file. The following categories appear under this column:",
+            "Benign: A known non-malicious file.",
+            "Sandbox Adware: A known malicious file that automatically renders advertisements and installs adware.",
+            "Sandbox Anonymizer: A known malicious file that contains anonymizers and P2P clients.",
+            "Sandbox Malware: A known malicious file that behaves like APTs, exploits, botnets, trojans, keyloggers, spyware, and other malware.",
+            "Sent for Analysis: An unknown file that is sent to the Sandbox for behavioral analysis.",
+            "After analysis, if the Sandbox classifies the file as malicious, the new malicious threat category is appended to Sent for Analysis (e.g., Sent for Analysis - Sandbox Malware/Anonymizer/Adware)."
+          ]
+        }
+      ]
+    },
+    "web-insights-threat-name-md5-suspicious": {
+      "statement": "Threat Name gives the exact malware name (for example Trojan.Zbot) or the malware category from observed behavior. With Advanced Sandbox the MD5 value opens the Sandbox Detail Report. Suspicious Content shows the file's raw Page Risk Index score, set to 100 if the file is blocked for other security reasons.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Threat Name: Indicates the exact malware name (e.g., Trojan.Zbot, Backdoor.Caphaw) or the malware category, based on the behavior recognized by the Zscaler service.",
+            "MD5: Displays the hash of suspicious files. If you have Advanced Sandbox, you can click the value to view the Sandbox Detail Report.",
+            "Suspicious Content: Displays the raw Page Risk Index score of the file. If the file is blocked for other security reasons, the score is set to 100."
+          ]
+        }
+      ]
+    },
     "mp-atp-python-surfaces": {
       "statement": "The Python SDK exposes Malware Protection (`malware_protection_policy`) as get/update pairs for the malware policy, malware inspection, malware protocols and malware settings, and ATP (`atp_policy`) as get/update settings plus security-exception and malicious-URL list calls. None returns a per-transaction verdict.",
       "tier": "A",
@@ -234,6 +304,60 @@
             "No API -- advisory guidance only"
           ],
           "after": "ZIA Malware Protection"
+        }
+      ]
+    },
+    "threat-category-values": {
+      "kind": "semantic",
+      "title": "Whether the Sandbox report's Threat Category column shows Ransomware, Offsec Tools or Suspicious",
+      "status": "open",
+      "detail": "The Sandbox report page's Threat Category column lists Benign, Sandbox Adware, Sandbox Anonymizer, Sandbox Malware and Sent for Analysis, while the rule criterion offers six malicious categories (see zia.sandbox.rules:sandbox-categories). The Web Insights Threat Category filter does list Sandbox Offensive Security Tools, Sandbox Ransomware and Suspicious, so the question is narrowed to whether the column shows them.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Threat Category: Displays the threat type of the file. The following categories appear under this column:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Sandbox Offensive Security Tools: This category refers to the threat actors that can use offensive security tools for malicious reasons.",
+            "Sandbox Ransomware: This category refers to the type of malware that prevents or limits users from accessing their system"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "after": "Sent for Analysis: This category refers to any unknown file detections",
+          "quotes": [
+            "Suspicious: This category refers to files that exhibit some malicious behaviors but are not fully classified as malware."
+          ]
+        }
+      ]
+    },
+    "sent-label-spelling": {
+      "kind": "semantic",
+      "title": "Whether Sent to Analysis and Sent for Analysis name the same state",
+      "status": "open",
+      "detail": "The Policy Action column says Sent to Analysis while the Threat Category column says Sent for Analysis, and the MCP-sourced zia.sandbox.quarantine:one-time-links uses Sent for Analysis without naming the column. No page says whether the two labels are one state.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-sandbox-reports-data.json",
+          "quotes": [
+            "Sent to Analysis: The file was sent to the Sandbox for behavioral analysis, and the user can download the file.",
+            "Sent for Analysis: An unknown file that is sent to the Sandbox for behavioral analysis."
+          ]
         }
       ]
     },

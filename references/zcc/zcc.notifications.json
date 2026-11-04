@@ -38,6 +38,14 @@
     {
       "rel": "see-also",
       "to": "zcc.notifications.global-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications.pop-ups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.end-user"
     }
   ],
   "prose": [
@@ -48,7 +56,7 @@
       "steps": [
         {
           "label": "Client Connector's own notifications.",
-          "text": "The tenant-wide switches are in [[zcc.notifications.global-settings]], per-profile templates in [[zcc.notifications.templates]], and the pop-up system itself in [[zcc.notifications.framework]]."
+          "text": "The tenant-wide switches are in [[zcc.notifications.global-settings]], per-profile templates in [[zcc.notifications.templates]], and the pop-up system itself in [[zcc.notifications.framework]]. The pop-up messages themselves are in [[zcc.notifications.pop-ups]]."
         },
         {
           "label": "ZIA policy notifications delivered through the client.",
@@ -74,7 +82,7 @@
     },
     {
       "label": "Open questions.",
-      "text": "What the in-app status text says, and whether admins can change it, is not sourced {{gap:in-app-status}}. Whether a certificate trust failure produces a Client Connector notification is open {{gap:cert-trust-ux}}. Whether showing or dismissing a notification is logged anywhere is open {{gap:delivery-logging}}; whether AUP acceptances are logged is [[zcc.acceptable-use:acceptance-logging]]. Whether a blocked DLP transaction shows both a browser page and a client notification is open {{gap:dlp-browser-and-client}}; in default mode the DLP notification needs a Block action, and with Evaluate All Rules its type follows the rule's action [[zia.dlp.incident-forwarding:end-user-notification]]."
+      "text": "What the app window shows is in [[zcc.end-user]]; whether admins can change the in-app status text is not sourced {{gap:in-app-status}}. Whether a certificate trust failure produces a Client Connector notification is open for every platform except macOS, which has a pop-up for it [[zcc.notifications.pop-ups:other-messages]] {{gap:cert-trust-ux}}. Whether showing or dismissing a notification is logged anywhere is open {{gap:delivery-logging}}; whether AUP acceptances are logged is [[zcc.acceptable-use:acceptance-logging]]. Whether a blocked DLP transaction shows both a browser page and a client notification is open {{gap:dlp-browser-and-client}}; in default mode the DLP notification needs a Block action, and with Evaluate All Rules its type follows the rule's action [[zia.dlp.incident-forwarding:end-user-notification]]."
     }
   ],
   "checks": [
@@ -306,8 +314,8 @@
     "in-app-status": {
       "kind": "semantic",
       "title": "In-app status text and whether it is configurable",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Text and status codes displayed inside the ZCC tray/menu UI, for example 'Connected' / 'Disabled' / 'No Service' labels, error code numbers, and per-service status rows (ZIA row, ZPA row, ZDX row). These are not OS-level pop-ups; they appear only when the user opens the ZCC interface. In-app message text is largely determined by ZCC client version and is not directly configurable by admins.\" The legacy doc also listed tunnel up/down, ZIA sign-in failure and trusted-network changes as in-app status changes. No captured article describes the status labels.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"Text and status codes displayed inside the ZCC tray/menu UI, for example 'Connected' / 'Disabled' / 'No Service' labels, error code numbers, and per-service status rows (ZIA row, ZPA row, ZDX row). These are not OS-level pop-ups; they appear only when the user opens the ZCC interface. In-app message text is largely determined by ZCC client version and is not directly configurable by admins.\" The legacy doc also listed tunnel up/down, ZIA sign-in failure and trusted-network changes as in-app status changes. No captured article describes the status labels. Partly settled since: the Modern UI Status Orb colors and the fields of the Private Access, Internet Security, Digital Experience and Data Protection windows are quoted in zcc.end-user:status-orb and zcc.end-user.service-windows. Still open: whether an admin can change that text.",
       "blocks": "answers that quote what a user sees in the app window",
       "resolves_with": [
         "source-read",
@@ -317,11 +325,11 @@
     "cert-trust-ux": {
       "kind": "semantic",
       "title": "Notification for a certificate trust failure",
-      "status": "open",
+      "status": "partial",
       "former_ids": [
         "zcc-28"
       ],
-      "detail": "Whether Client Connector emits its own notification when a certificate cannot be trusted, or the user sees only the operating system's or browser's certificate error. The notification and template articles do not list it.",
+      "detail": "Whether Client Connector emits its own notification when a certificate cannot be trusted, or the user sees only the operating system's or browser's certificate error. The notification and template articles do not list it. Partly settled since: the pop-up message list has a macOS-only message, The SSL certificate could not be trusted automatically, in zcc.notifications.pop-ups:other-messages. Still open: whether other platforms show a notification.",
       "resolves_with": [
         "lab-test",
         "operator-experience"
