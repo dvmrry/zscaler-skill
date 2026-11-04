@@ -214,3 +214,32 @@ def test_a_page_that_moved_without_changing_is_reported_as_moved(tmp_path, monke
     assert page["status"] == "moved" and page["changed_lines"] == []
     src = help_capture.read(tmp_path / "x.json")["source"]
     assert src["url"] == "https://help.zscaler.com/zia/y" and src["aliases"] == ["https://help.zscaler.com/zia/x"]
+
+
+def test_a_full_check_reports_a_registered_unavailable_page_that_serves_again(tmp_path, monkeypatch, capsys):
+    import json as _json
+
+    import help_capture
+
+    help_dir = tmp_path / "vendor" / "zscaler-help"
+    (tmp_path / "references" / "_meta").mkdir(parents=True)
+    help_dir.mkdir(parents=True)
+    (tmp_path / "references" / "_meta" / "static-captures.json").write_text(_json.dumps({"files": {
+        "back.md": {"class": "unavailable", "url": "https://help.zscaler.com/x/back"},
+        "down.md": {"class": "unavailable", "url": "https://help.zscaler.com/x/down"},
+        "notes.md": {"class": "notes", "url": "https://help.zscaler.com/x/notes"}}}))
+    monkeypatch.setattr(help_capture, "HELP", help_dir)
+
+    def page(url):
+        if url.endswith("down"):
+            raise help_capture.Unavailable("unavailable (403, under maintenance)")
+        if url.endswith("notes"):
+            raise AssertionError("only unavailable entries are tried")
+        return {"kind": "help-article", "url": url, "nid": "1", "rev": "2", "html": ARTICLE}
+
+    monkeypatch.setattr(help_capture, "page", page)
+    assert help_capture.check([], replace=False, as_json=True) == 1
+    pages = _json.loads(capsys.readouterr().out)["pages"]
+    assert pages == [{"file": "back.md", "status": "returned", "message": "serves again: help_capture.py recapture back.md"}]
+    # Checking named captures leaves the register alone.
+    assert help_capture.check(["missing.json"], replace=False) == 0

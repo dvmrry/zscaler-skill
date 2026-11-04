@@ -628,7 +628,9 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
 
     An article or API page whose revision ID is unchanged is unchanged, so one request decides; an index
     has no revision, so its article list is compared. A page under maintenance is reported as unavailable
-    and a missing page as gone; neither is drift. With `as_json`, print one JSON report instead of text:
+    and a missing page as gone; neither is drift. A full check also tries every static capture registered as
+    unavailable and reports one that serves again as `returned` (counted, since it wants a recapture). With
+    `as_json`, print one JSON report instead of text:
     {"pages": [{file, status, from?, to?, changed_lines?, removed?, diff?, message?}]}, the input of
     scripts/kb-drift.mjs. With `replace`, the moved captures are rewritten only after every page was checked, so
     a run that fails part way leaves every capture as it was and the next run reports the same drift.
@@ -684,12 +686,29 @@ def check(names: list[str], replace: bool, as_json: bool = False) -> int:
             sys.stdout.write(delta["diff"])
         if replace:
             rewrites.append((path, with_aliases(build(pg), src["url"], *src.get("aliases", []))))
+    # A page the site would not serve when it was captured another way waits in the static-captures register
+    # as `unavailable`; a full check tries it again, so its return is reported rather than remembered.
+    for name, entry in ({} if names else _unavailable()).items():
+        try:
+            page(entry["url"])
+        except SystemExit:
+            continue
+        drifted += 1
+        report.append({"file": name, "status": "returned", "message": f"serves again: help_capture.py recapture {name}"})
+        say(f"BACK  {name}: {entry['url']} serves again; recapture it")
     for path, fresh in rewrites:
         write(path, fresh)
         say(f"replaced {path.name}")
     if as_json:
         print(json.dumps({"pages": report}, indent=2, ensure_ascii=False))
     return drifted
+
+
+def _unavailable() -> dict[str, dict]:
+    """The static captures listed as unavailable, with the address to try, from the register beside HELP."""
+    register = HELP.parent.parent / "references" / "_meta" / "static-captures.json"
+    files = json.loads(register.read_text()).get("files", {}) if register.exists() else {}
+    return {n: e for n, e in sorted(files.items()) if e.get("class") == "unavailable" and e.get("url")}
 
 
 def rerender(names: list[str]) -> int:

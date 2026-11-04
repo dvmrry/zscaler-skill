@@ -130,7 +130,7 @@ export function markdown(pages, title = "Help capture drift") {
     const head = p.status === "drift" ? `revision ${p.from ?? "?"} -> ${p.to ?? "?"}` : p.status;
     out.push(`## ${p.file} (${head})`, "");
     if (p.message) out.push(p.message, "");
-    for (const state of ["broken", "in-change", "gone", "unavailable"]) {
+    for (const state of ["broken", "in-change", "gone", "unavailable", "returned"]) {
       const list = p.evidence.filter((e) => e.state === state);
       if (!list.length) continue;
       out.push(`**${state}**`, "");
