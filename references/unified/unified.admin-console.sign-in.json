@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "id": "unified.admin-console.sign-in",
+  "title": "Signing in to the Zscaler Admin Console: URLs, sign-in methods, lockouts, password and MFA reset, and the upgrade to Experience Center",
+  "aliases": [
+    "console.zscaler.com",
+    "admin console login",
+    "admin console lockout",
+    "Having trouble signing in",
+    "upgrade to experience center",
+    "beta.console.zscaler.com"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.admin-console"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.authentication-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.users.security-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.authentication-session"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{console-url}} {{sign-in-methods}}"
+    },
+    {
+      "label": "Sessions.",
+      "text": "{{inactivity-logout}} How the session timeout applies to admin console sessions is open {{gap:session-timeout-scope}}."
+    },
+    {
+      "label": "Locked out.",
+      "text": "{{lockouts}} The Experience Center audit log words the lockout for any admin account {{divergence:lockout-scope}}. The password-policy deactivation in [[zidentity.authentication-methods:password-lockout]] is a different mechanism, and how the console lockouts relate to it is open {{gap:lockout-vs-password-policy}}."
+    },
+    {
+      "label": "Resetting a password or second factor.",
+      "text": "{{reset-link-signin-page}} {{self-recovery}} The two pages give the link a different lifetime {{divergence:reset-link-lifetime}}. {{mfa-reset}} {{email-otp-deletion}} The Authentication Service entitlements page differs from this {{divergence:email-otp-delete}}."
+    },
+    {
+      "label": "Upgrading to Experience Center.",
+      "text": "{{upgrade-prerequisites}} {{login-urls}} Government clouds are not covered {{gap:login-urls-scope}}. {{standalone-portals}} When that stops is open {{gap:standalone-portals-end}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which product's features the locked-out admin or user has access to, since the console's lockout rule differs between Internet & SaaS and Private Access access.",
+      "uses": [
+        "lockouts",
+        "lockout-scope"
+      ]
+    },
+    {
+      "do": "Do not give a reset link's lifetime as one value; the pages say 5 and 15 minutes.",
+      "uses": [
+        "reset-link-lifetime"
+      ]
+    },
+    {
+      "do": "Do not tell an admin whether the Email OTP option can be deleted without naming that the pages differ.",
+      "uses": [
+        "email-otp-delete"
+      ]
+    }
+  ],
+  "claims": {
+    "console-url": {
+      "statement": "The Zscaler Admin Console is the unified user interface for Experience Center, reached at https://console.zscaler.com once the organization is provisioned; an admin with access to multiple Zscaler clouds or tenants selects one at sign-in, the selection is saved for future logins, and the default cloud and tenant can be changed in Account Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "quotes": [
+            "The Zscaler Admin Console is the unified user interface for Experience Center (i.e., console.zscaler.com).",
+            "After your organization is provisioned, you can access the Zscaler Admin Console at https://console.zscaler.com.",
+            "If you have access to multiple Zscaler clouds or tenants, select the one you want to use and click Proceed. Your selection is saved for future logins. You can change the default cloud and tenant in Account Settings."
+          ]
+        }
+      ]
+    },
+    "sign-in-methods": {
+      "statement": "Depending on the organization's authentication preference, the admin signs in to Authentication Service with a Password, Multi-Factor Authentication (MFA) or a Security Key or Biometric; based on the organization's MFA policy, two-factor authentication (2FA) is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "quotes": [
+            "Based on your organization's authentication preference, sign in to Authentication Service using one of the following methods:",
+            "Multi-Factor Authentication (MFA)",
+            "Based on your organization's MFA policy, two-factor authentication (2FA) is required."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "after": "using one of the following methods:",
+          "quotes": [
+            "Password",
+            "Security Key or Biometric"
+          ]
+        }
+      ]
+    },
+    "inactivity-logout": {
+      "statement": "Admins are automatically logged out after a configurable number of inactive minutes; the page points to Configuring the Authentication Session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "quotes": [
+            "You are automatically logged out after a configurable number of inactive minutes. To learn more, see Configuring the Authentication Session."
+          ]
+        }
+      ]
+    },
+    "lockouts": {
+      "statement": "An admin or user with access to Internet & SaaS (ZIA) features within the Zscaler Admin Console who has 5 unsuccessful login attempts within one minute is locked out for 5 minutes, the failed attempts are recorded in the audit log and audit logs are stored for up to 6 months; one with access to Private Access (ZPA) application features who has three unsuccessful login attempts is locked out for 30 minutes, though another admin with the same level of access or a full admin can reset the password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "quotes": [
+            "If you are an admin or user with access to Internet & SaaS (ZIA) features within the Zscaler Admin Console and you have 5 unsuccessful attempts to log in within one minute, your account is locked out for 5 minutes.",
+            "The failed attempts are recorded in the audit log. Audit logs are stored for up to 6 months.",
+            "If you are an admin or user with access to Private Access (ZPA) application features within the Zscaler Admin Console and you have three unsuccessful attempts to log in, your account is locked out for 30 minutes.",
+            "However, another admin with the same level of access or a full admin can reset your password."
+          ]
+        }
+      ]
+    },
+    "reset-link-signin-page": {
+      "statement": "The sign-in page says that the reset email sent by Having trouble signing in? > Reset Password, Reset Second Factor or Reset Security Key or Biometric carries a link that expires after 5 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "quotes": [
+            "If you forget your password, click Having trouble signing in? > Reset Password, and a reset email is sent to your email ID. The password reset link within the email expires after 5 minutes.",
+            "If you forget your password or want to configure a different secondary authenticator, click Having trouble signing in? > Reset Password or Reset Second Factor, and a reset email is sent to your email ID.",
+            "If you want to configure with a different security key or biometric, click Having trouble signing in? > Reset Security Key or Biometric, and a reset email is sent to your email ID."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "after": "Reset Password or Reset Second Factor",
+          "quotes": [
+            "The reset link within the email expires after 5 minutes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-signing-zscaler-admin-console.json",
+          "after": "Reset Security Key or Biometric",
+          "quotes": [
+            "The reset link within the email expires after 5 minutes."
+          ]
+        }
+      ]
+    },
+    "self-recovery": {
+      "statement": "On the Resetting the Login Credentials or MFA page, the link to reset the password is sent to the user's email address and remains valid for 15 minutes, after which it must be resent; the user must verify with the registered MFA option to reset a password and can reset it after successful verification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-resetting-login-credentials-or-mfa.json",
+          "quotes": [
+            "The link to reset the password is sent to your email address. This link remains valid for 15 minutes. After 15 minutes, you need to resend the link again.",
+            "You must verify with the registered MFA option for resetting a password.",
+            "You can reset the password after successful verification."
+          ]
+        }
+      ]
+    },
+    "mfa-reset": {
+      "statement": "To reset the MFA option, the user contacts the Authentication Service administrator, who might delete the configured MFA option from the user's Security Settings tab; the user is then prompted to reconfigure MFA the next time they log in to the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-resetting-login-credentials-or-mfa.json",
+          "quotes": [
+            "To reset the MFA option, contact your Authentication Service administrator.",
+            "An administrator might delete the configured MFA option from the Security Settings tab for users. The user is then prompted to reconfigure MFA the next time they log in to the Admin Portal."
+          ]
+        }
+      ]
+    },
+    "email-otp-deletion": {
+      "statement": "The Resetting page says administrators can also delete the Email OTP option for users who have opted it as their MFA option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-resetting-login-credentials-or-mfa.json",
+          "quotes": [
+            "Administrators can also delete the Email OTP option for users who have opted it as their MFA option."
+          ]
+        }
+      ]
+    },
+    "upgrade-prerequisites": {
+      "statement": "Upgrading to Experience Center requires administrative users who have already migrated to Authentication Service, for a centralized identity experience to access ZIA, ZPA, Digital Experience (ZDX), Client Connector and other Admin Portals; admins take no further action and, on receiving the migration notification, log in to the Zscaler Admin Console with their existing Authentication Service credentials; the page also tells the organization to migrate its end users to Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-upgrading-zscaler-experience-center.json",
+          "quotes": [
+            "You must have administrative users (i.e., admins) who have already migrated to Authentication Service for a centralized identity experience to access Zscaler Internet Access (ZIA), Zscaler Private Access (ZPA), Digital Experience (ZDX), Zscaler Client Connector, and other Admin Portals.",
+            "Admins do not need to take any further action in order to upgrade to Experience Center.",
+            "Upon receiving the migration notification, admins can log in to the Zscaler Admin Console using their existing Authentication Service authentication credentials.",
+            "Migrate your end users to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "login-urls": {
+      "statement": "After migration the login learns the admin's identity and redirects the admin to the tenant: irrespective of the Zscaler cloud the tenant belongs to, the login URL is https://console.zscaler.com for the production cloud and https://beta.console.zscaler.com for the beta cloud; all existing configurations are retained, and Experience Center can also be reached through the banner on the Authentication Service Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-upgrading-zscaler-experience-center.json",
+          "quotes": [
+            "Zscaler has simplified the login process by learning the admin's identity and redirecting them to their respective tenant.",
+            "Irrespective of the Zscaler cloud that the tenant belongs to, the login URL is https://console.zscaler.com for the production cloud and https://beta.console.zscaler.com for the beta cloud.",
+            "All existing configurations are retained and can be managed via the new Experience Center UI, the Zscaler Admin Console.",
+            "Alternatively, you can access Experience Center through the banner displayed on the Authentication Service Admin Portal."
+          ]
+        }
+      ]
+    },
+    "standalone-portals": {
+      "statement": "Access to the current standalone portals (Admin Portals) will continue to be supported at this time, and all portals can be accessed via Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-upgrading-zscaler-experience-center.json",
+          "quotes": [
+            "Access to the current standalone portals (i.e., Admin Portals) will continue to be supported at this time. All portals can be accessed via Authentication Service."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "reset-link-lifetime": {
+      "summary": "The Signing in page says the password reset link expires after 5 minutes; the Resetting the Login Credentials or MFA page says the link remains valid for 15 minutes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-signing-zscaler-admin-console.json",
+            "quotes": [
+              "The password reset link within the email expires after 5 minutes."
+            ]
+          },
+          "says": "The password reset link within the email expires after 5 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-resetting-login-credentials-or-mfa.json",
+            "quotes": [
+              "This link remains valid for 15 minutes. After 15 minutes, you need to resend the link again."
+            ]
+          },
+          "says": "The link to reset the password remains valid for 15 minutes, after which it must be resent."
+        }
+      ],
+      "impact": "An admin who clicks the link between 5 and 15 minutes after the email is sent gets an expired link by one page and a valid one by the other; neither page says which governs."
+    },
+    "email-otp-delete": {
+      "summary": "The Resetting page says administrators can delete the Email OTP option for users who chose it as their MFA option; the Authentication Service entitlements page says authenticators can be deleted except the email authenticator.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-resetting-login-credentials-or-mfa.json",
+            "quotes": [
+              "Administrators can also delete the Email OTP option for users who have opted it as their MFA option."
+            ]
+          },
+          "says": "Administrators can delete the Email OTP option for users who have opted it as their MFA option."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-viewing-entitlements-assigned-users.json",
+            "quotes": [
+              "You can choose to delete the authenticators, except the email authenticator."
+            ]
+          },
+          "says": "Authenticators can be deleted except the email authenticator (existing claim zidentity.users.security-settings:authenticators)."
+        }
+      ],
+      "impact": "Neither page says whether the entitlements page's email authenticator is the Email OTP MFA option, so whether an admin can delete it, and from which page, is unsettled."
+    },
+    "lockout-scope": {
+      "summary": "The Experience Center audit log page gives one lockout for any admin account (five failed attempts in one minute, five minutes); the Signing in page applies that rule to Internet & SaaS feature access and gives Private Access application access three attempts and 30 minutes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-about-experience-center-audit-logs.json",
+            "quotes": [
+              "If an admin account makes five unsuccessful attempts to log in within one minute, the account is locked out for five minutes and the failed attempts are recorded in the audit log."
+            ]
+          },
+          "says": "An admin account that makes five unsuccessful login attempts within one minute is locked out for five minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-signing-zscaler-admin-console.json",
+            "quotes": [
+              "If you are an admin or user with access to Private Access (ZPA) application features within the Zscaler Admin Console and you have three unsuccessful attempts to log in, your account is locked out for 30 minutes."
+            ]
+          },
+          "says": "An admin or user with access to Private Access application features is locked out for 30 minutes after three unsuccessful login attempts."
+        }
+      ],
+      "impact": "For an admin with Private Access application access, the audit log page implies five attempts and five minutes where the Signing in page gives three attempts and 30 minutes; both pages describe signing in to the Zscaler Admin Console, and neither says how the rules combine."
+    }
+  },
+  "gaps": {
+    "session-timeout-scope": {
+      "kind": "semantic",
+      "title": "Whether the authentication session timeout covers admin console sessions",
+      "status": "open",
+      "detail": "The Signing in page points to Configuring the Authentication Session for the inactivity timeout's value and range. Whether zidentity.authentication-session covers admin console sessions is not checked here.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "lockout-vs-password-policy": {
+      "kind": "semantic",
+      "title": "How the console lockouts relate to the Authentication Service password-policy deactivation",
+      "status": "open",
+      "detail": "The console lockouts are timed (5 or 30 minutes) and are not reconciled with the Authentication Service password policy's deactivation after failed attempts (zidentity.authentication-methods:password-lockout); the pages do not say whether both apply to one admin sign-in.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "login-urls-scope": {
+      "kind": "semantic",
+      "title": "Login URLs for government clouds",
+      "status": "open",
+      "detail": "The Upgrading page gives the login URL for the production and beta clouds only; government clouds are not covered.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "standalone-portals-end": {
+      "kind": "semantic",
+      "title": "How long the standalone Admin Portals stay supported",
+      "status": "open",
+      "detail": "The Upgrading page says the standalone portals continue to be supported 'at this time' and gives no end date.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

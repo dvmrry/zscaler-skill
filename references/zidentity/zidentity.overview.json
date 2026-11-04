@@ -117,7 +117,7 @@
     },
     {
       "label": "Linked Services.",
-      "text": "{{linked-services-page}} {{unlinked-tenant-no-access}} The values of the migration status column are open {{gap:migration-status-values}}."
+      "text": "{{linked-services-page}} {{unlinked-tenant-no-access}} {{unlinked-tenant-no-console-access}} {{linked-services-experience-center}} The copies differ in what they name as lost, and give different menu paths {{divergence:linked-services-path}}. The values of the migration status column are open {{gap:migration-status-values}}."
     },
     {
       "label": "Step-up.",
@@ -281,7 +281,7 @@
       ]
     },
     "unlinked-tenant-no-access": {
-      "statement": "If a tenant is unlinked, the users under that tenant cannot access the Zscaler service through Authentication Service.",
+      "statement": "The Authentication Service copy of the Linked Services page says that if a tenant is unlinked, the users under that tenant cannot access the Zscaler service through Authentication Service.",
       "tier": "A",
       "evidence": [
         {
@@ -292,6 +292,63 @@
           ]
         }
       ]
+    },
+    "unlinked-tenant-no-console-access": {
+      "statement": "The Linked Services page in the Zscaler Admin Console help (help.zscaler.com/unified) says that if a tenant is unlinked, the users under that tenant cannot access the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-linked-services.json",
+          "quotes": [
+            "If a tenant is unlinked, the users under that tenant can't access the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "linked-services-experience-center": {
+      "statement": "The Linked Services page in the Zscaler Admin Console help (help.zscaler.com/unified) places it at Administration > Account Management > Linked Services, describes the Authentication Service Migration Status column as whether the tenant has been migrated fully to Authentication Service and the Status column as whether the tenant is linked or unlinked, and lets the page be refreshed to sync any new data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-linked-services.json",
+          "quotes": [
+            "On the Linked Services page (Administration > Account Management > Linked Services), you can:",
+            "Authentication Service Migration Status: Whether the tenant has been migrated fully to Authentication Service.",
+            "Status: Whether the tenant is linked or unlinked from Authentication Service.",
+            "Refresh the page to sync any new data."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "linked-services-path": {
+      "summary": "The two copies of the Linked Services page give different menu paths.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zidentity-about-linked-services.json",
+            "quotes": [
+              "On the Linked Services page (Administration > Subscription > Linked Services), you can do the following:"
+            ]
+          },
+          "says": "The page is at Administration > Subscription > Linked Services."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-about-linked-services.json",
+            "quotes": [
+              "On the Linked Services page (Administration > Account Management > Linked Services), you can:"
+            ]
+          },
+          "says": "The page is at Administration > Account Management > Linked Services."
+        }
+      ],
+      "impact": "An admin following one path may not find the page where the other copy says it is; the copies may describe different consoles, which neither states."
     }
   },
   "gaps": {
@@ -299,7 +356,7 @@
       "kind": "semantic",
       "title": "The values of the Authentication Service Migration Status column",
       "status": "open",
-      "detail": "The Linked Services page does not list the values the migration status column can take.",
+      "detail": "The Linked Services page does not list the values the migration status column can take. The Experience Center copy explains the column as whether the tenant has been migrated fully to Authentication Service (linked-services-experience-center) but still gives no values.",
       "blocks": "reading a tenant's migration state from the page",
       "resolves_with": [
         "source-read",

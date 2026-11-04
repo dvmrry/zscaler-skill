@@ -25,7 +25,11 @@
   ],
   "prose": [
     {
-      "text": "{{install-and-login}} {{app-role-field}} {{invalid-email}} {{select-tenant}} {{auth-service-access}}"
+      "text": "{{install-and-login}} {{app-role-field}} {{invalid-email}} {{select-tenant}} {{auth-service-access}} The two published copies of the errors page give different Admin Console paths for these checks {{divergence:admin-path}}."
+    },
+    {
+      "label": "Login and connectivity messages.",
+      "text": "{{login-errors}} {{connectivity-errors}} {{select-tenant-loader}}"
     },
     {
       "label": "Confirmation code and Client Connector.",
@@ -33,11 +37,11 @@
     },
     {
       "label": "Data freshness.",
-      "text": "{{data-freshness}} {{stale-data-checks}}"
+      "text": "{{data-freshness}} {{stale-data-checks}} {{wrong-data}}"
     },
     {
       "label": "Screens and widgets.",
-      "text": "{{screens-and-widgets}} {{news}}"
+      "text": "{{screens-and-widgets}} The two published copies of the errors page differ on where the ZDX subscriptions are checked {{divergence:zdx-subscription-location}}. {{news}}"
     },
     {
       "text": "The monthly Executive Insights Report is a different surface: [[zia.reports.executive]]."
@@ -45,10 +49,11 @@
   ],
   "checks": [
     {
-      "do": "Whether the user exists in the tenant and holds a role with permission to access the app, before treating an Email Address is not valid error or a missing tenant as an app fault.",
+      "do": "Whether the user exists in the tenant and holds a role with permission to access the app, before treating an Email Address is not valid error or a missing tenant as an app fault; the two copies of the page give different Admin Console paths for the check.",
       "uses": [
         "invalid-email",
-        "select-tenant"
+        "select-tenant",
+        "admin-path"
       ]
     },
     {
@@ -99,6 +104,65 @@
             "This issue happens only in the case of Authentication Service-based authentication.",
             "If the user has been given an Authentication Service role with permission to access the Executive Insights App but has not been given access to the Internet & SaaS (ZIA) Administration Management for any tenant",
             "In the Zscaler Admin Console, from the navigation menu, go to Administration > Legacy Admin Management > Internet & SaaS and ensure the following: The user exists. The user has a role with permission to access the Executive Insights App."
+          ]
+        }
+      ]
+    },
+    "login-errors": {
+      "statement": "On the Login screen an invalid entry shows \"You have entered an invalid email. Please try again.\" and the user must enter their correct email address; a wrong confirmation code shows \"Validation failed. Please re-enter the correct confirmation code or have a new one sent.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "The user gets the following error message on the Login screen: You have entered an invalid email. Please try again.",
+            "The user must enter their correct email address.",
+            "Validation failed. Please re-enter the correct confirmation code or have a new one sent."
+          ]
+        }
+      ]
+    },
+    "connectivity-errors": {
+      "statement": "Without connectivity the Login screen shows \"No internet connection. Make sure Wi-Fi or cellular data is turned on. Then try again.\" and \"We are unable to proceed with the next steps due to a connectivity issue. Please check your connection and ensure all the necessary applications are active.\"; after entering a one-time password, the Confirmation Code screen can show \"Connection issue detected. Please check your network connection. If you are using Zscaler Client Connector, ensure you're successfully authenticated for Private Access.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "The following error messages are shown on the Login screen: No internet connection. Make sure Wi-Fi or cellular data is turned on. Then try again.",
+            "We are unable to proceed with the next steps due to a connectivity issue. Please check your connection and ensure all the necessary applications are active.",
+            "The following error message is shown on the Confirmation Code screen after entering a one-time password (OTP):",
+            "Connection issue detected. Please check your network connection. If you are using Zscaler Client Connector, ensure you're successfully authenticated for Private Access."
+          ]
+        }
+      ]
+    },
+    "wrong-data": {
+      "statement": "When the app's data does not match the product consoles, the page says to verify that the user selected the correct tenant on the Profile screen, then close the app, clear the app data and restart it, which forces the latest data to be fetched from the back end.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "Verify that the user has selected the correct tenant on the Profile screen.",
+            "Close the app, clear the app data, and restart the app. This sequence forces the latest data to be fetched from the back end."
+          ]
+        }
+      ]
+    },
+    "select-tenant-loader": {
+      "statement": "The app tries to determine the subscriptions included for the tenant on the Select Tenant screen, which might fail due to network connectivity issues or reachability of the API endpoint; in rare cases of API endpoint reachability issues the user must retry selecting the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-executive-insights-app-errors-and-troubleshooting.json",
+          "quotes": [
+            "The app tries to determine the subscriptions included for the tenant on the Select Tenant screen, which might fail due to network connectivity issues or reachability of the API endpoint.",
+            "In rare cases, if there are reachability issues with the API endpoint, the user must retry selecting the tenant."
           ]
         }
       ]
@@ -243,6 +307,62 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "admin-path": {
+      "summary": "The ZIA copy of the Executive Insights App errors page points to Administration > Legacy Admin Management > Internet & SaaS for checking that the user exists and has an app role; the /unified copy points to Administration > Admin Management > Role Based Access Control > Internet & SaaS.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+            "quotes": [
+              "go to Administration > Legacy Admin Management > Internet & SaaS and ensure the following",
+              "under Administration > Legacy Admin Management > Internet & SaaS and ensure that the user exists"
+            ]
+          },
+          "says": "Check under Administration > Legacy Admin Management > Internet & SaaS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-executive-insights-app-errors-and-troubleshooting.json",
+            "quotes": [
+              "under Administration > Admin Management > Role Based Access Control > Internet & SaaS: The user exists.",
+              "under Administration > Admin Management > Role Based Access Control > Internet & SaaS, ensure that the user exists"
+            ]
+          },
+          "says": "Check under Administration > Admin Management > Role Based Access Control > Internet & SaaS."
+        }
+      ],
+      "impact": "An admin following one copy looks in a console menu that the other copy does not name; the pages do not say whether both paths reach the same screen, though the ZIA copy was updated later (2026-11-02, against 2026-09-10 for the /unified copy)."
+    },
+    "zdx-subscription-location": {
+      "summary": "The ZIA copy says to check the ZDX subscriptions for the tenant under Account Settings; the /unified copy says to check the Digital Experience Monitoring subscriptions on the Profile screen's bottom line.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-executive-insights-app-errors-and-troubleshooting.json",
+            "quotes": [
+              "To check the ZDX subscriptions for the tenant, go to Account Settings and check the subscriptions."
+            ]
+          },
+          "says": "Go to Account Settings and check the subscriptions."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-executive-insights-app-errors-and-troubleshooting.json",
+            "quotes": [
+              "To check the Digital Experience Monitoring subscriptions for the tenant, go to the Profile screen and check the bottom line."
+            ]
+          },
+          "says": "Go to the Profile screen and check the bottom line."
+        }
+      ],
+      "impact": "It is unclear where in the app, or in which console, the ZDX subscription is checked when a ZDX widget shows Subscription Required."
     }
   },
   "gaps": {

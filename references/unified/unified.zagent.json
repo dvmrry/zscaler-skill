@@ -31,8 +31,16 @@
       "text": "{{agent-subscriptions}} Risk360 features that run through ZAgent are noted in [[risk360.overview:zagent-features]]. Whether ZAgent is still in Limited Availability is not stated by the current page {{gap:availability}}."
     },
     {
+      "label": "Use cases.",
+      "text": "{{use-case-scope}} {{data-protection-scope}} {{risk-analysis-agent}} Which services have agents is open {{gap:agent-set}}."
+    },
+    {
+      "label": "Using it.",
+      "text": "{{flow}} {{considerations}}"
+    },
+    {
       "label": "History.",
-      "text": "{{retention}}"
+      "text": "{{retention}} {{log-retention}}"
     },
     {
       "label": "Where it runs.",
@@ -114,6 +122,22 @@
         }
       ]
     },
+    "log-retention": {
+      "statement": "The ZAgent Logs fair-use page defines ZAgent logs as prompts, responses and metadata and says Zscaler retains them for a rolling 90 days during the subscription term, of which the most recent 14 days of session history is accessible through the Zscaler Admin Console; logs are stored in the United States or the European Union, and ZAgent is not trained using customer data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zagent-logs.json",
+          "quotes": [
+            "Definition: For ZAgent, logs consist of prompts, responses, and metadata.",
+            "Zscaler retains logs for a rolling period of 90 days during your subscription term. The most recent 14 days of session history is accessible through the Zscaler Admin Console.",
+            "ZAgent is not trained using customer data.",
+            "Storage Location: Logs are stored in the United States or the European Union."
+          ]
+        }
+      ]
+    },
     "console-only": {
       "statement": "The ZAgent article describes it only as a drawer in the Zscaler Admin Console; it documents no API, MCP access or per-agent permission scopes.",
       "tier": "B",
@@ -127,9 +151,93 @@
         }
       ],
       "conditions": "Rests on an absence in the captured article: none of its blocks mentions an API, MCP or permission scopes, and no vendored SDK, provider or MCP server names ZAgent (`git grep -i zagent` at the pins finds nothing)."
+    },
+    "use-case-scope": {
+      "statement": "The use-case article presents ZAgent's insights as covering Data Protection, Digital Experience (ZDX) and Risk360, and gives use-case examples for selecting Data Protection as the agent and for selecting Digital Experience as the agent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-zagent-use-cases.json",
+          "quotes": [
+            "These insights empower you with the knowledge and expertise to navigate through Data Protection, Digital Experience (ZDX), and Risk360 to identify issues within your organization.",
+            "These are use case examples if you select Data Protection as the agent.",
+            "These are use case examples if you select Digital Experience as the agent."
+          ]
+        }
+      ]
+    },
+    "flow": {
+      "statement": "ZAgent is used by clicking the Wand icon in the Zscaler Admin Console, optionally selecting an agent and a skill, and entering a prompt; depending on the prompt and ZAgent's reply, additional actions such as viewing device details or running a diagnostics session may be offered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-zagent-use-cases.json",
+          "quotes": [
+            "Click the Wand icon in your Zscaler Admin Console.",
+            "(Optional) Select an agent.",
+            "(Optional) Select a skill.",
+            "Enter your prompt.",
+            "Depending on your prompt and ZAgent's reply, you might have the opportunity for additional actions (e.g., viewing device details, running a diagnostics session)."
+          ]
+        }
+      ]
+    },
+    "data-protection-scope": {
+      "statement": "The Data Protection agent supports DSPM and SaaS Security API related queries to provide information about data at rest coverage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-zagent-use-cases.json",
+          "quotes": [
+            "The Data Protection agent supports DSPM and SaaS Security API related queries to provide information about your data at rest coverage."
+          ]
+        }
+      ]
+    },
+    "risk-analysis-agent": {
+      "statement": "For Risk360, the use-case article describes a Risk Analysis AI agent designed to enhance the ability to identify and scope risks within the Zero Trust Exchange environment by using Risk360.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-zagent-use-cases.json",
+          "quotes": [
+            "The Risk Analysis AI agent is designed to enhance your organization’s ability to identify and scope risks within your Zero Trust Exchange (ZTE) environment by using Risk360."
+          ]
+        }
+      ]
+    },
+    "considerations": {
+      "statement": "If ZAgent is running slow, the page says to check whether the selected agent's skill is deselected and to consider selecting one so the prompt runs through it; deselecting both skill and agent broadens the search but the prompt might take longer. Unable to access specific data or configuration points to the admin's role permissions, and unable to access specific agents points to the subscriptions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-zagent-use-cases.json",
+          "quotes": [
+            "If ZAgent is running slow, check if the selected ZAgent's skill is deselected.",
+            "Consider selecting an agent's skill, so the prompt runs through the ZAgent's selected skill.",
+            "You can broaden ZAgent's search if you deselect the agent's skill and agent. Your prompt might take longer to answer.",
+            "If you are unable to access specific data or configuration, check which admin role permissions you have.",
+            "If you are unable to access specific agents, check which subscriptions you have."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "agent-set": {
+      "kind": "semantic",
+      "title": "Which services have ZAgent agents: the about page against the fair-use logs page",
+      "status": "open",
+      "detail": "The About ZAgent page lists the Digital Experience Agent, the Risk360 Agent and the Data Protection Agent, and the use-case article names Data Protection, Digital Experience (ZDX) and Risk360. The ZAgent Logs fair-use page lists DSPM, Risk360, Digital Experience (ZDX) and Zscaler Private Access (ZPA) as services including agents supported by the ZAgent framework. It adds ZPA and names DSPM where the about page says Data Protection; the pages do not say whether the two lists describe the same agents.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
     "availability": {
       "kind": "semantic",
       "title": "ZAgent's availability status and enablement path",

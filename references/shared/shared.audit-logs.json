@@ -39,6 +39,10 @@
     {
       "rel": "see-also",
       "to": "zcc.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.audit-logs"
     }
   ],
   "prose": [
@@ -85,7 +89,13 @@
             "Unified RBAC",
             "Query API",
             "Not documented",
-            "{{urbac-audit-query}}"
+            "{{urbac-audit-query}}, [[unified.audit-logs:role-management-log]]"
+          ],
+          [
+            "Experience Center",
+            "Console view and CSV download",
+            "Not documented",
+            "{{ec-audit-console}}, [[unified.audit-logs]]"
           ],
           [
             "Authentication Service",
@@ -120,7 +130,7 @@
     },
     {
       "label": "Retention.",
-      "text": "ZIA keeps audit logs for up to 6 months: [[zia.audit-logs.what-is-recorded:retention]]. ZPA keeps them for up to 6 months, and the LSS page words it differently: [[zpa.audit-logs.what-is-recorded:retention]]. ZDX's console audit logs are stored for 6 months: [[zdx.audit-logs:retention]]. {{cbc-console-retention}} The Client Connector console audit logs are also stored for up to 6 months: [[zcc.audit-logs:retention]]. Retention for the other products is not documented {{gap:other-retention}}."
+      "text": "ZIA keeps audit logs for up to 6 months: [[zia.audit-logs.what-is-recorded:retention]]. ZPA keeps them for up to 6 months, and the LSS page words it differently: [[zpa.audit-logs.what-is-recorded:retention]]. ZDX's console audit logs are stored for 6 months: [[zdx.audit-logs:retention]]. {{cbc-console-retention}} The Client Connector console audit logs are also stored for up to 6 months: [[zcc.audit-logs:retention]]. The Experience Center console audit logs are stored for up to 6 months too: {{ec-audit-console|ref}}. Retention for the other products is not documented {{gap:other-retention}}."
     },
     {
       "label": "Session source.",
@@ -384,6 +394,21 @@
         }
       ]
     },
+    "ec-audit-console": {
+      "statement": "The Experience Center audit log is a console view on the Audit Logs page (Data Explorer > Audit Logs > Experience Center) that can be downloaded as a CSV file; the audit logs are stored for up to 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "quotes": [
+            "On the Audit Logs page (Data Explorer > Audit Logs > Experience Center)",
+            "Download a CSV file.",
+            "The audit logs are stored for up to 6 months."
+          ]
+        }
+      ]
+    },
     "zidentity-audit-module": {
       "statement": "Authentication Service has an Audit Logs permission module whose levels are View Only (view audit logs) and None.",
       "tier": "A",
@@ -626,8 +651,8 @@
     "urbac-audit-scope": {
       "kind": "semantic",
       "title": "What the Unified RBAC audit log records",
-      "status": "open",
-      "detail": "The query filters only on roleName and actionId and returns before and after state, but the specification does not say whether it covers role management only or admin actions in the products whose roles it manages.",
+      "status": "partial",
+      "detail": "The query filters only on roleName and actionId and returns before and after state, but the specification does not say whether it covers role management only or admin actions in the products whose roles it manages. The console's Role Management audit log records creating, updating and deleting admin roles, with the actions Create Role, Update Role and Delete Role (unified.audit-logs:role-management-log), which narrows the question for that console page; the page does not say it is the data the API's POST /v1/auditlog/query returns.",
       "resolves_with": [
         "lab-test",
         "support-ticket"
@@ -644,9 +669,9 @@
     },
     "other-retention": {
       "kind": "semantic",
-      "title": "Audit retention outside ZIA, ZPA and the ZDX, Cloud & Branch Connector and Client Connector console logs",
+      "title": "Audit retention outside ZIA, ZPA and the ZDX, Cloud & Branch Connector, Client Connector and Experience Center console logs",
       "status": "open",
-      "detail": "ZDX's console audit log has a documented retention (zdx.audit-logs:retention), and whether the API's ZDX report draws on the same data is open. The Cloud & Branch Connector console audit log has one (cbc-console-retention), and whether the API's /auditlogEntryReport reads the same data is open. The Client Connector console audit log has one (zcc.audit-logs:retention). No retention period is documented for the Cloud & Branch Connector audit report API, the ZDX audit report API, ZWA, Zscaler Cellular, Unified RBAC or Authentication Service audit records. The legacy doc listed ZWA retention as an open question and ZTW retention as unknown.",
+      "detail": "ZDX's console audit log has a documented retention (zdx.audit-logs:retention), and whether the API's ZDX report draws on the same data is open. The Cloud & Branch Connector console audit log has one (cbc-console-retention), and whether the API's /auditlogEntryReport reads the same data is open. The Client Connector console audit log has one (zcc.audit-logs:retention). The Experience Center console audit log has one (ec-audit-console), and the Role Management console audit log page states none (unified.audit-logs gap role-log-scope). No retention period is documented for the Cloud & Branch Connector audit report API, the ZDX audit report API, ZWA, Zscaler Cellular, the Unified RBAC audit API or Authentication Service audit records. The legacy doc listed ZWA retention as an open question and ZTW retention as unknown.",
       "resolves_with": [
         "support-ticket"
       ]

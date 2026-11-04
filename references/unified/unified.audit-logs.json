@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "id": "unified.audit-logs",
+  "title": "Experience Center and Role Management audit logs: what is recorded, categories, actions, record fields, lockout, retention, search and export",
+  "aliases": [
+    "experience center audit logs",
+    "admin console audit logs",
+    "role management audit logs",
+    "Data Explorer audit logs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.admin-console.sign-in"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-is-recorded}} {{lockout-retention}}"
+    },
+    {
+      "label": "Reading an entry.",
+      "text": "{{categories}} {{actions}} {{record-fields}}"
+    },
+    {
+      "label": "Searching and exporting.",
+      "text": "{{search-export-diff}} No API, NSS or streaming path is described for it {{gap:api-stream-path}}, and the CSV's time zone is open {{gap:csv-time-zone}}."
+    },
+    {
+      "label": "Role Management.",
+      "text": "{{role-management-log}} The role pages are in [[shared.admin-rbac]]. What the log leaves out is open {{gap:role-log-scope}}."
+    },
+    {
+      "label": "Lockout.",
+      "text": "The sign-in page words the lockout differently: [[unified.admin-console.sign-in]]. Which sign-in methods the lockout covers is open {{gap:lockout-methods}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the change falls under the Experience Center audit log or the Role Management audit log, and its category and action.",
+      "uses": [
+        "categories",
+        "actions",
+        "role-management-log"
+      ]
+    }
+  ],
+  "claims": {
+    "what-is-recorded": {
+      "statement": "The Experience Center audit log records the session of each admin who signs in to the Zscaler Admin Console: sign-in and sign-out attempts and the configuration changes, such as updates or deletes, completed during the session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "quotes": [
+            "Zscaler records the session information for each admin that signs in to the Zscaler Admin Console.",
+            "The audit log displays information related to sign-in or sign-out attempts (e.g., timestamps, actions, IP addresses, etc.) and any configuration changes that were completed during their session such as updates or deletes."
+          ]
+        }
+      ]
+    },
+    "lockout-retention": {
+      "statement": "An admin account that makes five unsuccessful attempts to log in within one minute is locked out for five minutes and the failed attempts are recorded in the audit log; the audit logs are stored for up to 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "quotes": [
+            "If an admin account makes five unsuccessful attempts to log in within one minute, the account is locked out for five minutes and the failed attempts are recorded in the audit log.",
+            "The audit logs are stored for up to 6 months."
+          ]
+        }
+      ]
+    },
+    "categories": {
+      "statement": "On the Audit Logs page (Data Explorer > Audit Logs > Experience Center), the Category is a location in the Zscaler Admin Console where a user or an API performed the action, the actions that can be filtered depend on the category, and the possible categories are Authentication, Unified Locations, User Preference, Home Page Personalization, Onboarding, Remote Assistance, Subsystem Clouds and Unified RBAC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "quotes": [
+            "On the Audit Logs page (Data Explorer > Audit Logs > Experience Center)",
+            "Category: A location in the Zscaler Admin Console where the action was performed by a user or an API. The actions you can filter depend upon the category."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "after": "List of all potential categories",
+          "quotes": [
+            "Authentication",
+            "Unified Locations",
+            "User Preference",
+            "Home Page Personalization",
+            "Onboarding",
+            "Remote Assistance",
+            "Subsystem Clouds",
+            "Unified RBAC"
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "The possible actions are Create, Delete, Recently Visited, Sign In, Sign Out and Update, performed by an admin in the Zscaler Admin Console or by an API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "quotes": [
+            "Action: The action performed by the admin in the Zscaler Admin Console or the action performed by an API."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "after": "List of all potential actions",
+          "quotes": [
+            "- Create",
+            "- Delete",
+            "Recently Visited",
+            "- Sign In",
+            "- Sign Out",
+            "- Update"
+          ]
+        }
+      ]
+    },
+    "record-fields": {
+      "statement": "Besides Category and Action, each entry has a Timestamp (the date and local time the action occurred), a User (the admin's login ID, or the internal API user oauth-<rolename>$@<orgid>.<cloud-domain> if an API action was authenticated by an external OAuth 2.0 authentication server), a Resource (the specific subject within a sub-category, for example the name of an admin that was added), a Client IP (the admin's source IP address or the client application's IP address that executed the API) and a Result of Success, Failure or Partially Failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "quotes": [
+            "Timestamp: The date and local time the action occurred.",
+            "User: The admin's login ID or the internal API user (oauth-<rolename>$@<orgid>.<cloud-domain>) if an APIs action was authenticated by an external OAuth 2.0 authentication server.",
+            "Resource: The specific subject within a sub-category. For example, if an admin adds a new admin, then the resource is the name of the admin that was added.",
+            "Client IP: The source IP address for the admin or the client application's IP address that executed the API."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "after": "Result: The outcome of an action:",
+          "quotes": [
+            "- Success",
+            "- Failure",
+            "Partially Failed"
+          ]
+        }
+      ]
+    },
+    "search-export-diff": {
+      "statement": "The log can be searched by resource, user or client IP, and the search shows only results starting with or completely matching the search string; it can be downloaded as a CSV file; and a configuration change shows visual differences between the pre-configuration and post-configuration, for additions or deletions and for updates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-experience-center-audit-logs.json",
+          "quotes": [
+            "Search for an audit log by resource, user, or client IP. The search only shows results starting with or completely matching the search string.",
+            "Download a CSV file.",
+            "You'll be able to view visual differences between the pre-configuration and post-configuration changes.",
+            "View additions or deletions.",
+            "View updates."
+          ]
+        }
+      ]
+    },
+    "role-management-log": {
+      "statement": "A separate audit log records the activity of each admin who uses the Role Management page: creating, updating and deleting admin roles. Its page (Data Explorer > Audit Logs > Role Management) filters by timestamp, action and result; the actions are Create Role, Update Role and Delete Role; each entry has a Target Role Name (the administrator role that was created, updated or deleted), a User (the admin's login ID or the internal API user), a Client IP and a Result of Success or Failure; and the changes made to a role can be viewed if it was updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-role-management-audit-logs.json",
+          "quotes": [
+            "The Zscaler service records the activity of each admin that uses the Role Management page.",
+            "The audit log displays information related to creating, updating, and deleting admin roles.",
+            "On the Audit Logs page for role management (Data Explorer > Audit Logs > Role Management)",
+            "Filter the audit logs by timestamp, action, and result.",
+            "Create Role",
+            "Update Role",
+            "Delete Role",
+            "Target Role Name: The name of the administrator role that was created, updated, or deleted.",
+            "User: The admin's login ID or the internal API user (oauth-<rolename>$@<orgid>.<cloud-domain>) if an APIs action was authenticated by an external OAuth 2.0 authentication server.",
+            "Client IP: The source IP address for the admin or the client application's IP address that executed the API.",
+            "- Success",
+            "- Failure",
+            "View the changes made to a role if it was updated."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-stream-path": {
+      "kind": "semantic",
+      "title": "Whether the Experience Center audit log has an API, NSS or streaming path",
+      "status": "open",
+      "detail": "The About Experience Center Audit Logs page describes a console view with search and CSV download, and no API, NSS or streaming path. Whether the Role Management page is the data behind the Unified RBAC API's POST /v1/auditlog/query is not stated either (shared.audit-logs gap urbac-audit-scope).",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "role-log-scope": {
+      "kind": "semantic",
+      "title": "What the Role Management audit log leaves out",
+      "status": "open",
+      "detail": "The Role Management audit log page states no retention, and lists only Create Role, Update Role and Delete Role, so whether role assignment changes are logged is open (compare zidentity.admin-rbac gap assignment-audit). Its Result values on that page are Success and Failure, with no Partially Failed.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "csv-time-zone": {
+      "kind": "semantic",
+      "title": "Which time zone the CSV download uses",
+      "status": "open",
+      "detail": "The audit log pages do not state the CSV's time zone. The account settings page says the account time zone is used only when exporting logs to CSV (unified.admin-console:time-zone), and the page describes the Timestamp as the date and local time.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "lockout-methods": {
+      "kind": "semantic",
+      "title": "Which sign-in methods the admin lockout covers",
+      "status": "open",
+      "detail": "The page states the lockout for an admin account that makes unsuccessful login attempts and does not say whether sign-in through SAML or an IdP is covered (compare zdx.audit-logs gap lockout-methods).",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

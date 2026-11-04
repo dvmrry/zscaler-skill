@@ -83,7 +83,7 @@
     },
     {
       "label": "Bulk work in the console.",
-      "text": "{{console-bulk}} {{csv-import-format}} {{csv-email-and-password}} {{csv-override}} Whether the CSV can assign groups, and its full column set, are open {{gap:csv-columns}}."
+      "text": "{{console-bulk}} {{csv-import-format}} {{csv-email-and-password}} {{csv-override}} {{onboarding-csv-header}} Whether the Import User drawer's CSV can assign groups, and its full column set, are open {{gap:csv-columns}}."
     },
     {
       "label": "Creating one through the API.",
@@ -343,6 +343,20 @@
             "Select Override Existing Entries if you want to update the existing user details, delete users, or add new users.",
             "Do not select this option if you only want to add new users.",
             "If you attempt to add a user that already exists and this option is not selected, an error message is displayed, stating that identical users cannot be imported."
+          ]
+        }
+      ]
+    },
+    "onboarding-csv-header": {
+      "statement": "The Experience Center onboarding Upload CSV template's header row is Action, Login Name, Display Name, First Name, Last Name, Primary Email, Secondary Email, Language, Department, Timezone, Password Reset and Group Names; a - row needs only the Login Name of the user being deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-onboarding-users-experience-center.json",
+          "quotes": [
+            "Action,Login Name,Display Name,First Name,Last Name,Primary Email,Secondary Email,Language,Department,Timezone,Password Reset,Group Names",
+            "- (minus sign) to delete a user, you need only enter the Login Name of the user you are deleting."
           ]
         }
       ]
@@ -631,8 +645,8 @@
     "csv-columns": {
       "kind": "semantic",
       "title": "The CSV template's full column set, group assignment and delete rows",
-      "status": "open",
-      "detail": "The import page names only the Action, Primary Email, Login Name, First Name, Last Name, Password Reset and Secondary Email columns and does not list the template's full column set. Whether the CSV can assign groups is not stated, which leaves the page's line that a user can belong to up to 128 groups unexplained (see the group-count divergence in zidentity.groups), and how - rows interact with Override Existing Entries is not stated.",
+      "status": "partial",
+      "detail": "The import page names only the Action, Primary Email, Login Name, First Name, Last Name, Password Reset and Secondary Email columns and does not list the template's full column set. The Experience Center onboarding template gives a header line, including Group Names (onboarding-csv-header), but it is downloaded from the onboarding Users page (Download CSV Template), not the Import User drawer (Download Sample) that csv-import-format cites, and the pages do not say whether they are the same file. Whether the Authentication Service CSV can assign groups is not stated, which leaves the page's line that a user can belong to up to 128 groups unexplained (see the group-count divergence in zidentity.groups), and how - rows interact with Override Existing Entries is not stated.",
       "blocks": "building an import file that sets groups or deletes users",
       "resolves_with": [
         "lab-test",
