@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.static-ips",
+  "title": "Static IPs: when one is needed, provisioning, region mapping, CSV import and limits",
+  "aliases": [
+    "static ip",
+    "static ip address",
+    "self-provision static ip",
+    "static ip csv import",
+    "static ip region",
+    "staticIP"
+  ],
+  "binds": [
+    "zia/static-ips"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/static-ips"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.vpn-credentials"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.terraform.traffic-forwarding-resources"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A static IP is the address a site registers with the service before it can build a GRE tunnel or an IP-based VPN credential. {{when-required}}"
+    },
+    {
+      "label": "What the page shows.",
+      "text": "{{page-fields}}"
+    },
+    {
+      "label": "Region.",
+      "text": "{{region-mapping}}"
+    },
+    {
+      "label": "Bulk import.",
+      "text": "{{csv-import}} What Publicly Routable false changes and which partner values Managed By takes are open {{gap:routable-and-partner}}."
+    },
+    {
+      "label": "Limits.",
+      "text": "{{limits}} The import article states the count differently {{divergence:import-count}}. The tunnel that uses the address is [[zia.traffic-forwarding.gre]] and the credential is [[zia.traffic-forwarding.vpn-credentials]]."
+    }
+  ],
+  "claims": {
+    "when-required": {
+      "statement": "Static IP addresses must be provisioned for the organization to create a GRE tunnel or to add a VPN credential (only for IP-based PSK); IP-based PSK is required for devices that do not support an FQDN-based PSK. A static IP can be self-provisioned in the Admin Console or provisioned by Zscaler Support.",
+      "tier": "A",
+      "binds": [
+        "zia/static-ips"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-static-ip.json",
+          "quotes": [
+            "You must provision static IP addresses for your organization if you want to create a GRE tunnel or add a VPN credential (only for IP-based PSK).",
+            "IP-based PSK is required for devices that don't support a fully qualified domain name (FQDN)-based PSK.",
+            "You can either self-provision your static IP address in the Zscaler Admin Console or request Zscaler Support to provision it for you."
+          ]
+        }
+      ]
+    },
+    "page-fields": {
+      "statement": "The Static IP page shows, for each address, its City, Managed By (whether the address is managed by self or a specific Zscaler partner) and Last Modified By (the username of the admin who last modified it).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-static-ip.json",
+          "quotes": [
+            "City: The name of the city the static IP address belongs to.",
+            "Managed By: Indicates if the static IP address is managed by self or a specific Zscaler partner.",
+            "Last Modified By: The username of the admin who modified the IP address last."
+          ]
+        }
+      ]
+    },
+    "region-mapping": {
+      "statement": "When self-provisioning a static IP, the Region tab offers Automatic, which auto-discovers the region and coordinates from the IP address, or Manual, which takes the coordinates or the region; selecting a city autofills the latitude and longitude. The Static IP Address field cannot be modified when editing an existing configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-self-provisioning-static-ip-addresses.json",
+          "quotes": [
+            "Automatic: Choose this option if you want to auto-discover the region and the coordinates based on the IP address.",
+            "Manual: Choose this option to manually provide the coordinates or the region.",
+            "Selecting a city from this field autofills the latitude and longitude information.",
+            "Static IP Address: Enter the static IP address that you want to provision with the Zscaler service. You cannot modify this field if you are editing an existing configuration."
+          ]
+        }
+      ]
+    },
+    "csv-import": {
+      "statement": "A CSV file can add, edit or delete multiple static IP addresses. Its columns include Action (+ or - to add or delete), Publicly Routable (true or false), IP Region (the region or city to map the address to) and Managed By (self or a specific Zscaler partner). Override Existing Entries is selected to update existing static IP addresses, including deleting existing ones or adding new ones; adding an address that already exists without it makes the service display an error message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-importing-static-ip-address-csv-file.json",
+          "quotes": [
+            "This article describes how to add, edit, or delete multiple static IP addresses by importing a CSV file.",
+            "Action: Enter + or - to indicate whether you want to add or delete a static IP address.",
+            "Publicly Routable: Enter true or false to indicate whether the IP address is publicly routable.",
+            "IP Region: Enter the name of the region or city that you want to map with the static IP address.",
+            "Managed By: Enter if the static IP address is managed by self or by a specific Zscaler partner.",
+            "Select Override Existing Entries, if you want to update existing static IP addresses, including deleting existing static IP addresses or adding new static IP addresses.",
+            "If you attempt to add a new static IP address that already exists without selecting this option, the Zscaler service displays an error message."
+          ]
+        }
+      ]
+    },
+    "limits": {
+      "statement": "The limits table gives Static IP Address Entries per Organization as 100 IP address entries by default, with Zscaler Support able to raise the limit, and Imported Static IPs per CSV file as 3,000 entries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Static IP Address Entries per Organization | 100 IP address entries by default Contact Zscaler Support to increase the limit for your organization. |",
+            "| Imported Static IPs per CSV file | 3,000 entries |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "import-count": {
+      "summary": "The CSV import article says an import can add up to 3,000 static IP addresses; the limits table gives 100 entries per organization by default and 3,000 only as the per-CSV-file figure.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-importing-static-ip-address-csv-file.json",
+            "quotes": [
+              "You can add up to 3,000 static IP addresses."
+            ]
+          },
+          "says": "You can add up to 3,000 static IP addresses."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Static IP Address Entries per Organization | 100 IP address entries by default Contact Zscaler Support to increase the limit for your organization. |"
+            ]
+          },
+          "says": "Static IP Address Entries per Organization are 100 IP address entries by default, and Support can increase the limit."
+        }
+      ],
+      "impact": "An import of more than 100 addresses fits one reading and exceeds the other; the pages do not say whether the 3,000 figure is a per-file ceiling that still sits under the per-organization limit."
+    }
+  },
+  "gaps": {
+    "routable-and-partner": {
+      "kind": "semantic",
+      "title": "What Publicly Routable false changes, and which Managed By partner values exist",
+      "status": "open",
+      "detail": "The CSV import article asks for true or false in Publicly Routable and for self or a specific Zscaler partner in Managed By. Neither says what a non-routable address changes nor lists the partner values. The API (/staticIP and /staticIP/validate) and the SDKs were not checked.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -49,15 +49,15 @@
     },
     {
       "label": "Users.",
-      "text": "{{user-id-form}}"
+      "text": "{{user-id-form}} {{add-user-field-limits}} {{users-page-contents}} {{admin-linked-users}}"
     },
     {
       "label": "Departments.",
-      "text": "{{one-department}}"
+      "text": "{{one-department}} {{groups-departments-use}}"
     },
     {
       "label": "Groups.",
-      "text": "{{groups-per-user}} The cap is 128 in two articles and 127 in the limits table {{divergence:groups-per-user-cap}}. What happens past the cap is open {{gap:over-cap-behavior}}."
+      "text": "{{groups-per-user}} {{groups-by-write-path}} The cap is given as 16, 127, 128 or more than 127 depending on the page and on how the user is written {{divergence:groups-per-user-cap}}. {{group-name-and-comment-limits}} What happens past the cap is open {{gap:over-cap-behavior}}."
     },
     {
       "label": "Other sources.",
@@ -65,13 +65,20 @@
     },
     {
       "label": "Sizes.",
-      "text": "{{org-limits}} {{name-lengths}} Per-rule caps (for example 32 users, groups or departments on a rule) belong to each rule type, see [[zia.firewall.limits]] and [[zia.forwarding-control.rules]]."
+      "text": "{{org-limits}} The users-per-organization figure differs between pages: [[zia.ad-integration.hosted-user-database:users-per-org]]. {{name-lengths}} The user name length differs between pages {{divergence:user-name-length}}. Per-rule caps (for example 32 users, groups or departments on a rule) belong to each rule type, see [[zia.firewall.limits]] and [[zia.forwarding-control.rules]]."
     },
     {
       "text": "The SCIM attribute names that populate these fields are in [[zia.scim.attribute-mapping]], and how SCIM groups and departments land is in [[zia.scim.groups-and-departments]]."
     }
   ],
   "checks": [
+    {
+      "do": "Whether the user name or user count in question sits in a range the pages disagree on, before stating one limit.",
+      "uses": [
+        "add-user-field-limits",
+        "user-name-length"
+      ]
+    },
     {
       "do": "Whether the user's group count is under the 128-group cap before a rule depends on the user's membership in many groups.",
       "uses": [
@@ -217,12 +224,212 @@
           ]
         }
       ]
+    },
+    "add-user-field-limits": {
+      "statement": "The Add User form's User ID field allows alphanumeric characters and certain special characters up to a maximum of 127 characters and corresponds to the email field in the API, whose data validation supports a broader range of characters. The User Name field allows UTF-8 characters up to a maximum of 127 characters, while the limits table gives 128. The Comments content cannot exceed 10,240 characters.",
+      "tier": "A",
+      "binds": [
+        "zia/users"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-users.json",
+          "quotes": [
+            "The User ID field allows values of alphanumeric characters and certain special characters up to a maximum of 127 characters. This field corresponds to the email field in the API. However, the data validation in the API supports a broader range of characters.",
+            "The User Name field allows values containing UTF-8 characters up to a maximum of 127 characters.",
+            "Comments: Optionally, enter additional notes or information. The content cannot exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| User Name | 128 characters |"
+          ]
+        }
+      ]
+    },
+    "users-page-contents": {
+      "statement": "The Users page lists, among other columns, a User Risk Profile that displays the User Risk Score generated from DLP violations, risky user behavior, unsanctioned cloud application usage and other suspicious factors; the column appears only when Enable Real-Time Risk Score Updates is selected in Advanced Settings, and a score higher than Low can be reset to Low. The page also lists predefined groups created by the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-internet-saas-users.json",
+          "quotes": [
+            "User Risk Profile: Displays the User Risk Score that is generated based on DLP violations, risky user behavior, unsanctioned cloud application usage, and other suspicious factors.",
+            "If the score is higher than Low, you can click the Reset icon next to the score to reset it to Low.",
+            "This column only appears if you select Enable Real-Time Risk Score Updates in the Advanced Settings.",
+            "10. View a list of predefined groups created by the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "admin-linked-users": {
+      "statement": "Creating an admin with an entitlement to the Internet & SaaS service also creates a corresponding user, and the Delete option is not available for these user entries; they are deleted by deleting the corresponding admin accounts. Disabling a user with the same user name as an admin also disables the admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deleting-users.json",
+          "quotes": [
+            "When you create an admin with an entitlement to the Internet & SaaS service, a corresponding user is also created. The Delete option is not available for these user entries. To delete such user entries, you must delete the corresponding admin accounts."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-users.json",
+          "quotes": [
+            "Disabling a user with the same user name as an admin also disables the admin."
+          ]
+        }
+      ]
+    },
+    "groups-departments-use": {
+      "statement": "The Add User page says the Zscaler service uses groups when it applies policies and departments for reporting purposes, and that departments are used in policies and reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-users.json",
+          "quotes": [
+            "The Zscaler service uses groups when it applies policies and uses departments for reporting purposes.",
+            "Departments are used in policies and reports. Unlike groups, a user can belong to only one department."
+          ]
+        }
+      ]
+    },
+    "groups-by-write-path": {
+      "statement": "A company can have up to 140K groups. A user can be associated with maximum 127 groups via API and the Zscaler Admin Console; however, when a user is created or updated via Directory Sync or SCIM, they can be associated with more than 127 groups. The same Add User page also says a user can belong to up to 128 groups.",
+      "tier": "A",
+      "binds": [
+        "zia/users#groups"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-users.json",
+          "quotes": [
+            "A user can belong to up to 128 groups.",
+            "A company can have up to 140K groups. A user can be associated with maximum 127 groups via API and the Zscaler Admin Console. However, when a user is created or updated via Directory Sync or SCIM, they can be associated with more than 127 groups."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-groups.json",
+          "quotes": [
+            "A company can have up to 140K groups. A user can be associated with maximum 127 groups via API and the Zscaler Admin Console. However, when a user is created or updated via Directory Sync or SCIM, they can be associated with more than 127 groups."
+          ]
+        }
+      ],
+      "gaps": [
+        "over-cap-behavior"
+      ]
+    },
+    "group-name-and-comment-limits": {
+      "statement": "On the Add Groups page a group name can contain up to 128 characters, and group and department comments cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-groups.json",
+          "quotes": [
+            "Name: Enter a group name. The name can contain up to 128 characters.",
+            "Comments: Optionally, enter additional notes or information. The content can't exceed 10,240 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-departments.json",
+          "quotes": [
+            "Comments: Optionally, enter additional notes or information. The content cannot exceed 10,240 characters."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
-    "groups-per-user-cap": {
-      "summary": "Two captured articles give 128 and the limits table gives 127 for groups per user.",
+    "user-name-length": {
+      "summary": "The Add User and CSV import pages give 127 characters for the User Name field and the limits table gives 128.",
       "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-users.json",
+            "quotes": [
+              "The User Name field allows values containing UTF-8 characters up to a maximum of 127 characters."
+            ]
+          },
+          "says": "The User Name field allows UTF-8 characters up to a maximum of 127 characters."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-importing-user-information-csv-file.json",
+            "quotes": [
+              "The User Name field allows values containing UTF-8 characters up to a maximum of 127 characters."
+            ]
+          },
+          "says": "The CSV import page gives the same 127 characters."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| User Name | 128 characters |"
+            ]
+          },
+          "says": "The limits table gives a User Name of 128 characters."
+        }
+      ],
+      "impact": "A user name of exactly 128 characters is inside one limit and outside the other."
+    },
+    "groups-per-user-cap": {
+      "summary": "Captured pages give 16, 127, 128 and more than 127 groups per user, depending on the page and how the user is written.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+            "after": "Group Membership: (Active Directory only) Enter or choose the attribute that represents which groups the user belongs to (e.g., memberOf).",
+            "quotes": [
+              "The service synchronizes up to 16 groups per user."
+            ]
+          },
+          "says": "The directory synchronization article says the service synchronizes up to 16 groups per user."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-users.json",
+            "quotes": [
+              "A company can have up to 140K groups. A user can be associated with maximum 127 groups via API and the Zscaler Admin Console. However, when a user is created or updated via Directory Sync or SCIM, they can be associated with more than 127 groups."
+            ]
+          },
+          "says": "A user can be associated with maximum 127 groups via the API and the Admin Console, but with more than 127 when created or updated via Directory Sync or SCIM."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-users.json",
+            "quotes": [
+              "A user can belong to up to 128 groups."
+            ]
+          },
+          "says": "The same Add User page also says a user can belong to up to 128 groups."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-scim-zia.json",
+            "quotes": [
+              "In addition, the total number of groups associated with a single user cannot exceed 128."
+            ]
+          },
+          "says": "The SCIM article says the total number of groups associated with a single user cannot exceed 128."
+        },
         {
           "evidence": {
             "source": "zscaler-help",
@@ -244,7 +451,7 @@
           "says": "Groups per User is 127 groups by default, which also reads as a default that can be changed."
         }
       ],
-      "impact": "A user with exactly 128 groups is inside one limit and outside the other, and 'by default' leaves open whether Support can raise it. Do not state either number as certain for an edge case."
+      "impact": "A user with exactly 128 groups is inside one limit and outside the other, and 'by default' leaves open whether Support can raise it. The split by write path (127 by API or console, more by sync or SCIM) fits a 128 SCIM cap but not the 16 in the synchronization article. Do not state any one number as certain for an edge case."
     }
   },
   "gaps": {

@@ -49,7 +49,7 @@
     },
     {
       "label": "Authentication exemptions are a different list.",
-      "text": "{{auth-exemption-not-ssl-bypass}} Enabling the Microsoft-Recommended One Click option adds one for Microsoft: {{one-click-auth-exemption}} The product-wide 25,000-entry pool the exemption URLs draw on is described in [[zia.authentication.exemptions]]; it is shared with custom URL categories and other lists, so it is not an independent 25,000-entry list as the old catalog implied. Typical entries are open {{gap:auth-exempt-login-hosts}}."
+      "text": "{{auth-exemption-not-ssl-bypass}} Enabling the Microsoft-Recommended One Click option adds one for Microsoft: {{one-click-auth-exemption}} The product-wide 25,000-entry pool the exemption URLs draw on is described in [[zia.authentication.exemptions]]; it is shared with custom URL categories and other lists, so it is not an independent 25,000-entry list as the old catalog implied. {{entra-login-hosts-exempted}} The other typical entries are open {{gap:auth-exempt-login-hosts}}."
     }
   ],
   "claims": {
@@ -74,6 +74,27 @@
         "zia.ssl-inspection.exemptions:bypass-purposes"
       ],
       "conditions": "Inferred from the two being different objects (the auth exemption list and SSL rules). No source compares them."
+    },
+    "entra-login-hosts-exempted": {
+      "statement": "In the Entra ID SAML and SCIM guide, the Authentication Exemptions section has login.windows.net, login.microsoftonline.com, .windowsazure.com, aadcdn.msauth.net and aadcdn.msftauth.net entered in Exempted URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "2. In the Authentication Exemptions section, enter the following exceptions in Exempted URLs, and click Add Items:",
+            "- login.windows.net",
+            "- login.microsoftonline.com",
+            "- .windowsazure.com",
+            "- aadcdn.msauth.net",
+            "- aadcdn.msftauth.net"
+          ]
+        }
+      ],
+      "gaps": [
+        "auth-exempt-login-hosts"
+      ]
     }
   },
   "gaps": {
@@ -113,8 +134,8 @@
     "auth-exempt-login-hosts": {
       "kind": "semantic",
       "title": "Common authentication-exemption entries",
-      "status": "open",
-      "detail": "Unverified legacy statement: common Authentication Exemptions entries are `login.windows.net`, `login.microsoftonline.com`, OS update endpoints and captive-portal probes. The One Click option adds Microsoft domain exemptions on its own, but no source lists these entries as typical. The wider question is zia.authentication.exemptions:typical-entries.",
+      "status": "partial",
+      "detail": "One guide's list is sourced: the Entra ID guide's Microsoft login hosts (entra-login-hosts-exempted), which says nothing about what is typical across tenants. Unverified legacy statement for the rest: common Authentication Exemptions entries also include OS update endpoints and captive-portal probes. The One Click option adds Microsoft domain exemptions on its own, but no source lists OS update or captive-portal entries as typical. The wider question is zia.authentication.exemptions:typical-entries.",
       "resolves_with": [
         "support-ticket",
         "operator-experience"

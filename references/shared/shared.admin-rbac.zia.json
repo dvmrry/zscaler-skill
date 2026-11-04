@@ -29,6 +29,18 @@
     {
       "rel": "see-also",
       "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-permissions"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-obfuscation"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-api-roles"
     }
   ],
   "prose": [
@@ -42,6 +54,14 @@
     {
       "label": "The scope.",
       "text": "{{scope-kinds}} {{scope-limits-rules}} {{scope-limits-delegation}} {{org-scope-for-org-wide}} Location groups, which a scope can name, are in [[zia.locations.groups]]."
+    },
+    {
+      "label": "Admin rank.",
+      "text": "{{rank-range}} {{rank-visibility|ref}} {{rank-purpose}} {{rule-rank-sets-order}} The pages differ on the bound for a new rule {{divergence:new-rule-rank-bound}}, and the rank of a rank 7 admin's rules is open {{gap:rank-seven-rule-rank}}. {{rule-edit-by-rank}} {{rank-roles-and-accounts}} The obfuscation pages allow an equal rank for another admin's account [[shared.admin-rbac.zia-obfuscation:equal-rank-vs-lower-rank]]. {{rank-admins-as-rule-users}} A role's default rank is open {{gap:default-role-rank}}."
+    },
+    {
+      "label": "Setting it up.",
+      "text": "{{roles-before-admins}} The permissions a role carries are in [[shared.admin-rbac.zia-permissions]], who sees obfuscated user names and device information is in [[shared.admin-rbac.zia-obfuscation]], and API roles and SD-WAN partner API roles are in [[shared.admin-rbac.zia-api-roles]]."
     },
     {
       "label": "Admin accounts.",
@@ -121,9 +141,23 @@
       ]
     },
     "rank-visibility": {
-      "statement": "A role's admin rank is shown only if admin ranking is enabled in Advanced Settings, and rank does not apply to SD-WAN partner API or API roles.",
+      "statement": "A role's admin rank is shown only if admin ranking is enabled in Advanced Settings, and rank does not apply to SD-WAN partner API or API roles. Admin ranking is disabled by default and is enabled on the Advanced Settings page; if it is not enabled, only super admins (rank 0) can manage roles and permissions for other admins.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-admin-rank.json",
+          "quotes": [
+            "By default, admin ranking is disabled. To use this feature, you must enable admin rank on the Advanced Settings page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "If admin ranking is not enabled, only super admins (rank 0) can manage roles and permissions for other admins."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "admin-rbac-captures.json",
@@ -246,6 +280,166 @@
             "SD-WAN partner API clients are created on the Administrators page for Internet & SaaS."
           ]
         }
+      ]
+    },
+    "roles-before-admins": {
+      "statement": "Zscaler recommends adding roles before admins, because each admin needs a role. The configuration order is: admin roles or SD-WAN partner API roles; then users or SD-WAN partner API clients (the SD-WAN partner API role is selected when adding the client); then the Internet & SaaS administrative entitlement, where the admin role is selected; then, optionally, auditors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-role-based-administration.json",
+          "quotes": [
+            "Zscaler recommends adding roles before adding admins, because you need to select a role for each admin that you create.",
+            "1. Add admin roles or SD-WAN partner API roles.",
+            "2. Add users or SD-WAN partner API clients. SD-WAN partner API roles are selected when adding SD-WAN partner API clients.",
+            "3. Assign the newly created users an administrative entitlement to the Internet & SaaS service. Internet & SaaS administrator roles are selected when assigning entitlements.",
+            "4. (Optional) Add auditors."
+          ]
+        }
+      ]
+    },
+    "rank-range": {
+      "statement": "Admin rank ranges from 0 (high) to 7 (low); the highest rank, 0, belongs to the super admin, and each additional role can be given a rank between 1 (high) and 7 (low).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-admin-rank.json",
+          "quotes": [
+            "The admin rank ranges from 0 (high) to 7 (low). The highest rank, 0, belongs to the super admin. For each additional role you create, you can assign an admin rank between 1 (high) and 7 (low)."
+          ]
+        }
+      ]
+    },
+    "rank-purpose": {
+      "statement": "Admin rank creates a hierarchy between admins and ensures that policies and settings configured by admins with a higher rank cannot be overridden by admins with a lower rank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-admin-rank.json",
+          "quotes": [
+            "Admin rank enables you to create a hierarchy between admins and ensures that policies and settings configured by admins with a higher rank cannot be overridden by admins with a lower rank."
+          ]
+        }
+      ]
+    },
+    "rule-rank-sets-order": {
+      "statement": "The admin rank page lists the rule-based policies Sandbox (which requires Advanced Sandbox), URL & Cloud App Control, File Type Control, Bandwidth Control, Data Loss Prevention, Mobile App Control, Firewall Control and DNS Control, and says an admin creating a rule in those policies must assign it an admin rank lower than their own; the rule's admin rank in turn automatically determines the rule order, so rules with a higher admin rank are always given precedence, and rules with the same admin rank can be manually moved before or after another rule with the same rank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-admin-rank.json",
+          "quotes": [
+            "Rule-based policies in the Zscaler Admin Console include: - Sandbox (requires Advanced Sandbox) - URL & Cloud App Control - File Type Control - Bandwidth Control - Data Loss Prevention - Mobile App Control - Firewall Control - DNS Control",
+            "When creating rules for any of the preceding policies, admins must assign the rule an admin rank that is lower than their own rank.",
+            "The rule’s admin rank in turn automatically determines the rule order, so that rules with a higher admin rank are always given precedence in the rule order.",
+            "Rules with the same admin rank can be manually moved before or after another rule with the same rank."
+          ]
+        }
+      ]
+    },
+    "rule-edit-by-rank": {
+      "statement": "An admin can edit a rule, or change its place in the rule order, only if the rule's admin rank is equal to or lower than the admin's own admin rank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-admin-rank.json",
+          "quotes": [
+            "Admins can edit a rule or change a rule’s place in the rule order only if the rule’s admin rank is equal to or lower than their own admin rank."
+          ]
+        }
+      ]
+    },
+    "rank-roles-and-accounts": {
+      "statement": "The admin rank page says admins with permission to manage roles can only create or edit roles with a lower rank, and admins with permission to manage other admin accounts can only create, edit or view accounts with a lower rank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-admin-rank.json",
+          "quotes": [
+            "Admins who have permission to manage roles can only create or edit roles with a lower rank.",
+            "Admins who have permission to manage other admin accounts can only create, edit, or view accounts with a lower rank."
+          ]
+        }
+      ]
+    },
+    "rank-admins-as-rule-users": {
+      "statement": "Admins are also users that can be specified in a rule's criteria (for example, an admin can be chosen as a user to whom a URL Filtering rule applies); if an admin adds another admin as a user for a rule, they can only select admins that have a lower admin rank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-admin-rank.json",
+          "quotes": [
+            "Admins are also users that can be specified in the criteria for a particular rule. For example, an admin can be chosen as a user to whom a URL Filtering rule applies.",
+            "Thus, if admins add another admin as a user for a rule, they can only select admins that have a lower admin rank."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "new-rule-rank-bound": {
+      "summary": "What rank an admin may give a new rule: the admin rank page says lower than the admin's own, while the URL Filtering and Cloud App Control rule pages say the admin cannot select a rank higher than their own, which allows an equal rank. The existing claims are [[zia.url-filtering.rule-order:admin-rank-precedes]], [[zia.cloud-app-control.precedence:admin-rank]] and [[zia.casb.dlp-rules:admin-rank]], which quote the same wording for their policies.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-admin-rank.json",
+            "quotes": [
+              "When creating rules for any of the preceding policies, admins must assign the rule an admin rank that is lower than their own rank."
+            ]
+          },
+          "says": "Admin rank page: the rule's admin rank must be lower than the admin's own."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-url-filtering-policy.json",
+            "quotes": [
+              "You cannot select a rank that is higher than your own."
+            ]
+          },
+          "says": "URL Filtering policy page: the admin cannot select a rank higher than their own."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-consumer-rule-cloud-app-control.json",
+            "quotes": [
+              "You cannot select a rank that is higher than your own."
+            ]
+          },
+          "says": "Cloud App Control consumer rule page: the admin cannot select a rank higher than their own."
+        }
+      ],
+      "impact": "Whether an admin can give a new rule a rank equal to their own is not settled; the rank page elsewhere lets an admin edit a rule of equal rank ([[shared.admin-rbac.zia:rule-edit-by-rank]])."
+    }
+  },
+  "gaps": {
+    "default-role-rank": {
+      "kind": "semantic",
+      "title": "The default rank of a role when admin ranking is turned on later",
+      "status": "open",
+      "detail": "The admin rank pages do not state the default rank of a role; only the Terraform description gives 7 (zia.terraform.admin-identity).",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "rank-seven-rule-rank": {
+      "kind": "semantic",
+      "title": "What rank an admin of rank 7 can give a new rule",
+      "status": "open",
+      "detail": "Given the rank page's wording that a new rule's rank must be lower than the admin's own, the pages do not state what rank a rank 7 admin, who has none lower, can give a new rule; the policy pages' wording differs (see the new-rule-rank-bound divergence).",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
       ]
     }
   }

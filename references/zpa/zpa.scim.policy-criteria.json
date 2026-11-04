@@ -51,7 +51,7 @@
     },
     {
       "label": "The IdP setting.",
-      "text": "{{idp-flags}} {{flag-is-setting}} Whether both flags are needed is open {{gap:both-flags-needed}}. What a disabled setting does to a rule is in [[zpa.policy.criteria:idp-policy-setting-disabled]]. The earlier question on this fallback is closed {{gap:zpa-65-setting-fallback}}. The SAML counterpart is in [[zpa.saml-attributes.policy-criteria]]."
+      "text": "{{idp-flags}} {{flag-is-setting}} {{policy-setting-needs-sync}} The IdP and access policy pages name the setting differently (see [[zpa.authentication.idp-configuration]]). Whether both flags are needed is open {{gap:both-flags-needed}}. What a disabled setting does to a rule is in [[zpa.policy.criteria:idp-policy-setting-disabled]]. The earlier question on this fallback is closed {{gap:zpa-65-setting-fallback}}. The SAML counterpart is in [[zpa.saml-attributes.policy-criteria]]."
     },
     {
       "label": "IdPs.",
@@ -394,6 +394,35 @@
       ],
       "conditions": "Statement narrowed after verification: the spec types scimEnabled and enableScimBasedPolicy only as booleans, so the earlier mapping of scimEnabled to SCIM provisioning and the 'both on' reading are moved to gap both-flags-needed. Matched by name only."
     },
+    "policy-setting-needs-sync": {
+      "statement": "On the IdP configuration page the setting that allows SCIM attributes and SCIM groups in policy (labelled SCIM Attributes for Policy there) applies only if SCIM Sync is enabled as well, and the SCIM enabling page says the same of its SCIM Attributes for Policy setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "SCIM Attributes for Policy: Select whether you want to allow SCIM attributes and SCIM groups from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "after": "SCIM Attributes for Policy: Select whether you want to allow SCIM attributes",
+          "quotes": [
+            "This setting only applies if SCIM Sync is set to enabled as well."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-enabling-scim-identity-management.json",
+          "quotes": [
+            "(Optional) Select Enabled for SCIM Attributes for Policy if you want to allow SCIM attributes and SCIM groups from this IdP to be used when configuring Access Policies, Client Forwarding Policies, and Timeout Policies.",
+            "This setting only applies if SCIM Sync is enabled as well."
+          ]
+        }
+      ]
+    },
     "groups-per-idp": {
       "statement": "SCIM groups are listed per IdP and each group carries the IdP's ID, so groups of the same name under two IdPs are distinct objects.",
       "tier": "B",
@@ -526,8 +555,8 @@
     "both-flags-needed": {
       "kind": "semantic",
       "title": "Whether SCIM criteria need both scimEnabled and enableScimBasedPolicy on",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Both must be true for SCIM group criteria to influence access decisions.\" No source maps scimEnabled to SCIM provisioning or says both fields must be on; the help says only that the SCIM Attributes and Groups for Policy setting must be enabled (and SCIM enabled for the SCIM Attributes page to show data). Toggle each field in a scratch tenant and test a SCIM rule.",
+      "status": "partial",
+      "detail": "The console says the SCIM-for-policy setting applies only if SCIM Sync is enabled as well (claim policy-setting-needs-sync), but no source maps SCIM Sync to scimEnabled or the setting to enableScimBasedPolicy. Unverified legacy statement: \"Both must be true for SCIM group criteria to influence access decisions.\" No source maps scimEnabled to SCIM provisioning or says both fields must be on; the help says only that the SCIM Attributes and Groups for Policy setting must be enabled (and SCIM enabled for the SCIM Attributes page to show data). Toggle each field in a scratch tenant and test a SCIM rule.",
       "resolves_with": [
         "lab-test"
       ],

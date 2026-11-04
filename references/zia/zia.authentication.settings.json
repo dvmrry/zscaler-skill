@@ -63,9 +63,28 @@
     {
       "label": "Fields that bite.",
       "text": "{{kerberos-pwd-read-only}} {{auto-provision}} {{scim-migration-flag}} For the SCIM side see [[zia.scim]]."
+    },
+    {
+      "label": "The Default Settings page.",
+      "text": "{{default-settings-page}} What holds these settings under Authentication Service is open {{gap:authentication-service-scope}}. {{who-manages-auth}} {{repository-types-availability}} {{auth-type-preconditions}} {{sp-cert-expiry}}"
+    },
+    {
+      "label": "Directory sync to SCIM in the console.",
+      "text": "{{migration-switch-effects}} {{scim-revert-procedure}} What state survives a revert, and whether the flag can be undone beyond that procedure, is open {{gap:scim-migration-reversibility}}."
+    },
+    {
+      "label": "Passwords for hosted users.",
+      "text": "{{password-policy}} {{password-expiry-default}} Two help pages name a different default strength {{divergence:password-strength-default}}."
     }
   ],
   "checks": [
+    {
+      "do": "Which password strength the tenant has set before stating a default for hosted users.",
+      "uses": [
+        "password-policy",
+        "password-strength-default"
+      ]
+    },
     {
       "do": "The exact value names against the spec.",
       "uses": [
@@ -377,9 +396,195 @@
       "gaps": [
         "scim-migration-reversibility"
       ]
+    },
+    "default-settings-page": {
+      "statement": "In the article's Authentication Service context, the Default Settings page displays limited options and the authentication settings are managed with Authentication Service; the article lists configuring the authentication frequency and Kerberos authentication as what an administrator does on the page.",
+      "gaps": [
+        "authentication-service-scope"
+      ],
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-authentication-profile.json",
+          "quotes": [
+            "The Default Settings page displays limited options. Authentication settings are managed with Authentication Service.",
+            "1. Configure the authentication frequency.",
+            "2. Configure Kerberos authentication."
+          ]
+        }
+      ]
+    },
+    "who-manages-auth": {
+      "statement": "With Authentication Service for Admins, the default method for user authentication to the Zscaler service is managed with the Authentication Profile; with Authentication Service for Admins and Users, user authentication is managed by Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "If your organization uses Authentication Service for Admins, the default method for user authentication to the Zscaler service is managed with the Authentication Profile.",
+            "If your organization uses Authentication Service for Admins and Users, user authentication is managed by Authentication Service."
+          ]
+        }
+      ]
+    },
+    "repository-types-availability": {
+      "statement": "Active Directory (AD) and OpenLDAP user repositories are available only when SCIM provisioning is disabled and SAML auto-provisioning is enabled for only one identity provider.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Active Directory (AD) and OpenLDAP user repositories are only available when SCIM provisioning is disabled and SAML auto-provisioning is enabled for only one identity provider (IdP)."
+          ]
+        }
+      ]
+    },
+    "migration-switch-effects": {
+      "statement": "Disable Directory Sync & Enable SCIM Provisioning appears only when Active Directory or OpenLDAP is chosen for the User Repository Type and SAML for the Authentication Type. Enabling it makes the service disable directory synchronization, so the Authentication Wizard and the Advanced Configuration options for AD and OpenLDAP disappear along with the Directory Synchronization section; SCIM provisioning or SAML auto-provisioning can then be enabled for the IdPs, and the Form-Based option for Authentication Type becomes unavailable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Disable Directory Sync & Enable SCIM Provisioning: This setting only appears if you choose Active Directory or OpenLDAP for the User Repository Type and SAML for the Authentication Type.",
+            "The Zscaler service disables directory synchronization. Therefore, the Authentication Wizard and Advanced Configuration options for AD and OpenLDAP disappear, as well as the Directory Synchronization section.",
+            "You can enable SCIM provisioning or SAML auto-provisioning for your IdPs.",
+            "The Formed-Based option for Authentication Type becomes unavailable."
+          ]
+        }
+      ]
+    },
+    "auth-type-preconditions": {
+      "statement": "Zscaler recommends SAML Single Sign-On (SSO) as the authentication type, and at least one IdP must be configured to enable SAML. With AD or OpenLDAP user repositories, Form-Based authentication requires Disable Directory Sync & Enable SCIM Provisioning to be disabled, and SAML requires SCIM provisioning to be disabled and SAML auto-provisioning enabled for only one IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Zscaler recommends using SAML Single Sign-On (SSO).",
+            "You must configure at least one IdP to enable SAML.",
+            "If you're using AD or OpenLDAP user repositories, you must disable Disable Directory Sync & Enable SCIM Provisioning to choose Form-Based authentication.",
+            "If you're using AD or OpenLDAP user repositories, you must disable SCIM provisioning and enable SAML auto-provisioning for only one IdP to choose SAML authentication."
+          ]
+        }
+      ]
+    },
+    "sp-cert-expiry": {
+      "statement": "When the Zscaler service provider (SP) signing SSL certificate is about to expire or has expired, the page shows the SP SSL Certificate Expiration Date for the SAML signing certificate, with a Caution icon when the certificate expires within 30 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "Also, if the Zscaler service provider (SP) signing SSL certificate is about to expire or expired, the following field appears:",
+            "SP SSL Certificate Expiration Date: Displays the expiration date for the SAML signing certificate of the SP. A Caution icon appears if the certificate expires within 30 days."
+          ]
+        }
+      ]
+    },
+    "password-policy": {
+      "statement": "For Form-Based hosted users the console's Password Strength offers None (no restriction on strength or complexity, not recommended), Medium (at least 8 characters with at least one non-alphabetic character) and Strong (at least 8 characters with at least one digit, one capital letter and one special character); only ASCII characters are allowed for the password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "None: Choose to place no restriction on the strength or complexity of the passwords. Not recommended.",
+            "Medium: Choose to require users to set passwords that are at least 8 characters long and that contain at least one non-alphabetic character. This is the default.",
+            "Strong: Choose to require users to set passwords that are at least 8 characters long and that contain at least one digit, one capital letter, and one special character.",
+            "Only ASCII characters are allowed for the password."
+          ]
+        }
+      ]
+    },
+    "password-expiry-default": {
+      "statement": "The Password Expiration default is Never, but Zscaler strongly recommends setting the duration higher.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "The default is Never, but Zscaler strongly recommends setting the duration higher."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-hosted-user-database.json",
+          "quotes": [
+            "Password Expiration: Choose the duration after which users must change their passwords. The default is Never."
+          ]
+        }
+      ]
+    },
+    "scim-revert-procedure": {
+      "statement": "The AD-to-SCIM migration guide documents how to revert from SCIM to AD provisioning: disable Enable SCIM Provisioning, disable Disable Directory Sync & Enable SCIM Provisioning on the Default Settings tab, disable the SCIM configuration in the IdP application, then click Sync Now on the Default Settings page. The guide's migration steps also instruct to make sure not to disable that option or change the repository types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-active-directory-scim-ldap-provisioning-migration-guide.json",
+          "quotes": [
+            "If you need to revert from SCIM to AD provisioning:",
+            "2. Disable the Enable SCIM Provisioning option.",
+            "3. Go to the Default Settings tab and disable the Disable Directory Sync & Enable SCIM Provisioning option.",
+            "4. In the IdP application that you previously configured SCIM for, disable the SCIM configuration.",
+            "5. Go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Default Settings, and click Sync Now.",
+            "Make sure that you do not disable the Disable Directory Sync & Enable SCIM Provisioning option or change the repository types."
+          ]
+        }
+      ],
+      "gaps": [
+        "scim-migration-reversibility"
+      ]
+    }
+  },
+  "divergences": {
+    "password-strength-default": {
+      "summary": "Two help pages name a different default Password Strength for Form-Based hosted users.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-default-authentication-profile.json",
+            "quotes": [
+              "Medium: Choose to require users to set passwords that are at least 8 characters long and that contain at least one non-alphabetic character. This is the default."
+            ]
+          },
+          "says": "Medium is the default password strength."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-hosted-user-database.json",
+            "quotes": [
+              "None: Have no restriction on the strength or complexity of the passwords. This is the default."
+            ]
+          },
+          "says": "None is the default password strength."
+        }
+      ],
+      "impact": "Do not state the default strength a tenant starts with; read the live passwordStrength value. The enum-values claim lists NONE, MEDIUM and STRONG without a default, so it does not conflict."
     }
   },
   "gaps": {
+    "authentication-service-scope": {
+      "kind": "semantic",
+      "title": "What holds the authentication settings when Authentication Service manages them",
+      "status": "open",
+      "detail": "Several pages say a page is limited or unavailable under Authentication Service for Admins, or for Admins and Users, and that settings are then managed with Authentication Service. What then holds the IdP, frequency and user settings belongs to ZIdentity subjects and is not covered by the captured ZIA articles.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "saying where to change authentication settings for a tenant using Authentication Service"
+    },
     "kerberos-pwd-write-behavior": {
       "kind": "semantic",
       "title": "What an update that includes kerberosPwd does",
@@ -403,9 +608,9 @@
     },
     "scim-migration-reversibility": {
       "kind": "semantic",
-      "title": "Whether turning off directory sync can be undone",
-      "status": "open",
-      "detail": "Unverified legacy statement: Setting directory_sync_migrate_to_scim_enabled to true disables the legacy LDAP sync, and rolling it back is not self-service; confirm SCIM is fully operational first. No registered source states this. A vendor statement or a lab toggle back would settle it.",
+      "title": "What state survives turning off the directory-sync migration switch",
+      "status": "partial",
+      "detail": "The migration guide documents a console revert (scim-revert-procedure), so the legacy statement that rolling back is not self-service is not borne out for the console path; the legacy advice to confirm SCIM is fully operational first stays unsourced. What happens to SCIM-created users and groups after the revert and Sync Now is not stated, and neither is whether the API field can be toggled back the same way. A lab toggle back, or a vendor statement, would settle it.",
       "resolves_with": [
         "support-ticket",
         "lab-test"

@@ -1,0 +1,433 @@
+{
+  "schema_version": 1,
+  "id": "zia.eun",
+  "title": "ZIA end user notifications: browser templates, browser appearance and the Client Connector-based route",
+  "aliases": [
+    "EUN",
+    "end user notification",
+    "end user notifications",
+    "browser EUN",
+    "EUN template",
+    "Global EUN Configuration",
+    "caution interval",
+    "block page customization",
+    "EUN CSS",
+    "EUN languages"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.eun.client-connector"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.notifications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.file-type-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.location-enforcement"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZIA policy action can reach the user as a notification in the browser or through Client Connector. Browser notifications are summarized in [[zcc.notifications:browser-eun]], and their templates and appearance are below. The Client Connector route is in [[zia.eun.client-connector]], with the overview claims [[zcc.notifications:zia-eun-via-zcc]] and [[zcc.notifications:zia-eun-messages]]. URL Filtering is not among the policies that notify through Client Connector [[zcc.notifications:url-filtering-not-listed]]."
+    },
+    {
+      "label": "Browser EUN templates.",
+      "text": "{{browser-template-purpose}} {{template-fields}} {{template-supported-actions}}"
+    },
+    {
+      "label": "Caution interval.",
+      "text": "{{caution-interval}} {{caution-interval-across-categories}} {{unauthenticated-caution}} The default Global EUN Configuration interval is not given on these pages {{gap:global-caution-default}}."
+    },
+    {
+      "label": "Details shown in a template.",
+      "text": "{{info-cloud-app-control}} {{info-url-filtering}} {{info-file-type-control}} The maximum number of browser templates is not stated {{gap:template-limit}}."
+    },
+    {
+      "label": "Appearance.",
+      "text": "{{templates-and-markup}} {{preview-not-rendered}} {{css-classes}} {{uq-cd-reserved}} {{footers}} {{background-classes}} {{default-size}} Whether this customization also applies to Client Connector EUNs is not stated {{gap:css-scope}}."
+    },
+    {
+      "label": "Languages.",
+      "text": "{{browser-languages}} {{language-exceptions}}"
+    },
+    {
+      "text": "The EUN template objects that rules reference by ID were not checked in the API, SDKs or Terraform {{gap:api-surface}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule that fired references an EUN template, since a browser notification for a block or caution action is shown only when the rule references one.",
+      "uses": [
+        "browser-template-purpose"
+      ]
+    },
+    {
+      "do": "Which caution interval applies: the template's, if it is associated with the rule, or otherwise the Global EUN Configuration interval.",
+      "uses": [
+        "caution-interval"
+      ]
+    }
+  ],
+  "claims": {
+    "browser-template-purpose": {
+      "statement": "Browser EUN templates hold custom block and caution messages. For a Cloud App Control, URL Filtering or File Type Control rule with a block or caution action to display one in the browser, the rule must reference one of the templates. Zscaler EUNs come with default messages for each policy type, and elements such as the message per action, company name, logo, displayed information and duration can be customized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-browser-eun-template.json",
+          "quotes": [
+            "You can configure the browser end user notification (EUN) templates with custom block and custom caution messages.",
+            "To display the EUNs on the browser when the Cloud App Control Policy, URL Filtering rule, or File Type Control rule with block or caution action is triggered, you must reference one of the templates created here in the Cloud App Control Policy, URL Filtering rule, and File Type Control rule.",
+            "Zscaler EUNs come with default notification messages for each policy type, which can be customized.",
+            "You can customize various elements of the notification, including the notification message for different policy actions, company name, logo, information displayed on the notification, duration of the notification, and more."
+          ]
+        }
+      ]
+    },
+    "template-fields": {
+      "statement": "A template has a unique name and a channel (Cloud App Control, URL Filtering or File Type Control); Reset All restores the default notification messages provided by the service. The EUN Templates list is paginated with up to 500 templates per page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "Name: Enter a unique name for the custom message.",
+            "Channel: Select the policy type (Cloud App Control, URL Filtering, or File Type Control) to which the notification message is added.",
+            "The Reset All option allows you to restore the default notification messages provided by the service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-browser-eun-template.json",
+          "quotes": [
+            "The EUN templates are paginated with up to 500 templates displayed per page."
+          ]
+        }
+      ]
+    },
+    "template-supported-actions": {
+      "statement": "The browser EUN is supported for either the Block or Caution action in the Cloud App Control policy, URL Filtering rule or File Type Control policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "The EUN is supported for either the Block or Caution action in the Cloud App Control policy, URL Filtering rule, or File Type Control policy."
+          ]
+        }
+      ]
+    },
+    "caution-interval": {
+      "statement": "Caution Interval sets how often the service displays the Caution notification when a user is browsing a restricted site: 30 seconds, 1, 5, 15 minutes, 1, 6, 8, 12 hours, or 1 to 7 days; at least 5 minutes is recommended for complex websites such as social networking sites. A template's interval applies if the template is associated with a Cloud App Control policy, URL Filtering rule or File Type Control policy; if not, the interval on the Global EUN Configuration tab applies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "Caution Interval: Choose how often the service displays the Caution notification when a user is browsing a restricted site.",
+            "The recommended setting for complex websites (e.g., social networking sites) is at least 5 minutes.",
+            "You can set one of the following time intervals as a caution interval: 30 seconds, 1 minute, 5 minutes, 15 minutes, 1 hour, 6 hours, 8 hours, 12 hours, 1 day, 2 days, 3 days, 4 days, 5 days, 6 days, or 7 days.",
+            "The Zscaler service displays the Caution notification in an interval configured in a custom message if that message is associated with a Cloud App Control policy, URL Filtering rule, or File Type Control policy.",
+            "If not, the service displays the Caution notification based on the caution interval configured on the Global EUN Configuration tab."
+          ]
+        }
+      ]
+    },
+    "caution-interval-across-categories": {
+      "statement": "In the vendor's example, a URL Filtering rule with the Caution action for Travel and Online Shopping and a 15-minute interval applies the interval across both categories: the service does not show the Caution notification for other URLs the user accesses in either category until 15 minutes have elapsed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "As another example, if a URL Filtering rule is configured with the Caution action for multiple URL categories (e.g., Travel and Online Shopping) and the caution interval is set to 15 minutes, the caution interval is applied to URLs across the categories",
+            "However, the service does not show the Caution notification for any other URLs that the user accesses in either category until 15 minutes have elapsed."
+          ]
+        }
+      ]
+    },
+    "unauthenticated-caution": {
+      "statement": "If Enforce Authentication is disabled for a location or sublocation, Enable Caution must be selected for the location with the Caution Interval set greater than 1 minute for the service to display Caution notifications to unauthenticated users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "If you have Enforce Authentication disabled for a location or sublocation, then you must select Enable Caution for the location, and set the Caution Interval to be greater than 1 minute to allow the service to display Caution notifications to unauthenticated users."
+          ]
+        }
+      ]
+    },
+    "info-cloud-app-control": {
+      "statement": "A Cloud App Control template always shows the Cloud App and Cloud App Category (selected by default and not unselectable), and can add the Rule Name, App Activity and a Recommended Cloud App, the application the organization recommends as an alternative.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "Cloud App: The application that triggered the rule in the notification. This information is selected by default and you cannot unselect it.",
+            "App Activity: Select to include the cloud application activity that triggered the rule in the notification.",
+            "Cloud App Category: The category of the cloud application that triggered the rule in the notification. This information is selected by default and you cannot unselect it.",
+            "Recommended Cloud App: Select to include the cloud application recommended by your organization as an alternative to the cloud application that triggered the rule in the notification."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "after": "Select the additional information that must be displayed in the notification for Cloud App Control:",
+          "quotes": [
+            "Rule Name: Select to include the name of the triggered rule in the notification."
+          ]
+        }
+      ]
+    },
+    "info-url-filtering": {
+      "statement": "A URL Filtering template always shows the Website URL and URL Category (selected by default and not unselectable), and can add the Rule Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "Website URL: Select to include the URL that triggered the rule in the notification. This information is selected by default and you cannot unselect it.",
+            "URL Category: The category of the website URL that triggered the rule in the notification. This information is selected by default and you cannot unselect it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "after": "Select the additional information that must be displayed in the notification for URL Filtering:",
+          "quotes": [
+            "Rule Name: Select to include the name of the triggered rule in the notification."
+          ]
+        }
+      ]
+    },
+    "info-file-type-control": {
+      "statement": "A File Type Control template always shows the Activity and File Type (selected by default and not unselectable), and offers Cloud Application, Rule Name, File Name, URL and File Size as further details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "quotes": [
+            "Cloud Application: The application that triggered the rule in the notification.",
+            "Activity: Select to include the cloud application activity that triggered the rule in the notification. This information is selected by default and you cannot unselect it.",
+            "File Type: Select to include the file type that triggered the rule in the notification. This information is selected by default and you cannot unselect it.",
+            "File Name: Select to include the file name that triggered the rule in the notification.",
+            "File Size: Select to include the file size that triggered the rule in the notification."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-browser-eun-template.json",
+          "after": "Select the additional information that must be displayed in the notification for File Type Control:",
+          "quotes": [
+            "Rule Name: Select to include the name of the triggered rule in the notification.",
+            "URL: Select to include the URL that triggered the rule in the notification."
+          ]
+        }
+      ]
+    },
+    "templates-and-markup": {
+      "statement": "The service provides templates for the Acceptable Use Policy, caution, quarantine and block notifications (URL Categorization, Security Violation and Web DLP Violation). They are made of discrete table rows and columns, each row using a CSS style to control its properties, and the message or text fields on the Global EUN Configuration page accept CSS styles, HTML tags and JavaScript to change fonts, colors, borders and dimensions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-customizing-euns-css-styles.json",
+          "quotes": [
+            "The Zscaler service provides templates for different end user notifications (EUNs), including the Acceptable Use Policy (AUP), caution notification, quarantine notification, and block notifications (URL Categorization, Security Violation, and Web DLP Violation).",
+            "The EUNs are made up of a number of discrete table rows and columns. Each row uses a CSS style to control the properties of the row.",
+            "On the Global EUN Configuration page, there are message or text fields where you can enter CSS styles to modify the look of these notifications.",
+            "You can change various properties and customize the appearance of the notifications, such as fonts, colors, borders, and dimensions, with CSS styles, HTML tags, and JavaScript."
+          ]
+        }
+      ]
+    },
+    "preview-not-rendered": {
+      "statement": "CSS style and JavaScript are not rendered when previewing EUN templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-customizing-euns-css-styles.json",
+          "quotes": [
+            "CSS style and JavaScript are not rendered when previewing EUN templates."
+          ]
+        }
+      ]
+    },
+    "css-classes": {
+      "statement": "The row classes are bh (box header), eu_co rsn (reason), eu_co (EUN content), eu_co ln (link), eu_co fo (footer), s_img (static image), red (background), eu_h (EUN header), btn (button), uq_cd (unique code) and eu_co st (static text).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-customizing-euns-css-styles.json",
+          "quotes": [
+            "| bh | box header |",
+            "| eu_co rsn | reason |",
+            "| eu_co | EUN content |",
+            "| eu_co ln | link |",
+            "| eu_co fo | footer |",
+            "| s_img | static image |",
+            "| red | background |",
+            "| eu_h | EUN header |",
+            "| btn | button |",
+            "| uq_cd | unique code |",
+            "| eu_co st | static text |"
+          ]
+        }
+      ]
+    },
+    "uq-cd-reserved": {
+      "statement": "Zscaler Support uses the class uq_cd to identify EUNs, and Zscaler strongly recommends not modifying it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-customizing-euns-css-styles.json",
+          "quotes": [
+            "Zscaler Support uses the class uq_cd to identify EUNs. Zscaler strongly recommends you don't modify the class."
+          ]
+        }
+      ]
+    },
+    "footers": {
+      "statement": "All notification templates have two footers: one with contact information for the organization's IT Support, and the Zscaler footer with the Zscaler logo (class s_img) and, by default, a message (class eu_co st).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-customizing-euns-css-styles.json",
+          "quotes": [
+            "All notification templates have two footers. One footer provides contact information for your IT Support. The other footer includes the Zscaler logo and a message by default.",
+            "The Zscaler footer is divided into two sections. The logo uses the class s_img, and the message uses the class name eu_co st."
+          ]
+        }
+      ]
+    },
+    "background-classes": {
+      "statement": "Background colors and classes by template: the Acceptable Use Policy template uses green and class gr, caution uses yellow and class yl, block uses red and class red, and quarantine uses orange and class or.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-customizing-euns-css-styles.json",
+          "quotes": [
+            "The Acceptable Use Policy template uses green and class gr.",
+            "The caution template uses yellow and class yl.",
+            "The block template uses red and class red.",
+            "The quarantine template uses orange and class or."
+          ]
+        }
+      ]
+    },
+    "default-size": {
+      "statement": "By default a notification occupies 90% of the browser's width with a maximum width of 790 pixels; the vendor's example resizes them with a style on the m_tbl class setting width 75% and max-width 500px.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-customizing-euns-css-styles.json",
+          "quotes": [
+            "By default, a notification occupies 90% of your browser's width and has a maximum width of 790 pixels.",
+            "<style> .m_tbl {width: 75%;max-width: 500px;} </style>"
+          ]
+        }
+      ]
+    },
+    "browser-languages": {
+      "statement": "Browser EUNs support English, Simplified and Traditional Chinese, Dutch, French, German, Japanese, Brazilian and European Portuguese, Russian, Spanish, Spanish (Latin America), Italian, Indonesian, Korean, Turkish, Thai and Vietnamese. The service detects the browser's language setting and shows EUNs in that language, or in English if the browser language is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-multiple-language-support-for-euns.json",
+          "quotes": [
+            "The Zscaler service supports the following languages for end user notifications (EUNs): - English - Simplified Chinese - Traditional Chinese - Dutch - French - German - Japanese - Brazilian Portuguese",
+            "European Portuguese - Russian - Spanish - Spanish (Latin America) - Italian - Indonesian - Korean - Turkish - Thai - Vietnamese",
+            "TheZscaler service automatically detects the browser language setting and displays EUNs in that language.",
+            "If you configure your browser to display a language the service doesn't support, the service displays the EUNs in English."
+          ]
+        }
+      ]
+    },
+    "language-exceptions": {
+      "statement": "External EUN pages, used when users are redirected to an external site, are global for the entire organization, so the external site needs its own browser language detection. The Authentication dialog box is displayed only in English, and the Acceptable Use Policy message can contain several languages as a free-form text field but gets no browser language check.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-multiple-language-support-for-euns.json",
+          "quotes": [
+            "If you redirect users to an external site that hosts EUNs, keep in mind that those pages are global for the entire organization. Therefore, to enable your non-English speaking users to view EUNs in a specific language, ensure that your external site has browser language detection enabled.",
+            "The Zscaler service only displays the Authentication dialog box in English.",
+            "When configuring the Acceptable Use Policy notification, you can create a message containing multiple languages, because it's a free-form text field. However, a browser language check won't take place."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "global-caution-default": {
+      "kind": "semantic",
+      "title": "Default caution interval on the Global EUN Configuration tab",
+      "status": "open",
+      "detail": "The template page says the Global EUN Configuration interval applies when a template is not associated with a rule, but these pages do not give its default value.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "template-limit": {
+      "kind": "semantic",
+      "title": "Maximum number of browser EUN templates",
+      "status": "open",
+      "detail": "The template pages give only the 500-per-page list size; the maximum number of templates is in the Ranges and Limitations page, outside the captures read here. For Client Connector messages the 64 limit is zcc.notifications:zia-eun-messages.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "css-scope": {
+      "kind": "semantic",
+      "title": "Whether CSS, HTML and JavaScript customization applies to Client Connector EUNs",
+      "status": "open",
+      "detail": "The CSS article covers browser templates on the Global EUN Configuration page only; it does not say whether the same customization applies to Client Connector-based EUNs.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "api-surface": {
+      "kind": "semantic",
+      "title": "EUN template objects in the API, SDKs and Terraform",
+      "status": "open",
+      "detail": "Rules reference EUN templates by ID (browserEunTemplateId, eunTemplateId; see zia.file-type-control.actions, zia.terraform.firewall-resources and zia.dns-control.api-rules), but the template objects themselves were not checked in the OpenAPI specification, the SDKs or the Terraform provider.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

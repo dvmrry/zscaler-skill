@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "id": "zpa.software-components.network-settings",
+  "title": "Network settings for ZPA software component groups",
+  "aliases": [
+    "edit network settings",
+    "split dns zone",
+    "network settings icon",
+    "operating system ssh setting",
+    "static routing connector group",
+    "tcp keepalive connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.software-components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.connector-groups"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.deployment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Network settings are options a group applies to its software components."
+    },
+    {
+      "label": "Where they are edited.",
+      "text": "{{per-group}} {{ssh}}"
+    },
+    {
+      "label": "What can be added.",
+      "text": "{{options}} {{split-dns-fields}}"
+    },
+    {
+      "label": "DNS.",
+      "text": "{{dns-role}}"
+    },
+    {
+      "label": "On the component itself.",
+      "text": "{{console-procedure-scope}} The DHCP default and the proxy-bypass file are in [[zpa.app-connectors.platforms:networking-defaults]] and [[zpa.app-connectors.platforms:proxy-bypass]]. Which options each component type supports is open {{gap:options-per-component}}."
+    },
+    {
+      "text": "The release that added remote network commands is in [[zpa.app-connectors.deployment:network-settings-july13]]; the hub is [[zpa.software-components]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which group type the setting was edited on, since each of the four group types has its own page.",
+      "uses": [
+        "per-group"
+      ]
+    },
+    {
+      "do": "Whether the components can resolve the application names and the external Private Access cloud names.",
+      "uses": [
+        "dns-role"
+      ]
+    },
+    {
+      "do": "Whether the console procedure used matches the component type, and which options a component type supports, which no source settles.",
+      "uses": [
+        "console-procedure-scope",
+        "options-per-component"
+      ]
+    }
+  ],
+  "claims": {
+    "per-group": {
+      "statement": "Network settings are edited per group by finding the group and clicking its Network Settings icon: App Connector groups under Private Access > Private Infrastructure > App Connector Groups, Private Service Edge groups under Private Access > Private Infrastructure > Private Service Edge Groups, Private Cloud Controller groups under Infrastructure > Business Continuity > Private Cloud Controller Groups, and Network Connector groups under Private Access > VPN (for Legacy Apps) > Network Connector Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-network-settings.json",
+          "quotes": [
+            "Locate the group you want to edit, and click the Network Settings icon.",
+            "For App Connector groups: Private Access > Private Infrastructure > App Connector Groups",
+            "For Private Service Edges groups: Private Access > Private Infrastructure > Private Service Edge Groups",
+            "For Private Cloud Controller groups: Infrastructure > Business Continuity > Private Cloud Controller Groups",
+            "For Network Connector groups: Private Access > VPN (for Legacy Apps) > Network Connector Groups"
+          ]
+        }
+      ]
+    },
+    "ssh": {
+      "statement": "Operating System SSH Setting enables or disables SSH on the host OS, and a following setting on the page only appears if Operating System SSH Setting is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-network-settings.json",
+          "quotes": [
+            "Operating System SSH Setting: Enable or disable SSH on the host OS.",
+            "This setting only appears if Operating System SSH Setting is enabled."
+          ]
+        }
+      ]
+    },
+    "options": {
+      "statement": "Add Settings offers one or more of these options: Domain Name System (DNS) Resolver (a Server IP address), Network Time Protocol (NTP) Servers, Static Routing (a destination CIDR, a Gateway and an Interface, which the page describes as the outgoing network interface for the Network Connector), Explicit Proxy (a Proxy Port and a Proxy Bypass list of destinations accessed directly), TCP Keepalive (Time, Interval and Probes) and Split DNS Zone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-network-settings.json",
+          "quotes": [
+            "Click Add Settings and select one or more of the following options:",
+            "Domain Name System (DNS) Resolver",
+            "Server: Enter the IP address of the DNS server to resolve domain names into IP addresses.",
+            "Network Time Protocol (NTP) Servers",
+            "Static Routing",
+            "CIDR: Enter the Classless Inter-Domain Routing (CIDR) notation for the destination network (e.g., 192.168.100.0/24).",
+            "Gateway: Enter the IP address of the next router to send traffic to the specified destination CIDR.",
+            "Interface: Enter the outgoing network interface for the Network Connector that will be used for this static route.",
+            "Explicit Proxy",
+            "Proxy Port: Enter the TCP port number on which the proxy server is listening for connections.",
+            "Proxy Bypass - IP Address, Subnet, Domains or Domain with Prefix: Enter a list of destinations that should be accessed directly by bypassing the proxy server.",
+            "TCP Keepalive",
+            "Time (seconds): Enter the duration of inactivity in seconds for a TCP connection before the first keepalive probe is sent.",
+            "Interval (seconds): Enter the time in seconds between subsequent keepalive probes if the previous probe is not acknowledged.",
+            "Probes: Enter the number of unacknowledged keepalive probes to send before considering the connection to be dead and terminating it.",
+            "Split DNS Zone"
+          ]
+        }
+      ]
+    },
+    "split-dns-fields": {
+      "statement": "A Split DNS Zone has the fields Access Control IP Netblock (a DNS query from an IP address outside the block is not subject to the zone's rules), Interface, Snooping, DNSSEC Support, Forward Zone Name and Forward Address or Host Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-network-settings.json",
+          "quotes": [
+            "Access Control IP Netblock: Enter a range of IP addresses permitted to use for name resolution. If a DNS query comes from an IP address outside this block, these rules do not apply.",
+            "Interface: Enter the specific network interface to handle the DNS queries for this zone.",
+            "Snooping: Enable to inspect DNS traffic and discover the IP addresses associated with domains.",
+            "DNSSEC Support: Enable DNS Security Extensions (DNSSEC) validation for the specified zone to verify the authenticity and integrity of DNS responses.",
+            "Forward Zone Name: Enter the domain name for the special DNS forwarding rule.",
+            "Forward Address or Host Name: Enter the IP address or hostname of the specific DNS server that handles queries for the Forward Zone Name."
+          ]
+        }
+      ]
+    },
+    "dns-role": {
+      "statement": "Software components use DNS to discover applications and enumerate each IP address an application DNS name resolves to as a separately tracked and load-balanced server. During dynamic application discovery DNS is the initial reachability check from each component in a group; it is possible for components to function in partitioned environments where a subset of App Connectors can resolve a given DNS name without additional configuration, and components must also resolve external DNS names such as those of the Private Access cloud infrastructure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-network-settings.json",
+          "quotes": [
+            "These software components use DNS to discover applications, as well as enumerate each of the IP addresses that an application DNS name resolves to as a separately tracked and load-balanced server.",
+            "During dynamic application discovery, DNS is used as the initial reachability check from each software component in a software component group.",
+            "It is possible for software components to function in partitioned environments where a subset of App Connectors can resolve a given DNS name without additional configuration.",
+            "The software components must also be able to resolve external DNS names, such as those of the Private Access (ZPA) cloud infrastructure."
+          ]
+        }
+      ]
+    },
+    "console-procedure-scope": {
+      "statement": "The Networking Deployed Software Components article scopes its console procedures: Configure DHCP IP Addressing applies to App Connector, Private Service Edge or Private Cloud Controller, Configure Static IP Addressing applies to all software components, Configure Additional Interfaces to App Connector or Private Service Edge, Configure a Proxy Bypass to App Connector, and Configure yum to Use an HTTP Proxy Server to App Connector or Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-networking-deployed-software-components.json",
+          "quotes": [
+            "Configure DHCP IP Addressing (App Connector, Private Service Edge, or Private Cloud Controller)",
+            "Configure Static IP Addressing (all software components)",
+            "Configure Additional Interfaces (App Connector or Private Service Edge)",
+            "Configure a Proxy Bypass (App Connector)",
+            "Configure yum to Use an HTTP Proxy Server (App Connector or Private Service Edge)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "options-per-component": {
+      "kind": "semantic",
+      "title": "Which network settings each component type supports, and their API or Terraform form",
+      "status": "open",
+      "detail": "The Edit Network Settings page covers App Connector, Private Service Edge, Private Cloud Controller and Network Connector groups with one option list, and the static-route interface field names the Network Connector. It does not say which options each group type supports, and no captured source says whether these settings exist in the API or Terraform.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

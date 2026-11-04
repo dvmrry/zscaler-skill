@@ -71,6 +71,10 @@
       "text": "{{rule-cap}} {{name-length}} {{no-pagination}}"
     },
     {
+      "label": "Zscaler's own exception list.",
+      "text": "{{zscaler-exception-list}} {{zscaler-exception-handling}}"
+    },
+    {
       "text": "Criteria are in [[zia.ssl-inspection.criteria]], actions in [[zia.ssl-inspection.actions]], and exemption design in [[zia.ssl-inspection.exemptions]]."
     }
   ],
@@ -135,6 +139,37 @@
           "path": "configuring-ssl-tls-inspection-policy.json",
           "quotes": [
             "Disabling this option does not actively enforce the rule, and the service skips it and moves to the next rule. However, the rule does not lose its place in the rule order."
+          ]
+        }
+      ]
+    },
+    "zscaler-exception-list": {
+      "statement": "The Zscaler exception list for SSL/TLS inspection includes a few dozen known domains or destinations, such as Zscaler service IP addresses for Zscaler best practices, contactservice.zoom.us for UCaaS bypass and self.events.data.microsoft.com for Microsoft 365 bypass events, which cannot be SSL/TLS inspected for various reasons. These domains are not exposed as they are subject to change, and the percentage of traffic automatically SSL/TLS bypassed is relatively small (less than 1%).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-zscaler-traffic-bypasses.json",
+          "quotes": [
+            "The Zscaler exception list for SSL/TLS inspection includes a few dozen known domains or destinations, such as Zscaler service IP addresses for Zscaler best practices,",
+            "contactservice.zoom.us for UCaaS bypass, and self.events.data.microsoft.com for Microsoft 365 bypass events, which cannot be SSL/TLS inspected for various reasons.",
+            "These domains are not exposed as they are subject to change.",
+            "The percentage of traffic automatically SSL/TLS bypassed is relatively small (less than 1%)."
+          ]
+        }
+      ]
+    },
+    "zscaler-exception-handling": {
+      "statement": "A predefined rule automatically exempts known destinations that cannot be SSL/TLS inspected when it is enabled. To inspect certain domains from the exempted list, an inspection rule is created with a higher rule order; the page says to disable the predefined rule for SSL/TLS inspecting all domains. Transactions not SSL/TLS inspected or blocked after an inspection can be found under the SSL/TLS Policy Reason filter in Web Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-zscaler-traffic-bypasses.json",
+          "quotes": [
+            "automatically exempts known destinations that cannot be SSL/TLS inspected when it is enabled.",
+            "If you want to SSL/TLS inspect certain domains from the exempted list, create an inspection rule with a higher rule order. Disable the predefined rule for SSL/TLS inspecting all domains.",
+            "You can find transactions that are not SSL/TLS inspected or blocked after an inspection under the SSL/TLS Policy Reason filter in Web Insights Logs."
           ]
         }
       ]

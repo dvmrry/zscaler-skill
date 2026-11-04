@@ -40,6 +40,10 @@
       "text": "{{zia-dr-scope}} {{zia-dr-actions}} {{dr-activation}} {{zpa-dr-scope}} What disaster recovery is for, and how Private Access activates it, is in [[zpa.private-service-edges.disaster-recovery]]."
     },
     {
+      "label": "The disaster recovery PAC file.",
+      "text": "{{policy-based-access-lists}} {{private-access-allow}} {{private-bc-pac}} The sample PAC files scope their PROXY return by client version in two ways {{divergence:proxy-return-version}}. {{dns-txt-and-testing}} The linked DNS TXT record article is open {{gap:dns-txt-article}}."
+    },
+    {
       "label": "The cloud or the tunnel cannot be reached (failover).",
       "text": "{{profile-failover-overrides-global}} {{profile-failover-options}} The tenant-wide App Fail Open settings these override are in [[zcc.forwarding-profiles.fail-open]]."
     },
@@ -71,6 +75,45 @@
       ]
     }
   ],
+  "divergences": {
+    "proxy-return-version": {
+      "summary": "The disaster recovery article's two sample PAC files that return PROXY give different Client Connector version scopes.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-disaster-recovery-internet-saas.json",
+            "quotes": [
+              "Applies to Zscaler Client Connector version 4.5 for Windows and macOS only."
+            ]
+          },
+          "says": "The sample applies to Client Connector version 4.5 for Windows and macOS only."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-disaster-recovery-internet-saas.json",
+            "quotes": [
+              "Applies to Zscaler Client Connector version 4.5 and later for Windows."
+            ]
+          },
+          "says": "The sample applies to Client Connector version 4.5 and later for Windows."
+        }
+      ],
+      "impact": "Whether PROXY in a DR PAC file works on macOS, or on versions after 4.5, depends on which sample is read; the page does not say which governs."
+    }
+  },
+  "gaps": {
+    "dns-txt-article": {
+      "kind": "semantic",
+      "title": "The Creating DNS TXT Records article",
+      "status": "open",
+      "detail": "The disaster recovery article links to a Creating DNS TXT Records article that is not in the captured set, so how the TXT record is built and signed is not sourced here.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  },
   "claims": {
     "zia-dr-scope": {
       "statement": "Disaster Recovery for Internet & SaaS gives users access while the Internet & SaaS service is down, and only to enrolled users.",
@@ -134,6 +177,65 @@
           "after": "The Add Windows Policy window appears.",
           "quotes": [
             "Disaster Recovery for Private Access provides users access to applications when the Private Access service is down and is available only to enrolled users."
+          ]
+        }
+      ]
+    },
+    "policy-based-access-lists": {
+      "statement": "Allow Zscaler Preselected Destinations (Recommended), when enabled, lets users access only the URLs present in the Zscaler-provided global database allowlist and blocks the rest. A custom PAC URL (with the http:// or https:// prefix) can be configured for destinations users can access when the Internet & SaaS service is down; configured together with the global database URL, both URL lists are allowed and the custom destinations URL takes precedence in any conflict, and traffic can also be forwarded to a proxy server. If both the Allow Zscaler Preselected Destinations and Custom Destinations fields are enabled, the return drop; syntax must be removed from the custom PAC file statement because it blocks the URLs in the global allowlist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-disaster-recovery-internet-saas.json",
+          "quotes": [
+            "Allow Zscaler Preselected Destinations (Recommended): When enabled, users can access only the URLs that are present in the Zscaler-provided global database allowlist. The rest of the URLs are blocked.",
+            "You can configure a custom PAC URL (with the http:// or https:// prefix) that users can access when the Internet & SaaS service is down.",
+            "When configured in conjunction with the global database URL, both URL lists are allowed. The custom destinations URL takes precedence when there are any conflicts. You can also forward the traffic to a proxy server.",
+            "If you have enabled both the Allow Zscaler Preselected Destinations and Custom Destinations fields, ensure that you remove the return drop; syntax from the custom PAC file statement because it blocks the URLs listed in the Zscaler-provided global database allowlist."
+          ]
+        }
+      ]
+    },
+    "private-access-allow": {
+      "statement": "When configuring the custom DR PAC file, access to the Private Access IP range 100.64.0.0/16 and the Private Access domains zpath.net and zpatwo.net must be allowed to prevent blocking Private Access traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-disaster-recovery-internet-saas.json",
+          "quotes": [
+            "When configuring the custom PAC file, ensure that you allow access to the Private Access IP range 100.64.0.0/16 and Private Access domains, zpath.net and zpatwo.net, to prevent blocking Private Access traffic."
+          ]
+        }
+      ]
+    },
+    "private-bc-pac": {
+      "statement": "For the private business continuity cloud, the Custom DR PAC URL must point to the private PAC server (https://<private pac domain>.pac.zsbcs.net/<insert the rest of the PAC URL>); as of the 2026-11-04 capture the page says the private business continuity feature is in limited availability. The PAC file can return PROXY to the Zscaler-managed business continuity subcloud to maintain policies in the business continuity environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-disaster-recovery-internet-saas.json",
+          "quotes": [
+            "You must configure the Custom DR PAC URL pointing to the private PAC server for the private business continuity cloud (https://<private pac domain>.pac.zsbcs.net/<insert the rest of the PAC URL>.",
+            "The private business continuity feature is in limited availability.",
+            "Return PROXY to the Zscaler-managed business continuity subcloud to maintain your policies in the business continuity environment."
+          ]
+        }
+      ]
+    },
+    "dns-txt-and-testing": {
+      "statement": "An organization with Internet & SaaS only cannot download the DNS Record Generator. TXT Record Signing Public Key takes a valid public key uploaded with Upload, and only PEM files can be uploaded. Zscaler recommends that disaster recovery be tested periodically with just a few users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-disaster-recovery-internet-saas.json",
+          "quotes": [
+            "If you have Internet & SaaS only, you cannot download the DNS Record Generator.",
+            "TXT Record Signing Public Key: Click Upload to add a valid public key. You can only upload PEM files.",
+            "Zscaler recommends that disaster recovery be tested periodically with just a few users."
           ]
         }
       ]

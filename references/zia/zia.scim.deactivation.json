@@ -34,7 +34,7 @@
   ],
   "prose": [
     {
-      "text": "\"We disabled the user in the IdP, why can they still browse?\" starts with which SCIM action the IdP really sends. {{active-flag}} {{delete-removes}} Which request an IdP sends when a user is deleted from the directory is open {{gap:deletion-request}}."
+      "text": "\"We disabled the user in the IdP, why can they still browse?\" starts with which SCIM action the IdP really sends. {{active-flag}} {{delete-removes}} {{idp-deactivation-actions}} Which request an IdP sends when a user is deleted from the directory is open {{gap:deletion-request}}."
     },
     {
       "text": "{{zpa-deletes}} Directory synchronization behaves differently again: users removed from the directory are deactivated and have their cookies invalidated, see [[zia.ad-integration.directory-sync]]."
@@ -114,14 +114,54 @@
           ]
         }
       ]
+    },
+    "idp-deactivation-actions": {
+      "statement": "Okta's Deactivate Users feature deactivates the user in the Zscaler service if the Okta account is deleted or deactivated or has Internet & SaaS unassigned. The PingOne guide lists Delete Users among its supported SCIM features. In the Google Workspace guide's Deprovisioning page the administrator specifies an action and time for when an app is turned off for a user, when a user is suspended from Google and when a user is deleted from Google. The Entra ID mapping sets active from the expression Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\").",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-okta.json",
+          "quotes": [
+            "Deactivate Users: If a user account is deleted or deactivated in Okta or has Internet & SaaS unassigned, the user is also deactivated in the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-pingone.json",
+          "quotes": [
+            "- Delete Users"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-google-workspace.json",
+          "quotes": [
+            "7. On the Deprovisioning page, specify an action and time for:",
+            "- When an app is turned off for a user",
+            "- When a user is suspended from Google",
+            "- When a user is deleted from Google"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "| active | Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\") |  |"
+          ]
+        }
+      ],
+      "gaps": [
+        "deletion-request"
+      ]
     }
   },
   "gaps": {
     "deletion-request": {
       "kind": "semantic",
       "title": "Which SCIM request an IdP sends when a user is deleted from the directory",
-      "status": "open",
-      "detail": "The page lists deprovisioning users deleted from the directory among SCIM's uses and Delete User (DELETE /Users/{UserID}) among the operations Zscaler's SCIM servers support, and active=false is a separate path that disables the user (delete-removes, active-flag). Whether a directory deletion arrives as that DELETE or as an update setting active=false is not in any captured source, and may differ by IdP. An IdP's SCIM provisioning documentation, or the Zscaler SCIM log for a test deletion, would settle it.",
+      "status": "partial",
+      "detail": "Per-IdP behavior is now sourced at the feature level (idp-deactivation-actions), but none of the guides shows the request on the wire, so which request each IdP sends for a directory deletion is still open. The page lists deprovisioning users deleted from the directory among SCIM's uses and Delete User (DELETE /Users/{UserID}) among the operations Zscaler's SCIM servers support, and active=false is a separate path that disables the user (delete-removes, active-flag). Whether a directory deletion arrives as that DELETE or as an update setting active=false is not in any captured source, and may differ by IdP. An IdP's SCIM provisioning documentation, or the Zscaler SCIM log for a test deletion, would settle it.",
       "resolves_with": [
         "source-read",
         "lab-test"

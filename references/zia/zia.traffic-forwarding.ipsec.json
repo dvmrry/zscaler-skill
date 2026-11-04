@@ -47,6 +47,10 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.traffic-forwarding.dc-exclusion"
+    },
+    {
+      "rel": "see-also",
       "to": "shared.ipsec"
     },
     {
@@ -68,7 +72,7 @@
     },
     {
       "label": "MTU and IPv6.",
-      "text": "{{mtu-mss}} The ESP overhead and effective payload MTU are open {{gap:esp-overhead-range}}, and whether missing MSS clamping fails more often than under GRE is open {{gap:failing-mss-symptom}}. {{ipv6-selectors}}"
+      "text": "{{mtu-mss}} {{header-length}} The ESP overhead and effective payload MTU are open {{gap:esp-overhead-range}}, and whether missing MSS clamping fails more often than under GRE is open {{gap:failing-mss-symptom}}. {{ipv6-selectors}}"
     }
   ],
   "checks": [
@@ -218,6 +222,20 @@
         }
       ]
     },
+    "header-length": {
+      "statement": "In the MTU calculation for GRE or IPSec tunnels, the IPSec tunnel header length is variable and can be up to 64 bytes; if the organization experiences issues performing the page's tasks, Zscaler recommends a tunnel MTU of 1400.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-determining-the-optimal-mtu-for-gre-or-ipsec-tunnels.json",
+          "quotes": [
+            "For IPSec tunnel, the header length is variable and can be up to 64 bytes.",
+            "If you experience issues performing the tasks above, Zscaler recommends that you use a tunnel MTU of 1400."
+          ]
+        }
+      ]
+    },
     "nat-traversal": {
       "statement": "Zscaler supports NAT-Traversal when the initiating device is behind a NAT device; the packets are then encapsulated in UDP with source port 4500. NAT-T is built into IKEv2 and an optional extension to IKEv1.",
       "tier": "A",
@@ -314,7 +332,7 @@
       "kind": "semantic",
       "title": "ESP overhead and effective MTU range",
       "status": "open",
-      "detail": "Unverified legacy statement: IPSec ESP adds about 50 to 80 bytes of overhead, giving an effective payload MTU of about 1380 to 1420 bytes depending on cipher and NAT-T. No captured source states it; Zscaler Support or a vendor article would settle it.",
+      "detail": "Unverified legacy statement: IPSec ESP adds about 50 to 80 bytes of overhead, giving an effective payload MTU of about 1380 to 1420 bytes depending on cipher and NAT-T. No captured source states it; the MTU article says only that the IPSec tunnel header length is variable and can be up to 64 bytes (header-length). Zscaler Support or a vendor article would settle it.",
       "resolves_with": [
         "support-ticket"
       ]

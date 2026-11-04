@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "id": "zpa.scim.server-operations",
+  "title": "The Private Access SCIM server API: operations, paging and request rules",
+  "aliases": [
+    "SCIM APIs ZPA",
+    "custom SCIM client",
+    "SCIM API examples",
+    "scim1.private.zscaler.com",
+    "userdb",
+    "SCIM Users endpoint"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.scim"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.idp-scim-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Custom SCIM clients can call Zscaler's SCIM server. {{custom-clients-rate-limited}}"
+    },
+    {
+      "label": "Operations.",
+      "text": "{{operations}} {{patch-operations}} {{ids}}"
+    },
+    {
+      "label": "Paging.",
+      "text": "{{paging}} This agrees with [[zpa.api.idp-scim-wire:scim-helper-page-limits]]."
+    },
+    {
+      "label": "Request rules.",
+      "text": "{{groups-only-via-group-requests}} {{members-only-by-id}} {{204-responses}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "The rate limit value {{gap:rate-limit-value}}, the type of the active field and the request content type {{gap:example-inconsistencies}}, and the values userdb can take {{gap:userdb-values}} are not stated."
+    },
+    {
+      "text": "Enabling SCIM and the bearer token are in [[zpa.scim.setup]]; ZIA's SCIM operations are in [[zia.scim.operations]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user or group ID in a request is the Internal User ID or Internal Group ID from the SCIM Users or SCIM Groups page.",
+      "uses": [
+        "ids"
+      ]
+    },
+    {
+      "do": "Whether a group membership change is sent as a group request, since group information in a user request is ignored.",
+      "uses": [
+        "groups-only-via-group-requests"
+      ]
+    },
+    {
+      "do": "Whether members of a group are being read from fetch-all-groups, which does not return them.",
+      "uses": [
+        "members-only-by-id"
+      ]
+    }
+  ],
+  "claims": {
+    "custom-clients-rate-limited": {
+      "statement": "The SCIM APIs allow custom SCIM clients to make REST API calls to Zscaler, authenticated with the Bearer Token. All SCIM APIs are rate limited, and the page directs the reader to Zscaler Support for details. The example host scim1.private.zscaler.com and the SCIM Service Provider Endpoints might differ depending on the organization's IdP configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-scim-apis.json",
+          "quotes": [
+            "The SCIM APIs allow you to use custom SCIM clients to make REST API calls to Zscaler.",
+            "All SCIM APIs are rate limited. To learn more, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "quotes": [
+            "You must provide the Bearer Token to authenticate the SCIM API calls.",
+            "The SCIM Service Provider Endpoints and references to scim1.private.zscaler.com within the examples of this article might differ depending on your organization’s IdP configuration."
+          ]
+        }
+      ]
+    },
+    "operations": {
+      "statement": "The SCIM API pages list operations under a /scim/<userdb>/<idpId>/v2 path. Users: fetch all, create, fetch by ID, update by PUT or PATCH, and delete. Groups: fetch all, create, fetch by ID, fetch with pagination and sort, update by PUT or PATCH, and delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-scim-apis.json",
+          "quotes": [
+            "Fetch All Users | GET https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Users",
+            "Create User | POST https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Users",
+            "Fetch User by ID | GET https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Users/{{userId}}",
+            "Update User | PUT https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Users/{{userId}} or PATCH https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Users/{{userId}}",
+            "Delete User | DELETE https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Users/{{userId}}",
+            "Fetch All Groups | GET https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Groups",
+            "Create Group | POST https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Groups",
+            "Fetch Group by ID | GET https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Groups/{{groupId}}",
+            "Fetch Groups with Pagination and Sort | GET https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Groups?startIndex=1&count=10&sortBy=displayName&sortOrder=descending",
+            "Update Group | PUT https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Groups/{{groupId}} or PATCH https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Groups/{{groupId}}",
+            "Delete Group | DELETE https://{{hostname}}/scim/{{userdb}}/{{idpId}}/v2/Groups/{{groupId}}"
+          ]
+        }
+      ]
+    },
+    "patch-operations": {
+      "statement": "The examples partially update a user with PATCH using the add, replace and remove operations, and a group with PATCH using the add operation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "quotes": [
+            "To partially update a user using the add operation, send a PATCH request to the following endpoint:",
+            "To partially update a user using the replace operation, send a PATCH request to the following endpoint:",
+            "To partially update a user using the remove operation, send a PATCH request to the following endpoint:",
+            "To partially update a group using the add operation, send a PATCH request to the following endpoint:"
+          ]
+        }
+      ]
+    },
+    "ids": {
+      "statement": "The userId in a user request is the Internal User ID from the SCIM Users page and the groupId is the Internal Group ID from the SCIM Groups page (Administration > Private Access Authentication). Older SCIM users and groups can still use a numerical value, for example 290277.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "after": "# Fetch a User by ID",
+          "quotes": [
+            "Provide the {{userId}}, the Internal User ID found on the SCIM Users (Administration > Private Access Authentication > SCIM Users) page in the Zscaler Admin Console, in the request endpoint.",
+            "Older SCIM users can still use a numerical value for the userId in the request (e.g., 290277)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "after": "# Update a Group",
+          "quotes": [
+            "Provide the {{groupId}}, the Internal Group ID found on the SCIM Groups (Administration > Private Access Authentication > SCIM Groups) page in the Zscaler Admin Console, in the request endpoint."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "after": "# Fetch a Group by ID",
+          "quotes": [
+            "Older SCIM groups can still use a numerical value for the groupId in the request (e.g., 290277)."
+          ]
+        }
+      ]
+    },
+    "paging": {
+      "statement": "Paging uses startIndex and count, both optional integers. If not specified, a fetch of users returns 10 users by default and at most 100.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "quotes": [
+            "If not specified, the default number of users fetched is 10. The maximum number of users fetched for this call is limited to 100.",
+            "| startIndex | Indicates the beginning index and count for the resources on the page | No | Integer |",
+            "| count | Indicates the desired maximum number of query results per page | No | Integer |"
+          ]
+        }
+      ]
+    },
+    "groups-only-via-group-requests": {
+      "statement": "Group information sent in a create, update or partial update of a user is ignored; user-group memberships can only be updated with the create, update or partial update requests for groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "after": "# Creating a User",
+          "quotes": [
+            "If group information is sent as part of the create, update, or partial update for a user request, then the group information is ignored. User-group memberships can only be updated using the create, update, or partial update for group requests."
+          ]
+        }
+      ]
+    },
+    "members-only-by-id": {
+      "statement": "Users in a group are not sent by the fetch-all-groups endpoint and are only returned by the fetch-group-by-ID endpoint. If present, the excludeAttributes query parameter is honored and the excluded attributes are not sent in the response body.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "quotes": [
+            "Users in a group are not sent by the endpoint to fetch all groups and are only allowed in the endpoint to fetch a group by ID. If present, the excludeAttributes query parameter is honored and the excluded attributes are not sent in the response body."
+          ]
+        }
+      ]
+    },
+    "204-responses": {
+      "statement": "The server responds with 204 No Content on a successful user delete, group partial update and group delete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "after": "# Delete a User",
+          "quotes": [
+            "The server responds with 204 No Content upon successful operation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "after": "# Partially Update a Group",
+          "quotes": [
+            "The server responds with 204 No Content upon successful operation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-scim-api-examples.json",
+          "after": "# Delete a Group",
+          "quotes": [
+            "The server responds with 204 No Content upon successful operation."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rate-limit-value": {
+      "kind": "semantic",
+      "title": "The SCIM API rate limit value",
+      "status": "open",
+      "detail": "The pages say all SCIM APIs are rate limited and to contact Zscaler Support, with no value. The ranges page lists 50 SCIM updates per second, which zpa.scim.provisioning-timing already holds.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "example-inconsistencies": {
+      "kind": "semantic",
+      "title": "Type of active and content type in the examples",
+      "status": "open",
+      "detail": "In the examples active is the string \"true\" in create and update bodies but the boolean true in the paging response, and the curl examples send Content-Type application/json while the Go client sends application/scim+json (zpa.api.idp-scim-wire:scim-requests-use-scim-json). Whether the server accepts both is not stated.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
+    "userdb-values": {
+      "kind": "semantic",
+      "title": "Values the userdb path segment can take",
+      "status": "open",
+      "detail": "Every example uses 1 for the userdb segment; the pages do not say what other values it can take. One example uses the host scim.private.zscaler.com and the rest scim1.private.zscaler.com.",
+      "resolves_with": [
+        "support-ticket",
+        "tenant-data"
+      ]
+    }
+  }
+}

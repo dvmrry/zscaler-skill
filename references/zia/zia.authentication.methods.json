@@ -61,6 +61,14 @@
       "text": "{{kerberos-no-cookie}} {{kerberos-explicit-only}} {{kerberos-clients}} {{kerberos-network}} The per-location Kerberos switch is in [[zia.authentication.location-enforcement]]."
     },
     {
+      "label": "Basic.",
+      "text": "{{basic-what}} {{basic-ha1}} {{basic-enrollment}} {{basic-location-settings}} The forwarding methods the pages give for Basic differ {{divergence:basic-forwarding-scope}}."
+    },
+    {
+      "label": "JWT.",
+      "text": "{{jwt-workloads}} Whether tunnel traffic must also be explicitly proxied is open {{gap:jwt-forwarding-mode}}."
+    },
+    {
       "text": "Hosted DB (form-based login with the service's own users) is the third method; its password fields are in [[zia.authentication.settings]]. Which method tenants favour is open {{gap:deployment-defaults}}."
     }
   ],
@@ -178,9 +186,133 @@
           ]
         }
       ]
+    },
+    "basic-what": {
+      "statement": "Basic authentication prompts users for a username and password, which are sent as a Base64 encoded string in the HTTP request header. It is not enabled by default; access is requested by submitting a support ticket from the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-basic-authentication.json",
+          "quotes": [
+            "Basic authentication prompts users for a username and password, which are sent as a Base64 encoded string in the HTTP request header.",
+            "Basic authentication is not enabled by default. To access this feature, submit a support ticket from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "basic-ha1": {
+      "statement": "A Public Service Edge calculates the HA1 value for the given credentials and authenticates the user upon successful validation. Basic authentication works with an HA1 value that must be initialized, so users need to be enrolled to the Admin Console via API; the article says this is necessary because Basic authentication is often used for workloads that may not be able to enroll interactively on a browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-basic-authentication.json",
+          "quotes": [
+            "A Public Service Edge for Internet & SaaS (ZIA) calculates the HA1 value for the given credentials and authenticates the user upon successful validation.",
+            "Basic authentication works with an HA1 value that must be initialized. Therefore, users need to be enrolled to the Zscaler Admin Console via API.",
+            "This is necessary because Basic authentication is often used for workloads, which may not be able to interactively perform user enrollment on a browser."
+          ]
+        }
+      ]
+    },
+    "basic-enrollment": {
+      "statement": "To enroll a Basic user, Hosted DB must be selected for User Repository Type and Form-Based for Authentication Type on the Default Settings tab, and a user must be created and activated in the Admin Console; the enrollment call is POST /users/<userId>/enroll with payload { \"authMethods\" : [\"BASIC\"], \"password\" : \"<password>\" }. Saving and activating the changes computes an HA1 value and propagates it across the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-basic-authentication.json",
+          "after": "# User Enrollment",
+          "quotes": [
+            "2. On the Default Settings tab, ensure that Hosted DB is selected for User Repository Type and Form-Based is selected for Authentication Type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-basic-authentication.json",
+          "quotes": [
+            "3. Create and activate a user in the Zscaler Admin Console.",
+            "- POST /users/<userId>/enroll Payload: { \"authMethods\" : [\"BASIC\"], \"password\" : \"<password>\" }",
+            "5. Save and activate your changes. This computes an HA1 value and propagates it across the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "basic-location-settings": {
+      "statement": "For Basic authentication traffic, the location must have Enforce Authentication and Enable Basic Authentication selected; if Enforce Surrogate IP for Known Browsers is enabled, Cookie and Proxy must be selected for Supported Authentication Methods for IP surrogacy to work.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-basic-authentication.json",
+          "quotes": [
+            "Configure a location using your desired forwarding proxy method. Make sure to select Enforce Authentication and Enable Basic Authentication.",
+            "If you enable Enforce Surrogate IP for Known Browsers, you must select Cookie and Proxy for Supported Authentication Methods for IP surrogacy to work."
+          ]
+        }
+      ]
+    },
+    "jwt-workloads": {
+      "statement": "Zscaler supports JSON Web Token (JWT) authentication for cloud workloads: the workload requests a JWT from the token provider, sends its request with the JWT through Zscaler Cloud & Branch Connector or GRE and IPSec tunnels, and the service checks the JWT against the token validators configured through the Authentication Service. JWT authentication can be enabled when configuring locations and bypassed on the Advanced Settings page; sessions with JWT authentication are logged in the Insights Logs with the user ID from the JWT. It is not enabled by default (submit a provisioning ticket to Zscaler Support).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-jwt-authentication.json",
+          "quotes": [
+            "Zscaler supports JSON Web Token (JWT) authentication for cloud workloads. JWTs generated for cloud workloads are authenticated by token validators configured with the Authentication Service.",
+            "JWT authentication can be enabled when configuring locations. You can also bypass JWT authentication on the Advanced Settings page.",
+            "Sessions that include JWT authentication are logged in the Insights Logs with the user ID from the JWT.",
+            "JWT authentication is not enabled by default. To access this feature, submit a provisioning ticket to Zscaler Support.",
+            "1. The workload requests a JWT from the token provider.",
+            "2. After the workload receives the JWT, the workload sends a request along with the JWT through Zscaler Cloud & Branch Connector or GRE and IPSec tunnels.",
+            "3. The Zscaler service checks the JWT against the token validators configured through the Authentication Service and authenticates it if the token is validated."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "basic-forwarding-scope": {
+      "summary": "The location page ties Basic authentication to explicitly forwarded traffic, while the Basic overview lists transparent forwarding such as GRE and VPN among the methods enrolled users can browse through.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-locations.json",
+            "quotes": [
+              "Enable Basic Authentication: If you enabled Enforce Authentication, select this option to enforce basic authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports."
+            ]
+          },
+          "says": "Basic authentication is enforced on web traffic explicitly forwarded from the location and its dedicated ports."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-basic-authentication.json",
+            "quotes": [
+              "After users are enrolled, they can browse the internet through an Internet & SaaS proxy and one of several forwarding proxy methods such as Static IP, DPCC, Virtual Service Edge for Internet & SaaS, or with transparent proxy such as GRE and VPN."
+            ]
+          },
+          "says": "Enrolled users can browse through a proxy with forwarding methods such as Static IP, DPCC, Virtual Service Edge, or transparent proxy such as GRE and VPN."
+        }
+      ],
+      "impact": "Do not say Basic works, or does not work, over GRE or VPN tunnels without noting the pages disagree; see also the method switches in zia.authentication.location-enforcement."
     }
   },
   "gaps": {
+    "jwt-forwarding-mode": {
+      "kind": "semantic",
+      "title": "Whether JWT traffic through tunnels must also be explicitly proxied",
+      "status": "open",
+      "detail": "The JWT overview sends tokens through Cloud & Branch Connector or GRE and IPSec tunnels, while the location page enables Proxy JWT on workload traffic explicitly forwarded; whether tunnel traffic must be explicitly proxied is not stated in the captured articles. Token-validator configuration lives in Authentication Service and was not covered. A lab test or a vendor statement would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "saying how a workload's JWT traffic must be forwarded"
+    },
     "deployment-defaults": {
       "kind": "semantic",
       "title": "Which authentication methods tenants use in practice",

@@ -36,11 +36,11 @@
   ],
   "prose": [
     {
-      "text": "\"I added the user to the AD group, why does the rule not match yet?\" {{sync-actions}} {{periodic-or-on-demand}} {{change-lag}} The last run is visible in the settings object: {{last-sync-fields}} The Lite variant of that object omits these fields, see [[zia.authentication.settings:org-object]]."
+      "text": "\"I added the user to the AD group, why does the rule not match yet?\" {{sync-actions}} {{periodic-or-on-demand}} {{change-lag}} How long a directory change takes to reach policy is open {{gap:change-propagation-time}}; the schedule options are {{sync-frequency-options|ref}}. The last run is visible in the settings object: {{last-sync-fields}} The Lite variant of that object omits these fields, see [[zia.authentication.settings:org-object]]."
     },
     {
       "label": "Authentication of synced users.",
-      "text": "{{ldap-bind-auth}} Directory sync pairs only with LDAP BIND and the one-time methods, see [[zia.ad-integration.provisioning-methods]]."
+      "text": "{{ldap-bind-auth}} {{sync-auth-methods}} The pairing table in [[zia.ad-integration.provisioning-methods]] lists fewer methods for directory sync than these pages do: [[zia.ad-integration.provisioning-methods:directory-sync-auth-pairing]]."
     },
     {
       "label": "Users removed from the directory.",
@@ -52,7 +52,27 @@
     },
     {
       "label": "Nested groups.",
-      "text": "Whether nested directory groups are expanded during sync is open {{gap:nested-groups}}."
+      "text": "{{sync-nested-groups}} The ZAB article describes flattening nested groups, which the sync article does not mention {{divergence:nested-groups-support}}. Whether flattening depends on the agent hosting is open {{gap:nested-groups}}."
+    },
+    {
+      "label": "Connecting.",
+      "text": "{{sync-prerequisites}} {{agent-hosting-and-ports}} {{two-directory-sets}}"
+    },
+    {
+      "label": "What is read.",
+      "text": "{{forest-and-domains}} {{base-dn-and-pagination}} {{login-attribute-form}} {{group-filter-syntax}} {{sync-groups-per-user-16}} The per-user group cap differs between pages: [[zia.ad-integration.identity-objects:groups-per-user-cap]]."
+    },
+    {
+      "label": "Schedule.",
+      "text": "{{sync-frequency-options}} {{sync-now-console}} Whether an API triggers a synchronization is open {{gap:sync-now-api}}."
+    },
+    {
+      "label": "Filters and AD options.",
+      "text": "{{auth-filter-vs-search-filter}} {{ad-password-and-deactivation-options}} {{authentication-wizard-overwrite}}"
+    },
+    {
+      "label": "Disabled accounts and failures.",
+      "text": "{{disabled-ad-users-keep-browsing}} {{sync-failure-checks}}"
     },
     {
       "text": "If immediate propagation matters, the documented alternative is SCIM, where the client pushes changes: [[zia.scim.propagation]]. To move a tenant off directory sync, see [[zia.scim.setup]] and the migration flag in [[zia.authentication.settings]]."
@@ -60,8 +80,10 @@
   ],
   "checks": [
     {
-      "do": "The last sync timestamps on the org settings object, and whether a sync has run since the directory change.",
+      "do": "The last sync timestamps on the org settings object, and whether a sync has run since the directory change; with an authentication frequency other than Only Once, also whether the user has authenticated since.",
       "uses": [
+        "change-propagation-time",
+        "sync-frequency-options",
         "last-sync-fields",
         "change-lag",
         "periodic-or-on-demand"
@@ -76,6 +98,8 @@
     {
       "do": "Whether a user in a nested group matches a rule on the parent group before relying on nesting.",
       "uses": [
+        "sync-nested-groups",
+        "nested-groups-support",
         "nested-groups"
       ]
     }
@@ -135,12 +159,19 @@
       ]
     },
     "change-lag": {
-      "statement": "A change in the directory (a user added to a group, a department change) is visible to policy only after the next synchronization completes.",
-      "tier": "B",
-      "conditions": "Derived from synchronization being periodic or on demand: no source states a propagation time, and the sync schedule itself is not captured.",
-      "derived_from": [
-        "periodic-or-on-demand"
-      ]
+      "statement": "User information and group information is updated when either a user is authenticated or the Zscaler server synchronizes data from the directory server; with Only Once as the authentication frequency, user and group information is only updated when synchronization is performed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-user-authentication-frequency.json",
+          "quotes": [
+            "User information and group information is updated when either a user is authenticated or the Zscaler server synchronizes data from the directory server.",
+            "If you choose Only Once as the authentication frequency, user and group information is only updated when synchronization is performed."
+          ]
+        }
+      ],
+      "conditions": "With a frequency other than Only Once the article names user authentication as an additional update trigger; it states no propagation time."
     },
     "ldap-bind-auth": {
       "statement": "By default synchronized users authenticate by an LDAP Bind to the directory server with their Distinguished Name and password, so passwords stay on the directory server and are never synchronized.",
@@ -199,6 +230,349 @@
         }
       ],
       "conditions": "Corrected on recapture (2026-10-18): previously \"lastSyncStartTime and lastSyncEndTime are epoch-second timestamps of the last LDAP sync, applicable only to directory-based authentication. lastSyncStartTime is reset when the authentication type is changed to a different directory authentication type.\" The spec now states the reset for lastSyncEndTime as well."
+    },
+    "sync-auth-methods": {
+      "statement": "The default authentication method for synchronized users is LDAP Bind; the synchronization article says another method can be configured instead from a list it gives. If a one-time token or one-time link authenticates users whose information was synchronized from a directory server, the passwords are stored in the Zscaler database and not in the directory server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "The default authentication method for synchronized users is LDAP Bind. If you want to use another method, you can configure one of the following:",
+            "If you use a one-time token or one-time link to authenticate users whose information was synchronized from a directory server, the passwords are stored in the Zscaler database and not in the directory server."
+          ]
+        }
+      ]
+    },
+    "sync-nested-groups": {
+      "statement": "The directory synchronization article says the Zscaler service does not support nested groups, and that specific group names within each nested group must be manually identified and added to the Group filter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "The Zscaler service doesn't support nested groups. You must manually identify specific group names within each nested group and add them to the Group filter."
+          ]
+        }
+      ],
+      "gaps": [
+        "nested-groups"
+      ]
+    },
+    "sync-prerequisites": {
+      "statement": "On the directory server, the Zscaler service must be granted read-only access on a specific port (Zscaler provides the IP addresses) and allowed to connect to the appropriate ports when it performs an LDAP Bind. All the organization's email domains must be added to the Zscaler account because the service synchronizes data only from the configured domains. The user whose DN is used to bind to or query the directory does not require privileged access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "On your directory server, grant the Zscaler service read-only access on a specific port. Zscaler provides the IP addresses.",
+            "Configure the directory server to allow the service to connect to the appropriate ports when the service performs an LDAP Bind.",
+            "Add all your email domains to your Zscaler account. The service synchronizes data only from the configured domains.",
+            "Know the Distinguished Name (DN) of a user with permission to bind to (or query) the directory server. The account doesn't require privileged access."
+          ]
+        }
+      ]
+    },
+    "agent-hosting-and-ports": {
+      "statement": "Authentication agent hosting is Cloud (the central authority queries the directory server directly) or Enterprise (the organization installed a Zscaler Authentication Bridge). The port options are 3268 (the Global Catalog of an AD server), 3269 (the Global Catalog over SSL/TLS), 389 (an LDAP server; the AD default listening port) and 636 (an LDAP server over SSL/TLS); for multiple domains from an AD server, port 3268 or 3269 is selected so the service can access the Global Catalog. Zscaler strongly recommends enabling the option that secures LDAP communications between the service and the directory server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "- Cloud: Choose if the central authority (CA) queries your directory server directly.",
+            "Enterprise: Choose if your organization installed a Zscaler Authentication Bridge (ZAB)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "Primary Directory Name: Enter a name for the primary directory server.",
+          "quotes": [
+            "3268: Use to connect to the Global Catalog of an AD server.",
+            "3269: Use to connect to a Global Catalog AD server over a secure connection using SSL/TLS.",
+            "389: Use to connect to an LDAP server. AD default port for listening.",
+            "636: Use to connect to an LDAP server over a secure connection using SSL/TLS.",
+            "If your organization is synchronizing multiple domains from an AD server, select either port 3268 (non-secure) or 3269 (secure) so the Zscaler service can access the Global Catalog.",
+            "Zscaler strongly recommends enabling this option to secure LDAP communications between the Zscaler service and your directory server."
+          ]
+        }
+      ]
+    },
+    "two-directory-sets": {
+      "statement": "The service can synchronize data for up to two sets of users; a secondary directory server is for a directory without duplicate user or group information, and the article says not to set one up for redundancy. When an FQDN resolves to multiple IP addresses, the service ignores inactive or unavailable servers and synchronizes with the one that is active or available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "The Zscaler service can synchronize data for up to two sets of users.",
+            "Configure the service to synchronize from a secondary directory server only if it doesn't have duplicate user or group information. Don't set up a secondary server for redundancy."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "Primary Directory Name: Enter a name for the primary directory server.",
+          "quotes": [
+            "If you enter an FQDN and the DNS resolution returns multiple IP addresses, the Zscaler service automatically ignores the servers that are inactive or unavailable and synchronizes with the server that is active or available."
+          ]
+        }
+      ]
+    },
+    "forest-and-domains": {
+      "statement": "The Zscaler service can synchronize user information from one forest in an organization; with multiple forests an AD proxy can be set up, and otherwise Zscaler recommends integrating with SAML. It can synchronize data from multiple domains as long as they are all registered with Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "The Zscaler service can synchronize user information from one forest in an organization. If your organization has multiple forests, you can set up an AD proxy. Otherwise, Zscaler recommends integrating with SAML.",
+            "The Zscaler service can synchronize data from multiple domains, as long as they are all registered with Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "base-dn-and-pagination": {
+      "statement": "The service only retrieves objects from the branch specified in the Base DN field. With pagination Auto (recommended) the service detects whether the directory server supports pagination and pages results that exceed 1,000 items, returning only the first 1,000 items if it does not; with pagination Disabled the directory server returns the first 1,000 items only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "The service only retrieves objects from the branch that is specified in the Base DN field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "Define the following Detected Settings, and click Next:",
+          "quotes": [
+            "Auto (Recommended): The Zscaler service detects if your directory server supports pagination. If it does, it pages results that exceed 1,000 items. If it doesn't, it returns the first 1,000 items only.",
+            "Disabled: The directory server returns the first 1,000 items only."
+          ]
+        }
+      ]
+    },
+    "login-attribute-form": {
+      "statement": "The login attribute must be in the form of an email address, though not necessarily a valid one. If the value is not an email address the service creates one by appending the domain name when the organization has registered a single domain; with multiple registered domains and a value that is not an email address, the synchronization fails. Zscaler recommends userPrincipalName regardless of the number of domains, sAMAccountName only with one hosted domain, and otherwise proxyAddresses, userPrincipalName or mail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "If your organization has registered multiple domains and the value is not an email address, the synchronization fails."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "Lookup Results: Displays the user's or group's attributes that were retrieved from the directory server.",
+          "quotes": [
+            "It must be in the form of an email address, though it doesn't have to be a valid email address.",
+            "If the value is not an email address, the service creates an email address by appending the domain name to it if your organization has registered a single domain on the service.",
+            "Zscaler recommends you use userPrincipalName, regardless of the number of domains hosted by the Zscaler service. Use sAMAccountName only if you have one domain hosted by the Zscaler service. Otherwise, you can use proxyAddresses, userPrincipalName, or mail."
+          ]
+        }
+      ]
+    },
+    "group-filter-syntax": {
+      "statement": "In the group filter syntax the asterisk (*) is required so the filter automatically completes the Common Name (cn) value, the pipe character (|) means at least one criterion must match, and the ampersand (&) means all criteria must be true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "Group Membership: (Active Directory only) Enter or choose the attribute that represents which groups the user belongs to (e.g., memberOf).",
+          "quotes": [
+            "The asterisk (*) is required, so the filter automatically completes the Common Name (cn) value. The pipe character (|) means that at least one criteria must match. The ampersand (&) means that all criteria must be true."
+          ]
+        }
+      ]
+    },
+    "sync-groups-per-user-16": {
+      "statement": "The directory synchronization article states that the service synchronizes up to 16 groups per user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "Group Membership: (Active Directory only) Enter or choose the attribute that represents which groups the user belongs to (e.g., memberOf).",
+          "quotes": [
+            "The service synchronizes up to 16 groups per user."
+          ]
+        }
+      ]
+    },
+    "sync-frequency-options": {
+      "statement": "The Synchronization Frequency options are Manual (synchronize only when Sync Now is clicked), Daily (every 24 hours at midnight in the organization's time zone), Weekly (every Sunday at midnight in the organization's time zone) and Monthly (on the first day of every month at midnight in the organization's time zone). If the directory server is unavailable at the scheduled time, the service tries to synchronize at the next scheduled time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "In the Edit Active Directory window, in the Global Configuration section:",
+          "quotes": [
+            "Manual: Synchronize only when you click Sync Now.",
+            "Daily: Synchronize every 24 hours at midnight in your organization's time zone.",
+            "Monthly: Synchronize on the first day of every month at midnight in your organization's time zone.",
+            "Weekly: Synchronize every Sunday at midnight in your organization's time zone."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "If the directory server is unavailable at the scheduled time, the service tries to synchronize at the next scheduled time."
+          ]
+        }
+      ]
+    },
+    "sync-now-console": {
+      "statement": "With Active Directory or OpenLDAP, Sync Now on the Default Settings page synchronizes the Zscaler service with the AD or OpenLDAP server, and Last Synchronization Time shows when the service last synchronized, depending on the Synchronization Frequency configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-default-authentication-profile.json",
+          "quotes": [
+            "If you are using Active Directory (AD) or OpenLDAP, you can click Sync Now to synchronize the Zscaler service with the AD or OpenLDAP server.",
+            "Depending on the Synchronization Frequency you configured for your AD or OpenLDAP server, under Last Synchronization Time, you can view the time when the Zscaler service last synchronized with the AD or OpenLDAP server."
+          ]
+        }
+      ],
+      "gaps": [
+        "sync-now-api"
+      ]
+    },
+    "auth-filter-vs-search-filter": {
+      "statement": "The User Authentication Filter finds the user's DN when the user authenticates, and unlike the User Search Filter and Group Search Filter the service uses it only when it authenticates a user, not when it synchronizes users; the article says the filter can be parameterized, such as (&(objectClass=user)(sAMAccountName=${USER})). If Advanced Search Filter is disabled, the service uses the User Search Filter for synchronizing and authenticating users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "User Authentication Filter: Enter or choose a filter to search the primary directory server and find the user's DN when the user authenticates to the Zscaler service.",
+          "quotes": [
+            "Unlike the User Search Filter and Group Search Filter, the service only uses this filter when it authenticates a user, not when it synchronizes users from the directory server.",
+            "Zscaler also supports an advanced filter option where the filter can be parameterized, such as (&(objectClass=user)(sAMAccountName=${USER}))."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "In the Edit Active Directory window, in the Global Configuration section:",
+          "quotes": [
+            "Advanced Search Filter: Enable this if you want to use a separate search filter for the authentication process (e.g., a search filter that searches using non-email format attributes). If disabled, the Zscaler service uses the User Search Filter for synchronizing and authenticating users."
+          ]
+        }
+      ]
+    },
+    "ad-password-and-deactivation-options": {
+      "statement": "For Active Directory only, Enable Password Change Sync scans the AD for password changes, and a Password Last Set Attribute field that appears with it takes the attribute that represents the password last-changed time stamp (for example pwdLastSet); in addition, Enable User Deactivation Checks detects whether a user account is deactivated on the AD, polled at the Active Directory Poll Frequency in seconds; that field cannot be modified for the secondary directory server, which uses the primary's frequency.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "Enable Password Change Sync: (Active Directory only) Enable to scan the AD for password changes.",
+            "Enable to scan the Active Directory for password changes. If you enable this setting, the following fields appear:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "after": "Enable Password Change Sync: (Active Directory only) Enable to scan the AD for password changes.",
+          "quotes": [
+            "Enable User Deactivation Checks: Enable to detect if a user account is deactivated on the AD.",
+            "Active Directory Poll Frequency (Seconds): Enter the frequency in seconds to poll the AD. You can't modify this field for the secondary directory server. The Zscaler service uses the same frequency you entered for the primary directory server.",
+            "Password Last Set Attribute: Enter the attribute that represents the password last-changed time stamp (e.g., pwdLastSet)."
+          ]
+        }
+      ]
+    },
+    "authentication-wizard-overwrite": {
+      "statement": "Clicking Finish in the Authentication Wizard overwrites the existing user authentication configuration with the new configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+          "quotes": [
+            "If you click Finish, the existing user authentication configuration is overwritten with the new configuration."
+          ]
+        }
+      ]
+    },
+    "disabled-ad-users-keep-browsing": {
+      "statement": "Users marked disabled in the Active Directory are still returned by the AD server for the filters the article lists, so they are not deleted from the Zscaler user database and their cookies remain valid, allowing them to use the service to browse. The article's fix is to add (&(objectClass=User)(!(UserAccountControl:1.2.840.113556.1.4.803:=2))) to both the User Search Filter and Search Filter fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-removing-disabled-users-active-directory-zscaler-user-database.json",
+          "quotes": [
+            "When users are marked disabled in the Active Directory (AD) server, they are still returned by the AD server when you use the following filters to synchronize users from the Active Directory server:",
+            "As a result, users who were disabled in the AD aren't deleted from the Zscaler user database. Their cookies remain valid, allowing them to use the Zscaler service to browse the internet.",
+            "4. Add the following value to both the User Search Filter and Search Filter fields:",
+            "(&(objectClass=User)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))"
+          ]
+        }
+      ]
+    },
+    "sync-failure-checks": {
+      "statement": "When synchronization fails, the troubleshooting article says to verify the connectivity between the Zscaler Central Authority server and the directory server and that the Bind password is correct; when a user's password was changed on the AD or LDAP server but the user still uses the old one, it says to reset the password on the AD or LDAP server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-ad-ldap-synchronization-errors.json",
+          "quotes": [
+            "- Verify the connectivity between the Zscaler Central Authority (CA) server and the directory server",
+            "- Verify that the Bind password is correct",
+            "If a user's password is changed on the AD or LDAP server but the user is still using the old password, you can do the following to resolve this issue:",
+            "- Reset the password on the AD or LDAP server"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "nested-groups-support": {
+      "summary": "The directory synchronization article says nested groups are not supported, while the ZAB deployment article describes flattening nested groups.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-synchronizing-user-data-active-directory-openldap.json",
+            "quotes": [
+              "The Zscaler service doesn't support nested groups. You must manually identify specific group names within each nested group and add them to the Group filter."
+            ]
+          },
+          "says": "The service does not support nested groups; group names within each nested group must be added to the Group filter by hand."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-zscaler-authentication-bridge.json",
+            "quotes": [
+              "Enabling nested groups on the ZAB allows the Zscaler service to flatten and sync user group membership for nested groups."
+            ]
+          },
+          "says": "Enabling nested groups on the ZAB lets the service flatten and sync user group membership for nested groups."
+        }
+      ],
+      "impact": "The sync article does not limit its statement to cloud-hosted agents, and the ZAB article does not say whether flattening applies only with the Enterprise (ZAB) agent hosting. Do not say nested groups work or fail for directory sync without saying which agent hosting the tenant uses."
     }
   },
   "gaps": {
@@ -213,11 +587,22 @@
       ],
       "blocks": "whether a user removed from the directory can be seen or reactivated in ZIA"
     },
+    "change-propagation-time": {
+      "kind": "semantic",
+      "title": "How long a directory change takes to reach policy",
+      "status": "open",
+      "detail": "The frequency article says user and group information updates on authentication or synchronization, and the synchronization article gives schedule options, but no captured source states how long a sync takes to complete or when policy sees the result. A lab sync with a timed directory change would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "quoting an expected delay between a directory change and policy"
+    },
     "nested-groups": {
       "kind": "semantic",
-      "title": "Whether nested directory groups are expanded during sync",
-      "status": "open",
-      "detail": "Unverified legacy statement: Nested AD group membership (user in group A, A a member of group B) under LDAP sync is not confirmed, and the AD memberOf attribute in many LDAP configurations lists only the direct parent group; tenants relying on nesting should test it and may need to flatten membership in AD. No captured article states how nesting is handled. A lab sync of a nested group, or a vendor statement, would settle it.",
+      "title": "Whether nested directory groups are expanded when the agent is Cloud or Enterprise (ZAB)",
+      "status": "partial",
+      "detail": "The synchronization article says nested groups are not supported (sync-nested-groups) and the ZAB article describes flattening them (divergence nested-groups-support). Neither article says whether flattening applies only with Enterprise (ZAB) agent hosting, or whether the sync article's statement covers cloud-hosted agents only. A lab sync of a nested group with each agent hosting, or a vendor statement, would settle it.",
       "resolves_with": [
         "lab-test",
         "support-ticket"
@@ -227,8 +612,8 @@
     "sync-now-api": {
       "kind": "semantic",
       "title": "Whether any API triggers a synchronization",
-      "status": "open",
-      "detail": "Unverified legacy statement: There is no manual sync-now API endpoint confirmed in available captures; syncs are scheduled by Zscaler's backend. The captured articles say synchronization can run on demand, so the Admin Console has a trigger; whether the API exposes one is not stated. An API-spec search or a vendor answer would settle it.",
+      "status": "partial",
+      "detail": "The console trigger is sourced (sync-now-console and sync-frequency-options), so the legacy statement that syncs are scheduled only by Zscaler's backend does not hold for the console. No captured article names an API trigger; whether the API exposes one is not stated. An API-spec search or a vendor answer would settle it.",
       "resolves_with": [
         "source-read",
         "support-ticket"

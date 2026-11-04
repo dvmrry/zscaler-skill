@@ -54,11 +54,11 @@
     },
     {
       "label": "The cloud service API key.",
-      "text": "{{one-key}} {{key-format}} {{key-changes-immediate}} {{key-disabled}} {{subscription-expiry}} Whether sessions opened with the old key survive an edit or regeneration is open {{gap:key-change-sessions}}."
+      "text": "{{one-key}} {{key-plus-admin}} {{key-page}} {{key-format}} {{key-changes-immediate}} {{multi-org-edit}} {{key-disabled}} {{subscription-expiry}} Whether sessions opened with the old key survive an edit or regeneration is open {{gap:key-change-sessions}}."
     },
     {
       "label": "Other ZIA APIs.",
-      "text": "{{sandbox-token}} Sandbox submission limits are in [[zia.sandbox.submission:daily-quota]]. {{app-governance}}"
+      "text": "{{sandbox-token}} The count of up to 5 stated by the getting-started page is not settled, because the pages disagree on how many tokens an organization can have {{divergence:sandbox-token-count}}. {{sandbox-token-auth}} {{sandbox-token-lifecycle}} {{sandbox-token-disabled}} {{sandbox-subscription-expiry}} Sandbox submission limits are in [[zia.sandbox.submission:daily-quota]]. The token's base URL value is open {{gap:sandbox-base-url}}. {{app-governance}}"
     }
   ],
   "checks": [
@@ -331,9 +331,18 @@
       ]
     },
     "one-key": {
-      "statement": "After the API subscription is enabled, Zscaler provisions the organization's cloud service API key; an organization can have only one, and the existing key must be deleted before a new one is added.",
+      "statement": "After the API subscription is enabled, Zscaler provisions the organization's cloud service API key; an organization can have only one, and the existing key must be deleted before a new one is added. Accessing and managing the key needs a valid API subscription, and the base URL and key are required to authenticate via the API and create a session.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-service-api-key.json",
+          "quotes": [
+            "You need a valid API subscription to access and manage your organization’s API key.",
+            "When an API subscription is applied to your organization, your organization's API key is initially provisioned by Zscaler, enabled, and displayed within the Cloud Service API Key page along with the base URL. The base URL and key are required to authenticate via the API and create a session.",
+            "An organization can only have one API key. To add a new API key, you must delete the existing one."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "legacy-managing-cloud-service-api-key.json",
@@ -365,9 +374,16 @@
       ]
     },
     "key-changes-immediate": {
-      "statement": "Editing, regenerating or deleting the key takes effect at once: the old key is invalidated immediately, and none of these actions can be undone.",
+      "statement": "Editing, regenerating or deleting the key takes effect at once: the old key is invalidated immediately, and none of these actions can be undone. Adding a key also invalidates the old key immediately, and after a key is replaced or edited, references to the old key in the organization's code must be replaced.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-service-api-key.json",
+          "quotes": [
+            "Adding, editing, or regenerating an API key, immediately invalidates the old key. If you replaced or edited a key, you also need to replace any references to the old key within any code developed for your organization."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "legacy-managing-cloud-service-api-key.json",
@@ -462,9 +478,170 @@
           ]
         }
       ]
+    },
+    "key-plus-admin": {
+      "statement": "The cloud service API can be authenticated with an API key (an alphanumeric key of 12 characters) combined with Internet & SaaS (ZIA) admin credentials (username and password); keys or secrets for Zscaler OneAPI endpoints come from Authentication Service instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-service-api-key.json",
+          "quotes": [
+            "You can authenticate with the cloud service API using a combination of API key (an alphanumeric key of 12 characters in length) and Internet & SaaS (ZIA) admin credentials (i.e., username and password).",
+            "If you need to obtain API keys or secrets to access Zscaler OneAPI endpoints, see Understanding OneAPI Authentication in the Authentication Service."
+          ]
+        }
+      ]
+    },
+    "multi-org-edit": {
+      "statement": "For multiple organizations that should keep the same key string, Zscaler recommends editing the key instead of adding a new one or regenerating it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-service-api-key.json",
+          "quotes": [
+            "If you are managing multiple organizations within Zscaler and want to maintain the same key string across them, Zscaler recommends editing the key instead of adding a new one or regenerating it."
+          ]
+        }
+      ]
+    },
+    "key-page": {
+      "statement": "The Cloud Service API Key page shows the base URL for the cloud service API and, for the key, the key string, the admin who last modified it and the date and time it was last modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-service-api-key.json",
+          "quotes": [
+            "View the base URL for the cloud service API.",
+            "Key: The API key string.",
+            "Last Modified By: Admin that last modified the key.",
+            "Last Modified On: The date and time the key was last modified."
+          ]
+        }
+      ]
+    },
+    "sandbox-token-auth": {
+      "statement": "The Sandbox Submission API can be authenticated with a combination of API token and Internet & SaaS (ZIA) admin credentials. Managing the token needs a valid Sandbox subscription; when it is applied, Zscaler provisions and enables the token and displays it on the Sandbox API Token page along with the base URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-sandbox-api-token.json",
+          "quotes": [
+            "You can authenticate the Sandbox Submission API using a combination of API token and Internet & SaaS (ZIA) admin credentials (i.e., username and password).",
+            "You need a valid Sandbox subscription to access and manage your organization’s API token.",
+            "When the Sandbox subscription is applied to your organization, your organization's API token is initially provisioned by Zscaler, enabled, and displayed within the Sandbox API Token page along with the base URL."
+          ]
+        }
+      ]
+    },
+    "sandbox-token-lifecycle": {
+      "statement": "A new Sandbox API token is displayed on the tab, named and saved, and is hidden by default until the View icon is clicked. After regeneration a randomized token string is immediately generated and the old string is invalidated, and the managing page says that action cannot be undone. Deleting needs CONFIRM typed in the Delete API Token window, after which the token is immediately removed and invalidated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sandbox-api-token.json",
+          "quotes": [
+            "The new API token is displayed on the tab. Enter a name and click Save. You can then view the Sandbox API Token (hidden by default) by clicking the View icon.",
+            "After this, a randomized token string is immediately generated and the old string is invalidated.",
+            "In the Delete API Token window, manually enter CONFIRM in the field provided and click Delete.",
+            "After this, the token is immediately removed and invalidated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sandbox-api-token.json",
+          "after": "- Regenerate the API token.",
+          "quotes": [
+            "This action cannot be undone."
+          ]
+        }
+      ]
+    },
+    "sandbox-token-disabled": {
+      "statement": "Zscaler or the service provider can disable the Sandbox API token, for example if the organization exceeds the threshold number of API calls or its code violates Zscaler's terms; the ability to add, regenerate or delete the token is then removed, a Disabled status appears, and Zscaler Support or the service provider must be contacted to re-enable it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sandbox-api-token.json",
+          "quotes": [
+            "Your Sandbox API token can be disabled by Zscaler or your service provider.",
+            "The token might be disabled if your organization exceeds the threshold number of API calls allowed or the code developed for your organization violates Zscaler's terms and conditions.",
+            "If this occurs, the ability to add, regenerate, or delete the token is removed and a Disabled status appears. You must contact Zscaler Support or your service provider to re-enable the token."
+          ]
+        }
+      ]
+    },
+    "sandbox-subscription-expiry": {
+      "statement": "If the Sandbox subscription expires, the Sandbox API Token page is still accessible but no modifications can be made (the POST and PUT actions in the API are lost), and the existing token is still valid but disabled; it is re-enabled after the subscription is renewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-managing-sandbox-api-token.json",
+          "quotes": [
+            "If your Sandbox subscription expires, you still have access to the Sandbox API Token page, but you cannot make any modifications (i.e., you lose access to the POST and PUT actions within the API). Also, your existing API token is still valid but disabled.",
+            "The API token is re-enabled after your subscription is renewed."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sandbox-token-count": {
+      "summary": "How many Sandbox API tokens an organization can have: the getting-started page and the About page say up to 5, the About page also says the existing token must be deleted before adding a new one, and the managing page says both only one token and only 5 tokens. The existing claim is [[shared.legacy-api.zia-session:sandbox-token]].",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "legacy-getting-started-zia-api.json",
+            "quotes": [
+              "An organization can have 1 API key for the cloud service API and up to 5 API tokens for the Sandbox Submission API."
+            ]
+          },
+          "says": "Getting-started page: up to 5 API tokens for the Sandbox Submission API."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-sandbox-api-token.json",
+            "quotes": [
+              "An organization can have up to 5 API tokens.",
+              "Add a new Sandbox API token. You must delete the existing token before adding a new one.",
+              "Adding, or regenerating an API token, immediately invalidates the old token."
+            ]
+          },
+          "says": "About Sandbox API Token: up to 5 tokens, yet adding one needs the existing token deleted first and invalidates the old token."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-managing-sandbox-api-token.json",
+            "quotes": [
+              "An organization can only have one API token for the Sandbox Submission API.",
+              "Your organization can only have 5 API tokens. If you have the maximum amount created, you must delete an existing token before you can add a new one."
+            ]
+          },
+          "says": "Managing Sandbox API Token: one token in one sentence and a maximum of 5 in another, in the same article."
+        }
+      ],
+      "impact": "The number of Sandbox API tokens an organization can hold is not settled by the pages, and neither is whether an add replaces the existing token."
     }
   },
   "gaps": {
+    "sandbox-base-url": {
+      "kind": "semantic",
+      "title": "The Sandbox API Token page's base URL value",
+      "status": "open",
+      "detail": "The Sandbox API Token page shows a base URL, but the About and managing pages do not give its value; the host and base path in sandbox-token come from the getting-started page.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
     "eusa-prerequisite": {
       "kind": "semantic",
       "title": "Whether EUSA acceptance gates API use",

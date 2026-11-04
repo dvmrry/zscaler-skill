@@ -32,6 +32,18 @@
     {
       "rel": "see-also",
       "to": "zdx.api.conventions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.webhooks"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.servicenow"
     }
   ],
   "prose": [
@@ -40,15 +52,19 @@
     },
     {
       "label": "What alerts are.",
-      "text": "{{about}} {{display-delay}} {{history-window}}"
+      "text": "{{about}} {{display-delay}} {{history-window}} {{tier-limits}}"
     },
     {
       "label": "How a rule triggers.",
-      "text": "{{rule-types}} {{throttling}} {{incident-thresholds}} How often rules are evaluated is open {{gap:evaluation-cadence}}. Whether one transient probe failure can raise and clear an alert is unconfirmed {{gap:transient-flap}}."
+      "text": "{{rule-types}} The configuration article lists more types {{divergence:rule-type-list}}, and the rule fields are in [[zdx.alerts.rules]]. {{throttling}} {{incident-thresholds}} {{dynamic-alerting}} How often rules are evaluated is open {{gap:evaluation-cadence}}. Whether one transient probe failure can raise and clear an alert is unconfirmed {{gap:transient-flap}}."
     },
     {
       "label": "Status.",
       "text": "{{statuses}} Which thresholds a historical alert shows after its rule was modified is open {{gap:modified-rule-thresholds}}."
+    },
+    {
+      "label": "Alert details and notifications.",
+      "text": "{{details-end-user}} {{details-devices}} {{details-network-intelligence}} {{details-managed}} {{alert-email}} {{muted}} Webhook delivery is in [[zdx.alerts.webhooks]] and the ServiceNow application in [[zdx.alerts.servicenow]]."
     },
     {
       "label": "Reading alerts through the API.",
@@ -61,6 +77,13 @@
       "uses": [
         "throttling",
         "incident-thresholds"
+      ]
+    },
+    {
+      "do": "Which rule types to expect in the console, from both articles' lists rather than the trigger article's alone.",
+      "uses": [
+        "rule-types",
+        "rule-type-list"
       ]
     },
     {
@@ -192,6 +215,153 @@
         }
       ]
     },
+    "details-end-user": {
+      "statement": "For an end-user alert the details page shows the impacted departments (the number of devices by department and the total number of impacted devices) and the alert rule's expression triggers with the average and maximum values for the time period; the Alert Details page displays at most 128 devices and the View All dialog window at most 6,000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-individual-alert-details.json",
+          "quotes": [
+            "Impacted Departments: The number of devices by department and the total number of impacted devices.",
+            "Expression Triggers: The alert rule's expression triggers as well as the average and maximum values for the time period.",
+            "The maximum number of devices displayed on the Alert Details page is 128 devices. In the View All dialog window, the maximum number of devices displayed is 6,000 devices."
+          ]
+        }
+      ]
+    },
+    "details-devices": {
+      "statement": "The Impacted User Devices table displays the Device name, User ID, Department, Zscaler location, Geolocation and ZDX Score of the device, and the dotted reference line is based on the criteria set when configuring the alert rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-individual-alert-details.json",
+          "quotes": [
+            "The Impacted User Devices table displays the Device name, User ID, Department, Zscaler location, Geolocation, and the ZDX Score of the device.",
+            "The dotted reference line is based on the criteria set from configuring an alert rule."
+          ]
+        }
+      ]
+    },
+    "details-network-intelligence": {
+      "statement": "For Network Intelligence alerts the impacted geolocations that are anomalies are highlighted as red circles; the details also give the number of Zscaler data centers by geolocation, the name of the impacted Zero Trust Exchange and the impacted Internet Service Provider (ISP) or ISP links.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-individual-alert-details.json",
+          "quotes": [
+            "Associated Zscaler Data Centers: The number of Zscaler data centers by geolocation and the total number of impacted Zscaler data centers.",
+            "For Network Intelligence alerts, the impacted geolocations that are anomalies are highlighted as red circles.",
+            "Zero Trust Exchange: The name of the impacted Zero Trust Exchange.",
+            "Impacted ISPs: The impacted Internet Service Provider (ISP) or the impacted ISP links."
+          ]
+        }
+      ]
+    },
+    "details-managed": {
+      "statement": "An alert's Severity is shown as red for High, orange for Medium and green for Low, and its Monitoring Type is End User when the rule was created by the user and Managed when it was created for Managed Monitoring; depending on the criteria the details show latency, number of hops, packet loss or DNS Time from the selected managed probe.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-individual-alert-details.json",
+          "quotes": [
+            "Severity: The severity level of the event. Red indicates High severity, orange is Medium severity, and green indicates Low severity.",
+            "Monitoring Type: The type of monitoring for this rule. End User indicates the alert rule was created by the user. Managed indicates the alert rule was created for Managed Monitoring.",
+            "Depending on the selected criteria for the alert, you can view the associated details such as latency, number of hops, packet loss, or DNS Time from the selected managed probe."
+          ]
+        }
+      ]
+    },
+    "dynamic-alerting": {
+      "statement": "Dynamic alerting auto-baselines by referring to historical data and detects ZDX Score Drops based on the threshold sensitivity; a dynamic alert rule can be created whenever the Network or Applications rule type is applied, the feature is available based on subscription level, and the subscription table lists Dynamic Alerting as not supported on Standard and Microsoft 365 and supported on Advanced and Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-evaluating-individual-alert-details.json",
+          "quotes": [
+            "Dynamic alerting provides the ability to auto-baseline by referring to historical data to create the current baselines and detect ZDX Score Drops based on your threshold sensitivity to be notified on critical changes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-alert-rule.json",
+          "quotes": [
+            "You can create a dynamic alert rule whenever the Network or Applications rule type is applied.",
+            "Application and Network include ZDX Score and ZDX Score Drops detection as criteria for Dynamic Alerting. This feature and its procedures are available based on your subscription level."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "after": "## Alerts",
+          "quotes": [
+            "| Dynamic Alerting | Not supported | Not supported | Supported | Supported |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ]
+        }
+      ]
+    },
+    "alert-email": {
+      "statement": "An alert email highlights the alert criteria met, indicates the alert start time and the end time or Ongoing, gives the alert rule's name (linking to the Zscaler Admin Console) and lists the impacted Geolocations, Departments, OS Versions and Devices, with devices no longer listed once the alert has ended; for an incident alert it adds the Incident Type and Epicenter and lists Geolocations, Devices and Users, and for call quality it lists Geolocations, Departments, Meetings and Users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-alerts-email.json",
+          "after": "The alert email shows the following:",
+          "quotes": [
+            "Alert Criteria Triggers: These are the criteria selected when the alert rule was configured. If one or more alert criteria are met, then it is highlighted.",
+            "Alert Rule: The name of the alert rule. Click the name of the alert rule to view further details in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-alerts-email.json",
+          "quotes": [
+            "Alert Start Time: This indicates the alert start time and if the alert has ended, then the alert end time is indicated. If the alert end time has not ended, then it indicates Ongoing.",
+            "Impacted: The impacted Geolocations, Departments, OS Versions, and Devices. If the alert has ended, then devices are no longer listed.",
+            "Incident Type: The type of incident (e.g., Application, Last Mile ISP).",
+            "Epicenter: The impacted epicenter displays where the center of the incident is.",
+            "Impacted: The impacted Geolocations, Devices, and Users. If the alert has ended, then devices are no longer listed.",
+            "Impacted: The impacted Geolocations, Departments, Meetings, and Users."
+          ]
+        }
+      ]
+    },
+    "muted": {
+      "statement": "If a rule is not muted, alerts can be sent via email or webhooks; if it is muted, the alerts can be viewed in the Zscaler Admin Console and no information is sent via email or webhooks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-rules.json",
+          "quotes": [
+            "If the rules are not muted, you can configure alerts to be sent via email or webhooks. If the rules are muted, you can view the alerts in the Zscaler Admin Console and no information is sent via email or webhooks."
+          ]
+        }
+      ]
+    },
+    "tier-limits": {
+      "statement": "The subscription table gives Total Alerts as 512 on every tier, and Total Active Alerts (Alerts with Incident Correlation) and Total Alert Rules as up to 3 on Standard, 10 on Microsoft 365, 25 on Advanced and 100 on Advanced Plus.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "after": "## Alerts",
+          "quotes": [
+            "| Total Alerts | 512 | 512 | 512 | 512 |",
+            "| Total Active Alerts (Alerts with Incident Correlation) | Up to 3 | 10 | 25 | 100 |",
+            "| Total Alert Rules | Up to 3 | 10 | 25 | 100 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ]
+        }
+      ]
+    },
     "api-ongoing": {
       "statement": "The ongoing-alerts endpoint returns alerts that have no ended date, selected by their `started_on` time with the filters; it defaults to the last 2 hours and cannot exceed a 14-day API limit.",
       "tier": "A",
@@ -219,6 +389,34 @@
           }
         }
       ]
+    }
+  },
+  "divergences": {
+    "rule-type-list": {
+      "summary": "The alert rule types: the trigger article lists Application, Device, Incident, Network or Call Quality, while the rule configuration article lists seven.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "triggering-alert.json",
+            "quotes": [
+              "Each alert rule type (Application, Device, Incident, Network, or Call Quality) has different criteria for an alert rule to trigger based on their metrics."
+            ]
+          },
+          "says": "The rule types are Application, Device, Incident, Network and Call Quality."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-configuring-alert-rule.json",
+            "quotes": [
+              "Type: Choose from Applications, Call Quality, Device, Incident, Network, Network Intelligence, or Real User Monitoring (RUM)."
+            ]
+          },
+          "says": "The rule types are Applications, Call Quality, Device, Incident, Network, Network Intelligence and Real User Monitoring (RUM)."
+        }
+      ],
+      "impact": "An answer that lists the types from the trigger article alone omits Network Intelligence and RUM rules, and whether the trigger article's list is only older is not stated."
     }
   },
   "gaps": {

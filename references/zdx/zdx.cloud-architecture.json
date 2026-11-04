@@ -68,6 +68,10 @@
       "text": "{{call-quality}} Unified communication applications need a tenant onboarded before their probes can be configured, [[zdx.applications:uc-tenant-onboarding]], and the per-meeting data is read per device, [[zdx.devices.call-quality]]. How often the integration reads and how it fails is not documented {{gap:call-quality-data-flow}}."
     },
     {
+      "label": "Firewall allowlist.",
+      "text": "{{allowlist-scope}} {{allowlist-domains}} The page gives no IP ranges and does not say whether the ZDX domains differ by cloud {{gap:allowlist-ip-ranges}}."
+    },
+    {
       "label": "Reading the data.",
       "text": "The API's estimated collection-to-reporting delay and its small difference from the UI are in [[shared.log-export.zdx:reporting-delay]] and [[shared.log-export.zdx:api-vs-ui]]. API sign-in is in [[shared.legacy-api.auth-models:zdx-prereqs]] and [[zdx.api.hosts-and-auth]]."
     },
@@ -202,9 +206,57 @@
           ]
         }
       ]
+    },
+    "allowlist-scope": {
+      "statement": "Certain destination domains are required to be on the allowlist on the corporate firewall or non-Zscaler proxy, including for probes initiated by Zscaler Client Connector and for the monitored information it sends to the Zscaler cloud; if probe traffic is tunneled through a GRE/IPSec tunnel at a corporate location this action might be optional, and the domains are tied to IP addresses so access is allowed per Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-allowlist-domains-zdx.json",
+          "quotes": [
+            "Certain destination domains are required to be placed on the allowlist on your corporate firewall or non-Zscaler proxy, including probes that are initiated by Zscaler Client Connector, as well as the monitored information sent by Zscaler Client Connector to the Zscaler cloud.",
+            "If you are tunneling probe traffic through a GRE/IPSec tunnel at a corporate location, this action might optional.",
+            "These domains are tied to IP addresses. Be sure to allow access to the following domains per Zscaler cloud:"
+          ]
+        }
+      ]
+    },
+    "allowlist-domains": {
+      "statement": "The domains the page lists are gateway., login., mobile. and mtr.<Zscaler Cloud Name>.net and config.zscaler.com/<Zscaler Cloud Name>.net, login.zdxcloud.net, pac.zdxcloud.net, smres.zdxcloud.net, https://d3l44rcogcb7iv.cloudfront.net and https://d32a6ru7mhaq0c.cloudfront.net.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-allowlist-domains-zdx.json",
+          "quotes": [
+            "gateway.<Zscaler Cloud Name>.net",
+            "login.<Zscaler Cloud Name>.net",
+            "mobile.<Zscaler Cloud Name>.net",
+            "config.zscaler.com/<Zscaler Cloud Name>.net",
+            "mtr.<Zscaler Cloud Name>.net",
+            "login.zdxcloud.net",
+            "pac.zdxcloud.net",
+            "smres.zdxcloud.net",
+            "https://d3l44rcogcb7iv.cloudfront.net",
+            "https://d32a6ru7mhaq0c.cloudfront.net"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "allowlist-ip-ranges": {
+      "kind": "semantic",
+      "title": "The IP addresses the allowlisted ZDX domains resolve to, and whether they differ by cloud",
+      "status": "open",
+      "detail": "The allowlist page says the domains are tied to IP addresses and gives no IP ranges; only zdxcloud.net names are listed for ZDX, and it does not say whether they differ by Zscaler cloud.",
+      "blocks": "writing firewall rules by address rather than by name",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
     "ca-topology": {
       "kind": "semantic",
       "title": "Whether the ZDX Central Authority is active-passive or active-active",
@@ -278,7 +330,7 @@
       "kind": "semantic",
       "title": "Which protocol the ZDX admin single sign-on uses",
       "status": "open",
-      "detail": "The architecture page says ZDX provides role-based access control with single sign-on in the Client Connector Portal; the legacy doc noted that the protocol (OIDC, SAML or OAuth) is not documented.",
+      "detail": "The architecture page says ZDX provides role-based access control with single sign-on in the Client Connector Portal; the legacy doc noted that the protocol (OIDC, SAML or OAuth) is not documented. Administrator Management Settings describes authenticating admins by IdP-initiated SAML 2.0 and later against an external admin database (shared.admin-rbac.zdx:admin-authentication), but no source says that is the same mechanism as the architecture page's single sign-on.",
       "blocks": "answers about how ZDX administrators sign in",
       "resolves_with": [
         "source-read"

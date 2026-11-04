@@ -60,7 +60,7 @@
     },
     {
       "label": "Process-based bypass.",
-      "text": "{{process-bypass}} How it ranks against destination inclusions is open {{gap:process-bypass-precedence}}."
+      "text": "{{process-bypass}} {{application-bypass-scope}} The two pages scope Application Bypass differently {{divergence:application-bypass-tunnel-versions}}. How it ranks against destination inclusions is open {{gap:process-bypass-precedence}}."
     },
     {
       "heading": "Domain-based bypasses"
@@ -279,6 +279,22 @@
         }
       ]
     },
+    "application-bypass-scope": {
+      "statement": "The Zscaler traffic bypasses article says Client Connector has an Application Bypass feature that automatically bypasses specific applications from being tunneled through Z-Tunnel 2.0, applicable only to Windows and macOS app profiles and if Z-Tunnel 2.0 is the forwarding profile; the bypassed applications can be viewed on the Application Bypass page, and details of the bypassed traffic (such as bypassed session, bypassed session event time and flow type) are logged in the Web and Firewall Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-zscaler-traffic-bypasses.json",
+          "quotes": [
+            "Zscaler Client Connector has an Application Bypass feature that allows you to automatically bypass specific applications from being tunneled through Zscaler Tunnel (Z-Tunnel) 2.0.",
+            "This application bypass is only applicable for Windows and macOS app profiles and if you use Z-Tunnel 2.0 as your forwarding profile in Zscaler Client Connector.",
+            "You can also view the details of the bypassed applications on the Application Bypass page.",
+            "Full visibility of the traffic bypassed by Zscaler Client Connector, such as bypassed session, bypassed session event time, and flow type is logged and displayed in the Web and Firewall Insights Logs in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
     "domain-needs-listener": {
       "statement": "Domain-based bypasses, for applications that do not resolve to a single IP, use PAC files and need the Z-Tunnel 1.0 listener, which can bypass only web (HTTP and HTTPS) traffic coming from the system proxy: system proxy traffic is routed to the listener and the domains are bypassed in the app profile PAC.",
       "tier": "A",
@@ -421,6 +437,35 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "application-bypass-tunnel-versions": {
+      "summary": "The app profile help says Process-Based Application Bypass can be used for both Z-Tunnel 1.0 and 2.0; the traffic bypasses article says Application Bypass applies only with Z-Tunnel 2.0 as the forwarding profile, on Windows and macOS app profiles.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-zscaler-client-connector-app-profiles.json",
+            "quotes": [
+              "Process-Based Application Bypass: Allows bypassing of process-based applications created in Application Bypass that you can use for both Z-Tunnel 1.0 and Z-Tunnel 2.0."
+            ],
+            "after": "To add a new Windows policy rule:"
+          },
+          "says": "Process-based applications created in Application Bypass can be used for both Z-Tunnel 1.0 and Z-Tunnel 2.0."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-zscaler-traffic-bypasses.json",
+            "quotes": [
+              "This application bypass is only applicable for Windows and macOS app profiles and if you use Z-Tunnel 2.0 as your forwarding profile in Zscaler Client Connector."
+            ]
+          },
+          "says": "Application bypass applies only to Windows and macOS app profiles and only if Z-Tunnel 2.0 is the forwarding profile."
+        }
+      ],
+      "impact": "Whether an Application Bypass entry has any effect on a Z-Tunnel 1.0 profile, or on other platforms, depends on which page is read; process-bypass in this subject states the first page's scope."
     }
   },
   "gaps": {

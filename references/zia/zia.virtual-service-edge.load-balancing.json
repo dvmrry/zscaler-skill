@@ -52,7 +52,15 @@
     },
     {
       "label": "External load balancers.",
-      "text": "{{external-lb-discouraged}} {{standalone-needs-external-lb-for-ha}} The referenced article is not captured ([[zia.virtual-service-edge.load-balancing:external-lb-article]])."
+      "text": "{{external-lb-discouraged}} {{standalone-needs-external-lb-for-ha}} {{external-lb-when}}"
+    },
+    {
+      "label": "The built-in load balancer.",
+      "text": "{{builtin-lb-benefits}}"
+    },
+    {
+      "label": "Using an external load balancer.",
+      "text": "Whether Zscaler recommends external load balancers at all differs between pages {{divergence:external-lb-recommendation}}. {{external-lb-clustered}} {{external-lb-standalone}} {{external-lb-probes}}"
     },
     {
       "label": "Multi-Cluster Load Sharing.",
@@ -60,6 +68,94 @@
     }
   ],
   "claims": {
+    "builtin-lb-benefits": {
+      "statement": "The VM images include a load balancer along with the Virtual Service Edge, and Zscaler recommends using the built-in load balancer, which distributes traffic on a per-session basis, monitors health and prunes Virtual Service Edges that fail health checks (adding them back when they report good health), and updates cluster members consecutively with zero downtime. Using it requires enabling Promiscuous mode on the virtualization platform, which can instead be restricted to a dedicated port group containing just the Zscaler VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-external-load-balancer-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "The virtual machine (VM) images include a load balancer (LB) along with the Virtual Service Edge. Zscaler recommends using the built-in LB.",
+            "Distributing the traffic to Virtual Service Edges on a per-session basis.",
+            "Monitoring the health of the Virtual Service Edges and pruning those that fail health checks, automatically adding them to the LB when they report good health.",
+            "Updating Virtual Service Edges in a cluster consecutively, resulting in zero downtime during updates.",
+            "Using the built-in LB requires enabling Promiscuous mode on the virtualization platform.",
+            "Promiscuous mode can instead be restricted to a dedicated port group, which contains just the Zscaler VMs."
+          ]
+        }
+      ]
+    },
+    "external-lb-when": {
+      "statement": "If the organization's compliance requirements do not allow the required changes to the virtual switches to use the built-in load balancer, an external load balancer can be used instead.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-external-load-balancer-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "If your organization's compliance requirements do not allow you to make the required changes to the virtual switches to use the built-in LB, an external LB can be used instead."
+          ]
+        }
+      ]
+    },
+    "external-lb-clustered": {
+      "statement": "Of the two options the external load balancer page gives for using an external load balancer, it marks clustered Virtual Service Edges without the required switches \"(Recommended)\"; that label applies among the external options only. Because the instances cannot talk to each other, each assumes it is the only cluster member, becomes the primary member and owns the cluster IP. The external load balancer forwards traffic directly to the Virtual Service Edge IP (not the cluster IP), balances per session with optional Client IP persistence, and monitors the Virtual Service Edge IP address (not the cluster IP). From the cloud's point of view the instances are individual members of the same cluster, so updates occur consecutively with zero downtime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-external-load-balancer-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "Clustered Virtual Service Edges Without the Required Switches (Recommended)",
+            "In this mode, because the Virtual Service Edge cannot talk to each other, each one assumes that it is the only member of the cluster and becomes the primary member of the cluster.",
+            "As a result, all Virtual Service Edges in the cluster declare themselves as primary members of the cluster and own the cluster IP.",
+            "Configure your external LB to forward traffic directly to the Virtual Service Edge IP (not the cluster IP).",
+            "Monitor the Virtual Service Edge IP address (not the cluster IP).",
+            "from the cloud point of view, they are considered individual members of the same cluster. Therefore, updates occur to the Virtual Service Edges consecutively, resulting in zero downtime when the cluster is updated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-external-load-balancer-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "Set the load balancing method to per session basis.",
+            "(Optional) Enable Client IP based persistence."
+          ],
+          "after": "Clustered Virtual Service Edges Without the Required Switches (Recommended)"
+        }
+      ]
+    },
+    "external-lb-standalone": {
+      "statement": "Virtual Service Edges can be deployed in standalone mode with an external load balancer to distribute the load, and updates for standalone instances behind one should be scheduled to avoid downtime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-external-load-balancer-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "You can deploy the Virtual Service Edges in standalone mode and use an external LB to distribute the load.",
+            "Updates for Virtual Service Edges in standalone mode using an external LB should be scheduled to avoid downtime."
+          ]
+        }
+      ]
+    },
+    "external-lb-probes": {
+      "statement": "For an external load balancer the page lists three probes to use one of: an ICMP ping to the service IP, a TCP port check to the proxy ports, and HTTP probes to an externally hosted web server via proxy, which need a suitable policy on the Virtual Service Edge to allow the probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-external-load-balancer-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "Zscaler recommends using one of the following methods to monitor Virtual Service Edges using an external LB:",
+            "ICMP ping to the service IP. This will ensure services are up and running",
+            "TCP portcheck to the proxy ports",
+            "HTTP probes to an external hosted web server via proxy can also be used. This method will need a suitable policy on the Virtual Service Edge to allow the probes."
+          ]
+        }
+      ]
+    },
     "bundled-lb": {
       "statement": "Each Virtual Service Edge has a load balancer bundled in, designed to distribute user traffic evenly across the Virtual Service Edges.",
       "tier": "A",
@@ -216,14 +312,44 @@
       ]
     }
   },
+  "divergences": {
+    "external-lb-recommendation": {
+      "summary": "Whether Zscaler recommends an external load balancer.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Zscaler does not recommend using external load balancers. However, if your organization must use an external load balancer, see Using an External Load Balancer with Virtual Service Edges."
+            ]
+          },
+          "says": "The clusters article says Zscaler does not recommend using external load balancers."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-using-external-load-balancer-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Clustered Virtual Service Edges Without the Required Switches (Recommended)",
+              "Zscaler recommends using the built-in LB."
+            ]
+          },
+          "says": "The external load balancer article labels the clustered-without-switches external option \"(Recommended)\" and also says Zscaler recommends using the built-in LB."
+        }
+      ],
+      "impact": "The two pages agree that the built-in load balancer is preferred; the \"(Recommended)\" label ranks the two external options against each other, so it should not be read as a recommendation of external over built-in."
+    }
+  },
   "gaps": {
-    "external-lb-article": {
+    "external-lb-return-path": {
       "kind": "semantic",
-      "title": "Using an external load balancer with Virtual Service Edges",
+      "title": "Return path and source address handling behind an external load balancer",
       "status": "open",
-      "detail": "The cluster article refers to a separate article, Using an External Load Balancer with Virtual Service Edges, for the external-load-balancer case. It is not captured, and attempts to capture likely slugs found no article. Until it is read, external load balancer behavior (health checks, return path, source address handling) is unknown.",
+      "detail": "The external load balancer article gives the balancing method, persistence option, forwarding target and probes, but does not say how the return path or the source address is handled behind an external load balancer.",
       "resolves_with": [
-        "source-read"
+        "source-read",
+        "support-ticket"
       ]
     }
   }

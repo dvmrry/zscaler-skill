@@ -1,0 +1,424 @@
+{
+  "schema_version": 1,
+  "id": "zpa.certificates.enrollment",
+  "title": "Enrollment (CA) certificates in Private Access",
+  "aliases": [
+    "enrollment certificate",
+    "enrollment ca certificate",
+    "signing certificate",
+    "preloaded enrollment certificate",
+    "client certificate type",
+    "appprotection ca",
+    "isolation client certificate",
+    "store in hsm"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.enrollment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.api.certificates-wire"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.browser-access.certificates"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.software-components.oauth-enrollment"
+    }
+  ],
+  "prose": [
+    {
+      "label": "What they are.",
+      "text": "{{what-it-is}} {{required-for}}"
+    },
+    {
+      "label": "Where they come from.",
+      "text": "{{two-workflows}} {{chain-of-trust}}"
+    },
+    {
+      "label": "The Enrollment Certificates page.",
+      "text": "{{page-fields}}"
+    },
+    {
+      "label": "Preloaded certificates.",
+      "text": "{{preloaded}} The page's own wording on what the Connector certificate enrolls is not consistent {{divergence:preloaded-connector-scope}}."
+    },
+    {
+      "label": "Zscaler-issued certificates.",
+      "text": "{{generate}} {{per-component-recommendation}} How many certificates the pages recommend differs {{divergence:recommended-count}}. The validity of Zscaler-generated certificates is open {{gap:generated-validity}}."
+    },
+    {
+      "label": "Certificates signed by the organization's own CA.",
+      "text": "{{csr}} The page's CNAME example reads against its own rule {{gap:cname-example}}. {{upload}} Whose private key the upload carries is open {{gap:upload-private-key}}. {{client-type-after-upload}} The Client Certificate Type for a Network Connector certificate is open {{gap:network-connector-type}}."
+    },
+    {
+      "label": "Editing.",
+      "text": "{{edit-and-replace}}"
+    },
+    {
+      "text": "Web server certificates for Browser Access, which differ from these, are in [[zpa.browser-access.certificates]]; the wire keys are in [[zpa.api.certificates-wire]]; the preloaded names the Go test expects are open {{gap:preloaded-names}}; the connector side is in [[zpa.app-connectors.enrollment]]; the hub is [[zpa.certificates]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Client Certificate Type the certificate carries (None, Client Connector, Isolation Client or AppProtection CA) for the component it is meant to enroll.",
+      "uses": [
+        "generate",
+        "client-type-after-upload"
+      ]
+    },
+    {
+      "do": "Whether the chain of trust up to and including the root was uploaded, and the root before the chain file.",
+      "uses": [
+        "chain-of-trust",
+        "upload"
+      ]
+    },
+    {
+      "do": "Whether all software components and Client Connector enroll from certificates with the same root, and whether the preloaded Connector certificate is meant for App Connectors.",
+      "uses": [
+        "two-workflows",
+        "preloaded",
+        "preloaded-connector-scope"
+      ]
+    },
+    {
+      "do": "How many separate enrollment certificates to create, which the pages state differently.",
+      "uses": [
+        "recommended-count"
+      ]
+    },
+    {
+      "do": "Whether an expired certificate was replaced by uploading a new one, and the expiry icons on the Name column.",
+      "uses": [
+        "edit-and-replace",
+        "page-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "App Connectors, Private Service Edges, Private Cloud Controllers, Network Connectors and Zscaler Client Connector are issued certificates that are sent by an enrollment certificate, which must be capable of acting as a certificate authority for processing certificate signing requests (CSRs). Enrollment and other certificates uploaded to Private Access must be encoded in PEM format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-enrollment-certificates.json",
+          "quotes": [
+            "App Connectors, Private Service Edges, Private Cloud Controllers, Network Connectors, and Zscaler Client Connector are issued certificates that are sent by an enrollment certificate.",
+            "The enrollment certificate must be capable of acting as a certificate authority for processing certificate signing requests (CSRs)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-certificates.json",
+          "quotes": [
+            "Enrollment and other certificates uploaded to Private Access must be encoded in PEM format."
+          ]
+        }
+      ]
+    },
+    "required-for": {
+      "statement": "A CA certificate is required for enrolling Zscaler Client Connector, enrolling AppProtection-enabled application segments, and when configuring an App Connector, a Private Service Edge, Network Connectors and a Private Cloud Controller for enrollment. Enrollment certificates differ from web server certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-generating-zscaler-issued-enrollment-certificates.json",
+          "quotes": [
+            "A CA certificate is required for enrolling Zscaler Client Connector, enrolling AppProtection-enabled application segments, and when configuring an App Connector, configuring a Private Service Edge, configuring Network Connectors, and configuring a Private Cloud Controller for enrollment.",
+            "Enrollment certificates differ from web server certificates."
+          ]
+        }
+      ]
+    },
+    "two-workflows": {
+      "statement": "An enrollment certificate is either Zscaler-issued, as a Zscaler-issued root certificate or an intermediate certificate authority whose root (parent) is one of the preloaded Private Access certificates or another Zscaler-issued certificate, or created by creating CSRs that are signed with the organization's own signing certificate, which can be a root or intermediate. The page says to make sure the same root certificate is used by the enrollment certificates for enrolling software components, and recommends the preloaded enrollment certificates when evaluating Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-enrollment-certificates.json",
+          "quotes": [
+            "A Zscaler-issued root certificate",
+            "An intermediate certificate authority, where the root (i.e., parent) certificate is one of the preloaded Private Access certificates or another Zscaler-issued certificate",
+            "Sign the CSRs using your organization's signing, which can be a root or intermediate certificate.",
+            "Make sure the same root certificate is used by the enrollment certificates for enrolling software components.",
+            "If you are evaluating Private Access, Zscaler recommends that you use the preloaded enrollment certificates provided for expediency."
+          ]
+        }
+      ]
+    },
+    "chain-of-trust": {
+      "statement": "For the organization's own signed certificates, Zscaler must verify the chain of trust, so every certificate must be present from the signed certificate up to and including the root. The chain needs uploading only once, either prepended to each signed certificate (Method 1) or uploaded separately with the signed certificates (Method 2).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-enrollment-certificates.json",
+          "quotes": [
+            "Zscaler must verify the chain of trust for the uploaded signed certificates. So, every certificate must be present in the chain of trust, starting from the signed certificates created in step 2 up to and including the root certificate.",
+            "You only need to upload the certificate chain of trust once.",
+            "Method 1: Prepend the certificate chain to each signed certificate prior to uploading them to Zscaler.",
+            "Method 2: Upload the signed certificates and the certificate chain corresponding to each, separately."
+          ]
+        }
+      ]
+    },
+    "page-fields": {
+      "statement": "The Enrollment Certificates page shows Expiration Date, Common Name, Stored in HSM (whether both the public and private keys are stored in a hardware security module) and Parent Certificate. The Name column carries a Client Connector icon or a Zero Trust Browser Client icon when the certificate is a signing certificate for those clients, and a red Warning icon if the certificate has expired, a yellow Caution icon with less than 7 days before expiration and an orange Info icon with less than 30 days. Enrollment certificates managed by Zscaler are read only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-enrollment-certificates.json",
+          "quotes": [
+            "A Zscaler Client Connector icon () is displayed next to the name if it is being used as a signing certificate for certificates issued to clients enrolling in Zscaler Client Connector.",
+            "A Zero Trust Browser Client icon () is displayed next to the name if it is being used as a signing certificate for Zero Trust Browser clients.",
+            "If a certificate has expired, a red Warning icon is displayed. If the certificate has less than 7 days before expiration, a yellow Caution icon is displayed. If the certificate has less than 30 days before expiration, an orange Info icon is displayed.",
+            "Expiration Date: The expiration date of the certificate.",
+            "Common Name: The common name (CN) for the hostname associated with the certificate.",
+            "Stored in HSM: Indicates if both the public and private keys for the enrollment certificate are stored in a hardware security module (HSM) for additional protection.",
+            "Parent Certificate: The parent certificate for the signing certificate, if any.",
+            "Enrollment certificates that are managed by Zscaler are read only and cannot be edited."
+          ]
+        }
+      ]
+    },
+    "preloaded": {
+      "statement": "The preloaded Zscaler-issued signing certificates are Root, the parent certificate for the Client and Connector signing certificates, Client, which Private Access automatically uses to sign certificates issued to Zscaler Client Connector unless another Zscaler-issued certificate is configured, and Connector. The signing certificates are 2048-bit RSA certificates which support TLS 1.2 connections with cipher suite ECDHE-RSA-AES128-GCM-SHA256. The certificate used to enroll a Private Service Edge must have the same root certificate used by the enrollment certificate for enrolling App Connectors and Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-preloaded-enrollment-ca-certificates.json",
+          "quotes": [
+            "Root: The root (i.e., parent) certificate for the Client and Connector signing certificates.",
+            "Client: A Private Access signing certificate that can be used for enrollment certificates issued to Zscaler Client Connector.",
+            "Connector: A signing certificate for Private Access that can be used for enrollment certificates issued to Zscaler Client Connectors.",
+            "Private Access (ZPA) automatically uses this to sign certificates issued to Zscaler Client Connector, unless you configure another Zscaler-issued certificate.",
+            "These signing certificates are 2048-bit key RSA certificates, which support TLS 1.2 connections (with cipher suite ECDHE-RSA-AES128-GCM-SHA256).",
+            "The certificate used to enroll a Private Service Edge must have the same root certificate used by the enrollment certificate for enrolling App Connectors and Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "generate": {
+      "statement": "Generating a Zscaler-issued enrollment certificate takes a Type of Root CA, or Intermediate CA with a Parent Certificate that can be a preloaded or another Zscaler-issued certificate, a Client Certificate Type and Store in HSM (True stores both the public and private keys in a hardware security module). The Client Certificate Type is None to enroll App Connectors, Private Service Edges or Private Cloud Controllers, Client Connector to enroll Zscaler Client Connector, Isolation Client to enroll Zero Trust Browser clients, or AppProtection CA to enroll AppProtection-enabled application segments, where a new AppProtection CA certificate replaces an existing one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-generating-zscaler-issued-enrollment-certificates.json",
+          "quotes": [
+            "Root CA: Select to use a root certificate authority.",
+            "Intermediate CA: Select to use an intermediate certificate authority, then select a Parent Certificate, which can be a preloaded certificate or another Zscaler-issued certificate.",
+            "None: Select to use this enrollment certificate to enroll App Connectors, Private Service Edges, or Private Cloud Controllers.",
+            "Client Connector: Select to use this enrollment certificate to enroll Zscaler Client Connector.",
+            "Isolation Client: Select to use this enrollment certificate to enroll Zero Trust Browser clients.",
+            "AppProtection CA: Select to use this enrollment certificate to enroll AppProtection-enabled application segments. If there is an existing certificate, and you create a new AppProtection CA certificate, it replaces the previous AppProtection CA certificate.",
+            "Store in HSM: Select True to store both the public and private keys for the generated certificate in a hardware security module (HSM) for additional protection."
+          ]
+        }
+      ]
+    },
+    "per-component-recommendation": {
+      "statement": "The Generating Zscaler-Issued Enrollment Certificates page recommends creating a certificate for Zscaler Client Connector, another for App Connectors, a third for Private Service Edges, a fourth for Network Connectors and a fifth for Private Cloud Controllers, with an additional certificate if AppProtection is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-generating-zscaler-issued-enrollment-certificates.json",
+          "quotes": [
+            "Zscaler recommends creating a certificate for Zscaler Client Connector, another certificate for App Connectors, a third for Private Service Edges, a fourth for Network Connectors, and a fifth for Private Cloud Controllers. If you have AppProtection enabled, you need to create an additional certificate."
+          ]
+        }
+      ]
+    },
+    "csr": {
+      "statement": "A CSR for an enrollment certificate cannot use a canonical name (CNAME) that duplicates another CSR's CNAME, and the CNAME stays the same if the CSR's name is updated; the page's example is that a CSR named test has the CNAME {domain}/test. Store in HSM True stores both keys in a hardware security module. The CSR is signed using the organization's signing CA, which can be a root or intermediate CA, and the pending CSR then appears in the Enrollment Certificates table, where the signed certificate and the certificate chain must be uploaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-certificate-signing-requests-enrollment-ca-certificates.json",
+          "quotes": [
+            "You cannot create a CSR with a canonical name (CNAME) that is a duplicate to a CNAME of another CSR. If the name of the CSR is updated, the CNAME remains the same.",
+            "For example, if you create a CSR with the name test, the CNAME for the certificate is {domain}/test.",
+            "Store in HSM: Select True to store both the public and private keys for the generated CSR in a hardware security module (HSM) for additional protection.",
+            "Sign the CSR using your organization's signing CA, which can be a root or intermediate CA.",
+            "The Enrollment Certificates page automatically updates to display your pending CSR in the table, where you must upload the signed certificate and the certificate chain."
+          ]
+        }
+      ]
+    },
+    "upload": {
+      "statement": "Up to 1,000 enrollment (CA) certificates can be uploaded, and the ranges page lists 1,000 certificates. The uploaded signed certificate must include the private key. The intermediate certificates and the root are downloaded as Base64-encoded ASCII PEM files, with the order within the file starting from the intermediate certificate, and the root file must be uploaded before the PEM file or the PEM file will not upload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-enrollment-ca-certificates-and-certificate-chain.json",
+          "quotes": [
+            "You can upload up to 1,000 enrollment (CA) certificates.",
+            "The uploaded signed certificate must include the private key.",
+            "Download all of your intermediate certificates and the root certificate as Base64-encoded ASCII PEM-formatted files.",
+            "Also, make sure that the certificate order within the file starts from the intermediate certificate.",
+            "Prior to uploading the PEM file, you must upload the root file. If the root file is not uploaded first, then the PEM file will not upload."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Enrollment Certificates | 1,000 certificates |"
+          ]
+        }
+      ]
+    },
+    "client-type-after-upload": {
+      "statement": "After uploading the signed CA certificate, the Edit icon opens it again to make sure Client Certificate Type is set correctly: Client Connector for Zscaler Client Connector, Isolation Client for Zero Trust Browser clients and None for App Connectors and Private Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-enrollment-ca-certificates-and-certificate-chain.json",
+          "quotes": [
+            "After uploading the signed CA certificate, click the Edit icon within the table again and make sure that the Client Certificate Type option is set correctly.",
+            "If you are using the enrollment (CA) certificate for Zscaler Client Connector, select Client Connector.",
+            "If you are using the enrollment (CA) certificate for Zero Trust Browser clients, select Isolation Client.",
+            "If you are using the enrollment (CA) certificate for App Connectors and Private Service Edges, select None."
+          ]
+        }
+      ]
+    },
+    "edit-and-replace": {
+      "statement": "The edit window shows more details about the certificate, including its expiration date and whether it is being used as the signing certificate for App Connectors, AppProtection, Zscaler Client Connector or Network Connectors. To replace an expired certificate a new one must be uploaded, and saving a certificate with the Client Certificate Type AppProtection CA replaces an existing AppProtection CA certificate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-enrollment-ca-certificates.json",
+          "quotes": [
+            "You can see more details about the certificate, including the certificate's expiration date and whether it is being used as the signing certificate for App Connectors, AppProtection, Zscaler Client Connector, or Network Connectors.",
+            "To replace an expired certificate, you must upload a new one.",
+            "If you select the Client Certificate Type AppProtection CA and there is an existing AppProtection CA certificate, when you click Save this CA certificate replaces the previous AppProtection CA certificate."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "preloaded-connector-scope": {
+      "summary": "The preloaded certificates page says its signing certificates can enroll Zscaler Client Connector and App Connectors, but its Connector entry describes that certificate as for certificates issued to Zscaler Client Connectors.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-preloaded-enrollment-ca-certificates.json",
+            "quotes": [
+              "The following Zscaler-issued signing certificates can be used to enroll Zscaler Client Connector and App Connectors:"
+            ]
+          },
+          "says": "The preloaded signing certificates can be used to enroll Zscaler Client Connector and App Connectors."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-preloaded-enrollment-ca-certificates.json",
+            "quotes": [
+              "Connector: A signing certificate for Private Access that can be used for enrollment certificates issued to Zscaler Client Connectors."
+            ]
+          },
+          "says": "The Connector certificate can be used for enrollment certificates issued to Zscaler Client Connectors."
+        }
+      ],
+      "impact": "Whether the preloaded Connector certificate enrolls App Connectors is not settled by the page; the existing claims zpa.app-connectors.connector-groups:ansible-resolves-cert and zpa.api.certificates-wire:system-provisioned-names side with App Connectors."
+    },
+    "recommended-count": {
+      "summary": "The Generating page recommends five separate certificates (plus one for AppProtection), while the CSR page recommends a certificate for Client Connector and another for App Connectors.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-generating-zscaler-issued-enrollment-certificates.json",
+            "quotes": [
+              "Zscaler recommends creating a certificate for Zscaler Client Connector, another certificate for App Connectors, a third for Private Service Edges, a fourth for Network Connectors, and a fifth for Private Cloud Controllers."
+            ]
+          },
+          "says": "Create a certificate for Client Connector and one each for App Connectors, Private Service Edges, Network Connectors and Private Cloud Controllers."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-creating-certificate-signing-requests-enrollment-ca-certificates.json",
+            "quotes": [
+              "Zscaler recommends creating a CA certificate for Zscaler Client Connector and another certificate for App Connectors."
+            ]
+          },
+          "says": "Create a CA certificate for Client Connector and another for App Connectors."
+        }
+      ],
+      "impact": "The pages do not say whether the CSR page's two-certificate wording is limited to that workflow or whether Private Service Edges, Network Connectors and Private Cloud Controllers need their own certificates there."
+    }
+  },
+  "gaps": {
+    "generated-validity": {
+      "kind": "semantic",
+      "title": "Validity of Zscaler-generated enrollment certificates",
+      "status": "open",
+      "detail": "The enrollment certificate pages show CA expiration dates and expiry icons but give no lifetime for Zscaler-generated certificates or for the certificates issued from them to connectors (see zpa.app-connectors.enrollment:certificate-validity-window).",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "network-connector-type": {
+      "kind": "semantic",
+      "title": "Client Certificate Type for a Network Connector certificate",
+      "status": "open",
+      "detail": "The Generate page lists None for App Connectors, Private Service Edges or Private Cloud Controllers and the upload page lists None for App Connectors and Private Service Edges; neither names Network Connectors, though the edit page and the required-for list name them. This absence comes from comparing the pages.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "preloaded-names": {
+      "kind": "semantic",
+      "title": "Preloaded certificate names the Go test expects",
+      "status": "open",
+      "detail": "The preloaded page lists Root, Client and Connector, while the Go test expects Root, Client, Connector, Service Edge and Isolation Client (zpa.api.certificates-wire:system-provisioned-names). This absence comes from comparing the pages.",
+      "resolves_with": [
+        "tenant-data",
+        "source-read"
+      ]
+    },
+    "upload-private-key": {
+      "kind": "semantic",
+      "title": "Whose private key an uploaded signed enrollment certificate carries",
+      "status": "open",
+      "detail": "The upload page requires the signed certificate to include the private key, which sits uneasily with zpa.app-connectors.enrollment:private-keys-stay-on-device. The page does not say whose key it is.",
+      "resolves_with": [
+        "support-ticket",
+        "source-read"
+      ]
+    },
+    "cname-example": {
+      "kind": "semantic",
+      "title": "The CSR page's CNAME example against its duplicate rule",
+      "status": "open",
+      "detail": "The CSR page says a CSR cannot be created with a duplicate CNAME and gives {domain}/test as the CNAME for a CSR named test. Its own example, 'If you try to create a new CSR with the name test, then the CNAME for the new certificate is {domain}/test, and the CNAME doesn't change.', reads against that rule and does not say what happens on a duplicate name.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    }
+  }
+}

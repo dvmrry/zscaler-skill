@@ -45,6 +45,10 @@
     {
       "rel": "see-also",
       "to": "zdx.sdk-go.legacy-client"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zdx"
     }
   ],
   "prose": [
@@ -53,7 +57,11 @@
     },
     {
       "label": "OneAPI gateway.",
-      "text": "The gateway base path for ZDX is in [[shared.oneapi.base-urls:base-path-table]] and its OAuth sign-in in [[shared.oneapi.authentication]]. {{contract-server}} {{oneapi-roles}}"
+      "text": "The gateway base path for ZDX is in [[shared.oneapi.base-urls:base-path-table]] and its OAuth sign-in in [[shared.oneapi.authentication]]. {{contract-server}} {{oneapi-roles}} The ZDX help describes Service Desk Tier 1 differently {{divergence:service-desk-user-info}}; the roles themselves are in [[shared.admin-rbac.zdx]]."
+    },
+    {
+      "label": "API keys.",
+      "text": "{{api-key-management}} {{api-key-fields}} {{api-key-create}} {{api-tiers}}"
     },
     {
       "label": "Direct ZDX host.",
@@ -133,6 +141,70 @@
         }
       ]
     },
+    "api-key-management": {
+      "statement": "ZDX API Key Management is a repository for an organization to store created API keys for admin roles; an API key consists of an API Key ID and Secret, both required for access to the ZDX APIs. The page is at Administration > API > Legacy API > Digital Experience API Keys, and for access to Zscaler OneAPI endpoints the article points to About API Clients.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-api-key-management.json",
+          "quotes": [
+            "API Key Management is a repository for an organization to store created API keys for admin roles. An API key consists of an API Key ID and Secret. These two items are required for access to Digital Experience (ZDX) APIs.",
+            "If you must obtain API keys or secrets to access Zscaler OneAPI endpoints, see About API Clients.",
+            "Administration > API > Legacy API > Digital Experience API Keys"
+          ]
+        }
+      ]
+    },
+    "api-key-fields": {
+      "statement": "Each API key on the page shows the Role it is assigned to, the username that created it (Created By) and the timestamp of when it was last updated (Last Updated On).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-api-key-management.json",
+          "quotes": [
+            "Role: The role the API key is assigned to.",
+            "Created By: The username that created the API key.",
+            "Last Updated On: The timestamp of when the API key was last updated."
+          ]
+        }
+      ]
+    },
+    "api-key-create": {
+      "statement": "After the API subscription is enabled the Digital Experience API Keys page is accessible to a ZDX admin; creating a key selects an admin role to be assigned the key, the API Key ID and Key Secret can be copied or downloaded as a JSON file and both are needed for authentication, viewing a key opens the API Key window, where the API Key ID can be copied, and editing changes the Name or the role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-api-keys.json",
+          "quotes": [
+            "After your API subscription is enabled, the Digital Experience API Keys page is accessible to a ZDX admin.",
+            "Select Role: Select an admin role to be assigned the API key.",
+            "Click Copy to copy the API Key ID or Key Secret, or click Download to download the JSON file. You need both the API Key ID and Key Secret for authentication.",
+            "Click the View icon for a specific API key to open the API Key window.",
+            "Click Copy to copy the API Key ID.",
+            "Edit the Name or choose a new role from the Select Role drop-down menu."
+          ]
+        }
+      ]
+    },
+    "api-tiers": {
+      "statement": "In the subscription table ZDX APIs are Not supported on Standard, Supported for Microsoft 365 events on Microsoft 365 and Supported on Advanced and Advanced Plus; the page's Organization table, which has one Limit column and no tier columns, gives API Keys as 50.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "after": "## Integrations and Data Retention",
+          "quotes": [
+            "| ZDX APIs | Not supported | Supported for Microsoft 365 events | Supported | Supported |",
+            "| API Keys | 50 |",
+            "| Feature | Standard | Microsoft 365 | Advanced | Advanced Plus |"
+          ]
+        }
+      ]
+    },
     "legacy-guide-versions": {
       "statement": "The legacy ZDX getting-started guide says the base URL is the cloud's `/v1` or `/v2`, depending on what was provisioned for the organization, and its sign-in example posts to `https://api.zdxcloud.net/v2/oauth/token`.",
       "tier": "A",
@@ -179,6 +251,53 @@
     }
   },
   "divergences": {
+    "service-desk-user-info": {
+      "summary": "What ZDX Service Desk Tier 1 sees of user information: the OneAPI getting-started page gives it obfuscated user information, while the ZDX help gives it the Users Dashboard and User Search, and says User Search needs the User Name permission to be Visible.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "automate-zscaler/getting-started.json",
+            "after": "## Understanding API Resources and Roles",
+            "quotes": [
+              "- ZDX Service Desk Tier 1: restricted view access with obfuscated user information with a limited time window."
+            ]
+          },
+          "says": "Tier 1 has restricted view access with obfuscated user information and a limited time window."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-about-zdx-role-based-administration.json",
+            "quotes": [
+              "ZDX Service Desk Tier 1: An admin with this role has read permissions to the Users Dashboard and access to the User Search."
+            ]
+          },
+          "says": "Tier 1 has read permissions to the Users Dashboard and access to the User Search."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-understanding-zdx-service-desk-role.json",
+            "quotes": [
+              "When an admin has access to User Name, then the admin can access User Search."
+            ]
+          },
+          "says": "An admin with access to User Name can access User Search."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-adding-zdx-roles.json",
+            "quotes": [
+              "If the User Name permission is set to Obfuscated, then the admin does not have access to User Search and cannot download a table in CSV format for Software Inventory."
+            ]
+          },
+          "says": "With User Name Obfuscated an admin does not have access to User Search."
+        }
+      ],
+      "impact": "The OneAPI page does not say which user information is obfuscated, and the role article ties User Search to a Visible User Name; whether Tier 1 sees user names is unsettled."
+    },
     "direct-api-version": {
       "summary": "The direct host's API version: the legacy guide says a tenant's base URL is v1 or v2 by provisioning and signs in at `/v2/oauth/token`; both SDKs always sign in at `/v1/oauth/token`.",
       "positions": [

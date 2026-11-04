@@ -1,0 +1,298 @@
+{
+  "schema_version": 1,
+  "id": "zia.ad-integration.hosted-user-database",
+  "title": "Hosted User Database: adding users by hand, importing users, groups and departments by CSV, and one-time tokens and links",
+  "aliases": [
+    "Hosted DB",
+    "hosted users",
+    "one-time token",
+    "one-time link",
+    "temporary authentication",
+    "users CSV import",
+    "Sample Import CSV"
+  ],
+  "binds": [
+    "zia/users",
+    "zia/groups",
+    "zia/departments"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.provisioning-methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.identity-objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.authentication-bridge"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Hosted User Database is the provisioning method where the Zscaler database itself holds the users. {{what-it-is}} The number of users it can hold differs between pages {{divergence:users-per-org}}."
+    },
+    {
+      "label": "Authenticating.",
+      "text": "{{password-auth-flow}} The password strength and expiration settings are in [[zia.authentication.settings]]."
+    },
+    {
+      "label": "When the Users page is view-only.",
+      "text": "{{read-only-conditions}}"
+    },
+    {
+      "label": "Adding by hand.",
+      "text": "{{add-user-form}} The field limits and group rules are in [[zia.ad-integration.identity-objects]]."
+    },
+    {
+      "label": "CSV.",
+      "text": "{{csv-import-users}} {{csv-import-groups-departments}} {{csv-download-not-importable}}"
+    },
+    {
+      "label": "One-time token and link.",
+      "text": "{{one-time-token-link}} What a user sees on an expired token or link is open {{gap:one-time-expiry-behavior}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the repository type is Hosted DB and not Active Directory or OpenLDAP, since the latter make the Users page view-only.",
+      "uses": [
+        "read-only-conditions"
+      ]
+    },
+    {
+      "do": "Whether the CSV is the Sample Import format with the right Action, and not a downloaded CSV.",
+      "uses": [
+        "csv-import-users",
+        "csv-download-not-importable"
+      ]
+    },
+    {
+      "do": "Whether the user has a valid email address before relying on a one-time token or link.",
+      "uses": [
+        "one-time-token-link"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "With the Hosted User Database, user information is uploaded to the Zscaler database by adding it manually in the Admin Console, importing it from a CSV file, or using the Zscaler Authentication Bridge (ZAB). When users are added directly to the Zscaler database, password-based authentication is the default method; the passwords are uploaded with the username, group and department information and stored in an encrypted format, and users can be required to enter a password different from their corporate password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-hosted-user-database.json",
+          "quotes": [
+            "With this provisioning method, you can upload user information to the Zscaler database by simply adding the information manually in the Zscaler Admin Console, importing the information from a CSV (Comma-Separated Value) file, or using the Zscaler Authentication Bridge (ZAB).",
+            "When users are added directly to the Zscaler database, password-based authentication is the default authentication method.",
+            "The passwords are uploaded with the username, group, and department information, and they are stored in the database in an encrypted format.",
+            "For additional security, you can require users to enter a password that is different from their corporate password."
+          ]
+        }
+      ]
+    },
+    "password-auth-flow": {
+      "statement": "With password-based authentication, the Central Authority (CA) displays the password request form after it receives the request with the username from the Public Service Edge, and authenticates the user when the submitted password matches the one in the database. Setup enables Enforce Authentication on the location and sets Directory Type to Hosted DB and Authentication Type to Form-Based, with One-Time Token or One-Time Link optionally chosen as Temporary Authentication. If a hosted user cannot authenticate, the article says to verify the User ID and Password on the Internet & SaaS Users page, and that the user might have entered an incorrect password so resetting it may help.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-hosted-user-database.json",
+          "quotes": [
+            "With password-based authentication, the CA displays the password request form to the user after it receives the request with the username from the Public Service Edge for Internet & SaaS (ZIA).",
+            "After the user submits the password, the CA matches it with the password in the database. It authenticates the user when it finds a match.",
+            "3. In the Edit Location window, enable Enforce Authentication.",
+            "Directory Type: Choose Hosted DB.",
+            "Authentication Type: Choose Form-Based.",
+            "Temporary Authentication: Choose One-Time Token or One-Time Link if you would like to use a temporary authentication method.",
+            "If a hosted user is unable to authenticate, from the navigation menu, go to Administration > Internet & SaaS Authentication > Internet & SaaS Users and verify the user's User ID and Password.",
+            "The user might have entered an incorrect password, so try resetting it."
+          ]
+        }
+      ]
+    },
+    "read-only-conditions": {
+      "statement": "If Active Directory or OpenLDAP is selected in the default authentication profile, or if the organization uses Authentication Service for Admins, users are listed view-only with limited options (download user data and search for users); with Authentication Service for Admins and Users, users are configured with Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-internet-saas-users.json",
+          "quotes": [
+            "If you select Active Directory or OpenLDAP when configuring the default authentication profile, or if your organization uses Authentication Service for Admins, users are listed as view only with limited options (i.e., download user data and search for users).",
+            "If your organization uses Authentication Service for Admins and Users, users are configured with Authentication Service."
+          ]
+        }
+      ]
+    },
+    "add-user-form": {
+      "statement": "When adding users, their groups and departments must be specified, and new groups and departments can be added. The Password field must follow the guidelines defined when password is the selected authentication method, and Temporary Authentication Email appears only when One-time Token or One-time Link is selected as the temporary authentication method in Authentication Profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-users.json",
+          "quotes": [
+            "When adding users, you must specify their groups and departments. You can also add new groups and departments.",
+            "Password: Enter the user’s password. If you selected password as the authentication method, it must follow the guidelines that you defined.",
+            "Temporary Authentication Email: Enter a valid email address for the temporary authentication. This only appears if you selected One-time Token or One-time Link as the temporary authentication method in Authentication Profile."
+          ]
+        }
+      ]
+    },
+    "csv-import-users": {
+      "statement": "Up to 3,000 users can be imported with a CSV file, which must have a .csv extension; each user's email address must have a domain defined in the Admin Console, and with a one-time token or link either that field or the Temp auth email field must contain a valid email address. The Action column takes + to add a new user or modify an existing one (Email-ID, User Name, Dept and Group must be filled in when adding) or - to delete a user (only Email-ID required); each group beyond the first goes in a new column, and a blank Password means the user logs in the first time with a one-time token or link. Override Existing Entries updates existing user information; adding a user that already exists without it gives an error message.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-importing-user-information-csv-file.json",
+          "quotes": [
+            "You can import up to 3,000 users using a CSV file.",
+            "The file name must have a .csv extension.",
+            "Each user's email address must have a domain name that was defined in the Zscaler Admin Console. If the authentication method is a one-time token or one-time link, then either this field or the Temp auth email field must contain a valid email address.",
+            "Enter + to add a new user or modify an existing one. When adding a user, Email-ID, User Name, Dept, and Group must be filled in.",
+            "Enter - to delete an existing user. When deleting a user, only Email-ID is required.",
+            "If the Password field is left blank, users must log in to the Zscaler service for the first time using a one-time token or one-time link.",
+            "Enter each group beyond the first in a new column.",
+            "Override Existing Entries: Select this checkbox if you want to update any existing user information (e.g., group, password, and department).",
+            "If you attempt to add a new user that already exists without selecting this option, the Zscaler service displays an error message."
+          ]
+        }
+      ]
+    },
+    "csv-import-groups-departments": {
+      "statement": "Up to 3,000 user groups can be imported at one time with CSV files, whose header row has Action, Name and Comments columns; a group is removed with - under Action and its name under Name. Up to 3,000 departments can be imported with a CSV file, and adding multiple users to an existing department or changing the department for multiple users goes through the user sample import CSV file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-importing-group-information-csv-file.json",
+          "quotes": [
+            "You can import up to 3,000 user groups onto the Zscaler service at one time by using CSV files.",
+            "Retain the first line of the file, which is the header row. You will see Action, Name, and Comments columns.",
+            "To remove a group, enter - under the Action column and the group name under the Name column."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-importing-department-information-csv-file-new.json",
+          "quotes": [
+            "You can import up to 3,000 departments using a CSV file. If you want to add multiple users to an existing department or change the department for multiple users, you must use the user sample import CSV file."
+          ]
+        }
+      ]
+    },
+    "csv-download-not-importable": {
+      "statement": "The CSV downloaded for users, for groups and for departments cannot be used to import that object because it uses a different format; each of the three download pages says so for its own object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-user-information-csv-file.json",
+          "quotes": [
+            "This CSV file can't be used to import users because it uses a different format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-group-information-csv-file.json",
+          "quotes": [
+            "This CSV file can't be used to import groups because it uses a different format."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-department-information-csv-file.json",
+          "quotes": [
+            "This CSV file can't be used to import departments because it uses a different format."
+          ]
+        }
+      ]
+    },
+    "one-time-token-link": {
+      "statement": "The service can email users a link or temporary password that they use to log in once, which the article says is useful when creating new users or resetting forgotten passwords. The service allows a user to request a new temporary password only once every 24 hours, and both the unique link and the unique password are valid for 24 hours. After a token login the user must enter a new password, which the CA stores before setting the gateway cookie. It works for users hosted by the service or synchronized from a directory server as long as the service has valid email addresses, and for synchronized users the service matches the password with the one in its database, not the directory server's. It does not apply to users with Zscaler Client Connector. The email goes to the Temporary Authentication Email, which need not belong to the organization's domain, or to the User ID if that field is empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-one-time-token-or-one-time-link.json",
+          "quotes": [
+            "You can configure the Zscaler service to email users a link or temporary password that they can use to log in to the service once. This is useful when creating new users or resetting forgotten passwords.",
+            "The service allows a user to request a new temporary password only once every 24 hours. Both the unique link and unique password are valid for 24 hours.",
+            "When a one-time token is used for authentication, after a user enters the temporary password and successfully logs in to the service, the user is required to enter a new password. The CA stores this password and sets the gateway cookie.",
+            "You can use this feature when users are hosted by the service or synchronized from a directory server, as long as the service has the users' valid email addresses.",
+            "Therefore when users log in to the service and try to authenticate, the service matches their password with the one in its database, not the password in the directory server.",
+            "This feature doesn't apply to users with Zscaler Client Connector.",
+            "Ensure that the user has an email address entered in the Temporary Authentication Email field. This is the email address the Zscaler service sends the email with the link or password to.",
+            "This email address doesn't need to belong to the organization's domain. If this field is empty, the service sends the link or password to the User ID instead."
+          ]
+        }
+      ],
+      "gaps": [
+        "one-time-expiry-behavior"
+      ]
+    }
+  },
+  "divergences": {
+    "users-per-org": {
+      "summary": "The Hosted User Database article says there is no limit to the users an organization can store, while the Users page and the limits table give 1,400K.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-hosted-user-database.json",
+            "quotes": [
+              "There is no limit to the number of users that an organization can store in the database."
+            ]
+          },
+          "says": "There is no limit to the number of users an organization can store in the database."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-internet-saas-users.json",
+            "quotes": [
+              "You can add up to 1400K users."
+            ]
+          },
+          "says": "Up to 1400K users can be added."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ranges-limitations-zia.json",
+            "quotes": [
+              "| Users per Organization | 1,400K users |"
+            ]
+          },
+          "says": "The limits table gives Users per Organization as 1,400K users."
+        }
+      ],
+      "impact": "Do not tell a tenant planning a large Hosted DB population that there is no cap, or that 1,400K is the cap, without saying the pages disagree. The org-limits claim in zia.ad-integration.identity-objects holds the limits-table figure."
+    }
+  },
+  "gaps": {
+    "one-time-expiry-behavior": {
+      "kind": "semantic",
+      "title": "What a user sees on an expired one-time token or link",
+      "status": "open",
+      "detail": "The article gives 24 hours for validity and for the interval between requests, but does not state what a user sees when the token or link has expired. A lab test with an expired link, or a vendor statement, would settle it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ],
+      "blocks": "telling a user what to do with an expired temporary password"
+    }
+  }
+}

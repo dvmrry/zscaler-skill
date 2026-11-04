@@ -46,6 +46,14 @@
       "text": "{{response-limits}} {{attribute-scope}} {{no-other-assertion-attributes}}"
     },
     {
+      "label": "IdP attribute fields.",
+      "text": "{{idp-attribute-fields}}"
+    },
+    {
+      "label": "Login errors for a missing user.",
+      "text": "{{missing-user-login-errors}}"
+    },
+    {
       "text": "The org-level switch is [[zia.authentication.settings:auto-provision]], and the SAML service-provider and IdP reachability points are in [[zia.authentication.methods]]."
     },
     {
@@ -145,6 +153,37 @@
         "attribute-scope"
       ],
       "conditions": "Reads 'restricted to' as meaning ZIA ignores other attributes in the assertion; no source states what happens to extra attributes."
+    },
+    "idp-attribute-fields": {
+      "statement": "On the IdP form, the User Display Name Attribute (typically displayName), Group Name Attribute (typically memberOf) and Department Name Attribute (typically department) name the SAML attributes that map to the username, group name and department name, and are case-sensitive. With Active Directory or OpenLDAP user repositories, SAML auto-provisioning is supported for only one IdP, and Zscaler recommends SCIM to provision users: disable this option and select Enable SCIM Provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "If you're using Active Directory or OpenLDAP user repositories, SAML auto-provisioning is supported for only one IdP.",
+            "User Display Name Attribute: Enter the SAML attribute that maps to the username. Typically, it's displayName. This is case-sensitive.",
+            "Group Name Attribute: Enter the SAML attribute that maps to the group name. Typically, it's memberOf. This is case-sensitive.",
+            "Department Name Attribute: Enter the SAML attribute that maps to the department name. Typically, it's department. This is case-sensitive.",
+            "Zscaler recommends using SCIM to provision users. If you want to use SCIM-based provisioning, disable this option and select Enable SCIM Provisioning."
+          ]
+        }
+      ]
+    },
+    "missing-user-login-errors": {
+      "statement": "SAML errors 0xB0040 (the user was not found and SAML auto-provisioning is disabled) and 0xE5616 (an unknown user was sent in the SAML response) have the documented action to add the user and then enable SAML auto-provisioning in the Admin Console, because the user does not exist and auto-provisioning is not enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-saml.json",
+          "quotes": [
+            "| 0xB0040 | The user wasn't found, and SAML auto-provisioning is disabled. | The user doesn't exist, and SAML auto-provisioning isn't enabled. Add the user and then enable SAML auto-provisioning in the Zscaler Admin Console. |",
+            "| 0xE5616 | An unknown user was sent in the SAML response. | The user doesn't exist, and SAML auto-provisioning isn't enabled. Add the user and then enable SAML auto-provisioning in the Zscaler Admin Console. |"
+          ]
+        }
+      ]
     }
   },
   "gaps": {

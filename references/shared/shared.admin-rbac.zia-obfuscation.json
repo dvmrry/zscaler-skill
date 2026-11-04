@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.zia-obfuscation",
+  "title": "Who sees real user names, device information and Gen AI prompts in ZIA: role obfuscation and auditors",
+  "aliases": [
+    "zia auditor",
+    "obfuscate user names admins",
+    "obfuscating device information",
+    "auditor override obfuscated",
+    "user name obfuscation role",
+    "gen ai prompt obfuscation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia-permissions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.insights.logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZIA hides user names, device information and Gen AI prompts from an admin according to the admin's role, and an auditor can reveal obfuscated user names and device information for a session. {{role-settings}} {{set-on-the-role}}"
+    },
+    {
+      "label": "Setting it.",
+      "text": "{{configure-prerequisites}} The rank condition there differs from the admin rank page {{divergence:equal-rank-vs-lower-rank}}. {{nss-feeds}}"
+    },
+    {
+      "label": "Auditors.",
+      "text": "{{auditor-needed}} {{auditor-account}} {{override-per-session}}"
+    },
+    {
+      "label": "Managing auditors.",
+      "text": "{{manage-auditors}} {{auditor-fields}} {{auditor-benefits}}"
+    },
+    {
+      "label": "Executive Insights App.",
+      "text": "{{executive-insights-obfuscation}} The role's other permissions are in [[shared.admin-rbac.zia-permissions]]."
+    },
+    {
+      "label": "Open questions.",
+      "text": "Where an override is recorded is open {{gap:override-recorded}}. How an auditor is identified when SAML is on is open {{gap:auditor-saml}}. Whether obfuscation reaches API responses is open {{gap:api-responses}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an admin who sees obfuscated user names or device information, the obfuscation setting on the role the admin holds, and who else holds that role.",
+      "uses": [
+        "role-settings",
+        "set-on-the-role"
+      ]
+    },
+    {
+      "do": "For an admin who needs real user names or device information, whether an auditor can grant permission, and that the permission lasts for the session.",
+      "uses": [
+        "auditor-needed",
+        "override-per-session"
+      ]
+    },
+    {
+      "do": "For a failure to set obfuscation on another admin account, the configuring admin's Administrators Access permission, scope and rank, using the divergence over equal rank.",
+      "uses": [
+        "configure-prerequisites",
+        "equal-rank-vs-lower-rank"
+      ]
+    }
+  ],
+  "claims": {
+    "role-settings": {
+      "statement": "An admin role sets User Names (real user names in dashboards, reports and insights), Device Information (device name, device hostname and device owner in dashboards, reports and insights) and Gen AI Prompt (prompts in the Web Insights Logs) each to Visible or Obfuscated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-internet-saas-admin-roles.json",
+          "quotes": [
+            "Choose whether real usernames are visible to admins when they view dashboards, reports, or insights:",
+            "Visible: Usernames are visible.",
+            "Obfuscated: Usernames are obfuscated.",
+            "Choose whether device information (i.e., device name, device hostname, and device owner) is visible to admins when they view dashboards, reports, or insights:",
+            "Visible: Device information is visible.",
+            "Obfuscated: Device information is obfuscated.",
+            "Choose whether generative AI (Gen AI) prompts are visible to admins when they view the Web Insights Logs:",
+            "Visible: Gen AI prompts are visible.",
+            "Obfuscated: Gen AI prompts are obfuscated."
+          ]
+        }
+      ]
+    },
+    "set-on-the-role": {
+      "statement": "Obfuscation is enabled on the role assigned to the admin, so editing that role changes every admin who holds it; the user-name page and the device-information page each say so.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-obfuscating-user-names-admins.json",
+          "quotes": [
+            "To obfuscate user names for an admin viewing dashboards, reports, and insights, you must enable user name obfuscation for the role assigned to the admin. In other words, you must edit the admin role assigned to the admin account or create a new role.",
+            "Also, check which other admins have been assigned this specific role, and ensure you want user obfuscation enabled for those admins as well."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-obfuscating-device-information-admins.json",
+          "quotes": [
+            "To obfuscate device information for an admin viewing dashboards, reports, and insights, you must enable device information obfuscation for the role assigned to the admin.",
+            "Also, check which other admins have been assigned this specific role, and ensure you want device information obfuscation enabled for those admins as well."
+          ]
+        }
+      ]
+    },
+    "nss-feeds": {
+      "statement": "User names can also be obfuscated in NSS feeds; the user-names page points to the articles on adding NSS feeds for web, firewall and DNS logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-obfuscating-user-names-admins.json",
+          "quotes": [
+            "You can also obfuscate user names in NSS feeds. To learn more, see Adding NSS Feeds for Web Logs, Adding NSS Feeds for Firewall Logs, and Adding NSS Feeds for DNS Logs."
+          ]
+        }
+      ]
+    },
+    "configure-prerequisites": {
+      "statement": "To set user-name or device-information obfuscation for an admin account, the configuring admin needs a role with Full permission to Administrators Access and organizational admin scope; with admin rank enabled, another admin being configured must have a rank lower than or equal to the configuring admin's. The user-name page and the device-information page give the same three conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-obfuscating-user-names-admins.json",
+          "quotes": [
+            "Your admin account must have an admin role that has Full permission to Administrators Access.",
+            "Your admin account must have organizational admin scope.",
+            "If your organization has the admin rank feature enabled, and you're configuring this setting for another admin account, that admin must have an admin rank lower than or equal to your own admin rank."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-obfuscating-device-information-admins.json",
+          "quotes": [
+            "Your admin account must have an admin role that has Full permission to Administrators Access.",
+            "Your admin account must have organizational admin scope.",
+            "If your organization has the admin rank feature enabled, and you're configuring this setting for another admin account, that admin must have an admin rank lower than or equal to your own admin rank."
+          ]
+        }
+      ]
+    },
+    "auditor-needed": {
+      "statement": "Some regions have legal requirements that user names always remain obfuscated in reports and logs for admins; an admin who needs real user names, or device information, must have an auditor grant permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-auditors.json",
+          "quotes": [
+            "Some regions have legal requirements that dictate that user names always remain obfuscated in reports and logs for admins. If admins need to view real user names, they must have an auditor grant them permission to do so."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-obfuscating-device-information-admins.json",
+          "quotes": [
+            "If admins need to view device information, they must have an auditor grant them permission to do so."
+          ]
+        }
+      ]
+    },
+    "auditor-account": {
+      "statement": "A super admin can create an account for the auditor in the Admin Console and share the credentials; the credentials only let the auditor permit admins to view obfuscated user names and device information and cannot be used to log in to the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-auditors.json",
+          "quotes": [
+            "A super admin can create an account for the auditor through the Zscaler Admin Console and share the credentials with the auditor.",
+            "The auditor's credentials can only be used to provide admins permission to view obfuscated user names and device information. It can't be used to log in to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "override-per-session": {
+      "statement": "A message in the top-right corner tells an admin that some information is obfuscated; an auditor can click Override and enter credentials to reveal it. The data is visible for the duration of the session, and obfuscation begins again the next time the admin signs in to the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-auditors.json",
+          "quotes": [
+            "A message appears in the top-right corner notifying the admin that some information is obfuscated.",
+            "An auditor can click Override and enter their credentials to reveal the obfuscated information.",
+            "The obfuscated user names and device information are made visible for the duration of the session. Obfuscation begins again the next time the admin signs in to the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "manage-auditors": {
+      "statement": "Adding, editing or deleting auditors needs a super admin role and organizational scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-auditors.json",
+          "quotes": [
+            "You can add, edit, or delete auditors at any time, but you must have a super admin role and organizational scope to do so."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-auditors.json",
+          "quotes": [
+            "You must have a super admin role and organizational scope to add auditors."
+          ]
+        }
+      ]
+    },
+    "auditor-fields": {
+      "statement": "An auditor's login ID is the one the auditor uses from the SSO provider portal, with a domain name from those provided to Zscaler. Disabling an auditor clears its password, so a new one is needed on re-enabling, and with SAML enabled setting a password is optional. Comments cannot exceed 10,240 characters. The password, which the auditor must enter to give an admin permission to view user names, is 8 to 100 characters with at least one number, one special character and one uppercase letter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-auditors.json",
+          "quotes": [
+            "Login ID: Enter the login ID the auditor uses to log in from your SSO provider portal, and select the appropriate domain name.",
+            "The domain names you provided to Zscaler appear in the drop-down menu.",
+            "If you disable the auditor, the password is automatically cleared. So, when you re-enable the status of the disabled auditor, you must set a new password. If SAML is enabled, then setting a password is optional.",
+            "The comments cannot exceed 10,240 characters.",
+            "It can be 8 to 100 characters and must contain at least one number, one special character, and one uppercase letter. This is the password the auditor must enter to give an admin permission to view user names."
+          ]
+        }
+      ]
+    },
+    "auditor-benefits": {
+      "statement": "The vendor lists as auditor benefits an additional layer of security for user name visibility, control over who can access obfuscated user names, and keeping track of the admins who request access to user names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-auditors.json",
+          "quotes": [
+            "Add an additional layer of security for user name visibility to admins.",
+            "Control and manage who can access obfuscated user names.",
+            "Keep track of the admins who request access to user names."
+          ]
+        }
+      ]
+    },
+    "executive-insights-obfuscation": {
+      "statement": "In the Executive Insights App role, User Names, Device Information and Gen AI Prompt are each set to Visible or Obfuscated for admins with the role when they view data in the Executive Insights App.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-executive-insights-app-role.json",
+          "quotes": [
+            "User Names: Choose whether real user names are Visible or Obfuscated for admins with this role when they view data in the Executive Insights App.",
+            "Device Information: Choose whether device information is Visible or Obfuscated for admins with this role when they view data in the Executive Insights App.",
+            "Gen AI Prompt: Choose whether generative AI prompts are Visible or Obfuscated for admins with this role when they view data in the Executive Insights App."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "equal-rank-vs-lower-rank": {
+      "summary": "Whether an admin can manage another admin account of equal rank: the admin rank page limits account management to lower-ranked accounts, while the two obfuscation pages allow a rank lower than or equal to the configuring admin's. The rank page's claim is [[shared.admin-rbac.zia:rank-roles-and-accounts]].",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-admin-rank.json",
+            "quotes": [
+              "Admins who have permission to manage other admin accounts can only create, edit, or view accounts with a lower rank."
+            ]
+          },
+          "says": "Admins permitted to manage admin accounts can create, edit or view only accounts with a lower rank."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-obfuscating-user-names-admins.json",
+            "quotes": [
+              "that admin must have an admin rank lower than or equal to your own admin rank."
+            ]
+          },
+          "says": "For user-name obfuscation on another admin account, that admin's rank may be lower than or equal to the configuring admin's."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-obfuscating-device-information-admins.json",
+            "quotes": [
+              "that admin must have an admin rank lower than or equal to your own admin rank."
+            ]
+          },
+          "says": "For device-information obfuscation on another admin account, that admin's rank may be lower than or equal to the configuring admin's."
+        }
+      ],
+      "impact": "Whether an admin of the same rank can have obfuscation set, or an account edited, is not settled by the pages; the obfuscation pages may describe only that setting, which they do not say."
+    }
+  },
+  "gaps": {
+    "override-recorded": {
+      "kind": "semantic",
+      "title": "Where an auditor override, or a request for one, is recorded",
+      "status": "open",
+      "detail": "The auditors page lists keeping track of the admins who request access to user names as a benefit; no captured page says where an override or request is recorded.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "auditor-saml": {
+      "kind": "semantic",
+      "title": "How an auditor proves identity when SAML is enabled and no password is set",
+      "status": "open",
+      "detail": "The Adding Auditors page says setting a password is optional if SAML is enabled, and does not describe how the auditor is verified at an override.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "api-responses": {
+      "kind": "semantic",
+      "title": "Whether obfuscation applies to API responses",
+      "status": "open",
+      "detail": "The Role Management page's column says: \"User Names: This shows whether the usernames are visible or obfuscated within the Zscaler service or APIs.\" (admin-rbac-captures.json), but the API role form shows no obfuscation setting. The NSS feed obfuscation option lives in the NSS feed articles, outside this subject.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

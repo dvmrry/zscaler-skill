@@ -26,6 +26,10 @@
     {
       "rel": "see-also",
       "to": "zpa.browser-access.segment-constraints"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.certificates"
     }
   ],
   "prose": [
@@ -39,6 +43,10 @@
     {
       "label": "Certificate type.",
       "text": "{{certificate-type}} {{no-enrollment-certificates}}"
+    },
+    {
+      "label": "Uploading web server certificates.",
+      "text": "{{https-or-http}} {{upload-format-and-limit}} {{csr-subject-san}} {{replace-expired}} Whether a web server certificate is required is stated two ways {{divergence:web-server-cert-required}}. Enrollment certificates are in [[zpa.certificates.enrollment]]; the certificate overview is [[zpa.certificates]]."
     },
     {
       "label": "CNAME and DNS.",
@@ -146,6 +154,80 @@
         }
       ]
     },
+    "https-or-http": {
+      "statement": "If the web server certificate is signed by a public certificate authority, Private Access encrypts traffic using HTTPS; if it is self-signed, or Private Access cannot verify the chain of trust to the public CA, HTTP is used. The upload page gives the same rule as the protocol to select for a Browser Access application, and adds that Private Access inserts a Via header in HTTP requests (example: Via: 1.1 Zscaler-p.zpa-auth.net).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-certificates.json",
+          "quotes": [
+            "If the web server certificate is signed by a public certificate authority, then Private Access encrypts traffic using HTTPS. If the web server certificate is self-signed, or Private Access is unable to verify the chain of trust to the public certificate authority, then HTTP is used."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-web-server-certificates.json",
+          "quotes": [
+            "For defined applications with Browser Access enabled, if the certificate is signed by a public certificate authority (CA), then HTTPS should be selected as the protocol. If the certificate is self-signed, or Zscaler is unable to verify the chain of trust to the public CA, select HTTP.",
+            "Private Access (ZPA) supports HTTP and HTTPS protocols, and inserts a Via header in HTTP requests (e.g., Via: 1.1 Zscaler-p.zpa-auth.net)."
+          ]
+        }
+      ]
+    },
+    "upload-format-and-limit": {
+      "statement": "An uploaded web server certificate must be a single Base64-encoded ASCII .pem file that includes the certificate and unencrypted private key. Up to 1,000 certificates can be uploaded, and the ranges page lists the same figure. Once uploaded, a certificate can be selected when defining an application within an application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-uploading-web-server-certificates.json",
+          "quotes": [
+            "The uploaded signed certificate must include the unencrypted private key.",
+            "You must upload a single Base64-encoded ASCII .pem file, which includes the certificate and unencrypted private key.",
+            "You can upload up to 1,000 certificates.",
+            "After a certificate used for web servers is uploaded, it can then be selected when defining an application within an application segment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| (web server) Certificates | 1,000 certificates |"
+          ]
+        }
+      ]
+    },
+    "csr-subject-san": {
+      "statement": "A web server CSR's subject has the form CN=<Common Name>,O=<Organization>,ST=<State>,C=<Country>,L=<Location>,OU=<Organizational Unit>, with CN listed first and the other attributes optional. The common name does not need to be a wildcard domain. A SAN, which takes domains only, lets the certificate cover multiple hostnames. The certificate can be signed by a public CA or be self-signed with trust established by the organization's PKI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-creating-certificate-signing-requests-web-server-certificates.json",
+          "quotes": [
+            "CN=<Common Name>,O=<Organization>,ST=<State>,C=<Country>,L=<Location>,OU=<Organizational Unit>",
+            "The CN=<Common Name> attribute must be listed first in the sequence, and all other attributes are optional.",
+            "However, the common name does not need to be a wildcard domain.",
+            "Specifying a SAN allows the certificate to cover multiple hostnames (domains only).",
+            "The certificate can be signed by a public certificate authority (CA) or be a self-signed certificate whose trust is established by your organization's PKI."
+          ]
+        }
+      ]
+    },
+    "replace-expired": {
+      "statement": "An expired web server certificate can be replaced only by uploading a new one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-web-server-certificates.json",
+          "quotes": [
+            "To replace an expired certificate, you must upload a new one."
+          ]
+        }
+      ]
+    },
     "cname-in-dns": {
       "statement": "After saving a segment with a Browser Access application, the admin copies its CNAME from the Browser Access page. With a custom certificate the CNAME goes into public DNS and the application FQDN must resolve to it, while with a Zscaler-managed certificate Zscaler manages the public DNS entries and verifies the FQDN.",
       "tier": "A",
@@ -209,6 +291,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "web-server-cert-required": {
+      "summary": "The web server CSR page says a web server certificate must be uploaded to enable Browser Access for an application, while the application segment page offers a Zscaler-managed certificate as an alternative to a custom one.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-creating-certificate-signing-requests-web-server-certificates.json",
+            "quotes": [
+              "To enable Browser Access for an application, you must upload its web server certificate."
+            ]
+          },
+          "says": "To enable Browser Access for an application, you must upload its web server certificate."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "Select the certificate type. If you select Custom, continue with the following substeps. If you want to use a Zscaler-managed certificate, select Managed and go to the next step."
+            ]
+          },
+          "says": "The certificate type is Custom (with a web server certificate selected) or Managed, a Zscaler-managed certificate."
+        }
+      ],
+      "impact": "The two pages differ on whether an upload is needed when a Zscaler-managed certificate is chosen; neither page says the CSR page's rule is limited to custom certificates."
     }
   },
   "gaps": {

@@ -42,6 +42,10 @@
       "text": "{{ba-fqdn-only}} {{ba-ports}} Segment-level settings that interact with Browser Access are in [[zpa.app-segments.settings]]."
     },
     {
+      "label": "IPv6.",
+      "text": "{{ipv6-support}} {{ipv6-fqdn-access}} Whether ICMP reaches IPv6 applications is open {{gap:ipv6-icmp}}."
+    },
+    {
       "label": "Identity providers.",
       "text": "{{idp-overlap}}"
     },
@@ -85,6 +89,36 @@
           "quotes": [
             "Enter a fully qualified domain name (FQDN), IP address, local domain, or a wildcard domain (e.g., *.safemarch.com) associated with the application.",
             "You can't define an application with hyphenated IP address ranges"
+          ]
+        }
+      ]
+    },
+    "ipv6-support": {
+      "statement": "Private Access supports IPv4 for TCP-, UDP- and ICMP-based connections and IPv6 only for TCP-based applications. App Connectors and Private Service Edges are dual stack aware, so IPv4 and IPv6 run alongside each other. An IPv4 or an IPv6 endpoint through Client Connector reaching an IPv4 application is supported for TCP-, UDP- and ICMP-based connections; for direct IPv6 communication from an App Connector to a server only TCP is supported and UDP is not.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ipv6.json",
+          "quotes": [
+            "Private Access (ZPA) supports IPv4 for TCP-, UDP-, and ICMP-based connections, and supports IPv6 for only TCP-based applications.",
+            "App Connectors and Private Service Edges are dual stack aware, meaning IPv4 and IPv6 run simultaneously alongside each other.",
+            "An IPv4 endpoint through Zscaler Client Connector to access an IPv4 application on a server is supported for TCP-, UDP-, and ICMP-based connections.",
+            "An IPv6 endpoint through Zscaler Client Connector to access an IPv4 application on the server is supported for TCP-, UDP-, and ICMP-based connections.",
+            "Only TCP-based connections are supported for direct IPv6 communications from an App Connector to a server. UDP-based connections are not supported."
+          ]
+        }
+      ]
+    },
+    "ipv6-fqdn-access": {
+      "statement": "Users can access IPv6 applications defined using an FQDN or hostname if they use browser-based connections or Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ipv6.json",
+          "quotes": [
+            "Users can access IPv6 applications defined using a FQDN or hostname if they are using browser-based connections or Zscaler Client Connector."
           ]
         }
       ]
@@ -154,6 +188,18 @@
             "If an IdP domain overlaps with a domain configured for application discovery, you must bypass the IdP domain in Private Access (ZPA) to avoid user reauthentication failure."
           ]
         }
+      ]
+    }
+  },
+  "gaps": {
+    "ipv6-icmp": {
+      "kind": "semantic",
+      "title": "Whether ICMP reaches IPv6 applications",
+      "status": "open",
+      "detail": "The Configuring IPv6 page says IPv6 is supported for only TCP-based applications and that UDP is not supported for direct IPv6 communication from an App Connector to a server. It does not say whether ICMP is supported for IPv6 applications.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
       ]
     }
   }

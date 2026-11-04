@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "id": "zpa.authentication.idp-guides",
+  "title": "Per-IdP setup guides for Private Access SSO (Okta, OneLogin, PingOne, Azure AD, ADFS, SafeNet)",
+  "aliases": [
+    "Okta SSO guide",
+    "Azure AD SSO guide",
+    "ADFS 2.0 and 3.0",
+    "OneLogin",
+    "PingOne",
+    "Gemalto SafeNet Authentication Manager",
+    "Zscaler Private Access 2.0 app"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.scim.setup"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Six per-IdP guides describe the IdP side of single sign-on for Private Access; the Admin Console side is in [[zpa.authentication.idp-configuration]]. {{admin-role-prerequisite}}"
+    },
+    {
+      "label": "Catalog applications.",
+      "text": "{{gallery-apps}} {{metadata-sets-signed}}"
+    },
+    {
+      "label": "Okta.",
+      "text": "{{okta}}"
+    },
+    {
+      "label": "OneLogin.",
+      "text": "{{onelogin-identifier}}"
+    },
+    {
+      "label": "PingOne.",
+      "text": "{{pingone}}"
+    },
+    {
+      "label": "ADFS 2.0 and 3.0.",
+      "text": "{{adfs}}"
+    },
+    {
+      "label": "Azure AD.",
+      "text": "{{azure-ad-setup}} {{azure-ad-groups}}"
+    },
+    {
+      "label": "Gemalto SafeNet Authentication Manager.",
+      "text": "{{safenet}}"
+    },
+    {
+      "text": "SCIM for Azure AD and Okta is in [[zpa.scim.setup]]. Which IdP console versions the guides describe is open {{gap:console-versions}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which catalog application the IdP offers for user SSO and for admin SSO, since the names differ by IdP.",
+      "uses": [
+        "gallery-apps"
+      ]
+    },
+    {
+      "do": "For Azure AD, whether the subscription qualifies, the users are assigned to the application and, for user SSO with groups, the group mapping criteria are met.",
+      "uses": [
+        "azure-ad-setup",
+        "azure-ad-groups"
+      ]
+    },
+    {
+      "do": "For SafeNet, whether the SAM issuer entered in the IdP guide is the IdP Entity ID entered in the Admin Console.",
+      "uses": [
+        "safenet"
+      ]
+    }
+  ],
+  "claims": {
+    "admin-role-prerequisite": {
+      "statement": "Each of the Okta, OneLogin, PingOne, Microsoft Azure AD, Microsoft ADFS, and Gemalto SafeNet Authentication Manager guides lists the same prerequisite: a Private Access account with an administrator role that allows adding an IdP Configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-okta.json",
+          "quotes": [
+            "A Private Access account with an administrator role that allows you to add an IdP Configuration"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-onelogin.json",
+          "quotes": [
+            "A Private Access account with an administrator role that allows you to add an IdP Configuration"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-ping-identity.json",
+          "quotes": [
+            "A Private Access account with an administrator role that allows you to add an IdP Configuration"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-microsoft-azure-ad.json",
+          "quotes": [
+            "A Private Access account with an administrator role that allows you to add an IdP Configuration"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-microsoft-adfs-20-and-30.json",
+          "quotes": [
+            "A Private Access account with an administrator role that allows you to add an IdP Configuration"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-gemalto-safenet-authentication-manager.json",
+          "quotes": [
+            "A Private Access account with an administrator role that allows you to add an IdP Configuration"
+          ]
+        }
+      ]
+    },
+    "gallery-apps": {
+      "statement": "The catalog application differs by IdP: Okta uses Zscaler Private Access 2.0 for user and admin SSO; OneLogin and PingOne use Zscaler Private Access 2.0 for user SSO and Zscaler Private Access Administrator 2.0 for admin SSO; Azure AD uses Zscaler Private Access (ZPA) for user SSO and Zscaler Private Access Administrator for admin SSO. ADFS and SafeNet are not covered by this statement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-okta.json",
+          "quotes": [
+            "To configure Okta as the IdP for Private Access user and admin SSO:",
+            "In the search toolbar, search for Zscaler Private Access 2.0. When the application appears, click Add."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-onelogin.json",
+          "quotes": [
+            "Configuring the IdP for Private Access user SSO, click the Zscaler Private Access 2.0 application.",
+            "Configuring the IdP for Private Access admin SSO, click the Zscaler Private Access Administrator 2.0 application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-ping-identity.json",
+          "quotes": [
+            "Configuring the IdP for Private Access user SSO, click the Zscaler Private Access 2.0 application.",
+            "Configuring the IdP for Private Access admin SSO, click the Zscaler Private Access Administrator 2.0 application."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-microsoft-azure-ad.json",
+          "quotes": [
+            "For Private Access user SSO in the IdP configuration, click the Zscaler Private Access (ZPA) application.",
+            "For Private Access admin SSO in the IdP configuration, click the Zscaler Private Access Administrator application."
+          ]
+        }
+      ]
+    },
+    "metadata-sets-signed": {
+      "statement": "For OneLogin and for PingOne, the IdP metadata file uploaded to the Admin Console populates the Name, Single Sign-On URL and IdP Entity ID fields, sets ZPA (SP) SAML Request to Signed and uploads the IdP Certificate automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-onelogin.json",
+          "quotes": [
+            "For Onelogin, the IdP metadata file you upload to the Zscaler Admin Console will populate the Name, Single Sign-On URL, and IdP Entity ID fields. ZPA (SP) SAML Request is set to Signed and the IdP Certificate is uploaded automatically."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-ping-identity.json",
+          "quotes": [
+            "For PingOne, the IdP metadata file you upload to the Zscaler Admin Console populates the Name, Single Sign-On URL, and IdP Entity ID fields. ZPA (SP) SAML Request is set to Signed and the IdP Certificate is uploaded automatically."
+          ]
+        }
+      ]
+    },
+    "okta": {
+      "statement": "The Okta application must use the SAML 2.0 sign-on option. Passing Okta group information in the SAML response is optional; the guide's example of selecting Matches Regex and entering .* sends information for all Okta groups. For user SSO with SCIM the guide points to the SCIM Configuration Guide for Okta.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-okta.json",
+          "quotes": [
+            "You must use the SAML 2.0 sign-on option for this application",
+            "(Optional) If you want to pass Okta group information as part of the SAML response:",
+            "For example, selecting Matches Regex and entering .* sends information for all Okta groups to Private Access within the SAML response.",
+            "(Optional) If you are configuring Okta for user SSO and want to use SCIM, proceed to the SCIM Configuration Guide for Okta."
+          ]
+        }
+      ]
+    },
+    "onelogin-identifier": {
+      "statement": "In OneLogin the identifier within the Service Provider URL string from the Admin Console is copied and pasted into the Unique identifier field in the OneLogin portal; the guide's example URL is https://adminsamlsp.private.zscaler.com/auth/144118148382065352/sso.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-onelogin.json",
+          "quotes": [
+            "During this procedure, you must copy the identifier within the Service Provider URL string provided.",
+            "https://adminsamlsp.private.zscaler.com/auth/144118148382065352/sso",
+            "Go to the Onelogin portal and paste the identifier into the Unique identifier field."
+          ]
+        }
+      ]
+    },
+    "pingone": {
+      "statement": "In PingOne the ACS URL and Entity ID fields are populated automatically with the Service Provider URL and Service Provider Entity ID, and the guide instructs to map the identity bridge attributes to the attributes required by Private Access and then continue.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-ping-identity.json",
+          "quotes": [
+            "The ACS URL and Entity ID fields will automatically be populated with the proper Service Provider URL and Service Provider Entity ID information, respectively.",
+            "For Attribute Mapping, map the identity bridge attributes to the attributes required by Private Access, then click Continue to Next Step."
+          ]
+        }
+      ]
+    },
+    "adfs": {
+      "statement": "In the ADFS guide the relying party trust's Federation metadata address is the service provider (Zscaler) entity ID for user or admin SSO, with Permit all users and the SHA-256 security hash algorithm. A Send LDAP Attributes as Claims rule is added; the guide's example maps email addresses to Name ID where the email address is the same as the Private Access username. The IdP metadata is at https://<ADFS Server Name>/FederationMetadata/2007-06/FederationMetadata.xml.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-microsoft-adfs-20-and-30.json",
+          "quotes": [
+            "For Federation metadata address, enter the service provider (i.e., Zscaler) entity ID for user or admin SSO.",
+            "For Choose Issuance Authorization Rules, select Permit all users to access this relying party, and click Next.",
+            "On the Advanced tab, verify that the Security hash algorithm is set to SHA-256.",
+            "for Choose Rule Type select Send LDAP Attributes as Claims from the drop-down menu.",
+            "For example, in the following rule, email addresses are mapped to Name ID. In the example, the email address is the same as the Private Access username:",
+            "https://<ADFS Server Name>/FederationMetadata/2007-06/FederationMetadata.xml"
+          ]
+        }
+      ]
+    },
+    "azure-ad-setup": {
+      "statement": "Azure AD SSO needs a premium Azure AD subscription, or one that has used less than 10 gallery SSO applications with the license. Identifier (Entity ID) is the Service Provider Entity ID and Reply URL is the Service Provider URL; for user SSO the Sign on URL repeats the Reply URL, and for admin SSO it is left blank. Azure AD users must be assigned to the Private Access application to authenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-microsoft-azure-ad.json",
+          "quotes": [
+            "A premium Azure AD subscription, or an Azure AD subscription that has used less than 10 gallery Single Sign-On (SSO) applications with the license.",
+            "For Identifier (Entity ID) enter the Service Provider Entity ID that is provided for you when you configure a new IdP configuration in Zscaler Admin Console.",
+            "For Reply URL (Assertion Customer Service URL) enter the Service Provider URL that is provided for you when you configured a new IdP configuration in Zscaler Admin Console.",
+            "View the step for Private Access user SSO configuration.",
+            "Enter the same URL you used for the Reply URL (Assertion Customer Service URL) field from step 6b.",
+            "Vew the step for Private Access admin SSO configuration.",
+            "Leave the Sign on URL field blank.",
+            "In order for Azure AD users to authenticate through Private Access, you must assign these users to the Private Access application."
+          ]
+        }
+      ]
+    },
+    "azure-ad-groups": {
+      "statement": "The Azure AD group mapping procedure applies to Private Access user SSO only, and customizes the role claim type in the SAML response token to push groups, each group paired with its own role (1:1). Group mapping is not required if user-friendly group names are only sent to Azure AD using Azure AD Connect and AD Connect is version 1.2.7.0 or greater. The memberOf attribute must be imported to Private Access, and the authentication service imports it automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-microsoft-azure-ad.json",
+          "quotes": [
+            "The following procedure applies to IdP configurations for Private Access user SSO only.",
+            "If all of the following criteria are met, then group mapping is not required:",
+            "User-friendly group names are only sent to Azure AD using Azure AD Connect.",
+            "AD Connect is on version 1.2.7.0 or greater.",
+            "To configure group mapping in Azure AD, you must customize the role claim type in the SAML response token in order to push groups to Private Access.",
+            "Each group must be paired with its own role (i.e., 1:1 mapping ratio between groups and roles).",
+            "You must import the memberOf attribute to Private Access.",
+            "The Private Access authentication service automatically imports the memberOf attribute."
+          ]
+        }
+      ]
+    },
+    "safenet": {
+      "statement": "In Gemalto SafeNet Authentication Manager (SAM) the SAM issuer can be any string and must be entered as the IdP Entity ID in the Admin Console, Audience URI is the service provider (Zscaler) entity ID for user or admin SSO, and OTP authentication must be Enabled if users use one-time passwords. Export Certificate downloads the certificate SAM uses for signing SAML assertions. The procedure uses SAM version 8.2 as its example.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuration-guide-gemalto-safenet-authentication-manager.json",
+          "quotes": [
+            "SAM issuer: Enter the entity ID for SAM, which can be any string. When you are configuring the IdP for SSO within the Zscaler Admin Console, the ID you specify here must be entered into the IdP Entity ID field.",
+            "Audience URI: Enter the service provider (i.e., Zscaler) entity ID for user or admin SSO.",
+            "OTP authentication: If your users are using one-time password (OTP) authentication, then make sure that this setting is Enabled.",
+            "Click Export Certificate... to download the certificate used by SAM for signing SAML assertions.",
+            "This procedure references SAM version 8.2 as an example; other SAM versions allow you to export the metadata from this window."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "console-versions": {
+      "kind": "semantic",
+      "title": "Which IdP console versions the guides describe",
+      "status": "open",
+      "detail": "The captured guides name versions only for ADFS (the ADFS guide names 2.0 and 3.0) and SafeNet Authentication Manager (8.2); they do not say which versions of the other IdP consoles the steps were written for, and current consoles may label the steps differently.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

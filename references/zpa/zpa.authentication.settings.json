@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "zpa.authentication.settings",
+  "title": "Private Access authentication settings (admin SSO enforcement, CORS, SameSite, session timeout, authentication domains)",
+  "aliases": [
+    "Enforce SSO Login for Admins",
+    "CORS Request",
+    "SameSite Cookie Attribute",
+    "Admin Portal Session Timeout",
+    "Primary Authentication Domain",
+    "Max Age for Authentication with Private Service Edge"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.disaster-recovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Private Access authentication Settings page holds a handful of tenant-wide authentication options. {{enforce-sso}}"
+    },
+    {
+      "label": "Browser behavior.",
+      "text": "{{cors}} {{samesite}} What SameSite None and the CORS Request switch change for Browser Access in practice is open {{gap:cors-samesite-effect}}."
+    },
+    {
+      "label": "Admin session.",
+      "text": "{{session-timeout}}"
+    },
+    {
+      "label": "Authentication domains.",
+      "text": "{{authentication-domains}}"
+    },
+    {
+      "label": "Private Service Edge outage.",
+      "text": "{{max-age-pse}} This is a different field from the Disaster Recovery Mode max age in [[zpa.private-service-edges.disaster-recovery:max-age-for-authentication]]. Which feature the limited-availability note covers, and how the setting interacts with timeout policy, is open {{gap:max-age-open}}."
+    },
+    {
+      "text": "Admin SSO is configured on an IdP configuration in [[zpa.authentication.idp-configuration]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Enforce SSO Login for Admins is on, which stops local admin login except for the default admin account Zscaler created.",
+      "uses": [
+        "enforce-sso"
+      ]
+    },
+    {
+      "do": "Whether the NameID's domain suffix matches the primary or a secondary authentication domain, which only Zscaler Support can change for the primary.",
+      "uses": [
+        "authentication-domains"
+      ]
+    },
+    {
+      "do": "Which max-age field a question is about, this page's Private Service Edge setting or the Disaster Recovery Mode one, since the defaults differ.",
+      "uses": [
+        "max-age-pse",
+        "zpa.private-service-edges.disaster-recovery:max-age-for-authentication"
+      ]
+    }
+  ],
+  "claims": {
+    "enforce-sso": {
+      "statement": "Enforce SSO Login for Admins forces Private Access admins to log in to the Admin Console using SSO only, and requires admin SSO to be enabled in an IdP configuration; admins cannot then log in locally. The default admin account Zscaler created for the organization (zpaadmin@<domain>.com or admin@<domain>.com) can still log in locally.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-authentication-settings.json",
+          "quotes": [
+            "Enforce SSO Login for Admins: Enable to force Private Access admins to log into the Zscaler Admin Console using single sign-on (SSO) only. If you enable this setting, you must also enable admin SSO in an IdP configuration.",
+            "When enabled, admins can't log in locally.",
+            "If this setting is enabled, the default admin account that was initially created for your organization by Zscaler (i.e., zpaadmin@<your organization's domain>.com or admin@<your organization's domain>.com) can still log in locally."
+          ]
+        }
+      ]
+    },
+    "cors": {
+      "statement": "CORS Request, when enabled, allows cross-origin resource sharing to request access to selected resources from a different origin; the setting defaults to Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-authentication-settings.json",
+          "quotes": [
+            "CORS Request: Enable to allow CORS (cross-origin resource sharing) to request access to selected resources from a different origin, other than its own.",
+            "permitting access to the response if they match. By default, this is set to Disabled."
+          ]
+        }
+      ]
+    },
+    "samesite": {
+      "statement": "SameSite Cookie Attribute, when enabled, sets the SameSite attribute of application domain cookies and authentication domain cookies to None for all Browser Access applications; it defaults to Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-authentication-settings.json",
+          "quotes": [
+            "SameSite Cookie Attribute: Enable to set the SameSite cookie attribute for application domain cookies and authentication domain cookies to None for all Browser Access applications. By default, this is set to Disabled."
+          ]
+        }
+      ]
+    },
+    "session-timeout": {
+      "statement": "Admin Portal Session Timeout (In Minutes) specifies how long admins can be inactive on the Admin Console before logout; the default is 30 minutes and any interval from 5 to 600 minutes can be entered. A confirmation window appears 5 minutes before logout asking whether to extend the session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-authentication-settings.json",
+          "quotes": [
+            "Admin Portal Session Timeout (In Minutes): This specifies how long admins can be inactive on the Zscaler Admin Console before they are logged out.",
+            "The default value is 30 minutes, but you can enter any time interval from 5 to 600 minutes. A confirmation window appears 5 minutes before an admin is logged out, asking if they want to extend their session."
+          ]
+        }
+      ]
+    },
+    "authentication-domains": {
+      "statement": "Zscaler Support updates the Primary Authentication Domain. During authentication the domain suffix in the NameID must match that domain or a Secondary Authentication Domain, the other domains owned by the organization. The authentication domains have no relationship to application domains, but they can overlap.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-authentication-settings.json",
+          "quotes": [
+            "Primary Authentication Domain: The primary domain your organization uses for authentication. Contact Zscaler Support to update this field.",
+            "During authentication, the domain suffix in the NameID must match this domain or the domains listed in Secondary Authentication Domains.",
+            "Secondary Authentication Domains: These are other domains owned by your organization, but not configured as the primary authentication domain.",
+            "The primary and secondary authentication domains have no relationship to application domains, but they can overlap."
+          ]
+        }
+      ]
+    },
+    "max-age-pse": {
+      "statement": "Max Age for Authentication with Private Service Edge specifies how long a user's authentication is extended when the Private Service Edge cannot communicate with the Private Access cloud during a customer's network outage, measured since the last authentication. The maximum is 7 days and the default is 0 Days; the page says this feature and its procedures are in limited availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-authentication-settings.json",
+          "quotes": [
+            "Max Age for Authentication with Private Service Edge: This specifies the duration that the user's authentication is extended when the Private Service Edge for Private Access cannot communicate to the Private Access cloud during a customer's network outage.",
+            "This allows users to connect to Private Service Edges and access applications for the specified duration since the last time you authenticated.",
+            "The maximum allowed limit for the duration is 7 days.",
+            "By default, this is set to 0 Days.",
+            "This feature and its procedures are in limited availability."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cors-samesite-effect": {
+      "kind": "semantic",
+      "title": "What SameSite None and the CORS Request switch change for Browser Access in practice",
+      "status": "open",
+      "detail": "The page states what each switch sets and its default, not the effect on Browser Access sessions or which resources CORS covers.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "max-age-open": {
+      "kind": "semantic",
+      "title": "Scope of the limited-availability note and the interaction of Max Age with timeout policy",
+      "status": "open",
+      "detail": "The page follows the Max Age setting with a limited-availability note without saying which feature it covers, and does not say how the setting interacts with timeout policy; the Disaster Recovery page gives a recommendation for its own field only.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

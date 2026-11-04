@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "zia.traffic-forwarding.dc-exclusion",
+  "title": "Excluding a data center from a forwarding method (IPSec tunnels) for a period",
+  "aliases": [
+    "dc exclusion",
+    "data center exclusion traffic forwarding",
+    "exclude data center ipsec",
+    "dcExclusions"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipsec"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.subclouds.api"
+    }
+  ],
+  "prose": [
+    {
+      "text": "DC Exclusion for Traffic Forwarding lets an admin take a data center out of service to the organization for a period; the data center exclusions of a subcloud are in [[shared.subclouds.api]]. {{enable-by-ticket}}"
+    },
+    {
+      "label": "What it does.",
+      "text": "{{what-it-does}} {{on-activation}} Whether methods other than IPSec can be excluded is open {{gap:method-scope}}."
+    },
+    {
+      "label": "Time window and restore.",
+      "text": "{{timing-rules}} {{restore}}"
+    },
+    {
+      "label": "Tunnels this affects.",
+      "text": "The tunnels are described in [[zia.traffic-forwarding.ipsec]]."
+    }
+  ],
+  "claims": {
+    "enable-by-ticket": {
+      "statement": "To enable the DC Exclusion for Traffic Forwarding option for a tenant, a Support ticket is submitted from the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-center-exclusion-based-traffic-forwarding-method.json",
+          "quotes": [
+            "To enable the DC Exclusion for Traffic Forwarding option for your tenant, submit a Support ticket from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "what-it-does": {
+      "statement": "Admins can disable all IPSec VPN tunnels terminating at a virtual IP (VIP) address of the affected data center from the Admin Console, which triggers a failover from primary to secondary tunnels at the endpoint on the organization's side; tunnel failover is then performed according to the VPN endpoint device configuration. The page gives IPSec VPN tunnels as an example in the Traffic Forwarding Method field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-center-exclusion-based-traffic-forwarding-method.json",
+          "quotes": [
+            "admins can disable all IPSec VPN tunnels terminating at a virtual IP (VIP) address of the affected DC directly from the Zscaler Admin Console.",
+            "With this action, admins trigger a failover from primary to secondary tunnels at the endpoint on their organization",
+            "Tunnel failover is then performed according to the VPN endpoint device configuration.",
+            "Traffic Forwarding Method: The traffic forwarding method (e.g., IPSec VPN tunnels) disabled for the DC."
+          ]
+        }
+      ]
+    },
+    "on-activation": {
+      "statement": "When the exclusion is saved and activated, disabling the tunnels is logged in the Audit Logs; a notification from the Zscaler Central Authority is sent to the data center that it is excluded from service to the organization; any existing tunnels to it are brought down immediately and no new tunnels from the organization can be established during the exclusion; and the tunnel status and the reason they are down are logged in the Tunnel Insights Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-center-exclusion-based-traffic-forwarding-method.json",
+          "quotes": [
+            "When an admin saves and activates the configured DC exclusion:",
+            "action of disabling the tunnels is logged in the Audit Logs in the Zscaler Admin Console.",
+            "A notification from the Zscaler Central Authority (CA) is sent to the DC indicating that the DC is excluded from service to the organization.",
+            "Any existing tunnels to the DC are brought down immediately, and no new tunnels to the DC from the organization can be established during the exclusion.",
+            "The status of the tunnels and the reason they are down are logged in the Tunnel Insights Logs in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "restore": {
+      "statement": "The data center is restored to service when the configured exclusion expires, or if an admin takes action before the expiration; a new Central Authority notification is then sent, existing tunnels can be re-established and new tunnels can be established. An exclusion can be renewed after it expires or edited. Separately, the page lists among its benefits disabling and enabling tunnels according to the organization's evolving requirements without needing to delete credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-center-exclusion-based-traffic-forwarding-method.json",
+          "quotes": [
+            "The DC is restored to service when the configured exclusion expires, or if an admin takes action before the expiration.",
+            "When a DC is restored for service, a new notification from the Zscaler CA is sent indicating that the DC is restored for service to the organization.",
+            "At this point, existing tunnels can be re-established to the DC and new tunnels can be established.",
+            "You can renew the exclusion after it expires or edit it as needed.",
+            "Disable and enable tunnels according to your organization’s evolving requirements, without needing to delete credentials."
+          ]
+        }
+      ]
+    },
+    "timing-rules": {
+      "statement": "An admin selects the data center and the duration (up to 15 days) of the exclusion. The exclusion can be set to begin within a month of the current date, with a Begin Time at least 5 minutes from the current time; the expiration can be set within 15 days of the Begin Time and at least 2 hours from the Begin Time. A warning icon appears when the exclusion is expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-excluding-data-center-based-traffic-forwarding-method.json",
+          "quotes": [
+            "You can set the exclusion to begin within a month of the current date.",
+            "Set the Begin Time to at least 5 minutes from the current time",
+            "You can set the expiration within 15 days of the Begin Time.",
+            "Set the Expiration Time to at least 2 hours from the Begin Time"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-center-exclusion-based-traffic-forwarding-method.json",
+          "quotes": [
+            "In the Zscaler Admin Console, an admin selects the DC and the duration (up to 15 days) of the DC exclusion.",
+            "A warning icon appears when the exclusion is expired."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "method-scope": {
+      "kind": "semantic",
+      "title": "Whether forwarding methods other than IPSec tunnels can be excluded",
+      "status": "open",
+      "detail": "Both pages name only IPSec VPN tunnels, the field description giving them as an example (e.g.). Whether GRE or another method can be excluded is not stated. The API (/dcExclusions, /dcExclusions/{dcId}), the SDKs and Terraform were not checked.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

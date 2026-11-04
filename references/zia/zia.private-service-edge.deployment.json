@@ -62,7 +62,7 @@
     },
     {
       "label": "Redundancy and firewall lists.",
-      "text": "{{backup-tunnel}} {{firewall-rules-published}} Which of the published lists applies is open {{gap:firewall-list-source}}."
+      "text": "{{backup-tunnel}} {{firewall-rules-published}} {{firewall-for-remote-access}} {{pac-retrieval-rule}} Which of the published lists applies is open {{gap:firewall-list-source}}."
     },
     {
       "label": "Switch settings.",
@@ -74,7 +74,7 @@
     },
     {
       "label": "Forwarding to the cluster.",
-      "text": "{{gre-self-provisioning-public-ip-only}} {{pac-subcloud}} Forwarding methods in general are [[zia.forwarding-control.methods]]."
+      "text": "{{gre-self-provisioning-public-ip-only}} {{pac-subcloud}} {{pse-subcloud-fx}} Forwarding methods in general are [[zia.forwarding-control.methods]]."
     },
     {
       "label": "Verify.",
@@ -207,6 +207,51 @@
         }
       ]
     },
+    "firewall-for-remote-access": {
+      "statement": "The organization must configure its corporate firewall to allow remote access if the Private Service Edges are deployed in the DMZ or behind the network firewall, or if PAC files forward traffic from the internal network to the Private Service Edges. The page points to its Firewall Config Requirements and Cloud Enforcement Node Ranges sections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-firewall-configuration-requirements-private-service-edge-internet-saas-deployments.json",
+          "quotes": [
+            "Your organization must configure your corporate firewall to allow for remote access if:",
+            "The Private Service Edges for Internet & SaaS are deployed in the DMZ of your organization or behind the network firewall.",
+            "Your organization uses PAC files to forward traffic from your internal network to the Private Service Edges.",
+            "Review the Firewall Config Requirements and Cloud Enforcement Node Ranges sections."
+          ]
+        }
+      ]
+    },
+    "pac-retrieval-rule": {
+      "statement": "With PAC forwarding, the corporate firewall needs a policy to allow devices to retrieve PAC files from the Zscaler PAC servers; if the PAC files are used only when users are remote or telecommuting, this step is not required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-pac-files-private-service-edge-internet-saas-deployments.json",
+          "quotes": [
+            "Enable a policy on the corporate firewall to allow devices to retrieve PAC files from the Zscaler PAC servers.",
+            "If the PAC files are used only when users are remote or telecommuting, this step is not required."
+          ]
+        }
+      ]
+    },
+    "pse-subcloud-fx": {
+      "statement": "When an organization uses Private Service Edges, the Zscaler service creates a subcloud that maps the domain names GATEWAY.<Subcloud Name>.<Cloud Name> and SECONDARY.GATEWAY.<Subcloud Name>.<Cloud Name> to the IP addresses of the Private Service Edges and any Public Service Edges the organization wants to use; the page's PROXY statement uses the _FX forms of those names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-pac-files-private-service-edge-internet-saas-deployments.json",
+          "quotes": [
+            "When an organization uses Private Service Edges, the Zscaler service creates a subcloud that maps the domain names GATEWAY.<Subcloud Name>.<Cloud Name> and SECONDARY.GATEWAY.<Subcloud Name>.<Cloud Name>",
+            "to the IP addresses of the Private Service Edges and any Public Service Edges for Internet & SaaS that you want to use.",
+            "return \"PROXY ${GATEWAY.example.zscaler.net_FX}:80; PROXY ${SECONDARY.GATEWAY.example.zscaler.net_FX}:80; DIRECT\""
+          ]
+        }
+      ]
+    },
     "dsr-needs-garp": {
       "statement": "For Direct Server Return load balancing to function correctly, Gratuitous ARP (GARP) must be enabled on the network switches directly connected to the Private Service Edges.",
       "tier": "A",
@@ -315,7 +360,7 @@
       "kind": "semantic",
       "title": "Which published firewall list applies to a PSE",
       "status": "open",
-      "detail": "The understanding article points to config.zscaler.com/<cloud>/zia-sedge and the deployment article to config.zscaler.com/<cloud>/fcr. Neither page says whether these are the same list or which one is current for a given cloud. Check both pages for the tenant's cloud before writing firewall rules.",
+      "detail": "The understanding article points to config.zscaler.com/<cloud>/zia-sedge and the deployment article to config.zscaler.com/<cloud>/fcr. Neither page says whether these are the same list or which one is current for a given cloud. Check both pages for the tenant's cloud before writing firewall rules. The Private Service Edge firewall requirements page adds a third pointer: its Firewall Config Requirements and Cloud Enforcement Node Ranges sections.",
       "resolves_with": [
         "source-read",
         "support-ticket"

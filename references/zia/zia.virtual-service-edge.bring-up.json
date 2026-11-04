@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.bring-up",
+  "title": "The Virtual Service Edge install sequence on the VM: image, certificate, network, build and verification",
+  "aliases": [
+    "vse install-cert",
+    "vse download-build",
+    "vse configure-network",
+    "vse certificate",
+    "vse enforce-password-complexity",
+    "vse nitrox",
+    "vzen install-cert"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.clusters"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.cloud-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The on-VM steps repeat across the platform pages, and each claim here names the page it quotes. {{vm-and-certificate}}"
+    },
+    {
+      "label": "Login and password.",
+      "text": "{{default-login-and-password-rules}} The first-login behavior the cluster article gives is in [[zia.virtual-service-edge.operations]]."
+    },
+    {
+      "label": "Network.",
+      "text": "{{configure-network}}"
+    },
+    {
+      "label": "Certificate and build.",
+      "text": "{{install-cert-and-build}}"
+    },
+    {
+      "label": "Verifying the build.",
+      "text": "{{verify}} The commands behind these checks are in [[zia.virtual-service-edge.troubleshooting]]."
+    },
+    {
+      "label": "Cavium NITROX card.",
+      "text": "{{nitrox-install}}"
+    },
+    {
+      "text": "The Admin Console steps that precede these are in [[zia.virtual-service-edge.clusters]], and the per-platform VM requirements are in [[zia.virtual-service-edge.cloud-deployment]] and [[zia.virtual-service-edge.platforms]]."
+    }
+  ],
+  "claims": {
+    "vm-and-certificate": {
+      "statement": "The Virtual Service Edge certificate is used to authenticate each Virtual Service Edge instance to the Zscaler cloud, so a certificate is downloaded for each instance added: a cluster of two Virtual Service Edges needs two. The VM is downloaded by clicking Download VM and selecting Virtual Service Edge VM; the Hyper-V page selects Hyper-V VHDX file instead, and tells the reader to contact Zscaler Support for the image if that download fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-virtual-service-edge-certificates-configuration-files-internet-saas.json",
+          "quotes": [
+            "The Virtual Service Edge certificate is used to authenticate each Virtual Service Edge instance to the Zscaler cloud.",
+            "You must download the certificate for each Virtual Service Edge instance that you added. For example, if your cluster has two Virtual Service Edges, you'll need to download two certificates."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-downloading-virtual-service-edge-vm-internet-saas.json",
+          "quotes": [
+            "Click Download VM and select Virtual Service Edge VM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-hyper-v.json",
+          "quotes": [
+            "Click Download VM and select Hyper-V VHDX file.",
+            "If the Hyper-V VM file fails to download, contact Zscaler Support for the image."
+          ]
+        }
+      ]
+    },
+    "default-login-and-password-rules": {
+      "statement": "On the Nutanix page the console login is username zsroot and password zsroot, after which the VM prompts for a new password. `sudo vzen enforce-password-complexity` is optional (the ESXi dual-arm page marks it \"(Optional)\" for those who want Zscaler to enforce password complexity) and expires the current password; the new one can be a 24-character password with characters from at least three of the listed categories, or a 16-character password containing characters from all the categories, or a passphrase of at least 4 words forming 32 to 40 characters with enough different characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "Username: zsroot",
+            "Password: zsroot",
+            "After you log in with the default credentials, you are prompted to change the default password.",
+            "sudo vzen enforce-password-complexity",
+            "The current password expires after running this command.",
+            "You can use a 24-character password with characters from at least three of these categories, or a 16-character password containing characters from all the categories.",
+            "If you use a passphrase, use at least 4 words to form a phrase that is 32 to 40 characters long and contains enough different characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "(Optional) If you want Zscaler to enforce password complexity for the password you set, run the following command:"
+          ]
+        }
+      ]
+    },
+    "configure-network": {
+      "statement": "On the Nutanix page `sudo vzen configure-network` takes the DNS server address, used for name resolution of Zscaler cloud domains and also for domain names in the proxy traffic, and the management interface IP with CIDR netmask used for SSH or FTP; the page then gives a command to verify the configured information. On the AWS page the management IP, the gateway IP for management and the resolvers are obtained from DHCP, and the command does not allow modifying the management IP and gateway IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "sudo vzen configure-network",
+            "Address of the DNS server (e.g., 10.84.0.100) used for name resolution of Zscaler cloud domains and also for domain names in the proxy traffic.",
+            "Management interface IP with CIDR netmask. You use the management IP address (e.g., 10.84.0.110/24) for SSH or FTP.",
+            "You can verify that the information has been configured properly by running the following command:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+          "quotes": [
+            "The Virtual Service Edge management IP, gateway IP for management, and resolvers are obtained from DHCP.",
+            "This command does not allow you to modify the management IP and gateway IP."
+          ]
+        }
+      ]
+    },
+    "install-cert-and-build": {
+      "statement": "On the Nutanix page the certificate bundle is uploaded to the management IP address using SCP, FTP or SFTP and installed with `sudo vzen install-cert <cert-bundle.zip>`, using the absolute file path when not in the file's directory. The initial build is around 1 GB; it is installed automatically and the Virtual Service Edge starts automatically after installation completes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "use SCP, FTP, or SFTP to upload it to the management IP address of the Virtual Service Edge.",
+            "sudo vzen install-cert <cert-bundle.zip>",
+            "If not, use the absolute file path (e.g., sudo vzen install-cert /tmp/VZenCertificate-<Virtual Service Edge Name>.zip).",
+            "The initial build is around 1 GB, so it might take a while depending on your internet connection. The downloaded build is automatically installed. The Virtual Service Edge automatically starts after the installation is complete."
+          ]
+        }
+      ]
+    },
+    "verify": {
+      "statement": "The pages verify a build differently. On the Nutanix page the status output should show the Virtual Service Edge service and LB running, and `sudo vzen troubleshoot connection | grep 9422` should show an established connection. On the GCP page the checks are that the SME and smcdsc are running, that the authentication state is SMAUTHENG_READY_STATE, that there are two connections over 9442, and that cloud-config and log-stream sessions are present.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "The output should show that the Virtual Service Edge service and LB are running.",
+            "sudo vzen troubleshoot connection | grep 9422",
+            "The output should show an established connection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-google-cloud-platform.json",
+          "quotes": [
+            "Ensure both the SME and smcdsc are running.",
+            "Ensure that the authentication state is SMAUTHENG_READY_STATE.",
+            "Ensure that there are two connections over 9442.",
+            "Ensure that cloud-config and log-stream sessions are present."
+          ]
+        }
+      ]
+    },
+    "nitrox-install": {
+      "statement": "On the ESXi dual-arm page, if the Cavium NITROX card was installed in the server, it is selected in the Mark devices for passthrough window; in the later step that adds the card to the Virtual Service Edge VM, the VM must be powered off. `sudo vzen install-nitrox` is also run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "If you installed the Cavium NITROX card in your server:",
+            "In the Mark devices for passthrough window, select the Cavium NITROX card.",
+            "Select the Virtual Service Edge to which the Cavium NITROX card needs to be added. Ensure that the Virtual Service Edge is powered off.",
+            "sudo vzen install-nitrox"
+          ]
+        }
+      ]
+    }
+  }
+}

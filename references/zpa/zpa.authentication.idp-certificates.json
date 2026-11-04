@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "id": "zpa.authentication.idp-certificates",
+  "title": "IdP certificates and service provider certificate rotation in Private Access",
+  "aliases": [
+    "IdP certificate expiry",
+    "SP certificate rotation",
+    "User SP Certificate Rotation",
+    "Admin SP Certificate Rotation",
+    "User IdP Certificate Rotation",
+    "Admin IdP Certificate Rotation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.authentication.idp-configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zcc.troubleshooting.private-access-auth-errors"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Two certificates matter on an IdP configuration: the IdP's own certificate, uploaded to Private Access, and the service provider certificate used by the IdP. {{idp-cert-format}}"
+    },
+    {
+      "label": "Expiry.",
+      "text": "{{expiry-icons}} {{update-triggers-reauth}}"
+    },
+    {
+      "label": "SP certificate rotation.",
+      "text": "{{sp-rotation-why}} The rotation field is named differently in the two articles {{divergence:rotation-field-name}}. When Private Access retires its SSO certificate is open {{gap:retirement-timing}}."
+    },
+    {
+      "label": "Methods.",
+      "text": "{{okta-automatic}} {{three-methods}}"
+    },
+    {
+      "text": "The IdP configuration these certificates belong to is in [[zpa.authentication.idp-configuration]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the IdP certificate on the configuration is near or past expiry, read from the icon on the IdP Configuration page and from the earliest-expiring certificate in a chain.",
+      "uses": [
+        "expiry-icons"
+      ]
+    },
+    {
+      "do": "Whether an IdP certificate was just updated, since users then get an Authentication Error in Client Connector until they reauthenticate.",
+      "uses": [
+        "update-triggers-reauth"
+      ]
+    },
+    {
+      "do": "Which label the rotation field carries on the page in front of the admin, since the articles name it differently, and whether the original IdP is Okta.",
+      "uses": [
+        "sp-rotation-why",
+        "rotation-field-name",
+        "okta-automatic"
+      ]
+    }
+  ],
+  "claims": {
+    "idp-cert-format": {
+      "statement": "The IdP certificate is downloaded from the IdP and uploaded in base-64 encoded PEM format; its Common Name, Serial Number, Created On and Expired On are shown in the window and on the IdP Configuration page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "IdP Certificate: You must download this certificate from your IdP, and it must be uploaded in base-64 encoded PEM format.",
+            "IdP certificate information such as Common Name, Serial Number, Created On, and Expired On are displayed. This information is also displayed on the IdP Configuration page."
+          ]
+        }
+      ]
+    },
+    "expiry-icons": {
+      "statement": "The IdP Configuration page shows a red Warning icon for an expired IdP certificate, a yellow Caution icon with less than 7 days before expiration and an orange Info icon with less than 30 days. For a certificate chain the certificate expiring earliest decides the icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-idp-configuration.json",
+          "quotes": [
+            "If the IdP certificate has expired, a red Warning icon () is displayed.",
+            "If the IdP certificate has less than 7 days before expiration, a yellow Caution icon () is displayed.",
+            "If the IdP certificate has less than 30 days before expiration, an orange Info icon () is displayed.",
+            "If the IdP certificate is part of a certificate chain instead of a single certificate, the certificate expiring the earliest is considered to reflect the expiration icons."
+          ]
+        }
+      ]
+    },
+    "update-triggers-reauth": {
+      "statement": "Updating an IdP certificate triggers an Authentication Error message in Client Connector and prevents access to apps until users reauthenticate in Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "If you update an IdP certificate, this change triggers an Authentication Error message in the Zscaler Client Connector for users and prevents access to your apps. Your users need to reauthenticate in Zscaler Client Connector to regain access to the apps."
+          ]
+        }
+      ]
+    },
+    "sp-rotation-why": {
+      "statement": "When Private Access retires its single sign-on certificate, the service provider certificate used by the IdP must be rotated so admins and end users keep access. The IdP configuration has an optional field to select a different service provider certificate, and the IdP's own configuration might also need updating.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-service-provider-certificate-rotation.json",
+          "quotes": [
+            "When Private Access (ZPA) retires its single sign-on (SSO) certificate, you need to rotate the service provider certificate used by your identity provider (IdP) to ensure admins and end users maintain successful access to applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-idp-single-sign.json",
+          "quotes": [
+            "(Optional) Select a different service provider certificate to use with the IdP. You might also need to update the configuration of the IdP."
+          ]
+        }
+      ]
+    },
+    "okta-automatic": {
+      "statement": "If the original IdP configured is Okta, the IdP downloads the latest certificate from Private Access and rotates the account configuration automatically, and no further action is required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-service-provider-certificate-rotation.json",
+          "quotes": [
+            "If the original IdP you configured is Okta, your IdP will download the latest certificate from Private Access and rotate your account configuration automatically. No further action is required."
+          ]
+        }
+      ]
+    },
+    "three-methods": {
+      "statement": "The rotation page gives three methods: automatically through a metadata URL (the IdP updates when the configuration is saved), manually through a metadata URL (in ADFS the copied URL goes in the relying party's federation metadata URL field), and manually with metadata and certificate files (in ADFS the downloaded certificate is added on the Signature tab). In certain scenarios AD FS caches the expired certificate, so Zscaler recommends deleting expired certificates from the Relying Party Trusts panel after a successful update.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-service-provider-certificate-rotation.json",
+          "quotes": [
+            "Automatically update the certificate using a metadata URL",
+            "Click Save. The IdP automatically updates to use the new service provider certificate.",
+            "Manually update the certificate using a metadata URL",
+            "On the Monitoring tab, enter the URL you copied in step 6 in the Relying party’s federation metadata URL: field.",
+            "Manually update the certificate using metadata and certificate files",
+            "On the Signature tab, click Add.. and select the certificate downloaded in step 6."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-managing-service-provider-certificate-rotation.json",
+          "after": "Manually update the certificate using a metadata URL",
+          "quotes": [
+            "In certain scenarios, AD FS caches the expired certificate. Zscaler recommends deleting any expired certificates from the Relying Party Trusts panel after a new certificate is successfully updated."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "rotation-field-name": {
+      "summary": "The label of the field that selects a different service provider certificate on the IdP configuration.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-idp-single-sign.json",
+            "quotes": [
+              "User IdP Certificate Rotation: (Optional) Select a different service provider certificate to use with the IdP.",
+              "This field might also show as Admin IdP Certificate Rotation if you selected Admin for Single Sign-On in step 2c."
+            ]
+          },
+          "says": "The field is User IdP Certificate Rotation, or Admin IdP Certificate Rotation when Single Sign-On is Admin."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-managing-service-provider-certificate-rotation.json",
+            "after": "Automatically update the certificate using a metadata URL",
+            "quotes": [
+              "In the Edit IdP Configuration window, select a different service provider certificate for User SP Certificate Rotation or Admin SP Certificate Rotation."
+            ]
+          },
+          "says": "The field is User SP Certificate Rotation or Admin SP Certificate Rotation."
+        }
+      ],
+      "impact": "A search or instruction using one label does not match the other article's wording; both describe the same selection of a different service provider certificate, but neither page says the labels name one field."
+    }
+  },
+  "gaps": {
+    "retirement-timing": {
+      "kind": "semantic",
+      "title": "When Private Access retires its SSO certificate and which certificates the rotation field offers",
+      "status": "open",
+      "detail": "The rotation page says a rotation is needed when Private Access retires its SSO certificate; it gives no date and does not list the service provider certificates the field offers.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    }
+  }
+}

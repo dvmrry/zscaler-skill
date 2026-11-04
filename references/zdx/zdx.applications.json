@@ -44,6 +44,14 @@
     {
       "rel": "see-also",
       "to": "zdx.applications.rum"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.applications.uc-tenants"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.collections"
     }
   ],
   "prose": [
@@ -59,11 +67,19 @@
     },
     {
       "label": "Predefined.",
-      "text": "{{predefined-auto}} {{predefined-not-deletable}}"
+      "text": "{{predefined-auto}} {{predefined-not-deletable}} {{predefined-by-tier}}"
+    },
+    {
+      "label": "Custom and network.",
+      "text": "{{custom-app-fields}} {{custom-app-rum-domain}} {{existing-app}} {{edit-app}} The collections that hold applications are in [[zdx.probes.collections]], and how their probes are configured is in [[zdx.probes.configuration]]."
+    },
+    {
+      "label": "Top Private Apps.",
+      "text": "{{top-private-apps}} {{top-private-apps-ipv6}} Whether the Cloud Path host accepts IPv6 is described two ways, see [[zdx.probes.configuration]]."
     },
     {
       "label": "Unified communication.",
-      "text": "{{uc-tenant-onboarding}} {{teams-transport-relay}} {{uc-cloud-path-only}} {{uc-tiers}} The call-quality data itself is read per device: [[zdx.devices.call-quality]]."
+      "text": "{{uc-tenant-onboarding}} How each Teams, Webex or Zoom tenant is onboarded is in [[zdx.applications.uc-tenants]]. {{teams-transport-relay}} {{uc-cloud-path-only}} {{uc-tiers}} The call-quality data itself is read per device: [[zdx.devices.call-quality]]."
     },
     {
       "label": "Status.",
@@ -195,6 +211,168 @@
           "expect": {
             "description": "Deletes a predefined application by its name. This is generally not allowed and will result in a 403 Forbidden error."
           }
+        }
+      ]
+    },
+    "predefined-by-tier": {
+      "statement": "The predefined applications available depend on the ZDX subscription. The Microsoft 365 subscription's list includes Microsoft Teams Call Quality, Microsoft Teams Web App, Microsoft Login, OneDrive for Business, Outlook Online and SharePoint Online; the Advanced and Advanced Plus subscriptions' lists each include Webex Call Quality, Zoom Call Quality, ServiceNow, Salesforce Classic, Salesforce Lightning, Webex Web App and Zoom Web App; the Standard subscription's list includes ServiceNow, Salesforce Classic, Salesforce Lightning, Webex Web App and Zoom Web App. Only Microsoft Teams Call Quality is currently supported for UCaaS on the Microsoft 365 subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-predefined-applications-zdx.json",
+          "quotes": [
+            "Your available predefined applications depend upon your particular ZDX subscription:",
+            "The Microsoft 365 subscription and Advanced subscription both support Unified Communications as a Service (UCaaS) voice monitoring. However, only Microsoft Teams Call Quality is currently supported for the Microsoft 365 subscription."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-predefined-applications-zdx.json",
+          "quotes": [
+            "ServiceNow",
+            "Salesforce Classic",
+            "Salesforce Lightning",
+            "Webex Web App",
+            "Zoom Web App"
+          ],
+          "after": "The Standard subscription provides the following applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-predefined-applications-zdx.json",
+          "quotes": [
+            "Microsoft Teams Call Quality",
+            "Microsoft Teams Web App",
+            "Microsoft Login",
+            "OneDrive for Business",
+            "Outlook Online",
+            "SharePoint Online"
+          ],
+          "after": "The Microsoft 365 subscription provides the following applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-predefined-applications-zdx.json",
+          "quotes": [
+            "Webex Call Quality",
+            "Zoom Call Quality",
+            "ServiceNow",
+            "Salesforce Classic",
+            "Salesforce Lightning",
+            "Webex Web App",
+            "Zoom Web App"
+          ],
+          "after": "The Advanced subscription provides the following applications:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-predefined-applications-zdx.json",
+          "quotes": [
+            "Webex Call Quality",
+            "Zoom Call Quality",
+            "ServiceNow",
+            "Salesforce Classic",
+            "Salesforce Lightning",
+            "Webex Web App",
+            "Zoom Web App"
+          ],
+          "after": "The Advanced Plus subscription provides the following applications:"
+        }
+      ]
+    },
+    "custom-app-fields": {
+      "statement": "A custom application's name is at most 64 characters, alphanumerics and a limited range of symbols: underscore, hyphen, space, forward slash, backward slash, period, at symbol, pipe symbol and parentheses; its Application Type is Custom or Network, and network applications do not require a Web probe and require only one Cloud Path probe; disabling an application disables its probes; and the Add Application link is disabled once the maximum number of allowed applications or probes for the subscription level is reached.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-custom-application.json",
+          "quotes": [
+            "Name: Enter a name for the custom application. The maximum length is 64 characters.",
+            "Accepted characters are alphanumerics and a limited range of symbols: underscore (_), hyphen (-), space ( ), forward slash (/), backward slash (\\), period (.), at symbol (@), pipe symbol (|), and parentheses ().",
+            "Application Type: Select either Custom or Network. Network applications do not require a Web probe, and require only one Cloud Path probe.",
+            "If an application is disabled, then the application disables its probes.",
+            "The Add Application link is disabled if you’ve reached the maximum number of allowed applications or probes for your subscription level."
+          ]
+        }
+      ]
+    },
+    "custom-app-rum-domain": {
+      "statement": "For a custom application, a domain URL defined as https://domain.com is also defined as https://www.domain.com, a subdomain URL needs another custom application to capture metrics specifically for the subdomain, and a Session Timeout sets the duration at which a user's session in the application times out due to inactivity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-custom-application.json",
+          "quotes": [
+            "If you define a domain URL as https://domain.com, then it is also defined as https://www.domain.com.",
+            "If you are configuring for a subdomain URL, you must configure another custom application to specifically capture metrics for the subdomain.",
+            "Session Timeout: Select the duration at which a user's session in the application times out due to inactivity."
+          ]
+        }
+      ]
+    },
+    "existing-app": {
+      "statement": "Choosing Select from existing lets an admin search for and select an existing application, but a disabled application cannot be selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-custom-application.json",
+          "quotes": [
+            "If you choose Select from existing, you can search and then select an existing application.",
+            "You cannot select a disabled application."
+          ]
+        }
+      ]
+    },
+    "edit-app": {
+      "statement": "When editing an application the name of any custom application can be changed but the name of a predefined application cannot, and the Application type cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-editing-application.json",
+          "quotes": [
+            "Name: Change the name of any custom application. You cannot change the name of predefined applications.",
+            "You cannot edit the Application type."
+          ]
+        }
+      ]
+    },
+    "top-private-apps": {
+      "statement": "The list of Top Private Apps is created with readily available data from Private Access; it is searched by the port numbers a private application uses, separated by commas, sorted by users (the default) or bandwidth, and shows each application's protocol, bandwidth and Configured for ZDX status; an application whose Configured for ZDX is Yes cannot have its probe configured on the Top Private Apps page and is reached in Configuration > Probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-top-private-applications.json",
+          "quotes": [
+            "The list of Top Private Apps is created with readily available data from Private Access to provide an overview of the top private applications and a seamless probe configuration.",
+            "Enter the port numbers that a private application uses. Separate each port number with a comma.",
+            "Sort by users or bandwidth. The default is set to users.",
+            "Protocol: The type of protocol used.",
+            "Bandwidth: The bandwidth usage for multiple devices.",
+            "Configured for ZDX: Provides status information if the application's probe configuration was enabled or configured on ZDX.",
+            "If an application has the field Configured for ZDX set to Yes, then you cannot configure its probe configuration in the Top Private Apps page.",
+            "You can access the probe configuration for the application in Configuration > Probes."
+          ]
+        }
+      ]
+    },
+    "top-private-apps-ipv6": {
+      "statement": "ZDX can monitor top private applications accessed over IPv6 when integrated with Private Access, provided Zscaler Client Connector and the Private Access App Connectors are IPv6-capable and the private app segments are defined using IPv6 addresses or dual-stack DNS names; the Top Private Apps page provides visibility into response times, path health and error rates across both IPv4 and IPv6 access paths.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-top-private-applications.json",
+          "quotes": [
+            "ZDX can monitor top private applications accessed over IPv6 when integrated with Private Access.",
+            "To enable this, ensure the Zscaler Client Connector and Private Access App Connectors are IPv6-capable and that private app segments are defined using IPv6 addresses or dual-stack DNS names.",
+            "On the Top Private Apps page, ZDX provides visibility into response times, path health, and error rates across both IPv4 and IPv6 access paths."
+          ]
         }
       ]
     },
@@ -707,7 +885,7 @@
       "former_ids": [
         "zdx-14"
       ],
-      "detail": "Applications are predefined or configured; the Probes page also offers a Top Private Apps view to search and configure top private applications based on ports and protocol. Whether ZDX adds or proposes any other application without configuration is not documented.",
+      "detail": "Applications are predefined or configured; the Probes page also offers a Top Private Apps view to search and configure top private applications based on ports and protocol, and that list is built from Private Access data (top-private-apps). Whether ZDX adds or proposes any other application without configuration is not documented.",
       "blocks": "answers about why an application is or is not monitored",
       "resolves_with": [
         "source-read"

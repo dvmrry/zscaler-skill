@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "zpa.software-components.manager",
+  "title": "The Manager software and its updates on ZPA software components",
+  "aliases": [
+    "manager software",
+    "zpa-connector-child",
+    "zpa-service-edge-child",
+    "zpa-pcc-child",
+    "np-connector-child",
+    "manager update failure",
+    "manager update column"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.software-components"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.software-components.oauth-enrollment"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The Manager is the software on each software component VM that supervises the component's own software."
+    },
+    {
+      "label": "Services.",
+      "text": "{{services}} {{component-upgrade-is-child}} The scheduled child-software update for App Connectors is in [[zpa.app-connectors.upgrades]]."
+    },
+    {
+      "label": "Trust and upgrades.",
+      "text": "{{ca-bundle}} Whether the CentOS path applies to current images is open {{gap:ca-bundle-rhel9}}. {{manager-upgrade}}"
+    },
+    {
+      "label": "When an automated update fails.",
+      "text": "{{troubleshooting-minimums}} {{disk-and-ram}} {{yum-and-rpm}}"
+    },
+    {
+      "text": "The service names as they appear in OAuth enrollment troubleshooting are in [[zpa.software-components.oauth-enrollment]]. The other shared subjects are under [[zpa.software-components]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which service and child process belong to the component type before reading its logs or restarting it.",
+      "uses": [
+        "services"
+      ]
+    },
+    {
+      "do": "Whether the Manager and component software are both at least 25.46.3 before using the update troubleshooting steps.",
+      "uses": [
+        "troubleshooting-minimums"
+      ]
+    },
+    {
+      "do": "Free space on /var, RAM, yum dependencies, old kernels, caches, the yum lock and the RPM database for a failed update.",
+      "uses": [
+        "disk-and-ram",
+        "yum-and-rpm"
+      ]
+    }
+  ],
+  "claims": {
+    "services": {
+      "statement": "The VMs run a service called zpa-connector for App Connectors, zpa-service-edge for Private Service Edges, zpa-pcc for Private Cloud Controllers and np-connector for Network Connectors; this Manager software supervises and controls the child software (zpa-connector-child, zpa-service-edge-child, zpa-pcc-child and np-connector-child respectively), which it downloads and which establishes Microtunnels (M-Tunnels) and talks to the internal applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-manager-software.json",
+          "quotes": [
+            "The VMs run a service called zpa-connector for App Connectors, zpa-service-edge for Private Service Edges, zpa-pcc for Private Cloud Controllers, and np-connector for Network Connectors.",
+            "The Manager software downloads a new software, (e.g., zpa-connector-child),that establishes Microtunnels (M-Tunnels) and talks to the internal applications.",
+            "The purpose of the Manager software is to supervise and control the App Connector (zpa-connector-child), Private Service Edge (zpa-service-edge-child), Private Cloud Controller (zpa-pcc-child), or Network Connector (np-connector-child) software."
+          ]
+        }
+      ]
+    },
+    "component-upgrade-is-child": {
+      "statement": "App Connector upgrades mean upgrading the zpa-connector-child software, Private Service Edge upgrades the zpa-service-edge-child software, Private Cloud Controller upgrades the zpa-pcc-child software and Network Connector upgrades the np-connector-child software.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-manager-software.json",
+          "quotes": [
+            "App Connector upgrades mean upgrading the zpa-connector-child software.",
+            "Private Service Edge upgrades means upgrading the zpa-service-edge-child software.",
+            "Private Cloud Controller upgrades mean upgrading the zpa-pcc-child software.",
+            "Network Connector upgrades means upgrading the np-connector-child software."
+          ]
+        }
+      ]
+    },
+    "ca-bundle": {
+      "statement": "The Manager software uses the OS trusted Certificate Authority (CA) bundle to establish the TLS connection that downloads software. The article gives the path /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem and, to update the CentOS CA bundle, sudo update-ca-trust.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-manager-software.json",
+          "quotes": [
+            "The Manager software uses the OS trusted Certificate Authority (CA) bundle for establishing a TLS connection to download software.",
+            "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
+            "Use the following command to update the CentOS CA bundle: sudo update-ca-trust"
+          ]
+        }
+      ]
+    },
+    "manager-upgrade": {
+      "statement": "With Linux software packages the Manager software must be upgraded manually in the software component's console. The article's first command upgrades all software packages on the server, including the Manager software; a command naming one package (for example sudo yum upgrade zpa-connector) also includes the Manager upgrade. The Manager software is also included in upgrades to the host operating system, which the article describes with sudo yum update -y.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-manager-software.json",
+          "quotes": [
+            "If you are using Linux software packages, the Manager software must be upgraded manually in the software component's console using the following command:",
+            "This command upgrades all software packages on the server, including the Manager software.",
+            "sudo yum upgrade zpa-connector",
+            "All commands include the upgrade of the Manager software.",
+            "The Manager software is included in upgrades to the host operating system (OS).",
+            "host OS using the sudo yum update -y command."
+          ]
+        }
+      ]
+    },
+    "troubleshooting-minimums": {
+      "statement": "The article on troubleshooting Manager software and OS updates requires a minimum Manager software version of 25.46.3 and a minimum App Connector, Private Service Edge, Private Cloud Controller or Network Connector software version of 25.46.3. Failed updates are found by results with Failure in the Software Update or Manager Update columns, or with the filter options above the table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-manager-software-os-updates.json",
+          "quotes": [
+            "A minimum Manager software version of 25.46.3.",
+            "A minimum App Connector, Private Service Edge for Private Access (ZPA), Private Cloud Controller, or Network Connector software version of 25.46.3.",
+            "Check for results with 'Failure' in the Software Update or Manager Update columns or use the filter options above the table."
+          ]
+        }
+      ]
+    },
+    "disk-and-ram": {
+      "statement": "The update troubleshooting steps check the Available column for free disk space, where less than 150MB is limited space, and the general RAM statistics with the free command (total, used, free and cached memory).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-manager-software-os-updates.json",
+          "quotes": [
+            "Check the Available column for the amount of free disk space. If there is limited space left, i.e., <150MB, enter the following:",
+            "Check the general RAM stats by using the free command to see total memory, used memory, free memory, and cached memory."
+          ]
+        }
+      ]
+    },
+    "yum-and-rpm": {
+      "statement": "The further update troubleshooting steps include verifying a broken package dependency, yum remove --oldinstallonly, yum clean all, considering kill -9 on the process that holds the yum lock (found with lsof /var/run/yum.pid or cat /var/run/yum.pid) if the lock is not released, and for the RPM database error rpm -v --rebuilddb.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-troubleshooting-manager-software-os-updates.json",
+          "quotes": [
+            "Run the following command to verify if there is a broken package dependency:",
+            "yum remove --oldinstallonly",
+            "yum clean all",
+            "If the previous steps show the upgrade lock is held by a process using lsof /var/run/yum.pid or cat /var/run/yum.pid, consider using the kill process (kill -9 <PID>) if the lock is not released.",
+            "error: rpmdb: could not open database error: cannot load RPM database",
+            "rpm -v --rebuilddb rpm -qa --debug"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ca-bundle-rhel9": {
+      "kind": "semantic",
+      "title": "Whether the CentOS CA bundle path applies to current images",
+      "status": "open",
+      "detail": "The Manager article gives the CA bundle path and update command for CentOS only. Current App Connector images are based on RHEL 9.x (see zpa.app-connectors.deployment:os-security), and the article does not say whether the same path and command apply.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

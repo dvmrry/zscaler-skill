@@ -41,6 +41,9 @@
       "text": "{{customer-access-zscaler-not-required}} {{support-tunnel-options}} So \"Zscaler cannot get in\" is the default, and it changes if either support-tunnel option is switched on. The hardware form factor is the opposite model: Zscaler runs it ([[zia.private-service-edge.what-it-is]]). Upgrades happen automatically, with timing controls: [[zia.virtual-service-edge.upgrades]]."
     },
     {
+      "text": "The maintenance support article describes a different operating model {{divergence:who-manages-vse}}."
+    },
+    {
       "label": "What it shares with the cloud.",
       "text": "{{policy-and-logs-in-cloud}} Whether a log entry names the VM or the cluster is not documented ([[zia.virtual-service-edge.operations:log-identifier]])."
     },
@@ -50,7 +53,22 @@
     },
     {
       "label": "Monitoring.",
-      "text": "{{snmpv3-only}} Beyond SNMP and the Admin Console lists, what health view exists for a Virtual Service Edge is not documented ([[zia.virtual-service-edge.operations:vse-health-visibility]]); the ZIA PSE Health Dashboard needs ZDX and is described for Private Service Edges."
+      "text": "{{snmpv3-only}} {{snmp-mibs}} {{mib-modules}} The NSS bundle is in [[shared.nss.vm-operations:nss-snmp-mibs]]. The MIB article gives no Zscaler enterprise OID or trap configuration {{gap:mib-oids-and-traps}}. Beyond SNMP and the Admin Console lists, what health view exists for a Virtual Service Edge is not documented ([[zia.virtual-service-edge.operations:vse-health-visibility]]); the ZIA PSE Health Dashboard needs ZDX and is described for Private Service Edges."
+    },
+    {
+      "label": "The cluster monitoring page.",
+      "text": "{{snmp-agent}} Whether this is the same agent that `vzen snmp-admin-configure` configures is not stated {{gap:snmp-agent-enablement}}. {{vse-mib}} {{default-traps}}"
+    },
+    {
+      "label": "Health page.",
+      "text": "{{http-health-page}}"
+    },
+    {
+      "label": "Time.",
+      "text": "{{ntp}}"
+    },
+    {
+      "text": "The vzen commands for reading state are in [[zia.virtual-service-edge.troubleshooting]]."
     }
   ],
   "claims": {
@@ -158,9 +176,19 @@
       ]
     },
     "snmpv3-only": {
-      "statement": "Virtual Service Edges support SNMPv3 only; the SNMP user accepted is the one configured with `sudo vzen snmp-admin-configure`, with MD5 or SHA1 authentication and DES or AES encryption, and traps are configured with `sudo vzen snmp-trap-configure`.",
+      "statement": "Virtual Service Edges support SNMPv3 only; the SNMP user accepted is the one configured with `sudo vzen snmp-admin-configure`, with MD5 or SHA1 authentication and DES or AES encryption, and traps are configured with `sudo vzen snmp-trap-configure`. The MIB article's example uses SNMP version 3 with security level auth, priv, and the Zscaler MIBs sit under iso.org.dod.internet > private > enterprises > zscaler in the MIB tree.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-accessing-zscaler-snmp-mibs.json",
+          "quotes": [
+            "If the SNMP (snmpd) process is running, configure an SNMP admin user using the vzen snmp-admin-configure command.",
+            "For the SNMP Version field, select 3.",
+            "Security Level: Select auth, priv for the security level.",
+            "From the MIB Tree, open the folder containing the Zscaler MIBs by navigating to iso.org.dod.internet > private > enterprises > zscaler."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
@@ -175,8 +203,216 @@
         }
       ]
     }
+    ,
+    "snmp-mibs": {
+      "statement": "The Zscaler Enterprise SNMP MIBs are downloadable files that define all counters and assign them within the Zscaler database; they can be used for health monitoring of instances such as the Nanolog Streaming Service (NSS) and the Virtual Service Edge. The Virtual Service Edge bundle, VZENMIBS.tgz, contains ZSCALER-OSNIC-MIB, ZSCALER-PROCESSHEALTH-MIB, ZSCALER-PROCESSWATCHDOG-MIB, ZSCALER-ROLEHEALTH-MIB, ZSCALER-SWAPINFO-MIB, ZSCALER-VSE-MIB and ZSCALER-ZSCALERNIC-MIB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-accessing-zscaler-snmp-mibs.json",
+          "quotes": [
+            "The Zscaler Enterprise SNMP MIBs are downloadable as files, which define all counters and assign them within the Zscaler database. You can use the MIBs to perform health monitoring on several different instances, like the Nanolog Streaming Service (NSS) and Virtual Service Edge for Internet & SaaS (ZIA).",
+            "| VZENMIBS.tgz | This file contains the following MIB files: ZSCALER-OSNIC-MIB ZSCALER-PROCESSHEALTH-MIB ZSCALER-PROCESSWATCHDOG-MIB ZSCALER-ROLEHEALTH-MIB ZSCALER-SWAPINFO-MIB ZSCALER-VSE-MIB ZSCALER-ZSCALERNIC-MIB |"
+          ]
+        }
+      ]
+    },
+    "snmp-agent": {
+      "statement": "The cluster monitoring page says that if a GRE tunnel or Layer 2 forwarding is configured from the router to a Virtual Service Edge, IPSLAs can be enabled to monitor the tunnels. Virtual Service Edges support NET-SNMP, and a management system that supports SNMPv3 can monitor a cluster; the page sets snmpd_enable=\"YES\" (by default this entry is set to NO) and snmpd_conffile=\"/usr/local/etc/snmpd.conf\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-monitoring-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "If you configure a GRE tunnel or Layer 2 forwarding from your router to a Virtual Service Edge for Internet & SaaS (ZIA), you can enable IPSLAs to monitor the tunnels.",
+            "Additionally, Virtual Service Edges support NET-SNMP, a collection of applications that are used to implement the SNMP protocol.",
+            "You can use a management system that supports SNMPv3 to monitor a Virtual Service Edge cluster.",
+            "snmpd_enable=\"YES\"",
+            "By default, this entry is set to NO.",
+            "snmpd_conffile=\"/usr/local/etc/snmpd.conf\""
+          ]
+        }
+      ]
+    },
+    "vse-mib": {
+      "statement": "The monitoring page's VSE-MIB::ca_connectivity (.1.3.6.1.4.1.46262.9.2.1.5) is set to 3 if the connection is established, with 0 not authenticated, 1 authentication bypassed, 2 authentication bypassed with probe and 4 down; VSE-MIB::smsm_connectivity (.1.3.6.1.4.1.46262.9.2.1.6) is set to 4 or 5 if the connection is established, with 2 initiated, 3 waiting for the logging server, 6 closing and 7 closed. A CPU usage percentage (VSE-MIB::cpu_percentage) below 90% is acceptable and above it an alert must be triggered, and likewise for swap memory usage (VSE-MIB::swapinfo) at 50%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-monitoring-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "VSE-MIB::ca_connectivity (.1.3.6.1.4.1.46262.9.2.1.5)",
+            "It's set to 3 if the connection is established.",
+            "0: Virtual Service Edge is not authenticated 1: Virtual Service Edge authentication is bypassed 2: Virtual Service Edge authentication is bypassed with probe 4: Virtual Service Edge is down",
+            "VSE-MIB::smsm_connectivity (.1.3.6.1.4.1.46262.9.2.1.6)",
+            "It's set to 4 or 5 if the connection is established.",
+            "2: Initiated logging server connection 3: Waiting for the logging server to connect to Virtual Service Edge 6: Closing logging server connection 7: Closed logging server connection",
+            "VSE-MIB::cpu_percentage (.1.3.6.1.4.1.46262.4.2.1.12.1)",
+            "A CPU usage percentage less than 90% is acceptable. If the CPU usage percentage is more than 90%, an alert must be triggered.",
+            "VSE-MIB::swapinfo (.1.3.6.1.4.1.46262.6.2.1.11)",
+            "A swap memory usage percentage of less than 50% is acceptable. If the swap memory usage percentage is more than 50%, an alert must be triggered."
+          ]
+        }
+      ]
+    },
+    "default-traps": {
+      "statement": "The OIDs that generate SNMP alert traps by default are: the SME going down and the link to the Zscaler cloud becoming inactive; more than 1 mountd process; ntalkd processes out of range (0-4) or sendmail processes out of range (1-10); the root partition having less than 10 MBs of space or any other partition less than 10%; the load average crossing 3 for 1 minute, 2 for 5 minutes or 1 for 15 minutes; and CPU usage beyond 90%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-monitoring-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "The following Object Identifiers (OIDs) generate SNMP alert traps by default:",
+            "The SME goes down and the link to the Zscaler cloud becomes inactive",
+            "The number of mountd processes is more than 1",
+            "The number of ntalkd processes goes out of range (0–4)",
+            "The number of sendmail processes goes out of range (1–10)",
+            "The root partition has less than 10 MBs of space",
+            "Any of the other partitions have less than 10% space",
+            "The load average crosses the threshold: 3 for 1 minute, 2 for 5 minutes, 1 for 15 minutes",
+            "CPU usage goes beyond 90%"
+          ]
+        }
+      ]
+    },
+    "http-health-page": {
+      "statement": "The Zscaler service performs ICMP and HTTP monitoring from the load balancer to the Virtual Service Edge to monitor instance health. With serv_port=3128 in the SME section of the configuration, curl http://<Virtual Service Edge IP>:3128/index.html?=100 returns a 200 OK and a payload size of 100 bytes, which does not include ICMP monitoring.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-monitoring-virtual-service-edge-clusters-internet-saas.json",
+          "quotes": [
+            "The Zscaler service performs ICMP and HTTP monitoring from the Load Balancer (LB) to the Virtual Service Edge in order to monitor the health of the instance and ensure that traffic is distributed appropriately.",
+            "[SME] serv_port=3128 [-end-of-SME-]",
+            "curl -v http://<Virtual Service Edge IP>:3128/index.html?=100",
+            "the Virtual Service Edge responds with a 200 OK and a payload size of 100 bytes.",
+            "This does not include ICMP monitoring."
+          ]
+        }
+      ]
+    },
+    "ntp": {
+      "statement": "Virtual Service Edges are extremely sensitive to the VM and cloud times being in sync. By default the VM synchronizes the time with public NTP servers (for example pool.ntp.org); `sudo vzen enable-ntpd` and the vzen disable-ntpd command start and stop configured NTP servers, and the CLI adds or removes custom servers without syntax errors or duplicate entries, restarting the Virtual Service Edge and NTP service. Adding alternate NTP servers to /etc/ntp.conf is not supported; the page offers two alternatives for a local NTP server: a cron entry running ntpdate every 10 minutes, or /etc/hosts entries (up to 4) that make the pool.ntp.org host names resolve to the local NTP server IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-ntp-server-synchronization.json",
+          "quotes": [
+            "Virtual Service Edges for Internet & SaaS (ZIA) are extremely sensitive to the virtual machine (VM) and cloud times being in sync.",
+            "By default, the VM synchronizes the time with public NTP servers (e.g., pool.ntp.org).",
+            "sudo vzen enable-ntpd",
+            "You can stop the configured NTP servers using the vzen disable-ntpd command.",
+            "Using CLI to add or remove custom NTP servers prevents configuration files from being corrupted because of syntax errors, and it avoids duplicate entries of the servers in the configuration file.",
+            "*/10 * * * * ntpdate <ntp-server-name>",
+            "This time-synchronization command will run every 10 minutes.",
+            "To make pool.ntp.org hostnames resolve to your local NTP server IP address by manipulating the /etc/hosts file:",
+            "Add up to 4 NTP servers by adding the following lines:",
+            "Adding alternate NTP servers to the /etc/ntp.conf file is not supported."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-ntp-server-synchronization.json",
+          "quotes": [
+            "The Virtual Service Edge and NTP service are restarted in this process."
+          ],
+          "after": "sudo vzen enable-ntpd"
+        }
+      ]
+    },
+    "mib-modules": {
+      "statement": "ZSCALER-VSE-MIB describes the health of the Virtual Service Edge's connection to the Zscaler Central Authority and to the Log and Reporting servers. ZSCALER-ROLEHEALTH-MIB holds instance health (OS-level information such as CPU and memory, plus some instance-specific information); ZSCALER-PROCESSHEALTH-MIB covers all watched processes and ZSCALER-PROCESSWATCHDOG-MIB the watchdog information for each managed process; ZSCALER-SWAPINFO-MIB covers the swap devices; and ZSCALER-OSNIC-MIB and ZSCALER-ZSCALERNIC-MIB cover the NIC devices managed by the OS and by the Zscaler instance respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-accessing-zscaler-snmp-mibs.json",
+          "quotes": [
+            "| ZSCALER-VSE-MIB | This module describes the health status of Virtual Service Edge connection to Zscaler Central Authority (CA) and Log and Reporting servers. |",
+            "| ZSCALER-ROLEHEALTH-MIB.mib | This module describes the health information for a Zscaler instance. This includes much of the OS level information for the instance, such as CPU, memory, and also some instance-specific information (e.g., current connections on SME). |",
+            "| ZSCALER-PROCESSHEALTH-MIB.mib | This module describes health information for all watched processes in the Zscaler instance. |",
+            "| ZSCALER-PROCESSWATCHDOG-MIB.mib | This module describes the process watchdog information for each of the managed processes of a Zscaler instance (e.g., for a SME type of instance, the watched processes are sme, smavd, smavd2, smcdsc, and sctimer). |",
+            "| ZSCALER-SWAPINFO-MIB.mib | This module describes the status of the swap devices present on the system. |",
+            "| ZSCALER-OSNIC-MIB.mib | This module describes the NIC devices managed by the OS. On a Zscaler system, there are NIC devices managed by the Zscaler instances and also by the base OS. |",
+            "| ZSCALER-ZSCALERNIC-MIB.mib | This module describes the NIC devices managed by the Zscaler instance. On a Zscaler system, there are NIC devices managed by the Zscaler instances and also by the base OS. |"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "who-manages-vse": {
+      "summary": "Who manages and maintains a Virtual Service Edge.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "Zscaler does not require access to the Virtual Service Edges.",
+              "In addition, the Virtual Service Edges aren't monitored or managed by the Zscaler Cloud Operations team."
+            ]
+          },
+          "says": "The About page says Zscaler does not require access and Cloud Operations does not monitor or manage the Virtual Service Edges."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-choosing-between-private-service-edge-and-virtual-service-edge-internet-saas.json",
+            "quotes": [
+              "You are responsible for the deployment, configuration, and maintenance. However, upgrades are automatic."
+            ]
+          },
+          "says": "The comparison page says the organization is responsible for deployment, configuration and maintenance, though upgrades are automatic."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-maintenance-support-virtual-service-edge-internet-saas.json",
+            "quotes": [
+              "but they are managed and maintained by Zscaler Cloud Operations.",
+              "Zscaler maintains the Virtual Service Edges with almost no action needed from your organization.",
+              "Ensure that only Zscaler staff access or service the Virtual Service Edge.",
+              "Monitor the Virtual Service Edge using supported SNMP MIBs to determine the health of the device",
+              "Ensure that someone can respond 24/7 to requests from Zscaler, in case there is an issue with your organization's data center."
+            ]
+          },
+          "says": "The maintenance support page says Zscaler Cloud Operations manages and maintains the Virtual Service Edges, only Zscaler staff should access or service them, and the organization monitors them with SNMP MIBs and keeps someone able to respond 24/7 to Zscaler."
+        }
+      ],
+      "impact": "The pages describe opposite operating models, customer-run with no Zscaler access against Zscaler-managed with Zscaler-only access, so who patches, accesses and monitors a Virtual Service Edge cannot be answered from one page; the maintenance page's duties are not merged into this subject's claims."
+    }
   },
   "gaps": {
+    "snmp-agent-enablement": {
+      "kind": "semantic",
+      "title": "How the SNMP agent is enabled on a Virtual Service Edge",
+      "status": "open",
+      "detail": "The cluster monitoring page enables snmpd by setting snmpd_enable=\"YES\" in the rc configuration, while the platform pages use vzen snmp-admin-configure. Whether these are the same agent, or both are needed, is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "mib-oids-and-traps": {
+      "kind": "data",
+      "title": "Zscaler enterprise OID and trap configuration for the MIBs",
+      "status": "open",
+      "detail": "The Accessing Zscaler SNMP MIBs article gives the MIB tree path to the Zscaler folder but no Zscaler enterprise OID number and no trap configuration. The cluster monitoring page now gives numeric OIDs for four objects (vse-mib) and a list of default trap conditions (default-traps), without the trap destination configuration. The MIB files themselves, which are downloadable from the console, would carry the OIDs.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
     "log-identifier": {
       "kind": "data",
       "title": "Whether log entries carry a VM-level or cluster-level identifier",

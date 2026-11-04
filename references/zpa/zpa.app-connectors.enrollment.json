@@ -46,7 +46,7 @@
     },
     {
       "label": "Methods.",
-      "text": "{{two-methods}} {{oauth-name-format}} {{groups-accept-user-codes}} {{module-onboarding-default}} {{module-onboarding-switch}} {{oauth-image-default}} {{key-file-and-sleep}} {{key-cloud-domain}} {{ssh-for-key}} Provisioning keys are covered in [[zpa.app-connectors.provisioning-keys]]."
+      "text": "{{two-methods}} {{oauth-name-format}} {{groups-accept-user-codes}} {{module-onboarding-default}} {{module-onboarding-switch}} {{oauth-image-default}} {{key-file-and-sleep}} {{key-cloud-domain}} {{ssh-for-key}} {{add-page-oauth}} {{key-name-prefix}} Provisioning keys are covered in [[zpa.app-connectors.provisioning-keys]]. The enrollment certificates themselves are in [[zpa.certificates.enrollment]], and the OAuth rules shared by all software components are in [[zpa.software-components.oauth-enrollment]]."
     },
     {
       "label": "Certificate and trust.",
@@ -467,6 +467,36 @@
         }
       ],
       "conditions": "Scoped to the Nutanix AHV guide's procedure. The AWS guide says SSH access is enabled by default on AWS App Connectors (zpa.app-connectors.platforms:aws-login-imdsv2), so 'not enabled by default' is not a rule for every Zscaler-provided image."
+    },
+    "add-page-oauth": {
+      "statement": "The Configuring App Connectors page says OAuth enrollment is available for supported Zscaler VM images, and that the Add App Connectors page takes an App Connector group, the group's signing certificate (shown if one is associated, otherwise selected) and up to 20 OAuth 2.0 enrollment tokens copied from the App Connector virtual serial console, valid for 2 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-connectors.json",
+          "quotes": [
+            "Oauth enrollment is available for supported Zscaler virtual machine (VM) images.",
+            "If a signing certificate is associated with the App Connector group, it appears under Signing Certificate. Otherwise, select a signing certificate from the drop-down menu.",
+            "Enter up to 20 OAuth 2.0 enrollment tokens that you copied from the App Connector virtual serial console to use for connecting App Connectors in the App Connector group. Tokens are valid for 2 hours."
+          ]
+        }
+      ]
+    },
+    "key-name-prefix": {
+      "statement": "When an App Connector is provisioned, the provisioning key's name is assigned as a prefix of the name of each App Connector enrolled with it, followed by a number marking it as the nth connector enrolled with the key. A rename should keep the prefix and number, as in the page's example Amazon EC2 AMI-based connectors key - Oregon-1.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-deployed-connector.json",
+          "quotes": [
+            "When provisioning a new App Connector, the provisioning key's name is automatically assigned as a prefix for the name of each App Connector enrolled with it",
+            "This number signifies that it is the nth App Connector to be enrolled with the key.",
+            "If you edit the App Connector name, be sure to keep the prefix followed by the number that indicates that this is the nth App Connector to have been deployed with its key (e.g., Amazon EC2 AMI-based connectors key - Oregon-1)."
+          ]
+        }
+      ]
     },
     "single-account-never-clone": {
       "statement": "An enrolled connector is paired with a single customer account and cannot be enrolled again; connectors in VMs should never be cloned because the keys no longer match the virtual hardware fingerprints.",

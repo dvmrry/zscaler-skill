@@ -57,7 +57,7 @@
     },
     {
       "label": "Load-balancing tokens.",
-      "text": "{{index-tokens}} {{fx-tokens}} Dedicated proxy ports also require the _FX variables: [[zia.traffic-forwarding.pac:dedicated-port-variables]]."
+      "text": "{{why-multiple-vips}} The same page gives two VIP figures {{divergence:vips-per-cluster-or-dc}}. {{index-tokens}} {{fn-split-format}} {{fx-tokens}} {{fx-device-identifier}} Dedicated proxy ports also require the _FX variables: [[zia.traffic-forwarding.pac:dedicated-port-variables]]."
     },
     {
       "label": "Source, country and country gateways.",
@@ -212,6 +212,53 @@
         }
       ]
     },
+    "why-multiple-vips": {
+      "statement": "Load balancing is typically based on the source IP address and the destination IP address, which results in the overloading of a single Public Service Edge instance in the data center when many users share an egress IP; to distribute PAC forwarded traffic over multiple instances in a data center, the PAC server returns multiple VIP addresses within the same data center as the destination IP address. The page says Zscaler supports up to 8 VIP addresses in a cluster and up to 64 clusters in a data center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-load-balancing-pac-forwarded-traffic.json",
+          "quotes": [
+            "Zscaler supports up to 8 Virtual IP (VIP) addresses in a cluster and up to 64 clusters in a data center to ensure load balancing for the incoming traffic.",
+            "Load balancing is typically based on the source IP address and the destination IP address.",
+            "a large volume of users from one physical location are behind an edge gateway with a single egress IP address.",
+            "This results in the overloading of a single Public Service Edge instance in the data center, thereby causing performance issues.",
+            "To evenly distribute PAC forwarded traffic over multiple Public Service Edge instances in a data center, the PAC server returns multiple VIP addresses within the same data center as the destination IP address."
+          ]
+        }
+      ]
+    },
+    "fx-device-identifier": {
+      "statement": "When Zscaler Client Connector connects to the PAC server to download a PAC file, it sends a unique device identifier with the request; when the same device connects again to download the PAC file, the PAC server allocates the same VIP address that was allocated to the device earlier based on its unique identifier.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-load-balancing-pac-forwarded-traffic.json",
+          "quotes": [
+            "When Zscaler Client Connector connects to the PAC server to download a PAC file, it sends a unique device identifier with the request.",
+            "When the same device connects again to download the PAC file, the PAC server allocates the same VIP address that was allocated to the device earlier based on its unique identifier."
+          ]
+        }
+      ]
+    },
+    "fn-split-format": {
+      "statement": "The vendor's splitPublicTraffic() sample uses the myIpAddress() function to determine the client source IP address, splits the client private IP address into its octets and performs last octet%8 to get an index between 0 and 7; the sample returns DIRECT for FTP and for 100.64.0.0 with mask 255.255.0.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-load-balancing-pac-forwarded-traffic.json",
+          "quotes": [
+            "splitPublicTraffic() splits the client private IP address into its corresponding octets and performs last octet%8 to get the index between 0 to 7.",
+            "Initially, the PAC file uses the myIpAddress() function to determine the client source IP address.",
+            "/* FTP goes directly */ if (url.substring(0,4) == \"ftp:\") return \"DIRECT\";",
+            "if (isInNet(resolved_ip, \"100.64.0.0\",\"255.255.0.0\")) return \"DIRECT\";"
+          ]
+        }
+      ]
+    },
     "source-and-country": {
       "statement": "${SRCIP} gives the client's public IP address and ${COUNTRY} its country (countries as listed on GeoNames); ${COUNTRY_GATEWAY} and ${COUNTRY_SECONDARY_GATEWAY} give the closest Public Service Edge in the client's country, and ${COUNTRY_GATEWAY} behaves like ${GATEWAY} when no Service Edge is configured there.",
       "tier": "A",
@@ -283,6 +330,32 @@
     }
   },
   "divergences": {
+    "vips-per-cluster-or-dc": {
+      "summary": "The load-balancing article gives the VIP limit per cluster in one sentence and per data center in another.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-load-balancing-pac-forwarded-traffic.json",
+            "quotes": [
+              "Zscaler supports up to 8 Virtual IP (VIP) addresses in a cluster and up to 64 clusters in a data center to ensure load balancing for the incoming traffic."
+            ]
+          },
+          "says": "Up to 8 VIP addresses in a cluster and up to 64 clusters in a data center."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-load-balancing-pac-forwarded-traffic.json",
+            "quotes": [
+              "Each data center can have up to 8 unique VIP addresses assigned to it."
+            ]
+          },
+          "says": "Each data center can have up to 8 unique VIP addresses assigned to it."
+        }
+      ],
+      "impact": "With several clusters per data center the two sentences give different totals of VIPs per data center; the page does not reconcile them."
+    },
     "subcloud-secondary-syntax": {
       "summary": "How the secondary gateway variable for a subcloud is written.",
       "positions": [
@@ -315,7 +388,7 @@
       "kind": "semantic",
       "title": "Which address the PAC server geolocates",
       "status": "open",
-      "detail": "Unverified legacy statement: when a remote user fetches the PAC URL through a corporate VPN, the PAC server geolocates the VPN egress IP rather than the user, so the returned file names Service Edges near the VPN egress and traffic can cross continents. The sources say the service geolocates to find the Service Edges closest to the user, without saying which address it uses.",
+      "detail": "Unverified legacy statement: when a remote user fetches the PAC URL through a corporate VPN, the PAC server geolocates the VPN egress IP rather than the user, so the returned file names Service Edges near the VPN egress and traffic can cross continents. The sources say the service geolocates to find the Service Edges closest to the user; the nearest-edge troubleshooting article names the address that asked to resolve the gateway name or the address the PAC file was downloaded from (shared.cloud-architecture.service-edges:geo-basis) but does not say what that is for a user fetching through a VPN.",
       "blocks": "explaining distant Service Edge selection for PAC users on a VPN",
       "resolves_with": [
         "lab-test",

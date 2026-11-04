@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "shared.pac-files.client-delivery",
+  "title": "Getting a PAC URL onto clients and keeping it there: GPO, browsers, enforcement, firewall",
+  "aliases": [
+    "distribute pac file url",
+    "pac file gpo",
+    "enforce pac setting",
+    "identify pac file on device",
+    "recommended.pac",
+    "pac firewall requirements"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.pac-files.hosting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.pac"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The hosted side of a PAC file is in [[shared.pac-files.hosting]]; this subject is how clients get the URL and what keeps traffic on it. {{recommended-file}}"
+    },
+    {
+      "label": "Distributing the URL.",
+      "text": "{{gpo-distribution}} {{gpo-enforcement}} Delivery by WPAD, DHCP option 252 or MDM is open {{gap:other-delivery}}."
+    },
+    {
+      "label": "First use and captive portals.",
+      "text": "{{first-login-and-captive-portal}} The client cache question is under [[zia.traffic-forwarding.pac]]."
+    },
+    {
+      "label": "Firewalls.",
+      "text": "{{firewall-backstop}}"
+    },
+    {
+      "label": "Finding the PAC file a device uses.",
+      "text": "{{find-configured-pac}}"
+    }
+  ],
+  "claims": {
+    "recommended-file": {
+      "statement": "The service recommends deploying the recommended.pac file to the organization's devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-using-default-pac-files-forward-traffic-internet-saas.json",
+          "quotes": [
+            "The service recommends that you deploy the recommended.pac file to your organization's devices."
+          ]
+        }
+      ]
+    },
+    "firewall-backstop": {
+      "statement": "The PAC firewall requirements are on config.zscaler.com, under Firewall Config Requirements and its Traffic Forwarding Requirements section. To restrict web access entirely to the Zscaler service, the page says to configure firewalls to allow outbound traffic from the clients only to the service, to prevent traffic from bypassing the service and accessing the internet directly unless explicitly allowed, and to implement firewall rules that force users with admin rights to browse through the service only so they cannot install non-standard browsers to bypass it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-viewing-firewall-configuration-requirements-using-pac-files.json",
+          "quotes": [
+            "Go to https://config.zscaler.com.",
+            "In the left-side navigation, select Firewall Config Requirements.",
+            "review the Traffic Forwarding Requirements section.",
+            "To restrict web access entirely to the Zscaler service, configure your firewalls to allow outbound traffic from the clients only to the Zscaler service.",
+            "Ensure that you configure firewall policies to prevent traffic from bypassing the Zscaler service and accessing the internet directly, unless explicitly allowed.",
+            "to prevent users with admin rights from installing non-standard browsers to bypass Zscaler, implement firewall rules that force admins to browse through the Zscaler service only."
+          ]
+        }
+      ]
+    },
+    "gpo-distribution": {
+      "statement": "If an organization uses Active Directory along with Microsoft Internet Explorer, Microsoft Edge, Google Chrome, Mozilla Firefox or Opera, Group Policy Objects can distribute a PAC file URL to all Windows (Professional, Enterprise, Education and Ultimate Editions only) and Windows Server devices in the organization. When Internet Explorer is configured to use a PAC file, browsers such as Microsoft Edge, Google Chrome and Opera follow the same configuration, but Mozilla Firefox does not follow the system proxy configuration and requires a separate method. It might take up to 20 minutes for the GPO to be replicated to a Windows client machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-distributing-pac-file-url-my-users.json",
+          "quotes": [
+            "If your organization uses Active Directory along with Microsoft Internet Explorer, Microsoft Edge, Google Chrome, Mozilla Firefox, or Opera,",
+            "you can use Group Policy Objects (GPOs) to distribute a PAC file URL to all Windows (Professional, Enterprise, Education, and Ultimate Editions only) and Windows Server devices in your organization.",
+            "When you configure Internet Explorer to use a PAC file, browsers such as Microsoft Edge, Google Chrome, and Opera follow the same configuration. However, Mozilla Firefox requires a separate method of configuration.",
+            "Mozilla Firefox does not follow the system proxy configuration like the other browsers do.",
+            "It might take up to 20 minutes for the GPO to be replicated to your Windows client machine."
+          ]
+        }
+      ]
+    },
+    "gpo-enforcement": {
+      "statement": "The PAC file setting can be enforced so that users cannot modify it even when logged in as an administrator. The enforcement steps enable the policies Disable changing Automatic Configuration settings and Prevent changing proxy settings; the Firefox steps end with users no longer able to modify the proxy settings in Mozilla Firefox. Separately, an optional distribution step applies the GPO to the entire computer irrespective of the signed-in user by enabling Make proxy settings per-machine (rather than per-user).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-distributing-pac-file-url-my-users.json",
+          "quotes": [
+            "You can enforce the PAC file setting so that the users in your organization cannot modify it even when logged in as an administrator.",
+            "Under Disable changing Automatic Configuration settings, select Enabled and click OK.",
+            "Under Prevent changing proxy settings, select Enabled and click OK.",
+            "(Optional) If you want to apply the GPO to the entire computer irrespective of the signed in user:",
+            "Under Make proxy settings per-machine (rather than per-user), select Enabled and click OK.",
+            "Users can no longer modify the proxy settings in Mozilla Firefox."
+          ]
+        }
+      ]
+    },
+    "first-login-and-captive-portal": {
+      "statement": "Based on the authentication configuration, users must log in to the service at least once for the service to start protecting their web traffic. If users log in to a captive portal, such as those on public Wi-Fi networks, they must close the browser and open it again to reload the PAC file. The page also says the browser tries to fetch the PAC file only when there is a PAC URL timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-distributing-pac-file-url-my-users.json",
+          "quotes": [
+            "Based on your authentication configuration, your users must log in to the service at least once for the service to start protecting their web traffic.",
+            "If the users log in to a captive portal, such as those present on public Wi-Fi networks (e.g., Starbucks and McDonalds), they must close the browser and open it again to reload the PAC file.",
+            "The browser tries to fetch the PAC file only when there is a PAC URL timeout."
+          ]
+        }
+      ]
+    },
+    "find-configured-pac": {
+      "statement": "The PAC file configured on a device can be found, for example, from traffic captures of the PAC file requests or the registry entry. The article says the browser tools belong to the browsers and are not related to Zscaler: in Chrome the saved JSON file is searched for proxySettings, in Firefox the URL appears in the value of network.proxy.autoconfig_url, and in Safari Automatic Proxy Configuration shows the PAC file addresses in use. The Chrome example shows \"effective\":{\"pac_url\":\"http://pac.zscalerbeta.net/zscalerbeta.net/proxy.pac\"}, an example only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-identifying-pac-file-on-device-using-browsers.json",
+          "quotes": [
+            "For example, you can take traffic captures and check the PAC file requests, or check the registry entry for the PAC file configured.",
+            "These features belong to the browsers and are not related to Zscaler.",
+            "Open the saved JSON file and search for the keyword proxySettings.",
+            "\"effective\":{\"pac_url\":\"http://pac.zscalerbeta.net/zscalerbeta.net/proxy.pac\"}",
+            "The URL of the PAC file configured to the user's browser appears in the value of network.proxy.autoconfig_url.",
+            "If your user is using Safari, do the following:",
+            "Select Automatic Proxy Configuration and you see any PAC file addresses being used."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "other-delivery": {
+      "kind": "semantic",
+      "title": "Whether WPAD, DHCP option 252 or MDM deliver the PAC URL",
+      "status": "open",
+      "detail": "The distribution article covers Group Policy Objects only. WPAD, DHCP option 252 and MDM delivery are not described in the articles captured here; zia.traffic-forwarding.pac keeps the delivery-methods question open.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

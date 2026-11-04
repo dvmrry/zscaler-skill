@@ -33,6 +33,14 @@
     {
       "rel": "see-also",
       "to": "zia.private-service-edge.when-to-deploy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.cloud-deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.bring-up"
     }
   ],
   "prose": [
@@ -49,6 +57,21 @@
       "text": "{{cluster-mode-selectable-on-esxi}} {{public-cloud-no-native-cluster}} Hyper-V is where the documentation disagrees with itself ([[zia.virtual-service-edge.platforms:hyper-v-cluster-mode]]); treat ESXi as the only platform with an unambiguous native cluster. The cluster mechanics for that case are [[zia.virtual-service-edge.clusters]] and [[zia.virtual-service-edge.load-balancing]]."
     },
     {
+      "label": "The comparison with the hardware form factor.",
+      "text": "{{comparison-vse}}"
+    },
+    {
+      "label": "Microsoft Hyper-V.",
+      "text": "{{hyper-v}} The page's memory figures differ {{divergence:hyper-v-memory}}."
+    },
+    {
+      "label": "Nutanix.",
+      "text": "{{nutanix-modes}} {{nutanix-vm}} {{nutanix-carp-network}}"
+    },
+    {
+      "text": "The public cloud pages are in [[zia.virtual-service-edge.cloud-deployment]] and the VM install sequence is in [[zia.virtual-service-edge.bring-up]]."
+    },
+    {
       "text": "One more disagreement to know about: the minimum ESXi version differs between the specifications table and the cluster configuration article ([[zia.virtual-service-edge.platforms:esxi-minimum-version]])."
     }
   ],
@@ -61,6 +84,101 @@
     }
   ],
   "claims": {
+    "comparison-vse": {
+      "statement": "In the Private versus Virtual Service Edge comparison, the Virtual Service Edge is easy to deploy and can handle remote user traffic; it can be deployed flexibly in the DMZ, the internal network or the public cloud, is horizontally scalable, needs no wait for shipping and no public IPs, and has a built-in load balancer. The organization is responsible for deployment, configuration and maintenance, though upgrades are automatic, and it provides the hardware and hypervisor while Zscaler provides the host software. An SSL acceleration card is recommended for deployments requiring a throughput of 100 Mbps or more to perform SSL inspection, and the page says Virtual Service Edges must be deployed either in clusters or standalone for production.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-choosing-between-private-service-edge-and-virtual-service-edge-internet-saas.json",
+          "quotes": [
+            "Easy to deploy. Can handle remote user traffic.",
+            "Flexible deployment in the DMZ, your internal network, or in the public cloud. Virtual form factor that is horizontally scalable. Instantly available, with no need to wait for shipping. No need to use or purchase public IPs. Built-in load balancer.",
+            "You are responsible for the deployment, configuration, and maintenance. However, upgrades are automatic.",
+            "You provide the hardware and hypervisor, while Zscaler provides the Zscaler host software that runs on the VMs.",
+            "An SSL acceleration card is recommended for deployments requiring a throughput of 100 Mbps or more in order to perform SSL inspection on Virtual Service Edges.",
+            "You must deploy them either in clusters or standalone for production."
+          ]
+        }
+      ]
+    },
+    "hyper-v": {
+      "statement": "The Hyper-V page says Zscaler supports a standalone Virtual Service Edge for production deployments on Microsoft Hyper-V. It lists Windows Server 2019 with the Hyper-V feature enabled, a minimum of 48 GB RAM and 3 network interfaces (1 for management, 1 for the Virtual Service Edge and 1 for the Load Balancer), and a Generation 1 VM. Promiscuous Mode must be enabled using the Microsoft NDIS capture on the virtual switch, because Zscaler load balancers and Virtual Service Edges use CARP, and the commands must be run as an administrator. MAC address spoofing on the third NIC facilitates sending of frames by the Virtual/Cluster IP, and Zscaler recommends different servers for each instance to achieve fault tolerance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-hyper-v.json",
+          "quotes": [
+            "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Microsoft Hyper-V.",
+            "Hypervisor: Windows Server 2019 with Hyper-V feature enabled",
+            "The Promiscuous Mode option must be enabled using the Microsoft NDIS capture on the Virtual Switch.",
+            "Zscaler load balancers and Virtual Service Edges use the Common Address Redundancy Protocol (CARP) to process traffic across multiple Virtual Service Edge instances.",
+            "In order to support this, enabling promiscuous mode on your Windows Server is required.",
+            "You must run these commands as an administrator.",
+            "Minimum Required RAM: 48 GB",
+            "Network Interfaces: 3 interfaces (1 for Management, 1 for the Virtual Service Edge, and 1 for the Load Balancer).",
+            "On the Specify Generation screen, select Generation 1 and click Next.",
+            "The third NIC in the Virtual Service Edge has CARP enabled by the Load Balancer. So, enabling the MAC address spoofing facilitates sending of frames by the Virtual/Cluster IP.",
+            "Zscaler recommends using different servers for each instance to achieve fault tolerance."
+          ]
+        }
+      ]
+    },
+    "nutanix-modes": {
+      "statement": "The Nutanix page says Virtual Service Edges can be deployed in a cluster or in standalone mode with Nutanix, and Zscaler recommends clusters to achieve redundancy and update software seamlessly during scheduled update cycles. A cluster can contain a maximum of 16 instances, each needing a subscription license count, and the hypervisor is Nutanix AHV (AOS 6.x and later; verified on AOS 7.3).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "You can deploy Virtual Service Edges for Internet & SaaS (ZIA) in a cluster or in standalone mode with Nutanix.",
+            "Zscaler recommends deploying Virtual Service Edges in clusters to achieve redundancy and update software seamlessly during scheduled update cycles.",
+            "It can contain a maximum of 16 Virtual Service Edge instances. You need a subscription license count for each Virtual Service Edge in a cluster.",
+            "Hypervisor: Nutanix AHV (AOS 6.x and later; verified on AOS 7.3)."
+          ]
+        }
+      ]
+    },
+    "nutanix-carp-network": {
+      "statement": "On Nutanix AHV no equivalent of the promiscuous mode toggle is needed, and CARP advertisements (multicast 224.0.0.18) reach every instance automatically. Where anti-spoofing is enforced (for example a Nutanix Flow microsegmentation policy), MAC spoofing on the vNICs must be explicitly allowed and CARP/VRRP multicast permitted. The page lists a dedicated AHV network on its own VLAN, a standard NIC in Access mode (kNormalNic) rather than kDirectNic or SR-IOV, IGMP snooping left disabled because enabling it can prune CARP multicast and HA might fail, and an uplink bond of active-backup or LACP with balance-tcp, not balance-slb.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "Promiscuous Mode: No equivalent toggle is needed on AHV.",
+            "so CARP advertisements (multicast 224.0.0.18) reach every Public Service Edge instance automatically.",
+            "If anti-spoofing is enforced (for example, a Nutanix Flow microsegmentation policy or a hardened network profile), you must explicitly allow MAC spoofing on the Virtual Service Edge vNICs and permit CARP/VRRP multicast in that policy.",
+            "Dedicated network: Create and use a dedicated AHV network (using its own VLAN) for Virtual Service Edge interfaces instead of sharing the VLAN with general corporate VMs.",
+            "NIC type: Use a standard NIC in Access mode (type kNormalNic). Do not use a Direct-mode NIC (kDirectNic) or SR-IOV because these bypass the OVS bridge chain and are only for cases explicitly directed by Nutanix Support.",
+            "IGMP snooping: Leave disabled (the AHV default) on the virtual switch carrying Virtual Service Edge traffic. If enabled, CARP multicast can be pruned and HA might fail.",
+            "Uplink bond mode: Use active-backup (the AHV default) or LACP with balance-tcp. Do not use the balance-slb bond mode, which drops multicast and broadcast on non-active secondaries and causes CARP not to function properly."
+          ]
+        }
+      ]
+    },
+    "nutanix-vm": {
+      "statement": "The Nutanix VM image is created with image type DISK, 4 vCPUs, 48 GB memory, Legacy BIOS boot and a SCSI bus disk of 500 GB (thin provisioned), for which Zscaler recommends SSDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "Image Type: Select DISK.",
+            "vCPU(s): Enter 4.",
+            "Memory: Enter 48.",
+            "Minimum Required RAM: 48 GB for standalone and nodes of a cluster.",
+            "Boot Configuration: Select Legacy BIOS.",
+            "Bus Type: Select SCSI.",
+            "Disk: 500 GB (thin provisioned). Zscaler recommends using SSDs."
+          ]
+        }
+      ]
+    },
     "full-featured-dedicated": {
       "statement": "A Virtual Service Edge uses a VM to function as a full-featured Public Service Edge dedicated to the organization's traffic, performing the same service as the Public Service Edges in the Zscaler cloud, including Firewall, Sandbox and DLP.",
       "tier": "A",
@@ -213,9 +331,46 @@
     }
   },
   "divergences": {
+    "hyper-v-memory": {
+      "summary": "The memory the Hyper-V page requires for a Virtual Service Edge VM.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-hyper-v.json",
+            "quotes": [
+              "Minimum Required RAM: 48 GB"
+            ]
+          },
+          "says": "The requirements list gives a minimum of 48 GB RAM."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-hyper-v.json",
+            "quotes": [
+              "On the Assign Memory screen, set the Startup memory to 32768 MB and click Next."
+            ]
+          },
+          "says": "The VM-creation step sets the startup memory to 32768 MB."
+        }
+      ],
+      "impact": "A VM built by following the creation step has less memory than the listed minimum; the page does not say whether the memory is raised later."
+    },
     "hyper-v-cluster-mode": {
       "summary": "Whether Microsoft Hyper-V supports the native Virtual Service Edge cluster mode.",
       "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-hyper-v.json",
+            "quotes": [
+              "Zscaler load balancers and Virtual Service Edges use the Common Address Redundancy Protocol (CARP) to process traffic across multiple Virtual Service Edge instances.",
+              "The third NIC in the Virtual Service Edge has CARP enabled by the Load Balancer. So, enabling the MAC address spoofing facilitates sending of frames by the Virtual/Cluster IP."
+            ]
+          },
+          "says": "The Hyper-V configuration page builds a CARP cluster, with the load balancer enabling CARP on the third NIC and MAC spoofing allowing the virtual or cluster IP to send frames."
+        },
         {
           "evidence": {
             "source": "zscaler-help",
@@ -282,7 +437,7 @@
       "kind": "semantic",
       "title": "What Nutanix support establishes",
       "status": "partial",
-      "detail": "Unverified legacy statement: that the Nutanix release 'does not establish Nutanix cluster topology, sizing, or parity with the existing platform table.' Whether Nutanix supports native clustering, the bundled load balancer, a cluster size, or the public-cloud load-balancer model is not stated.",
+      "detail": "The Nutanix configuration page now states cluster and standalone modes, a 16-instance cluster maximum and the AHV and AOS versions (nutanix-modes); throughput, SSL card support and whether the public-cloud load-balancer model applies are not stated. Unverified legacy statement: that the Nutanix release 'does not establish Nutanix cluster topology, sizing, or parity with the existing platform table.' Whether Nutanix supports native clustering, the bundled load balancer, a cluster size, or the public-cloud load-balancer model is not stated.",
       "resolves_with": [
         "source-read",
         "support-ticket"

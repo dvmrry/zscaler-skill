@@ -30,7 +30,7 @@
     },
     {
       "label": "Adding attributes.",
-      "text": "{{two-methods}} {{table-fields}} Whether the registered name must match the assertion exactly, including case, is open {{gap:name-match-exactness}}."
+      "text": "{{two-methods}} {{import-behavior}} {{manual-fields}} {{table-fields}} {{idp-fixed}} Whether the registered name must match the assertion exactly, including case, is open {{gap:name-match-exactness}}."
     },
     {
       "label": "Limit.",
@@ -166,7 +166,7 @@
       ]
     },
     "limit": {
-      "statement": "The Private Access ranges and limitations list 100 SAML attributes under Authentication.",
+      "statement": "The Private Access ranges and limitations list 100 SAML attributes under Authentication, the import page says up to 100 SAML attributes, and the manual-add page says up to 100 attributes in total.",
       "tier": "A",
       "evidence": [
         {
@@ -184,9 +184,67 @@
             "## Authentication",
             "| SAML Attributes | 100 attributes |"
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-importing-saml-attributes.json",
+          "quotes": [
+            "Within the Zscaler Admin Console, you can have up to 100 SAML attributes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-manually-adding-saml-attributes.json",
+          "quotes": [
+            "You can have up to 100 attributes in total."
+          ]
         }
       ],
       "conditions": "The row sits under the Authentication heading inside the 'Private Access (ZPA) Ranges and Limitations' part of the unified ranges page; the ZIA part of that page has no SAML attribute row. The ZSDK ranges page repeats the same figure."
+    },
+    "import-behavior": {
+      "statement": "Import starts from the IdP's expanded configuration on the IdP Configuration page and redirects to the IdP's login page; after login the Import SAML Attributes page shows only new attributes that can be imported, plus the SAML JSON from the IdP. The names entered there are only for reference and need not be identical to the SAML Attribute Name entry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-importing-saml-attributes.json",
+          "quotes": [
+            "In the IdP Configuration page, expand the configuration for the identity provider (IdP) you want to import SAML attributes from.",
+            "You are redirected to your IdP's login page. Log in with your credentials. After login, the Import SAML Attributes page is displayed.",
+            "The Import SAML Attributes page only displays new attributes that can be imported, as well as the SAML JSON from the IdP.",
+            "These names are only for your reference and don't need to be identical to the corresponding entry in the SAML Attribute Name column."
+          ]
+        }
+      ]
+    },
+    "manual-fields": {
+      "statement": "A manually added attribute takes a Name that cannot contain special characters other than periods, hyphens and underscores; a SAML Attribute, the corresponding SAML attribute name (for example Group or Email Address) as found in the IdP's SAML JSON; and an IdP Configuration chosen from a drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-manually-adding-saml-attributes.json",
+          "quotes": [
+            "The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ ).",
+            "SAML Attribute: Enter the corresponding SAML attribute name (for example, Group or Email Address). To find all of the available SAML attribute names, refer to the SAML JSON for your identity provider (IdP).",
+            "IdP Configuration: Choose an IdP configuration from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "idp-fixed": {
+      "statement": "Editing cannot change an attribute's selected IdP Configuration; to adjust the attribute for another IdP configuration it must be imported or added again for that IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-saml-attributes.json",
+          "quotes": [
+            "You cannot modify the selected IdP Configuration. If you need to adjust this attribute for another IdP configuration, you must import or add it again for that IdP."
+          ]
+        }
+      ]
     },
     "auth-service-replaces-page": {
       "statement": "With a subscription to Authentication Service for users, the SAML Attributes page is replaced by the Session Attributes page: the SAML Attribute column becomes Session Attribute, and the Add SAML Attribute button, the Edit and Delete buttons, and the filter by IdP are hidden.",

@@ -60,6 +60,14 @@
     {
       "rel": "see-also",
       "to": "zdx.probes.managed"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.probes.collections"
     }
   ],
   "prose": [
@@ -121,13 +129,17 @@
     },
     {
       "label": "Adaptive.",
-      "text": "What an adaptive probing mode does, and whether scores stay comparable across cadences, is not documented {{gap:adaptive-mode}}."
+      "text": "{{adaptive-behavior}} Whether scores stay comparable across cadences or modes is not documented {{gap:adaptive-mode}}. Adaptive for Private Access applications is described two ways, see [[zdx.probes.configuration:adaptive-private-access]]."
     },
     {
       "heading": "Probe kinds and views"
     },
     {
       "text": "{{page-views}} {{monitor-types}} How the contract's monitor types and the Zscaler Managed probes map to the two probe types in the help is not stated {{gap:managed-and-monitor-types}}; Managed Monitoring itself is in [[zdx.probes.managed]]."
+    },
+    {
+      "label": "Configuring and grouping.",
+      "text": "How an end-user probe is configured in the console is in [[zdx.probes.configuration]], and the collections that hold applications and their probes are in [[zdx.probes.collections]]."
     },
     {
       "label": "Limits.",
@@ -388,6 +400,26 @@
         }
       ]
     },
+    "adaptive-behavior": {
+      "statement": "Per Using Adaptive Mode, Adaptive mode tries the TCP, UDP and ICMP protocols for each run and picks the best available protocol for the probe, selecting the best protocol for each leg in the Cloud Path by auto-discovery, so the Cloud Path can combine more than one protocol; the factors are least latency and least loss to the destination (egress/server), and if Adaptive detection fails ICMP is used for the leg to the egress router and TCP for the path to the destination server. Minimum versions of Client Connector and ZDX Module are required, Adaptive can be selected when configuring a Cloud Path probe for a predefined or custom application, and the protocol used is visible in the Cloud Path section on the user details page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-using-adaptive-mode.json",
+          "quotes": [
+            "Adaptive mode tries the TCP, UDP, and ICMP protocols for each run, and picks the best available protocol for the probe.",
+            "The best protocol for each leg in the Cloud Path is selected via an auto-discovery process and results in a combination of more than one protocol for the Cloud Path.",
+            "Least latency to the destination (egress/server)",
+            "Least loss to the destination (egress/server)",
+            "If Adaptive detection fails, ICMP is used for the leg to the egress router, and TCP is used for the path to the destination server.",
+            "Minimum versions of Zscaler Client Connector and ZDX Module are required.",
+            "You can select Adaptive mode when configuring a Cloud Path probe for either a predefined or custom application.",
+            "The protocol used is visible in the Cloud Path section on the user details page."
+          ]
+        }
+      ]
+    },
     "page-views": {
       "statement": "The Probes page has an End User view (the default) of configured applications and their probes, a Managed view of applications with Zscaler Managed probes, and a Top Private Apps view; depending on the ZDX role and subscription level, some views might not show.",
       "tier": "A",
@@ -624,9 +656,19 @@
             ]
           },
           "says": "The Web probe considers HTTP connections in the ranges 100-199, 200-299 and 300-399 successful."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zdx-configuring-probe.json",
+            "quotes": [
+              "By default, the following 1xx (Informational), 2xx (Success), and 3xx (Redirection) codes are applied:"
+            ]
+          },
+          "says": "Configuring a Probe applies a default list of 1xx, 2xx and 3xx codes, which it then names code by code (see zdx.probes.configuration)."
         }
       ],
-      "impact": "A 1xx or other 3xx response (a 302, say) is a failure under the contract's default list and a success under the help's; the sources do not say which list a console-created probe uses."
+      "impact": "A 1xx or other 3xx response (a 302, say) is a failure under the contract's default list and a success under the help's; the sources do not say which list a console-created probe uses, and the Configuring a Probe default list names some 3xx codes and not others."
     },
     "active-probes-rows": {
       "summary": "The Applications and Probes table has two rows for active probes: one named Active Probes (per tenant) with 3, 7, 30 and 100, and one named Active Probes with 6, 13, 30 and 1,000 (Standard, Microsoft 365, Advanced, Advanced Plus).",
@@ -695,12 +737,12 @@
     },
     "adaptive-mode": {
       "kind": "semantic",
-      "title": "What adaptive probing does and whether scores stay comparable",
-      "status": "open",
+      "title": "Whether scores stay comparable across probing cadences or modes",
+      "status": "partial",
       "former_ids": [
         "zdx-42"
       ],
-      "detail": "Unverified legacy statement: Adaptive Mode, referenced in related help articles, dynamically adjusts probing behavior. The contract's TRACERT and HIFI_MTR monitors accept an ADAPTIVE protocol; no captured source says what it changes or whether scores taken at different cadences are comparable.",
+      "detail": "What Adaptive mode does is now stated (see adaptive-behavior). Still open: the contract's TRACERT and HIFI_MTR monitors accept an ADAPTIVE protocol, and no captured source says whether scores taken at different cadences or probing modes are comparable, nor the minimum Client Connector and ZDX Module versions Adaptive needs.",
       "blocks": "comparing scores of probes with different cadences or modes",
       "resolves_with": [
         "source-read",

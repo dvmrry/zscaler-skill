@@ -57,10 +57,14 @@
     },
     {
       "label": "Department.",
-      "text": "{{enterprise-department}} {{connector-omits-department}} Whether the string must match an existing department is a separate question: [[zia.scim.groups-and-departments]]."
+      "text": "{{enterprise-department}} {{connector-omits-department}} {{department-per-idp}} The Entra ID and Google Workspace guides write the department attribute path differently {{divergence:department-attribute-path}}. Whether the string must match an existing department is a separate question: [[zia.scim.groups-and-departments]]."
     },
     {
-      "text": "Three points are open: which attributes are required {{gap:required-attributes}}, whether custom attributes are persisted {{gap:custom-attributes}}, and how each IdP handles department by default {{gap:per-idp-department-mapping}}."
+      "label": "Per-IdP mappings.",
+      "text": "{{entra-scim-mappings}} {{pingone-google-scim-mappings}} {{workflow-automation-attributes}}"
+    },
+    {
+      "text": "Three points are open: which attributes are required {{gap:required-attributes}}, whether custom attributes are persisted {{gap:custom-attributes}}, and how the remaining IdPs handle department by default {{gap:per-idp-department-mapping}}."
     }
   ],
   "checks": [
@@ -194,6 +198,150 @@
         "user-fields"
       ],
       "conditions": "Reads the mapping list as complete: no other attribute is mapped to login_name."
+    },
+    "department-per-idp": {
+      "statement": "In the PingOne guide's SCIM attribute table Department maps to department. In the Entra ID guide the table maps the enterprise-extension department attribute to department.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "| urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department | department |  |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-pingone.json",
+          "quotes": [
+            "| Department | department |"
+          ]
+        }
+      ],
+      "gaps": [
+        "per-idp-department-mapping"
+      ]
+    },
+    "entra-scim-mappings": {
+      "statement": "The Entra ID guide's mapping tables send, for users, userPrincipalName to userName, objectId to externalId, the expression Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\") to active, surname to name.familyName, givenName to name.givenName and displayName to displayName; for groups, displayName to displayName, members to members and objectId to externalId.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "| userName | userPrincipalName | Yes |",
+            "| active | Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\") |  |",
+            "| name.familyName | surname |  |",
+            "| name.givenName | givenName |  |",
+            "| displayName | displayName | Yes |",
+            "| members | members |  |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "after": "3. Verify the users attribute mappings as listed in the following table.",
+          "quotes": [
+            "| externalId | objectId |  |",
+            "| displayName | displayName |  |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "after": "3. Verify the group attribute mappings as listed in the following table.",
+          "quotes": [
+            "| externalId | objectId |  |"
+          ]
+        }
+      ]
+    },
+    "pingone-google-scim-mappings": {
+      "statement": "The PingOne guide maps Enabled to active, Family Name to familyName, Given Name to givenName, Username to userName and Email Address to workEmail, and builds displayName from the expression user.name.given + \" \" + user.name.family. The Google Workspace guide maps Formatted name to displayName, Last name to name.familyName, First name to name.givenName and Username to userName.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-pingone.json",
+          "quotes": [
+            "| Enabled | active |",
+            "| Family Name | familyName |",
+            "| Given Name | givenName |",
+            "| Username | userName |",
+            "| Email Address | workEmail |",
+            "Click the Advanced Expression icon for the displayName attribute.",
+            "19. In the Build and Test Expression window, enter user.name.given + \" \" + user.name.family."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-google-workspace.json",
+          "quotes": [
+            "| Formatted name | displayName |",
+            "| Last name | name.familyName |",
+            "| First name | name.givenName |",
+            "| Username | userName |"
+          ]
+        }
+      ]
+    },
+    "workflow-automation-attributes": {
+      "statement": "Where the Workflow Automation Admin Portal is used, the Entra ID and Okta guides add user attributes beyond the core mapping, for example the enterprise-extension manager.value, employeeNumber and mobile phoneNumbers in Entra ID, and manager and employeeNumber in Okta. The guides add them for Workflow Automation; whether ZIA itself stores them is not stated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "(Optional) If you use the Workflow Automation Admin Portal, add and map additional user attributes that Workflow Automation uses.",
+            "| urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:manager.value | Reference | urn:ietf:params:scim:schemas:extension:enterprise:2.0:User |",
+            "| urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:employeeNumber | String |  |",
+            "| phoneNumbers[type eq \"mobile\"].value | String |  |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-okta.json",
+          "quotes": [
+            "(Optional) If you use the Workflow Automation Admin Portal, add and map additional user attributes that Workflow Automation uses.",
+            "The following table lists the additional user attributes to add for Workflow Automation:",
+            "| string | manager | manager | manager | urn:ietf:params:scim:schemas:core:2.0:User | Between 1 and 128 | Personal |",
+            "| string | employeeNumber | employeeNumber | employeeNumber | urn:ietf:params:scim:schemas:core:2.0:User | Between 1 and 32 | Personal |"
+          ]
+        }
+      ],
+      "gaps": [
+        "custom-attributes"
+      ]
+    }
+  },
+  "divergences": {
+    "department-attribute-path": {
+      "summary": "The Entra ID and Google Workspace guides write the enterprise-extension department attribute with a colon and with a dot before department.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+            "quotes": [
+              "| urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department | department |  |"
+            ]
+          },
+          "says": "The Entra ID table maps urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department (a colon before department) to department."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-saml-scim-configuration-guide-google-workspace.json",
+            "quotes": [
+              "| Department | urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.department |"
+            ]
+          },
+          "says": "The Google Workspace table maps Department to urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.department (a dot before department)."
+        }
+      ],
+      "impact": "The enterprise-department claim's create and update examples put department inside the enterprise extension object, which matches neither notation literally. The dot may be the Google console's notation for the same target; the guides do not say, so do not tell an operator which path string to type for a custom connector."
     }
   },
   "gaps": {
@@ -222,8 +370,8 @@
     "per-idp-department-mapping": {
       "kind": "semantic",
       "title": "How each IdP maps or omits the department attribute by default",
-      "status": "open",
-      "detail": "Entra ID, Okta and PingFederate guides are referenced by the SCIM article but their department handling is not in any captured source (former ledger zia-43). Capturing the per-IdP SAML and SCIM guides would settle it.",
+      "status": "partial",
+      "detail": "The Entra ID, PingOne and Okta guides' department mappings are now sourced (department-per-idp), with the Google Workspace notation in divergence department-attribute-path; the Okta table is in the guide's optional Workflow Automation attributes. The PingFederate guide defers configuration to PingFederate's documentation, so its department handling is not in any captured source (former ledger zia-43), and whether each connector sends department out of the box is not stated.",
       "resolves_with": [
         "source-read",
         "operator-experience"

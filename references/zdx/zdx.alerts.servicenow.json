@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "id": "zdx.alerts.servicenow",
+  "title": "The ZDX application on ServiceNow: roles, webhook URLs, Deep Tracing, Root Cause Analysis and incident settings",
+  "aliases": [
+    "zdx servicenow",
+    "servicenow integration",
+    "zdx integration on servicenow",
+    "servicenow incident management",
+    "servicenow event management",
+    "zdx_management role",
+    "zdx_dt_management",
+    "servicenow root cause analysis",
+    "servicenow deep tracing",
+    "zdx servicenow settings module"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.webhooks"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.alerts.rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.diagnostics.analysis"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zdx"
+    }
+  ],
+  "prose": [
+    {
+      "text": "ZDX alerts can feed ServiceNow, and the ZDX application on the ServiceNow store adds Deep Tracing, Root Cause Analysis and incident settings on the ServiceNow side. {{im-and-em}} {{integration-features}}"
+    },
+    {
+      "label": "Roles and credentials.",
+      "text": "{{service-user}} {{zdx-role}} {{api-key-and-urls}} The permission names differ between the guides {{gap:permission-names}}."
+    },
+    {
+      "label": "The webhook.",
+      "text": "{{webhook-urls}} {{oauth-endpoint}} {{test-check}} The generic webhook page is [[zdx.alerts.webhooks]]."
+    },
+    {
+      "label": "Deep Tracing and Root Cause Analysis.",
+      "text": "{{deep-tracing-only}} {{deep-tracing-session}} {{root-cause-analysis}} {{impact-views}} A sentence on which views appear for a ZDX Score alert is unclear in the article {{gap:impact-views-sentence}}. The console's Diagnostics sessions are in [[zdx.diagnostics]]."
+    },
+    {
+      "label": "Mappings and settings.",
+      "text": "{{category-mapping}} {{mappings-module}} The article's mapping of a ZDX Score alert type sits beside the console's retirement of that type: [[zdx.alerts.rules]]. {{user-domain}} {{settings-module}}"
+    },
+    {
+      "label": "The developer sample.",
+      "text": "{{developer-instance}} {{developer-incident-mapping}} The fields the script reads are in [[zdx.alerts.webhooks:payload-servicenow-sample]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For a ServiceNow user who cannot reach a feature, the roles on the service user against the roles each feature names.",
+      "uses": [
+        "service-user"
+      ]
+    },
+    {
+      "do": "For a webhook to ServiceNow, the URL form for Incident Management or Event Management and the authentication type, and for OAuth the redirect URL and token lifespans.",
+      "uses": [
+        "webhook-urls",
+        "oauth-endpoint",
+        "test-check"
+      ]
+    },
+    {
+      "do": "For incidents with an empty caller or an unexpected category, the Settings module's service user ID and the Mappings module's root mapping.",
+      "uses": [
+        "settings-module",
+        "mappings-module"
+      ]
+    }
+  ],
+  "claims": {
+    "im-and-em": {
+      "statement": "ZDX supports integration of IT Service Management (ITSM) via Incident Management (IM) and IT Operations Management (ITOM) via Event Management (EM); for Event Management the steps are to enable ITOM and to request the EM plugin and install it from the store when it is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide.json",
+          "quotes": [
+            "Digital Experience (ZDX) supports the integration of IT Service Management (ITSM) via Incident Management (IM) and IT Operations Management (ITOM) via Event Management (EM).",
+            "Enable ITOM.",
+            "Request the EM plugin and install it from the store when it is available."
+          ]
+        }
+      ]
+    },
+    "service-user": {
+      "statement": "The ServiceNow service user is created with the Web Services Access only checkbox selected (Zscaler recommends an email address in lieu of a user ID); web service users needing Incident Management get the x_zsca2_zdx_manage.zdx_management role, Deep Tracing users the x_zsca2_zdx_manage.zdx_dt_management role, web service users needing Event Management the evt_mgmt_integration role, and active users managing the application the x_zsca2_zdx_manage.zdx_em_admin and evt_mgmt_user roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide.json",
+          "quotes": [
+            "Select the Web Services Access only checkbox.",
+            "Zscaler recommends using an email address in lieu of a user ID.",
+            "For web service users that require access to IM, add the x_zsca2_zdx_manage.zdx_management role.",
+            "For users working with the Deep Tracing feature, add the x_zsca2_zdx_manage.zdx_dt_management role.",
+            "For web service users that require access to EM, add the evt_mgmt_integration role.",
+            "For active users that require managing the application, add the x_zsca2_zdx_manage.zdx_em_admin and evt_mgmt_user roles."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "| Root Cause Analysis Alerts | x_zsca2_zdx_manage.zdx_management |",
+            "| Deep Tracing | x_zsca2_zdx_manage.zdx_dt_management |",
+            "Optionally, you can assign both roles to a service user if they require access to Root Cause Analysis, Alerts, and Deep Tracing."
+          ]
+        }
+      ]
+    },
+    "oauth-endpoint": {
+      "statement": "For OAuth, an OAuth API endpoint for external clients is created in ServiceNow under Application Registry with the redirect URL https://admin.<cloud name>/zdx/admin/webhooks; if the Client Secret is left empty it auto-generates one, and Zscaler recommends a refresh token lifespan of 5 years from the current date and an access token lifespan of 1 hour to maximize reuse.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide.json",
+          "quotes": [
+            "Search for oauth and go to Application Registry > New > Create an OAuthAPI endpoint for external clients.",
+            "Redirect URL: Enter your URL based on the cloud name of the ZDX tenant.",
+            "https://admin.<cloud name>/zdx/admin/webhooks",
+            "Client Secret: If this field is left empty, it auto-generates a Client Secret code.",
+            "Refresh Token Lifespan: Enter your refresh token lifespan. Zscaler recommends a lifespan of 5 years from the current date.",
+            "Access Token Lifespan: Enter your access token lifespan. Zscaler recommends a lifespan of 1 hour to maximize reuse."
+          ]
+        }
+      ]
+    },
+    "zdx-role": {
+      "statement": "The ZDX role created for the ServiceNow webhook has Diagnostics Full, Webhooks Full, User & Device Names Visible, Configuration Access Full, Alerts Full and UCaaS Monitoring View Only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide.json",
+          "quotes": [
+            "Diagnostics: Full",
+            "Webhooks: Full",
+            "User & Device Names: Visible",
+            "Configuration Access: Full",
+            "Alerts: Full",
+            "UCaaS Monitoring: View Only"
+          ]
+        }
+      ]
+    },
+    "webhook-urls": {
+      "statement": "The webhook URL is https://<your-instance-ID>.service-now.com/api/x_zsca2_zdx_manage/incident_management_api for Incident Management or https://<your-instance-ID>.service-now.com/api/global/em/jsonv2 for Event Management; Basic authentication takes the username and password of the previously created service user, and OAuth takes the application ServiceNow and the Client ID of the previously created OAuth 2.0 API endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide.json",
+          "quotes": [
+            "https://<your-instance-ID>.service-now.com/api/x_zsca2_zdx_manage/incident_management_api",
+            "https://<your-instance-ID>.service-now.com/api/global/em/jsonv2",
+            "Username: Enter the username of the previously created service user.",
+            "Password: Enter the password of the previously created service user.",
+            "Application: Select ServiceNow.",
+            "Client ID: Enter the Client ID of the previously created OAuth 2.0 API endpoint."
+          ]
+        }
+      ]
+    },
+    "test-check": {
+      "statement": "For OAuth, Test Webhook does not post a test message on ServiceNow and instead acquires the OAuth token; to see whether a test webhook is recorded, the ServiceNow Incidents or ServiceNow Events module is selected from the menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide.json",
+          "quotes": [
+            "Test Webhook for OAuth does not post a test message on ServiceNow. Instead, it acquires the OAuth token.",
+            "From the menu, select ServiceNow Incidents or ServiceNow Events module to see if the test webhook is recorded."
+          ]
+        }
+      ]
+    },
+    "deep-tracing-only": {
+      "statement": "Deep Tracing is a type of Diagnostics session, and in ServiceNow only Deep Tracing can be configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide.json",
+          "quotes": [
+            "Deep Tracing is a type of Diagnostics session. In ServiceNow, you can only configure for Deep Tracing."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "Deep Tracing is a type of Diagnostics session. In ServiceNow, you can only configure for Deep Tracing."
+          ]
+        }
+      ]
+    },
+    "integration-features": {
+      "statement": "The integration article lists creating Deep Tracing sessions for deeper granularity and process-level information for a user, running a Root Cause Analysis to help identify the root cause of a drop in an application's ZDX Score, and mapping the categories and subcategories for incoming alerts or created incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "Create Deep Tracing sessions to provide deeper granularity and process-level information for a user.",
+            "Run a Root Cause Analysis to help detect and identify the root cause of a drop in an application's ZDX Score.",
+            "Map the categories and subcategories for incoming alerts or created incidents."
+          ]
+        }
+      ]
+    },
+    "api-key-and-urls": {
+      "statement": "For Deep Tracing and Root Cause Analysis the integration article has a ZDX role with Dashboard Access View Only, Deep Tracing Full and Device and User Information Visible, then an API key created on the API Key Management page; the ServiceNow Settings module takes the Zscaler Admin Console URL as ZDX PORTAL URL (for example admin.zdxcloud.net), the ZDX Public API URL as ZDX API URL (for example api.zdxcloud.net), and the Key ID and Key Secret from the ZDX API key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "Dashboard Access: View Only",
+            "Deep Tracing: Full",
+            "Device and User Information: Visible",
+            "After creating the ZDX Role, create an API Key on the API Key Management page.",
+            "The format must be: [subdomain].[second-level-domain].[top-level-domain] (e.g., admin.zdxcloud.net).",
+            "The format must be: [subdomain].[second-level-domain].[top-level-domain] (e.g., api.zdxcloud.net).",
+            "ZDX PORTAL URL: Enter your Zscaler Admin Console URL.",
+            "ZDX API URL: Enter your ZDX Public API URL.",
+            "Key ID: Enter your Key ID from your ZDX API Key.",
+            "Key Secret: Enter your Key Secret from your ZDX API Key."
+          ]
+        }
+      ]
+    },
+    "deep-tracing-session": {
+      "statement": "A Deep Tracing session from ServiceNow runs for 5 minutes, 15 minutes, 30 minutes or 60 minutes; its name includes the current incident number by default, Device Probing gathers device data, and the impacted user, the application's Web probe and Cloud Path probe are selected, with Cloud Path Probe Thresholds for Packet Loss (%) and Latency (ms).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "Run Session For: Select the duration of the Deep Tracing session. You can select from 5 minutes, 15 minutes, 30 minutes, or 60 minutes.",
+            "Name: Enter the name of the Deep Tracing session. This includes the current incident number by default.",
+            "Device Probing: Enable to gather device data for Deep Tracing.",
+            "User: Select the impacted user.",
+            "Web Probe: Select the application's Web probe.",
+            "Cloud Path Probe: Select the application's Cloud Path probe to configure the Cloud Path Probe Thresholds.",
+            "Packet Loss (%): Enter a percentage of packet loss for Deep Tracing.",
+            "Latency (ms): Enter the latency to measure for Deep Tracing."
+          ]
+        }
+      ]
+    },
+    "root-cause-analysis": {
+      "statement": "Under the Application section Analyze Score can be clicked on an existing application if a low score is detected (less than or equal to 34); when the Root Cause Analysis is completed a list of factors that determined the ZDX Score can be viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "Under the Application section, you can click Analyze Score on one of the existing applications if a low score is detected (less than or equal to 34).",
+            "When the Root Cause Analysis is completed, view a list of factors that determined the ZDX Score."
+          ]
+        }
+      ]
+    },
+    "impact-views": {
+      "statement": "In the integration article's Alert Impact view the impacted devices are sorted by Departments, Geolocations and Zscaler Locations; the Impacted Users page lists the impacted devices and their users that meet the alert rule's criteria, with a maximum of 100 devices displayed and a link to the impacted device page in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "The impacted devices are sorted by Departments, Geolocations, and Zscaler Locations.",
+            "The Impacted Users page displays a list of impacted devices and their users that meet the alert rule's criteria. The maximum number of devices displayed is 100.",
+            "Link: A link to the impacted device page in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "category-mapping": {
+      "statement": "To map ZDX alert types to ServiceNow categories, sys_choice.list is entered in the Filter Navigator in the Global Application scope, and each record's Element is category or subcategory, with, for a subcategory, the value of the root category as Dependent Value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "In the Global Application scope, enter sys_choice.list in the Filter Navigator type.",
+            "Element: Enter category or subcategory.",
+            "Dependent Value: If you are creating a subcategory, enter the value of the root category as required."
+          ]
+        }
+      ]
+    },
+    "user-domain": {
+      "statement": "If users have emails or usernames that differ from the Client Connector login, the User Domain Settings can append or replace the domain; None, the default selection, requires no modification, and configuring the settings does not manipulate the existing data in the ServiceNow user record.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-zdx-integration-servicenow.json",
+          "quotes": [
+            "If your users have emails or usernames that differ from the Zscaler Client Connector login, you can configure the User Domain Settings to append or replace the domain as needed.",
+            "None: No modifications to the domain settings are required. This is the default selection.",
+            "Configuring user domain settings does not manipulate the existing data in the ServiceNow user record."
+          ]
+        }
+      ]
+    },
+    "settings-module": {
+      "statement": "In the application's settings it is mandatory to use the user ID of the service user, otherwise the Caller name remains empty in incidents, and the resolver name or ID for automatically resolved incidents should be the web service user's ID; the transform script's logging level defaults to Information, incidents are created only for alerts at or above a minimum severity whose default is High, and the default resolution code is Closed/Resolved by the caller. For auto-resolve, if the value is Yes the incident state is set to Resolved, otherwise the state does not change but the Active field is set to false.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zdx-application-fields-servicenow.json",
+          "after": "# Settings Module",
+          "quotes": [
+            "It is mandatory to use the user ID of the service user created for the application. Otherwise, the Caller name remains empty in incidents.",
+            "Specify the logging level for the transform script: Specifies the minimum level of log messages to be created. The default is Information.",
+            "Only create incidents for severity level or higher: Specifies the minimum level of severity for incoming alerts. The default level is High.",
+            "For example, if the value is set to Yes, then the state of the incident is set to Resolved. Otherwise, the state does not change, but the Active field is set to false.",
+            "Automatically resolve incidents if the alert ended: Enables the application to automatically resolve incidents whose source alert ended in ZDX.",
+            "Select resolution code for automatically resolved incidents: The code used when resolving an incident. You can select one of the options defined for the property. The options match SeviceNow's resolution code values. The default is Closed/Resolved by the caller.",
+            "Enter a default name or ID of the resolver for automatically resolved incidents (Make sure to use web service user's ID)"
+          ]
+        }
+      ]
+    },
+    "mappings-module": {
+      "statement": "Mapping for Zscaler Alerts maps all the ZDX alerts to one category and uses subcategories for specific ZDX types; for a per-type mapping such as Device, if the root mapping is not empty the value is mapped to the incident table's subcategory field, if it is empty to the category field, and if no mapping was provided at all the category field is mapped to Inquiry / Help.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zdx-application-fields-servicenow.json",
+          "quotes": [
+            "Mapping for Zscaler Alerts: To map all the ZDX Alerts to one category and use subcategories for specific ZDX types."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zdx-application-fields-servicenow.json",
+          "after": "Mapping for Zscaler Alert type - Device: Provides mapping for all the alerts that have been configured as Device alerts in the Zscaler Admin Console.",
+          "quotes": [
+            "If the root mapping is not empty, then the value is mapped to the subcategory field of the incident table.",
+            "If the root mapping is empty, then the value is mapped to the category field of the incident table.",
+            "If no mapping was provided at all, then the value for category field is mapped to Inquiry / Help."
+          ]
+        }
+      ]
+    },
+    "developer-instance": {
+      "statement": "The developer guide says its ServiceNow instance automatically hibernates so it should be woken every 24 hours, and is reclaimed if unused for 10 days; its Scripted REST API security steps involve the Requires authentication and Requires ACL authorization checkboxes, a later step deselects Requires authentication, and the token in the script (12345679 in the script) must be edited to the one the ZDX webhook uses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide-developers.json",
+          "quotes": [
+            "This instance automatically hibernates, so you should wake it every 24 hours. Also, if you don’t use it for 10 days, it is reclaimed.",
+            "On the Security tab, select the following checkboxes:",
+            "Requires ACL authorization",
+            "Remember to edit the token in your script (12345679 in the following script) to the one your webhook in ZDX is using."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide-developers.json",
+          "after": "On the Security tab, select the following checkboxes:",
+          "quotes": [
+            "Requires authentication"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide-developers.json",
+          "after": "Script for Basic authentication",
+          "quotes": [
+            "Deselect the Requires authentication checkbox."
+          ]
+        }
+      ]
+    },
+    "developer-incident-mapping": {
+      "statement": "The developer sample script queries for an incident by the alert ID in the short description, uses the category ZDX Alerts, and sets the close code Alert resolved or Rule deleted or modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-servicenow-webhook-configuration-guide-developers.json",
+          "after": "Script for Basic authentication",
+          "quotes": [
+            "gr.addQuery('short_description', 'CONTAINS 1', alertId);",
+            "var category = \"ZDX Alerts\";",
+            "gr.close_code = \"Alert resolved\";",
+            "gr.close_code = \"Rule deleted or modified\";"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "permission-names": {
+      "kind": "semantic",
+      "title": "Which Adding ZDX Roles permission the ServiceNow guides' names map to",
+      "status": "open",
+      "detail": "The ServiceNow guides name Diagnostics, Webhooks, User & Device Names, Configuration Access, Alerts, UCaaS Monitoring, Dashboard Access, Device and User Information and Deep Tracing: Full. Adding ZDX Roles has Dashboard, Configuration Access, Administrator Management, a device and user information permission and Diagnostics, and no Deep Tracing permission; which of its permissions Deep Tracing Full means is not stated.",
+      "blocks": "building the role for the ServiceNow API key",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "impact-views-sentence": {
+      "kind": "semantic",
+      "title": "What the Alert Impact and Impacted Users sentence about ZDX Score alerts means",
+      "status": "open",
+      "detail": "Both views carry the sentence 'You see results except for Alert Impact or Impacted Users if the ZDX Score is an alert type based on Public API support.'; the capture does not make its meaning clear.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

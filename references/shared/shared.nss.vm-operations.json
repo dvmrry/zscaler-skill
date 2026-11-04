@@ -60,7 +60,7 @@
     },
     {
       "label": "SNMP and MCAS.",
-      "text": "{{snmp-and-mcas-commands}}"
+      "text": "{{snmp-and-mcas-commands}} {{nss-snmp-mibs}} The MIB article does not give the NSS admin-user command, only that the steps are identical to its Virtual Service Edge example {{gap:nss-snmp-admin-command}}."
     },
     {
       "label": "Certificate and standby.",
@@ -330,6 +330,23 @@
         }
       ]
     },
+    "nss-snmp-mibs": {
+      "statement": "The NSS MIB bundle, NSSMIBS.tgz, contains ZSCALER-NSSFEED-MIB (information specific to NSS feeds) and ZSCALER-NSS-MIB (information specific to the NSS instance) along with ZSCALER-OSNIC-MIB, ZSCALER-PROCESSHEALTH-MIB, ZSCALER-PROCESSWATCHDOG-MIB, ZSCALER-ROLEHEALTH-MIB, ZSCALER-SWAPINFO-MIB and ZSCALER-ZSCALERNIC-MIB. The MIB article says the steps for configuring NSS are identical to its Virtual Service Edge example, and to use the nss status command for NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-accessing-zscaler-snmp-mibs.json",
+          "quotes": [
+            "| NSSMIBS.tgz | This file contains the following MIB files: ZSCALER-NSSFEED-MIB ZSCALER-NSS-MIB ZSCALER-OSNIC-MIB ZSCALER-PROCESSHEALTH-MIB ZSCALER-PROCESSWATCHDOG-MIB ZSCALER-ROLEHEALTH-MIB ZSCALER-SWAPINFO-MIB ZSCALER-ZSCALERNIC-MIB |",
+            "| ZSCALER-NSSFEED-MIB.mib | This module describes information specific to NSS feeds. |",
+            "| ZSCALER-NSS-MIB.mib | This module describes information specific to the NSS instance. |",
+            "The steps for configuring NSS are identical to the Virtual Service Edge example shown in this article.",
+            "For NSS, use the nss status command."
+          ]
+        }
+      ]
+    },
     "passive-backup-not-started": {
       "statement": "The AWS guide says to run sudo nss start unless the instance is planned for passive backup, and that it can take a few minutes for the NSS to start streaming logs to the SIEM.",
       "tier": "A",
@@ -342,6 +359,18 @@
             "It can take a few minutes for the NSS to start streaming logs to the SIEM."
           ]
         }
+      ]
+    }
+  },
+  "gaps": {
+    "nss-snmp-admin-command": {
+      "kind": "semantic",
+      "title": "The NSS command for the SNMP admin user as the MIB article would give it",
+      "status": "open",
+      "detail": "The MIB article's admin-user command is vzen snmp-admin-configure, and it says only that the NSS steps are identical to its Virtual Service Edge example. The command for NSS in this subject is sudo nss snmp-admin-configure (snmp-and-mcas-commands); the NSS command is not inferred from 'identical'.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
       ]
     }
   }

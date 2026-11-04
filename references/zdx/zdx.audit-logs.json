@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "id": "zdx.audit-logs",
+  "title": "ZDX admin audit logs in the console: what is recorded, retention, lockout and filters",
+  "aliases": [
+    "zdx audit log",
+    "zdx audit logs",
+    "digital experience audit logs",
+    "zdx admin audit",
+    "zdx sign-in lockout"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zdx.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.audit-logs"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The ZDX audit log is the console's record of each admin session in Digital Experience; the API's report is in [[shared.audit-logs]]. {{what-is-recorded}} {{retention}} {{lockout}}"
+    },
+    {
+      "label": "Reading it.",
+      "text": "{{columns}} {{filters}} {{actions}} {{categories}} {{subcategories}} {{interface-result}} {{csv-and-search}}"
+    },
+    {
+      "label": "Open.",
+      "text": "Whether changes made through the API appear in this log, and whether it is the data behind the API's audit report, are open {{gap:api-changes}}, as is which sign-in methods the lockout covers {{gap:lockout-methods}}. Who may view it is a role permission: [[shared.admin-rbac.zdx:administrator-management-permission]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the change falls inside the 6-month retention before concluding it was not made.",
+      "uses": [
+        "retention"
+      ]
+    },
+    {
+      "do": "For an admin who cannot sign in, whether repeated failed attempts locked the account and the lockout window has passed.",
+      "uses": [
+        "lockout",
+        "lockout-methods"
+      ]
+    },
+    {
+      "do": "Whether an API change would be in this log before using it as the record of an API-driven change.",
+      "uses": [
+        "interface-result",
+        "api-changes"
+      ]
+    }
+  ],
+  "claims": {
+    "what-is-recorded": {
+      "statement": "Zscaler records the session information for each admin that signs in to Digital Experience features; the audit log displays sign-in and sign-out attempts (for example timestamps, actions, IP addresses) and any configuration changes completed during the session, such as updates or deletes, and configuration changes can be reviewed for before-and-after comparison.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "quotes": [
+            "Zscaler records the session information for each admin that signs in to Digital Experience features.",
+            "The audit log displays information related to sign-in or sign-out attempts (e.g., timestamps, actions, IP addresses, etc.) and any configuration changes that were completed during their session such as updates or deletes.",
+            "Review configuration changes for comparison of the before-and-after administration sessions."
+          ]
+        }
+      ]
+    },
+    "lockout": {
+      "statement": "If an admin makes 5 consecutive unsuccessful attempts to sign in within 1 minute, the account is locked out for 5 minutes and the failed attempts are recorded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "quotes": [
+            "If an admin makes 5 consecutive unsuccessful attempts to sign in within 1 minute, the account is locked out for 5 minutes and the failed attempts are recorded."
+          ]
+        }
+      ]
+    },
+    "retention": {
+      "statement": "ZDX audit logs are stored for a period of 6 months.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "quotes": [
+            "Audit logs are stored for a period of 6 months."
+          ]
+        }
+      ]
+    },
+    "filters": {
+      "statement": "The Audit Logs page filters by Time Range, Action, Category, Sub-Category, Interface or Result; the default Time Range is Current Day while the other filters default to All, and the Time Range choices include Current Week, Current Month, Previous Day, Previous Week and Previous Month.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "quotes": [
+            "Filter by Time Range, Action, Category, Sub-Category, Interface, or Result.",
+            "The default Time Range is Current Day while the defaults of the other filters are set to All.",
+            "Current Week",
+            "Current Month",
+            "Previous Day",
+            "Previous Week",
+            "Previous Month"
+          ]
+        }
+      ]
+    },
+    "actions": {
+      "statement": "The list of potential Actions includes Activate, Audit Operation, Download, Forced Activate, Policy Sync and Sign Out, among others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "after": "List of potential Actions",
+          "quotes": [
+            "Activate",
+            "Audit Operation",
+            "Download",
+            "Forced Activate",
+            "Policy Sync",
+            "Sign Out"
+          ]
+        }
+      ]
+    },
+    "categories": {
+      "statement": "The list of potential Categories includes Activation, Administration, Administrator Management, Cloud Service API Key, Configuration, Inventory Management, Organization Info, Remediation, Role Management, SaaS Security API, Software Device Inventory, Traffic Forwarding Resource and ZDX Snapshot, among others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "after": "List of potential Categories",
+          "quotes": [
+            "Activation",
+            "Administration",
+            "Administrator Management",
+            "Cloud Service API Key",
+            "Configuration",
+            "Inventory Management",
+            "Organization Info",
+            "Remediation",
+            "Role Management",
+            "SaaS Security API",
+            "Software Device Inventory",
+            "Traffic Forwarding Resource",
+            "ZDX Snapshot"
+          ]
+        }
+      ]
+    },
+    "subcategories": {
+      "statement": "The list of potential Sub-Categories includes Activation, Administrator, Applications, Cloud Service API Key, Deep Tracing, Diagnostics, EUSA Info, Location, Microsoft Endpoint Analytics, Password Expiry, Remediation Jobs, Remote Assistance, Remote Script Configuration, Role Management, SAAS App Tenant, Self Service Settings, Software and Device Inventory, Wi-Fi Access Point, ZDX Snapshot, ZDX SSO Login and Zscaler Hosted Monitoring, among others.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "after": "List of potential Sub-Categories",
+          "quotes": [
+            "Activation",
+            "Administrator",
+            "Applications",
+            "Cloud Service API Key",
+            "Deep Tracing",
+            "Diagnostics",
+            "EUSA Info",
+            "Location",
+            "Microsoft Endpoint Analytics",
+            "Password Expiry",
+            "Remediation Jobs",
+            "Remote Assistance",
+            "Remote Script Configuration",
+            "Role Management",
+            "SAAS App Tenant",
+            "Self Service Settings",
+            "Software and Device Inventory",
+            "Wi-Fi Access Point",
+            "ZDX Snapshot",
+            "ZDX SSO Login",
+            "Zscaler Hosted Monitoring"
+          ]
+        }
+      ]
+    },
+    "interface-result": {
+      "statement": "The audit log has an Interface filter with a list of potential Interface values and a Result filter, where Result is the outcome of an action in either Success or Failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "quotes": [
+            "List of potential Interface",
+            "List of potential Results",
+            "Result: The outcome of an action in either Success or Failure."
+          ]
+        }
+      ]
+    },
+    "csv-and-search": {
+      "statement": "The displayed audit log can be downloaded as a CSV file whose times are in PDT, and the page can be searched by Resource (the default), Admin ID or Client IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "quotes": [
+            "Download a CSV file of the displayed Audit Log. The times in the CSV file are in PDT.",
+            "Search for a specific Resource, Admin ID, or Client IP. Resource is the default."
+          ]
+        }
+      ]
+    },
+    "columns": {
+      "statement": "An entry gives the Timestamp (the local time of the admin's last login or last logout), Category and Sub-Category (a location and sublocation in Digital Experience where the action was performed), the Resource (the specific location within a subcategory), the Admin ID (the admin's login ID), the Client IP (the source IP address for the admin) and a Modification view of configuration changes from an admin login.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-audit-logs.json",
+          "quotes": [
+            "Timestamp: The local time of the admin's last login or last logout.",
+            "Category: A location in Digital Experience where the action was performed.",
+            "Sub-Category: A sublocation in Digital Experience where the action was performed.",
+            "Resource: The specific location within a subcategory.",
+            "Admin ID: The admin's login ID.",
+            "Client IP: The source IP address for the admin.",
+            "Modification: View configuration changes from an admin login."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "api-changes": {
+      "kind": "semantic",
+      "title": "Whether API changes appear in the ZDX audit log, and how it relates to the API's audit report",
+      "status": "open",
+      "detail": "The console article gives an Interface filter without describing its values in the capture, and does not say whether changes made through the API are recorded or whether this log is the data behind the API's audit report (shared.audit-logs:zdx-audit-report).",
+      "blocks": "using the console log as the record of an API-driven change",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "lockout-methods": {
+      "kind": "semantic",
+      "title": "Which sign-in methods the 5-attempt lockout applies to",
+      "status": "open",
+      "detail": "The article states the lockout for consecutive unsuccessful sign-in attempts without saying whether it applies to password sign-in only or to SAML sign-in as well.",
+      "blocks": "explaining a lockout for an admin who signs in with SAML",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

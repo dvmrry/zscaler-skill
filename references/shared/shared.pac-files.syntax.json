@@ -42,6 +42,10 @@
       "text": "{{pse-ports}} Dedicated proxy ports are [[zia.forwarding-control.proxy-ports]], and what the service does with explicit-mode traffic is [[zia.proxy-mode.explicit]]."
     },
     {
+      "label": "Known and unknown locations.",
+      "text": "{{location-ports}} {{location-detection-methods}} The samples in that article have defects {{gap:location-sample-defects}}."
+    },
+    {
       "label": "Bypassing internal destinations.",
       "text": "{{internal-bypass}} {{isinnet-dns}} {{regex-guard}}"
     },
@@ -164,6 +168,39 @@
             "Port 9480 can be used to exempt authentication for traffic that is destined for Public Service Edges from a known location.",
             "Remote users can use this port to forward traffic to Zscaler.",
             "However, they are forced to authenticate because Zscaler does not accept unauthenticated traffic from unregistered IP addresses or unknown locations."
+          ]
+        }
+      ]
+    },
+    "location-ports": {
+      "statement": "When the service receives traffic it checks whether it is from a known location (one configured in the Admin Console) or an unknown location (remote user traffic). Typically, traffic from a known location is sent to port 80, where the service performs SSL inspection according to the location's policies, and remote user traffic is forwarded to port 9443, where the service always performs SSL inspection; the exemption of URL and URL categories is applicable only to traffic generated from known locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forward-traffic-based-on-users-location.json",
+          "quotes": [
+            "When the Zscaler service receives traffic, it checks whether the traffic is from a known location (a location that is configured in the Zscaler Admin Console), or from an unknown location (remote user traffic).",
+            "Typically, traffic from a known location is sent to port 80, where the service performs SSL inspection according to the location's policies, and remote user traffic is forwarded to port 9443, where the service always performs SSL inspection.",
+            "The exemption of URL and URL categories is applicable only to traffic generated from known locations and not for remote user traffic."
+          ]
+        }
+      ]
+    },
+    "location-detection-methods": {
+      "statement": "The article gives location-detection options for a PAC file, each with its stated trade-off. One matches ${SRCIP} against a list of gateway addresses and is accurate and independent of the computer configuration, but the list must be updated when locations change. Another relies only on the computer configuration and is simple and quick, but the private IP address range might overlap with other company networks such as a coffee-shop Wi-Fi hotspot. A third is efficient when DNS resolution is the same across all company locations, but might slow browsing if DNS servers respond slowly, and does not work for a remote user on a VPN whose hostname is resolved by the internal DNS server. Zscaler recommends creating a copy of the default PAC file and customizing it as necessary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-forward-traffic-based-on-users-location.json",
+          "quotes": [
+            "if (allGateways.indexOf(\"${SRCIP}\")>=0)",
+            "This option is accurate and independent of your computer configuration. However, you must update the list of gateway IP addresses in the PAC file when there are changes to your locations.",
+            "This option is simple and quick to execute, as it only relies on your computer configuration. However, your private IP address range might overlap with other company networks, such as a Wi-Fi hotspot at a coffee shop.",
+            "This option is efficient and works as long as your DNS resolution is the same across all of your company locations. However, it might slow down browsing to the internet if your DNS servers do not respond quickly enough.",
+            "This method of identifying the user location does not work if the remote user is connected to a VPN and if the hostname is resolved using the internal DNS server over the VPN.",
+            "Zscaler recommends creating a copy of the default PAC file and customizing it, as necessary."
           ]
         }
       ]
@@ -362,6 +399,16 @@
     }
   },
   "gaps": {
+    "location-sample-defects": {
+      "kind": "semantic",
+      "title": "Defects in the location-aware PAC samples",
+      "status": "open",
+      "detail": "The Forwarding Traffic Based on User's Location article's samples are syntactically invalid as printed in the first two cases below. The device-IP sample has a trailing || before the closing parenthesis (isInNet(myIpAddress(), \"192.168.1.0\", \"255.255.255.0\")|| )); its final return string is unterminated (else return \"PROXY ${GATEWAY}:9443; PROXY ${SECONDARY_GATEWAY}:9443;); and the fixed-gateway sample tests allGateways.indexOf(\"${SRCIP}\") against an array of CIDR strings, an exact-string match, without saying whether the PAC server expands the entries. The article also does not say what the exemption of URL and URL categories exempts the traffic from.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
     "browser-engine-behavior": {
       "kind": "semantic",
       "title": "Browser PAC engine behavior the vendor does not document",

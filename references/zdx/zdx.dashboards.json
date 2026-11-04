@@ -114,6 +114,10 @@
       "text": "{{self-service-overview}} {{self-service-dashboard}} {{self-service-table}} {{self-service-notifications}} The values that raise each notification are open {{gap:self-service-triggers}}."
     },
     {
+      "label": "Self Service settings.",
+      "text": "{{self-service-settings-prerequisites}} {{self-service-settings}} How its include and exclude criteria combine is open {{gap:self-service-criteria-logic}}. Changing Self Service settings needs Organization scope: [[shared.admin-rbac.zdx:organization-scope-only]]."
+    },
+    {
       "label": "Other views.",
       "text": "Incidents are in [[zdx.dashboards.incidents]], Network Intelligence in [[zdx.dashboards.network-intelligence]], the Wi-Fi Dashboard in [[zdx.dashboards.wifi]], the Devices Overview in [[zdx.devices.health-score]] and the Meetings dashboard in [[zdx.devices.call-quality]]."
     }
@@ -665,9 +669,49 @@
           ]
         }
       ]
+    },
+    "self-service-settings-prerequisites": {
+      "statement": "Configuring Self Service settings needs full permission level for Self Service on ZDX and the Zscaler Client Connector Notification Framework enabled on the Notifications page in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-self-service-settings.json",
+          "quotes": [
+            "Have full permission level for Self Service on ZDX.",
+            "Enable Zscaler Client Connector Notification Framework on the Notifications page in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "self-service-settings": {
+      "statement": "The General Settings of Self Service include and exclude specific users, user groups, locations, location groups, departments and devices, deleted or unknown users cannot be selected for the include and exclude criteria, and the Notification Settings send push notifications via Zscaler Client Connector or enable users to configure notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-self-service-settings.json",
+          "quotes": [
+            "General Settings: Admins can configure the General Settings of Self Service to include and exclude specific users, user groups, locations, location groups, departments, and devices.",
+            "You cannot select deleted or unknown users for the include and exclude criteria.",
+            "Notification Settings: Admins can configure the Notification Settings of Self Service to send push notifications via Zscaler Client Connector or enable users the ability to configure notifications."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "self-service-criteria-logic": {
+      "kind": "semantic",
+      "title": "How Self Service's include and exclude criteria combine",
+      "status": "open",
+      "detail": "The Configuring Self Service Settings article lists the users, user groups, locations, location groups, departments and devices that can be included and excluded; it does not say how the criteria combine or whether the probing criteria's AND/OR logic applies.",
+      "blocks": "predicting which users receive Self Service notifications",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
     "vip-vs-user-priority": {
       "kind": "semantic",
       "title": "Whether User Priority is the VIP tag",

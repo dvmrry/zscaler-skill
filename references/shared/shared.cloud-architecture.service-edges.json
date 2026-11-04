@@ -48,7 +48,7 @@
     },
     {
       "label": "Reaching one.",
-      "text": "{{forward-anywhere-or-nearest}} {{policy-follows-user}} How the nearest edge is chosen is open {{gap:selection-algorithm}}. Restricting the eligible edges is what a subcloud does: [[shared.subclouds]]."
+      "text": "{{forward-anywhere-or-nearest}} {{policy-follows-user}} {{geo-basis}} {{authoritative-edns0}} What the servers answer with no client subnet is open {{gap:edns0-no-subnet}}. The rest of how the nearest edge is chosen is open {{gap:selection-algorithm}}. The checks for an edge that is not the nearest are in [[zia.traffic-forwarding.verification]]. Restricting the eligible edges is what a subcloud does: [[shared.subclouds]]."
     },
     {
       "label": "What happens on the edge.",
@@ -204,6 +204,38 @@
         }
       ]
     },
+    "geo-basis": {
+      "statement": "Zscaler determines the closest available Public Service Edge based on the geolocation information associated with the IP address that sent the request to resolve the Zscaler gateway name (for example, zscaler.net) or the IP address from which the PAC file was downloaded. Zscaler uses MaxMind databases to associate the longitude and latitude coordinates with the source IP address; if the GeoIP coordinates are incorrect in the database, the traffic might be forwarded to a farther node, and Zscaler Support can override the coordinates when a support ticket is opened.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-users-traffic-not-going-nearest-public-service-edge-internet-saas.json",
+          "quotes": [
+            "Zscaler determines the closest available Public Service Edge based on the geolocation information associated with the IP address that sent the request to resolve the Zscaler gateway name (for example, zscaler.net) or the IP address from which the PAC file was downloaded.",
+            "Zscaler uses MaxMind databases to associate the longitude/latitude coordinates with the source IP address.",
+            "If the GeoIP coordinates are incorrect in the database, the user's traffic might be forwarded to a farther node. If this occurs, please open a support ticket so that Zscaler Support can override the GeoIP coordinates accordingly."
+          ]
+        }
+      ]
+    },
+    "authoritative-edns0": {
+      "statement": "Zscaler authoritative DNS servers support the EDNS0 client subnet option; they can identify the origin of DNS requests from the client subnet options and return DNS responses based on the user's location, which the page says widely benefits end users of public DNS servers such as OpenDNS, Google and Infoblox. In the vendor's example, a request that includes client subnet options is identified by the authoritative server in Washington D.C., which returns the VIP of the Johannesburg or Capetown data center, whichever is closest to the client in South Africa.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-zscaler-authoritative-dns-servers.json",
+          "quotes": [
+            "Zscaler authoritative DNS servers support EDNS0 client subnet options of the EDNS0 protocol.",
+            "These authoritative DNS servers can accurately identify the origin of the DNS requests by looking into the client subnet options and return precise DNS responses based on the user's location.",
+            "It widely benefits the end users who use public DNS servers such as OpenDNS, Google, Infoblox, and so on.",
+            "If the client request includes the client subnet options, then the authoritative DNS server in Washington D.C. identifies the client's origin.",
+            "It then returns the Virtual IP (VIP) address of the Zscaler data center in Johannesburg or Capetown, whichever is the closest one to the client in South Africa."
+          ]
+        }
+      ]
+    },
     "active-active": {
       "statement": "Public Service Edges are always deployed in active-active load balancing mode worldwide, and the Central Authority monitors their health to ensure availability.",
       "tier": "A",
@@ -222,8 +254,8 @@
     "selection-algorithm": {
       "kind": "semantic",
       "title": "How the nearest Public Service Edge is chosen",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Zscaler's 'advanced geo-IP resolution' routes traffic to the nearest edge; the algorithm itself isn't customer-documented.\" The architecture article names Geolocalization IP resolution and the subclouds article says the service uses geolocation technology; neither gives the signals, the re-evaluation timing or the failover timing. Client-side re-selection settings are in zcc.forwarding-profiles.internet-actions:dynamic-zia-se.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"Zscaler's 'advanced geo-IP resolution' routes traffic to the nearest edge; the algorithm itself isn't customer-documented.\" The architecture article names Geolocalization IP resolution and the subclouds article says the service uses geolocation technology. The signals are now sourced (geo-basis, authoritative-edns0): the geolocation of the address that asked to resolve the gateway name or downloaded the PAC file. The re-evaluation timing and the failover timing are still not given. Client-side re-selection settings are in zcc.forwarding-profiles.internet-actions:dynamic-zia-se.",
       "blocks": "explaining why a user's traffic landed on a distant Public Service Edge",
       "resolves_with": [
         "source-read",
@@ -231,6 +263,16 @@
       ],
       "former_ids": [
         "shared-17"
+      ]
+    },
+    "edns0-no-subnet": {
+      "kind": "semantic",
+      "title": "What the authoritative DNS servers answer when the resolver sends no client subnet",
+      "status": "open",
+      "detail": "The authoritative DNS article describes the answer when the request includes client subnet options. It does not say what the servers return when the resolver sends none.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
       ]
     },
     "auth-timeline": {

@@ -49,6 +49,14 @@
     {
       "rel": "see-also",
       "to": "zia.ssl-inspection.api-shape"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.ai-guard.zia-integration"
     }
   ],
   "prose": [
@@ -74,6 +82,10 @@
     {
       "label": "Mobile devices and servers.",
       "text": "{{mobile-mdm}} {{servers-deferred}}"
+    },
+    {
+      "label": "Custom root certificates.",
+      "text": "{{root-certs-purpose}} {{root-certs-page}} {{root-certs-default-and-limit}} {{root-certs-proxy-chaining}} The isolation-profile steps and type are missing from the capture {{gap:root-certs-zero-trust-browser}}, and the other type values are not listed {{gap:root-certs-types}}. {{root-certs-edit-limits}} {{root-certs-delete-page}} Whether a root associated with an isolation profile can be deleted is stated both ways on the editing page {{divergence:root-cert-delete-while-associated}}. What happens when a custom root expires is not stated {{gap:root-certs-expiry}}, and an API object for Root Certificates was not checked {{gap:root-certs-api}}."
     },
     {
       "text": "The per-tool commands are in [[zia.ssl-inspection.app-trust-stores]]; three legacy mechanisms are still open {{gap:toolchain-trust-mechanisms}}. The intermediate CA object (protection types, limits, key types, CSR signing, chain upload) is in [[zia.ssl-inspection.intermediate-ca]]. Traffic that never accepts the root at all (pinned apps, IoT, guest networks) is in [[zia.ssl-inspection.uninspectable]]; the settings that govern what a rule does with a bad upstream certificate are in [[zia.ssl-inspection.actions]]."
@@ -555,6 +567,97 @@
         }
       ]
     },
+    "root-certs-purpose": {
+      "statement": "With a third-party proxy service or an isolated browser, administrators can upload root certificates of their choice for SSL/TLS inspection: the third-party proxy's roots to sign the MITM certificates, and roots associated with isolation profiles created in the Admin Console. The isolation browser trusts all the well-known certificate authorities trusted by Chromium.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-root-certificates.json",
+          "quotes": [
+            "If you are using a third-party proxy service or isolated browser, Zscaler provides administrators with the capability to upload root certificates of their choice to use for successful SSL/TLS inspection.",
+            "Upload custom root certificates of the third-party proxy service to sign the MITM certificates.",
+            "Upload and associate custom root certificates with the isolation profiles that are created in the Zscaler Admin Console. The isolation browser trusts all the well-known certificate authorities trusted by Chromium."
+          ]
+        }
+      ]
+    },
+    "root-certs-page": {
+      "statement": "The Root Certificates page lists each certificate's name, uploaded date and time, expiration date and time, and type. Certificates other than the default root can be downloaded, edited or deleted; the default's full details can be viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-root-certificates.json",
+          "quotes": [
+            "Certificate Name: The name of the root certificate.",
+            "Uploaded on: The uploaded date and time of the root certificate.",
+            "Expiration Date: The expiration date and time of the root certificate.",
+            "Type: The type of root certificate.",
+            "Download any root certificates that are not the default root certificate.",
+            "Edit or delete any root certificates that are not the default root certificate.",
+            "Click to view the full details for the default root certificate."
+          ]
+        }
+      ]
+    },
+    "root-certs-default-and-limit": {
+      "statement": "The Root Certificates page already carries the default Zscaler Root Certificate, which cannot be edited, and an organization can add up to 10 root certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-root-certificates.json",
+          "quotes": [
+            "The Root Certificates page already carries the default Zscaler Root Certificate, which cannot be edited. You can add up to 10 root certificates for your organization."
+          ]
+        }
+      ]
+    },
+    "root-certs-proxy-chaining": {
+      "statement": "If the upstream proxy (third-party proxy service) performs SSL/TLS Inspection, Zscaler requires installing the proxy service's root certificates to sign the MITM certificates; the certificate is added with Type Proxy Chaining from a PEM file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-root-certificates.json",
+          "quotes": [
+            "If your upstream proxy (third-party proxy service) is performing SSL/TLS Inspection, Zscaler requires you to install the root certificates of the proxy service to sign the MITM certificates.",
+            "Type: Select Proxy Chaining from the drop-down menu.",
+            "File (.pem): Drag & drop the file, or browse and select the required root certificate (PEM file) from your system."
+          ]
+        }
+      ]
+    },
+    "root-certs-edit-limits": {
+      "statement": "Editing a custom root certificate changes its Name and Type; the PEM file in the certificate cannot be changed, so a different PEM file needs a new root certificate. The default Zscaler Root Certificate is the only one that cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-deleting-root-certificates.json",
+          "quotes": [
+            "The only certificate you cannot edit is the default Zscaler Root Certificate.",
+            "Edit the Name of the root certificate. The PEM file in the certificate cannot be changed. To use a different PEM file, you must add a new root certificate.",
+            "Edit the Type of the root certificate."
+          ]
+        }
+      ]
+    },
+    "root-certs-delete-page": {
+      "statement": "The Deleting Root Certificates page says all custom root certificates except the default Zscaler Root Certificate can be deleted, and that a root certificate associated with an isolation profile cannot be deleted until it is first disabled from the isolation profile; the delete button is greyed out for the default certificate or one associated with an isolation profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deleting-root-certificates.json",
+          "quotes": [
+            "You can delete all custom root certificates except the default Zscaler Root Certificate. Also, if a root certificate is associated with an isolation profile, you cannot delete it. You must first disable the certificate from the isolation profile before deleting it.",
+            "If the certificate is the default certificate or is associated with an isolation profile, the delete button is grayed out."
+          ]
+        }
+      ]
+    },
     "ca-choice-not-a-match-criterion": {
       "statement": "Neither CA choice changes how SSL inspection rules match: the rule match expression has no CA or certificate term.",
       "tier": "B",
@@ -566,6 +669,42 @@
     }
   },
   "divergences": {
+    "root-cert-delete-while-associated": {
+      "summary": "The Editing and Deleting Root Certificates page says a custom root certificate can be deleted at any time, even while associated with an isolation profile or a proxy service, and in its next paragraph that one associated with an isolation profile cannot be deleted; the Deleting Root Certificates page says the same as the second.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-editing-deleting-root-certificates.json",
+            "quotes": [
+              "You can edit or delete a custom root certificate added to your organization at any time, even while it's associated with an isolation profile or a proxy service."
+            ]
+          },
+          "says": "A custom root certificate can be edited or deleted at any time, even while associated with an isolation profile or a proxy service."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-editing-deleting-root-certificates.json",
+            "quotes": [
+              "Also, if a root certificate is associated with an isolation profile, you cannot delete it."
+            ]
+          },
+          "says": "A root certificate associated with an isolation profile cannot be deleted (same page, next paragraph)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deleting-root-certificates.json",
+            "quotes": [
+              "If the certificate is the default certificate or is associated with an isolation profile, the delete button is grayed out."
+            ]
+          },
+          "says": "The delete button is greyed out for the default certificate or one associated with an isolation profile."
+        }
+      ],
+      "impact": "Whether an admin must first disable a root in its isolation profile before deleting it is stated both ways; the pages do not say which applies, and the proxy-service association is only mentioned in the first statement."
+    },
     "generated-certificate-lifetime": {
       "summary": "The safeguarding page says the certificates are dynamically generated each time in RAM and not stored; the choosing-CA page says the service generates the certificate once per site and caches it on the Public Service Edge.",
       "positions": [
@@ -684,6 +823,44 @@
     }
   },
   "gaps": {
+    "root-certs-zero-trust-browser": {
+      "kind": "semantic",
+      "title": "How a root certificate is added for an isolation profile (Zero Trust Browser)",
+      "status": "open",
+      "detail": "The capture of the Adding Root Certificates article ends at the heading 'Adding Root Certificates for Zero Trust Browser' with no content under it, so the type name for isolation-profile roots and the steps are missing from the capture. The page may have more; recapture it or find another source.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "root-certs-types": {
+      "kind": "semantic",
+      "title": "Root certificate Type values other than Proxy Chaining",
+      "status": "open",
+      "detail": "The Adding Root Certificates capture gives Proxy Chaining as the Type for a third-party proxy's root; the other Type values are not listed in the captured pages.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "root-certs-expiry": {
+      "kind": "semantic",
+      "title": "What happens when a custom root certificate expires",
+      "status": "open",
+      "detail": "The Root Certificates page shows an expiration date and time, but no captured page says what the service does when a custom root expires.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "root-certs-api": {
+      "kind": "semantic",
+      "title": "Whether Root Certificates has an API object",
+      "status": "open",
+      "detail": "Root Certificates is listed as a Decryption policy component in the admin role permissions, so an API object probably exists. The OpenAPI specification, SDKs and Terraform provider were not checked.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
     "leaf-per-connection": {
       "kind": "semantic",
       "title": "Whether each inspected connection gets its own ephemeral leaf certificate valid for the destination hostname/SAN",

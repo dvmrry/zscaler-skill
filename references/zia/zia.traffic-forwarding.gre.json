@@ -63,6 +63,10 @@
     {
       "rel": "see-also",
       "to": "shared.gre"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.static-ips"
     }
   ],
   "prose": [
@@ -91,7 +95,7 @@
     },
     {
       "label": "MTU and MSS.",
-      "text": "{{mtu-mss}} The symptom of an unclamped MSS is open {{gap:mss-symptom}}. Whether premium data centers can be used with a Support ticket is open {{gap:premium-dc-support}}. Whether GRE carries IPv6 is open {{gap:ipv6-coverage}}; IPSec's coverage is in [[zia.traffic-forwarding.ipsec]]."
+      "text": "{{mtu-mss}} {{mtu-procedure}} {{mss-discovery}} The article's worked example is open {{gap:mtu-example-conflict}}. The symptom of an unclamped MSS is open {{gap:mss-symptom}}. Whether premium data centers can be used with a Support ticket is open {{gap:premium-dc-support}}. Whether GRE carries IPv6 is open {{gap:ipv6-coverage}}; IPSec's coverage is in [[zia.traffic-forwarding.ipsec]]."
     },
     {
       "text": "{{vse-unnumbered}} Virtual Service Edge clusters are [[zia.virtual-service-edge.clusters]]."
@@ -462,6 +466,43 @@
         "zia/gre-tunnels"
       ]
     },
+    "mtu-procedure": {
+      "statement": "A suboptimal MTU for a GRE or IPSec tunnel results in severe performance degradation. An optimal tunnel MTU is equal to or lower than the network appliance MTU and the path MTU, where Path MTU = MSS + 20 bytes (IP header) + 8 bytes (ICMP header); the tunnel header length is subtracted from the lower of the two values, 24 bytes for a GRE tunnel. If the organization experiences issues performing these tasks, Zscaler recommends a tunnel MTU of 1400.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-determining-the-optimal-mtu-for-gre-or-ipsec-tunnels.json",
+          "quotes": [
+            "A suboptimal maximum transmission unit (MTU) for your organization's GRE or IPSec tunnel results in severe performance degradation.",
+            "An optimal tunnel MTU is equal to or lower than the following key values:",
+            "The Network Appliance MTU: The maximum total data per packet allowed by the edge network appliance from which the tunnel is built",
+            "The Path MTU: The maximum total data per packet allowed by appliances that stand in the path between your network appliance and the Public Service Edge",
+            "Path MTU = MSS + 20 Bytes (IP Header) + 8 bytes (ICMP Header)",
+            "Subtract the tunnel header length from the lower of these two MTU values to set your tunnel MTU.",
+            "For GRE tunnel, the header length = 24 bytes.",
+            "If you experience issues performing the tasks above, Zscaler recommends that you use a tunnel MTU of 1400."
+          ]
+        }
+      ]
+    },
+    "mss-discovery": {
+      "statement": "The MTU article gives ping-sweep commands: `ping -g [network appliance MTU value minus 50] -G 1600 -h 10 -D [destination]` (the page says the -g component of the ping command applies only to appliances running macOS), a `for /l` loop with `-f`, and a `for size in` loop with `-M do`. For GRE tunnels, Zscaler Customer Support can provide the IP addresses of the primary and secondary Public Service Edges to which the organization must forward traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-determining-the-optimal-mtu-for-gre-or-ipsec-tunnels.json",
+          "quotes": [
+            "The -g component of the ping command applies only to appliances running macOS.",
+            "ping -g [network appliance MTU value minus 50] -G 1600 -h 10 -D [destination]",
+            "for /l %i in(<Sweep Min Size, Sweep Count Increase By, Sweep Max Size>)do @ping -n 1 -w 100 <Ping Destination IP> -l %i -f.",
+            "for size in {<Sweep Min Size>..<Sweep Max Size>..<Sweep Count Increase By>}; do ping -s $size -c 1 -M do <Ping Destination IP>; done",
+            "GRE Tunnels: If you're building GRE tunnels, Zscaler Customer Support can provide you with the IP addresses of the primary and secondary Public Service Edges to which your organization must forward traffic."
+          ]
+        }
+      ]
+    },
     "vse-unnumbered": {
       "statement": "GRE tunnels configured on Virtual Service Edges are established dynamically with no internal IP addresses, like unnumbered GRE tunnels.",
       "tier": "A",
@@ -491,6 +532,16 @@
     }
   },
   "gaps": {
+    "mtu-example-conflict": {
+      "kind": "semantic",
+      "title": "The MTU article's worked sweep example against its own rule",
+      "status": "open",
+      "detail": "The article's first command starts the sweep at the network appliance MTU value minus 50, but its worked example uses -g 1330 for an appliance MTU of 1330. The example does not follow the minus-50 rule it illustrates; which value the sweep should start at is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "mss-symptom": {
       "kind": "semantic",
       "title": "Symptom of an unclamped GRE MSS",

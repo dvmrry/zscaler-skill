@@ -37,6 +37,10 @@
       "text": "{{key-fields}} {{signing-cert-first}} {{re-enrollment}} {{view-export-once}}"
     },
     {
+      "label": "Editing one.",
+      "text": "{{edit-fields}} Which keys the table lists is stated two ways {{divergence:table-visibility}}."
+    },
+    {
       "label": "Using it.",
       "text": "The key goes into the Client Connector profile rule ([[zpa.machine-groups.definition:key-in-profile-rule]]), and the tenant switch and authentication options are in [[zpa.machine-tunnels.requirements]]. Certificate staging is open {{gap:certificate-distribution}} and macOS MDM is open {{gap:macos-mdm-effect}}."
     }
@@ -180,6 +184,24 @@
         }
       ]
     },
+    "edit-fields": {
+      "statement": "The edit drawer changes the View or Export Provisioning Key After Creation option, Name, Status, Allow Re-Enrollment and Signing Certificate. The view-or-export option is on by default; once disabled it cannot be enabled after creation, but an enabled one can be disabled later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-machine-provisioning-keys.json",
+          "quotes": [
+            "View or Export Provisioning Key After Creation: Disable this option to hide the provisioning key from the Provisioning Key column of the table",
+            "If disabled, you cannot enable this option after creation. If this option is enabled, you can disable it later. This option is enabled by default.",
+            "Name: Edit the provisioning key name.",
+            "Status: Enable or disable the provisioning key.",
+            "Allow Re-Enrollement: Enable or disable the ability to re-enroll the provisioning key.",
+            "Signing Certificate: Edit the signing certificate for this provisioning key."
+          ]
+        }
+      ]
+    },
     "key-is-secret": {
       "statement": "Provisioning keys are to be treated as secrets and protected, because they can create a resource for a tenant, and must not be transmitted or stored in clear text.",
       "tier": "A",
@@ -193,6 +215,34 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "table-visibility": {
+      "summary": "The Editing Machine Provisioning Keys page says both that only keys that can be viewed or exported after creation appear in the table, and that disabling the option hides the key from the Provisioning Key column.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-editing-machine-provisioning-keys.json",
+            "quotes": [
+              "Only keys that can be viewed or exported after creation appear in the table."
+            ]
+          },
+          "says": "Only keys that can be viewed or exported after creation appear in the table."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-editing-machine-provisioning-keys.json",
+            "quotes": [
+              "Disable this option to hide the provisioning key from the Provisioning Key column of the table and disable copying or downloading the key after creation."
+            ]
+          },
+          "says": "Disabling the option hides the key from the Provisioning Key column of the table and disables copying or downloading the key after creation."
+        }
+      ],
+      "impact": "Whether a key created with view or export off is listed at all, or listed with its key text hidden, is not settled by the page."
     }
   },
   "gaps": {

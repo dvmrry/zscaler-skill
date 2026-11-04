@@ -1,0 +1,414 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.identity-providers",
+  "title": "The ZIA SAML identity provider object: limits, default IdP, criteria, fields, migration and Client Connector Portal as IdP",
+  "aliases": [
+    "identity provider",
+    "IdP configuration",
+    "multiple IdPs",
+    "default IdP",
+    "IdP criteria",
+    "SAML portal URL",
+    "org-specific entity ID",
+    "migrate IdP",
+    "Client Connector Portal as IdP"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.unauthenticated-traffic"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.idp-integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.scim.setup"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.saml-auto-provisioning"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{idp-limit}} {{idp-page-availability}} {{second-idp-precondition}}"
+    },
+    {
+      "label": "Which IdP a user is sent to.",
+      "text": "{{domain-criteria}} {{location-criteria}} Location policy before authentication at an IdP-mapped location is in [[zia.authentication.unauthenticated-traffic]]."
+    },
+    {
+      "label": "The default IdP.",
+      "text": "{{default-idp-catchall}} {{default-idp-changes}}"
+    },
+    {
+      "label": "IdP fields.",
+      "text": "{{portal-url-and-login-attribute}} {{org-specific-entity-id}} {{idp-certificate}} {{request-signing}} {{sp-metadata-and-device-trust}} The auto-provisioning attribute fields are in [[zia.ad-integration.saml-auto-provisioning]]."
+    },
+    {
+      "label": "What the IdP is given.",
+      "text": "{{sp-endpoints}} {{ipv6-endpoints}} {{test-url}}"
+    },
+    {
+      "label": "Migrating to a new IdP.",
+      "text": "{{migration-advice}} {{migration-steps}} How to clean up duplicated groups and departments is not stated {{gap:migration-duplicates}}."
+    },
+    {
+      "label": "Client Connector Portal as the IdP.",
+      "text": "{{ccp-idp}} {{ccp-idp-preconditions}} The Client Connector side of the device token is in [[zcc.install.enrollment]]. Per-vendor specifics for Entra ID, Okta, Ping, Google Workspace, AD FS, OneLogin and CA SSO are in [[zia.authentication.idp-integrations]]. What holds the IdP settings under Authentication Service is not covered {{gap:authentication-service-scope}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the tenant is subscribed to Authentication Service, since the Identity Providers page is not available then.",
+      "uses": [
+        "idp-page-availability"
+      ]
+    },
+    {
+      "do": "Which IdP the user's domain and location map to, and whether that IdP is the default, before judging a redirect.",
+      "uses": [
+        "domain-criteria",
+        "location-criteria",
+        "default-idp-catchall"
+      ]
+    },
+    {
+      "do": "Whether a migration edited the existing IdP or added a new one, and whether NameID and userName mappings match in both.",
+      "uses": [
+        "migration-advice"
+      ]
+    }
+  ],
+  "claims": {
+    "idp-limit": {
+      "statement": "The Zscaler service redirects users to different SAML URLs based on configured IdP criteria, and can support up to 64 different SAML IdPs per organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-identity-providers.json",
+          "quotes": [
+            "The Zscaler service redirects users to different SAML URLs based on configured IdP criteria. The service can support up to 64 different SAML IdPs per organization."
+          ]
+        }
+      ]
+    },
+    "idp-page-availability": {
+      "statement": "The Identity Providers page is not available if the organization is subscribed to the Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-identity-providers.json",
+          "quotes": [
+            "The Identity Providers page is not available if you're subscribed to the Authentication Service."
+          ]
+        }
+      ]
+    },
+    "second-idp-precondition": {
+      "statement": "To add multiple IdPs, Enable SAML Auto-Provisioning must be disabled for the existing IdP, or the User Repository Type changed to Hosted DB on the Authentication Settings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "The Zscaler service can support up to 64 different SAML IdPs per organization. To add multiple IdPs, you must disable Enable SAML Auto-Provisioning for your existing IdP or change the User Repository Type to Hosted DB on the Authentication Settings page."
+          ]
+        }
+      ]
+    },
+    "domain-criteria": {
+      "statement": "When adding an IdP the only required criteria are the user authentication domains. A non-default IdP must have at least one authentication domain or it cannot be enabled, which does not apply to the default IdP, and when a new user authenticates the service checks the user's domain and redirects the user to the appropriate IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-identity-provider-criteria.json",
+          "quotes": [
+            "When adding an IdP, the only required criteria for the IdP configuration are the user authentication domains.",
+            "You must assign at least one authentication domain to a non-default IdP; otherwise, you can't enable it. This restriction doesn't apply to the default IdP.",
+            "If a new user attempts to authenticate, the Zscaler service checks the user's domain, and then redirects the user to the appropriate IdP for authentication."
+          ]
+        }
+      ]
+    },
+    "location-criteria": {
+      "statement": "Known locations can optionally be assigned to an IdP, mapping IdPs to specific office locations (the article's example assigns European locations to a European AD FS server and US locations to a US one). Users redirected to a location-mapped or default IdP are not required to enter a username and domain, and locations not assigned to an IdP are mapped to the default IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-identity-provider-criteria.json",
+          "quotes": [
+            "Optionally, you can assign known locations to an IdP. This allows you to map IdPs to specific office locations in your organization.",
+            "For example, you can assign all locations in Europe to a European AD FS server, but then assign all US locations to a US AD FS server.",
+            "Users are not required to enter a username and domain when they are redirected to a location-mapped or default IdP.",
+            "Any locations that aren't assigned to a specific IdP are automatically mapped to the default IdP."
+          ]
+        }
+      ]
+    },
+    "default-idp-catchall": {
+      "statement": "There can be only one default IdP, and the first IdP added becomes it. With multiple IdPs configured the default IdP is the catchall: a location or domain not specifically assigned to an IdP is mapped to it, and for the default IdP the unselected-locations field is set to Any and cannot be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "You can only have one default IdP. The first IdP added becomes the default IdP.",
+            "Any unselected locations are mapped to the default IdP. This field is set to Any for the default IdP, and you can't modify it."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-identity-providers.json",
+          "quotes": [
+            "If you have multiple IdPs configured, the default IdP becomes the catchall IdP, so any location or domain that isn't specifically assigned to an IdP gets mapped to the default one."
+          ]
+        }
+      ]
+    },
+    "default-idp-changes": {
+      "statement": "Setting an existing IdP as the default makes the service remove any specific location or domain mappings associated with that IdP. The default IdP cannot be deleted; another existing IdP must be set as the default first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-identity-providers.json",
+          "quotes": [
+            "Also, if you set an existing IdP as the default, the Zscaler service removes any specific location or domain mappings associated with that IdP.",
+            "You can't delete the default IdP. You must set another existing IdP as the default."
+          ]
+        }
+      ]
+    },
+    "portal-url-and-login-attribute": {
+      "statement": "The SAML Portal URL should be publicly resolvable if users are to authenticate from the internet, and protected using HTTPS. Login Name Attribute is the SAML attribute that maps to the login name users enter; it is typically NameID, entered as one word with no spaces, and the field is case-sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "Ensure that it is publicly resolvable if you want users to authenticate from the internet. Additionally, ensure that it's protected using HTTPS.",
+            "Login Name Attribute: Enter the SAML attribute that maps to the login name that users enter when they authenticate to the Zscaler service. Typically, it's NameID, which is entered as one word, with no spaces. This field is case-sensitive."
+          ]
+        }
+      ]
+    },
+    "org-specific-entity-id": {
+      "statement": "Org-Specific Entity ID is enabled when more than one organization instance exists on the same Zscaler cloud. The page's example is Microsoft Entra ID, where the same entity ID cannot be used for multiple apps, so the setting must be enabled for both instances to generate a unique organization-specific entity ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "Org-Specific Entity ID: Enable if you have more than one organization instance on the same Zscaler cloud.",
+            "you can't use the same entity ID for multiple apps in Microsoft Entra ID. For this situation, you must enable this setting for both instances to generate a unique organization-specific entity ID."
+          ]
+        }
+      ]
+    },
+    "idp-certificate": {
+      "statement": "The IdP SAML certificate must be in base-64 encoded PEM format, with the file extension .pem and no other periods in the file name. The IdP SAML Certificate Expiration Date field shows if the certificate is about to expire or has expired.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "The certificate must be in base-64 encoded PEM format. The file extension must be .pem and have no other periods (.) in the file name.",
+            "IdP SAML Certificate Expiration Date: Displays the expiration date for the SAML certificate of the IdP. You see this field if the certificate is about to expire or has expired."
+          ]
+        }
+      ]
+    },
+    "request-signing": {
+      "statement": "Sign SAML Request is enabled if the IdP expects the SAML request to be signed, with a SHA-1 (160-bit) or SHA-2 (256-bit) signature algorithm. Zscaler recommends choosing the request-signing SAML certificate with the longest validation period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "Sign SAML Request: Enable if the IdP expects the SAML request to be signed.",
+            "Signature Algorithm: Choose whether to sign the SAML request with a SHA-1 (160-bit) hashing algorithm or with a SHA-2 (256-bit) hashing algorithm.",
+            "Request Signing SAML Certificate: Choose which certificate you want to use for signing SAML requests. Zscaler recommends choosing the one with the longest validation period."
+          ]
+        }
+      ]
+    },
+    "sp-metadata-and-device-trust": {
+      "statement": "SP Metadata downloads the Zscaler service's metadata, which advertises its SAML capabilities and is used for auto-configuration. Device Trust Attribute and Device Trust Attribute Value are the SAML attribute and value that map to the trust attribute and value defined on the IdP, used for identifying managed devices; both fields are case-sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-identity-providers.json",
+          "quotes": [
+            "SP Metadata: Download the metadata of the Zscaler service. The metadata advertises the Zscaler SAML capabilities and is used for auto-configuration.",
+            "Device Trust Attribute: Enter the SAML attribute that maps to the trust attribute defined on your IdP. This is used for identifying managed devices. This field is case-sensitive.",
+            "Device Trust Attribute Value: Enter the SAML attribute value that maps to the trust attribute value defined on your IdP for managed devices. This field is case-sensitive."
+          ]
+        }
+      ]
+    },
+    "sp-endpoints": {
+      "statement": "In the Entra ID guide the SP identifier is typically the Zscaler cloud name (for example zscalerbeta.net when logging in to https://admin.zscalerbeta.net), the reply URL is https://login.<Zscaler Cloud Name>:443/sfc_sso, and an organization-specific entity ID has the form https://login.zscalerbeta.net/sfc_sso/3829920. The Google Workspace guide gives the ACS URL https://login.<Zscaler cloud name>.net:443/sfc_sso and the cloud name as the entity ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "It's typically <Zscaler Cloud Name>.",
+            "For example, if you log in to https://admin.zscalerbeta.net, then the identifier is zscalerbeta.net.",
+            "- https://login.<Zscaler Cloud Name>:443/sfc_sso",
+            "- https://login.zscalerbeta.net/sfc_sso/3829920"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-google-workspace.json",
+          "quotes": [
+            "ACS URL: Enter https://login.<Zscaler cloud name>.net:443/sfc_sso.",
+            "Entity ID: Enter your <Zscaler cloud name>."
+          ]
+        }
+      ]
+    },
+    "ipv6-endpoints": {
+      "statement": "In the Entra ID guide, if IPv6 support is enabled for the organization, Zscaler authentication uses IPv6-only URLs, and the IdP is given https://login6.<Zscaler Cloud Name>.net/sfc_sso and, if applicable, https://logout6.<Zscaler Cloud Name>.net/sfc_sso.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "If you enabled IPv6 support for your organization, Zscaler authentication uses IPv6-only URLs.",
+            "- https://login6.<Zscaler Cloud Name>.net/sfc_sso",
+            "- https://logout6.<Zscaler Cloud Name>.net/sfc_sso (if applicable)"
+          ]
+        }
+      ]
+    },
+    "test-url": {
+      "statement": "In the Entra ID guide, entering https://login.<Zscaler Cloud Name>/clstart?version=1&_domain=<Tenant Domain>&redrurl=https://mobile.<Zscaler Cloud Name> on the device and being redirected to the Zscaler Admin Console means the SAML configuration is successful, possibly after authenticating with the IdP. The logout test, which ends at ip.zscaler.com showing the username, applies only when forwarding traffic with PAC files, GRE tunnels or IPSec tunnels and Enforce Authentication is enabled for the location or sublocation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "1. On the device, enter https://login.<Zscaler Cloud Name>/clstart?version=1&_domain=<Tenant Domain>&redrurl=https://mobile.<Zscaler Cloud Name>.",
+            "2. If you are redirected to the Zscaler Admin Console, the SAML configuration is successful. You might be prompted to authenticate with your IdP.",
+            "Test the SAML Configuration by Logging Out of the Zscaler Service",
+            "This testing method only applies if you're forwarding traffic using PAC files, Generic Routing Encapsulation (GRE) tunnels, or IPSec tunnels, and you've enabled Enforce Authentication for the location or sublocation.",
+            "5. Go to ip.zscaler.com. The status window shows the username indicating that authentication was successful."
+          ]
+        }
+      ]
+    },
+    "migration-advice": {
+      "statement": "Zscaler recommends editing the existing IdP to migrate to a new IdP, because adding a new IdP for migration can duplicate groups and departments and existing policies might no longer apply. The same users, groups and departments must be present in both IdPs, and the NameID mapping (SAML) and userName mapping (SCIM) must be defined the same way in both, with the same expression if defined from the email or UPN attribute.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-migrating-new-saml-idp.json",
+          "quotes": [
+            "Zscaler recommends editing the existing IdP to migrate to a new IdP. Adding a new IdP for migration can duplicate groups and departments, and your existing policies might no longer apply.",
+            "Ensure that the same user data (groups, users, and departments) are present in both IdPs.",
+            "For SAML, ensure that the NameID mapping is defined the same way in both IdPs. If you define NameID with the email or UPN attribute, ensure that the expression is the same in both IdPs.",
+            "For SCIM, ensure that the userName mapping is defined the same way in both IdPs. If you define userName with the email or UPN attribute, ensure that the expression is the same in both IdPs."
+          ]
+        }
+      ]
+    },
+    "migration-steps": {
+      "statement": "The migration option takes the existing SAML IdP to migrate and replaces its SAML Portal URL and Vendor with the new ones; SCIM provisioning is then started on the new IdP to sync all user data, and the new IdP should be running without error before the old IdP is disabled. To revert, edit the IdP back to the previously configured details and perform a SCIM sync in the IdP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-migrating-new-saml-idp.json",
+          "quotes": [
+            "2. For Choose the SAML IdP to Migrate, choose the existing SAML IdP you want to migrate to a new IdP.",
+            "SAML Portal URL: Enter the new SSO URL of the SAML portal to which users are sent for authentication.",
+            "Vendor: Choose the new vendor of the IdP.",
+            "8. Start SCIM provisioning on your new IdP to sync all user data from the new IdP to Zscaler.",
+            "Ensure that the new IdP is running without error before disabling the old IdP.",
+            "1. Edit the IdP you have configured in the Zscaler Admin Console and enter the details for the previously configured IdP.",
+            "2. Perform a SCIM sync in the IdP."
+          ]
+        }
+      ]
+    },
+    "ccp-idp": {
+      "statement": "If the Zscaler Client Connector Portal is configured as the IdP, users automatically enroll with Zscaler Client Connector, which uses a device token generated in the Client Connector Portal to authenticate users and their devices for the Zscaler service. User identities cannot be federated with other external IdPs because users are hosted locally within the tenant, and the method only works with Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-zscaler-client-connector-portal-idp.json",
+          "quotes": [
+            "If you configure the Zscaler Client Connector Portal as your identity provider (IdP), users automatically enroll with Zscaler Client Connector.",
+            "Zscaler Client Connector uses a device token generated in the Zscaler Client Connector Portal to authenticate users and their devices for the Zscaler service.",
+            "When using Zscaler Client Connector as your IdP, you cannot federate user identities with other external IdPs as the users are hosted locally within your tenant.",
+            "This authentication method only works with Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "ccp-idp-preconditions": {
+      "statement": "Using the Client Connector Portal as IdP requires disabling SAML auto-provisioning for the existing IdP or changing the User Repository Type to Hosted DB on the Authentication Profile page. It cannot share a domain with the default IdP, so Zscaler recommends provisioning a separate domain for token-based authentication and creating a Support ticket in the Admin Console to associate the domain with the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-zscaler-client-connector-portal-idp.json",
+          "quotes": [
+            "Disable SAML auto-provisioning for your existing IdP or change the User Repository Type to Hosted DB on the Authentication Profile page.",
+            "The Zscaler Client Connector Portal as an IdP cannot share a domain with the default IdP. Therefore, Zscaler recommends provisioning a separate domain for token-based authentication and creating a Support ticket in the Zscaler Admin Console to associate the domain with your Zscaler tenant."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "migration-duplicates": {
+      "kind": "semantic",
+      "title": "How to clean up duplicated groups and departments after adding a new IdP for migration",
+      "status": "open",
+      "detail": "The migration article warns that adding a new IdP for migration can duplicate groups and departments. It does not say how to remove the duplicates.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "authentication-service-scope": {
+      "kind": "semantic",
+      "title": "What holds IdP settings when the organization uses Authentication Service",
+      "status": "open",
+      "detail": "The Identity Providers page is unavailable under Authentication Service. The captured articles do not say where the IdP settings live then; that belongs to the ZIdentity subjects.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

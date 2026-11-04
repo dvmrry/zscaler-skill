@@ -30,6 +30,9 @@
       "text": "\"The group changed in the IdP, how long until ZIA policy sees it?\" {{push-near-real-time}} {{no-zia-side-pull}}"
     },
     {
+      "text": "{{okta-first-sync-time}} {{okta-first-sync-ordering}} {{activation-pending-login-error}}"
+    },
+    {
       "text": "Directory synchronization, by contrast, waits for the next synchronization, see [[zia.ad-integration.directory-sync]]. How often each IdP pushes group and membership changes is open {{gap:per-idp-cadence}}, and whether ZIA shows SCIM sync errors is open {{gap:sync-log-visibility}}."
     },
     {
@@ -76,14 +79,63 @@
       "derived_from": [
         "push-near-real-time"
       ]
+    },
+    "okta-first-sync-time": {
+      "statement": "In the Okta guide, after assignment Okta takes several minutes to sync the user database with the Zscaler service; the service accepts provisioning requests at 5 requests per second, and the guide estimates the sync time in seconds as the number of users divided by 5 plus 4% of the users to accommodate network drops and errors, giving 720 seconds or 12 minutes for its example. The same rate limit applies to resynchronization of failed tasks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-okta.json",
+          "quotes": [
+            "At this point, Okta takes several minutes to sync the user database with the Zscaler service.",
+            "The service accepts provisioning requests at the rate of 5 requests per second.",
+            "To calculate your approximate sync time in seconds, divide your total number of users by 5 and then add 4% of your total users to accommodate for network drops and errors.",
+            "This means the expected time for this database sync is 720 seconds or 12 minutes.",
+            "The same rate-limit applies to resynchronization of failed tasks."
+          ]
+        }
+      ],
+      "gaps": [
+        "per-idp-cadence"
+      ]
+    },
+    "okta-first-sync-ordering": {
+      "statement": "The Okta guide says many errors during the first sync happen because users and groups are still queued to be synced and are resolved when provisioning is complete; it says not to move to the next step, syncing groups from the Push Groups tab with Push group memberships immediately selected, until the entire database is synced, or unrecoverable errors might result.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-okta.json",
+          "quotes": [
+            "Many errors happen because users and groups are still in the queue to be synced to the Zscaler service with SCIM provisioning. These types of errors are resolved when provisioning is complete.",
+            "Do not move to the next step until the entire database is synced. Failure to do so might result in unrecoverable errors.",
+            "4. To sync the group information with the Zscaler service, go to the Push Groups tab.",
+            "6. Search and select the groups to sync with the Zscaler service, making sure to select Push group memberships immediately."
+          ]
+        }
+      ]
+    },
+    "activation-pending-login-error": {
+      "statement": "SAML error 0xE5621 means the user was added via the Hosted User Database, LDAP sync or SCIM provisioning but the activation was not performed (for SCIM it might be pending); the documented action is to activate unactivated changes in the Admin Console, and to contact Zscaler Support if the error persists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-saml.json",
+          "quotes": [
+            "| 0xE5621 | The user was added via the Hosted User Database, LDAP sync, or SCIM provisioning, but the activation wasn't performed. For SCIM provisioning, the activation might be pending. | Activate unactivated changes in the Zscaler Admin Console. If the error persists, contact Zscaler Support. |"
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "per-idp-cadence": {
       "kind": "data",
       "title": "How often each IdP pushes group and membership changes",
-      "status": "open",
-      "detail": "Unverified legacy statement: Event-triggered pushes from Okta or Entra ID arrive in minutes to tens of minutes, scheduled batch syncs may be longer, and operators needing faster propagation should trigger a resync from the IdP admin console. No captured source gives per-IdP timing. The per-IdP guides or operator measurements would settle it.",
+      "status": "partial",
+      "detail": "The Okta guide gives the first-sync time and rate limit (okta-first-sync-time) but not the ongoing push cadence for later changes, and no captured source gives timing for other IdPs. Unverified legacy statement: Event-triggered pushes from Okta or Entra ID arrive in minutes to tens of minutes, scheduled batch syncs may be longer, and operators needing faster propagation should trigger a resync from the IdP admin console. No captured source gives per-IdP timing. The per-IdP guides or operator measurements would settle it.",
       "resolves_with": [
         "source-read",
         "operator-experience"

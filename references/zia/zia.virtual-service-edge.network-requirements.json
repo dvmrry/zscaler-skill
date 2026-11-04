@@ -46,8 +46,16 @@
       "text": "{{outbound-only}} {{default-ports-and-443}} {{cluster-article-firewall-page}}"
     },
     {
+      "label": "The port 443 switch, reversed.",
+      "text": "{{disable-stdport}}"
+    },
+    {
       "label": "IPv6.",
-      "text": "{{ipv6-tunnel-only}} The hardware form factor has different, native IPv6 options: [[zia.private-service-edge.ip-requirements]]."
+      "text": "{{ipv6-tunnel-only}} The forwarding page names GRE alone {{divergence:ipv6-gre-only}}. The hardware form factor has different, native IPv6 options: [[zia.private-service-edge.ip-requirements]]."
+    },
+    {
+      "label": "Dual-arm layouts.",
+      "text": "{{dual-arm-purpose}} {{dual-arm-standalone-interfaces}} {{dual-arm-standalone-behavior}} {{dual-arm-cluster-layouts}} Forwarding to the cluster is in [[zia.virtual-service-edge.forwarding]]."
     },
     {
       "label": "NAT.",
@@ -163,6 +171,112 @@
         }
       ]
     },
+    "disable-stdport": {
+      "statement": "The Nutanix page gives `vzen disable-stdport`, whose ca subcommand prevents the Virtual Service Edge from authenticating and retrieving policy on port 443. The page says that if a standard port is enabled a stable Virtual Service Edge or LB connection exists, and uses `sockstat | grep smcdsc` to check.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+          "quotes": [
+            "vzen disable-stdport",
+            "ca: Prevents the Virtual Service Edge from authenticating and retrieve policy on port 443.",
+            "If a standard port is enabled, a stable Virtual Service Edge or LB connection exists.",
+            "cmd :: sockstat | grep smcdsc"
+          ]
+        }
+      ]
+    },
+    "dual-arm-purpose": {
+      "statement": "The dual arm configuration is for an environment that requires Virtual Service Edges to use two zones, a disconnected network or an isolated internet zone from the internal users, and another that faces the internet. The page has three deployments: standalone mode with external or no load balancer, cluster mode with user traffic on one arm, and cluster mode with user traffic on both arms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "Use a dual arm configuration for your Virtual Service Edges for Internet & SaaS (ZIA) if you have an environment that requires your Virtual Service Edges to use two zones: a disconnected network or isolate the internet zone from the internal users and another that faces the internet.",
+            "Deploying Virtual Service Edge using the dual arm configuration in standalone mode with external or no load balancer",
+            "Deploying Virtual Service Edge using the dual arm configuration in cluster mode with user traffic on one arm",
+            "Deploying Virtual Service Edge using the dual arm configuration in cluster mode with user traffic on both arms"
+          ]
+        }
+      ]
+    },
+    "dual-arm-standalone-interfaces": {
+      "statement": "In the dual arm standalone deployment the internal-facing proxy IP address (em1) is entered in the Proxy IP Address field with Standalone as the Deployment Mode, em2 is the internet-facing Proxy interface configured in /sc/sme/conf/vzen_custom.conf, and em3 is not required if em0 is configured to connect to Zscaler cloud nodes. The em0 and em2 interfaces are added to the internet-facing network and em1 and em3 to the internal-facing network, and Zscaler performs ICMP and HTTP monitoring from the switch or vswitch to the Virtual Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "You must add the internal-facing proxy IP address (i.e., em1) to the Proxy IP Address field and select Standalone for the Deployment Mode field.",
+            "em2: Internet-facing Proxy interface. The interface that receives user traffic from the internet-facing side. This is configured in the /sc/sme/conf/vzen_custom.conf file.",
+            "em3 is not required if em0 is configured to connect to Zscaler cloud nodes (i.e., CA, CDSS, etc.).",
+            "Zscaler performs ICMP and HTTP monitoring from the switch/vswitch to the Virtual Service Edge to monitor the health of the Virtual Service Edge.",
+            "Add the em0 and em2 interfaces to the internet-facing network.",
+            "Add the em1 and em3 interfaces to the internal-facing network."
+          ]
+        }
+      ]
+    },
+    "dual-arm-standalone-behavior": {
+      "statement": "The dual arm standalone deployment can be tested by connecting to the em2 IP address and port 80, and if smnet_route is configured the server is accessed through the em1 interface. If SSL decryption is enabled the Zscaler root certificate must be installed, authentication can be disabled for servers without federated user identities, and depending on whether the deployment is explicit or transparent VMware-specific parameters such as Promiscuous Mode might be needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "You can test this deployment by connecting to the em2 IP address and port 80.",
+            "If smnet_route is configured, then the server is accessed through the em1 interface.",
+            "If SSL decryption is enabled, the Zscaler root certificate must be installed. You can also disable authentication for servers without federated user identities.",
+            "Depending on your deployment type (explicit or transparent), you might need to set VMware-specific parameters such as Promiscuous Mode."
+          ]
+        }
+      ]
+    },
+    "dual-arm-cluster-layouts": {
+      "statement": "In the dual arm cluster layouts each Virtual Service Edge needs two additional IPs with user traffic on one arm and three additional IPs with user traffic on both arms. For both arms, em4 is the internet-facing LB service interface, used for downloading policies and uploading logs from the Zscaler Central Authority, and the configuration sets ifconfig_em4=\"down promisc\" and ifconfig_em2=\"down promisc\". If internal users are not on the same VLAN as the internal network, reverse routes must be added, and the new interfaces' VLAN mapping is checked by MAC address because the order might differ on the VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "Each of your Virtual Service Edge needs two additional IPs for this dual arm configuration."
+          ],
+          "after": "Deploying Virtual Service Edge using the dual arm configuration in cluster mode with user traffic on one arm"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "Each of your Virtual Service Edge needs three additional IPs for a dual arm configuration."
+          ],
+          "after": "Deploying Virtual Service Edge using the dual arm configuration in cluster mode with user traffic on both arms"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "em4: Internet-facing LB service interface. The interface in the internet-facing network that receives user traffic from the internet-facing cluster IP. This LB communication is used for downloading policies and uploading logs from the Zscaler Central Authority (CA).",
+            "This configuration applies only to the dual arm configuration in cluster mode with user traffic in both arms.",
+            "ifconfig_em4=\"down promisc\" ifconfig_em2=\"down promisc\"",
+            "After the new interfaces are assigned, ensure they are mapped to the correct VLAN by checking the MAC addresses, as the order might be different on the VM."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-virtual-service-edge-internet-saas-configuration-guide-dual-arm-mode.json",
+          "quotes": [
+            "If the internal users are not on the same VLAN as the Virtual Service Edge internal network, ensure to add reverse routes"
+          ],
+          "after": "Deploying Virtual Service Edge using the dual arm configuration in cluster mode with user traffic on one arm"
+        }
+      ]
+    },
     "cluster-article-firewall-page": {
       "statement": "The Virtual Service Edge cluster configuration article tells the reader to view the firewall requirements at config.zscaler.com/<Zscaler Cloud Name>/fcr, a different address from the Virtual Service Edge config page (config.zscaler.com/<Zscaler Cloud Name>/zia-v-sedge) that its own port-443 section and the About Virtual Service Edges article name.",
       "tier": "A",
@@ -184,6 +298,44 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "ipv6-gre-only": {
+      "summary": "Whether Virtual Service Edge IPv6 traffic is supported over GRE only, or over IPSec or GRE tunnels.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Virtual Service Edges support IPv6 traffic if it's only forwarded via IPSec or GRE tunnels."
+            ]
+          },
+          "says": "The cluster configuration article says IPv6 traffic is supported if forwarded via IPSec or GRE tunnels."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-nutanix.json",
+            "quotes": [
+              "Virtual Service Edges support IPv6 traffic if it's only forwarded via IPSec or GRE tunnels."
+            ]
+          },
+          "says": "The Nutanix page repeats the IPSec or GRE statement."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-forwarding-traffic-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "Virtual Service Edges support IPv6 traffic if it's only forwarded via GRE tunnels."
+            ]
+          },
+          "says": "The forwarding page says IPv6 traffic is supported if it is only forwarded via GRE tunnels."
+        }
+      ],
+      "impact": "Whether IPv6 over an IPSec tunnel to a Virtual Service Edge is supported depends on which page is followed; the pages do not say which governs."
     }
   },
   "gaps": {

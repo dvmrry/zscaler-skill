@@ -1,0 +1,513 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.kerberos",
+  "title": "Deploying and troubleshooting Kerberos authentication: ports, location behavior, trust, GPO and ticket checks",
+  "aliases": [
+    "Kerberos deployment",
+    "Kerberos PAC file",
+    "cross-realm trust",
+    "domain trust password",
+    "KDC proxy",
+    "DirectAccess Kerberos",
+    "port 8800",
+    "Kerberos GPO push",
+    "Kerberos troubleshooting"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.methods"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.error-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.location-enforcement"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ad-integration.directory-sync"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ports}} The set of ports Kerberos is enforced on differs between pages {{divergence:kerberos-ports-list}}. What Kerberos is and which clients and networks it needs are in [[zia.authentication.methods]]; the error pages Kerberos failures produce are in [[zia.authentication.error-codes]]."
+    },
+    {
+      "label": "On a location.",
+      "text": "{{port-8800-known-locations}} What conditions govern enforcement on port 8800 differs between pages {{divergence:port-8800-enforcement}}. {{location-enabled}} {{transparent-unsupported}}"
+    },
+    {
+      "label": "Deployment choices.",
+      "text": "{{deploy-all-users}} {{deploy-some-users}}"
+    },
+    {
+      "label": "Remote users.",
+      "text": "{{remote-directaccess}} {{remote-pac}} {{remote-port-8800}} Whether the no-inspection statement covers all port 8800 traffic is open {{gap:port-8800-inspection}}."
+    },
+    {
+      "label": "Before the trust.",
+      "text": "{{prerequisites}} {{outbound-firewall}} {{domain-trust-password}}"
+    },
+    {
+      "label": "Windows trust and GPO.",
+      "text": "{{windows-trust-settings}} {{windows-trust-attributes}} {{gpo-settings}} {{gpo-registry-and-refresh}}"
+    },
+    {
+      "label": "Linux clients.",
+      "text": "{{linux-clients}}"
+    },
+    {
+      "label": "Troubleshooting.",
+      "text": "{{troubleshoot-start}} {{troubleshoot-browser-and-tickets}} {{troubleshoot-trust}} {{controller-works-device-fails}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the failing traffic reaches port 80, 443 or 8800 and whether the location has Kerberos enabled.",
+      "uses": [
+        "ports",
+        "location-enabled",
+        "kerberos-ports-list",
+        "port-8800-enforcement"
+      ]
+    },
+    {
+      "do": "Whether the traffic is transparently forwarded, since Kerberos is unsupported there regardless of location settings or destination port.",
+      "uses": [
+        "transparent-unsupported"
+      ]
+    },
+    {
+      "do": "Whether the realm name matches a domain in the organization's Domains field and the trust name is the cloud name in uppercase.",
+      "uses": [
+        "prerequisites",
+        "windows-trust-settings"
+      ]
+    },
+    {
+      "do": "Whether the three krbtgt tickets are present after clearing the ticket cache.",
+      "uses": [
+        "troubleshoot-browser-and-tickets"
+      ]
+    }
+  ],
+  "claims": {
+    "ports": {
+      "statement": "The deployment guidelines say that to enforce Kerberos authentication an organization must send its traffic to port 80, 443 or 8800;",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "To enforce Kerberos authentication, your organization must send its traffic to port 80, 443, or 8800."
+          ]
+        }
+      ]
+    },
+    "port-8800-known-locations": {
+      "statement": "For known locations the service enforces Kerberos on all explicitly forwarded traffic it receives on port 8800, unless the location does not have authentication enabled; SSL/TLS inspection and other settings are inherited from the location. If Kerberos is not enabled for a location but some of its users need it, their traffic can be sent to port 8800.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "For known locations, the Zscaler service enforces Kerberos on all explicitly forwarded traffic it receives on port 8800, unless the location does not have authentication enabled.",
+            "The SSL/TLS inspection settings and other settings are inherited from the location.",
+            "If Kerberos isn't enabled for a location, but you need some users from that location to use Kerberos, you can send their traffic to port 8800."
+          ]
+        }
+      ]
+    },
+    "location-enabled": {
+      "statement": "Enabling Kerberos on a location enforces it on all traffic explicitly forwarded to the service from that location and its dedicated proxy ports, so traffic to port 80 or 443 is still enforced; authentication must be enabled on a location that deploys Kerberos for some or all of its users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "Enabling Kerberos on a location enforces Kerberos authentication on all traffic that is explicitly forwarded to the service from that location and its dedicated proxy ports.",
+            "Therefore, when Kerberos is enabled on a location, you can forward traffic to port 80 or 443, and the service still enforces Kerberos authentication.",
+            "Authentication must be enabled on a location that deploys Kerberos authentication for some or all its users."
+          ]
+        }
+      ]
+    },
+    "transparent-unsupported": {
+      "statement": "The service does not support Kerberos for traffic forwarded in transparent mode (through a GRE or IPSec tunnel with the browser not configured to use a PAC file), regardless of the location settings or destination port. Users' browsers must use PAC files to forward traffic even if their location has an IPSec or VPN tunnel to the service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "It does not support Kerberos authentication for traffic forwarded to the service in transparent mode (i.e., traffic forwarded through a GRE or IPSec tunnel, and the browser isn't configured to use a PAC file to forward traffic), regardless of the location settings or destination port."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-kerberos-authentication.json",
+          "quotes": [
+            "To use Kerberos as an authentication mechanism, your organization's users must configure their browsers to use PAC files to forward their traffic to the Zscaler service, even if their location has established an IPSec or VPN tunnel to forward traffic to the service."
+          ]
+        }
+      ]
+    },
+    "deploy-all-users": {
+      "statement": "The default Kerberos PAC file forwards traffic to port 8800, the default Kerberos port on Public Service Edges for Internet & SaaS (ZIA). To use port 80 instead, copy it and replace the gateway variables ${GATEWAY_HOST}:8800 and ${SECONDARY_GATEWAY_HOST}:8800 with port 80, or specify a subscribed dedicated proxy port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "The default Kerberos PAC file forwards traffic to port 8800, the default Kerberos port on Public Service Edges for Internet & SaaS (ZIA).",
+            "copy the default Kerberos PAC file and replace the variables ${GATEWAY_HOST}:8800 with ${GATEWAY_HOST}:80 and ${SECONDARY_GATEWAY_HOST}:8800 with ${SECONDARY_GATEWAY_HOST}:80. Or, if your organization subscribes to a dedicated proxy port, specify that port instead."
+          ]
+        }
+      ]
+    },
+    "deploy-some-users": {
+      "statement": "To have only some users of a location authenticate through Kerberos because the location already has a primary mechanism (for example LDAP or SAML), distribute the default Kerberos PAC file URL to those users and configure Kerberos without enabling it for the location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "If you want some users in a location to authenticate via Kerberos because the location already has a primary authentication mechanism (e.g., LDAP or SAML), you can distribute the default Kerberos PAC file URL to those users.",
+            "Configure Kerberos, but don't enable it for the location."
+          ]
+        }
+      ]
+    },
+    "remote-directaccess": {
+      "statement": "Remote users must use DirectAccess to connect to the KDC Proxy; the page says DirectAccess is only supported on Windows 11, older versions of Windows do not support it, and there are no native clients for macOS and Linux. Remote access without DirectAccess might work for other VPN solutions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "Remote users must use DirectAccess to connect to the KDC Proxy. DirectAccess is only supported on Windows 11. Older versions of Windows don't support DirectAccess. There are no native clients for MacOS and Linux.",
+            "Remote user access without DirectAccess might work for other VPN solutions."
+          ]
+        }
+      ]
+    },
+    "remote-pac": {
+      "statement": "For remote users, copy the default Kerberos PAC file and add a bypass for the KDC Proxy hostname, retaining the default destination port 8800 so remote user traffic goes to that port on the Public Service Edge; where a dedicated proxy port is used, Kerberos must be enabled at the location associated with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "Copy the default Kerberos PAC file and add a bypass for the KDC Proxy hostname. Retain the default destination port, port 8800, to ensure that remote user traffic is sent to that port on the Public Service Edge.",
+            "Ensure that Kerberos is enabled at the location associated with the dedicated proxy port."
+          ]
+        }
+      ]
+    },
+    "remote-port-8800": {
+      "statement": "The guidelines tell administrators to ensure remote users send their traffic to port 8800 and say the service doesn't perform SSL/TLS inspection on this traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-authentication-deployment-guidelines.json",
+          "quotes": [
+            "Ensure that remote users send their traffic to port 8800. The service doesn't perform SSL/TLS inspection on this traffic."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Before deploying Kerberos, the realm name on the General Information tab must match one of the domains in the Domains field. Users are provisioned by manually adding them to the Hosted User Database, importing them there, or synchronizing from an Active Directory or LDAP server. The sAMAccountName@Windows-Domain is sent as the Kerberos identifier, so the user login attribute in the synchronization settings might need to map to sAMAccountName.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-kerberos-authentication.json",
+          "quotes": [
+            "On the General Information tab, verify that the realm name matches one of the domains in the Domains field.",
+            "Manually adding users to the Zscaler Hosted User Database",
+            "Importing users to the Zscaler Hosted User Database",
+            "Synchronizing user data from an Active Directory or LDAP server",
+            "The sAMAccountName@Windows- Domain is sent as the Kerberos identifier. You might need to change the user login attribute in your synchronization settings to map to the sAMAccountName."
+          ]
+        }
+      ]
+    },
+    "outbound-firewall": {
+      "statement": "Client workstations need TCP 88 or UDP 88 to the Central Authority IP addresses to authenticate against the Zscaler domain KDC (some clients fall back to the other protocol if one is blocked, which is not guaranteed), and TCP 8800 to the Public Service Edge IP address ranges, which is not required if Kerberos is enabled on a location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-kerberos-authentication.json",
+          "quotes": [
+            "| Client Workstation | Central Authority IP Addresses | TCP 88 or UDP 88 | Enables the client to authenticate against the Zscaler domain KDC.",
+            "Some clients fall back to the other protocol if either port is blocked, but this is not guaranteed.",
+            "| Client Workstation | Public Service Edge IP Address Ranges | TCP 8800 (The default Kerberos authentication port on Public Service Edges.) |",
+            "Not required if Kerberos is enabled on a location."
+          ]
+        }
+      ]
+    },
+    "domain-trust-password": {
+      "statement": "Configuring Kerberos as an authentication mechanism (usable in addition to other methods) generates the domain trust password, shown in the Domain Trust Password field, which is required when establishing the cross-realm trust between the organization's domain and the Zscaler domain; the page says to copy it and store it securely.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-deploying-kerberos-authentication.json",
+          "quotes": [
+            "Configure Kerberos as an authentication mechanism to generate the domain trust password that is used to establish the trust relationship between the Zscaler domain and your organization's domain.",
+            "You can use Kerberos authentication in addition to other authentication methods. The Domain Trust Password field appears.",
+            "Copy the password and store it securely. The password is required when you establish the cross-realm trust between your organization's domain and the Zscaler domain."
+          ]
+        }
+      ]
+    },
+    "windows-trust-settings": {
+      "statement": "The Windows trust is one-way, so Zscaler trusts the domain's authenticated users and not the reverse, and creating it needs administrator access to the domain controller. In the wizard the trust name is the Zscaler cloud name in uppercase letters, the type is Realm trust, transitivity is Nontransitive, the direction is One-way: incoming, and the other domain is marked as supporting Kerberos AES encryption.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-trust-relationship-configuration-guide-windows-server-gpo-push.json",
+          "quotes": [
+            "This one-way trust enables Zscaler to trust the authenticated users of the domain and not the reverse. Administrator access to the domain controller is required to establish a cross-realm trust and to use GPO to push configuration settings.",
+            "5. For Trust Name, enter the Zscaler cloud name in uppercase letters and click Next.",
+            "6. For Trust Type, select Realm trust and click Next.",
+            "7. For Transitivity of Trust, select Nontransitive and click Next.",
+            "8. For Direction of Trust, select One-way: incoming and click Next.",
+            "- The other domain supports Kerberos AES Encryption."
+          ]
+        }
+      ]
+    },
+    "windows-trust-attributes": {
+      "statement": "The article's verification of a correct trust lists msDS-SupportedEncryptionTypes 24, objectClass trustedDomain, trustAttributes 1, trustDirection 1 and trustType 3.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-trust-relationship-configuration-guide-windows-server-gpo-push.json",
+          "quotes": [
+            "- msDS-SupportedEncryptionTypes: 24",
+            "- objectClass: trustedDomain",
+            "- trustAttributes: 1",
+            "- trustDirection: 1",
+            "- trustType: 3"
+          ]
+        }
+      ]
+    },
+    "gpo-settings": {
+      "statement": "The GPO values pushed to clients are, for the interoperable Kerberos V5 realm setting, <k>kerberos.<Zscaler Cloud></k> (in the example <k>kerberos.zscalerbeta.net</k>), and for the host name-to-realm mapping the Zscaler domain names (in the example .zscalerbeta.net; .gateway.zscalerbeta.net), both with leading dots to match all subdomains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-trust-relationship-configuration-guide-windows-server-gpo-push.json",
+          "quotes": [
+            "select Define Interoperable Kerberos V5 realm settings.",
+            "Value: Enter <k>kerberos.Zscaler Cloud</k>. In this example, the value is <k>kerberos.zscalerbeta.net</k>.",
+            "Select Define host name-to-Kerberos realm mappings.",
+            "Value: Enter the Zscaler domain names. In this example, it is .zscalerbeta.net; .gateway.zscalerbeta.net.",
+            "Both the domain names must have leading dots to match all subdomains."
+          ]
+        }
+      ]
+    },
+    "gpo-registry-and-refresh": {
+      "statement": "The article checks the pushed settings in the registry under the Policies\\System\\Kerberos keys MitRealms and domain_realm, refreshes a client with gpupdate /force, and says the browser must be configured with the Kerberos PAC file URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-trust-relationship-configuration-guide-windows-server-gpo-push.json",
+          "quotes": [
+            "get-gpregistryvalue -key \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\MitRealms\" -name \"Default Domain Policy\"",
+            "get-gpregistryvalue -key \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\domain_realm\" -name \"Default Domain Policy\"",
+            "gpupdate /force",
+            "Ensure that the browser is configured with the Kerberos PAC file URL."
+          ]
+        }
+      ]
+    },
+    "linux-clients": {
+      "statement": "On Linux, Kerberos support is provided by either the MIT Kerberos package or the Heimdal package, with its configuration file in /etc/krb5.conf. For Firefox the guide's example sets network.negotiate-auth.trusted-uris to gateway.zscalerbeta.net, .gateway.zscalerbeta.net, and the example command export MOZ_LOG=negotiateauth:5 enables logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-kerberos-trust-relationship-configuration-guide-linux-server.json",
+          "quotes": [
+            "Kerberos support in Linux is provided by either the MIT Kerberos package or the Heimdal package.",
+            "The Kerberos configuration file is in /etc/krb5.conf.",
+            "network.negotiate-auth.trusted-uris: gateway.zscalerbeta.net, .gateway.zscalerbeta.net",
+            "user@linux~$ export MOZ_LOG=negotiateauth:5"
+          ]
+        }
+      ]
+    },
+    "troubleshoot-start": {
+      "statement": "Zscaler recommends troubleshooting Kerberos first on the domain controller, with the administrator provisioned on the Zscaler service as a user so Kerberos authentication doesn't fail. If the time and date settings on the domain controller differ from the Zscaler KDC by more than five minutes, authentication will fail.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-kerberos-authentication.json",
+          "quotes": [
+            "Zscaler recommends that you first troubleshoot Kerberos on your domain controller.",
+            "Before troubleshooting, ensure that the administrator has been provisioned on the Zscaler service as a user so that Kerberos authentication doesn't fail.",
+            "If the time and date settings on your domain controller differ from the Zscaler KDC by more than five minutes, authentication will fail."
+          ]
+        }
+      ]
+    },
+    "troubleshoot-browser-and-tickets": {
+      "statement": "The browser test uses Zscaler cloud on port 8800, the default Kerberos authentication port on Public Service Edges; Microsoft Edge and Mozilla Firefox support Kerberos by default, and misconfigured cross-realm settings produce a Public Service Edge page with an error code. After clearing the Kerberos ticket cache the ticket list should show a Zscaler KDC krbtgt ticket and the company's KDC krbtgt ticket, both from the organization's domain controller, and a Public Service Edge krbtgt ticket from the Zscaler KDC; if the last is missing the Public Service Edge is not issuing tickets and the page says to contact Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-kerberos-authentication.json",
+          "quotes": [
+            "3. Configure the browser to use Zscaler cloud on port 8800, the default Kerberos authentication port on Public Service Edges.",
+            "Microsoft Edge and Mozilla Firefox browsers support Kerberos authentication by default.",
+            "If the cross-realm settings are configured incorrectly, then the Public Service Edge displays a page with an error code.",
+            "6. Open Microsoft PowerShell and run the following command to clear the Kerberos ticket cache:",
+            "Zscaler KDC krbtgt ticket: The user device obtains this ticket from your organization's domain controller. This ticket grants access to the Zscaler KDC.",
+            "Your company's KDC krbtgt ticket: The user device obtains this ticket from your organization's domain controller. This ticket grants access to that domain controller.",
+            "Public Service Edge krbtgt ticket: The user device obtains this ticket from the Zscaler KDC. This ticket grants access to the Public Service Edge. If this ticket is not displayed, then the Public Service Edge is not issuing tickets. Contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "troubleshoot-trust": {
+      "statement": "The Zscaler domain, which has the same name as the Zscaler cloud name, must be on the domain trusts list as an inbound trust, and pinging kerberos.<Zscaler Cloud> must return the Zscaler Central Authority's IP address. There is no way to check the cross-realm password of an added trust; the domain trust must be deleted and re-added with the correct password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-kerberos-authentication.json",
+          "quotes": [
+            "The Zscaler domain must be on the domain trusts list as an inbound trust.",
+            "Your Zscaler domain name is the same as your Zscaler cloud name.",
+            "- ping kerberos.<Zscaler Cloud>",
+            "The IP address displayed must be the Zscaler Central Authority (CA)'s IP address.",
+            "There is no way to check the cross-realm password of an added trust. You must delete the domain trust and re-add the trust with the correct password."
+          ]
+        }
+      ]
+    },
+    "controller-works-device-fails": {
+      "statement": "Kerberos authentication can work on the domain controller but not on a user's device, in which case there might be an error with the GPO settings; the page says to check whether the GPO settings have been propagated from the domain controller to users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-troubleshooting-kerberos-authentication.json",
+          "quotes": [
+            "It is possible for Kerberos authentication to work on the domain controller, but not to work on a user's device. In this case, there might be an error with the GPO settings.",
+            "You must check if GPO settings have been propagated from the domain controller to users."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "kerberos-ports-list": {
+      "summary": "The deployment guidelines name ports 80, 443 and 8800 for enforcing Kerberos; the default Kerberos PAC file article lists proxy ports 80, 443, 9400 and 9443 plus the location's dedicated port.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-kerberos-authentication-deployment-guidelines.json",
+            "quotes": [
+              "To enforce Kerberos authentication, your organization must send its traffic to port 80, 443, or 8800.",
+              "Enabling Kerberos on a location enforces Kerberos authentication on all traffic that is explicitly forwarded to the service from that location and its dedicated proxy ports."
+            ]
+          },
+          "says": "Traffic must go to port 80, 443 or 8800; a Kerberos-enabled location also enforces it on its dedicated proxy ports."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "using-default-zscaler-kerberos-pac-file.json",
+            "quotes": [
+              "If the location has Kerberos enabled, then traffic can be forwarded to the proxy ports (80, 443, 9400, 9443) or to the dedicated port associated with that location."
+            ]
+          },
+          "says": "If the location has Kerberos enabled, traffic can go to the proxy ports 80, 443, 9400, 9443 or the location's dedicated port."
+        }
+      ],
+      "impact": "Whether ports 9400 and 9443 enforce Kerberos is stated by one page and absent from the other's list; the pages do not say which list is complete."
+    },
+    "port-8800-enforcement": {
+      "summary": "The pages give different conditions for Kerberos enforcement on port 8800.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-kerberos-authentication-deployment-guidelines.json",
+            "quotes": [
+              "For known locations, the Zscaler service enforces Kerberos on all explicitly forwarded traffic it receives on port 8800, unless the location does not have authentication enabled."
+            ]
+          },
+          "says": "For known locations, 8800 traffic is enforced unless the location has authentication disabled."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "using-default-zscaler-kerberos-pac-file.json",
+            "quotes": [
+              "The Public Service Edges challenge all traffic that they receive on port 8800 for a Negotiate Authentication (Kerberos) ticket for the Zscaler service."
+            ]
+          },
+          "says": "Public Service Edges challenge all traffic received on port 8800, with no location condition stated."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-deploying-kerberos-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "The Kerberos port (8800) enforces Kerberos authentication irrespective of the spnego_krb_noport_bypass=1 parameter set in the vzen_custom.conf file or Kerberos authentication being enabled for the location."
+            ]
+          },
+          "says": "For a Virtual Service Edge, port 8800 enforces Kerberos whether or not Kerberos is enabled for the location (and irrespective of the spnego_krb_noport_bypass parameter)."
+        }
+      ],
+      "impact": "Whether 8800 traffic from a location with authentication disabled, or with Kerberos not enabled, is challenged depends on the page and on the edge type; the Virtual Service Edge page is scoped to Virtual Service Edges."
+    }
+  },
+  "gaps": {
+    "port-8800-inspection": {
+      "kind": "semantic",
+      "title": "Whether the no-SSL/TLS-inspection statement covers all port 8800 traffic",
+      "status": "open",
+      "detail": "The guidelines say the service doesn't perform SSL/TLS inspection on remote users' port 8800 traffic, while the previous sentence for known locations says SSL/TLS inspection settings are inherited from the location. The pages do not say whether the no-inspection statement is limited to remote users.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

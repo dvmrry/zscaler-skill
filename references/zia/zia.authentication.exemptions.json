@@ -74,9 +74,23 @@
     },
     {
       "text": "Traffic that skips the challenge is attributed to the location: [[zia.authentication.unauthenticated-traffic]]."
+    },
+    {
+      "label": "Why a destination is exempted.",
+      "text": "{{why-exempt}} {{console-exempt-lists}} {{known-location-scope}}"
+    },
+    {
+      "label": "PAC file alternative.",
+      "text": "{{pac-exemption-example}}"
     }
   ],
   "checks": [
+    {
+      "do": "Whether the client is at a known location and not at a dedicated-proxy-port location, since the console URL exemption applies only to known-location traffic.",
+      "uses": [
+        "known-location-scope"
+      ]
+    },
     {
       "do": "Which method challenged the request, and which of that method's lists covers the destination.",
       "uses": [
@@ -279,6 +293,65 @@
           ]
         }
       ]
+    },
+    "why-exempt": {
+      "statement": "Some client applications and websites do not support cookie-based authentication or do not respond when the service sends an HTTP 307 redirect to authenticate the browser; the article's example is that the AIM client application and some Microsoft 365 applications do not respond to the redirect. The article suggests tools like Fiddler or Wireshark to find the URL the application or website is trying to access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-exempting-urls-cloud-apps-authentication.json",
+          "quotes": [
+            "Some client applications and websites don't support cookie-based authentication or don't respond when the Zscaler service sends an HTTP 307 code that redirects the browser to authenticate to the Zscaler service.",
+            "For example, the AIM client application and some Microsoft 365 applications don't respond to the HTTP 307 redirect sent by the service.",
+            "Use tools like Fiddler or Wireshark to find the URL that the application or website is trying to access."
+          ]
+        }
+      ]
+    },
+    "console-exempt-lists": {
+      "statement": "The console's Authentication Exemptions section has Exempted URL Categories (URL categories exempted from cookie authentication), Exempted URLs (URLs exempted from cookie authentication) and Exempted Applications (cloud applications or cloud application categories exempted from cookie authentication).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-exempting-urls-cloud-apps-authentication.json",
+          "quotes": [
+            "Exempted URL Categories: Select the URL categories that you want to exempt from cookie authentication.",
+            "Exempted URLs: Enter the URLs that you want to exempt from cookie authentication.",
+            "Exempted Applications: Select the cloud applications or cloud application categories that you want to exempt from cookie authentication."
+          ]
+        }
+      ]
+    },
+    "known-location-scope": {
+      "statement": "The URL exemption configuration applies only to traffic originating from known locations configured in the Admin Console, excluding locations created with the dedicated proxy port. For authentication exemptions to work with dedicated-proxy-port locations, unauthenticated users must authenticate and authenticated users must first visit a website that does not bypass authentication or SSL inspection. The PAC-file exception is likewise applicable only to traffic generated from a known location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-exempting-urls-cloud-apps-authentication.json",
+          "quotes": [
+            "This URL exemption configuration only applies to traffic originating from known locations configured in the Zscaler Admin Console, excluding locations created with the dedicated proxy port.",
+            "For increased security and to prevent unauthorized use of subscribed dedicated proxy ports and authentication exemptions to work with DPP locations, unauthenticated users must authenticate, and authenticated users must first visit a website that does not bypass authentication or SSL inspection.",
+            "The exception is applicable only for the traffic generated from a known location."
+          ]
+        }
+      ]
+    },
+    "pac-exemption-example": {
+      "statement": "If adding URLs to the authentication exemptions list in the Admin Console is not feasible, the article says the PAC file can be edited to add an exception; its example returns \"PROXY ${GATEWAY}:9480; PROXY ${SECONDARY_GATEWAY}:9480; DIRECT\" for the hosts it lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-exempting-urls-cloud-apps-authentication.json",
+          "quotes": [
+            "If adding URLs to the authentication exemptions list in the Zscaler Admin Console isn't feasible, then you can edit the PAC file and add an exception.",
+            "return \"PROXY ${GATEWAY}:9480; PROXY ${SECONDARY_GATEWAY}:9480; DIRECT\";"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
@@ -315,8 +388,8 @@
     "typical-entries": {
       "kind": "semantic",
       "title": "What destinations are typically exempted",
-      "status": "open",
-      "detail": "Unverified legacy statement: Typical exempt entries are OS update endpoints, WPAD/PAC file servers and captive-portal detection URLs (connectivitycheck.gstatic.com, msftconnecttest.com), and ZCC registration endpoints are typically allowed through before identity is established. No registered source states this. A vendor deployment guide naming recommended exemptions would settle it. The SAML guide does require exempting the IdP; see the methods subject.",
+      "status": "partial",
+      "detail": "Only examples are sourced: the applications the exemption article gives as examples of not responding to the redirect (why-exempt) and one guide's list, the Microsoft login hosts the Entra ID guide adds (zia.saas-apps.idp-bypass:entra-login-hosts-exempted). Neither says what is typical, so the question is not narrowed beyond that. Unverified legacy statement: Typical exempt entries are OS update endpoints, WPAD/PAC file servers and captive-portal detection URLs (connectivitycheck.gstatic.com, msftconnecttest.com), and ZCC registration endpoints are typically allowed through before identity is established. No registered source states this. A vendor deployment guide naming recommended exemptions would settle it. The SAML guide does require exempting the IdP; see the methods subject.",
       "resolves_with": [
         "support-ticket",
         "operator-experience"

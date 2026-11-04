@@ -45,7 +45,11 @@
     },
     {
       "label": "Shapes.",
-      "text": "{{three-shapes}} {{shape-uses}}"
+      "text": "{{three-shapes}} {{shape-uses}} {{uses}}"
+    },
+    {
+      "label": "Editing one.",
+      "text": "{{page-columns}} {{disable-data-center}} {{redirect-after-edit}} The hosted PAC files reflect an edit about 5 minutes after the edit, while users are redirected about 10 to 20 minutes after the changes are activated: [[shared.pac-files.hosting:subcloud-propagation]]. The two redirect figures differ {{divergence:redirect-timing}}. Whether the two-week limit binds the API's exclusion times is open {{gap:two-week-api}}."
     },
     {
       "label": "Getting one.",
@@ -184,6 +188,67 @@
         }
       ]
     },
+    "uses": {
+      "statement": "A subcloud can ensure that traffic from Zscaler Client Connector, PAC or SD-WAN only connects to specific Zscaler data centers, allow Client Connector and PAC file users to securely connect to regional surcharge data centers, redirect them to the next closest data center, and allow them to securely connect to privately hosted data centers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-subclouds.json",
+          "quotes": [
+            "Ensure traffic from Zscaler Client Connector, PAC, or SD-WAN only connects to specific Zscaler data centers.",
+            "Allow Zscaler Client Connector and PAC file users to securely connect to regional surcharge data centers.",
+            "Redirect Zscaler Client Connector and PAC file users to the next closest data center.",
+            "Allow Zscaler Client Connector and PAC file users to securely connect to privately hosted data centers."
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "The Subclouds page shows each subcloud's Number of Data Centers (the data centers configured for the subcloud) and Number of Disabled Data Centers (those currently removed from the subcloud data center list).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-subclouds.json",
+          "quotes": [
+            "Number of Data Centers: The number of data centers configured for the subcloud.",
+            "Number of Disabled Data Centers: The number of data centers currently removed from the subcloud data center list."
+          ]
+        }
+      ]
+    },
+    "disable-data-center": {
+      "statement": "An admin can temporarily disable a subcloud's associated Zscaler data centers for scheduled maintenance or data centers with capacity issues, trust incidents, site or region service issues, excessive latency, congestion, peering issues and so on, for a maximum of two weeks. Data Center Disabled Until (UTC Time) shows and edits the date and time until which the selected data center is disabled; the subcloud Name cannot be modified, and disabling all the data centers in a country brings up a confirmation window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-subcloud.json",
+          "quotes": [
+            "You can temporarily disable the associated Zscaler data centers for scheduled maintenance or data centers with capacity issues, trust incidents, site or region service issues, excessive latency, congestion, peering issues, etc.",
+            "You can disable a data center for a maximum of two weeks.",
+            "Data Center Disabled Until (UTC Time): View and edit the date and time until which the selected data center is disabled.",
+            "Name: View the name of the subcloud. This field cannot be modified.",
+            "If you disable all the data centers in a country, a confirmation window appears."
+          ]
+        }
+      ]
+    },
+    "redirect-after-edit": {
+      "statement": "After the data center list of a subcloud is edited, the Zscaler Client Connector traffic and PAC file users are redirected 15 minutes after the app policy push; to fail over immediately, DNS requests can be triggered with app policy updates on Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-subcloud.json",
+          "quotes": [
+            "After you edit the data center list for a subcloud, the Zscaler Client Connector traffic and PAC file users are redirected 15 minutes after the app policy push.",
+            "To fail over immediately, you can trigger DNS requests with app policy updates on Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
     "setup-by-support": {
       "statement": "A subcloud is requested with a Zscaler Support ticket; the service sets up the subcloud if the organization has access only to limited, restricted or private data centers.",
       "tier": "A",
@@ -261,16 +326,54 @@
       "conditions": "Compares the two definitions; no source states the contrast."
     }
   },
+  "divergences": {
+    "redirect-timing": {
+      "summary": "The Editing a Subcloud article says Client Connector and PAC users are redirected 15 minutes after the app policy push; the Understanding Subclouds article says users should be redirected about 10 to 20 minutes after the subcloud changes are activated.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-editing-subcloud.json",
+            "quotes": [
+              "After you edit the data center list for a subcloud, the Zscaler Client Connector traffic and PAC file users are redirected 15 minutes after the app policy push."
+            ]
+          },
+          "says": "Users are redirected 15 minutes after the app policy push."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-subclouds.json",
+            "quotes": [
+              "Users should be redirected about 10–20 minutes after the subcloud changes are activated."
+            ]
+          },
+          "says": "Users should be redirected about 10 to 20 minutes after the subcloud changes are activated."
+        }
+      ],
+      "impact": "The pages start the clock at different events (the app policy push, the activation) and give a point value against a range; they do not say how the two relate, so the time to redirection after an edit is not settled."
+    }
+  },
   "gaps": {
     "surcharge-dc-selection": {
       "kind": "semantic",
       "title": "Whether restricted or surcharge data centers need a subcloud",
       "status": "open",
-      "detail": "Unverified legacy statement: \"Surcharge data centers - some special-region PSEs (restricted geographies) require explicit subcloud membership. Geolocation won't select them by default.\" and \"There's no 'set preferred region' toggle - the mechanism is always 'create a subcloud'.\" The subclouds article ties setup to organizations with access only to limited, restricted or private data centers; the PAC variables article says regional surcharge data centers are not in the gateway variable. Data center exclusion is a separate mechanism (shared.subclouds.api).",
+      "detail": "Unverified legacy statement: \"Surcharge data centers - some special-region PSEs (restricted geographies) require explicit subcloud membership. Geolocation won't select them by default.\" and \"There's no 'set preferred region' toggle - the mechanism is always 'create a subcloud'.\" The subclouds article ties setup to organizations with access only to limited, restricted or private data centers; the PAC variables article says regional surcharge data centers are not in the gateway variable. The About Subclouds page lists connecting Client Connector and PAC file users to regional surcharge data centers among what a subcloud can do (uses) without saying it is the only way. Data center exclusion is a separate mechanism (shared.subclouds.api).",
       "blocks": "advising a tenant that needs a surcharge or restricted data center",
       "resolves_with": [
         "source-read",
         "support-ticket"
+      ]
+    },
+    "two-week-api": {
+      "kind": "semantic",
+      "title": "Whether the two-week limit and the isLastDcInCountry check apply through the API",
+      "status": "open",
+      "detail": "The Editing a Subcloud article gives the two-week maximum and a confirmation when all data centers in a country are disabled. Whether the API's exclusion times are bound by the two-week limit is not stated, and the /subclouds/isLastDcInCountry/{id} endpoint is described by no captured help article.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
       ]
     },
     "name-case": {

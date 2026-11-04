@@ -37,6 +37,10 @@
       "text": "{{remediation-tiers}}"
     },
     {
+      "label": "Settings.",
+      "text": "{{settings-prerequisites}} {{settings-criteria}} {{revocation-status}} Who can change them is a role permission: [[shared.admin-rbac.zdx:remediation-permissions]]."
+    },
+    {
       "label": "Scripts.",
       "text": "{{script-kinds}} {{script-status}} {{script-config}}"
     },
@@ -54,7 +58,7 @@
     },
     {
       "label": "Open.",
-      "text": "The Remediation API surface was not checked {{gap:remediation-api}}, nor the article on configuring Remediation settings {{gap:remediation-settings-article}}."
+      "text": "The Remediation API surface was not checked {{gap:remediation-api}}, and how the include and exclude criteria of the settings combine is not stated {{gap:settings-criteria-logic}}."
     }
   ],
   "claims": {
@@ -300,6 +304,50 @@
         }
       ]
     },
+    "settings-prerequisites": {
+      "statement": "Enabling Remediation for users needs the minimum required versions of Zscaler Client Connector and ZDX Module, a ZDX subscription level that supports Remediation, the Full permission level for Remediation Settings, and End User Notifications enabled for Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-remediation-settings.json",
+          "quotes": [
+            "The minimum required versions of Zscaler Client Connector and ZDX Module.",
+            "Your ZDX subscription level supports Remediation.",
+            "Full permission level for Remediation Settings.",
+            "Enable End User Notifications for Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "settings-criteria": {
+      "statement": "Selecting Enable Remediation creates user criteria for Remediation; the General settings of Remediation jobs include and exclude specific users, user groups, locations, location groups, departments and devices, and deleted or unknown users cannot be selected for the include and exclude criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-remediation-settings.json",
+          "quotes": [
+            "Select Enable Remediation to create user criteria for Remediation.",
+            "General: Configure the General settings of Remediation jobs to include and exclude specific users, user groups, locations, location groups, departments, and devices.",
+            "You cannot select deleted or unknown users for the include and exclude criteria."
+          ]
+        }
+      ]
+    },
+    "revocation-status": {
+      "statement": "In the Security setting, enabling Require Definitive Certification Revocation Status ensures each script is checked for certification validity, and when enabled a script cannot run on any device if its certification revocation status is invalid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-configuring-remediation-settings.json",
+          "quotes": [
+            "Security: Enable Require Definitive Certification Revocation Status to ensure each script is checked for certification validity. When enabled, a script cannot run on any device if its certification revocation status is invalid."
+          ]
+        }
+      ]
+    },
     "troubleshooting": {
       "statement": "Devices can be grayed out during device selection because of incompatible version compatibility or inactive devices; a script may not run when the selected device is unavailable (not powered on, or not connected to Wi-Fi), when the device runs a Client Connector version older than 4.8.0.151 or a ZDX Module older than 4.6.0, when an admin aborted the job mid-way, or when Internet & SaaS (ZIA) policy blocks it (ps1 files blocked, or the URL policy blocking unknown URLs, for which the help says to allow ps1 files and the remediation URL into a URL category); a script signed with an expired or invalid certificate cannot run and must be signed again with an appropriate expiration and valid credentials.",
       "tier": "A",
@@ -339,13 +387,14 @@
         "code-read"
       ]
     },
-    "remediation-settings-article": {
+    "settings-criteria-logic": {
       "kind": "semantic",
-      "title": "What Remediation settings hold, including enabling Remediation and the revocation check",
+      "title": "How the Remediation settings' include and exclude criteria combine",
       "status": "open",
-      "detail": "The Understanding Remediation article says to enable Remediation under Configuring Remediation Settings, and a Remediation error message refers to disabling the certificate revocation check; the article on configuring Remediation settings (zdx-configuring-remediation-settings.json) was outside the extraction and is not read.",
-      "blocks": "explaining where Remediation is enabled and what its settings change",
+      "detail": "The Configuring Remediation Settings article lists the users, user groups, locations, location groups, departments and devices that can be included and excluded; it does not say how the criteria combine or whether the probing criteria's AND/OR logic applies.",
+      "blocks": "predicting which devices Remediation is enabled for",
       "resolves_with": [
+        "lab-test",
         "source-read"
       ]
     }

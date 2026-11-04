@@ -1,0 +1,476 @@
+{
+  "schema_version": 1,
+  "id": "zia.authentication.identity-proxy",
+  "title": "Zscaler Identity Proxy: Zscaler as the SAML IdP for cloud apps, unmanaged-device actions and its error codes",
+  "aliases": [
+    "identity proxy",
+    "ID proxy",
+    "Zscaler ID",
+    "Identity Proxy Settings",
+    "identity proxy error codes",
+    "Zscaler as IdP for cloud apps"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.error-codes"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.saas-apps.conditional-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-does}} {{ssl-prerequisite}} {{idp-app-excluded}}"
+    },
+    {
+      "label": "Unmanaged devices.",
+      "text": "{{unmanaged-device-flow}} {{managed-device-detection}} {{unmanaged-actions}} Which log records an Identity Proxy decision is open {{gap:decision-log}}, as is whether Other Cloud Apps get the same detection and actions {{gap:other-cloud-apps-detection}} and what the device identity attribute is beyond those two options {{gap:device-identity-attribute}}."
+    },
+    {
+      "label": "Settings and per-app setup.",
+      "text": "{{settings-page}} The value of the SAML version it shows is not given {{gap:saml-version-value}}. {{app-instance-urls}} {{signing-certificate}} {{identity-transformation}} Whether an API surface exists for Identity Proxy Settings was not checked {{gap:api-surface}}."
+    },
+    {
+      "label": "Notes for individual apps.",
+      "text": "{{m365-federation}} {{google-limits}} {{app-side-settings}}"
+    },
+    {
+      "label": "Error codes.",
+      "text": "{{when-shown}} {{org-and-config}} {{user-codes}} {{saml-request-codes}} {{transient-and-internal}} The table has no row for some codes inside its range {{gap:missing-codes}}, and where the user sees a code is not stated {{gap:where-code-shown}}. Codes shown on other failed logins are in [[zia.authentication.error-codes]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an Identity Proxy sign-in failure shows a code, and what the code's row says to do, before treating it as a SAML or IdP fault.",
+      "uses": [
+        "when-shown",
+        "org-and-config",
+        "user-codes",
+        "saml-request-codes",
+        "transient-and-internal"
+      ]
+    },
+    {
+      "do": "Whether the app is already the IdP for authentication, since such an app cannot be used for Identity Proxy.",
+      "uses": [
+        "idp-app-excluded"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-does": {
+      "statement": "The Zscaler Identity Proxy makes Zscaler the identity provider for a cloud app so that users must reach the app through the Zscaler service: corporate-account sign-ins that do not go through Zscaler fail. The named apps are Box, Google Apps, Microsoft 365, Salesforce, GitHub, ShareFile, ServiceNow and Slack; Other Cloud Apps covers other apps with standard SAML authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "The Zscaler Identity Proxy forces users to access cloud applications through the Zscaler service. You can configure the Zscaler service as an identity provider (IdP) for the following cloud apps: - Box - Google Apps - Microsoft 365 - Salesforce - GitHub - ShareFile - ServiceNow - Slack",
+            "When users try to access the cloud apps using their corporate accounts, but without going through the Zscaler service, authentication fails, and the users aren't able to log in.",
+            "You can select Other Cloud Apps for other cloud apps that support standard SAML-based authentication."
+          ]
+        }
+      ]
+    },
+    "ssl-prerequisite": {
+      "statement": "SSL/TLS Inspection must be enabled for the organization location before Zscaler is configured as the IdP for the named cloud apps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "Ensure SSL/TLS Inspection is enabled for the organization location before configuring the Zscaler service as an IdP for the following cloud apps:"
+          ]
+        }
+      ]
+    },
+    "idp-app-excluded": {
+      "statement": "A cloud app configured as the IdP for authentication cannot be used for Identity Proxy; for example, with Microsoft Entra ID as the IdP, Office 365 cannot be configured for Identity Proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "If you have configured a cloud app as an IdP for authentication, it cannot be used for Identity Proxy. For example, if Microsoft Entra ID is configured as your IdP, Office 365 cannot be configured for Identity Proxy."
+          ]
+        }
+      ]
+    },
+    "unmanaged-device-flow": {
+      "statement": "The SaaS tenant uses the Identity Proxy as its IdP, and the proxy authenticates the user against the customer's own IdP. When that IdP indicates an unmanaged endpoint (based on the device identity attribute) and the original request was not made through the Public Service Edge, the configured action applies: Block, or Browser Isolate, which redirects the user to Zero Trust Browser. Zero Trust Browser traffic is always proxied through the Service Edge, where policies are enforced and transactions logged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "The Zscaler ID works as a proxy between the SaaS application and the customer's IdP (e.g., Okta, PingFederate, Azure).",
+            "The ID proxy component then authenticates the user against the customer's IdP to ascertain the identity of the user.",
+            "If the customer's IdP indicates the authentication request is originating from an unmanaged endpoint (based on the device identity attribute) and if the original request was not made via the Public Service Edge for Internet & SaaS, the ID proxy evaluates how the traffic is handled",
+            "If the Action is set to Block: Traffic is blocked, ensuring that the user is unable to access the SaaS application from an unmanaged device.",
+            "If the Action is set to Browser Isolate: User is redirected to Zero Trust Browser.",
+            "Zero Trust Browser is always proxied to send the traffic via the Service Edge for Internet & SaaS. All the traffic from Zero Trust Browser is enforced by the policies defined and all the transactions from Zero Trust Browser are logged."
+          ]
+        }
+      ]
+    },
+    "managed-device-detection": {
+      "statement": "A device counts as managed if its traffic is proxied through Zscaler and matches device attributes. With Authentication Service those are the Is Device Managed attributes it sends, and the option is greyed out if they are not configured there. Without it they are the Device Trust Attribute and Device Trust Attribute Value of the default IdP, and the option is greyed out if the IdP does not specify them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "(With Authentication Service) Is Device Managed Attribute True: Enable to identify the user devices as managed devices if their traffic is proxied via Zscaler and matches the configured Is Device Managed attributes sent by the Authentication Service.",
+            "This option is grayed out if the Is Device Managed attributes are not configured in the Authentication Service.",
+            "(Without Authentication Service) Device Trust Attribute Matches the Configured Value: Enable to identify the user devices as managed devices if their traffic is proxied via Zscaler and matches the configured device trust attributes in your default IdP.",
+            "Ensure that your default IdP configuration specifies the Device Trust Attribute and Device Trust Attribute Value fields to allow the Internet & SaaS service to identify your managed devices; otherwise, this option is grayed out."
+          ]
+        }
+      ]
+    },
+    "unmanaged-actions": {
+      "statement": "For unmanaged devices the Action is Browser Isolate, which isolates the traffic in a remote browser using the selected isolation profile, or Block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "Browser Isolate: Isolates the traffic from unmanaged devices through a remote browser based on the isolation profile selected.",
+            "Isolation Profile: Select the isolation profile from the list if you chose the Browser Isolation action.",
+            "Block: Blocks access to the cloud app from an unmanaged device."
+          ]
+        }
+      ]
+    },
+    "settings-page": {
+      "statement": "For each app the Identity Proxy Settings page shows the SAML version (fixed); the Identity Proxy URL, a unique URL Zscaler generates that is set as the app's SAML SSO IdP (fixed); the Issuer Entity ID, the random part of that URL; the HTTP-POST binding Zscaler uses to send the assertion; NameID as user identifier, mapped to the Zscaler login name; the Response Signing SAML Certificate, the certificate the Identity Proxy uses for signing SAML responses; and a Certificate link that downloads the Zscaler certificate for the cloud app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-identity-proxy-settings.json",
+          "quotes": [
+            "SAML Version: Displays the SAML version implemented by the Zscaler IdP. You can't modify this field.",
+            "Identity Proxy URL: The Zscaler service dynamically generates a unique Identity Proxy URL. You add this URL as the IdP for SAML SSO when you configure SSO for the app. You can't modify this field.",
+            "Issuer Entity ID: Displays the random part of the Identity Proxy URL.",
+            "Identity Request Binding: Displays the SAML assertion (HTTP-POST) that the Zscaler service, as the IdP, sends the cloud app.",
+            "User Identifier: NameID is the LDAP attribute that maps to the login name, which users enter when they authenticate to the Zscaler service.",
+            "Response Signing SAML Certificate: Displays the certificate that is used by the Identity Proxy for signing SAML responses.",
+            "Certificate: Click to download the Zscaler certificate for the cloud app that you are configuring an Identity Proxy for."
+          ]
+        }
+      ]
+    },
+    "app-instance-urls": {
+      "statement": "The app instance's ACS URL is shown for Box, auto-filled for Office 365, built from the domain for Google Apps (the only app with a Domain field) and copied from the app's Login URL for the rest. Entity ID is auto-populated for most apps; Salesforce's is copied from the app, and GitHub's is the ACS URL without the trailing /saml/consume.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "Domain: Applicable only to Google Apps.",
+            "ACS URL: This is the Assertion Consumer Service URL. For Box, the URL is displayed. For Office 365, the URL is auto-filled. For Google Apps, the URL is completed as you type in your domain. For the rest of the cloud apps, enter the Login URL that you copy from your cloud app.",
+            "Entity ID: This is auto-populated for most of the cloud apps. For Salesforce, enter the Entity ID that you copy from your cloud app. For Github, enter the ACS URL string without the /saml/consume string at the end of the URL."
+          ]
+        }
+      ]
+    },
+    "signing-certificate": {
+      "statement": "The admin picks the certificate the Identity Proxy signs SAML responses with, and Zscaler recommends the one with the longest validity. Its expiration date is shown when it is about to expire or has expired, with a Caution icon within 30 days of expiry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "Response Signing SSL Certificate: Choose the certificate that you want the Identity Proxy to use for signing SAML responses. Zscaler recommends choosing the certificate with the longest validation period.",
+            "You see the expiration date field if the certificate is about to expire or has expired. A Caution icon appears if the certificate expires within 30 days."
+          ]
+        }
+      ]
+    },
+    "identity-transformation": {
+      "statement": "Identity Transformation passes the Zscaler login name as is, replaces its domain with a chosen domain (Zscaler recommends not using this for GitHub), or removes the domain to pass only the user ID. Pass-on Group Details sends all the user's groups in the response under the Group Identifier Name, and is set to Disable for GitHub, which does not support groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "Pass-through Zscaler Identity: Passes the Zscaler login name as is.",
+            "Change Domain to: Replaces the domain part of the username with a different domain name that you choose in the Change Domain to drop-down menu.",
+            "Zscaler recommends that you not use this option for GitHub.",
+            "Remove Domain Name: Deletes the domain part of the user name in the response and passes only the user ID.",
+            "Pass-on Group Details: Enable to send all group information of the user in the response. For GitHub, select Disable because groups are not supported on GitHub.",
+            "Group Identifier Name: Enter the group attribute name."
+          ]
+        }
+      ]
+    },
+    "m365-federation": {
+      "statement": "For Microsoft 365 the domain is federated through a PowerShell template whose logon URL is https://idp.<Zscaler Cloud Name>/samlsso/<Issuer Entity Id> and logoff URL https://logout.<Zscaler Cloud Name>/, with SAMLP as the preferred protocol; success shows as login.microsoftonline.com redirecting to IdP.<Zscaler Cloud Name>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "$LogOnUrl=\"https://idp.<Zscaler Cloud Name>/samlsso/<Issuer Entity Id>\" $LogOffUrl=\"https://logout.<Zscaler Cloud Name>/\"",
+            "-PreferredAuthenticationProtocol \"SAMLP\"",
+            "Log in to Office 365 Portal and verify if login.microsoftonline.com gets redirected to IdP.<Zscaler Cloud Name> for authentication."
+          ]
+        }
+      ]
+    },
+    "google-limits": {
+      "statement": "The Google Apps setup applies only if Identity Proxy is enabled for the whole organization (a specific organization unit is covered in Google's documentation), and Google users assigned administrator roles cannot use SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "This configuration only applies if Identity Proxy is enabled for the whole organization. If your organization requires configuration for a specific organization unit (OU), refer to the Google documentation.",
+            "Users who are assigned administrator roles in Google cannot use SSO."
+          ]
+        }
+      ]
+    },
+    "app-side-settings": {
+      "statement": "App-side settings the guide requires include HTTP POST for the service-provider request binding in Salesforce, the User Field set to email in ServiceNow, and Sign the Response deselected in Slack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-zscaler-identity-proxy-cloud-apps.json",
+          "quotes": [
+            "To set up SSO with Salesforce:",
+            "Service Provider Initiated Request Binding: Select HTTP POST.",
+            "To set up SSO with ServiceNow:",
+            "User Field: Ensure that this is set to email.",
+            "To set up SSO with Slack:",
+            "Sign the Response: Deselect this checkbox."
+          ]
+        }
+      ]
+    },
+    "when-shown": {
+      "statement": "Identity Proxy error codes are shown when the cloud app's (service provider's) authentication request fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-identity-proxy-error-codes.json",
+          "quotes": [
+            "Identity Proxy error codes are displayed when the service provider (i.e., cloud app) authentication requests fail."
+          ]
+        }
+      ]
+    },
+    "org-and-config": {
+      "statement": "Organization and configuration codes: 0x1388 organization not found (invalid or deleted); 0x1389 Identity Proxy disabled for the app (enable Zscaler as its IdP proxy); 0x13B7 cloud app disabled (enable it); 0x13CA IdP disabled during authentication (enable it). These say to retry after a few seconds and contact Support if the error persists: 0x13B8 app configuration modified, 0x13C9 organization deleted, and 0x13CC and 0x13CD app configuration disabled or deleted during authentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-identity-proxy-error-codes.json",
+          "quotes": [
+            "| 0x1388 | The organization wasn't found. | The organization is invalid or might have been deleted. |",
+            "| 0x1389 | Identity Proxy is disabled for the cloud app. | Enable Zscaler as the IdP proxy for the cloud app. |",
+            "| 0x13B7 | The cloud app is disabled. | Enable the cloud app for your organization. |",
+            "| 0x13CA | The IdP is disabled during the authentication process. | Enable the IdP for your organization. |",
+            "| 0x13B8 | The cloud app configuration was modified during the authentication process. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13C9 | The organization was deleted during the authentication process. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13CC | The cloud app configuration was disabled or deleted during the authentication process. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13CD | The cloud app configuration was disabled or deleted during the authentication process. | Retry after a few seconds. If the error persists, contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "user-codes": {
+      "statement": "User codes: 0x13AF to 0x13B3, 0x13BC and 0x13D0 user not found (it may have been deleted; re-add it); 0x13C1 hosted-database user entered the wrong password; 0x13C6 user authenticated with another organization that has no identity proxy (log out and sign in with the right account). These say to retry and then contact Support: 0x13C2 and 0x13C3 ZAB unreachable, 0x13C4 ZAB user wrong password, 0x1398 to 0x139A invalid user, cookie or session, 0x13CB invalid cookie, and 0x13B4 and 0x13B5 invalid domain (user transformation failed).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-identity-proxy-error-codes.json",
+          "quotes": [
+            "| 0x13AF | The user wasn't found. | The user might have been deleted. Re-add the user. |",
+            "| 0x13B0 | The user wasn't found. | The user might have been deleted. Re-add the user. |",
+            "| 0x13B1 | The user wasn't found. | The user might have been deleted. Re-add the user. |",
+            "| 0x13B2 | The user wasn't found. | The user might have been deleted. Re-add the user. |",
+            "| 0x13B3 | The user wasn't found. | The user might have been deleted. Re-add the user. |",
+            "| 0x13BC | The user wasn't found. | The user might have been deleted. Re-add the user. |",
+            "| 0x13D0 | The user wasn't found. | The user might have been deleted. Re-add the user. |",
+            "| 0x13C1 | The user is stored in the Zscaler Hosted User Database and entered the wrong password. | Check if the user is entering the correct password. |",
+            "| 0x13C6 | The user might be authenticated with another organization that doesn't have an identity proxy configured. | The user must log out from their existing Zscaler account and log in using the account with the identity proxy configured. |",
+            "| 0x13C2 | The user is synchronized with the Zscaler Authentication Bridge (ZAB). The Zscaler service was unable to connect to the ZAB. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13C3 | The user is synchronized with the ZAB. The Zscaler service was unable to connect to the ZAB. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13C4 | The user is synchronized with the ZAB and entered the wrong password. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1398 | An invalid user, cookie, or session. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1399 | An invalid user, cookie, or session. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x139A | An invalid user, cookie, or session. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13CB | An invalid cookie. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13B4 | The domain in the SAML request is invalid. The Zscaler service was unable to perform user transformation. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13B5 | The domain in the SAML request is invalid. The Zscaler service was unable to perform user transformation. | Retry after a few seconds. If the error persists, contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "saml-request-codes": {
+      "statement": "SAML request codes, all with the action to retry after a few seconds and contact Support if the error persists: 0x138B invalid request; 0x1396 no ID; 0x139B invalid timestamp; 0x139C invalid version; 0x139D, 0x13CE, 0x13CF and 0x13D1 outdated request; 0x13A4 app not supported; 0x13A5 request from an unknown Public Service Edge; 0x13A6 invalid SAML endpoint; 0x13A9 (printed as '0x 13A9') and 0x13AA no SAML request in the payload; 0x13AB and 0x13AC decode failure; 0x13AD request path too long; 0x13AE wrong cloud; 0x13BD request took too long; 0x13C7 no key to sign the response; 0x13C8 wrong binding (no POST received).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-identity-proxy-error-codes.json",
+          "quotes": [
+            "| 0x138B | An invalid SAML request was received. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1396 | No ID was found in the SAML request. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x139B | The timestamp in the SAML request is invalid. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x139C | The version in the SAML request is invalid. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x139D | The SAML request is outdated. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13CE | The SAML request is outdated. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13CF | The SAML request is outdated. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13D1 | The SAML request is outdated. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13A4 | The cloud app in the SAML request isn't supported. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13A5 | The SAML request came from an unknown Public Service Edge for Internet & SaaS. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13A6 | The SAML endpoint is invalid. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x 13A9 | No SAML request was found in the payload. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13AA | No SAML request was found in the payload. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13AB | The SAML request failed to decode. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13AC | The SAML request failed to decode. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13AD | The SAML request path is too long. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13AE | The SAML request was sent to the wrong cloud. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13BD | The SAML request took too long to complete. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13C7 | There is no key to sign the SAML response. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13C8 | Wrong binding method. The Zscaler service didn't receive a POST request. | Retry after a few seconds. If the error persists, contact Zscaler Support. |"
+          ]
+        }
+      ]
+    },
+    "transient-and-internal": {
+      "statement": "Transient cloud issues are 0x138A, 0x138C to 0x1395, 0x139E to 0x13A1, 0x13A3 and 0x13BE to 0x13C0; internal errors are 0x13B6, 0x13B9, 0x13BA, 0x13C5 and 0x13D2. For all of them the action is to retry after a few seconds and contact Zscaler Support if the error persists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-identity-proxy-error-codes.json",
+          "quotes": [
+            "| 0x138A | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x138C | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x138D | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x138E | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x138F | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1390 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1391 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1392 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1393 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1394 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x1395 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x139E | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x139F | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13A0 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13A1 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13A3 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13BE | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13BF | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13C0 | A transient cloud issue. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13B6 | An internal error occurred. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13B9 | An internal error occurred. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13BA | An internal error occurred. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13C5 | An internal error occurred. | Retry after a few seconds. If the error persists, contact Zscaler Support. |",
+            "| 0x13D2 | An internal error occurred. | Retry after a few seconds. If the error persists, contact Zscaler Support. |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "saml-version-value": {
+      "kind": "semantic",
+      "title": "Which SAML version the Zscaler IdP implements",
+      "status": "open",
+      "detail": "The settings page shows the SAML version implemented by the Zscaler IdP as a fixed field, but the captured pages do not give its value.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "device-identity-attribute": {
+      "kind": "semantic",
+      "title": "What the device identity attribute is",
+      "status": "open",
+      "detail": "The unmanaged-device flow decides on the device identity attribute from the customer's IdP. The pages describe only two managed-device options, the Is Device Managed attributes (with Authentication Service) and the Device Trust Attribute and its value (without it); they do not say what the device identity attribute is beyond those.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "decision-log": {
+      "kind": "semantic",
+      "title": "Which log records an Identity Proxy block or isolate decision",
+      "status": "open",
+      "detail": "The pages say transactions from Zero Trust Browser are logged, but not which log records the Identity Proxy's own block or isolate decision.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "other-cloud-apps-detection": {
+      "kind": "semantic",
+      "title": "Whether Other Cloud Apps get the same managed-device detection and actions",
+      "status": "open",
+      "detail": "The managed-device options and the Block or Browser Isolate actions are described in the guide covering all the named apps; whether apps configured as Other Cloud Apps get the same is not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "api-surface": {
+      "kind": "semantic",
+      "title": "Whether Identity Proxy Settings has an API, SDK or Terraform surface",
+      "status": "open",
+      "detail": "The Adding API Roles article lists Identity Proxy Settings among the Administration Controls categories, so an API surface probably exists. The OpenAPI specification, the SDKs and the Terraform provider were not checked.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "missing-codes": {
+      "kind": "semantic",
+      "title": "Codes with no row in the error table",
+      "status": "open",
+      "detail": "The table has no rows for 0x1397, 0x13A2, 0x13A7, 0x13A8 or 0x13BB, which lie inside the range it covers. This is an absence in the captured table; no meaning should be inferred for them.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "where-code-shown": {
+      "kind": "semantic",
+      "title": "Where the user sees an Identity Proxy error code, and how codes sharing a description differ",
+      "status": "open",
+      "detail": "The table does not say whether a code appears on a browser page or in an app, and does not tell apart codes that share a description (for example the seven 'user wasn't found' codes).",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

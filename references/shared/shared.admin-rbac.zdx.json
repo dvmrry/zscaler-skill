@@ -1,0 +1,855 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.zdx",
+  "title": "ZDX admin roles: predefined and custom roles, permissions, obfuscation and admin scope",
+  "aliases": [
+    "zdx admin",
+    "zdx admins",
+    "zdx role management",
+    "zdx super admin",
+    "zdx read-only admin",
+    "zdx service desk tier 1",
+    "zdx admin scope",
+    "digital experience role management",
+    "zdx obfuscated user name",
+    "zdx default admin"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zpa"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "zdx.api.hosts-and-auth"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A ZDX admin is a sign-in with a role, which holds the permissions, and a scope, which limits whose data and which settings the admin reaches. {{admin-record}} {{predefined-roles}} {{scopes}}"
+    },
+    {
+      "label": "Who the admin is.",
+      "text": "{{first-time-provisioning}} {{first-time-role}} {{auth-service-read-only}} {{admin-authentication}} {{scim-delete-action}} {{reported-department}} What the Applications scope limits is open {{gap:applications-scope}}."
+    },
+    {
+      "label": "Adding and managing admins.",
+      "text": "{{add-admin}} {{view-outside-scope}} {{credential-overwrite}} {{cross-product-limits}}"
+    },
+    {
+      "label": "Roles.",
+      "text": "{{unified-rbac}} {{role-access-icons}} {{tier-dependent-permissions}} {{time-duration}} What the duration limits is open {{gap:role-time-duration}}. {{service-desk-tiers}} The OneAPI getting-started page words Tier 1 differently: [[zdx.api.hosts-and-auth]]. Tiers beyond Tier 1 are not documented {{gap:service-desk-tiers-beyond-1}}."
+    },
+    {
+      "label": "Permissions in a custom role.",
+      "text": "{{dashboard-permission}} {{obfuscation}} {{obfuscation-blocks}} {{zcc-privacy-obfuscation}} {{ucaas-permission}} {{analytics-permission}} {{remediation-permissions}} {{configuration-access}} {{administrator-management-permission}} {{diagnostics-permission}} {{alerts-permission}} {{other-permissions}} The permission names differ between the articles {{gap:permission-names}}."
+    },
+    {
+      "label": "Scope in practice.",
+      "text": "{{scope-alert-rules-location}} {{scope-covers-rule}} {{scope-alert-rules-department}} {{scope-limits-delegation}} {{organization-scope-only}} {{scope-views}} {{scope-dashboard-apps}} {{rules-outlive-admin}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{org-limits}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an admin who cannot see or change something, the role's permission for that page and the admin's scope, which are separate.",
+      "uses": [
+        "predefined-roles",
+        "scopes",
+        "scope-views",
+        "organization-scope-only"
+      ]
+    },
+    {
+      "do": "For missing user, device or location names, whether the role has the User Name, Device Name or Location permission set to Obfuscated, and whether Client Connector's privacy collection settings are disabled.",
+      "uses": [
+        "obfuscation",
+        "obfuscation-blocks",
+        "zcc-privacy-obfuscation"
+      ]
+    },
+    {
+      "do": "For an admin who cannot configure an alert rule, whether the rule's locations or departments fall inside the admin's scope.",
+      "uses": [
+        "scope-covers-rule",
+        "scope-alert-rules-location",
+        "scope-alert-rules-department"
+      ]
+    },
+    {
+      "do": "For a Service Desk Tier 1 admin, read its permissions from the Service Desk article's list and the role's own Obfuscated and Visible settings rather than from the OneAPI page's wording.",
+      "uses": [
+        "service-desk-tiers",
+        "role-access-icons",
+        "service-desk-tiers-beyond-1"
+      ]
+    }
+  ],
+  "claims": {
+    "auth-service-read-only": {
+      "statement": "On tenants subscribed to Authentication Service, the ZDX Administrators page lists admins as read-only and certain options on the Role Management and Administrators pages are not available because of read-only permissions; ZDX admins can be configured in the Zscaler Admin Console, and the Administrator Management page shows a link to Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-administrators.json",
+          "quotes": [
+            "the admins are listed as read-only if you are subscribed to Authentication Service",
+            "You can configure ZDX admins in the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-zdx-role-based-administration.json",
+          "quotes": [
+            "On the Digital Experience Role Management page, certain options are not available if you are subscribed to Authentication Service due to read-only permissions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-admins.json",
+          "quotes": [
+            "On the Administrators page, certain options are not available if you are subscribed to Authentication Service due to read-only permissions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-administrator-management-settings.json",
+          "quotes": [
+            "The Administrator Management page shows a link to the Authentication Service if you are subscribed to Authentication Service."
+          ]
+        }
+      ]
+    },
+    "admin-record": {
+      "statement": "Each admin on the ZDX Administrators page has a Login ID (the email address used to log in), a scope (Organization, Location, Applications, or Department), a Login Type (a configured password or SAML), a Password Expired indicator, and a Status of Enabled or Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-administrators.json",
+          "quotes": [
+            "Login ID: The email address that is used to log in.",
+            "Scope: The admin scope (Organization, Location, Applications, or Department).",
+            "Login Type: This is either a configured password for the ZDX admin or SAML.",
+            "Password Expired: If the configured password has expired, this field indicates True.",
+            "Status: Indicates if the admin is currently Enabled or Disabled."
+          ]
+        }
+      ]
+    },
+    "scopes": {
+      "statement": "The default ZDX admin has the Organization scope over the entire organization, every additional admin must be assigned a scope, a Location scope can be limited by assigning a Zscaler Location, and a Department scope by assigning a department.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "The default ZDX admin is assigned the Organization scope over the entire organization. For each additional admin you create, you must assign one of the following scopes:",
+            "When selecting Location as a scope, you can assign a Zscaler Location to limit their area of impact.",
+            "When selecting Department, you can assign a department to limit their area of impact."
+          ]
+        }
+      ]
+    },
+    "scope-alert-rules-location": {
+      "statement": "In the article's example, an admin whose scope is Germany and France must make a selection for the alert rule's Locations criteria and can choose only those two, and the rule applies only to users, department or group members who are in Germany or France.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "Admin A is required to make a selection for the Locations criteria. Because of her scope, only Germany and France are available for selection.",
+            "However, the alert rule only applies to users, department, or group members who are in Germany or France."
+          ]
+        }
+      ]
+    },
+    "scope-alert-rules-department": {
+      "statement": "In the article's example, an admin whose scope is the HR and IT departments must select Departments for the alert rule from only those; a selected department applies the rule to all its users whichever users are selected, a selected user group applies it to all group members regardless of department, and Zscaler recommends avoiding All User Group as the user group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "Admin B is required to make a selection for the Departments criteria. Only the HR and IT departments are available for selection.",
+            "If Admin B selects a department under the Departments criteria, the alert rule applies to all users in that department, no matter which users Admin B selects under the Users criteria.",
+            "Admin B is required to select a User Group. The alert rule applies to all members of the specified group, regardless of their associated department.",
+            "Zscaler recommends that you avoid selecting All User Group for a User Group."
+          ]
+        }
+      ]
+    },
+    "scope-covers-rule": {
+      "statement": "In the article's example, only an admin with scope over both Germany and France can configure an alert rule whose locations are Germany and France.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "consider an alert rule that has a location criterion for Germany and France.",
+            "Only an admin with scope over both Germany and France can configure this alert rule."
+          ]
+        }
+      ]
+    },
+    "scope-limits-delegation": {
+      "statement": "If admins have permission to manage admins, their scope limits the scope they can assign other admins; in the article's example, an admin assigning a department-category scope can choose any (or all) departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "If admins have permission to manage admins, their scope limits the scope that they can assign other admins.",
+            "If she wants to assign the admin a scope in the department category, she can choose any (or all) departments."
+          ]
+        }
+      ]
+    },
+    "organization-scope-only": {
+      "statement": "Only admins with scope over the entire organization can configure organization-wide alert rules, inventory settings and information; configuring Inventory or Self Service settings, changing the Integration settings (Data Collection, SaaS App Tenants and Webhooks) and changing Authentication settings each need Organization scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "Only admins who have scope over the entire organization can configure organization-wide alert rules, inventory settings, and information.",
+            "For Settings, admins require Organization scope to configure Inventory or Self Service settings.",
+            "| Administration > Integration Data Collection SaaS App Tenants Webhooks | For Integration Settings, admins require Organization scope to make changes. |",
+            "For Authentication settings, admins require Organization scope to make changes."
+          ]
+        }
+      ]
+    },
+    "scope-views": {
+      "statement": "On the ZDX Dashboard, Applications, User and Inventory pages an admin can only view impacted users and their devices within their scope; for Diagnostics an admin configures sessions for users in scope and for probes configures them for applications in scope. In User Management an admin scoped to specific departments views only those departments' users (Organization scope or location scope views all users), in Location Management an admin scoped to specific locations views only those (Organization scope or department scope views all), and scope does not affect My Profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "For ZDX Dashboard, Applications, User, and Inventory, an admin can only view impacted users and their devices based on their area of scope.",
+            "For Diagnostics, admins can configure sessions for users based on their assigned scope. For probes, a user can configure probes for applications within their area of scope.",
+            "For User Management, if admins are assigned scope over specific departments, they can only view users from those departments. If admins are assigned Organization scope or scope over locations, admins can view all users.",
+            "For Location Management, if admins are assigned scope over specific locations, they can only view locations from their scope location. If admins are assigned Organization scope or scope over departments, admins can view all locations.",
+            "Scope does not impact My Profile."
+          ]
+        }
+      ]
+    },
+    "scope-dashboard-apps": {
+      "statement": "In the article's example, an admin scoped to the HR department sees on the ZDX Dashboard only the applications that are assigned to HR.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "consider an admin with the scope assigned to HR and has access to the ZDX Dashboard.",
+            "The admin only sees applications that are assigned to HR."
+          ]
+        }
+      ]
+    },
+    "rules-outlive-admin": {
+      "statement": "An alert rule or setting is associated with an admin's role and admin scope rather than a particular admin, so when an admin leaves the organization and their account is deleted, the alert rules they created are not affected and remain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-admin-scope.json",
+          "quotes": [
+            "This is because an alert rule or setting is associated with an admin’s role and admin scope rather than a particular admin.",
+            "If that admin leaves the organization and their account is deleted, the alert rules they created are not affected and remain."
+          ]
+        }
+      ]
+    },
+    "reported-department": {
+      "statement": "If a user switches departments or locations, the user's data is reported for the latest configured department or location.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-admins.json",
+          "quotes": [
+            "If a user switches departments or locations, the user's data is reported for the latest configured department or location."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-administrators.json",
+          "quotes": [
+            "If a user switches departments or locations, the user's data is reported as the latest configured department or location."
+          ]
+        }
+      ]
+    },
+    "admin-authentication": {
+      "statement": "If the Zscaler-hosted admin database authenticates admins, password expiration can be enabled for all admins logging in to Internet & SaaS and Digital Experience (ZDX); admins can instead be authenticated via SAML against an external admin database, where the service supports identity provider (IdP)-initiated SAML, supports SAML 2.0 and later, and does not enforce password expiration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-administrator-management-settings.json",
+          "quotes": [
+            "If you're using the Zscaler-hosted admin database to authenticate admins, you can enable password expiration for all admins logging in to the Internet & SaaS and Digital Experience (ZDX).",
+            "Admins can be authenticated via SAML using an external admin database rather than the admin database in ZDX.",
+            "The Zscaler service supports identity provider (IdP)-initiated SAML to authenticate admins.",
+            "The Zscaler service supports SAML 2.0 and later.",
+            "The Zscaler service doesn't enforce password expiration for external admin databases using SAML."
+          ]
+        }
+      ]
+    },
+    "scim-delete-action": {
+      "statement": "An action can be chosen for when SCIM deletes a linked user account: Do Nothing leaves the ZDX admin account in place and Delete Account deletes it as well.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-administrator-management-settings.json",
+          "quotes": [
+            "Do Nothing: When SCIM deletes a linked user account, the ZDX admin account is not deleted.",
+            "Delete Account: When SCIM deletes a linked user account, the ZDX admin account is also deleted."
+          ]
+        }
+      ]
+    },
+    "add-admin": {
+      "statement": "Managing a ZDX admin by adding, editing or deleting needs the Full permission level for Administrator Management. A new admin's Login ID takes the format <admin-name>@<company-name>.com and cannot be overwritten, its role is selected from the available options, and its password must contain at least 10 characters including 1 number, 1 uppercase, 1 lowercase and 1 special character, with no whitespace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-admins.json",
+          "quotes": [
+            "After you have the Full permission level for Administrator Management, you can manage and configure a Digital Experience (ZDX) Admin by adding, editing, or deleting a ZDX Admin.",
+            "Login ID: Enter an ID in the format of <admin-name>@<company-name>.com.",
+            "This field cannot be overwritten, even if the other credentials are also used for Internet & SaaS.",
+            "Role: Select a role from the available options."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-admins.json",
+          "after": "Set Password: Create a password and enter it again to confirm it.",
+          "quotes": [
+            "The password must contain at least 10 characters and include 1 number, 1 uppercase character, 1 lowercase character, and 1 special character. The password must not contain whitespace."
+          ]
+        }
+      ]
+    },
+    "view-outside-scope": {
+      "statement": "An admin can view a configured admin outside their own scope and role with the View icon, but with only view permission cannot manage it (for example delete, edit or create).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-admins.json",
+          "quotes": [
+            "You can view a configured admin outside your scope and role by clicking the View icon. If you have view permission for a configured admin, you cannot manage the configured admin (e.g., delete, edit, create)."
+          ]
+        }
+      ]
+    },
+    "credential-overwrite": {
+      "statement": "If a ZDX admin is created with the same credentials as an existing Internet & SaaS admin, the ZDX credentials override what was created for Internet & SaaS except the Login ID, so the Internet & SaaS password will have changed at the next login there.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-admins.json",
+          "quotes": [
+            "If you create an admin user for ZDX with the same credentials used to previously create an admin for Internet & SaaS, the admin credentials for the new user in ZDX override what was created for Internet & SaaS, excluding the Login ID.",
+            "So, upon your next login to Internet & SaaS, the Login ID remains the same, but the admin's password will have changed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-zdx-role-based-administration.json",
+          "quotes": [
+            "Attributes configured in ZDX (excluding Login ID) are overwritten across all admin profiles."
+          ]
+        }
+      ]
+    },
+    "cross-product-limits": {
+      "statement": "Admins can be added in ZDX who are also admins in Internet & SaaS; with different permissions for the two, certain functions are limited (for example an admin cannot edit their own ZDX role), and Internet & SaaS credentials cannot be used to log in to ZDX (for example, when the organization is not using that service).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-zdx-role-based-administration.json",
+          "quotes": [
+            "It is possible to add admins in Digital Experience (ZDX) who are also admins in Internet & SaaS.",
+            "If you have different admin permissions for ZDX and Internet & SaaS, then certain functions are limited. For example, an admin cannot edit their own ZDX role.",
+            "Your Internet & SaaS credentials can't be used to log in to ZDX. For example, an Internet & SaaS admin can't log in to ZDX, if their organization is not using that service."
+          ]
+        }
+      ]
+    },
+    "first-time-provisioning": {
+      "statement": "Zscaler Support sets up a default admin role and sends an email requesting a password reset for it; the default admin role shows all functions of ZDX and is needed to onboard ZDX but is not recommended for day-to-day use, its settings cannot be changed although a role type is still needed to create other admins and role types, and Zscaler recommends creating your own admin user, used as the primary user details for better auditing and tracking; the new role is to pair with the default admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-first-time-provisioning-zdx-admins.json",
+          "quotes": [
+            "Support will set up a default admin role and send an email requesting the password be reset for that role.",
+            "You will be able to see all functions of ZDX due to the default admin role.",
+            "This default admin role is necessary to onboard ZDX for your organization, but it is not recommended for day-to-day use.",
+            "Zscaler recommends creating your own admin user for yourself.",
+            "This should be used as your primary user details for better auditing and tracking in ZDX.",
+            "Even though the default admin settings cannot be changed, a role type is still needed to allow the creation of other admins and role types.",
+            "This role is to pair with the default admin created initially."
+          ]
+        }
+      ]
+    },
+    "first-time-role": {
+      "statement": "The first-time provisioning article edits the new role to have the highest level of permissions: Dashboard View Only, Configuration Full, Admin Management Full, User & Device Names Visible, Locations View Only and User Management View Only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-first-time-provisioning-zdx-admins.json",
+          "quotes": [
+            "Edit the new role to have the highest level of permissions:",
+            "Dashboard: View Only",
+            "Configuration: Full",
+            "Admin Management: Full",
+            "User & Device Names: Visible",
+            "Locations: View Only",
+            "User Management: View Only"
+          ]
+        }
+      ]
+    },
+    "predefined-roles": {
+      "statement": "The predefined ZDX roles are ZDX Super Admin (read, add, edit, delete and manage permissions; the default admin account uses it), ZDX Read-Only Admin (read permissions only) and ZDX Service Desk Tier 1 (read permissions to the Users Dashboard and access to the User Search). A predefined role cannot be edited or deleted, an admin with ZDX Super Admin level privileges can create a custom role, and Zscaler recommends adding roles before admins because each admin needs one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-zdx-role-based-administration.json",
+          "quotes": [
+            "ZDX Super Admin: An admin with this role has read, add, edit, delete, and manage permissions in ZDX. The default admin account uses this role.",
+            "ZDX Read-Only Admin: An admin with this role only has read permissions in ZDX.",
+            "ZDX Service Desk Tier 1: An admin with this role has read permissions to the Users Dashboard and access to the User Search.",
+            "If you are an admin with ZDX Super Admin level privileges, you can also create a custom ZDX Role for your organization.",
+            "Zscaler recommends that you add roles before adding admins, because you must select a role for each admin that you create."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-roles.json",
+          "quotes": [
+            "You cannot edit or delete a predefined role (e.g., Super Admin)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-admins.json",
+          "quotes": [
+            "The predefined roles are ZDX Read-only Admin, ZDX Service Desk Tier 1, and ZDX Super Admin."
+          ]
+        }
+      ]
+    },
+    "service-desk-tiers": {
+      "statement": "The ZDX Service Desk Role is divided into tiers that each allow varying access based on the permissions assigned; Tier 1 has the following permissions, including User Dashboard, and when an admin has access to User Name the admin can access User Search.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-understanding-zdx-service-desk-role.json",
+          "quotes": [
+            "The ZDX Service Desk Role is divided into different tiers. Each tier allows the admin varying levels of access based on the permissions assigned.",
+            "When an admin has access to User Name, then the admin can access User Search.",
+            "Tier 1 has the following permissions:",
+            "User Dashboard"
+          ]
+        }
+      ]
+    },
+    "unified-rbac": {
+      "statement": "Where an organization uses Unified Role-Based Access Control (RBAC), administrator roles for ZDX are managed on a different Role Management page; Unified RBAC is a feature in limited availability, reached through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for ZDX are managed on a different Role Management page. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "role-access-icons": {
+      "statement": "A ZDX role the admin has Full access to shows the Edit and Delete icon, with View Only access it shows a View icon and cannot be edited or deleted, and the role list describes the information a role can view (Visible) and cannot view (Obfuscated).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-managing-zdx-roles.json",
+          "quotes": [
+            "ZDX Roles to which you have Full access are indicated by the Edit and Delete icon. If you have View Only access, then the ZDX Role shows a View icon and you cannot edit or delete them."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-about-zdx-role-based-administration.json",
+          "quotes": [
+            "Visible: Which information the role can view.",
+            "Obfuscated: Which information the role cannot view."
+          ]
+        }
+      ]
+    },
+    "tier-dependent-permissions": {
+      "statement": "Access permissions for some features of a ZDX role depend on the subscription level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Access permissions for some features depend on the subscription level."
+          ]
+        }
+      ]
+    },
+    "time-duration": {
+      "statement": "A ZDX role is given a time duration chosen from a list of hour values that includes 12, 24 and 48 hours; the default is Full Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Choose one of the following time durations for the ZDX Role:",
+            "The default is set to Full Access."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "after": "Choose one of the following time durations for the ZDX Role:",
+          "quotes": [
+            "12 hours",
+            "24 hours",
+            "48 hours"
+          ]
+        }
+      ]
+    },
+    "dashboard-permission": {
+      "statement": "A role's permission for the predefined dashboards and overviews is View Only (all dashboards and overviews) or Custom (specific ones), with a separate choice for the Performance dashboard, Application Overview, Application details, Users Overview, User Details, Incidents dashboard, Probe Assignment system-generated report, ZIA Private Service Edge Health dashboard, Network Intelligence dashboard and Device Events reports. If the Dashboard permission setting is View Only or the UCaaS permission setting is View Only or Full, the ZDX Dashboard and applications can be viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "after": "Choose one of the following permissions for access to the predefined dashboards and overviews:",
+          "quotes": [
+            "View Only: Allows admins to view all dashboards and overviews.",
+            "Custom: Allows admins to view specific dashboards or overviews.",
+            "Choose one of the following permissions for access to the Performance dashboard:",
+            "Choose one of the following permissions for access to the Application Overview:",
+            "Choose one of the following permissions for access to the Application details:",
+            "Choose one of the following permissions for access to the Users Overview:",
+            "Choose one of the following permissions for access to the User Details:",
+            "Choose one of the following permissions for access to the Incidents dashboard:",
+            "Choose one of the following permissions for access to the Probe Assignment system-generated report:",
+            "Choose one of the following permissions for access to the Zscaler Internet Access (ZIA) Private Service Edge Health dashboard:",
+            "Choose one of the following permissions for access to the Network Intelligence dashboard:",
+            "Choose one of the following permissions for access to the Device Events reports:",
+            "If the Dashboard permission setting is set to View Only or the UCaaS permission setting is set to View Only or Full, you can view the ZDX Dashboard and applications."
+          ]
+        }
+      ]
+    },
+    "obfuscation": {
+      "statement": "The permission for device and user information has a Custom choice with specified permissions for User Name, Location, Device Name or IP Address, and one for the device's Wi-Fi Name. If the User Name permission is Visible an admin has access to User Search and can download a CSV table for Software Inventory; if it is Obfuscated the admin has neither. If the Device Name permission is Obfuscated the admin cannot download that CSV table, and location obfuscation occurs on the Users Overview and User Details pages only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Choose one of the following permissions for access to the device and user information:",
+            "Custom: Allows admins to view specific device and user information.",
+            "For Custom, choose to give the following specified permissions for access to User Name, Location, Device Name, or IP Address:",
+            "If the User Name permission is set to Visible, then an admin has access to User Search and the ability to download a table in CSV format for Software Inventory.",
+            "If the User Name permission is set to Obfuscated, then the admin does not have access to User Search and cannot download a table in CSV format for Software Inventory.",
+            "Location obfuscation occurs on Users Overview and User Details pages only.",
+            "If the Device Name permission is set to Obfuscated, then the admin cannot download a table in CSV format for Software Inventory.",
+            "Choose one of the following permissions for access to the device's Wi-Fi Name:"
+          ]
+        }
+      ]
+    },
+    "zcc-privacy-obfuscation": {
+      "statement": "If Zscaler Client Connector's Collect Machine Hostname Information or Collect Device Owner Information is disabled, ZDX obfuscates BSSID, SSID, Device Name and hostname.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "If Zscaler Client Connector's Collect Machine Hostname Information or Collect Device Owner Information is disabled, then ZDX obfuscates BSSID, SSID, Device Name, and hostname."
+          ]
+        }
+      ]
+    },
+    "obfuscation-blocks": {
+      "statement": "An admin cannot configure for users when the User Name permission is set to Obfuscated, and if User Name and Device Information are set to Obfuscated, Diagnostics is not accessible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "You cannot configure for users when the User Name permission is set to Obfuscated.",
+            "If User Name and Device Information are set to Obfuscated, then Diagnostics is not accessible."
+          ]
+        }
+      ]
+    },
+    "ucaas-permission": {
+      "statement": "The UCaaS permission is Full (manage and view Call Quality applications and Call Quality Meetings pages), View Only (view them but not manage them) or Custom (manage and view specific ones), with separate permissions for Call Quality Configuration pages, Call Quality Meetings pages and Call Quality Applications pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Full: Allows admins to manage and view Call Quality applications and Call Quality Meetings pages.",
+            "View Only: Allows admins to view Call Quality applications and Call Quality Meetings pages, but not manage them.",
+            "Custom: Allows admins to manage and view specific Call Quality applications and Call Quality Meetings pages.",
+            "Choose one of the following permissions for access to Call Quality Configuration pages:",
+            "Choose one of the following permissions for access to Call Quality Meetings pages:",
+            "Choose one of the following permissions for access to Call Quality Applications pages:"
+          ]
+        }
+      ]
+    },
+    "analytics-permission": {
+      "statement": "Under the Analytics permission, Full or View Only lets admins view Analytics pages but not manage them and Custom lets them manage and view specific ones; for the QBR page, the System-Generated Reports page and the Zscaler Managed Monitoring page Full or View Only only views, Full on the ZDX Snapshots page manages it, and Full on the Data Explorer page manages the admin's own views, while an admin cannot manage another admin's Data Explorer views.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Full or View Only: Allows admins to view Analytics pages, but not manage them.",
+            "Custom: Allows admins to manage and view specific Analytics pages.",
+            "Full or View Only: Allows admins to view the QBR page, but not manage it.",
+            "Full or View Only: Allows admins to view the System-Generated Reports page, but not manage them.",
+            "Full: Allows admins to manage the ZDX Snapshots page.",
+            "Full: Allows admins to manage their views on the Data Explorer page.",
+            "An admin cannot manage another admin's Data Explorer views.",
+            "Full or View Only: Allows admins to view the Zscaler Managed Monitoring page, but not manage it."
+          ]
+        }
+      ]
+    },
+    "remediation-permissions": {
+      "statement": "Role permissions for Remediation are chosen per page: the Scripts page, the Script Templates page (Full allows admins to import the templates as scripts), the Remediation Jobs page and the Remediation Settings page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Choose one of the following permissions for access to the Scripts page:",
+            "Choose one of the following permissions for access to the Script Templates page:",
+            "Full: Allows admins to import the templates as scripts.",
+            "Choose one of the following permissions for access to the Remediation Jobs page:",
+            "Choose one of the following permissions for access to the Remediation Settings page:"
+          ]
+        }
+      ]
+    },
+    "configuration-access": {
+      "statement": "The permission for the Applications and Probes configuration gives with Full full access to Configuration Access, including enabling data collection for Software and Device Inventory on the Inventory Settings page and configuring Zscaler Managed Probes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Choose one of the following permissions for access to the Applications and Probes configuration:",
+            "Full: Allows admins full access to Configuration Access.",
+            "You can enable data collection for Software and Device Inventory on the Inventory Settings page.",
+            "You can configure Zscaler Managed Probes."
+          ]
+        }
+      ]
+    },
+    "administrator-management-permission": {
+      "statement": "One permission covers Administrator Management, Role Management, Location Management and Audit Logs, with Full allowing full access to Administrator Management; although roles are created in Role Management, they are managed by Super Admins. Separate permissions cover Zscaler locations (View Only views them) and Users, Groups and Departments in User Management (View Only views what has been set up).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Choose one of the following permissions for access to Administrator Management, Role Management, Location Management, and Audit Logs:",
+            "Although roles are created in Role Management, they are managed by Super Admins.",
+            "Full: Allows admins full access to Administrator Management.",
+            "View Only: Allows admins to view Zscaler locations.",
+            "View Only: Allows admins to view what has been set up in User Management.",
+            "Choose one of the following permissions for access to Zscaler locations:",
+            "Choose one of the following permissions for access to Users, Groups, and Departments in User Management:"
+          ]
+        }
+      ]
+    },
+    "diagnostics-permission": {
+      "statement": "With Full on Diagnostics an admin manages and views Diagnostics sessions and views and exports the results; with View Only the admin views session details but cannot export the results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Full: Allows admins to manage and view Diagnostics sessions, and also view and export the results.",
+            "View Only: Allows admins to view details of Diagnostics sessions, but not export the results."
+          ]
+        }
+      ]
+    },
+    "alerts-permission": {
+      "statement": "For alerts, Full lets admins configure and view alerts and receive alert notifications, View Only lets them view alerts and receive notifications depending on rule configuration, and None allows neither managing, viewing nor receiving them; labels can be assigned to an alert rule and a Workflow Automation created or assigned as a delivery method. Webhooks has its own permission, where Full allows creating, managing and viewing webhooks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Full: Allows admins to configure and view alerts, and also receive alert notifications.",
+            "View Only: Allows admins to view alerts and receive alert notifications, depending on rule configuration.",
+            "None: Does not allow admins to manage or view alerts, nor receive alert notifications.",
+            "You can assign labels to an alert rule. You can also create or assign a Workflow Automation as an alert delivery method.",
+            "Full: Allows admins to create, manage, and view webhooks."
+          ]
+        }
+      ]
+    },
+    "other-permissions": {
+      "statement": "Further permissions in a role cover Remote Assistance for ZDX (Full gives full access to Remote Assistance Management for ZDX, View Only views what has been set up there), Self Service (Full manages Self Service notifications for users and access to the Self Service dashboard, View Only views the dashboard), the Wi-Fi Dashboard (View Only views it), the Device Health dashboard (Full or View Only views it), Inventory Management (the Software, Hardware, and Process Settings pages), ZAgent, Zscaler Client Connector configurations and VIP information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zdx-adding-zdx-roles.json",
+          "quotes": [
+            "Choose one of the following permissions for access to Remote Assistance for ZDX:",
+            "Full: Allows admins to have full access to Remote Assistance Management for ZDX.",
+            "View Only: Allows admins to view what has been set up in Remote Assistance Management for ZDX.",
+            "Choose one of the following permissions for access to Self Service:",
+            "Full: Allows admins to manage Self Service notifications for users and access to the Self Service dashboard.",
+            "View Only: Allows admins to view the Self Service dashboard, but not manage Self Service notifications.",
+            "Choose one of the following permissions for access to the Wi-Fi Dashboard:",
+            "View Only: Allows admins to view the Wi-Fi Dashboard.",
+            "Full or View Only: Allows admins to view the Device Health dashboard.",
+            "Inventory Management includes the Software, Hardware, and Process Settings pages.",
+            "Choose one of the following permissions for access to ZAgent:",
+            "Choose one of the following permissions for access to Zscaler Client Connector configurations:",
+            "Choose one of the following permissions for access to VIP information:"
+          ]
+        }
+      ]
+    },
+    "org-limits": {
+      "statement": "In the ZDX organization limits, Admin Users per Organization is 10K admins (admin users can reside in Internet & SaaS or Private Access), Active Admins is 255 (admins connected to the cloud are considered active) and API Keys is 50.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "Digital Experience (ZDX) Ranges and Limitations",
+            "The following table shows the ranges and limitations for Organization settings:",
+            "| Admin Users per Organization | 10K admins Admin users can reside in Internet & SaaS or Private Access. |",
+            "| Active Admins | 255 active admins Admins connected to the cloud are considered active admins. |",
+            "| API Keys | 50 |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "applications-scope": {
+      "kind": "semantic",
+      "title": "What an Applications admin scope limits",
+      "status": "open",
+      "detail": "About Administrators lists Applications as a scope beside Organization, Location and Department, and the scope article's own sentence names only organization, location or department. No captured article says what an Applications scope limits.",
+      "blocks": "telling what an admin with the Applications scope can see or configure",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "role-time-duration": {
+      "kind": "semantic",
+      "title": "What a role's time duration limits",
+      "status": "open",
+      "detail": "Adding ZDX Roles offers a list of hour values and Full Access, with Full Access the default, and does not say what the duration limits, for example how far back data can be viewed. The OneAPI getting-started page gives Service Desk Tier 1 a limited time window; no source links the two.",
+      "blocks": "explaining why an admin sees only recent data",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "service-desk-tiers-beyond-1": {
+      "kind": "semantic",
+      "title": "The Service Desk tiers beyond Tier 1",
+      "status": "open",
+      "detail": "The Service Desk article says the role is divided into different tiers but lists only Tier 1's permissions, and the predefined roles article names only Tier 1.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "permission-names": {
+      "kind": "semantic",
+      "title": "Which permission each article's names map to",
+      "status": "open",
+      "detail": "First-time provisioning names Dashboard, Configuration, Admin Management and User & Device Names; Adding ZDX Roles names Dashboard, Configuration Access, Administrator Management and a permission for device and user information; the ServiceNow guides name Diagnostics, Webhooks, Configuration Access, Alerts, UCaaS Monitoring, Dashboard Access, Device and User Information and Deep Tracing. Adding ZDX Roles has no Deep Tracing permission, and no source says which of its permissions Deep Tracing Full means.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

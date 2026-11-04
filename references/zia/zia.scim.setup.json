@@ -63,10 +63,20 @@
     },
     {
       "label": "Which IdPs.",
-      "text": "{{idp-guides}} {{other-idps}} Whether vendor guides exist for other IdPs is open {{gap:legacy-idp-list}}. How each IdP maps the department attribute is not in the captured guides, see [[zia.scim.attribute-mapping]]."
+      "text": "{{idp-guides}} The configuration guides captured separately cover more IdPs than that article lists: {{guides-configuring-scim}} {{other-idps}} Whether SCIM works with the IdPs whose captured guides cover SAML only is open {{gap:legacy-idp-list}}. How each IdP maps the department attribute is in [[zia.scim.attribute-mapping]]."
+    },
+    {
+      "label": "Migrating from directory sync.",
+      "text": "{{migration-prerequisites}} {{migration-steps}}"
     }
   ],
   "checks": [
+    {
+      "do": "Whether a migration from directory sync keeps the repository type Active Directory rather than changing it to Hosted DB.",
+      "uses": [
+        "migration-prerequisites"
+      ]
+    },
     {
       "do": "Whether SCIM is enabled on the IdP and the base URL in the client matches the one shown after enabling.",
       "uses": [
@@ -225,18 +235,98 @@
           ]
         }
       ]
+    },
+    "guides-configuring-scim": {
+      "statement": "Zscaler's configuration guides cover SAML and SCIM together for Microsoft Entra ID, Okta and PingOne; the Google Workspace guide gives SAML settings (an ACS URL) and lists the SCIM features supported; and the PingFederate guide defers SAML and SCIM configuration to the PingFederate documentation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-microsoft-entra-id.json",
+          "quotes": [
+            "To configure SAML SSO and SCIM provisioning with Microsoft Entra ID:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-okta.json",
+          "quotes": [
+            "which enables the user to use SAML as the method of authentication and System for Cross-domain Identity Management (SCIM) as the method of provisioning."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-pingfederate.json",
+          "quotes": [
+            "To configure SAML Single Sign-On (SSO) and SCIM Provisioning with Zscaler and PingFederate, refer to the PingFederate documentation."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-pingone.json",
+          "quotes": [
+            "This guide illustrates how to configure SAML and SCIM with Ping Identity's PingOne server as the identity provider (IdP) for the Zscaler service."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-saml-scim-configuration-guide-google-workspace.json",
+          "quotes": [
+            "The SCIM features supported by the Zscaler and Google Workspace integration are:",
+            "ACS URL: Enter https://login.<Zscaler cloud name>.net:443/sfc_sso."
+          ]
+        }
+      ],
+      "gaps": [
+        "legacy-idp-list"
+      ]
+    },
+    "migration-prerequisites": {
+      "statement": "The AD-to-SCIM migration guide's prerequisites are the repository type set to Active Directory in the Admin Console, SAML for authentication with AD for provisioning, and AD syncing the database to Zscaler and the IdP. During the migration the database type must not be changed from Active Directory to Hosted DB: doing so can cause all existing user and group mappings to be deleted and creates duplicate users with SCIM provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-active-directory-scim-ldap-provisioning-migration-guide.json",
+          "quotes": [
+            "Set the repository type to Active Directory in the Zscaler Admin Console.",
+            "Use SAML for authentication and AD for provisioning.",
+            "Ensure that the AD is syncing the database to Zscaler and the identity provider (IdP).",
+            "When migrating from AD to SCIM, do not change the database type in the Zscaler Admin Console from Active Directory to Hosted DB. Doing so can cause all existing user and group mappings to be deleted and creates duplicate users with SCIM provisioning."
+          ]
+        }
+      ]
+    },
+    "migration-steps": {
+      "statement": "In the migration guide, Sync Now performs a manual sync with the AD so the service has the latest database, then Disable Directory Sync & Enable SCIM Provisioning is enabled; Zscaler recommends disabling Enable SAML Auto-Provisioning when using SCIM provisioning. After the IdP is configured, users syncing from the IdP should match those on the Users page, which stays read-only because the User Repository Type is Active Directory. If a ZAB is used, the guide says it is safe to disable the ZAB VM when no provisioning issues are observed after a few days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-active-directory-scim-ldap-provisioning-migration-guide.json",
+          "quotes": [
+            "2. Click Sync Now to perform a manual sync with the AD; this ensures that the Zscaler service has the latest database from the AD.",
+            "4. Enable Disable Directory Sync & Enable SCIM Provisioning.",
+            "Zscaler recommends that you disable Enable SAML Auto-Provisioning when using SCIM provisioning.",
+            "After the IdP is configured, ensure that users syncing from the IdP match those on the Users page in the Zscaler Admin Console.",
+            "User Management in the Zscaler Admin Console remains read-only because the User Repository Type is set to Active Directory.",
+            "If you are using Zscaler Authentication Bridge (ZAB), it is safe to disable the ZAB VM if there are no provisioning issues observed after a few days."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
     "legacy-idp-list": {
       "kind": "semantic",
-      "title": "Whether SCIM guides exist for PingOne, Google Workspace, AD FS, OneLogin and CA SSO",
-      "status": "open",
-      "detail": "Unverified legacy statement: Zscaler publishes SCIM guides for Entra ID, Okta, PingFederate, PingOne and Google Workspace, while AD FS, OneLogin and CA Single Sign-On are SAML only. The captured SCIM article lists guides for Entra ID, Okta and PingFederate only. The SCIM and SAML configuration guide index would settle it.",
+      "title": "Whether SCIM works with AD FS, OneLogin and CA SSO",
+      "status": "partial",
+      "detail": "The captured guides now source SAML and SCIM configuration for Entra ID, Okta, PingOne and Google Workspace, with PingFederate deferring to its own documentation (guides-configuring-scim). The captured AD FS 3.0, AD FS 2.0, OneLogin and CA Single Sign-On guides are titled SAML Configuration Guides and the extraction report found no SCIM text in them; that is an absence in those guides, not a statement that those IdPs cannot do SCIM. Whether SCIM works with them would be settled by the vendor's statement or a lab test.",
       "resolves_with": [
-        "source-read"
+        "source-read",
+        "support-ticket"
       ],
-      "blocks": "telling an operator which IdPs have vendor SCIM guides"
+      "blocks": "telling an operator whether AD FS, OneLogin or CA SSO can provision by SCIM"
     },
     "unregistered-domain-error": {
       "kind": "semantic",

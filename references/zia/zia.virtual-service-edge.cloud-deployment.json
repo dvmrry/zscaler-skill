@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "id": "zia.virtual-service-edge.cloud-deployment",
+  "title": "Deploying a Virtual Service Edge on Azure, AWS (with or without GWLB) and GCP",
+  "aliases": [
+    "vse azure",
+    "vse aws",
+    "vse aws gwlb",
+    "vse gcp",
+    "vse ec2 instance type",
+    "vse azure load balancer",
+    "vse gcp internal load balancer",
+    "vse gateway load balancer",
+    "vzen_with_gwlb"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.platforms"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.bring-up"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.sizing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.network-requirements"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.load-balancing"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.virtual-service-edge.reference-modules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Each public cloud has its own configuration page, and each claim here quotes its own platform's page. {{standalone-production-public-cloud}} The cluster article says the opposite {{divergence:standalone-production}}."
+    },
+    {
+      "label": "Interfaces.",
+      "text": "{{cloud-two-nics}} Which interface carries the control connection differs between pages {{divergence:control-interface}}. The VM specifications differ from the specifications table {{divergence:vm-resources}}."
+    },
+    {
+      "label": "Microsoft Azure.",
+      "text": "{{azure-vm}} {{azure-lb}}"
+    },
+    {
+      "label": "Amazon Web Services.",
+      "text": "{{aws-vm}} {{cloud-security-group}} {{aws-memory-scale-up}}"
+    },
+    {
+      "label": "AWS with Gateway Load Balancer.",
+      "text": "{{aws-gwlb}} The health check port example differs on the page {{gap:gwlb-health-port}}."
+    },
+    {
+      "label": "Google Cloud Platform.",
+      "text": "{{gcp-vm}} {{gcp-ilb}} The ingress ports are not quotable from the page {{gap:gcp-ingress-ports}}."
+    },
+    {
+      "text": "The install sequence on the VM is [[zia.virtual-service-edge.bring-up]]. The Terraform modules for AWS and Azure are in [[zia.virtual-service-edge.reference-modules]]."
+    }
+  ],
+  "claims": {
+    "standalone-production-public-cloud": {
+      "statement": "The Azure, AWS, AWS with Gateway Load Balancer and GCP pages each say Zscaler supports a standalone Virtual Service Edge for production deployments on that platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-azure.json",
+          "quotes": [
+            "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Microsoft Azure."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+          "quotes": [
+            "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Amazon Web Services (AWS)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services-gwlb.json",
+          "quotes": [
+            "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Amazon Web Services (AWS) with Gateway Load Balancer (GWLB)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-google-cloud-platform.json",
+          "quotes": [
+            "Zscaler supports stand-alone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on the Google Cloud Platform (GCP)."
+          ]
+        }
+      ]
+    },
+    "azure-vm": {
+      "statement": "The Azure page lists VM size Standard_E8as_v4 or Standard_E8ads_v5 for 64 GB RAM, 4 CPU cores, instance memory of 48 GB or 64 GB, Premium SSD storage, a 500 GB data disk, and the image Zscaler Internet Access Virtual Service Edge - x64 Gen1 set by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-azure.json",
+          "quotes": [
+            "VM Size: Standard_E8as_v4 or Standard_E8ads_v5 for 64 GB RAM.",
+            "CPU: 4 CPU cores. Each CPU core independently handles a portion of the traffic for the Virtual Service Edge.",
+            "Instance Memory: 48 GB or 64 GB.",
+            "Storage Type: Premium SSD.",
+            "Data disk size: 500 GB.",
+            "Image: The image is set to Zscaler Internet Access Virtual Service Edge - x64 Gen1 by default."
+          ]
+        }
+      ]
+    },
+    "cloud-two-nics": {
+      "statement": "On Azure the first network interface is the management IP address, used for control connections to the Zscaler cloud and SSH to the VM, and the second is the service IP address; two public IPs are listed and are not required when using a NAT, which works correctly as long as it has sufficient network bandwidth. On AWS the EC2 instance has one interface (eth0) by default but a Virtual Service Edge requires an additional interface (eth1) in the same subnet; eth0 is used for control connections and SSH and eth1 for proxy services, and the two Elastic IP addresses are not required when using a NAT. The GCP page lists 3 interfaces: NIC0 for the Virtual Service Edge, NIC1 for management and an optional NIC2 for the dual arm interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-azure.json",
+          "quotes": [
+            "Two network interfaces.",
+            "The first network interface is the management IP address. It's used to control connections to the Zscaler cloud and make an SSH connection to the Virtual Service Edge VM for configuration and management.",
+            "The second network interface is the service IP address.",
+            "Two public IPs.",
+            "The two public IPs are not required when using a NAT. A NAT network configuration works correctly as long as it has sufficient network bandwidth."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+          "quotes": [
+            "By default, the EC2 instance has one network interface (eth0), but a Virtual Service Edge requires an additional interface (eth1) in the same subnet.",
+            "The management interface (eth0) is used for control connections to the Zscaler cloud and to make an SSH connection to the Virtual Service Edge for configuration and management. The service interface (eth1) is used for proxy services.",
+            "Two Elastic IP addresses to assign a public IP address with both network interfaces.",
+            "The two Elastic IP addresses are not required when using a NAT."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-google-cloud-platform.json",
+          "quotes": [
+            "Network Interfaces: 3 interfaces (NIC0 for Virtual Service Edge, NIC1 for Management, and (Optional) NIC2 for the Dual Arm Interface)."
+          ]
+        }
+      ]
+    },
+    "cloud-security-group": {
+      "statement": "The AWS page says it is mandatory to deploy the instance behind a VM network security group; the instance requires only outbound connections to the Zscaler cloud and no inbound connections to the organization's network from it. SSH needs port 22 open for inbound connections, and in production only a specific IP address or range should be authorized, not 0.0.0.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+          "quotes": [
+            "It's mandatory to deploy the Virtual Service Edge instance behind a VM network security group. The Virtual Service Edge instance requires only outbound connections to the Zscaler cloud. It does not require any inbound connections to your network from the Zscaler cloud.",
+            "To connect to your EC2 instance via SSH, you must open port 22 for inbound connections. In production, authorize only a specific IP address or range of addresses to access your instance. Do not use 0.0.0.0."
+          ]
+        }
+      ]
+    },
+    "azure-lb": {
+      "statement": "With an Azure Load Balancer the Azure page selects an availability set for VMs with Azure LB, adds each VM's service IP address to the backend pool, uses the port exposed in the health probe, offers session persistence of None, Client IP, or Client IP and protocol, and leaves the idle timeout at the default 4 minutes and Floating IP (direct server return) at the default Disabled. For health probes to work a Firewall Filtering policy rule must allow Azure proxy and load balancer IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-azure.json",
+          "quotes": [
+            "Availability options: Select either No infrastructure redundancy required (for VMs without Azure Load Balancer (LB)) or Availability set (for VMs with Azure LB).",
+            "IP address: Select the corresponding service IP address.",
+            "Port: Enter the same port number that is exposed in the health probe.",
+            "Session persistence: Select a session persistence value based on your requirement. The values can be None, Client IP, or Client IP and protocol.",
+            "Idle timeout (minutes): Don't make any changes to the default value, 4.",
+            "Floating IP (direct server return): Don't make any changes to the default value, Disabled.",
+            "For health probes to work, you must create a Firewall Filtering policy rule to allow Azure proxy and load balancer IP addresses."
+          ]
+        }
+      ]
+    },
+    "aws-vm": {
+      "statement": "On AWS the Virtual Service Edge AMI is subscribed to from the AWS Marketplace AMIs tab and is unavailable in the China region. The page lists instance memory of 64 GB, a data disk of 501 GB with General Purpose 3 (GP3 SSD) recommended, and an EC2 instance with Elastic Network Adapter (ENA) enabled; the r7i.2xlarge type (64 GB, 8 cores, up to 12.5 Gbps, EBS-only) is listed and r8i.2xlarge is also supported based on regional availability. The instance is accessed via SSH only as the zsroot user with the private key of the selected key pair, and after deployment it receives automatic software updates from the Zscaler cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+          "quotes": [
+            "Before you begin deployment, subscribe to the Virtual Service Edge AMI from the AWS Marketplace AMIs tab.",
+            "The Virtual Service Edge AMI is unavailable in the China region (alternatively, you can consider China Premium Internet Access for the China region).",
+            "Instance Memory: 64 GB",
+            "Data disk size: 501 GB",
+            "Virtual Service Edge requires an AWS EC2 instance with Elastic Network Adapter (ENA) enabled.",
+            "| r7i.2xlarge | 64 GB | 8 | Up to 12.5 Gbps | EBS-Only |",
+            "Virtual Service Edges also support the r8i.2xlarge instance type based on regional availability.",
+            "General Purpose 3 (GP3 SSD) is recommended as the volume type.",
+            "AWS Virtual Service Edges can only be accessed via SSH using the zsroot user and the private key corresponding to the selected key pair.",
+            "After deployment, the Virtual Service Edge virtual machine (VM) receives automatic software updates from the Zscaler cloud."
+          ]
+        }
+      ]
+    },
+    "aws-memory-scale-up": {
+      "statement": "On AWS, scaling up instance memory impacts traffic through the Virtual Service Edges and must be done during a maintenance window; the page does it by selecting r7i.2xlarge and Change Instance Type. The instance might take up to 5 minutes to stop and up to 5 minutes to be SSHable again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+          "quotes": [
+            "Scaling up instance memory impacts the traffic through Virtual Service Edges. So, you must ensure to scale the instance memory during a maintenance window.",
+            "Select r7i.2xlarge and click Change Instance Type.",
+            "The Virtual Service Edge instance might take up to 5 minutes to stop.",
+            "The Virtual Service Edge instance might take up to 5 minutes to be SSHable again."
+          ]
+        }
+      ]
+    },
+    "aws-gwlb": {
+      "statement": "On the AWS with GWLB page, the AMI is obtained by asking Zscaler Support for a share, providing the AWS account ID and region, and is then found under Ownership by checking Shared with me; a second EC2 instance is launched. The target group uses the IP addresses target type with protocol GENEVE, a health check port overridden to an unknown port (for example 50000) and the service IP addresses of both Virtual Service Edges, and the endpoint service selects Acceptance required. Each Virtual Service Edge then gets `serv_port=<Health check port configured>` in its SME configuration, and the target group status must be healthy. The page uses the Deployment Template (vzen_with_gwlb) to deploy what it calls a cluster Virtual Service Edge setup.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services-gwlb.json",
+          "quotes": [
+            "Before you begin deployment, contact Zscaler Support to request a share of the Virtual Service Edge AMI. Provide your AWS account ID and AWS region in which you want the AMI",
+            "In the left-side navigation, under Ownership, check the box Shared with me.",
+            "Be sure to repeat the preceding steps to launch a second EC2 instance.",
+            "Choose the IP addresses target type.",
+            "Protocol: Select GENEVE.",
+            "Health check port: Choose the Override option, and configure it to any unknown port (e.g., 50000).",
+            "IPv4 addresses: Enter the service IP addresses of both the Virtual Service Edges.",
+            "Require acceptance for endpoint: Select the Acceptance required checkbox.",
+            "[SME] serv_port=<Health check port configured> [-end-of-SME-]",
+            "Ensure that the status of the target groups is healthy.",
+            "Use the Deployment Template (vzen_with_gwlb) to deploy a cluster Virtual Service Edge setup."
+          ]
+        }
+      ]
+    },
+    "gcp-vm": {
+      "statement": "The GCP page lists 4 CPU cores with n2-highmem-8 as the recommended instance type, 64 GB RAM for production, and a 501 GB disk for which Zscaler recommends SSDs. The image comes from Zscaler Support, an image-family in the creation command yields a VM from the latest version of the OS image, IP forwarding is enabled and VirtIO is selected for the network interface card, and the firewall requirements are at config.zscaler.com/<Zscaler Cloud Name>/fcr.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-google-cloud-platform.json",
+          "quotes": [
+            "CPUs: 4 CPU cores",
+            "Recommended Instances Type: n2-highmem-8",
+            "RAM: 64 GB for production",
+            "Disk: 501 GB. Zscaler recommends using SSDs.",
+            "Contact Zscaler Support for the Virtual Service Edge image on GCP.",
+            "If you specify the image-family in this command, a VM instance is created using the latest version of the OS image.",
+            "Select the Enable checkbox for IP forwarding.",
+            "Select VirtIO for Network interface card.",
+            "To view the firewall requirements, go to config.zscaler.com/<Zscaler Cloud Name>/fcr."
+          ]
+        }
+      ]
+    },
+    "gcp-ilb": {
+      "statement": "For the GCP Internal Load Balancer the page creates a health check doing a TCP port check for port 443 or 80, an unmanaged instance group holding the VM instances, and an ILB with the front end for all ports and the instance group as backend. It adds smnet_route entries for 35.191.0.0/16 (for health check probes) and 130.211.0.0/22 through the internal network gateway, and the ILB configuration can be removed with the vzen gcp-ilb-clear command. A later step runs `vzen delay-upgrade HH:MM` to stagger the upgrades on the Virtual Service Edges, which the page says avoids parallel upgrade outages as all nodes of GCP Virtual Service Edges are stand-alone.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-virtual-service-edge-internet-saas-google-cloud-platform.json",
+          "quotes": [
+            "Create a health check to do a TCP port check for port 443 or port 80.",
+            "Create an unmanaged instance group and add these VM instances.",
+            "Create the ILB and configure the front end for all ports and the backend as the instance group.",
+            "smnet_route=35.191.0.0/16/<gw ip of internal n/w> [For health check probes]",
+            "smnet_route=130.211.0.0/22/<gw ip of internal n/w>",
+            "You can remove the GCP ILB configuration using the vzen gcp-ilb-clear command.",
+            "Run the following command to stagger the upgrades on the Virtual Service Edges:",
+            "vzen delay-upgrade HH:MM",
+            "This avoids parallel upgrade outages as all nodes of GCP Virtual Service Edges are stand-alone."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "standalone-production": {
+      "summary": "Whether Zscaler supports a standalone Virtual Service Edge for production.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Zscaler does not support standalone Virtual Service Edges for production environments with live user traffic."
+            ]
+          },
+          "says": "The cluster article says standalone Virtual Service Edges are not supported for production environments with live user traffic."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-azure.json",
+            "quotes": [
+              "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Microsoft Azure."
+            ]
+          },
+          "says": "The Azure page says standalone is supported for production on Azure."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+            "quotes": [
+              "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Amazon Web Services (AWS)."
+            ]
+          },
+          "says": "The AWS page says standalone is supported for production on AWS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-google-cloud-platform.json",
+            "quotes": [
+              "Zscaler supports stand-alone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on the Google Cloud Platform (GCP)."
+            ]
+          },
+          "says": "The GCP page says stand-alone is supported for production on GCP."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-hyper-v.json",
+            "quotes": [
+              "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Microsoft Hyper-V."
+            ]
+          },
+          "says": "The Hyper-V page says standalone is supported for production on Hyper-V."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-choosing-between-private-service-edge-and-virtual-service-edge-internet-saas.json",
+            "quotes": [
+              "You must deploy them either in clusters or standalone for production."
+            ]
+          },
+          "says": "The Private versus Virtual comparison page says Virtual Service Edges are deployed either in clusters or standalone for production."
+        }
+      ],
+      "impact": "The platform pages and the comparison page cannot all hold alongside the cluster article's statement; confirm with Zscaler before planning a production standalone."
+    },
+    "vm-resources": {
+      "summary": "The VM resources the specifications table gives against the platform pages.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-virtual-service-edges-internet-saas.json",
+            "quotes": [
+              "| Number of V-CPUs | 4 | 4 | 4 | 4 | 4 |",
+              "| Virtual Interfaces | 3 | 3 | 3 | 3 | 3 |",
+              "| Disk Space | 500 GB | 500 GB | 500 GB | 500 GB | 500 GB |"
+            ]
+          },
+          "says": "The specifications table gives 4 V-CPUs, 3 virtual interfaces and 500 GB of disk for every platform column."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+            "quotes": [
+              "| r7i.2xlarge | 64 GB | 8 | Up to 12.5 Gbps | EBS-Only |",
+              "Data disk size: 501 GB",
+              "By default, the EC2 instance has one network interface (eth0), but a Virtual Service Edge requires an additional interface (eth1) in the same subnet."
+            ]
+          },
+          "says": "The AWS page lists an instance type with 8 cores, a 501 GB data disk and two network interfaces (eth0 and eth1)."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-google-cloud-platform.json",
+            "quotes": [
+              "Disk: 501 GB. Zscaler recommends using SSDs."
+            ]
+          },
+          "says": "The GCP page lists a 501 GB disk."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-azure.json",
+            "quotes": [
+              "Two network interfaces."
+            ]
+          },
+          "says": "The Azure page lists two network interfaces."
+        }
+      ],
+      "impact": "A sizing plan that uses the table's per-platform values (3 interfaces, 500 GB) does not match the AWS, GCP and Azure pages; the platform page is the more specific source for that platform, but the pages do not say which governs."
+    },
+    "control-interface": {
+      "summary": "Which interface carries the outbound control connection to the Zscaler cloud.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "configuring-virtual-service-edge-clusters-internet-saas.json",
+            "quotes": [
+              "Outbound control connection to the Zscaler cloud",
+              "This is used to make an outbound control connection to the Zscaler cloud, as well as to receive initial requests from users."
+            ]
+          },
+          "says": "In the cluster article the proxy IP address is used for the outbound control connection to the Zscaler cloud, and the load balancer IP address also makes an outbound control connection, on a three-interface VM."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-amazon-web-services.json",
+            "quotes": [
+              "The management interface (eth0) is used for control connections to the Zscaler cloud and to make an SSH connection to the Virtual Service Edge for configuration and management. The service interface (eth1) is used for proxy services."
+            ]
+          },
+          "says": "On the two-interface AWS VM the management interface carries control connections and SSH, and the service interface carries proxy services."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-virtual-service-edge-internet-saas-microsoft-azure.json",
+            "quotes": [
+              "The first network interface is the management IP address. It's used to control connections to the Zscaler cloud and make an SSH connection to the Virtual Service Edge VM for configuration and management."
+            ]
+          },
+          "says": "On the two-interface Azure VM the management IP address is used for control connections and SSH."
+        }
+      ],
+      "impact": "The pages come from three-interface and two-interface layouts, so a firewall or routing plan that sends the control connection from the proxy address is wrong for the cloud pages' management interface; keep each statement's platform."
+    }
+  },
+  "gaps": {
+    "gwlb-health-port": {
+      "kind": "semantic",
+      "title": "The GWLB health check port example",
+      "status": "open",
+      "detail": "The AWS with GWLB page gives 50000 as the health check port example at the target group but \"Ensure that you specify the correct health check port (e.g., 5000) configured when creating a target group\" at the vzen_custom.conf step. Which is intended is not stated; the port must match the one configured on the target group.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "gcp-ingress-ports": {
+      "kind": "semantic",
+      "title": "Ports a GCP Virtual Service Edge listens on",
+      "status": "open",
+      "detail": "The GCP page lists ports 9443, 443, 80, 9480 and 9400 one per line, each too short to quote. Only the line configuring the browser proxy as NIC0:9443 is quotable, so the ingress port list is not stated here.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}
