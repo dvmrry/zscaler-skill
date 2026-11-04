@@ -52,6 +52,9 @@
       "text": "{{console-methods}} Each method is a different path for the matched traffic."
     },
     {
+      "text": "{{networking-rule-types}} The same page states a count that does not match its list {{divergence:rule-type-count}}. {{networking-local-scope}}"
+    },
+    {
       "items": [
         {
           "label": "ZIA.",
@@ -144,6 +147,44 @@
           ]
         }
       ]
+    },
+    "networking-rule-types": {
+      "statement": "The networking-flows page lists five traffic forwarding rule types: Internet & SaaS (forwards internet-bound traffic matching an Internet & SaaS rule), Private Access (forwards private application traffic matching a Private Access rule), Direct (bypasses Internet & SaaS/Private Access and forwards traffic directly), Drop (discards packets matching the Drop rule) and Local.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "Internet & SaaS: Forwards internet-bound traffic that matches a Internet & SaaS rule",
+            "Private Access: Forwards the private application traffic that matches a Private Access rule",
+            "Direct: Bypasses Internet & SaaS/Private Access and forwards traffic directly",
+            "Drop: Discards packets matching the Drop rule.",
+            "Local: Allows subnet-to-subnet or virtual private cloud (VPC)/virtual network (VNET)-to-VPC/VNET communication within a region."
+          ]
+        }
+      ]
+    },
+    "networking-local-scope": {
+      "statement": "The networking-flows page describes Local as allowing subnet-to-subnet or VPC/VNET-to-VPC/VNET communication within a region, where the forwarding rule page describes it as across AWS, Azure and GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "Local: Allows subnet-to-subnet or virtual private cloud (VPC)/virtual network (VNET)-to-VPC/VNET communication within a region."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-traffic-forwarding-rule.json",
+          "quotes": [
+            "The local forwarding method facilitates subnet-to-subnet or virtual private cloud (VPC)-to-VPC communication across Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP)"
+          ]
+        }
+      ],
+      "conditions": "The two pages describe different scopes in different words: the networking page says within a region, the rule page says across the three clouds. Whether the second is a statement about clouds the method supports rather than a region boundary is not stated, so both are recorded as each page's wording."
     },
     "zia-method": {
       "statement": "The ZIA method forwards internet-bound traffic that matches the rule to Internet & SaaS gateways over a configurable encrypted or unencrypted tunnel.",
@@ -462,6 +503,36 @@
     }
   },
   "divergences": {
+    "rule-type-count": {
+      "summary": "The networking-flows page says there are four types of traffic forwarding rule, then lists five.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+            "quotes": [
+              "There are currently four types of traffic forwarding rule types that you can configure to send traffic to different destinations."
+            ]
+          },
+          "says": "There are currently four types of traffic forwarding rule types."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+            "quotes": [
+              "Internet & SaaS: Forwards internet-bound traffic that matches a Internet & SaaS rule",
+              "Private Access: Forwards the private application traffic that matches a Private Access rule",
+              "Direct: Bypasses Internet & SaaS/Private Access and forwards traffic directly",
+              "Drop: Discards packets matching the Drop rule.",
+              "Local: Allows subnet-to-subnet or virtual private cloud (VPC)/virtual network (VNET)-to-VPC/VNET communication within a region."
+            ]
+          },
+          "says": "The same page lists five types: Internet & SaaS, Private Access, Direct, Drop and Local."
+        }
+      ],
+      "impact": "The Traffic Forwarding page lists five methods in its Forwarding Method column (console-methods), so a count of four cannot be taken from the networking-flows page; which type the count leaves out is not stated."
+    },
     "local-token": {
       "summary": "Whether `LOCAL_SWITCH`, the token Terraform sends for the console's Local method, is a valid `forwardMethod` on a traffic forwarding rule.",
       "positions": [

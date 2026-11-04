@@ -49,6 +49,14 @@
       "text": "{{segments-or}} {{segment-or-group-or}} {{criteria-and}} {{or-within-most-criteria}} {{and-within-some-criteria}}"
     },
     {
+      "label": "On the global rules and policy groups page.",
+      "text": "That page's feature is in limited availability [[zpa.policy.policy-groups:limited-availability]]. {{nested-sets-operators}} {{operators-defined}} {{idp-operator-toggle}} {{policy-group-idp-example}} {{saml-setting-disabled-negated}}"
+    },
+    {
+      "label": "Condition set limit.",
+      "text": "{{condition-set-limit}}"
+    },
+    {
       "label": "Condition blocks in the API format.",
       "text": "{{condition-block-single-type}} {{saml-scim-group-share-block}} {{values-vs-entry-values}}"
     },
@@ -100,6 +108,19 @@
       "uses": [
         "empty-conditions-match-all",
         "blank-criteria-mean-any"
+      ]
+    },
+    {
+      "do": "If a rule uses nested criteria sets or the and not and or not operators, check that the criteria are SAML attributes or Client Connector posture profiles, and which of the four operators links each set.",
+      "uses": [
+        "nested-sets-operators",
+        "operators-defined"
+      ]
+    },
+    {
+      "do": "If a rule has more than 10 condition sets, check the rule type's editor limit.",
+      "uses": [
+        "condition-set-limit"
       ]
     },
     {
@@ -361,6 +382,125 @@
         }
       ],
       "conditions": "Count: the validator list holds 21 strings at v4.4.15 and 19 at v4.4.14."
+    },
+    "nested-sets-operators": {
+      "statement": "On the global rules and policy groups configuration page, nested criteria sets and the and not and or not operators are supported only for SAML Attributes and Client Connector Posture Profiles, and a nested set takes a logical operator (and, or, and not, or or not) that defines how it evaluates relative to the preceding criteria set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "Nested criteria sets and the and not and or not operators are supported only for SAML Attributes and Client Connector Posture Profiles.",
+            "Select the logical operator (and, or, and not, or or not) that defines how the nested set evaluates relative to the preceding criteria set."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "operators-defined": {
+      "statement": "On the global rules and policy groups configuration page the operators mean: and, the user must match both attribute conditions; or, the user can match either attribute condition; and not, the user must match the preceding condition and must not match this attribute condition; or not, the user matches if they meet the preceding condition or do not meet this attribute condition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "and: The user must match both attribute conditions.",
+            "or: The user can match either attribute condition.",
+            "and not: The user must match the preceding condition and must not match this attribute condition.",
+            "or not: The user matches if they meet the preceding condition or do not meet this attribute condition."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "idp-operator-toggle": {
+      "statement": "In the global rules instructions, multiple IdPs in a rule are joined by an OR Boolean operator by default, and the operator can be toggled to select a different logical operator (and, or, and not, or or not) between the IdPs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "If you selected multiple IdPs for the policy rule, Private Access uses an OR Boolean operator between them by default.",
+            "However, you can toggle this operator by clicking on it to select a different logical operator (and, or, and not, or or not) between the IdPs."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "policy-group-idp-example": {
+      "statement": "In the policy group instructions the page's example is a rule that applies to a user authenticating from the first IdP with the specified First Name OR Last Name, or to any user authenticating from the second IdP, and it says the operator can be toggled to AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "In this case, the policy rule applies to a user authenticating from the first IdP if they have the specified First Name OR Last Name or it applies to any user authenticating from the second IdP. However, you can toggle this to an AND operator by clicking on it."
+          ],
+          "after": "Configure an Access Policy for Policy Groups"
+        }
+      ]
+    },
+    "saml-setting-disabled-negated": {
+      "statement": "If the corresponding IdP setting (SAML Attributes for Policy) is disabled for SAML but a global rule has criteria for SAML attributes, the or not operator makes Private Access skip evaluating the SAML attribute criteria and continue with the SCIM attributes and SCIM groups, while the and not operator makes it not evaluate the rule until the criteria under SAML Attributes are removed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "If the corresponding IdP setting (SAML Attributes for Policy) is disabled for SAML, but the policy rule has criteria for SAML attributes, Private Access evaluates the rule differently depending on the Boolean operator between the criteria:",
+            "or not: Private Access skips evaluating the criteria for SAML attributes, but continues to evaluate the criteria for SCIM attributes and SCIM groups.",
+            "and not: Private Access does not evaluate this policy rule. You must remove the criteria under SAML Attributes for Private Access to process the policy rule."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "condition-set-limit": {
+      "statement": "The access global rules and policy groups, timeout, client forwarding and Browser Protection rule editors each say the criteria drop-down only displays criteria not already in use by the rule, except for Client Connector Posture Profile condition sets, and that up to 10 condition sets can be added; the redirection editor says the drop-down only displays unused criteria and up to 10 condition sets can be added, with no exception for posture stated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "The drop-down menu only displays criteria that are not already in use by the rule, except for Client Connector Posture Profile condition sets. You can add up to 10 condition sets."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "The drop-down menu only displays criteria that are not already in use by the rule, except for Client Connector Posture Profile condition sets. You can add up to 10 condition sets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-client-forwarding-policies.json",
+          "quotes": [
+            "The drop-down menu only displays criteria that are not already in use by the rule, except for Client Connector Posture Profile condition sets. You can add up to 10 condition sets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-browser-protection-policies.json",
+          "quotes": [
+            "The drop-down menu only displays criteria that are not already in use by the rule, except for Client Connector Posture Profile condition sets. You can add up to 10 condition sets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-redirection-policies.json",
+          "quotes": [
+            "The drop-down menu only displays criteria that are not already in use by the rule. You can add up to 10 condition sets."
+          ]
+        }
+      ]
     }
   },
   "gaps": {

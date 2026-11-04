@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.custom-applications",
+  "title": "SaaS Applications page: application status, tags and custom cloud applications",
+  "aliases": [
+    "SaaS Applications page",
+    "custom cloud application",
+    "custom applications category",
+    "application status sanctioned unsanctioned",
+    "predefined cloud application"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.rule-types"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.risk-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.app-instances"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{saas-applications-page}}"
+    },
+    {
+      "label": "Status.",
+      "text": "{{application-status}} What the Unclassified and Under Review statuses mean is open {{gap:status-values}}."
+    },
+    {
+      "label": "Rows and editing.",
+      "text": "{{columns-and-editing}}"
+    },
+    {
+      "label": "Custom cloud applications.",
+      "text": "{{custom-app-purpose}} {{custom-app-fields}} {{custom-app-limits}} How URLs are formatted and whether IP addresses count toward the URL limit is open {{gap:url-format-and-limit}}."
+    },
+    {
+      "label": "Caveats.",
+      "text": "{{custom-app-caveats}}"
+    },
+    {
+      "text": "The Custom Applications rule is in [[zia.cloud-app-control.rule-types]]. Tags and risk profiles are in [[zia.cloud-app-control.risk-profiles]]. Instances of an application are in [[zia.cloud-app-control.app-instances]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a rule written with a custom application is ineffective because Zscaler later created a predefined application with the same URL, and whether SSL/TLS Inspection is enabled for the custom application lookup.",
+      "uses": [
+        "custom-app-caveats"
+      ]
+    },
+    {
+      "do": "Whether the application is Sanctioned or Unsanctioned, since a risk profile can use the status as a Cloud App Control criterion.",
+      "uses": [
+        "application-status"
+      ]
+    },
+    {
+      "do": "Whether the custom application is at the 64-application or 128-URL limit before adding one.",
+      "uses": [
+        "custom-app-limits"
+      ]
+    }
+  ],
+  "claims": {
+    "saas-applications-page": {
+      "statement": "The SaaS Applications page allows adding custom cloud applications, and lists all supported cloud applications with their category and risk index so Cloud App Control rules can be defined for apps not yet discovered in the Shadow IT Report. It also edits the status of all cloud applications (as the Application Information page does), tags applications with predefined and custom labels, and creates cloud app instances that distinguish corporate and personal instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-applications.json",
+          "quotes": [
+            "The SaaS Applications page allows you to add custom cloud applications",
+            "You can also edit the status of all the cloud applications of your organization from here, in addition to the Application Information page",
+            "View a list of all supported cloud applications along with their category and risk index. This helps organizations define the cloud app control rules proactively for apps not yet discovered in your Shadow IT Report.",
+            "Tag cloud applications with predefined and custom labels.",
+            "Create cloud app instances to distinguish corporate and personal instances of cloud applications and manage access controls at a granular level for those instances."
+          ]
+        }
+      ]
+    },
+    "application-status": {
+      "statement": "An application's status is Sanctioned (approved for the organization's use because it meets all its security requirements) or Unsanctioned (not approved because of its attack vulnerability). The status is chosen when adding a cloud application risk profile, which a Cloud App Control rule then selects as a criterion; the page's status filter criterion also offers All, Unclassified and Under Review.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-applications.json",
+          "quotes": [
+            "Sanctioned: If you approve the application for your organization's use because it meets all your security requirements.",
+            "Unsanctioned: If you don't approve the application for your organization’s use because of its attack vulnerability.",
+            "You can select the application status for cloud applications while adding a cloud application risk profile, and select the risk profile as a criterion in the Cloud App Control policy rule.",
+            "Application Status (All, Sanctioned, Unsanctioned, Unclassified, or Under Review)",
+            "based on which you want to filter or search for cloud applications."
+          ]
+        }
+      ]
+    },
+    "columns-and-editing": {
+      "statement": "Each application row shows its name, category, status (Sanctioned or Unsanctioned), type (All, Custom or Predefined), tags and description, and a risk index from 1 to 5 (1 the lowest risk). A predefined application's name links to its Application Information page, which shows its security attributes. A predefined application's Application Status, Risk Index and Tags can be edited, and a custom one's Cloud Application Name, Application Status, Risk Index, Tags, URLs and Description. A custom cloud application can be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-applications.json",
+          "quotes": [
+            "You are redirected to the Application Information page when you click the predefined cloud application name link. The security attributes of the predefined cloud applications are displayed on this page.",
+            "Risk Index: The risk index number (1–5, 1 being the lowest risk and 5 being the highest) of the application.",
+            "In the Edit Predefined Cloud Application drawer, you can edit the Application Status (Sanctioned or Unsanctioned), Risk Index, and Tags.",
+            "However, in the Edit Custom Cloud Application drawer, you can edit the Cloud Application Name, Application Status (Sanctioned or Unsanctioned), Risk Index, Tags, URLs, and Description."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-applications.json",
+          "quotes": [
+            "Cloud Application Name: The name of the application.",
+            "Application Category: The category to which the application belongs.",
+            "Application Status: The state of the application (Sanctioned or Unsanctioned).",
+            "Application Type: The type of application (All, Custom, or Predefined).",
+            "Tags: The tags associated with the applications.",
+            "Description: The description of the application, if available.",
+            "Delete the custom cloud application."
+          ]
+        }
+      ]
+    },
+    "custom-app-purpose": {
+      "statement": "A custom cloud application adds an application not already present in Zscaler for discovery and usage metrics (for example number of users, bytes uploaded or downloaded), and associates it with the Custom Applications Cloud App Control rule. By default all custom applications are placed in the Custom Applications category, which is independent of other categories and so cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-cloud-applications.json",
+          "quotes": [
+            "Adding an application if it's not already present in Zscaler for discovery and usage metrics (e.g., number of users, bytes uploaded or downloaded).",
+            "Associating the application with the Custom Applications for Cloud App Control rule.",
+            "By default, all the custom applications are placed in the Custom Applications category, which is independent of other categories and hence cannot be edited."
+          ]
+        }
+      ]
+    },
+    "custom-app-fields": {
+      "statement": "A custom cloud application has a name (displayed when configuring Custom Applications rules), a status of Sanctioned or Unsanctioned, a risk index from 1 to 5, tags, URLs or IP addresses added with Add Items, and an optional description of at most 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-cloud-applications.json",
+          "quotes": [
+            "Cloud Application Name: Enter the name of the custom cloud application. This is displayed when configuring the Custom Applications for Cloud App Control rules.",
+            "Application Status: Select the application status. You can select either Sanctioned or Unsanctioned.",
+            "Risk Index: Select the risk index number (1–5, 1 being the lowest risk and 5 being the highest) for the application.",
+            "Tags: Select the tags associated with the application.",
+            "URLs: Enter the URLs or IP addresses you want to add to this custom cloud application and click Add Items.",
+            "Description: (Optional) Enter any additional comments or information. The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "custom-app-limits": {
+      "statement": "An organization can have 64 custom cloud applications, each with up to 128 URLs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Custom Cloud Applications per Organization | 64 applications |",
+            "| URLs per Custom Cloud Application | 128 URLs |"
+          ]
+        }
+      ]
+    },
+    "custom-app-caveats": {
+      "statement": "Risk attributes are not captured for custom cloud applications, SSL/TLS Inspection must be enabled for the custom cloud application lookup, and Custom Applications is enabled by contacting Zscaler Support. If Zscaler creates a predefined cloud application with a URL used in a custom one, the predefined application takes precedence and rules created with the custom application are ineffective; Zscaler notifies customers about the categorization change through Trust Posts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-custom-cloud-applications.json",
+          "quotes": [
+            "Risk attributes for custom cloud applications are not captured.",
+            "SSL/TLS Inspection must be enabled for the custom cloud application lookup.",
+            "If Zscaler creates a predefined cloud application with the URL used in a custom cloud application, then the predefined cloud application takes precedence over the custom application. Hence, the rules created with the custom cloud application are ineffective.",
+            "Zscaler regularly notifies customers about this categorization change via Trust Posts and potential impact.",
+            "To enable Custom Applications, contact Zscaler Support."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "status-values": {
+      "kind": "semantic",
+      "title": "What the Unclassified and Under Review application statuses mean",
+      "status": "open",
+      "detail": "The status filter on the SaaS Applications page offers All, Sanctioned, Unsanctioned, Unclassified and Under Review. The page defines only Sanctioned and Unsanctioned, and the edit drawers offer only those two.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "url-format-and-limit": {
+      "kind": "semantic",
+      "title": "URL format rules for custom applications and whether IP addresses count toward the 128-URL limit",
+      "status": "open",
+      "detail": "The Adding a Custom Cloud Application page accepts URLs or IP addresses in one field. The URL Format Guidelines that govern custom application URLs are not captured, and the limits table says 128 URLs without saying whether IP addresses count.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

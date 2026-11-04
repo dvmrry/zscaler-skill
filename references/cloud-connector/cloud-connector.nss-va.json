@@ -53,6 +53,10 @@
       "text": "Registering the VM, its certificate, buffering and sizing are in [[cloud-connector.nss-va.servers]]. Feed limits, output formats and the SIEM destination are in [[cloud-connector.nss-va.feeds]]. How the connector's own Log and Control Forwarding policy relates to this path is in [[cloud-connector.nss-va.log-control-path]]."
     },
     {
+      "label": "Across an outage.",
+      "text": "{{nss-to-siem-buffer}} {{cloud-to-nss-recovery}} {{siem-guides-firewall-only}} For the ZIA model see also [[shared.nss.reliability]]; the ZIA page's version of the Duplicate Logs example differs from the Cloud & Branch Connector page's, in [[cloud-connector.nss-va.feeds]] (divergence duplicate-logs-example)."
+    },
+    {
       "label": "Cloud NSS.",
       "text": "The HTTPS-push Cloud NSS feeds for Cloud and Branch Connector logs are in [[cloud-connector.nss-va.cloud-feeds]]; whether they need a subscription of their own is open {{gap:cloud-nss-for-cbc}}. The NSS model shared with ZIA (Nanolog tunnel, one-hour recovery, Cloud NSS) is in [[shared.nss.delivery-modes]]."
     }
@@ -109,6 +113,46 @@
           "path": "cbc-deploying-nss-virtual-appliances.json",
           "quotes": [
             "You must be subscribed to NSS for Firewall, Cloud and Branch Connector to manage your Cloud & Branch Connector NSS."
+          ]
+        }
+      ]
+    },
+    "nss-to-siem-buffer": {
+      "statement": "The Cloud & Branch Connector SIEM integration page says NSS buffers the logs in VM memory to increase its resiliency to transient network issues between the SIEM and NSS, and if the connection drops NSS replays logs from the buffer according to the Duplicate Logs setting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-siem-integration-nss.json",
+          "quotes": [
+            "NSS to SIEM: NSS buffers the logs in the VM memory to increase its resiliency to transient network issues between SIEM and NSS. If the connection drops, NSS replays logs from the buffer, according to the Duplicate Logs setting."
+          ]
+        }
+      ]
+    },
+    "cloud-to-nss-recovery": {
+      "statement": "The same page says that if the connectivity between the cloud and NSS is interrupted, NSS misses logs that arrived at the Nanolog cluster during the interruption and they are not delivered to the SIEM, and that after the connection is restored the NSS one-hour recovery allows the Nanolog to replay logs up to one hour prior.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-siem-integration-nss.json",
+          "quotes": [
+            "If the connectivity between the cloud and NSS is interrupted, NSS misses logs that arrived at the Nanolog cluster during the interruption, and they are not delivered to the SIEM.",
+            "After the connection is restored, the NSS one-hour recovery allows the Nanolog to replay logs up to one hour prior."
+          ]
+        }
+      ]
+    },
+    "siem-guides-firewall-only": {
+      "statement": "For Cloud & Branch Connector the SIEM integration page says to consider only the NSS for Firewall configurations in the integration guides and to ignore the NSS for Web configurations because they are not applicable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-siem-integration-nss.json",
+          "quotes": [
+            "For Cloud & Branch Connector, consider only the NSS for Firewall configurations in the integration guides and ignore the NSS for Web configurations because they are not applicable."
           ]
         }
       ]

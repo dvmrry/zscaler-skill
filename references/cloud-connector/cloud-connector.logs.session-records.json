@@ -39,6 +39,10 @@
     {
       "label": "Which rule.",
       "text": "{{rule-fields}} {{forwarding-rule-zero}}"
+    },
+    {
+      "label": "Cloud account ID.",
+      "text": "{{account-import}} Neither the default state of the toggles nor the log field they write is stated {{gap:account-import-field}}."
     }
   ],
   "checks": [
@@ -118,6 +122,22 @@
         }
       ]
     },
+    "account-import": {
+      "statement": "On the Cloud Provider Account Import page the imported ID is added to the session logs to correlate workloads with the AWS account, Azure subscription and/or GCP subscription, with Import Account ID (the account ID of the Cloud Connector deployed with AWS), Import Subscription ID (Azure) and Import Project ID (GCP) each enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-advanced-settings-cloud-connector.json",
+          "quotes": [
+            "On the Cloud Provider Account Import page, your imported ID is added to your session logs to correlate your workloads with your Amazon Web Services (AWS) account, Microsoft Azure subscription, and/or Google Cloud Platform (GCP) subscription.",
+            "Under AWS, enable or disable Import Account ID. This is the account ID of the Cloud Connector deployed with AWS.",
+            "Under Azure, enable or disable Import Subscription ID.",
+            "Under GCP, enable or disable Import Project ID."
+          ]
+        }
+      ]
+    },
     "forwarding-rule-zero": {
       "statement": "When the client destination IP is the service IP of the Cloud or Branch Connector instance, the forwarding rule is logged as 0.",
       "tier": "A",
@@ -133,6 +153,16 @@
     }
   },
   "gaps": {
+    "account-import-field": {
+      "kind": "semantic",
+      "title": "The default of the Cloud Provider Account Import toggles and the session log field they write",
+      "status": "open",
+      "detail": "The Cloud Provider Account Import page does not name the log field or the default state of the three toggles. The generated session log type (references/cloud-connector/types/session-log.json) has an account_id field with a matching AWS, Azure and GCP description, but the page does not link the two.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "full-mode-http": {
       "kind": "semantic",
       "title": "What a Full Session Logs feed records for HTTP and HTTPS sessions",

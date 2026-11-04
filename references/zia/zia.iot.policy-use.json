@@ -64,7 +64,7 @@
     },
     {
       "label": "The location must enforce it.",
-      "text": "{{cac-iot-needs-enforce}} {{enforce-flag-is-console-option}} Whether the option also governs URL Filtering rules, and whether it depends on Enable IoT Discovery, is open {{gap:enforce-option-scope}}. The discovery switch itself is in [[zia.iot.discovery]]."
+      "text": "{{cac-iot-needs-enforce}} {{url-filtering-iot-needs-enforce}} {{enforce-flag-is-console-option}} Whether the option depends on Enable IoT Discovery is open {{gap:enforce-option-scope}}. The discovery switch itself is in [[zia.iot.discovery]]."
     },
     {
       "label": "Selecting by location instead.",
@@ -72,7 +72,7 @@
     },
     {
       "label": "Predefined rules.",
-      "text": "Cloud App Control ships Allow Unauthenticated Traffic for IoT Classifications rules, disabled by default, so the engine can classify devices that other rules would block: [[zia.cloud-app-control.rule-types]]. SSL/TLS Inspection ships an Unauthorized Traffic Bypass for IoT Classifications rule: [[zia.ssl-inspection.rules]]. Why IoT devices usually cannot be inspected is in [[zia.ssl-inspection.uninspectable]]."
+      "text": "Cloud App Control ships Allow Unauthenticated Traffic for IoT Classifications rules, disabled by default, so the engine can classify devices that other rules would block: [[zia.cloud-app-control.rule-types]]. {{url-filtering-iot-predefined-rule}} SSL/TLS Inspection ships an Unauthorized Traffic Bypass for IoT Classifications rule: [[zia.ssl-inspection.rules]]. Why IoT devices usually cannot be inspected is in [[zia.ssl-inspection.uninspectable]]."
     },
     {
       "label": "The Policy Status widget.",
@@ -164,6 +164,39 @@
           "quotes": [
             "The Cloud App Control policy rules can also be applied to IoT devices from a location or a sublocation that has the Enforce IoT Policy Control option enabled.",
             "You can apply the rules to IoT devices that are identified and classified (e.g., Printers, Sensors, etc.) by the Zscaler AI/ML under the IoT group in the Device Groups criterion."
+          ]
+        }
+      ]
+    },
+    "url-filtering-iot-needs-enforce": {
+      "statement": "URL Filtering rules can also be applied to IoT devices from a location or a sublocation that has the Enforce IoT Policy Control option enabled, to IoT devices identified and classified (for example printers, sensors) by the Zscaler AI/ML under the IoT group in the Device Groups criterion.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules#deviceGroups",
+        "zia/locations#iotEnforcePolicySet"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "The URL Filtering policy rules can also be applied to IoT devices from a location or a sublocation that has the Enforce IoT Policy Control option enabled.",
+            "You can apply the rules to IoT devices that are identified and classified (e.g., Printers, Sensors) by the Zscaler AI/ML under the IoT group in the Device Groups criterion."
+          ]
+        }
+      ]
+    },
+    "url-filtering-iot-predefined-rule": {
+      "statement": "URL Filtering has a predefined Allow Unauthenticated Traffic for IoT Classifications rule that can be enabled to temporarily allow unauthenticated traffic that could be blocked by other rules, so that the Zscaler AI/ML can classify devices. The rule is disabled by default and cannot be deleted, and only its Rule Order, Rule Status, Rule Label and Description can be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "Zscaler provides the Allow Unauthenticated Traffic for IoT Classifications predefined rule for the URL Filtering policy.",
+            "You can enable this rule to temporarily allow unauthenticated traffic that could be blocked by other rules, so that the Zscaler AI/ML can classify devices. This rule is disabled by default and cannot be deleted.",
+            "You can modify the Rule Order, Rule Status, Rule Label, and Description for this rule and cannot edit other attributes."
           ]
         }
       ]
@@ -266,8 +299,8 @@
     },
     "enforce-option-scope": {
       "kind": "semantic",
-      "title": "Whether Enforce IoT Policy Control also governs URL Filtering rules, and whether it depends on Enable IoT Discovery",
-      "status": "open",
+      "title": "Whether Enforce IoT Policy Control depends on Enable IoT Discovery",
+      "status": "partial",
       "former_ids": [
         "zia.iot.policy-use:enforce-iot-policy-control"
       ],
@@ -276,6 +309,7 @@
         "lab-test"
       ],
       "blocks": "diagnosing a URL Filtering rule on the IoT device group that never matches",
+      "resolution": "Answered in part by url-filtering-iot-needs-enforce: the About URL Filtering page ties URL Filtering rules on IoT devices to a location or sublocation with Enforce IoT Policy Control enabled. Whether the option depends on Enable IoT Discovery is not stated.",
       "detail": "Unverified prior statement: the location help page said Enforce IoT Policy Control enforces URL Filtering and Cloud App Control policy rules for unauthenticated traffic from IoT devices at the location, and that the option appears when Enable IoT Discovery is enabled. The 2026-10-25 refresh dropped those lines; the Cloud App Control page still ties its rules to the option (cac-iot-needs-enforce). Resolve with the page that now documents the option, or a lab test of a URL Filtering rule on the IoT group with the option off and on."
     }
   }

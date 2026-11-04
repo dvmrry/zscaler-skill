@@ -32,7 +32,7 @@
     },
     {
       "label": "How many.",
-      "text": "{{feed-limits}} {{per-feed-config}}"
+      "text": "{{feed-limits}} {{dns-feed-limit}} {{metrics-feed-limit}} {{per-feed-config}}"
     },
     {
       "label": "Format.",
@@ -48,7 +48,15 @@
     },
     {
       "label": "Filters.",
-      "text": "{{session-filters}} {{event-filters}} {{filter-cost}}"
+      "text": "{{session-filters}} {{event-filters}} {{dns-feed-filters}} {{metrics-feed}} {{item-lists}} {{filter-cost}}"
+    },
+    {
+      "label": "DNS feed defaults.",
+      "text": "{{dns-feed-defaults}} The HTTPS-push Cloud NSS feeds are in [[cloud-connector.nss-va.cloud-feeds]]."
+    },
+    {
+      "label": "Feed format guidelines.",
+      "text": "{{cbc-guidelines}} {{cbc-duplicate-example}} The same worked example on the ZIA page gives different times and a different account of the duplicates {{divergence:duplicate-logs-example}}."
     }
   ],
   "checks": [
@@ -225,6 +233,134 @@
         }
       ]
     },
+    "dns-feed-limit": {
+      "statement": "Up to 16 NSS feeds can be configured for DNS logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-nss-feeds-dns-logs.json",
+          "quotes": [
+            "You can configure up to 16 Nanolog Streaming Service (NSS) feeds to specify the data from the DNS logs that the NSS sends to the security information and event management (SIEM) system."
+          ]
+        }
+      ]
+    },
+    "metrics-feed-limit": {
+      "statement": "Up to 16 NSS feeds can be configured for Metrics logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-nss-feeds-metrics-logs.json",
+          "quotes": [
+            "You can configure up to 16 NSS feeds to specify the data from the Metrics logs that the Nanolog Streaming Service (NSS) sends to the security information and event management (SIEM) system."
+          ]
+        }
+      ]
+    },
+    "dns-feed-filters": {
+      "statement": "A DNS feed filters by policy action, including Redirect to ZPA (limiting the logs to requests resolved with the IP pool), by rules in the DNS Control policy, by DNS responses (domain names, IPv4 and IPv6 addresses) and by session duration in seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-nss-feeds-dns-logs.json",
+          "quotes": [
+            "Redirect to ZPA: Use this filter to limit the logs to resolve DNS requests using the IP pool.",
+            "Rule Name: Use this filter to limit the logs based on specific rules in the DNS Control policy. Choose the rules from the list.",
+            "DNS Responses: Use this filter to limit the logs to sessions that contain specific data in the DNS responses. You can specify domain names, IPv4, and IPv6 addresses.",
+            "Durations: Use this filter to limit the logs based on the duration of the sessions, in seconds."
+          ]
+        }
+      ]
+    },
+    "dns-feed-defaults": {
+      "statement": "On the DNS feed page the NSS type is NSS for Firewall, Cloud and Branch Connector by default and the status is Enabled by default; the output is a CSV list by default, with Custom, JSON, Name Value Pairs or Tab Separated selectable if the SIEM accepts them; and the setting for the number of minutes the NSS sends duplicate logs is Disabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-nss-feeds-dns-logs.json",
+          "quotes": [
+            "NSS Type: The NSS type is set to NSS for Firewall, Cloud and Branch Connector by default.",
+            "Status: The status is Enabled by default.",
+            "The output is a comma-separated values (CSV) list by default. You can also select Custom, JSON, Name Value Pairs, or Tab Separated if your SIEM accepts any of these formats.",
+            "specify the number of minutes that the NSS sends duplicate logs. This is Disabled by default."
+          ]
+        }
+      ]
+    },
+    "item-lists": {
+      "statement": "On the DNS feed page there is no limit on the number of locations that can be selected, and item lists show up to 500 items on a page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-nss-feeds-dns-logs.json",
+          "quotes": [
+            "There is no limit on the number of locations that you can select."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-nss-feeds-dns-logs.json",
+          "after": "Client IP Addresses: Use this filter to limit the logs based on a client’s IP address. You can enter:",
+          "quotes": [
+            "For item lists, you can view up to 500 items on a page;"
+          ]
+        }
+      ]
+    },
+    "metrics-feed": {
+      "statement": "A Metrics feed selects VM, Instance and/or Resource record types, where Instance metrics apply at an individual data processing instance level (there are multiple instances in a single Cloud or Branch Connector) and Resource metrics at an individual resource level (physical and logical resources used by all data processing instances); it can be limited to specific Cloud or Branch Connector VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-nss-feeds-metrics-logs.json",
+          "quotes": [
+            "Metrics Record Type: Select VM, Instance, and/or Resource.",
+            "Instance: Metrics that are applicable at an individual data processing instance level. There are multiple data processing instances in a single Cloud or Branch Connector.",
+            "Resource: Metrics that are applicable at an individual resource level. There are physical and logical resources in a Cloud or Branch Connector that are used by all data processing instances.",
+            "Cloud/Branch Connector VM: Use this filter to limit the logs to specific Cloud or Branch Connector VMs."
+          ]
+        }
+      ]
+    },
+    "cbc-guidelines": {
+      "statement": "The Cloud & Branch Connector general guidelines for NSS feeds recommend not including more than 50 fields in a feed to accommodate syslog message size limits, encode any URL character at or below 0x20, or equal to and above 0x7F, as %HH, say to use tabs as field delimiters, say field names are case-sensitive, and allow up to 16 NSS feeds for each NSS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "Zscaler recommends not including more than 50 fields in the NSS feed to accommodate syslog message size limits.",
+            "Any URL character that is less than or equal to 0x20, or equal to and above 0x7F, is encoded as %HH.",
+            "Use tabs as field delimiters.",
+            "Field names are case-sensitive.",
+            "You configure up to 16 NSS feeds for each NSS."
+          ]
+        }
+      ]
+    },
+    "cbc-duplicate-example": {
+      "statement": "In the Cloud & Branch Connector page's example the SIEM went offline at 6:29:00 PM, the NSS detected the lost connection at 6:30:00 PM and the connection was restored at 6:40:00 PM; with Duplicate Logs set to 5 minutes the NSS resends the logs from 6:25:00 onward and sends 5 minutes of duplicate logs, with it disabled from 6:30:01 onward, and each log record has a unique ID stored in the recorded field that is used to discover duplicate logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-general-guidelines-nss-feeds-and-feed-formats.json",
+          "quotes": [
+            "For example, the SIEM went offline at 6:29:00 PM, the NSS detected the lost connection at 6:30:00 PM, and the connection was restored at 6:40:00 PM.",
+            "If Duplicate Logs is set to 5 minutes, the NSS resends the logs from 6:25:00 onward, after the connection is restored. It sends 5 minutes of duplicate logs.",
+            "If Duplicate Logs is disabled, the NSS resends the logs from 6:30:01 onward, after the connection is restored.",
+            "Each log record has a unique ID stored in the recorded field that is used to discover duplicate logs."
+          ]
+        }
+      ]
+    },
     "filter-cost": {
       "statement": "A large number of filters, or complex filters such as string searches, can impact the performance of the NSS.",
       "tier": "A",
@@ -237,6 +373,36 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "duplicate-logs-example": {
+      "summary": "The Cloud & Branch Connector and ZIA general-guidelines pages give the same Duplicate Logs outage example (SIEM offline 6:29:00 PM, detected 6:30:00 PM, restored 6:40:00 PM) with different resend times and a different account of the duplicates.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-general-guidelines-nss-feeds-and-feed-formats.json",
+            "quotes": [
+              "If Duplicate Logs is disabled, the NSS resends the logs from 6:30:01 onward, after the connection is restored.",
+              "If Duplicate Logs is set to 5 minutes, the NSS resends the logs from 6:25:00 onward, after the connection is restored. It sends 5 minutes of duplicate logs."
+            ]
+          },
+          "says": "Disabled, the NSS resends from 6:30:01 onward; at 5 minutes it resends from 6:25:00 onward and sends 5 minutes of duplicate logs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "general-guidelines-nss-feeds-and-feed-formats.json",
+            "quotes": [
+              "If Duplicate Logs is disabled: After the connection is restored, the NSS sends logs from 6:30:00 PM onwards. It does not recover logs from 6:29:00 PM to 6:30:00 PM.",
+              "It duplicates logs from 6:25:00 PM to 6:28:59 PM and recovers logs from 6:29:00 PM to 6:30:00 PM."
+            ]
+          },
+          "says": "Disabled, the NSS sends from 6:30:00 PM onwards and does not recover 6:29:00 to 6:30:00 PM; at 5 minutes it duplicates 6:25:00 to 6:28:59 PM and recovers 6:29:00 to 6:30:00 PM."
+        }
+      ],
+      "impact": "Which logs a SIEM receives after an outage with Duplicate Logs disabled differs by one second between the pages, and for the 5-minute setting one page counts all 5 minutes as duplicates while the other splits them into 4 minutes duplicated and 1 minute recovered. The ZIA page's version is the claim shared.nss.reliability:duplicate-logs-example."
     }
   },
   "gaps": {

@@ -39,7 +39,11 @@
     },
     {
       "label": "Console page and entries.",
-      "text": "{{page}} {{entry-formats}} {{name-description}} No size limit, default range or behaviour on overlap with workload addresses is stated {{gap:pool-limits}}."
+      "text": "{{page}} {{entry-formats}} {{name-description}} No size limit is stated {{gap:pool-limits}}."
+    },
+    {
+      "label": "Range and overlap.",
+      "text": "{{default-range}} Whether changing the pool means editing the default pool is not stated {{gap:change-vs-edit}}. {{no-overlap}} {{true-ip-hidden}}"
     },
     {
       "label": "ZIA pools.",
@@ -71,6 +75,46 @@
           "quotes": [
             "A default Private Access IP Pool is automatically created.",
             "You cannot edit or delete the default IP pool."
+          ]
+        }
+      ]
+    },
+    "default-range": {
+      "statement": "The networking-flows page gives the default Private Access IP pool in Zscaler connector tenants as 10.254.0.0/19, and says administrators can either change the IP pool to a desired CIDR range or provide different IP pools based on Cloud or Branch Connector locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "The default Private Access IP pool in Zscaler connector tenants is 10.254.0.0/19. Administrators can either change the IP pool to a desired Classless Inter-Domain Routing (CIDR) range or provide different IP pools based on Cloud or Branch Connector locations."
+          ]
+        }
+      ]
+    },
+    "no-overlap": {
+      "statement": "The synthetic IP pool must not overlap with any IP addresses used by IP-based Private Access applications; if there is an overlap, the ephemeral IP pool range is to be changed to a non-overlapping space.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "The synthetic IP pool must not overlap with any IP addresses used by your IP-based Private Access applications. If there is an IP address overlap, change the ephemeral IP pool range to a non-overlapping space."
+          ]
+        }
+      ]
+    },
+    "true-ip-hidden": {
+      "statement": "If applications are defined using DNS hostnames or domains in Private Access, the true private IP addresses of the servers are hidden from the requesting workloads through Cloud and Branch Connectors; Zscaler saves the true IP address for troubleshooting and logging purposes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-networking-flows-cloud-connector.json",
+          "quotes": [
+            "If you define applications using DNS hostnames or domains in Private Access, the true private IP addresses of the servers are hidden from the requesting workloads through Cloud and Branch Connectors.",
+            "Zscaler saves the true IP address for troubleshooting and logging purposes, but the workload server never knows what that private IP address is."
           ]
         }
       ]
@@ -160,11 +204,21 @@
         "source-read"
       ]
     },
+    "change-vs-edit": {
+      "kind": "semantic",
+      "title": "Whether \"change the IP pool\" means editing the default pool or choosing another pool",
+      "status": "open",
+      "detail": "The networking-flows page (default-range) says administrators can change the IP pool to a desired CIDR range or provide different IP pools by location. The About IP Pool page says the default IP pool cannot be edited or deleted (default-pool). The pages are read as compatible if changing means selecting or creating another pool, but neither page says which it is, so the default pool's editability is taken from default-pool only.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
     "pool-limits": {
       "kind": "semantic",
-      "title": "IP pool size limit, default range and overlap behaviour",
-      "status": "open",
-      "detail": "No Cloud & Branch Connector pool page states a size limit or the default pool's range, or what happens when a pool overlaps workload addresses. The pages also describe an IP pool that holds any number of entries, where ZIA's IP pool pages say one range for their pools; see the ZIA subject.",
+      "title": "IP pool size limit",
+      "status": "partial",
+      "detail": "The default range is now given (default-range) and so is the rule against overlap with IP-based Private Access applications (no-overlap). No Cloud & Branch Connector pool page states a size limit. The pages also describe an IP pool that holds any number of entries, where ZIA's IP pool pages say one range for their pools; see the ZIA subject.",
       "resolves_with": [
         "lab-test",
         "support-ticket"

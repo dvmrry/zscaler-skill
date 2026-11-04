@@ -69,7 +69,7 @@
     },
     {
       "label": "Size and HA.",
-      "text": "{{vm-size-column}} {{large-size}} {{ha-status}}"
+      "text": "{{vm-size-column}} {{large-size}} {{details-vm-size}} The pages list different supported sizes {{divergence:vm-sizes}}. {{ha-status}}"
     },
     {
       "label": "NAT IP.",
@@ -77,7 +77,11 @@
     },
     {
       "label": "Details page.",
-      "text": "The full field set of the Cloud Connector Details page is open {{gap:details-page-fields}}; CPU and memory are streamed as [[cloud-connector.logs.metrics-records]]."
+      "text": "{{details-general}} {{details-gateways}} {{details-cloud}} {{details-forwarding-mgmt}} The edit window defines Management IP Address differently {{divergence:management-ip-address}}. The captured page lists no CPU, memory or session fields, and Host ID is not defined {{gap:details-page-fields}}; CPU and memory are streamed as [[cloud-connector.logs.metrics-records]]."
+    },
+    {
+      "label": "Edit window.",
+      "text": "{{heartbeat}} {{connector-edit-fields}}"
     }
   ],
   "checks": [
@@ -296,6 +300,112 @@
         }
       ]
     },
+    "details-vm-size": {
+      "statement": "On the Cloud Connector details page, VM Size is set to Small by default and is the only size currently supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "VM Size: The size of the VM, which is set to Small by default and is the only size currently supported."
+          ]
+        }
+      ]
+    },
+    "details-general": {
+      "statement": "The Cloud Connector details page has tabs; its fields include the Deployment Type (AWS, Azure or GCP), the Status (Active or Inactive), the Last Seen Time and the First Deployed Time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "On the Cloud Connector details page, select a tab to view more details.",
+            "Deployment Type: The cloud service provider used to deploy the selected Cloud account. The cloud service provider is either Amazon Web Services (AWS), Microsoft Azure, or Google Cloud Platform (GCP).",
+            "Status: The operational status of the deployed Cloud Connector displayed as Active or Inactive",
+            "Last Seen Time: The date and time when the Cloud Connector was last seen",
+            "First Deployed Time: The date and time when the Cloud Connector was first deployed"
+          ]
+        }
+      ]
+    },
+    "details-gateways": {
+      "statement": "The details page includes the ZIA Gateway (the Internet & SaaS (ZIA) proxy gateway IP address) and the ZPA Broker (the default Private Access (ZPA) IP address).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "ZIA Gateway: The Internet & SaaS (ZIA) proxy gateway IP address",
+            "ZPA Broker: The default Private Access (ZPA) IP address"
+          ]
+        }
+      ]
+    },
+    "details-cloud": {
+      "statement": "The details page includes the Virtual Network (the VPC or VNet of the Cloud Connector), the GWLB Service Name, the Account ID (the AWS account ID, the Azure subscription ID or the GCP project name) and Roles Assigned to CC (the IAM or access roles and permissions associated with the Cloud Connector).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "Virtual Network: The virtual private cloud (VPC) or VNet of the Cloud Connector",
+            "GWLB Service Name: The service name of the gateway load balancer",
+            "Account ID: The AWS account ID, the Azure subscription ID, or the GCP project name",
+            "Roles Assigned to CC: The IAM or access roles and permissions associated with the Cloud Connector"
+          ]
+        }
+      ]
+    },
+    "details-forwarding-mgmt": {
+      "statement": "The details page includes DNS Server 2 (the secondary DNS server IP address), Service IP Address 1 (the primary service IP address) and a Management IP Address described as the management gateway IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+          "quotes": [
+            "DNS Server 2: The secondary DNS server IP address",
+            "Service IP Address 1: The primary service IP address",
+            "Management IP Address: The management gateway IP address"
+          ]
+        }
+      ]
+    },
+    "heartbeat": {
+      "statement": "In the edit window an individual Cloud Connector can be enabled or disabled with Status, and Last Heartbeat Received On shows the date and time the Zscaler service last received a heartbeat, or keepalive communication, from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Last Heartbeat Received On: View the date and time when the Zscaler service last received a heartbeat, or keepalive communication, from the Cloud Connector.",
+            "Status: Select Enable or Disable to activate or disable the Cloud Connector."
+          ]
+        }
+      ]
+    },
+    "connector-edit-fields": {
+      "statement": "The edit window also shows the Configuration Template Name (the name of the Cloud Connector provisioning template), the Connector VM Size, the Management Outgoing Gateway IP Address (the default gateway IP address), the Internal Gateway IP Address and the Service IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Configuration Template Name: The name of the Cloud Connector provisioning template.",
+            "Connector VM Size: The size of the Cloud Connector virtual machine (VM).",
+            "Management Outgoing Gateway IP Address: The default gateway IP address.",
+            "Internal Gateway IP Address: The gateway IP address.",
+            "Service IP: The service IP address."
+          ]
+        }
+      ]
+    },
     "large-size": {
       "statement": "A Large size exists: the cloud provisioning template offers Small, Medium or Large on Amazon Web Services, the AWS deployment article lists Medium and Large VMs as deprecated, and the API's `formFactor` takes SMALL, MEDIUM or LARGE.",
       "tier": "A",
@@ -333,6 +443,70 @@
       ]
     }
   },
+  "divergences": {
+    "management-ip-address": {
+      "summary": "The Cloud Connector details page defines Management IP Address as the management gateway IP address (details-forwarding-mgmt), while the edit window defines the same label as the IP address of the Cloud Connector.",
+      "positions": [
+        {
+          "says": "Management IP Address is the management gateway IP address.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+            "quotes": [
+              "Management IP Address: The management gateway IP address"
+            ]
+          }
+        },
+        {
+          "says": "Management IP Address is the IP address of the Cloud Connector.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-editing-cloud-connectors.json",
+            "quotes": [
+              "Management IP Address: The IP address of the Cloud Connector."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether the field is the connector's own management address or its management gateway is not settled by the pages, so an answer that uses a Management IP Address from either screen needs to say which page it read."
+    },
+    "vm-sizes": {
+      "summary": "The Cloud Connector details page says Small is the only size currently supported, while the provisioning template offers Small, Medium or Large on AWS and the monitoring page lists Small or Medium.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-analyzing-cloud-connector-details.json",
+            "quotes": [
+              "VM Size: The size of the VM, which is set to Small by default and is the only size currently supported."
+            ]
+          },
+          "says": "Small is set by default and is the only size currently supported."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-configuring-cloud-provisioning-template.json",
+            "quotes": [
+              "Amazon Web Services: Select from Small, Medium, or Large. Small is set by default when autoscaling is enabled."
+            ]
+          },
+          "says": "On AWS the template offers Small, Medium or Large, with Small the default when autoscaling is enabled."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-accessing-cloud-branch-connector-monitoring.json",
+            "quotes": [
+              "VM Size: The size of the virtual machine (i.e., Small or Medium)"
+            ]
+          },
+          "says": "The monitoring table's VM Size column is Small or Medium."
+        }
+      ],
+      "impact": "Which sizes a Cloud Connector can run is not settled by the pages. The AWS deployment article lists Medium and Large VMs as deprecated (large-size), which may explain the details page, but no page says so."
+    }
+  },
   "gaps": {
     "vm-status-codes": {
       "kind": "semantic",
@@ -356,7 +530,7 @@
       "title": "Which IP address Cloud Connector traffic carries in ZIA records",
       "status": "open",
       "blocks": "matching a connector in the console to its traffic in ZIA logs by IP",
-      "detail": "Unverified legacy statement: connectors behind cloud NAT \"show their private service IP in the management console and their public NAT IP in ZIA tunnel logs. The two do not match\", so the group and location should be the correlation key. The API's natIp is described only as the VM's NAT IP, and the Cloud Connector details page's fields are not captured.",
+      "detail": "Unverified legacy statement: connectors behind cloud NAT \"show their private service IP in the management console and their public NAT IP in ZIA tunnel logs. The two do not match\", so the group and location should be the correlation key. The API's natIp is described only as the VM's NAT IP, and the Cloud Connector details page lists a NAT IP Address on both its Forwarding and Management tabs without saying whether they differ.",
       "resolves_with": [
         "lab-test",
         "tenant-data"
@@ -367,7 +541,7 @@
       "title": "Field set of the Cloud Connector Details page",
       "status": "partial",
       "blocks": "knowing which per-VM health data the console shows without a feed",
-      "detail": "The monitoring help says the Details page holds general, management and traffic forwarding information; only the Branch Connector details page is captured field by field. Whether CPU, memory or session counts appear on the Cloud Connector page is not stated; they are available as Metrics logs.",
+      "detail": "The Cloud Connector details page is now captured (claims details-general, details-gateways, details-cloud, details-forwarding-mgmt) and lists no CPU, memory or session fields, an absence read from the page; they are available as Metrics logs. Host ID is not defined, and a NAT IP Address appears on both the Forwarding and Management tabs without saying whether the two differ, which bears on gap nat-ip-in-zia. The Cloud Connector edit window and details page also word Management IP Address differently in the captures.",
       "resolves_with": [
         "source-read"
       ],

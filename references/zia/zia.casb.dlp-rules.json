@@ -77,7 +77,7 @@
     },
     {
       "label": "Where it sits.",
-      "text": "{{rule-order-ascending}} {{admin-rank}} {{order-contract}} {{predefined-rules}} Whether evaluation stops at the first match is open {{gap:first-match}}. The category tokens and the separate DLP and malware lists are in [[zia.casb.rule-types]]."
+      "text": "{{rule-order-ascending}} {{admin-rank}} {{order-contract}} {{predefined-rules}} {{enforce-highest-priority-rule}} Whether evaluation stops at the first match, and what highest priority means against rule order, is open {{gap:first-match}}. {{entity-groups-and-page}} {{policy-execution}} The category tokens and the separate DLP and malware lists are in [[zia.casb.rule-types]]."
     },
     {
       "label": "Who and what it scopes.",
@@ -97,11 +97,15 @@
     },
     {
       "label": "Buckets.",
-      "text": "{{buckets-need-saved-rule-and-schedule}}"
+      "text": "{{buckets-need-saved-rule-and-schedule}} {{storage-containers-after-schedule}}"
+    },
+    {
+      "label": "Exceptions.",
+      "text": "{{dlp-policy-exceptions}} Exceptions for folders and users that cover both policies are in [[zia.casb.scans:scanning-exceptions]]."
     },
     {
       "label": "Notification and forwarding.",
-      "text": "{{notification-needs-auditor}} {{incident-receiver-field}} How forwarding to an Incident Receiver or a cloud works is in [[zia.dlp.incident-forwarding]], and where an Incident Receiver can run is in [[zia.dlp.incident-receiver]]."
+      "text": "{{notification-needs-auditor}} {{evidence-collection}} {{incident-receiver-field}} How forwarding to an Incident Receiver or a cloud works is in [[zia.dlp.incident-forwarding]], and where an Incident Receiver can run is in [[zia.dlp.incident-receiver]]."
     },
     {
       "label": "Access and contract.",
@@ -151,6 +155,154 @@
     }
   ],
   "claims": {
+    "policy-execution": {
+      "statement": "Data at Rest Scanning policy rules trigger on DLP Engines AND SaaS Application Tenants AND [Owners OR Groups OR Departments] AND Collaboration Scope AND File Type AND [Trusted Domains OR Trusted Users].",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-data-rest-scanning-policy.json",
+          "quotes": [
+            "DLP Engines (AND) SaaS Application Tenants (AND) [Owners (OR) Groups (OR) Departments] (AND) Collaboration Scope (AND) File Type (AND) [Trusted Domains (OR) Trusted Users]."
+          ]
+        }
+      ]
+    },
+    "enforce-highest-priority-rule": {
+      "statement": "A scan uses all applicable DLP engines for the application tenant in addition to the rule's selected engines when it inspects content, but the service enforces the DLP policy only by the highest priority DLP rule; the other engines are used for sensitive information discovery, which is viewable in the SaaS Assets Summary Report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-rest-scanning-dlp.json",
+          "quotes": [
+            "When a scan inspects content, it uses all applicable DLP engines for that application tenant in addition to the DLP rule’s selected engines.",
+            "However, the Zscaler service only enforces the DLP policy based on the highest priority DLP rule.",
+            "The service uses the other DLP engines for sensitive information discovery. You can view this information in the SaaS Assets Summary Report."
+          ]
+        }
+      ]
+    },
+    "entity-groups-and-page": {
+      "statement": "The About Data at Rest Scanning DLP page says its policy rules are evaluated in ascending numerical order, and that Entity Groups are the SharePoint groups the policy applies to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-rest-scanning-dlp.json",
+          "quotes": [
+            "SaaS Security Data at Rest Scanning DLP policy rules are evaluated in ascending numerical order.",
+            "Entity Groups: The SharePoint groups the policy applies to."
+          ]
+        }
+      ]
+    },
+    "storage-containers-after-schedule": {
+      "statement": "For a public cloud storage application rule, Buckets, Bucket Owner, Blob Containers and Blob Container Owner cannot be changed when the rule is first defined: after saving the rule, a scan schedule is created for the tenant and bucket or blob container names are selected there to create the list available to the DLP and Malware Detection policies, and only then can the rule be edited to configure those fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-data-rest-scanning-policy.json",
+          "quotes": [
+            "When you first define a policy rule for a public cloud storage application, the following fields can’t be changed: Buckets, Bucket Owner, Blob Containers, and Blob Container Owner.",
+            "After saving the policy rule, create a scan schedule for the tenant. In the table, select the bucket or blob container names to create a list of available buckets or blob containers for the DLP and Malware Detection policies.",
+            "After you create the list and save the scan schedule, you can edit the rule and configure the Buckets, Bucket Owner, Blob Containers, or Blob Container Owner fields."
+          ]
+        }
+      ]
+    },
+    "evidence-collection": {
+      "statement": "Data at Rest Scanning DLP has three evidence collection methods: an email notification for a rule violation; an incident receiver, which forwards the content that caused the violation to an on-premises incident receiver or to the organization's public cloud; and, for file sharing applications, a link to the file causing the violation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-rest-scanning-dlp.json",
+          "quotes": [
+            "There are three different methods of evidence collection:",
+            "Email Notification: This method sends an email notification for a rule violation.",
+            "Incident Receiver: This method forwards the content that caused the rule violation to an on-premises incident receiver or to your public cloud.",
+            "For file sharing applications, a link to the file causing the rule violation is provided."
+          ]
+        }
+      ]
+    },
+    "dlp-policy-exceptions": {
+      "statement": "Data at Rest Scanning DLP policy exceptions are optional for sanctioned SaaS applications, for example for a CEO whose sent emails should not be inspected or a security research group's malicious files repository. Each application type's section has a user field plus Groups and Departments: Senders for collaboration and email applications, Owners for CRM, file sharing and ITSM applications, and Editors for source code repository applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-dlp-policy-exceptions.json",
+          "quotes": [
+            "Optionally, you can configure SaaS Security Data Loss Prevention (DLP) policy exceptions for sanctioned SaaS applications.",
+            "For example, you can create an exception for your organization’s CEO if you don’t want to inspect the emails your CEO sends.",
+            "If your organization has a security research group maintaining a malicious files repository that must be exempt from inspection, you can also create an exception for the group."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-dlp-policy-exceptions.json",
+          "after": "To create exceptions for collaboration applications:",
+          "quotes": [
+            "Senders: Select the users you want to exempt from inspection.",
+            "Groups: Select the groups you want to exempt from inspection.",
+            "Departments: Select the departments you want to exempt from inspection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-dlp-policy-exceptions.json",
+          "after": "To create exceptions for CRM applications:",
+          "quotes": [
+            "Owners: Select the users you want to exempt from inspection.",
+            "Groups: Select the groups you want to exempt from inspection.",
+            "Departments: Select the departments you want to exempt from inspection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-dlp-policy-exceptions.json",
+          "after": "To create exceptions for email applications:",
+          "quotes": [
+            "Senders: Select the users you want to exempt from inspection.",
+            "Groups: Select the groups you want to exempt from inspection.",
+            "Departments: Select the departments you want to exempt from inspection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-dlp-policy-exceptions.json",
+          "after": "To create exceptions for file sharing applications:",
+          "quotes": [
+            "Owners: Select the users you want to exempt from inspection.",
+            "Groups: Select the groups you want to exempt from inspection.",
+            "Departments: Select the departments you want to exempt from inspection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-dlp-policy-exceptions.json",
+          "after": "To create exceptions for ITSM applications:",
+          "quotes": [
+            "Owners: Select the users you want to exempt from inspection.",
+            "Groups: Select the groups you want to exempt from inspection.",
+            "Departments: Select the departments you want to exempt from inspection."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-dlp-policy-exceptions.json",
+          "after": "To create exceptions for source code repository applications:",
+          "quotes": [
+            "Editors: Select the users you want to exempt from inspection.",
+            "Groups: Select the groups you want to exempt from inspection.",
+            "Departments: Select the departments you want to exempt from inspection."
+          ]
+        }
+      ]
+    },
     "rule-order-ascending": {
       "statement": "Data at Rest Scanning DLP rules are evaluated in ascending rule order, and a disabled rule keeps its place in the order while the service skips it and moves to the next rule.",
       "tier": "A",
@@ -1007,8 +1159,8 @@
     "first-match": {
       "kind": "semantic",
       "title": "Whether evaluation stops at the first matching Data at Rest Scanning DLP or malware rule",
-      "status": "open",
-      "detail": "Unverified legacy statement: \"Both use first-match, top-down evaluation within each rule type.\" The help articles say rules are evaluated in ascending numerical order but do not say whether a later rule can also act on content an earlier rule matched.",
+      "status": "partial",
+      "detail": "Unverified legacy statement: \"Both use first-match, top-down evaluation within each rule type.\" The help articles say rules are evaluated in ascending numerical order, and the About Data at Rest Scanning DLP page says the service enforces the DLP policy only by the highest priority DLP rule (enforce-highest-priority-rule). Still open: whether highest priority means the first rule in order, whether a later rule can also act on content an earlier rule matched, and whether the same holds for malware rules. Whether the policy-execution expression on the Data at Rest Scanning DLP side also governs malware rules is not stated either.",
       "resolves_with": [
         "lab-test",
         "support-ticket"

@@ -108,6 +108,14 @@
       "text": "{{limits}}"
     },
     {
+      "label": "Dynamic rules.",
+      "text": "{{dynamic-rules}} {{dynamic-profile-type}} What the Default type creates, and whether a dynamic rule tracks later access policy changes, is open {{gap:dynamic-rule-behavior}}."
+    },
+    {
+      "label": "Editing.",
+      "text": "{{edit-ad-warning}}"
+    },
+    {
       "text": "Profiles a rule can select: [[zpa.appprotection.profiles]]. The segment-side switch that makes traffic eligible: [[zpa.appprotection.segment-opt-in]]. Rule-order behavior of the Terraform provider is in [[zpa.terraform.rule-order]] and its write behavior in [[zpa.terraform.policy-rule-writes]]."
     }
   ],
@@ -352,6 +360,48 @@
         }
       ]
     },
+    "dynamic-rules": {
+      "statement": "Once access policies are created and an AppProtection profile is set up, dynamic rules can automatically create AppProtection policies to inspect the traffic of the domains. Access policies enabled with privileged approvals do not appear, as dynamic rules bypass them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-appprotection-dynamic-rules.json",
+          "quotes": [
+            "After you have created access policies and set up an AppProtection profile, you can create dynamic rules to automatically create AppProtection policies to inspect the traffic of your domains.",
+            "Access policies enabled with privileged approvals do not appear as they are bypassed by dynamic rules."
+          ]
+        }
+      ]
+    },
+    "dynamic-profile-type": {
+      "statement": "A dynamic rule's AppProtection Profile Type is Default or Existing: Default gives an error if a default AppProtection profile already exists, and Existing requires selecting an existing AppProtection profile. The Auto create AppProtection policies checkbox creates the policies automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-appprotection-dynamic-rules.json",
+          "quotes": [
+            "Default: If you select this option and a default AppProtection profile already exists, an error appears.",
+            "Existing: If you select this option, you must select an existing AppProtection profile from the drop-down menu.",
+            "To automatically create AppProtection policies, select the Auto create AppProtection policies checkbox."
+          ]
+        }
+      ]
+    },
+    "edit-ad-warning": {
+      "statement": "Editing application segments that have Active Directory Inspection enabled shows a warning that the application segments and segment groups are inspected for Active Directory Protection traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-appprotection-policies.json",
+          "quotes": [
+            "If you edit application segments that have Active Directory Inspection enabled, then a warning appears to notify you that the application segments and segment groups are inspected for Active Directory Protection traffic."
+          ]
+        }
+      ]
+    },
     "criteria-all-match": {
       "statement": "A user's application request must match all the conditions within an AppProtection policy rule.",
       "tier": "A",
@@ -367,6 +417,16 @@
     }
   },
   "gaps": {
+    "dynamic-rule-behavior": {
+      "kind": "semantic",
+      "title": "What the Default dynamic rule profile type creates and whether a dynamic rule tracks access policy changes",
+      "status": "open",
+      "detail": "The dynamic rules page does not say what the Default AppProtection Profile Type creates, or whether a dynamic rule follows later changes to the access policies it was built from.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
     "independent-of-access-policy": {
       "kind": "semantic",
       "title": "How AppProtection policy evaluation relates to access policy on one connection",

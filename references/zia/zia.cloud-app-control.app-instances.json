@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "id": "zia.cloud-app-control.app-instances",
+  "title": "Cloud application instances: identifiers, supported applications and limits",
+  "aliases": [
+    "cloud application instance",
+    "cloud app instance",
+    "instance identifier",
+    "corporate instance",
+    "tenant restriction by instance",
+    "Instances page"
+  ],
+  "binds": [
+    "zia/cloud-app-instances"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.custom-applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.rule-criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{not-granular-controls}}"
+    },
+    {
+      "label": "Supported applications.",
+      "text": "{{supported-applications}}"
+    },
+    {
+      "label": "Blocking the rest of the application.",
+      "text": "{{main-url-blocked}}"
+    },
+    {
+      "label": "Fields.",
+      "text": "{{instance-fields}} How a GitHub keyword is matched against a repository is open {{gap:github-keyword-matching}}. {{instances-page}}"
+    },
+    {
+      "label": "Limits.",
+      "text": "{{instance-limits}}"
+    },
+    {
+      "text": "The rule criteria that name instances are in [[zia.cloud-app-control.rule-criteria]], and the DLP rules that can use them are in [[zia.dlp.rules]]. Custom applications are in [[zia.cloud-app-control.custom-applications]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the rule allows an instance and blocks the rest of the application, since the main URLs are then blocked and users must log in through the corporate instance URL.",
+      "uses": [
+        "main-url-blocked"
+      ]
+    },
+    {
+      "do": "Whether the application is one of those that supports instances before relying on an instance rule.",
+      "uses": [
+        "supported-applications"
+      ]
+    },
+    {
+      "do": "Whether the organization is at its instance, identifier or per-rule limit.",
+      "uses": [
+        "instance-limits",
+        "instance-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "The cloud application instances feature creates instances for cloud applications to which specific instance identifiers (for example domains) are added, and the instances are associated with Cloud App Control policy rules and DLP policy rules. It lets administrators apply granular control (sharing, uploading, downloading and so on) through Cloud App Control rules and control actions by domain type in Cloud App Control, DLP with content inspection and DLP without content inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-application-instances.json",
+          "quotes": [
+            "The cloud application instances feature allows you to create instances for cloud applications where you can add specific instance identifiers (e.g., domains).",
+            "Associating the instances with the Cloud App Control policy rules and DLP policy rules.",
+            "Apply granular control (sharing, uploading, downloading, etc.) to cloud applications using Cloud App Control policy rules and use cloud app instances in DLP policy rules.",
+            "The feature enables you to granularly control the actions based on the domain types in the Cloud App Control policy, DLP policy with content inspection, and DLP policy without content inspection."
+          ]
+        }
+      ]
+    },
+    "not-granular-controls": {
+      "statement": "Viewing (File Sharing, Social Networking and System & Development), viewing and listening (Streaming Media) and viewing mail (Webmail) are not granular controls for their respective categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-application-instances.json",
+          "quotes": [
+            "The following are not granular controls for their respective categories: viewing (File Sharing, Social Networking, and System & Development), viewing/listening (Streaming Media), and viewing mail (Webmail)."
+          ]
+        }
+      ]
+    },
+    "supported-applications": {
+      "statement": "The About Cloud Application Instances table's applications include Appspace, Bitbucket, GitHub, Gmail, Google Drive, Google Gemini, Launchpad, Microsoft Copilot, Microsoft Teams, Okta, OneDrive, Outlook (Office 365), Quickbase, SharePoint Online, Slack, SourceForge, Workday, Zeplin and Zoom as the cloud applications for which instances can be created.",
+      "tier": "A",
+      "conditions": "The table also has a Box row, shorter than the 8-character quote minimum and so not quoted; Box is named only by the main-URL examples (www.box.com, www.zscaler.app.box.com) in main-url-blocked, and is left out of this statement.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-application-instances.json",
+          "quotes": [
+            "You can create instances for the cloud applications in the following table:",
+            "| Appspace |",
+            "| Bitbucket |",
+            "| GitHub |",
+            "| Gmail |",
+            "| Google Drive |",
+            "| Google Gemini |",
+            "| Launchpad |",
+            "| Microsoft Copilot |",
+            "| Microsoft Teams |",
+            "| Okta |",
+            "| OneDrive |",
+            "| Outlook (Office 365) |",
+            "| Quickbase |",
+            "| SharePoint Online |",
+            "| Slack |",
+            "| SourceForge |",
+            "| Workday |",
+            "| Zeplin |",
+            "| Zoom |"
+          ]
+        }
+      ]
+    },
+    "main-url-blocked": {
+      "statement": "For cloud applications, if a Cloud App Control rule allows access to an instance and blocks the rest, the service blocks the main URLs (for example www.box.com, www.okta.com), so users must log in through the corporate instance URL (for example www.zscaler.app.box.com/login, www.zscaler.okta.com/login) instead of the main URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-application-instances.json",
+          "quotes": [
+            "For cloud applications, if you allow access to an instance and block the rest using the Cloud App Control policy rule, the service blocks the main URLs (e.g., www.box.com, www.okta.com).",
+            "you must use the corporate instance URL (e.g., www.zscaler.app.box.com/login, www.zscaler.okta.com/login) to log in instead of using the main URL (e.g., www.box.com, www.okta.com)."
+          ]
+        }
+      ]
+    },
+    "instance-fields": {
+      "statement": "An instance has a name (displayed when configuring Cloud App Control and DLP rules), an Instance Type (the parent cloud application) and up to 1,024 instance identifiers, each a URL with a name. Bitbucket and GitHub identifiers take the forms .bitbucket.org/<organization name>/<repository name>/ and .github.com/<organization name>/<repository name>/, and GitHub instances can also take keyword identifiers, so one keyword can identify a large number of repositories that follow a naming convention.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-adding-cloud-application-instance.json",
+          "quotes": [
+            "Cloud Application Instance Name: Enter the name of the cloud application instance. This is displayed when configuring the Cloud App Control policy rules and DLP policy rules.",
+            "Instance Type: Select a parent cloud application for which you want to add instances.",
+            "Instance Identifier: URL for the instance identifier.",
+            "Name: Name of the instance identifier.",
+            ".bitbucket.org/<organization name>/<repository name>/ .github.com/<organization name>/<repository name>/",
+            "For the GitHub instance type, you can add keywords as instance identifiers in addition to URLs.",
+            "Organizations following a similar naming convention through a single keyword can use the keyword instance identifier to identify a large number of GitHub repositories.",
+            "Keyword: (Optional) Keyword for the instance identifier. This field is applicable only to the GitHub instance type.",
+            "You can add a maximum of 1,024 instance identifiers per cloud application instance."
+          ]
+        }
+      ]
+    },
+    "instances-page": {
+      "statement": "The Instances page lists each instance's Instance Type (the parent cloud application it is tied to) and its number of instance identifiers, and filters instances by instance type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-cloud-application-instances.json",
+          "quotes": [
+            "Instance Type: The parent cloud application to which the instance is tied.",
+            "No. of Instance Identifiers: The total number of instance identifiers for the instance.",
+            "Filter for cloud application instances based on the instance type (e.g., Any, Appspace, Bitbucket)."
+          ]
+        }
+      ]
+    },
+    "instance-limits": {
+      "statement": "An organization can have 512 cloud application instances, and Zscaler Support can be contacted about raising that to 4,096. Each instance takes 1,024 instance identifiers, each identifier up to 128 characters, with at most 2,048 identifiers across all instances (Zscaler Support can be contacted about raising that to 8,192), and a rule takes up to 8 cloud application instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ranges-limitations-zia.json",
+          "quotes": [
+            "| Cloud Application Instance | 512 cloud application instances | Contact Zscaler Support for a possible increase in the limit of cloud application instances from 512 to 4,096. |",
+            "| Instance Identifiers | 1,024 instance identifiers |",
+            "Each instance identifier can have up to 128 characters. There can be a maximum of 2,048 instance identifiers across all instances.",
+            "Contact Zscaler Support for a possible increase in the limit of instance identifiers across all instances per organization from 2,048 to 8,192.",
+            "| Cloud Application Instance per Rule | 8 cloud application instances |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "github-keyword-matching": {
+      "kind": "semantic",
+      "title": "How a GitHub keyword instance identifier is matched",
+      "status": "open",
+      "detail": "The Adding a Cloud Application Instance page says one keyword can identify a large number of GitHub repositories that follow a naming convention. It does not say whether the keyword matches as a substring, a prefix or an exact name.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

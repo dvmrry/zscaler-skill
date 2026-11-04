@@ -53,6 +53,10 @@
       "text": "{{evidence-file-cap}} Timeouts on large uploads are open {{gap:large-upload-timeout}}."
     },
     {
+      "label": "Images.",
+      "text": "{{ocr-images}} {{ocr-channels}} No OCR size or resolution limit is stated {{gap:ocr-size-limit}}. How the per-rule `ocrEnabled` field interacts with these switches is open [[zia.dlp.rule-wire-shape:ocr-switch-interaction]]."
+    },
+    {
       "text": "If the file was never decrypted, or an upstream policy blocked it first, see [[zia.dlp.evaluation]]. The rule-side minimum data size and file type criteria are in [[zia.dlp.rules]]. The Endpoint DLP rule article's figure is [[zia.dlp.endpoint-rules:file-size-limit]], and it is one of the positions in the file size divergence above."
     }
   ],
@@ -165,6 +169,37 @@
           "quotes": [
             "If an evidence file for a DLP incident exceeds 100 MB in size, the Zscaler service replaces the original file with a placeholder evidence file.",
             "The placeholder file retains the original name with \".txt\" appended"
+          ]
+        }
+      ]
+    },
+    "ocr-images": {
+      "statement": "OCR settings are configured for the organization and apply to all DLP policies, and if OCR options are not enabled, DLP rules do not apply to image files. DLP engines support OCR scanning of PNG, JPEG, TIFF and BMP files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "You configure OCR settings for your organization, and those settings apply to all DLP policies that you create.",
+            "If OCR options are not enabled, DLP rules don't apply to image files.",
+            "DLP engines support OCR scanning of PNG, JPEG, TIFF, and BMP files."
+          ]
+        }
+      ]
+    },
+    "ocr-channels": {
+      "statement": "The service can use OCR to scan images for sensitive text as part of inline DLP, Data at Rest Scanning DLP and Outbound Email DLP policies, through three options on the DLP Advanced Settings page: Inline DLP (images in data in transit), SaaS Security API (images in data at rest) and Outbound Email DLP (images in outbound emails sent to external domains).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "The Zscaler service allows you to use optical character recognition (OCR) to scan images for sensitive text data as part of your inline Data Loss Prevention (DLP), Data at Rest Scanning DLP, and Outbound Email DLP policies.",
+            "Inline DLP: Enable this option to allow the Zscaler DLP engines to scan images for text content in data in transit.",
+            "SaaS Security API: Enable this option to allow the Zscaler DLP engines to scan images for text content in data at rest.",
+            "Outbound Email DLP: Enable this option to allow the Zscaler DLP engines to scan images for text content in outbound emails sent to external domains."
           ]
         }
       ]
@@ -308,6 +343,17 @@
       ],
       "blocks": "saying that nested or oversized content silently evades DLP, or that it is blocked, or that it is logged",
       "detail": "The help states scanning limits but not whether a file over the size cap, deeper than 5 compression levels, or past the extracted-text window is allowed, blocked or logged. The related question of large uploads that time out before scanning completes is also not described. Unverified legacy statement: \"An attacker wrapping payload in 6-level-nested ZIPs silently evades DLP\"; and for evidence files, \"a .txt placeholder containing minimal metadata\" (the placeholder contents are not described)."
+    },
+    "ocr-size-limit": {
+      "kind": "semantic",
+      "title": "Whether OCR has an image size or resolution limit",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "saying a large or low-resolution image is or is not scanned",
+      "detail": "The DLP Advanced Settings page lists the supported image formats and the three OCR options but states no size or resolution limit for OCR."
     },
     "large-upload-timeout": {
       "kind": "semantic",

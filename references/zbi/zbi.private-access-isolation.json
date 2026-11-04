@@ -48,6 +48,10 @@
       "text": "Whether a posture profile can be a criterion is disputed between sources: [[zpa.posture-profiles.policy-operand:posture-isolation]]. Whether SCIM operands are accepted is open: [[zpa.scim.policy-criteria:zpa-68-isolation-scim]]."
     },
     {
+      "label": "Configuring a rule.",
+      "text": "{{rule-action-values}} {{web-browser-only}} {{unsupported-criteria}} {{rule-criteria}} {{name-characters}} Which criteria isolation rules actually accept is open {{gap:accepted-criteria}}."
+    },
+    {
       "label": "Session timeout.",
       "text": "{{session-timeout}} How this interacts with the container idle timeout is open {{gap:timeout-vs-idle}}. {{maintenance}}"
     },
@@ -199,6 +203,84 @@
         }
       ]
     },
+    "rule-action-values": {
+      "statement": "An isolation rule's Rule Action is Allow Isolation or Bypass Isolation, and the isolation profile field is required when the Rule Action is Allow Isolation. Isolation rules implement controls based on isolation profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "Rule Action: Select Allow Isolation or Bypass Isolation.",
+            "Isolation Profile: Select an isolation profile for the rule to use for allowing isolation. This field is required for creating an isolation policy that has the Rule Action set to Allow Isolation.",
+            "Isolation policy rules allow you to implement controls based on isolation profiles."
+          ]
+        }
+      ]
+    },
+    "web-browser-only": {
+      "statement": "The Web Browser client type is required for isolation policy rules, it is the only client type available, and it is preselected for the rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "The Web Browser client type is required for isolation policy rules, and it is the only client type available. It is preselected for the rule."
+          ]
+        }
+      ]
+    },
+    "unsupported-criteria": {
+      "statement": "The Client Connector Posture Profiles, Client Connector Trusted Networks and Machine Groups criteria may appear in the drop-down menu, but the page says they are not supported with the Web Browser client type, which is required for isolation policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "The Client Connector Posture Profiles, Client Connector Trusted Networks, and the Machine Groups criteria may appear in the drop-down menu, but they are not supported with Web Browser client type, which is required for isolation policies.",
+            "Rules using the Web Browser client type can not also use the Client Connector Posture Profiles, Client Connector Trusted Networks, and the Machine Groups criteria."
+          ]
+        }
+      ],
+      "conditions": "This is the Configuring Isolation Policies page's wording. The same page also describes up to 10 posture condition sets, so whether posture is accepted is the disputed question in zpa.posture-profiles.policy-operand:posture-isolation and is not settled here."
+    },
+    "rule-criteria": {
+      "statement": "The isolation rule page lists External IAM IdP, Applications (segments and segment groups), Chrome Enterprise Browser with an optional configured Chrome posture profile, Client Connector Posture Profiles, Client Connector Trusted Networks, Machine groups and Platforms as criteria. The SAML and SCIM Attributes criteria cannot be configured with the Cloud Connector Group criteria, and multiple Cloud Connector groups in a rule are joined by AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "To use External IAM IdP, select the IdP from the drop-down menu.",
+            "Choose the application segments and segment groups to which this rule applies:",
+            "Enable Chrome Enterprise Browser to verify that users are accessing private applications via the Chrome Enterprise browser.",
+            "When enabled, you can also select a configured Chrome posture profile to evaluate criteria for access to private applications.",
+            "You can add up to 10 Client Connector Posture Profile condition sets to the rule.",
+            "Choose the trusted networks to which the rule applies, and click Done.",
+            "Choose the Machine groups to which this rule applies, and click Done.",
+            "Choose the platforms to which the rule applies and click Save.",
+            "The SAML and SCIM Attributes criteria type cannot be configured with the Cloud Connector Group criteria type.",
+            "If you've added multiple Cloud Connector groups to the policy rule, ZPA uses an AND Boolean operator between them."
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "An isolation rule name cannot contain special characters, with the exception of periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-isolation-policies.json",
+          "quotes": [
+            "Name: Enter an isolation policy name. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
     "mcp-create-requires-profile": {
       "statement": "The MCP server's isolation rule create tool raises an error when `action_type` is isolate and no `zpn_isolation_profile_id` is given, and creates the rule through the Python SDK's `add_isolation_rule_v2`.",
       "tier": "A",
@@ -216,6 +298,16 @@
     }
   },
   "gaps": {
+    "accepted-criteria": {
+      "kind": "semantic",
+      "title": "Which criteria an isolation rule actually accepts",
+      "status": "open",
+      "detail": "The Configuring Isolation Policies page says Web Browser is the only client type and that posture, trusted network and machine group criteria are not supported with it, yet it also says a Client Connector Posture Profile must be selected before a client type, describes up to 10 posture condition sets and a Machine group criterion. Which criteria an isolation rule accepts is open; the help is one position in zpa.posture-profiles.policy-operand:posture-isolation.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
     "isolated-but-denied": {
       "kind": "semantic",
       "status": "open",

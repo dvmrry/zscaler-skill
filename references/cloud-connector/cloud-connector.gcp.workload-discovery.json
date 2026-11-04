@@ -46,7 +46,19 @@
     },
     {
       "label": "Onboarding package.",
-      "text": "{{terraform-package}}"
+      "text": "{{terraform-package}} {{download-script-terraform}}"
+    },
+    {
+      "label": "Adding and managing an account.",
+      "text": "{{gcp-account}} {{gcp-page}} {{add-account}} {{delete-account}} The page's description uses Azure terms for a GCP account {{gap:account-azure-terms}}."
+    },
+    {
+      "label": "Account details.",
+      "text": "{{project-status}} The N/A permission state is not defined {{gap:na-permission}}. {{discovery-status}} {{policy-attributes}}"
+    },
+    {
+      "label": "Pub/Sub tab.",
+      "text": "{{pubsub-tab}} The page says CloudFormation creates the topics but describes only subscriptions for the Terraform package {{gap:pubsub-topic-creator}}. The Azure counterpart of this subject is [[cloud-connector.azure.workload-discovery]]."
     }
   ],
   "checks": [
@@ -75,6 +87,14 @@
         "polling",
         "vm-start-flow",
         "pubsub-editor-required"
+      ]
+    },
+    {
+      "do": "Who created the Pub/Sub topics the Pub/Sub tab shows, since the page names CloudFormation for topics and a Terraform package only for subscriptions.",
+      "uses": [
+        "pubsub-topic-creator",
+        "pubsub-tab",
+        "download-script-terraform"
       ]
     }
   ],
@@ -238,6 +258,179 @@
             "- Grants impersonation rights to the Zscaler SaaS service account. - Sets up logging sinks for VM start events. - Configures pub/sub subscriptions for workload change events."
           ]
         }
+      ]
+    },
+    "gcp-account": {
+      "statement": "The About GCP Accounts page says Zscaler configuration requires a service account called a GCP account (in its words, mapping to service principal credentials with access to a set of subscriptions in the same tenant), and that partner integrations enable the admin to configure permissions for the Zscaler service to discover workloads and associated metadata from a set of GCP projects and to associate a Cloud Connector with the workload information to enforce Zscaler security policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-google-cloud-platform-accounts.json",
+          "quotes": [
+            "Zscaler configuration requires a service account called a GCP account, which maps to service principal credentials that have access to a set of subscriptions in the same tenant.",
+            "Partner integrations provide the following benefits and enable you to:",
+            "Configure permissions for the Zscaler service to discover workloads and associated metadata from a set of GCP projects.",
+            "Associate a Cloud Connector with the workload information to enforce Zscaler security policies."
+          ]
+        }
+      ]
+    },
+    "gcp-page": {
+      "statement": "The GCP page (Zero Trust Cloud > Common Resources > GCP) lists for each account the number of GCP projects, Cloud Connectors and regions in the account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-google-cloud-platform-accounts.json",
+          "quotes": [
+            "On the GCP page (Zero Trust Cloud > Common Resources > GCP), you can do the following:",
+            "Project List: The number of GCP projects in the account.",
+            "Cloud Connectors: The number of Cloud Connectors in the account.",
+            "Regions: The number of regions in the account."
+          ]
+        }
+      ]
+    },
+    "add-account": {
+      "statement": "Adding a GCP account shows a Zscaler Service Account Email (to be copied and saved only when deploying without Terraform), takes the Customer Service Account Email that grants the Zscaler service permission to use the service account to discover workloads, offers an optional Terraforming Script (Download Script) to create the service account, and then selects the projects visible to the service, the regions where the account operates and the Cloud Connectors to add.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-google-cloud-platform-account.json",
+          "quotes": [
+            "Zscaler Service Account Email: If you plan to deploy the GCP account without Terraform, copy and save the email that appears in this field. If you are deploying the GCP account with Terraform, you do not need to copy and save the email.",
+            "Customer Service Account Email: Enter your service account email to grant the Zscaler service permission to use the service account to discover workloads.",
+            "Terraforming Script: (Optional) Click the Download Script button and run the script in your GCP account to create the service account.",
+            "Projects: Select the projects that are visible to the Zscaler service. The available options depend on the credentials you entered on the Account Name and Credentials tab.",
+            "Region: Select the regions where the GCP account operates.",
+            "On the Cloud Connector Group tab, select the checkboxes of the Cloud Connectors that you want to add to the GCP account."
+          ]
+        }
+      ]
+    },
+    "delete-account": {
+      "statement": "Deleting a GCP account causes the Zscaler service to remove access information for that account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-google-cloud-platform-account-details.json",
+          "quotes": [
+            "Delete: Delete the account, which causes the Zscaler service to remove access information for this account."
+          ]
+        }
+      ]
+    },
+    "project-status": {
+      "statement": "A GCP project's permission status in the account is Allowed, Pending, Denied or N/A and its status is Enabled or Disabled; selected projects can be disabled, enabled or refreshed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-google-cloud-platform-account-details.json",
+          "quotes": [
+            "Permissions: The permission status of the GCP project within the account (i.e., Allowed, Pending, Denied, or N/A).",
+            "Status: The status of the GCP project within the account (i.e., Enabled or Disabled).",
+            "Apply actions to a group of selected GCP projects:",
+            "Disable: Disable the projects.",
+            "Enable: Enable the projects.",
+            "Refresh: Refresh the projects."
+          ]
+        }
+      ]
+    },
+    "discovery-status": {
+      "statement": "The region view gives the number of private IP addresses discovered in each GCP project and the discovery service status, which is Starting, Success or Error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-google-cloud-platform-account-details.json",
+          "quotes": [
+            "Private IP Addresses: The number of private IP addresses discovered in the GCP project.",
+            "Discovery Service Status: The status of the discovery service (i.e., Starting, Success, or Error)."
+          ]
+        }
+      ]
+    },
+    "policy-attributes": {
+      "statement": "On the GCP account details page, Image ID (the SKU for the VM image assigned to the workload) and Platform (Linux/UNIX or Windows) are the attributes marked as usable in policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-google-cloud-platform-account-details.json",
+          "quotes": [
+            "You can only use certain attributes in policies. The following list indicates which attributes you can use:",
+            "Image ID: The SKU for the virtual machine (VM) image assigned to the workload. You can use this attribute in policies.",
+            "Platform: The platform (i.e., Linux/UNIX or Windows) that the workload is operating on. You can use this attribute in policies."
+          ]
+        }
+      ]
+    },
+    "pubsub-tab": {
+      "statement": "The Pub/Sub tab shows a Topic Discovery field, the information the topic discovery communicates to the tag service such as resource change notifications like VM creation, and a Topic Cloud Connector field, the information the topic Cloud Connector communicates such as changes to tags associated with the Cloud Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-google-cloud-platform-account-details.json",
+          "quotes": [
+            "Topic Discovery: This field displays the information that the topic discovery communicates, such as resource change notifications like VM creation, to the tag service.",
+            "Topic Cloud Connector: This field displays the information that the topic Cloud Connector communicates, such as any changes to tags associated with the Cloud Connector over this topic."
+          ]
+        }
+      ]
+    },
+    "download-script-terraform": {
+      "statement": "The account details page says the Download Script gives a Terraform deployment package that automates onboarding configuration for the workload discovery service, sets up logging sinks for VM start events and configures Pub/Sub subscriptions for workload change events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-analyzing-google-cloud-platform-account-details.json",
+          "quotes": [
+            "Download Script: Click Download Script to download the ZIP file containing core_infra and centralized_grants.",
+            "This Terraform deployment package automates onboarding configuration for the workload discovery service.",
+            "sets up logging sinks for VM start events, and configures Pub/Sub subscriptions for workload change events."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "pubsub-topic-creator": {
+      "kind": "semantic",
+      "title": "Who creates the Pub/Sub topics shown on the GCP account Pub/Sub tab",
+      "status": "open",
+      "detail": "The Pub/Sub tab says of both the Topic Discovery and Topic Cloud Connector fields \"It is created by CloudFormation\", while the same page's Download Script is described as a Terraform deployment package that configures Pub/Sub subscriptions for workload change events. The page does not say what creates the topics when the Terraform package is used, so the two statements are about topics and subscriptions respectively and are not shown to conflict.",
+      "blocks": "saying which tool owns a missing or failing topic",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
+    "account-azure-terms": {
+      "kind": "semantic",
+      "title": "Why the About GCP Accounts page describes a GCP account in Azure terms",
+      "status": "open",
+      "detail": "The page says a GCP account maps to service principal credentials with access to a set of subscriptions in the same tenant, which are Azure terms; the Add and Analyze pages instead use a customer service account email and projects. Whether this is a vendor copy error is not stated.",
+      "blocks": "translating the About page's description into GCP terms",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "na-permission": {
+      "kind": "semantic",
+      "title": "What the N/A permission state of a GCP project means",
+      "status": "open",
+      "detail": "The project permission status lists Allowed, Pending, Denied or N/A, but the capture does not define N/A.",
+      "blocks": "interpreting a project showing N/A",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
       ]
     }
   }

@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.dns-search-domains",
+  "title": "What DNS search domains do for application segments and how they must match",
+  "aliases": [
+    "DNS search domains",
+    "dns search suffix",
+    "Domain Validation in Client Connector",
+    "shortname hosts",
+    "trailing dot search domain"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.discovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{purpose}} {{must-match}}"
+    },
+    {
+      "label": "Tenants and entries.",
+      "text": "{{microtenants}} {{no-trailing-dot}} The suffix limit and what in-sequence processing means are open {{gap:suffix-limits}}."
+    },
+    {
+      "label": "Domain Validation.",
+      "text": "{{domain-validation-version}} How a domain is then matched and answered is in [[zpa.app-segments.matching]]."
+    },
+    {
+      "label": "Discovery and shortnames.",
+      "text": "{{discovery-and-shortnames}}"
+    }
+  ],
+  "claims": {
+    "purpose": {
+      "statement": "DNS search domains can be added as suffixes to application names to create fully qualified domain names, analogous to the DNS search suffixes in a DHCP scope for adding suffixes to non-FQDN (shortname) hosts, and they are processed in sequence in Zscaler Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-dns-search-domains.json",
+          "quotes": [
+            "DNS search domains can be added as suffixes to application names to create fully qualified domain names (FQDNs).",
+            "This is analogous to the DNS search suffixes in a DHCP scope for adding suffixes to non-FQDN (i.e., shortname) hosts.",
+            "DNS search domains are processed in sequence in Zscaler Client Connector."
+          ]
+        }
+      ]
+    },
+    "must-match": {
+      "statement": "Defining DNS search domains for applications is not required, but when you configure an application segment, the FQDNs or wildcard discovery domains you enter must match your DNS search domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-dns-search-domains.json",
+          "quotes": [
+            "Defining DNS search domains for applications is not required. However, when you configure an application segment, the FQDNs or wildcard discovery domains you enter must match your DNS search domains."
+          ]
+        }
+      ]
+    },
+    "microtenants": {
+      "statement": "DNS search domains are unique per customer, and when configuring Microtenants, DNS search domains that are added in the default tenant are inherited across Microtenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-dns-search-domains.json",
+          "quotes": [
+            "DNS search domains are unique per customer.",
+            "When configuring Microtenants, DNS search domains that are added in the default tenant are inherited across Microtenants."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "DNS search domains are unique per customer. When configuring Microtenants, DNS search domains that are added in the default tenant are inherited across Microtenants."
+          ]
+        }
+      ]
+    },
+    "no-trailing-dot": {
+      "statement": "A trailing dot is not supported when adding DNS search domains; for example, the domain example.safemarch.com. is not valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-dns-search-domains.json",
+          "quotes": [
+            "A trailing dot (.) is not supported when adding DNS search domains. For example, the domain example.safemarch.com. is not valid."
+          ]
+        }
+      ]
+    },
+    "domain-validation-version": {
+      "statement": "The Domain Validation in Client Connector checkbox makes Zscaler Client Connector resolve invalid domains as NXDOMAIN (non-existent domain), and the page says the setting only applies when running Client Connector 1.5.1 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-adding-dns-search-domains.json",
+          "quotes": [
+            "(Optional) If you need Zscaler Client Connector to resolve invalid domains as NXDOMAIN (non-existent domain), select the Domain Validation in Client Connector checkbox.",
+            "This setting only applies if you are running Zscaler Client Connector 1.5.1 or later."
+          ]
+        }
+      ]
+    },
+    "discovery-and-shortnames": {
+      "statement": "If you are enabling application discovery for domains, the page advises matching the DNS search domains for your organization, which ensures that users accessing applications as host shortnames have the domain suffixes appended and an FQDN is sent through for application discovery. For applications that users access using host names (for example DFS), DNS search suffixes should be configured so that Private Access can automatically add the search domain to the host name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "understanding-application-discovery.json",
+          "quotes": [
+            "If you are enabling application discovery for domains, consider matching the DNS search domains for your organization.",
+            "This ensures that Private Access users accessing applications as non-FQDNs (i.e., host shortnames) have the domain suffixes appended, which causes an FQDN to be sent through for application discovery."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-defined-application-segments.json",
+          "quotes": [
+            "For applications that users access using host names (e.g., DFS), ensure that you configure DNS search suffixes so that Private Access can automatically add the search domain to the host name."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "suffix-limits": {
+      "kind": "semantic",
+      "title": "The limit on DNS search domains, what processed in sequence means, and the platform behind the 1.5.1 floor",
+      "status": "open",
+      "detail": "The Adding DNS Search Domains page defers limits to Ranges and Limitations without giving a value, does not explain what processed in sequence means, and does not name the platform of the Client Connector 1.5.1 floor. A name search for searchSuffix, search_domain and dnsSearchDomain over the OpenAPI document, SDKs and Terraform provider found nothing; that is a lead for a source read, not proof it is absent.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

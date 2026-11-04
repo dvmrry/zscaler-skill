@@ -17,6 +17,10 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.firewall.predefined-rules"
+    },
+    {
+      "rel": "see-also",
       "to": "zia.firewall.licensing"
     },
     {
@@ -42,7 +46,7 @@
     },
     {
       "label": "Firewall Filtering rules.",
-      "text": "{{default-rule}} {{block-malicious}} {{recommended-policy}} {{icmp-quic}} {{smb}} {{allow-rule-conditions}}"
+      "text": "{{default-rule}} {{block-malicious}} {{recommended-policy}} {{recommended-rule-settings}} {{recommended-service-ports}} The predefined rules named here are described in [[zia.firewall.predefined-rules]]. {{icmp-quic}} {{smb}} {{allow-rule-conditions}}"
     },
     {
       "label": "DNS Control rules.",
@@ -117,6 +121,37 @@
           "quotes": [
             "| Recommended Firewall Policy | Configure the recommended Firewall rule as an Allow rule, but include only HTTP, HTTPS, and DNS as network service conditions and assign a high rule order.",
             "This rule allows traffic that is managed more granularly by the web proxy and the DNS Control to pass through the Firewall checks at the Network and Transport layers and be managed in those modules. All web and DNS rules are defined in the web proxy and DNS Control modules."
+          ]
+        }
+      ]
+    },
+    "recommended-rule-settings": {
+      "statement": "The Recommended Firewall Control Policy page configures the recommended rule with rule order 1 or the highest order applicable to admin-defined rules (as opposed to system-defined rules like Office 365 One Click Rule and Zscaler Proxy Traffic), Device Groups including Cloud Browser isolation, No Client Connector and OS types, the HTTP, HTTPS and DNS network services, and the Allow action for Network Traffic. It says those services must be allowed through the firewall for the DNS Control and Web (secure web gateway) modules to evaluate the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-firewall-control-policy.json",
+          "quotes": [
+            "Rule Order: Apply rule order 1 or the highest order applicable to admin-defined rules (as opposed to system-defined rules like Office 365 One Click Rule, Zscaler Proxy Traffic, etc.). Rules are evaluated in ascending numerical order.",
+            "Device Groups: Select the required device groups, including Cloud Browser isolation, No Client Connector, and OS types.",
+            "Network Services: Select the HTTP, HTTPS, and DNS network services. These services must be allowed through the firewall for the DNS Control and Web (secure web gateway) modules to evaluate the traffic.",
+            "Under Actions, select Allow for Network Traffic."
+          ]
+        }
+      ]
+    },
+    "recommended-service-ports": {
+      "statement": "By default the HTTP network service uses port 80, HTTPS uses 443 and DNS uses 53. To send custom network services to the DNS Control and Web modules for evaluation, they must be configured in Advanced Settings using the Services Forwarded to HTTP Web Proxy and Services Applicable to DNS Transaction Policies options, and Zscaler recommends against changing the default ports for the HTTP, HTTPS and DNS network services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-firewall-control-policy.json",
+          "quotes": [
+            "By default, the HTTP network service uses port 80, HTTPS uses 443, and DNS uses 53.",
+            "Additionally, to send the custom network services to the DNS Control and Web modules for evaluation, you must configure these services in the Advanced Settings using the Services Forwarded to HTTP Web Proxy and Services Applicable to DNS Transaction Policies options.",
+            "Zscaler recommends against changing the default ports for HTTP, HTTPS, and DNS network services."
           ]
         }
       ]

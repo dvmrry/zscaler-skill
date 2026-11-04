@@ -39,7 +39,7 @@
     },
     {
       "label": "Limit.",
-      "text": "{{group-limit}}"
+      "text": "{{group-limit}} {{name-rule}} Whether the API enforces the name rule is open {{gap:name-rule-api}}. {{clear-all-over-500}}"
     },
     {
       "label": "Microtenants.",
@@ -79,7 +79,7 @@
   ],
   "claims": {
     "group-limit": {
-      "statement": "The Ranges & Limitations article lists a limit of 200 segment groups.",
+      "statement": "The Ranges & Limitations article lists a limit of 200 segment groups, and the Configuring Segment Groups article says up to 200 segment groups can be added.",
       "tier": "A",
       "evidence": [
         {
@@ -87,6 +87,39 @@
           "path": "ranges-limitations-zia.json",
           "quotes": [
             "| Segment Groups | 200 groups |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-groups.json",
+          "quotes": [
+            "Within the Zscaler Admin Console, you can add up to 200 segment groups."
+          ]
+        }
+      ]
+    },
+    "name-rule": {
+      "statement": "A segment group name cannot contain any form of the word \"and\" (And, AND, &) or special characters, except for periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-groups.json",
+          "quotes": [
+            "The name cannot contain any form of the word \"and\" (e.g., And, AND, &, etc.) or special characters, except for periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "clear-all-over-500": {
+      "statement": "If more than 500 application segments are attached to a segment group, the Clear All option is hidden in the edit window.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-segment-groups.json",
+          "quotes": [
+            "If you have more than 500 application segments attached to a segment group, the Clear All option is hidden."
           ]
         }
       ]
@@ -181,6 +214,15 @@
     }
   },
   "gaps": {
+    "name-rule-api": {
+      "kind": "semantic",
+      "title": "Whether the API enforces the segment group name rule that bans \"and\"",
+      "status": "open",
+      "detail": "The Configuring Segment Groups article states the name rule for the console. No captured source says whether a name sent through the API, Terraform or an SDK is checked the same way.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
     "microtenant-visibility": {
       "kind": "semantic",
       "former_ids": [

@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.policy-groups",
+  "title": "ZPA access policy global rules and policy groups",
+  "aliases": [
+    "global rules",
+    "policy groups",
+    "access policy global rules",
+    "defined by my tenant",
+    "common criteria policy group",
+    "group order",
+    "default policy groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.access-rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.sdk-python.policy-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{policy-group-definition}}"
+    },
+    {
+      "label": "Availability.",
+      "text": "{{limited-availability}} {{experience-center-and-scaling}} {{legacy-api-unsupported}}"
+    },
+    {
+      "label": "Global rules.",
+      "text": "{{global-rules-scope}} {{define-first}} {{global-rule-bulk-actions}}"
+    },
+    {
+      "label": "Policy groups.",
+      "text": "{{group-order-columns}} {{legacy-ui-policies-moved}}"
+    },
+    {
+      "label": "The Defined by My Tenant page.",
+      "text": "{{tenant-page-columns}}"
+    },
+    {
+      "label": "Names.",
+      "text": "{{name-characters}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "How global rules and policy group rules interleave in one rule order is not stated {{gap:global-group-interleave}}. Whether common criteria are combined with a rule's own criteria is not stated {{gap:common-criteria-combination}}. What the default policy groups are named, whether a group carries an action, and the limits are not stated {{gap:group-details-not-stated}}."
+    },
+    {
+      "text": "The criteria and conditions these rules use are in [[zpa.policy.criteria]] and [[zpa.policy.conditions]]. The Python SDK controllers are in [[zpa.sdk-python.policy-groups]]. Rule order is in [[zpa.policy.access-rule-order]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Before relying on global rules or policy groups, check that the tenant has the limited-availability feature enabled, with Application Scaling, and that API automation no longer uses the legacy calls.",
+      "uses": [
+        "limited-availability",
+        "experience-center-and-scaling",
+        "legacy-api-unsupported"
+      ]
+    },
+    {
+      "do": "When a rule seems to be evaluated in the wrong place, check the Group Order of its policy group and whether a global rule applies first.",
+      "uses": [
+        "global-rules-scope",
+        "group-order-columns",
+        "global-group-interleave"
+      ]
+    },
+    {
+      "do": "When a policy group's common criteria change, check every rule in the group, and whether the group's criteria combine with a rule's own.",
+      "uses": [
+        "policy-group-definition",
+        "common-criteria-combination"
+      ]
+    }
+  ],
+  "claims": {
+    "policy-group-definition": {
+      "statement": "A policy group is a collection of access rules that share the same common criteria; the configured criteria are applied automatically to every rule in the group, each group can have its own common criteria, and changes to them affect every rule in the group. The page says the AND operator is used to logically configure the criteria defined in each rule in the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-policy-groups.json",
+          "quotes": [
+            "A policy group is a collection of access rules that share the same common criteria. The configured criteria are automatically applied to every rule within the group.",
+            "Each policy group can have its own unique common criteria.",
+            "The AND operator is used to logically configure the criteria defined in each rule in the group.",
+            "Changes to common criteria automatically affect every rule within that policy group."
+          ]
+        }
+      ]
+    },
+    "limited-availability": {
+      "statement": "Global rules and policy groups for access policy are in limited availability, and the pages say to contact Zscaler Support to learn more.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-global-rules.json",
+          "quotes": [
+            "This feature is in limited availability. To learn more, contact Zscaler Support."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-policy-groups.json",
+          "quotes": [
+            "This feature is in limited availability. To learn more, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "experience-center-and-scaling": {
+      "statement": "The Global Rules page says to ensure that Application Scaling is enabled and all of its specific prerequisites are fully met, and that global rules are only supported for Experience Center; the Policy Groups page says policy groups are only supported for Experience Center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-global-rules.json",
+          "quotes": [
+            "Ensure that Application Scaling is enabled and that all of its specific prerequisites are fully met.",
+            "Global rules are only supported for Experience Center."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-policy-groups.json",
+          "quotes": [
+            "Policy groups are only supported for Experience Center."
+          ]
+        }
+      ]
+    },
+    "legacy-api-unsupported": {
+      "statement": "The legacy Private Access cloud service API calls are not supported for managing policies after global rules and policy groups are enabled, and the Global Rules page says to ensure that legacy cloud service API automation and workflows for access policies are updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-global-rules.json",
+          "quotes": [
+            "Ensure that legacy cloud service API automation and workflows for access policies are updated.",
+            "The legacy Private Access cloud service API calls are not supported for managing policies after global rules and policy groups are enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-policy-groups.json",
+          "quotes": [
+            "The legacy Private Access (ZPA) cloud service API calls are not supported for managing policies after global rules and policy groups are enabled."
+          ]
+        }
+      ]
+    },
+    "global-rules-scope": {
+      "statement": "Global rules define access policies that apply across all policy groups, and can be created to enforce organization-wide access requirements before policy group rules are evaluated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "Global rules define access policies that apply across all policy groups. You can create global rules to enforce organization-wide access requirements before policy group rules are evaluated."
+          ]
+        }
+      ]
+    },
+    "define-first": {
+      "statement": "To configure an access policy, the global rules and policy groups must be defined first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-global-rules.json",
+          "quotes": [
+            "To configure an access policy, you must first define the global rules and policy groups."
+          ]
+        }
+      ]
+    },
+    "global-rule-bulk-actions": {
+      "statement": "Global rules can be bulk moved or deleted, and a single global rule can be moved or copied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-global-rules.json",
+          "quotes": [
+            "Bulk move or delete global rules.",
+            "Move or copy the global rule."
+          ]
+        }
+      ]
+    },
+    "group-order-columns": {
+      "statement": "Each policy group has a Group Order, its policy evaluation order number, and the Policy Groups page shows the number of rules in the group and whether common criteria are defined for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-policy-groups.json",
+          "quotes": [
+            "Group Order: The policy evaluation order number for the policy group.",
+            "# of Rules: The number of rules contained in the policy group.",
+            "Common Criteria: Indicates whether common criteria are defined for the policy group."
+          ]
+        }
+      ]
+    },
+    "legacy-ui-policies-moved": {
+      "statement": "Access policies created in the legacy UI are automatically moved to default policy groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-policy-groups.json",
+          "quotes": [
+            "View existing access policies created in the legacy UI. These policies are automatically moved to default policy groups."
+          ]
+        }
+      ]
+    },
+    "tenant-page-columns": {
+      "statement": "On the Defined by My Tenant page each access rule shows the name of its associated policy group, and the page shows the total rules, total policy groups and the numbers of enabled and disabled rules; a rule's order is changed on the Global Rules or Policy Groups page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-access-policies-defined-my-tenant.json",
+          "quotes": [
+            "Policy Groups: The name of the policy group that the policy rule is associated with.",
+            "View the total rules, total policy groups, number of enabled rules, and number of disabled rules for the information that appears in the table.",
+            "To change the rule order, go to the Global Rules or Policy Groups page, and click the rule order number and manually enter a new value."
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "Policy group names and global rule names cannot contain special characters except periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "Policy Group Name: Enter a policy group name. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+            "Rule Name: Enter a global rule name. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "global-group-interleave": {
+      "kind": "semantic",
+      "title": "How global rules and policy group rules interleave in one rule order",
+      "status": "open",
+      "about": [
+        "zpa.policy.policy-groups"
+      ],
+      "detail": "The configuring page says global rules enforce requirements before policy group rules are evaluated (claim global-rules-scope), and the Policy Groups page gives each group a Group Order. No captured page says how the two are numbered together or what the rule order on the Defined by My Tenant page shows. A lab test with a global rule and two groups would show it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "common-criteria-combination": {
+      "kind": "semantic",
+      "title": "Whether a group's common criteria are ANDed with a rule's own criteria or replace them",
+      "status": "open",
+      "about": [
+        "zpa.policy.policy-groups"
+      ],
+      "detail": "The page says only that the AND operator is used to logically configure the criteria defined in each rule in the group (claim policy-group-definition). It does not say whether a rule's own criteria are combined with the group's common criteria or replaced by them. A lab test with a group and a rule that sets the same criterion would show it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "group-details-not-stated": {
+      "kind": "semantic",
+      "title": "Default policy group names, whether a policy group carries an action, and the limits",
+      "status": "open",
+      "about": [
+        "zpa.policy.policy-groups"
+      ],
+      "detail": "The captured pages do not name the default policy groups that legacy-UI policies move into, say whether a policy group carries an action (the Add Policy Group page shows only Details and Criteria), or give the Ranges & Limitations values they point to. The policy group API articles the pages name, the Go SDK and Terraform were not read.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -72,7 +72,7 @@
     },
     {
       "label": "One list, two pages.",
-      "text": "{{shared-list}} {{allowlist-capacity}} {{url-filtering-separate}} The help page also says the allowlist applies to URL Filtering, which the enforcement order contradicts {{divergence:allowlist-vs-url-filtering-order}}. The Malware Protection side of the tab is in [[zia.malware-protection]]; URL Filtering order is in [[zia.url-filtering.rule-order]]."
+      "text": "{{shared-list}} {{atp-tab-url-limit}} {{allowlist-capacity}} {{atp-page-removal}} {{url-filtering-separate}} {{atp-page-allowlist-scope}} The help page also says the allowlist applies to URL Filtering, which the enforcement order contradicts {{divergence:allowlist-vs-url-filtering-order}}. The Malware Protection side of the tab is in [[zia.malware-protection]]; URL Filtering order is in [[zia.url-filtering.rule-order]]."
     },
     {
       "label": "In the API.",
@@ -197,6 +197,55 @@
         }
       ]
     },
+    "atp-tab-url-limit": {
+      "statement": "On the ATP page's Security Exceptions tab, the Do Not Scan Content from these URLs field takes URLs to allowlist for ATP or URLs not to inspect for ATP, up to 1,024 URLs entered by pressing Enter after each entry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-security-exceptions-advanced-threat-protection-policy.json",
+          "quotes": [
+            "In Do Not Scan Content from these URLs, enter the URLs you want to allowlist for ATP, or URLs you don't want to inspect for ATP, and click Add.",
+            "You can enter up to 1,024 URLs by pressing Enter after each entry."
+          ]
+        }
+      ]
+    },
+    "atp-page-removal": {
+      "statement": "The ATP Security Exceptions page's item-list paragraph offers Remove 25K Items, which removes the first 25K items from the list, or Remove Page for one page, and its removal steps offer Remove All for all configured security exceptions; the allowlist page's list controls are Remove All and Remove Page (see allowlist-capacity).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-security-exceptions-advanced-threat-protection-policy.json",
+          "quotes": [
+            "remove the first 25K items from the list (Remove 25K Items) or only items from a specific page (Remove Page).",
+            "You can remove all configured security exceptions by selecting Remove All."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "adding-urls-allowlist.json",
+          "quotes": [
+            "remove all items from the list (Remove All) or only items from a specific page (Remove Page)."
+          ]
+        }
+      ]
+    },
+    "atp-page-allowlist-scope": {
+      "statement": "The ATP Security Exceptions page says the allowlist also applies to the Malware Protection and Sandbox policies, and that allowlisting URLs and files completely requires also configuring the URL Filtering, File Type Control and IPS Control policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-security-exceptions-advanced-threat-protection-policy.json",
+          "quotes": [
+            "This allowlist also applies to the Malware Protection and Sandbox policies.",
+            "If you want to allowlist URLs and files completely, you must also configure the URL Filtering, File Type Control, and IPS Control policies."
+          ]
+        }
+      ]
+    },
     "url-filtering-separate": {
       "statement": "URL Filtering is exempted by a separate procedure from the scan allowlist: the URLs go in a custom URL category with a URL Filtering Allow rule ordered above the rule that blocks them.",
       "tier": "A",
@@ -297,6 +346,26 @@
         {
           "evidence": {
             "source": "zscaler-help",
+            "path": "zia-adding-urls-denylist.json",
+            "quotes": [
+              "URLs that have been added to the allowlist are accessible even if they would otherwise be blocked by other security measures or policies."
+            ]
+          },
+          "says": "The ATP allowlist/denylist page says allowlisted URLs are accessible even if they would otherwise be blocked by \"other security measures or policies\"; it does not name URL Filtering."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-security-exceptions-advanced-threat-protection-policy.json",
+            "quotes": [
+              "If you want to allowlist URLs and files completely, you must also configure the URL Filtering, File Type Control, and IPS Control policies."
+            ]
+          },
+          "says": "The ATP Security Exceptions page says allowlisting URLs and files completely also requires configuring URL Filtering, File Type Control and IPS Control."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
             "path": "understanding-policy-enforcement.json",
             "quotes": [
               "3. URL Filtering:",
@@ -321,6 +390,16 @@
             ]
           },
           "says": "The allowlist takes precedence over all the options listed after it, which include Blocked Malicious URLs."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-adding-urls-denylist.json",
+            "quotes": [
+              "URLs that have been added to the allowlist are accessible even if they would otherwise be blocked by other security measures or policies."
+            ]
+          },
+          "says": "The ATP allowlist/denylist page says allowlisted URLs are accessible even if they would otherwise be blocked by \"other security measures or policies\"; it does not name the Blocked Malicious URLs list."
         },
         {
           "evidence": {

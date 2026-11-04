@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "id": "shared.admin-rbac.cloud-connector",
+  "title": "Cloud & Branch Connector admin roles: super admin, the eleven permission categories and Unified RBAC",
+  "aliases": [
+    "cloud connector admin roles",
+    "branch connector admin roles",
+    "cloud and branch connector role management",
+    "cbc admin permissions",
+    "cloud connector super admin",
+    "api key management permission",
+    "remote assistance management permission"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zdx"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.admin-rbac.zia"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.admin-sso"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.support-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.api.authentication"
+    }
+  ],
+  "prose": [
+    {
+      "text": "A Cloud & Branch Connector admin has a role, and each role sets a permission in each of a fixed set of categories. {{super-admin}} {{categories}}"
+    },
+    {
+      "label": "Where roles are managed.",
+      "text": "{{role-page}} {{unified-rbac}} {{auth-service}} {{prerequisites}}"
+    },
+    {
+      "label": "What each category covers.",
+      "text": "{{dashboard}} {{template}} {{location-mgmt}} {{api-key-mgmt}} {{nss-logging}} {{provisioning}} {{admin-mgmt}} {{forwarding}} {{remote-assistance-perm}} {{public-cloud-config}} {{vdi}}"
+    },
+    {
+      "label": "Open.",
+      "text": "What a scope other than organizational restricts {{gap:non-org-scope}}, the permission levels the page does not list {{gap:levels-not-listed}} and the Unified RBAC page for these roles {{gap:unified-rbac-page}} are not documented in the captures. How an admin signs in is in [[cloud-connector.admin-sso]]; what admins did is in [[cloud-connector.audit-logs]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "For an admin who cannot open a Cloud & Branch Connector page, the role's permission in the category that covers it; whether the tenant uses Unified RBAC, where roles are managed on another page; and, for Authentication Service tenants, that admin roles are assigned in the Zscaler Admin Console.",
+      "uses": [
+        "categories",
+        "unified-rbac",
+        "auth-service"
+      ]
+    },
+    {
+      "do": "For an admin who cannot view or change the API key, the role's API Key Management permission.",
+      "uses": [
+        "api-key-mgmt"
+      ]
+    },
+    {
+      "do": "For an admin who cannot enable remote assistance for Zscaler Support, the role's Remote Assistance Management permission.",
+      "uses": [
+        "remote-assistance-perm"
+      ]
+    }
+  ],
+  "claims": {
+    "super-admin": {
+      "statement": "On the About Role Management page for the Role Management page at Administration > Role Management > Branch and Cloud Connector, Zscaler provides a default super admin role with full access to the portal, assigned to the default admin and assignable to other admins; every additional role must have its access defined by permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-role-management.json",
+          "quotes": [
+            "On the Role Management page (Administration > Role Management > Branch and Cloud Connector), you can do the following:",
+            "Zscaler provides a default super admin role which has full access to the portal. The super admin role is assigned to the default admin, but you can assign this role to other admins as necessary.",
+            "For each additional role you create, you must define the role's access by specifying permissions."
+          ]
+        }
+      ]
+    },
+    "unified-rbac": {
+      "statement": "Where the organization uses Unified RBAC, administrator roles for Cloud & Branch Connector are managed on a different Role Management page; Unified RBAC is a feature in limited availability, reached through the Zscaler Account team.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-role-management.json",
+          "quotes": [
+            "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Cloud & Branch Connector are managed on a different Role Management page.",
+            "Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team."
+          ]
+        }
+      ]
+    },
+    "role-page": {
+      "statement": "Roles are listed on the Role Management page (Administration > Role Management > Branch and Cloud Connector), whose columns include Full Access (the areas of the Admin Console where admins with the role have full access) and Type (for example Cloud Connector Admin).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-role-management.json",
+          "quotes": [
+            "On the Role Management page (Administration > Role Management > Branch and Cloud Connector), you can do the following:",
+            "Full Access: The areas of the Zscaler Admin Console where admins with this role have full access.",
+            "Type: The type of admin (e.g., Cloud Connector Admin)."
+          ]
+        }
+      ]
+    },
+    "auth-service": {
+      "statement": "If the organization is subscribed to Authentication Service, some of the Role Management options are configurable only in the Zscaler Admin Console, and for Authentication Service-enabled tenants admin roles must be assigned in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-role-management.json",
+          "quotes": [
+            "If you are subscribed to Authentication Service, some of the following options are only configurable within the Zscaler Admin Console."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "For Authentication Service-enabled tenants, you must assign admin roles in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Configuring roles requires the proper permissions and organizational scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "You must have the proper permissions to do so, as detailed below.",
+            "You must have organizational scope."
+          ]
+        }
+      ]
+    },
+    "categories": {
+      "statement": "A role sets permissions in these categories: Dashboard, Template (Location & Provisioning), Location Management, API Key Management, NSS Logging, Cloud Connector Provisioning, Administrator Management, Forwarding (Traffic, DNS & Logs), Remote Assistance Management, Public Cloud Config Management and VDI Provisioning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "For each admin, you must select permissions in the following categories:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "after": "For each admin, you must select permissions in the following categories:",
+          "quotes": [
+            "    - Dashboard",
+            "    - Template (Location & Provisioning)",
+            "    - Location Management",
+            "    - API Key Management",
+            "    - NSS Logging",
+            "    - Cloud Connector Provisioning",
+            "    - Administrator Management",
+            "    - Forwarding (Traffic, DNS & Logs)",
+            "    - Remote Assistance Management",
+            "    - Public Cloud Config Management",
+            "    - VDI Provisioning"
+          ]
+        }
+      ]
+    },
+    "dashboard": {
+      "statement": "Dashboard access lets admins view the predefined dashboards, including Logs and Insights; the page lists View Only (view all dashboards) and None (no access to dashboards).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Dashboards, admins can view predefined dashboards that enable real-time visibility into your organization's internet traffic in a range of areas, including Logs and Insights.",
+            "View Only: Allows admins only to view all dashboards.",
+            "None: Doesn't allow admins access to dashboards."
+          ]
+        }
+      ]
+    },
+    "template": {
+      "statement": "Template (Location & Provisioning) lets admins create and delete location templates and provisioning templates; its View Only level allows viewing but not editing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Template (Location & Provisioning), admins can create and delete location templates and provisioning templates.",
+            "View Only: Allows admins to view, but not edit, items in Template (Location & Provisioning)."
+          ]
+        }
+      ]
+    },
+    "location-mgmt": {
+      "statement": "Location Management lets admins view and edit locations; its None level gives no access to locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Location Management, admins can view and edit locations.",
+            "None: Doesn't allow admins access to locations."
+          ]
+        }
+      ]
+    },
+    "api-key-mgmt": {
+      "statement": "API Key Management lets admins view, remove, edit or regenerate the base URL and key; its View Only level shows the key without letting the admin edit, remove or regenerate it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In API Key Management, admins can view, remove, edit, or regenerate the base URL and key.",
+            "View Only: Allows admins to view the API key but not edit, remove, or regenerate it."
+          ]
+        }
+      ]
+    },
+    "nss-logging": {
+      "statement": "NSS Logging lets admins add NSS servers, deploy NSS virtual appliances, download MIB files and view NSS feeds; the page lists the levels Full and None for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Nanolog Streaming Service (NSS) Logging, admins can add NSS Servers, Deploy NSS Virtual Appliances, Download MIB Files, and view NSS Feeds.",
+            "Full: Allows admins full access to features in NSS Logging.",
+            "None: Doesn’t allow admins access to NSS Logging."
+          ]
+        }
+      ]
+    },
+    "provisioning": {
+      "statement": "Cloud Connector Provisioning lets admins add Cloud Connector groups, access deployment templates and access Branch Connector images.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Cloud Connector Provisioning, admins can add Cloud Connector Groups, access deployment templates, and access Branch Connector Images."
+          ]
+        }
+      ]
+    },
+    "admin-mgmt": {
+      "statement": "Administrator Management lets admins add other admins, search for configured admins and view a list of all admins configured for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Administrator Management, admins can add other admins, search for configured admins, and view a list of all admins configured for your organization."
+          ]
+        }
+      ]
+    },
+    "forwarding": {
+      "statement": "Forwarding (Traffic, DNS & Logs) gives admins access to DNS Policies, Traffic Forwarding, Gateways and Log & Control Forwarding, and lets them define firewall filtering rules in Network Services and IP & FQDN Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Forwarding (Traffic, DNS & Logs), admins have access to DNS Policies, Traffic Forwarding, Gateways, and Log & Control Forwarding. Admins can also define rules for firewall filtering in Network Services and IP & FQDN Groups."
+          ]
+        }
+      ]
+    },
+    "remote-assistance-perm": {
+      "statement": "Remote Assistance Management lets admins allow Zscaler Support to log in to the Admin Console; the page lists the levels Full and View Only for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Remote Assistance Management, admins can allow Zscaler Support to securely and remotely log in to your Zscaler Admin Console.",
+            "Full: Allows admins full access to features in Remote Assistance Management.",
+            "View Only: Allows admins to view, but not edit, items in Remote Assistance Management."
+          ]
+        }
+      ]
+    },
+    "public-cloud-config": {
+      "statement": "Public Cloud Config Management lets admins create, edit, delete and view Partner Integrations; the page says to contact Zscaler Support to enable this feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In Public Cloud Config Management, admins can create, edit, delete, and view Partner Integrations.",
+            "To enable this feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "vdi": {
+      "statement": "VDI Provisioning lets admins manage Client Connector for VDI operations; its Full level allows editing and viewing all Client Connector for VDI entities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-adding-admin-roles.json",
+          "quotes": [
+            "In VDI Provisioning, admins can manage Zscaler Client Connector for VDI operations.",
+            "Full: Allows admins full access to features in VDI Provisioning, which allows them to edit and view all the Zscaler Client Connector for VDI-related entities."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "non-org-scope": {
+      "kind": "semantic",
+      "title": "What a scope other than organizational restricts for a Cloud & Branch Connector admin",
+      "status": "open",
+      "detail": "Adding Admin Roles says configuring roles requires organizational scope and does not say what any other scope would restrict.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "levels-not-listed": {
+      "kind": "semantic",
+      "title": "Whether NSS Logging has a View Only level and Remote Assistance Management a None level",
+      "status": "open",
+      "detail": "The page lists Full and None for NSS Logging and Full and View Only for Remote Assistance Management; it does not say whether the other level exists for each.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "unified-rbac-page": {
+      "kind": "semantic",
+      "title": "The Unified RBAC Role Management page for Cloud & Branch Connector roles",
+      "status": "open",
+      "detail": "The captures say roles are managed on a different page under Unified RBAC and do not describe that page or how its permissions map to the eleven categories.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

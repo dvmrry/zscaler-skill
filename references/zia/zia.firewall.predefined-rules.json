@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "id": "zia.firewall.predefined-rules",
+  "title": "Default and predefined Firewall Filtering rules: what each does and what can be changed",
+  "aliases": [
+    "Default Firewall Filtering Rule",
+    "Zscaler Proxy Traffic",
+    "Block Malicious IPs and Domains",
+    "Block All IPv6",
+    "Office 365 One Click Rule firewall",
+    "predefined firewall rules"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.rule-order"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.best-practices"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.ipv6"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.predefined-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.forwarding-control.predefined-rules"
+    }
+  ],
+  "prose": [
+    {
+      "text": "Firewall Filtering ships with a default rule and a few predefined rules, some of which appear only after a related setting is enabled. {{conditional-visibility}}"
+    },
+    {
+      "label": "The default rule.",
+      "text": "{{default-rule-blocks-all}} {{default-rule-when-enabled}} {{default-rule-edit}} The actions it offers are in [[zia.firewall.actions]]."
+    },
+    {
+      "label": "Zscaler Proxy Traffic.",
+      "text": "{{proxy-traffic-rule}}"
+    },
+    {
+      "label": "Block Malicious IPs and Domains.",
+      "text": "{{block-malicious-rule}}"
+    },
+    {
+      "label": "Block All IPv6.",
+      "text": "{{block-all-ipv6}} Where the rule sits differs between two help pages {{divergence:block-all-ipv6-placement}}. The IPv6 settings side is in [[zia.traffic-forwarding.ipv6]]."
+    },
+    {
+      "label": "Office 365 One Click Rule.",
+      "text": "{{o365-firewall-rule}} {{o365-fingerprint}}"
+    },
+    {
+      "text": "The recommended settings for these rules are in [[zia.firewall.best-practices]], and the Terraform names the provider refuses to delete are in [[zia.firewall.rule-order]]."
+    }
+  ],
+  "claims": {
+    "conditional-visibility": {
+      "statement": "Some predefined Firewall Filtering rules are visible only after certain related settings are enabled for the first time. The Office 365 One Click Rule appears on the Firewall Filtering Policy page only after the Enable Microsoft-Recommended One Click Office 365 Configuration option on the Advanced Policy Settings page is enabled for the first time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "Some predefined Firewall Filtering rules are visible only after you enable certain related settings for the first time.",
+            "It appears on the Firewall Filtering Policy page, only after the Enable Microsoft-Recommended One Click Office 365 Configuration option on the Advanced Policy Settings page is enabled for the first time."
+          ]
+        }
+      ]
+    },
+    "default-rule-blocks-all": {
+      "statement": "The Zscaler service provides a default Firewall Filtering rule that blocks all traffic from the network to the internet. It always maintains the lowest precedence (the lowest rule order) and cannot be deleted, and admins with the super admin role can modify certain attributes of it, such as the action, logging mode and end user notification.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-firewall-control-policy.json",
+          "quotes": [
+            "The Zscaler service provides a default Firewall Filtering rule that blocks all traffic from your network to the internet.",
+            "The default rule always maintains the lowest precedence (i.e. the lowest rule order) and cannot be deleted.",
+            "Admins with the super admin role can modify certain attributes of the default rule, such as the action, logging mode, and end user notification."
+          ]
+        }
+      ]
+    },
+    "default-rule-when-enabled": {
+      "statement": "When the firewall is enabled, Zscaler's Default Firewall Filtering Rule blocks all traffic from the network to the internet, so the rule must be modified or Firewall Filtering rules with a higher order configured to allow traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-firewall-filtering.json",
+          "quotes": [
+            "When the firewall is enabled, Zscaler's Default Firewall Filtering Rule blocks all traffic from your network to the internet. You must modify this rule or configure Firewall Filtering rules with a higher order to allow traffic."
+          ]
+        }
+      ]
+    },
+    "default-rule-edit": {
+      "statement": "The default rule handles all traffic that does not match any user-defined rule with a higher rule order. Only admins with the super admin role can modify it, its criteria are fixed and not shown on the Edit Rule page, and Block/Drop, which silently drops all matching packets, is its default action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-editing-default-firewall-filtering-rule.json",
+          "quotes": [
+            "The Firewall Filtering policy has a default rule which handles all the traffic that does not match any user-defined rule with a higher rule order.",
+            "Only admins with the super admin role can modify the default rule.",
+            "The criteria for this rule are fixed and cannot be modified. As a result, they are not shown on the Edit Rule page.",
+            "Block/Drop: Silently drops all packets that match the rule. This is the default action for this rule."
+          ]
+        }
+      ]
+    },
+    "proxy-traffic-rule": {
+      "statement": "Zscaler Proxy Traffic allows HTTP tunnel traffic, such as HTTP CONNECT requests, to flow through the Zscaler Firewall engine without bypassing the Proxy engine. By default it is enabled and has the highest precedence (rule order 1). Zscaler recommends keeping it enabled if the organization uses HTTP CONNECT requests (it can be disabled otherwise), its Network Services attribute is preset to Zscaler Proxy Network Service (all Zscaler-specific web proxy ports and customer-specific DPPC ports), its URL Categories attribute is preset to Zscaler Proxy IPs, and Zscaler recommends not editing its attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "Zscaler Proxy Traffic allows all HTTP Tunnel traffic, such as HTTP CONNECT requests to flow through the Zscaler Firewall engine, without bypassing the Proxy engine. By default, this rule is enabled and has the highest precedence (rule order 1).",
+            "Zscaler recommends keeping this rule enabled if your organization uses HTTP CONNECT requests. You can disable it if your organization doesn't use HTTP CONNECT requests.",
+            "Network Services: This attribute is preset to Zscaler Proxy Network Service. It includes all Zscaler specific web proxy ports and customer-specific DPPC ports.",
+            "URL Categories: This attribute is preset to Zscaler Proxy IPs.",
+            "Zscaler recommends not to edit the attributes of this rule."
+          ]
+        }
+      ]
+    },
+    "block-malicious-rule": {
+      "statement": "The Block Malicious IPs and Domains rule blocks traffic in the Zscaler Firewall directed to destinations that are malicious IP addresses or domains (FQDNs) categorized as malicious. It is created in an enabled state with a higher rule order, and the admin can prioritize it as needed. For false positives, custom rules can be created with higher ranks or the rule disabled. Its destination IP criteria are non-modifiable, and its Logging option is Full Logging by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "This rule blocks traffic in the Zscaler Firewall directed to destinations that are malicious IP addresses or domains (FQDNs) categorized as malicious.",
+            "By default, this rule is created in an enabled state, with a higher rule order, and the admin can prioritize the rule as needed.",
+            "In the event of false positives triggered by this rule, you can either create custom rules using higher ranks or disable the rule.",
+            "Destination IP Criteria: (Non-modifiable) URL categories corresponding to malicious IP addresses and domains are configured as the rule criteria.",
+            "Action: (Modifiable) Under this section, Logging option is set to Full Logging by default."
+          ]
+        }
+      ]
+    },
+    "block-all-ipv6": {
+      "statement": "The Understanding Predefined Firewall Filtering Rules page says that when IPv6 support is enabled at the organization level, the Block All IPv6 rule is created to block IPv6 traffic from the organization to any destination through the Zscaler service. It is created enabled, with the highest precedence (top Rule Order) among rules assigned an admin rank of 7, with the Block/Drop action and Aggregate logging. It is deleted when IPv6 support is disabled and recreated enabled with Block/Drop when IPv6 support is enabled again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "When IPv6 support is enabled at the organization level, a default Firewall Filtering rule (Block All IPv6) is automatically created to block IPv6 traffic from your organization to any destination through the Zscaler service.",
+            "The Block All IPv6 rule is created in an enabled state and has the highest precedence (i.e., top Rule Order) among rules that are assigned an admin rank of 7.",
+            "Action: The action is set to Block/Drop.",
+            "Logging: Logging is set to Aggregate.",
+            "When IPv6 support is disabled, the Block All IPv6 rule is deleted from the Zscaler Admin Console. The rule is recreated in an enabled state with the Block/Drop action when IPv6 support is enabled again."
+          ]
+        }
+      ]
+    },
+    "o365-firewall-rule": {
+      "statement": "The Office 365 One Click firewall rule is not configurable and cannot be deleted. It is created to handle Microsoft 365 traffic through the Firewall module without inspecting it, and allows Microsoft 365 traffic whose destination IP address matches Microsoft 365 categories. It appears at rule order one with the enabling admin's rank if that rank is greater than or equal to that of the Firewall rule with top order, and at rule order one with rank 7 if admin rank is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "The rule isn't configurable and can't be deleted. It's automatically created to handle Microsoft 365 traffic through our Firewall module without inspecting the traffic. The rule allows Microsoft 365 traffic whose destination IP address matches Microsoft 365 categories.",
+            "If your admin rank is greater than or equal to that of the Firewall rule with top order, then the rule appears at rule order one with your rank.",
+            "If admin rank is disabled, then the rule appears at rule order one with rank 7."
+          ]
+        }
+      ]
+    },
+    "o365-fingerprint": {
+      "statement": "When Microsoft 365 traffic is sent to the firewall, the service fingerprints the application, and all the fingerprinted information is logged and viewable on the Microsoft 365 dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "When Microsoft 365 traffic is sent to the firewall, the service fingerprints the application. All the fingerprinted information is logged and is viewable on the Microsoft 365 dashboard."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "block-all-ipv6-placement": {
+      "summary": "Where Block All IPv6 sits: the predefined-rules page creates it at the top rule order among rank-7 rules, while the IPv6 settings page recommends giving it the lowest precedence, after the Default Firewall Filtering Rule.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+            "quotes": [
+              "The Block All IPv6 rule is created in an enabled state and has the highest precedence (i.e., top Rule Order) among rules that are assigned an admin rank of 7."
+            ]
+          },
+          "says": "The rule is created with the highest precedence (top Rule Order) among rules assigned an admin rank of 7."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-ipv6-settings.json",
+            "quotes": [
+              "These rules use Source IP address conditions and do not affect destination-based IPv6 traffic. Zscaler recommends assigning the lowest precedence to these rules, following the Default Firewall Filtering Rule."
+            ]
+          },
+          "says": "Zscaler recommends assigning these rules the lowest precedence, following the Default Firewall Filtering Rule."
+        }
+      ],
+      "impact": "One page says where the rule is created and the other recommends where to place it; report both rather than saying where the rule sits. The other side is held in zia.traffic-forwarding.ipv6:predefined-firewall-rules."
+    }
+  },
+  "gaps": {}
+}

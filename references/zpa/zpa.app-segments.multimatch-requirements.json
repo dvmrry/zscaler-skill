@@ -39,7 +39,7 @@
     },
     {
       "label": "Restrictions.",
-      "text": "{{sipa-health-reporting}} {{double-encryption-sipa-disable}} The full list is open {{gap:multimatch-feature-matrix}}."
+      "text": "{{sipa-health-reporting}} {{double-encryption-sipa-disable}} The pages list different features that block Multimatch {{divergence:multimatch-blocking-features}}. The full list is open {{gap:multimatch-feature-matrix}}."
     },
     {
       "label": "Validation.",
@@ -79,6 +79,7 @@
       "do": "Which features block Multimatch for a given domain, by asking the unsupported-references call rather than relying on a fixed list.",
       "uses": [
         "unsupported-references-call",
+        "multimatch-blocking-features",
         "multimatch-feature-matrix"
       ]
     }
@@ -174,6 +175,34 @@
       ]
     }
   },
+  "divergences": {
+    "multimatch-blocking-features": {
+      "summary": "Two live pages list different features for which Multimatch is not supported: the Defined Application Segments page (the newer revision) and the AI-Powered Recommendations page, which embeds a copy of the segment form.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "Multimatch is not supported for applications that have Source IP Anchoring enabled."
+            ]
+          },
+          "says": "Multimatch is not supported for applications that have Source IP Anchoring enabled; no other feature is listed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-ai-powered-recommendations.json",
+            "quotes": [
+              "Multimatch is not supported for applications that have Browser Access, Privileged Remote Access, AppProtection, or Source IP Anchoring enabled."
+            ]
+          },
+          "says": "Multimatch is not supported for applications that have Browser Access, Privileged Remote Access, AppProtection or Source IP Anchoring enabled."
+        }
+      ],
+      "impact": "Whether Multimatch can be enabled for a Browser Access, Privileged Remote Access or AppProtection segment depends on which page is right; the claim sipa-health-reporting states only the Source IP Anchoring exclusion both pages share."
+    }
+  },
   "gaps": {
     "multimatch-feature-matrix": {
       "kind": "semantic",
@@ -184,7 +213,7 @@
         "lab-test"
       ],
       "blocks": "saying whether Multimatch can be enabled for a Browser Access, AppProtection, PRA or ZIA-inspection segment without a tenant check",
-      "detail": "The current captures list Source IP Anchoring and Double Encryption only, an earlier capture lists more, and neither is a feature matrix. Unverified legacy statement: the current Multimatch article records a separate release-summary entry for support for Internet & SaaS Inspection with Multimatch; the current capture contains no such entry. Ask the unsupported-references call for the domain, or read the Multimatch Validation window."
+      "detail": "The Multimatch article lists Source IP Anchoring and Double Encryption only, the Defined Application Segments page lists Source IP Anchoring only, an earlier capture lists more, and the AI-powered recommendations page lists Browser Access, Privileged Remote Access, AppProtection and Source IP Anchoring (see the divergence multimatch-blocking-features); none is a feature matrix. Unverified legacy statement: the current Multimatch article records a separate release-summary entry for support for Internet & SaaS Inspection with Multimatch; the current capture contains no such entry. Ask the unsupported-references call for the domain, or read the Multimatch Validation window."
     }
   }
 }

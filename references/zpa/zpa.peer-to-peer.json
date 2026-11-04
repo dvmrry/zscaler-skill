@@ -46,6 +46,10 @@
     },
     {
       "rel": "see-also",
+      "to": "zpa.pra.app-segments"
+    },
+    {
+      "rel": "see-also",
       "to": "zpa.vpn"
     },
     {
@@ -59,7 +63,7 @@
     },
     {
       "label": "Client-to-client requirements.",
-      "text": "{{c2c-client-versions}} {{c2c-destination-join}} {{c2c-destination-connected}} {{hostname-regex}} {{c2c-segments}} {{c2c-endpoint-firewall}} {{msra-invitation}} {{open-without-policy}}"
+      "text": "{{c2c-client-versions}} {{c2c-destination-join}} {{c2c-destination-connected}} The validating page names only the machine tunnel {{divergence:destination-machine-tunnel-or-login}}. {{hostname-validation-enrollment}} {{validation-prerequisites}} {{hostname-regex}} {{regex-example-and-segment}} {{c2c-segments}} {{c2c-client-connector-only}} {{pra-conflict}} {{hidden-in-microtenant}} {{c2c-endpoint-firewall}} {{msra-invitation}} {{open-without-policy}}"
     },
     {
       "label": "Verifying.",
@@ -96,6 +100,8 @@
       "uses": [
         "c2c-client-versions",
         "c2c-destination-connected",
+        "destination-machine-tunnel-or-login",
+        "validation-prerequisites",
         "s2c-requirements"
       ]
     },
@@ -193,6 +199,91 @@
             "On the endpoints, set Zscaler Client Connector to collect machine hostname information.",
             "Include a regular expression in Client Hostname Validation that matches the hostname of the Windows device you are remotely accessing.",
             "If you use a wildcard domain such as *.example.com in the application segment and a more specific regular expression in the hostname validation, only devices with hostnames matching both the wildcard domain and the hostname validation regular expression are enabled for remote assistance."
+          ]
+        }
+      ]
+    },
+    "hostname-validation-enrollment": {
+      "statement": "Validating a client hostname enrolls endpoints for peer-to-peer connectivity so that they can accept incoming connections through Private Access from other clients. A regular expression of allowed hostnames is configured per tenant; it controls the endpoints to which Client Connector allows peer-to-peer connectivity, and endpoints whose FQDNs match it are enrolled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-validating-client-hostname.json",
+          "quotes": [
+            "Validating a client hostname allows you to enroll endpoints for peer-to-peer connectivity so that you can accept incoming connections through Private Access (ZPA) from other clients.",
+            "To enroll the endpoints, a regular expression of allowed hostnames is configured per tenant.",
+            "This regular expression controls the endpoints to which Zscaler Client Connector allows the peer-to-peer connectivity.",
+            "Endpoints whose FQDNs match this regular expression are enrolled."
+          ]
+        }
+      ]
+    },
+    "pra-conflict": {
+      "statement": "Privileged Remote Access is not supported when an application configured for PRA matches a valid client hostname configured for peer-to-peer connectivity and the user's device is also configured for peer-to-peer connectivity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-validating-client-hostname.json",
+          "quotes": [
+            "If an application configured for Privileged Remote Access (PRA) matches a valid client hostname configured for peer-to-peer connectivity, and the user's device is also configured for peer-to-peer connectivity, then PRA is not supported."
+          ]
+        }
+      ]
+    },
+    "validation-prerequisites": {
+      "statement": "Validating a client hostname needs Client Connector 3.9.0.169 or later installed on the destination machine, and endpoints or devices with valid, complete and unique FQDNs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-validating-client-hostname.json",
+          "quotes": [
+            "Ensure that the remote user has installed Zscaler Client Connector version 3.9.0.169 or later on the destination machine that they want to establish connectivity to.",
+            "Ensure that endpoints or devices have valid, complete, and unique FQDNs."
+          ]
+        }
+      ]
+    },
+    "regex-example-and-segment": {
+      "statement": "The validating page's example enters the regular expression .*.example.com to establish a peer-to-peer connection for devices joined with matching domains such as test.example.com. For remote assistance to work, the application segment designated for peer-to-peer connectivity must match the regular expression entered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-validating-client-hostname.json",
+          "quotes": [
+            "For example, enter the regular expression .*.example.com to establish a peer-to-peer connection for devices joined with domains matching this regular expression (e.g., test.example.com).",
+            "To successfully enable remote assistance, the application segment designated for peer-to-peer connectivity must match the regular expression entered."
+          ]
+        }
+      ]
+    },
+    "hidden-in-microtenant": {
+      "statement": "On the Defined Application Segments page, the Validate a client hostname option is hidden if a Microtenant is in use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-applications.json",
+          "quotes": [
+            "Validate a client hostname.",
+            "If you are using a Microtenant, this option is hidden."
+          ]
+        }
+      ]
+    },
+    "c2c-client-connector-only": {
+      "statement": "Client-based remote assistance is available only to end users connecting to Private Access using Client Connector, and the server group step of segment configuration can be skipped to enable client-to-client remote assistance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ai-powered-recommendations.json",
+          "quotes": [
+            "Client-based remote assistance is only available for end users connecting to Private Access using Zscaler Client Connector.",
+            "On the Server Groups tab, choose one of the following options to configure the server group accordingly, or select Skip if you want to enable client-to-client remote assistance."
           ]
         }
       ]
@@ -529,6 +620,34 @@
       ]
     }
   },
+  "divergences": {
+    "destination-machine-tunnel-or-login": {
+      "summary": "What the destination machine needs for peer-to-peer connectivity: a machine tunnel, or a machine tunnel or a login",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-validating-client-hostname.json",
+            "quotes": [
+              "Zscaler Client Connector on the destination machine must have a machine tunnel deployed."
+            ]
+          },
+          "says": "Client Connector on the destination machine must have a machine tunnel deployed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-client-client-connectivity.json",
+            "quotes": [
+              "Zscaler Client Connector on the destination machine must have a machine tunnel deployed, or the destination machine must be logged in to Private Access in the Zscaler Client Connector."
+            ]
+          },
+          "says": "Client Connector on the destination machine must have a machine tunnel deployed, or the machine must be logged in to Private Access in Client Connector."
+        }
+      ],
+      "impact": "The validating page names only the machine tunnel, while the client-to-client configuring page also accepts a logged-in destination machine. Neither says that the validating page's requirement is limited to a particular direction, so a machine that is only logged in may or may not be enrolled; the configuring page states the wider condition for client-to-client."
+    }
+  },
   "gaps": {
     "field-mapping": {
       "kind": "semantic",
@@ -543,8 +662,8 @@
     "hostname-regex-rules": {
       "kind": "semantic",
       "title": "The rules for the Client Hostname Validation regular expression",
-      "status": "open",
-      "detail": "The Validating a Client Hostname article is captured as zpa-validating-client-hostname.json but is not yet cited; it would hold the regular expression rules behind the FQDN regex error codes in zpa.logs.user-status. The understanding article's advice on a wildcard segment for fine-grained access control is unclear and is not claimed.",
+      "status": "partial",
+      "detail": "The Validating a Client Hostname article now supplies enrollment by a per-tenant regular expression and one example (claims hostname-validation-enrollment and regex-example-and-segment), but gives no expression syntax rules: its example is written .*.example.com while the understanding article writes .*\\.example\\.com. The rules behind the FQDN regex error codes in zpa.logs.user-status are still not stated. The understanding article's advice on a wildcard segment for fine-grained access control is unclear and is not claimed.",
       "resolves_with": [
         "source-read"
       ]

@@ -26,6 +26,10 @@
       "text": "{{os-not-in-place}} {{branch-images}} How physical Branch Connector appliances receive new images is open {{gap:branch-hardware-images}}. Whether scale-set members pick up new images or weekly upgrades as they are replaced is open {{gap:scale-set-members}}."
     },
     {
+      "label": "Identifying the version.",
+      "text": "{{templates-detect-latest}} {{aws-ami-table}} {{azure-version}} {{gcp-version}} The module README dates the same GCP image differently {{divergence:gcp-image-date}}. Minimum images for the repository certificate renewal are in [[cloud-connector.upgrades.repo-certificate]]."
+    },
+    {
       "label": "ZscalerOS 24, Cloud Connector.",
       "text": "{{os24-cloud}}"
     },
@@ -118,6 +122,65 @@
         }
       ]
     },
+    "templates-detect-latest": {
+      "statement": "Zscaler's automation templates for the clouds always detect the latest virtual machine (VM) version when Cloud Connector is deployed, so as long as the latest automation templates are deployed there is no action required when deploying new VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-identifying-zscaler-cloud-connector-version.json",
+          "quotes": [
+            "When you deploy Zscaler Cloud Connector, these templates always detect the latest virtual machine (VM) version. Therefore, as long as the latest automation templates are deployed, there is no action required when deploying new VMs."
+          ]
+        }
+      ]
+    },
+    "aws-ami-table": {
+      "statement": "The AWS version table has release rows ZS42.1.0 (March 10, 2026), ZS6.1.26.1 (November 14, 2023), ZS6.1.26.0 (October 19, 2023) and ZS6.1.24.6 (January 19, 2023), the last two with N/A in their Region and AMI ID columns; the version shows under Instance details in AMI ID and AMI name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-identifying-zscaler-cloud-connector-version.json",
+          "quotes": [
+            "| Release Date and Software Version | Region | AMI ID |",
+            "| March 10, 2026: ZS42.1.0 |",
+            "| November 14, 2023: ZS6.1.26.1 |",
+            "| October 19, 2023: ZS6.1.26.0 | N/A | N/A |",
+            "| January 19, 2023: ZS6.1.24.6 | N/A | N/A |",
+            "On the Details tab, under Instance details, your Cloud Connector version information is displayed in AMI ID and AMI name."
+          ]
+        }
+      ]
+    },
+    "azure-version": {
+      "statement": "On Azure the version is read with az vm image show --urn zscaler1579058425289:zia_cloud_connector:zs_ser_gen1_cc_01:latest, and the Azure image table lists 42.1.0 released March 10, 2026.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-identifying-zscaler-cloud-connector-version.json",
+          "quotes": [
+            "az vm image show --urn zscaler1579058425289:zia_cloud_connector:zs_ser_gen1_cc_01:latest",
+            "| March 10, 2026 | 42.1.0 |"
+          ]
+        }
+      ]
+    },
+    "gcp-version": {
+      "statement": "On GCP the version is shown in the Boot disk source image field under Basic information on the VM's Details tab, and the GCP image table lists zs-cc-ga-03092026 released March 10, 2026.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-identifying-zscaler-cloud-connector-version.json",
+          "quotes": [
+            "On the Details tab, under Basic information, your Cloud Connector version information is displayed in the Boot disk source image field.",
+            "| March 10, 2026 | zs-cc-ga-03092026 |"
+          ]
+        }
+      ]
+    },
     "os24-eol": {
       "statement": "The Supported Versions page gives December 31, 2026 as the End-of-Life of ZscalerOS 24.",
       "tier": "A",
@@ -133,6 +196,32 @@
     }
   },
   "divergences": {
+    "gcp-image-date": {
+      "summary": "The version page's GCP image table dates image zs-cc-ga-03092026 March 10, 2026, while the GCP Terraform module README lists the same image with release date 3/9/2026.",
+      "positions": [
+        {
+          "says": "Image zs-cc-ga-03092026 was released March 10, 2026.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-identifying-zscaler-cloud-connector-version.json",
+            "quotes": [
+              "| March 10, 2026 | zs-cc-ga-03092026 |"
+            ]
+          }
+        },
+        {
+          "says": "Image zs-cc-ga-03092026 has release date 3/9/2026.",
+          "evidence": {
+            "source": "tfmod-gcp-cloud-connector",
+            "path": "modules/terraform-zscc-ccvm-gcp/README.md",
+            "quotes": [
+              "| *zs-cc-ga-03092026 | mpi-zscalercloudconnector-publ | 3/9/2026 |"
+            ]
+          }
+        }
+      ],
+      "impact": "The release date of the GCP image differs by one day between the pages (gcp-version holds the help page's date); the image name itself, zs-cc-ga-03092026, matches in both, and no source says which date is right or what time zone either uses."
+    },
     "os24-support-status": {
       "summary": "The end-of-support notices say connectors on ZscalerOS 24 are no longer supported, while the Supported Versions tables list ZscalerOS 24 as a supported version for the same connectors.",
       "positions": [
@@ -187,9 +276,9 @@
     "scale-set-members": {
       "kind": "semantic",
       "title": "How scale-set and autoscaling members are upgraded",
-      "status": "open",
+      "status": "partial",
       "blocks": "knowing whether an autoscaled group's members run current software and OS",
-      "detail": "Unverified legacy statements: a replacement VM in an Azure VMSS, AWS autoscaling group or GCP MIG \"is launched from the current image\", so a scale-out or health-driven replacement is \"effectively a de-facto OS upgrade\"; and whether a member that stays up for weeks also receives the weekly in-place upgrade is not captured. The deployment articles say unhealthy or terminated members are replaced, not which image or version the replacement runs.",
+      "detail": "Unverified legacy statements: a replacement VM in an Azure VMSS, AWS autoscaling group or GCP MIG \"is launched from the current image\", so a scale-out or health-driven replacement is \"effectively a de-facto OS upgrade\"; and whether a member that stays up for weeks also receives the weekly in-place upgrade is not captured. The deployment articles say unhealthy or terminated members are replaced, not which image or version the replacement runs. The repository certificate article (cloud-connector.upgrades.repo-certificate:asg-templates) says newly scaled-out instances use the image in the launch or instance template, and that updating an AWS launch template does not replace running instances (cloud-connector.upgrades.repo-certificate:no-replace-running); whether running members also receive the weekly in-place upgrade is still not stated.",
       "resolves_with": [
         "source-read",
         "lab-test"

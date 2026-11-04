@@ -58,6 +58,10 @@
       "text": "{{rename-effects}} The effect of disabling a group is open {{gap:enabled-false-effect}}."
     },
     {
+      "label": "Segment group policies.",
+      "text": "{{segment-group-policies-phased-out}} {{migration-converts-rules}} {{access-before-unmigrated}} Where migrated rules land and how many access rules result is not stated {{gap:migration-result-shape}}."
+    },
+    {
       "text": "Rule order and first-match evaluation are in [[zpa.policy.evaluation-order]]. The policy types the provider scans on group delete are in [[zpa.terraform.policy-rule-writes:cleanup-rewrites-rule-from-converter]]. Membership is in [[zpa.segment-groups.membership]]."
     }
   ],
@@ -81,6 +85,14 @@
       "uses": [
         "operand-holds-id",
         "rename-effects"
+      ]
+    },
+    {
+      "do": "If a segment group still has a segment group policy, check whether it was migrated or deleted, since unmigrated segment group policy rules are evaluated after access policy rules.",
+      "uses": [
+        "migration-converts-rules",
+        "access-before-unmigrated",
+        "migration-result-shape"
       ]
     }
   ],
@@ -135,9 +147,66 @@
           ]
         }
       ]
+    },
+    "segment-group-policies-phased-out": {
+      "statement": "Segment group policies are being phased out, and a segment group policy can no longer be added using the Group Policy tab; to control application access based on segment group, an access policy rule that includes the group within its Criteria must be used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-group-policies.json",
+          "quotes": [
+            "Segment group policies are being phased out. You can no longer add a segment group policy using the Group Policy tab.",
+            "To control application access based on segment group, you must use an access policy rule that includes the group within its Criteria."
+          ]
+        }
+      ]
+    },
+    "migration-converts-rules": {
+      "statement": "To retain or modify an existing segment group policy it must be migrated; migration converts all segment group policy rules formerly under the Group Policy tab into an access policy rule on the Access Policy page, after which the migrated segment group policy rule is deleted automatically. An existing segment group policy can also be deleted without migrating its rules, and the Segment Groups page only displays the migration icon for groups that contain a segment group policy that has not been migrated or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-group-policies.json",
+          "quotes": [
+            "If you want to retain or modify an existing segment group policy, you must migrate it.",
+            "The migration will convert all segment group policy rules formerly under the Group Policy tab into an access policy rule that appears on the Access Policy page.",
+            "After the segment group policy rule is successfully migrated, it is automatically deleted, and you are redirected to the Access Policy page.",
+            "You can also delete an existing segment group policy without migrating its rules.",
+            "The Segment Groups page only displays the icon for groups that contain an existing segment group policy that has not been migrated or deleted."
+          ]
+        }
+      ]
+    },
+    "access-before-unmigrated": {
+      "statement": "Private Access evaluates access policy rules prior to any segment group policy rules that have not been migrated, and Diagnostics can be used to verify that migrated rules are taking effect in the access policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-segment-group-policies.json",
+          "quotes": [
+            "Be aware that Private Access (ZPA) evaluates access policy rules prior to any segment group policy rules that have not been migrated.",
+            "You can use Diagnostics to verify that the rules you migrated to your access policy are taking effect."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "migration-result-shape": {
+      "kind": "semantic",
+      "title": "Whether migrating several segment group policy rules yields one access rule or one per rule, and where they land in the rule order",
+      "status": "open",
+      "about": [
+        "zpa.segment-groups.policy-use"
+      ],
+      "detail": "The page says migration converts all the rules into an access policy rule (claim migration-converts-rules), singular, and does not say whether several segment group policy rules yield one access rule or several, or where the migrated rules sit in the access rule order. Migrate a group with several rules in a scratch tenant and read the Access Policy page.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
     "enabled-false-effect": {
       "kind": "semantic",
       "former_ids": [

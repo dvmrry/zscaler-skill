@@ -23,6 +23,14 @@
     },
     {
       "rel": "see-also",
+      "to": "zia.dlp.exact-data-match"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.indexed-document-match"
+    },
+    {
+      "rel": "see-also",
       "to": "zia.dlp.endpoint-sensitive-information"
     },
     {
@@ -32,7 +40,7 @@
   ],
   "prose": [
     {
-      "text": "{{what-it-is}} {{automatic-upgrade}} The dictionaries that use its templates are in [[zia.dlp.dictionaries]]; Endpoint DLP's use of it is in [[zia.dlp.endpoint-sensitive-information]]. Its VM has the same three-platform deployment shape as [[zia.dlp.incident-receiver]]."
+      "text": "{{what-it-is}} {{automatic-upgrade}} The templates it builds are in [[zia.dlp.exact-data-match]] and [[zia.dlp.indexed-document-match]]. The dictionaries that use its templates are in [[zia.dlp.dictionaries]]; Endpoint DLP's use of it is in [[zia.dlp.endpoint-sensitive-information]]. Its VM has the same three-platform deployment shape as [[zia.dlp.incident-receiver]]."
     },
     {
       "label": "The console object.",
@@ -40,7 +48,7 @@
     },
     {
       "label": "Sizing.",
-      "text": "{{sizing-common}} How records relate to the cells used for the AWS instance type is open {{gap:records-vs-cells}}."
+      "text": "{{sizing-common}} How records relate to the cells used for the AWS instance type is partly answered for EDM {{gap:records-vs-cells}}: the vendor's example multiplies records by columns [[zia.dlp.exact-data-match:template-and-cell-limits]]."
     },
     {
       "label": "VMware.",
@@ -60,7 +68,7 @@
     },
     {
       "label": "Certificate, login and start-up.",
-      "text": "{{certificate-install}} {{startup-update-and-access}} {{non-elevated-port}}"
+      "text": "{{certificate-install}} {{login-and-dashboards}} {{startup-update-and-access}} {{non-elevated-port}}"
     },
     {
       "label": "Network modes.",
@@ -346,6 +354,28 @@
         }
       ]
     },
+    "login-and-dashboards": {
+      "statement": "The EDM and IDM template articles tell admins to go to https://<IP Address of the Index Tool VM> to access the Index Tool and log in with their Zscaler Admin Console credentials. The tool has an Exact Data Match Templates dashboard (Data Security > Common resources > Index Templates) and an Indexed Document Match Templates dashboard, each with a Create New Template action.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "quotes": [
+            "Go to https://<IP Address of the Index Tool VM> to access the Index Tool. Log in to the Index Tool with your Zscaler Admin Console login credentials.",
+            "In the Exact Data Match Templates dashboard (Data Security > Common resources > Index Templates), click Create New Template."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-indexed-document-match-template.json",
+          "quotes": [
+            "Go to https://<IP Address of the Index Tool VM> to access the Index Tool. Log in to the Index Tool with your Zscaler Admin Console login credentials.",
+            "In the Indexed Document Match Templates dashboard, click Create New Template"
+          ]
+        }
+      ]
+    },
     "explicit-proxy-requirements": {
       "statement": "In explicit proxy mode DNS and NTP are not tunneled, so an internal DNS server is needed. The VMware page says the tool needs resolution for the current Master CA IP, the update server and the NTP server, and lists smcacluster, update1, update2 and zdistribute under the Zscaler cloud name plus the NTP servers 0, 1 and 2.freebsd.pool.ntp.org, which can be overridden. Because the proxy configuration does not allow authentication, the proxy must allow the VM's IP/MAC without user and password, and must allow SSL bypass to the IPs listed at config.zscaler.com/<Zscaler cloud Name>.net/edm. The AWS and Azure pages give the same internal DNS statement and the same IP list location.",
       "tier": "A",
@@ -565,13 +595,13 @@
     "records-vs-cells": {
       "kind": "semantic",
       "title": "How the 300 million records RAM threshold relates to the 500 million cells instance-type example",
-      "status": "open",
+      "status": "partial",
       "resolves_with": [
         "source-read",
         "support-ticket"
       ],
       "blocks": "choosing an AWS instance type from a record count",
-      "detail": "The AWS page gives RAM guidance at 300 million records and an instance-type example at 500 million cells, and does not say how records relate to cells."
+      "detail": "The AWS page gives RAM guidance at 300 million records and an instance-type example at 500 million cells, and does not say how records relate to cells. Narrowed by zia.dlp.exact-data-match:template-and-cell-limits: the About Exact Data Match page's example counts cells as records times columns (40K records of 3 columns use 120K cells) and says the number of records affects the RAM to allocate. It does not give a conversion between the 300 million records and 500 million cells thresholds, and it is not stated for IDM templates."
     },
     "large-template-image": {
       "kind": "semantic",

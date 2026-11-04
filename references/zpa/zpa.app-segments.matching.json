@@ -38,6 +38,14 @@
     {
       "rel": "see-also",
       "to": "zpa.app-segments.definition"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.dns-search-domains"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.private-link-domains"
     }
   ],
   "prose": [
@@ -50,7 +58,7 @@
     },
     {
       "label": "Names and addresses.",
-      "text": "{{raw-ip-no-dns-interception}} {{domain-validation-match}} {{domain-validation-outcome}} Which outcome follows for a valid internal domain is open {{gap:domain-validation-outcome-pairing}}."
+      "text": "{{raw-ip-no-dns-interception}} {{domain-validation-match}} {{domain-validation-outcome}} Which outcome follows for a valid internal domain is open {{gap:domain-validation-outcome-pairing}}. The DNS search domains these checks use: [[zpa.app-segments.dns-search-domains]]. Routing by returned CNAME: [[zpa.app-segments.private-link-domains]]."
     },
     {
       "label": "When the port is not listed.",
@@ -58,7 +66,7 @@
     },
     {
       "label": "Carve-outs.",
-      "text": "A specific FQDN is removed from the wildcard segment by default: [[zpa.policy.multimatch:carved-out-by-default]]. {{carve-out-ip}} {{wildcard-dead-for-carved-ports}} {{fix-for-carve-out}} What Multimatch changes is in [[zpa.app-segments.multimatch]]."
+      "text": "A specific FQDN is removed from the wildcard segment by default: [[zpa.policy.multimatch:carved-out-by-default]]. {{carve-out-ip}} {{wildcard-dead-for-carved-ports}} {{ports-not-inherited}} {{specific-segment-escapes-wildcard-policy}} {{fix-for-carve-out}} What Multimatch changes is in [[zpa.app-segments.multimatch]]."
     },
     {
       "label": "What outranks granularity.",
@@ -214,7 +222,8 @@
       "conditions": "Chain of evidence: the carve-out removes the host from the wildcard segment, and a port miss in the host's own segment ends in a client-side bypass with no fallback. Statement changed after verification: 'is bypassed at the client' replaced by 'is not forwarded to the wildcard segment', since bypass versus drop is open (divergence bypass-or-drop).",
       "derived_from": [
         "zpa.policy.multimatch:carved-out-by-default",
-        "port-mismatch-bypass"
+        "port-mismatch-bypass",
+        "ports-not-inherited"
       ]
     },
     "fix-for-carve-out": {
@@ -227,6 +236,48 @@
           "quotes": [
             "To fix this, TCP port 3389 must be configured for the Server1_AS application segment, or Multimatch can be enabled.",
             "Enabling Multimatch changes the behavior of the wildcard application segment, and catches access to ports that have not been defined in the more specific FQDN application segment."
+          ]
+        }
+      ]
+    },
+    "ports-not-inherited": {
+      "statement": "Private Access does not apply the ports specified in application segments that contain IP subnets or wildcards toward application segments that contain more specific IP addresses or FQDNs, so the ports must be explicitly specified in the application segment that contains the IP addresses or FQDNs.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#tcpPortRanges",
+        "zpa/application-segments#udpPortRanges"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-dynamically-discovered-application.json",
+          "quotes": [
+            "Private Access does not apply the ports specified in the application segments that contain IP subnets or wildcards towards application segments that contain more specific IP addresses or FQDNs.",
+            "You must explicitly specify the ports in the application segment that contain the IP addresses or FQDNs."
+          ]
+        }
+      ]
+    },
+    "specific-segment-escapes-wildcard-policy": {
+      "statement": "The page says Private Access always matches an application to the most specific application segment, even if the application could match a wildcard application segment, and evaluates policy with the most specific application segment; in the page's example, a new segment file.exapp.company.com created under a wildcard segment *.exapp.company.com is not covered by the access policy. The Multimatch article says that with Multimatch, multiple matches apply to applications from most specific to least specific.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-defining-dynamically-discovered-application.json",
+          "quotes": [
+            "You have an application segment defined by a wildcard (*.exapp.company.com).",
+            "You create a new application segment (file.exapp.company.com).",
+            "The application segment in the third bullet is not covered by the access policy.",
+            "Private Access always matches an application to the most specific application segment, even if that application could potentially match a wildcard application segment.",
+            "For policy, Private Access evaluates the policy with the most specific application segment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-using-app-segment-multimatch.json",
+          "quotes": [
+            "Multiple matches apply to applications from most specific to least specific."
           ]
         }
       ]

@@ -71,6 +71,10 @@
     },
     {
       "text": "Whether the API accepts the codes the provider's resource rejects was an open question until the API article was captured {{gap:format-only-codes}}. One format-lookup code has no label in any source {{gap:auth-log-1id-label}}."
+    },
+    {
+      "label": "Business Continuity Event log.",
+      "text": "Its field table and its example record differ on the Component field and the timestamp name {{divergence:business-continuity-event-fields}}."
     }
   ],
   "checks": [
@@ -280,6 +284,36 @@
       "former_ids": [
         "zpa-40"
       ]
+    }
+  },
+  "divergences": {
+    "business-continuity-event-fields": {
+      "summary": "On the Business Continuity Event log fields page, the table describes Component as the maximum CPU usage in the past 5 minutes and names the timestamp LogTimeStamp, while the example record carries \"Zscaler Client Connector\" for Component and names the timestamp LogTimestamp.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-business-continuity-event-log-fields.json",
+            "quotes": [
+              "| Component | The maximum CPU usage in the past 5 minutes | %[OPT]s %[OPT]j %[OPT]J %[OPT]d |",
+              "| LogTimeStamp | The timestamp when the log was generated | %[OPT]s %[OPT]j %[OPT]J |"
+            ]
+          },
+          "says": "Table: Component is the maximum CPU usage in the past 5 minutes, and the timestamp field is LogTimeStamp."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-business-continuity-event-log-fields.json",
+            "quotes": [
+              "\"Component\": \"Zscaler Client Connector\"",
+              "\"LogTimestamp\": \"Thu Jun 25 14:56:35 2026\""
+            ]
+          },
+          "says": "Example record: Component is \"Zscaler Client Connector\", and the timestamp field is LogTimestamp."
+        }
+      ],
+      "impact": "A consumer cannot tell from the article whether Component is a CPU figure or a component name, or whether the timestamp field is LogTimeStamp or LogTimestamp."
     }
   }
 }

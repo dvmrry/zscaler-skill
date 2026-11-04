@@ -1,0 +1,545 @@
+{
+  "schema_version": 1,
+  "id": "zia.dlp.exact-data-match",
+  "title": "Exact Data Match: index templates, data types, primary and secondary fields, dictionary matching and template processing",
+  "aliases": [
+    "EDM",
+    "exact data match",
+    "EDM index template",
+    "EDM template",
+    "primary field",
+    "secondary field",
+    "EDM with no primary keys"
+  ],
+  "binds": [
+    "zia/dlp-edm-schemas"
+  ],
+  "related": [
+    {
+      "rel": "configured-via",
+      "to": "zia/dlp-edm-schemas"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.dictionaries"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.index-tool"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.endpoint-sensitive-information"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{template-and-cell-limits}} The VM that hosts template creation is in [[zia.dlp.index-tool]], and the dictionary kinds that use templates are in [[zia.dlp.dictionaries]]."
+    },
+    {
+      "label": "The Index Templates page.",
+      "text": "{{index-templates-page}}"
+    },
+    {
+      "label": "Defining fields.",
+      "text": "{{data-type-selection}} {{type-length-limits}} {{multi-token-types}} {{type-format-notes}} {{primary-fields}}"
+    },
+    {
+      "label": "How a dictionary matches.",
+      "text": "{{dictionary-fields}} {{boolean-semantics}} {{short-strings-and-blanks}} {{match-count-reporting}}"
+    },
+    {
+      "label": "Submitting and updating a template.",
+      "text": "{{processing-and-status}} {{duplicate-key-limits}} {{template-immutability-and-resubmit}} {{scheduled-updates}}"
+    },
+    {
+      "label": "DLP Advanced Settings modes.",
+      "text": "{{no-primary-keys-mode}} {{popular-format-check}} Which data types the popular-format check covers differs between the two pages {{divergence:popular-format-coverage}}. The Advanced Settings page itself is covered under [[zia.dlp.evaluation]]."
+    },
+    {
+      "label": "Not described.",
+      "text": "How the alert on missed updates is delivered is open {{gap:missed-update-alert}}, the error types beyond the two named are open {{gap:error-types}}, whether the 64-template limit can be raised is open {{gap:template-limit-raise}}, and how the help terms map to the EDM schema type's fields is open {{gap:schema-field-mapping}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the template's data records have strings of at least three characters, and whether blank cells are being relied on to match.",
+      "uses": [
+        "short-strings-and-blanks",
+        "boolean-semantics"
+      ]
+    },
+    {
+      "do": "Whether the tenant uses EDM with No Primary Keys or the popular-format check, read before reasoning about which fields a dictionary must match.",
+      "uses": [
+        "no-primary-keys-mode",
+        "popular-format-check",
+        "popular-format-coverage"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "EDM index templates let the Zscaler service identify a record from a structured data source that matches predefined criteria, by identifying and correlating the multiple tokens that contribute to a record to identify ownership of the data. A template is defined in the Index Tool by importing a CSV file and can then be applied to a custom DLP dictionary or engine, which uses the criteria to match against the records; the service then evaluates the EDM-defined DLP rule with the appropriate action for outbound traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-exact-data-match.json",
+          "quotes": [
+            "Using Exact Data Match (EDM) index templates allows the Zscaler service to identify a record from a structured data source that matches predefined criteria.",
+            "Identify and correlate multiple tokens that contribute to a particular record to identify ownership of data.",
+            "In the Index Tool, creating an EDM template allows you to define these tokens (i.e., criteria) for your data records by importing a CSV file.",
+            "After the data is defined and submitted, you can then apply the template to a custom DLP dictionary or engine, which uses the criteria to match against your records.",
+            "The Zscaler service then evaluates the EDM-defined DLP rule with the appropriate action for your outbound traffic."
+          ]
+        }
+      ]
+    },
+    "template-and-cell-limits": {
+      "statement": "An organization can create up to 64 EDM templates. The cell usage shown in the Admin Console and the Index Tool helps size a template's data records; in the vendor's example, a CSV file with 40K records of 3 columns each uses 120K cells. The number of records in a template affects how much memory (RAM) to allocate for the Index Tool VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-exact-data-match.json",
+          "quotes": [
+            "You can create up to 64 templates for your organization.",
+            "The cell usage information displayed within the Zscaler Admin Console and the Index Tool can help you determine the size of your data records per template.",
+            "For example, if you submit a CSV file to create an EDM template that has 40K records and each record includes 3 columns, then it uses 120K cells.",
+            "the number of records used within a template has an impact on how you determine the amount of memory (RAM) you need to allocate for your Index Tool VM."
+          ]
+        }
+      ]
+    },
+    "index-templates-page": {
+      "statement": "The Exact Data Match page lists each template's Template Name (as specified in the Index Tool), VM Name (the VM ID as specified in the Index Tool Configuration), the Number of Cells currently in use by the template, Last Modified and Modified By, and lets an admin view a template's details or delete it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-exact-data-match.json",
+          "quotes": [
+            "Template Name: The name of the template, as specified in the Index Tool. You can sort this column.",
+            "VM Name: The virtual machine (VM) ID, as specified in the Index Tool Configuration. You can sort this column.",
+            "Number of Cells: The total number of cells currently in use by the template.",
+            "Last Modified: The date and time the template was last modified.",
+            "Modified By: The last admin user to modify the template.",
+            "View EDM index template details, or delete a template."
+          ]
+        }
+      ]
+    },
+    "data-type-selection": {
+      "statement": "Each field included in a template takes a data type that should best match the data: in the vendor's example, a field of US-format SSN data such as 123-45-6789 might need the Social Security Number (US) type, not Numeric. For all data types the Index Tool removes leading and trailing spaces in the data after submission. The supported types include Alphabetical, Alphanumeric, Email Address, Multi-Alphanumeric Identity, Multiple Alphanumeric, Multi-Word Alphabetical, Numeric, Credit Card Numbers and Social Security Number (US).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "quotes": [
+            "Be sure to select the type that best matches your data.",
+            "For example, a field named SSN with sample data from the United States in the format of 123-45-6789 might need the Social Security Number (US) type applied, not Numeric.",
+            "Also, for all data types, the Index Tool removes leading and trailing spaces in the data after you submit.",
+            "The following data types and formats are supported:",
+            "- Alphabetical",
+            "- Alphanumeric",
+            "- Email Address",
+            "- Multi-Alphanumeric Identity",
+            "- Multiple Alphanumeric",
+            "- Multi-Word Alphabetical",
+            "- Numeric",
+            "- Credit Card Numbers",
+            "- Social Security Number (US)"
+          ]
+        }
+      ]
+    },
+    "type-length-limits": {
+      "statement": "Alphabetical, Alphanumeric and Numeric data must include at least three characters. If selected as a primary field, Alphabetical data cannot be longer than 24 characters, and Alphanumeric and Numeric data can include up to 8 separate variable lengths and cannot be longer than 24 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "after": "- Alphabetical",
+          "quotes": [
+            "You must make sure that the data includes at least three characters.",
+            "If you select this data type as a PRIMARY FIELD, the data cannot be longer than 24 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "after": "- Alphanumeric",
+          "quotes": [
+            "You must make sure that the data includes at least three characters.",
+            "If you select this data type as a PRIMARY FIELD, the data can include up to 8 separate variable lengths and cannot be longer than 24 characters."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "after": "- Numeric",
+          "quotes": [
+            "You must make sure that the data includes at least 3 characters.",
+            "If you select this data type as a PRIMARY FIELD, the data can include up to 8 separate variable lengths and cannot be longer than 24 characters."
+          ]
+        }
+      ]
+    },
+    "multi-token-types": {
+      "statement": "Multi-Alphanumeric Identity is any combination of at most 4 alphanumeric character groupings, each of at least three alphanumeric characters; on upload the strings are normalized and a match occurs only if all of the data appears in the same order as the normalized character grouping, and a field of this type can be a primary field. Multiple Alphanumeric can match even if the data does not appear in the same order, cannot be a primary field, and Zscaler recommends Multi-Alphanumeric Identity instead. Multi-Word Alphabetical is any combination of at most 4 words and three spaces and cannot be a primary field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "after": "- Multi-Alphanumeric Identity",
+          "quotes": [
+            "Any combination of a maximum of 4 alphanumeric character groupings.",
+            "each character grouping must include at least three alphanumeric characters",
+            "When you upload data, strings are normalized and a match occurs only if all of the data appears in the same order as the normalized character grouping.",
+            "A field with this data type can be selected as a primary field for a template."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "after": "- Multiple Alphanumeric",
+          "quotes": [
+            "A match can happen even if the data does not appear in the same order.",
+            "A field with this data type cannot be selected as a primary field for a template. Zscaler recommends",
+            "Zscaler recommends the use of the Multi-Alphanumeric Identity data type instead of this data type. This data type does not follow the order of the indexed string."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "after": "- Multi-Word Alphabetical",
+          "quotes": [
+            "Any combination of a maximum of 4 words and three spaces (e.g., personal names, city names, entity names). A field with this data type cannot be selected as a primary field for a template."
+          ]
+        }
+      ]
+    },
+    "type-format-notes": {
+      "statement": "For credit card numbers without the popular format check, the Index Tool performs a Luhn check on the data after submission. The Email Address type follows the RFC 5321 syntax definition but does not support international (UTF-8) email addresses. A Brazilian CPF number in the dotted format \"401.757.431-93\" does not match, because '.' (dot) is an EDM numeric delimiter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "quotes": [
+            "Without popular format check: A 13 to 19-digit credit, debit, or payment card number, where the number can include spaces or hyphens. The Index Tool performs a Luhn check on the data after you submit.",
+            "Any email address using the RFC 5321 Simple Mail Transfer Protocol syntax definition. However, international email addresses (i.e., characters using UTF-8 encoding) are not supported.",
+            "Since '.' (dot) is an EDM numeric delimiter a CPF number in the format \"401.757.431-93\" does not match."
+          ]
+        }
+      ]
+    },
+    "primary-fields": {
+      "statement": "A template must have at least one and no more than two primary fields, and a primary field must be unique for the selected data type. The primary field is a unique key that DLP policy rules are based on and is required unless EDM is configured to work without primary or secondary fields; it can be a recognized standard format of variable length (for example credit card numbers) or a custom format of fixed length (for example alphabetical values).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "quotes": [
+            "You must select at least one primary field, and no more than two. Also, the primary field must be unique for the selected data type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-edm-index-templates.json",
+          "quotes": [
+            "The primary field is a unique key that your DLP policy rules are based on. It is a required field that must be unique based on your data records.",
+            "The primary field can include any recognized standard format with variable lengths (e.g., credit card numbers) or any custom formats with fixed lengths (e.g., alphabetical values).",
+            "You can configure EDM to function without primary or secondary fields. To learn more, see Configuring DLP Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "dictionary-fields": {
+      "statement": "Before EDM fields can be added to a custom dictionary, an EDM index template that defines the data must be created and submitted. The dictionary selects a Data Template, a Primary Field to match against when scanning content and any Secondary Fields to match if the dictionary detects a valid match for the Primary Field; a primary field not selected in the first step appears as a Secondary Field option. Secondary Match On is None (primary field only), Match at Least 1 from Secondary Fields, Match at Least 2 from Secondary Fields or All Fields, and Add Template applies fields from another EDM template to the same dictionary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-defining-exact-data-match-fields-custom-dlp-dictionaries.json",
+          "quotes": [
+            "Before you can add EDM fields to a custom dictionary, you must create and submit an EDM index template that defines your data.",
+            "From the Data Template drop-down menu, select the EDM template you want to use for the dictionary.",
+            "Select a Primary Field you want the dictionary to match against when scanning content.",
+            "Select any Secondary Fields you want the dictionary to match against when scanning content, if the dictionary detects a valid match for the Primary Field.",
+            "If more than one Primary Field was defined, but was not selected in the previous step, it will appear as a Secondary Field option.",
+            "None: The dictionary only needs to match against the Primary Field, no Secondary Fields will be validated",
+            "Match at Least 1 from Secondary Fields: The dictionary needs to match against the Primary Field and at least one Secondary Field",
+            "Match at Least 2 from Secondary Fields: The dictionary needs to match against the Primary Field and at least two Secondary Fields",
+            "All Fields: The dictionary needs to match against the Primary Fields and all Secondary Fields",
+            "(Optional) If you want to apply fields from another EDM template to this dictionary, click Add Template"
+          ]
+        }
+      ]
+    },
+    "boolean-semantics": {
+      "statement": "The service assumes AND between the Primary Field and the Secondary Fields; for Secondary Match On, the \"Any\" options (Match at Least 1 and Match at Least 2 from Secondary Fields) assume OR and \"All\" (All Fields) assumes AND. In the vendor's examples, a definition is evaluated as \"SSN AND (FName AND LName)\" and as \"CCN AND (FName OR LName)\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-edm-index-templates.json",
+          "quotes": [
+            "The Zscaler service assumes an AND Boolean operation between the Primary Field and the Secondary Fields.",
+            "Also, for Secondary Match On, \"Any\" (i.e., Match at Least 1 from Secondary Fields, Match at Least 2 from Secondary Fields) assumes an OR operation, while \"All\" (i.e., All Fields) assumes an AND operation.",
+            "In other words, the definition above is evaluated by the Zscaler service as: \"SSN AND (FName AND LName).\"",
+            "In other words, the definition above is evaluated by the Zscaler service as: \"CCN AND (FName OR LName).\""
+          ]
+        }
+      ]
+    },
+    "short-strings-and-blanks": {
+      "statement": "When evaluating data records, the service evaluates only strings of three or more characters and ignores blank cells; it does not consider blank cells to be implicit matches. In the vendor's example of a definition that needs the primary field and at least one secondary field, the match does not occur if the secondary field is blank.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-edm-index-templates.json",
+          "quotes": [
+            "When the Zscaler service evaluates your data records, it only evaluates strings with three characters or more. The service ignores any blank cells (i.e., the service does not consider blank cells to be implicit matches).",
+            "With this definition, the match occurs when the primary field and at least one secondary field are present. However, if the secondary field is blank, then the match doesn't occur."
+          ]
+        }
+      ]
+    },
+    "match-count-reporting": {
+      "statement": "For reporting, the service provides a total matchCount and the triggers that help determine that count. The total matchCount logic is based on the number of unique sets of matches found in the content, and also applies to multiple templates used in the same dictionary.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-edm-index-templates.json",
+          "quotes": [
+            "For reporting purposes, the Zscaler service provides a total matchCount, as well as the triggers that help determine that count.",
+            "Total matchCount logic is based on the number of unique sets of matches found in the content. The logic also applies to multiple templates used in the same dictionary."
+          ]
+        }
+      ]
+    },
+    "processing-and-status": {
+      "statement": "The service's processing of a template checks it for data errors, primary field duplication errors and communication errors. If it finds none, a status of Completed is shown for the template in the Index Tool and the template is available in the Admin Console; if it finds issues, an error status is shown in the Index Tool. The Template Details page shows the process details for a template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-edm-index-templates.json",
+          "quotes": [
+            "The processing by the Zscaler service checks for any issues related to the EDM template such as data errors, primary field duplication errors, and communication errors.",
+            "If the Zscaler service does not find any issues, then a status of Completed is displayed for the EDM template in the Index Tool and the template is available for use in the Zscaler Admin Console.",
+            "If the Zscaler service does find issues, then an error status is displayed for the EDM template in the Index Tool.",
+            "You can view the process details for an EDM template on the Template Details page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "quotes": [
+            "If the template was created properly, Completed is shown in the Status column. If the template was not created properly, then Error is shown."
+          ]
+        }
+      ]
+    },
+    "duplicate-key-limits": {
+      "statement": "The vendor's examples use a limit of 512 duplicate primary keys for an individual EDM template and 2,048 across multiple EDM templates. In the examples, a template over its limit receives an error status in the Index Tool with Too many primary key duplicates as the error type. In the example of duplicates exceeded across multiple templates using a single field, EDM Template 6 receives an error status with a primary key limit error type and an EDM Indexing Failed Schemas notification naming it appears in the Admin Console's Notification pane; correcting it means analyzing the templates that preceded it as well as that one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-edm-index-templates.json",
+          "quotes": [
+            "All of the examples use the 512 duplicate key limit for an individual EDM template and the 2,048 duplicate key limit across multiple EDM templates.",
+            "it receives an error status in the Index Tool with Too many primary key duplicates as the error type."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-edm-index-templates.json",
+          "after": "Example of Duplicate Primary Keys Being Exceeded Across Multiple EDM Templates Using a Single Field",
+          "quotes": [
+            "EDM Template 6 receives an error status in the Index Tool with a primary key limit error type and an EDM Indexing Failed Schemas notification is displayed on the Notification pane of the Zscaler Admin Console listing this template name.",
+            "To correct the primary duplicate error that occurred in EDM Template 6, you need to analyze not only that template but all of the other templates that preceded it"
+          ]
+        }
+      ]
+    },
+    "template-immutability-and-resubmit": {
+      "statement": "After creation a template's name cannot be changed, and its included fields and selected primary fields cannot be updated; changing them requires a new template. The page says the data types, included fields and primary fields originally selected are not updated and a new template must be created to modify them, and that the ability to edit a template becomes available only if there was an error when the data was originally submitted, when the data types and selected fields can be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "quotes": [
+            "You cannot change the template name after creation. Also, after creation, you cannot update the included fields or the selected primary fields within the template. In order to make these modifications, you must create a new template.",
+            "The data types, included fields, and primary fields you originally selected for the template are not updated. You must create a new template to modify the data types and selected fields.",
+            "The ability to edit a template only becomes available if there was an error when you originally submitted the data. If you edit a template, you are able to modify the data types and selected fields to resolve the issue."
+          ]
+        }
+      ]
+    },
+    "scheduled-updates": {
+      "statement": "After a template is uploaded successfully, regular updates can be scheduled and an Alert can be requested for missed updates. The schedule has a File Path (populated with the upload location, where the file must still be), a Status of Enable or Disable, a Repeat of Monthly, Weekly or Daily, a time (At), a Time Zone and an Update Now option. Monthly index updates are converted to and trigger in UTC and are skipped in a month that does not contain the converted date; Zscaler recommends scheduling monthly updates between the 2nd and the 27th.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "quotes": [
+            "After you have successfully uploaded your template, you can schedule regular updates. You can also choose to receive an Alert if there are any missed updates.",
+            "File Path: The file path is automatically populated with the location that you uploaded your file to. Ensure that the file is still at this location.",
+            "Status: Select whether to Enable or Disable your schedule",
+            "Repeat: Choose if the update repeats Monthly, Weekly, or Daily.",
+            "At: Choose what time the scheduled update happens on.",
+            "Time Zone: Select the time zone your update happens in.",
+            "Update Now: Select to immediately update the template.",
+            "If you select Monthly, index updates are converted to and trigger in UTC. It is possible that after being converted, your update might occur between the 29th and 31st UTC. If a month doesn't contain the converted date, that update is skipped.",
+            "Zscaler recommends you schedule your monthly updates to occur between the 2nd and the 27th."
+          ]
+        }
+      ]
+    },
+    "no-primary-keys-mode": {
+      "statement": "EDM uses index templates with primary and secondary fields by default. With EDM with No Primary Keys enabled, an admin selects the fields from the template that must match, the fields that are optional and how many optional fields are required to match, and the Index Tool needs no primary or secondary fields; all existing EDM schema (templates, dictionaries, engines and policies) must be deleted or unassigned before enabling it, and new schema with this functionality can be created after it is enabled. A DLP EDM dictionary created with no primary keys enabled must select at least one of Fields that must Match On or Optional Fields to Match On.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "Exact Data Match (EDM) uses index templates with primary and secondary fields by default.",
+            "EDM with No Primary Keys: If enabled, you select the fields from the template that must match, fields that are optional, and how many optional fields are required to match.",
+            "Before enabling EDM with no primary keys, all existing EDM schema (templates, dictionaries, engines, and policies) must be deleted or unassigned.",
+            "In the index tool, you do not need to specify primary or secondary fields.",
+            "New schema with no primary keys functionality can be created after the feature is enabled.",
+            "When creating a DLP EDM dictionary with no primary keys enabled, specify Fields that must Match On, Optional Fields to Match On, and the Match Type for optional fields.",
+            "You must make a selection in at least one of either Fields that must Match On or Optional Fields to Match On."
+          ]
+        }
+      ]
+    },
+    "popular-format-check": {
+      "statement": "The DLP Advanced Settings page says that with Enable EDM Check for Popular Formats enabled, EDM scans SSN, SIN and CCN dictionaries for a popular format, and the EDM match succeeds only if the entered format matches the popular data format type. The same page says that for Fields that must Match On, the data type (for example SSN, CCN or CSIN) is specified as the primary field and Name as the second field. For Social Security Number (US) the template page gives a separate \"With popular format check\" format, which is a 9-digit number separated in parts by a delimiter (hyphen or space) or not separated at all, and a number not in the popular format is not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-dlp-advanced-settings.json",
+          "quotes": [
+            "Enable EDM Check for Popular Formats: If enabled, the EDM scans SSN, SIN, and CCN dictionaries for a popular format, and the EDM match only succeeds if the entered format matches the popular data format type.",
+            "For Fields that must Match On, you must specify the data type (e.g., SSN, CCN, or CSIN) as the primary field and Name as the second field."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-creating-exact-data-match-template.json",
+          "after": "- Social Security Number (US)",
+          "quotes": [
+            "With popular format check: A 9-digit number separated in parts by a delimiter (hyphen or space) or not separated at all. If the number is not in the popular format, it is not supported."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "popular-format-coverage": {
+      "summary": "Which data types the EDM popular-format check covers.",
+      "positions": [
+        {
+          "says": "The DLP Advanced Settings page says that with Enable EDM Check for Popular Formats the EDM scans SSN, SIN and CCN dictionaries for a popular format.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-advanced-settings.json",
+            "quotes": [
+              "Enable EDM Check for Popular Formats: If enabled, the EDM scans SSN, SIN, and CCN dictionaries for a popular format, and the EDM match only succeeds if the entered format matches the popular data format type."
+            ]
+          }
+        },
+        {
+          "says": "The template page gives a \"With popular format check\" format for data types beyond those three, for example the ABA Bank Routing Number and the CNPJ Number (Brazil).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-creating-exact-data-match-template.json",
+            "after": "- ABA Bank Routing Number",
+            "quotes": [
+              "With popular format check: A 9-digit number (nnnnnnnnn) with no delimiters."
+            ]
+          }
+        },
+        {
+          "says": "The template page's CNPJ Number (Brazil) entry also has a popular-format variant.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-creating-exact-data-match-template.json",
+            "after": "- CNPJ Number (Brazil)",
+            "quotes": [
+              "With popular format check: A 14-digit number with the format NN.NNN.NNN/NNNN-CC, where CC is a 2-digit checksum."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether the popular-format check applies only to SSN, SIN and CCN dictionaries or to every data type with a popular format on the template page is not settled by either page; do not state either coverage as fact."
+    }
+  },
+  "gaps": {
+    "missed-update-alert": {
+      "kind": "semantic",
+      "title": "How the alert on missed EDM template updates is delivered",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "saying where a missed-update alert appears",
+      "detail": "The template page says an Alert can be chosen for missed updates but does not say how or where it is delivered."
+    },
+    "error-types": {
+      "kind": "semantic",
+      "title": "Which error types an EDM template can show beyond the two named",
+      "status": "open",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ],
+      "blocks": "listing the causes of an EDM template in error",
+      "detail": "The Understanding page names Too many primary key duplicates and a primary key limit error type in its examples; it does not list the other error types behind the data, duplication and communication checks."
+    },
+    "template-limit-raise": {
+      "kind": "semantic",
+      "title": "Whether the 64-template EDM limit can be raised",
+      "status": "open",
+      "resolves_with": [
+        "support-ticket"
+      ],
+      "blocks": "advising on more than 64 EDM templates",
+      "detail": "The About Exact Data Match page gives 64 templates per organization and does not say whether Support can raise it."
+    },
+    "schema-field-mapping": {
+      "kind": "semantic",
+      "title": "How the help's template terms map to the EDM schema type's fields",
+      "status": "open",
+      "resolves_with": [
+        "source-read"
+      ],
+      "blocks": "reading a template's status or cell count from the API or live read",
+      "detail": "The help terms (Completed and Error status, Number of Cells, the schedule) were not mapped to the zia/dlp-edm-schemas fields (cellsUsed, schemaStatus, schedule, schedulePresent, tokenList, edmClient); the API, SDK and Terraform were not read for this subject."
+    }
+  }
+}

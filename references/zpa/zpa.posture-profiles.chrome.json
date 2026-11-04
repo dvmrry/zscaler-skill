@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "id": "zpa.posture-profiles.chrome",
+  "title": "Chrome posture profiles and the Chrome Enterprise Browser connector settings",
+  "aliases": [
+    "Chrome posture profile",
+    "Chrome Enterprise browser posture",
+    "Chrome Enterprise Browser Connector",
+    "device trust connector",
+    "CHROME_POSTURE_PROFILE"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.posture-profiles.evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.criteria"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.troubleshooting.diagnostics"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}}"
+    },
+    {
+      "label": "When it is evaluated.",
+      "text": "{{evaluation-triggers}} {{evaluation-cadence}} The Client Connector posture schedule is in [[zpa.posture-profiles.evaluation]]; whether this one needs Client Connector and how the 30-minute browser refresh relates to the 15-minute evaluation are open {{gap:chrome-evaluation}}."
+    },
+    {
+      "label": "What it can evaluate.",
+      "text": "{{posture-types-a}} {{posture-types-b}} The pages give different Secure Boot Mode values {{divergence:secure-boot-mode-values}} and different Screen Lock Secured values {{divergence:screen-lock-secured-values}}. The same names appear as fields of the Chrome Enterprise diagnostics log, described in [[zpa.troubleshooting.diagnostics]]. {{browser-type-in-details}} Whether the configuration steps offer it is open {{gap:chrome-evaluation}}."
+    },
+    {
+      "label": "Connector settings.",
+      "text": "{{connector-settings}} {{ajax-and-refresh}}"
+    },
+    {
+      "text": "The profile hub is [[zpa.posture-profiles]]; the policy criterion is in [[zpa.policy.criteria]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a policy that rests on a Chrome posture profile defines the profile first, since the profile must exist before policies are configured on it.",
+      "uses": [
+        "what-it-is"
+      ]
+    },
+    {
+      "do": "Whether a posture change happened within the 15-minute evaluation or after a listed network change, since existing connections are not affected by updates to security postures.",
+      "uses": [
+        "evaluation-triggers",
+        "evaluation-cadence"
+      ]
+    },
+    {
+      "do": "Which Secure Boot Mode values a rule or filter relies on, since the pages differ.",
+      "uses": [
+        "secure-boot-mode-values"
+      ]
+    },
+    {
+      "do": "Whether the URL pattern and service account from the Admin Console were entered in the device trust connector in the Google Admin Console.",
+      "uses": [
+        "connector-settings"
+      ]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "A Chrome posture profile is a set of criteria evaluated on devices with the Chrome Enterprise browser, and Private Access policies can be configured based on the evaluation. The posture profile must be defined first to begin configuring access policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-chrome-posture-profiles.json",
+          "quotes": [
+            "A Chrome posture profile is a set of criteria that is evaluated on devices with Chrome Enterprise browser.",
+            "Policies in Private Access (ZPA) can be configured based on the device posture profile's evaluation.",
+            "To begin configuring access policies in the Zscaler Admin Console, you must first define the posture profile."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-chrome-posture-profiles.json",
+          "quotes": [
+            "Chrome posture profiles are device posture profiles configured specifically for devices that use the Chrome Enterprise browser."
+          ]
+        }
+      ]
+    },
+    "evaluation-triggers": {
+      "statement": "A posture evaluation occurs when a device experiences one of these network changes: it reboots, joins or changes a Wi-Fi network, comes out of hibernation, moves from non-domain joined to domain-joined, or moves from a Wi-Fi connection to an Ethernet connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-chrome-posture-profiles.json",
+          "quotes": [
+            "A posture evaluation occurs when a device experiences one of the following network changes:",
+            "Joins or changes a Wi-Fi network",
+            "Comes out of hibernation",
+            "Moves from non-domain joined to domain-joined",
+            "Moves from a Wi-Fi connection to an Ethernet connection"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-chrome-posture-profiles.json",
+          "quotes": [
+            "following network changes: - Reboots"
+          ]
+        }
+      ]
+    },
+    "evaluation-cadence": {
+      "statement": "Zscaler Client Connector evaluates Chrome posture profiles every 15 minutes. New connections are established based on updated security postures, and existing connections are not affected by updates to security postures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-chrome-posture-profiles.json",
+          "quotes": [
+            "Zscaler Client Connector evaluates Chrome posture profiles every 15 minutes.",
+            "New connections are established based on updated security postures. Existing connections are not affected by updates to security postures."
+          ]
+        }
+      ]
+    },
+    "posture-types-a": {
+      "statement": "A Chrome posture profile can evaluate the Browser Version, the Operating System (Unspecified Operating System, ChromeOS, ChromiumOS, Windows, macOS or Linux), the CrowdStrike Agent (enabled or disabled) and the Disk Encryption type (Unspecified, Unknown, Disabled or Encrypted Disk Encryption).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-chrome-posture-profiles.json",
+          "quotes": [
+            "Browser Version: Enter the browser version.",
+            "Operating System: Select the operating system (Unspecified Operating System, ChromeOS, ChromiumOS, Windows, macOS, Linux).",
+            "CrowdStrike Agent: Enable or disable CrowdStrike Agent.",
+            "Disk Encryption: Select the type of disk encryption (Unspecified Disk Encryption, Unknown Disk Encryption, Disabled Disk Encryption, Encrypted Disk Encryption)."
+          ]
+        }
+      ]
+    },
+    "posture-types-b": {
+      "statement": "As configured, a Chrome posture profile can also evaluate OS Firewall and Screen Lock Secured, each offered as Unspecified, Unknown, Disabled and Encrypted values, the Safe Browsing Protection Level (Unspecified, Inactive, Standard or Enhanced) and the Key Trust Level (Unspecified Key Trust Level, ChromeOS Verified Mode, ChromeOS Developer Mode, Chrome Browser Hardware Key, Chrome Browser OS Key or Chrome Browser No Key).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-chrome-posture-profiles.json",
+          "quotes": [
+            "(Unspecified OS Firewall, Unknown OS Firewall, Disabled OS Firewall, Encrypted OS Firewall)",
+            "(Unspecified Screen Lock Secured, Unknown Screen Lock Secured, Disabled Screen Lock Secured, Encrypted Screen Lock Secured)",
+            "(Unspecified Safe Browsing Protection Level, Inactive Safe Browsing Protection Level, Standard Safe Browsing Protection Level, Enhanced Safe Browsing Protection Level)",
+            "Key Trust Level: Select the type of key trust level (Unspecified Key Trust Level, ChromeOS Verified Mode, ChromeOS Developer Mode, Chrome Browser Hardware Key, Chrome Browser OS Key, Chrome Browser No Key)."
+          ]
+        }
+      ]
+    },
+    "browser-type-in-details": {
+      "statement": "The expanded details of a Chrome posture profile on the Chrome Posture Profile page list a Browser Type, the type of browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-chrome-posture-profiles.json",
+          "quotes": [
+            "Browser Type: The type of browser."
+          ]
+        }
+      ]
+    },
+    "connector-settings": {
+      "statement": "The Chrome Enterprise Browser Connector settings let Private Access create access policies that verify whether a user accesses private applications through the Chrome Enterprise browser. The URL Patterns to Allow and the Service Accounts values from the Admin Console are copied to set up the Chrome Enterprise device trust connector for Zscaler in the Google Admin Console. Google Workspace domains are entered under Organization Information, with a comma between them, and after saving an access policy is configured with Chrome Enterprise Browser as a criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-chrome-enterprise-browser-connector-settings.json",
+          "quotes": [
+            "Within the Zscaler Admin Console, you can configure Chrome Enterprise Browser Connector settings to allow Private Access (ZPA) to create access policies to verify if a user is accessing private applications via the Chrome Enterprise browser.",
+            "copy the following information to set up your Chrome Enterprise device trust connector for Zscaler in the Google Admin Console:",
+            "URL Patterns to Allow: Copy your organization's URL pattern.",
+            "Service Accounts: Copy your Chrome Enterprise service account.",
+            "Under Organization Information, enter the Google Workspace domains to configure policies for. If you have more than one Google Workspace domain, add a comma (,) in between them (e.g., example.com, acme.com).",
+            "After saving your settings, configure an access policy with Chrome Enterprise Browser as a criteria."
+          ]
+        }
+      ]
+    },
+    "ajax-and-refresh": {
+      "statement": "For a cross-origin or same-origin AJAX request from the Chrome Enterprise browser, the JavaScript code should include withCredentials = true. Zscaler recommends refreshing the browser every 30 minutes to refresh the posture, and the page says to contact Zscaler Support to enable the CORS feature.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-chrome-enterprise-browser-connector-settings.json",
+          "quotes": [
+            "If you send a cross-origin or same-origin AJAX request from the Chrome Enterprise browser, the JavaScript code should include withCredentials = true;.",
+            "Zscaler recommends refreshing the browser every 30 minutes to refresh the posture.",
+            "Contact Zscaler Support to enable the CORS feature."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "secure-boot-mode-values": {
+      "summary": "The Secure Boot Mode values: Disabled and Encrypted in the posture profile configuration, Enable and Disable in the diagnostics filter",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-chrome-posture-profiles.json",
+            "quotes": [
+              "(Unspecified Secure Boot Mode, Unknown Secure Boot Mode, Disabled Secure Boot Mode, Encrypted Secure Boot Mode)"
+            ]
+          },
+          "says": "The profile configuration offers Unspecified, Unknown, Disabled and Encrypted Secure Boot Mode."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-chrome-enterprise-browser-diagnostics.json",
+            "after": "View query builder filters.",
+            "quotes": [
+              "Secure Boot Mode: The Secure Boot mode (i.e., Unspecified Secure Boot Mode, Unknown Secure Boot Mode, Enable Secure Boot Mode, or Disable Secure Boot Mode)."
+            ]
+          },
+          "says": "The Chrome Enterprise diagnostics query builder lists Unspecified, Unknown, Enable and Disable Secure Boot Mode."
+        }
+      ],
+      "impact": "The pages share Unspecified and Unknown but name the other two values differently. Which values a rule or a diagnostics filter must use for Secure Boot Mode is not settled by either page, and neither says that one list describes the other."
+    },
+    "screen-lock-secured-values": {
+      "summary": "The Screen Lock Secured values: Disabled and Encrypted in the posture profile configuration, Enabled and Disabled in the diagnostics filter",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-chrome-posture-profiles.json",
+            "quotes": [
+              "(Unspecified Screen Lock Secured, Unknown Screen Lock Secured, Disabled Screen Lock Secured, Encrypted Screen Lock Secured)"
+            ]
+          },
+          "says": "The profile configuration offers Unspecified, Unknown, Disabled and Encrypted Screen Lock Secured."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-accessing-chrome-enterprise-browser-diagnostics.json",
+            "after": "View query builder filters.",
+            "quotes": [
+              "Screen Lock Secured: The screen lock security types (i.e., Unspecified Secured Screen Lock, Unknown Secured Screen Lock, Enabled Screen Lock, or Disabled Screen Lock)."
+            ]
+          },
+          "says": "The Chrome Enterprise diagnostics query builder lists Unspecified Secured Screen Lock, Unknown Secured Screen Lock, Enabled Screen Lock and Disabled Screen Lock."
+        }
+      ],
+      "impact": "The pages name the Screen Lock Secured values differently, and the diagnostics list also words the Unspecified and Unknown entries differently. Which values a rule or a diagnostics filter must use is not settled by either page, and neither says that one list describes the other."
+    }
+  },
+  "gaps": {
+    "chrome-evaluation": {
+      "kind": "semantic",
+      "title": "How Chrome posture is evaluated: the evaluator, the refresh and the Browser Type field",
+      "status": "open",
+      "detail": "The About page names Client Connector as the evaluator every 15 minutes but does not say whether evaluation needs Client Connector on a Chrome Enterprise device. It does not relate the recommended 30-minute browser refresh to the 15-minute evaluation, and it lists Browser Type in the profile details although the configuration steps do not offer it. The trigger list is not compared here with the triggers in the Client Connector posture evaluation subject. The Terraform CHROME_POSTURE_PROFILE handling and the OpenAPI CHROME values were not read.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

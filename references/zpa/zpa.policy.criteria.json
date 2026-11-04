@@ -51,6 +51,14 @@
       "text": "Web Browser rules cannot use posture or trusted network criteria: [[zpa.browser-access.policy:no-posture-with-web-browser]]. {{cloud-connector-groups-exclude-saml}} A machine group needs the Machine Tunnel client type: [[zpa.machine-groups.policy-use:console-pairs-client-type]]. {{gap:workload-group-cloud-connector-client-type}}"
     },
     {
+      "label": "On the global rules and policy groups page.",
+      "text": "The page for those rules, whose feature is in limited availability [[zpa.policy.policy-groups:limited-availability]], adds these criteria limits. {{adaptive-access-profile-selection}} {{adaptive-access-client-types}} {{adaptive-access-exclusions}} {{cloud-connector-groups-exclude-adaptive}} {{workload-group-needs-cloud-connector}} {{global-rules-no-posture-web-browser}}"
+    },
+    {
+      "label": "More criteria on that page.",
+      "text": "{{external-iam-idp-criterion}} {{extranet-location-criterion}} {{locations-types}}"
+    },
+    {
       "label": "Country.",
       "text": "{{country-last-nat-ip}} Browser Access and PRA do not support it: [[zpa.browser-access.policy:country-codes-unsupported]]."
     },
@@ -103,7 +111,19 @@
         "zpa.browser-access.policy:no-posture-with-web-browser",
         "cloud-connector-groups-exclude-saml",
         "zpa.machine-groups.policy-use:console-pairs-client-type",
-        "workload-group-cloud-connector-client-type"
+        "workload-group-cloud-connector-client-type",
+        "workload-group-needs-cloud-connector",
+        "adaptive-access-exclusions",
+        "cloud-connector-groups-exclude-adaptive",
+        "global-rules-no-posture-web-browser"
+      ]
+    },
+    {
+      "do": "If a rule uses Adaptive Access Profiles, check its client types and that it does not also use the criteria the global rules page rules out.",
+      "uses": [
+        "adaptive-access-client-types",
+        "adaptive-access-exclusions",
+        "cloud-connector-groups-exclude-adaptive"
       ]
     },
     {
@@ -277,11 +297,146 @@
           ]
         }
       ]
+    },
+    "adaptive-access-profile-selection": {
+      "statement": "On the global rules and policy groups configuration page there is no limit to the number of adaptive access profiles that can be selected, and multiple profiles within a rule are joined by an OR Boolean operator by default, which can be toggled to AND.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "Choose the adaptive access profiles to which the rule applies. There is no limit to the number you can select. Click More Profiles to include additional profiles.",
+            "If you added multiple profiles within a rule, Private Access uses an OR Boolean operator between them by default. However, you can toggle this to an AND operator by clicking on it."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "adaptive-access-client-types": {
+      "statement": "On the global rules and policy groups configuration page the Adaptive Access Profile criteria is only supported with the Client Connector, Client Connector Partner, Cloud Browser, or Web Browser client types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "Additionally, the Adaptive Access Profile criteria is only supported with the Client Connector, Client Connector Partner, Cloud Browser, or Web Browser client types."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "adaptive-access-exclusions": {
+      "statement": "On the global rules and policy groups configuration page the Adaptive Access Profiles criteria cannot be configured with the Branch Connector Groups, Cloud Connector Groups, Locations, and Machine Groups criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "The Adaptive Access Profiles criteria cannot be configured with the Branch Connector Groups, Cloud Connector Groups, Locations, and Machine Groups criteria."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "cloud-connector-groups-exclude-adaptive": {
+      "statement": "On the global rules and policy groups configuration page the Cloud Connector Group criteria type cannot be configured with the SAML and SCIM Attributes or Adaptive Access Profiles criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "The Cloud Connector Group criteria type cannot be configured with the SAML and SCIM Attributes or Adaptive Access Profiles criteria."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "workload-group-needs-cloud-connector": {
+      "statement": "In the policy group instructions of the global rules and policy groups configuration page, a specific workload group is chosen from the drop-down menu to apply the rule action to, and if Workload Group is selected, Cloud Connector as a client type is required; a limited availability notice precedes the item.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "This feature is in limited availability. Contact Zscaler Support to learn more.",
+            "Choose a specific workload group from the drop-down menu to apply the rule action to.",
+            "If Workload Group is selected, Cloud Connector as a client type is required."
+          ],
+          "after": "Configure an Access Policy for Policy Groups"
+        }
+      ]
+    },
+    "global-rules-no-posture-web-browser": {
+      "statement": "On the global rules and policy groups configuration page, rules using the Web Browser or ZIA Service Edge client types additionally can't use posture profiles or trusted networks criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "Rules using the Web Browser or ZIA Service Edge client types additionally can't use posture profiles or trusted networks criteria."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "external-iam-idp-criterion": {
+      "statement": "On the global rules and policy groups configuration page the External IAM IdPs criteria is the external IdP attribute configured in Authentication Service and is only supported for IdPs created in Authentication Service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "External IAM IdPs",
+            "This criteria is the external IdP attribute configured in Authentication Service and is only supported for IdPs created in Authentication Service."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "extranet-location-criterion": {
+      "statement": "On the global rules and policy groups configuration page the Extranet Location criteria chooses the extranet resource, extranet locations, and extranet location groups to which the policy rule applies; the locations and groups fields are only visible after an extranet resource is selected, and the criteria is not visible within a Microtenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "Choose the extranet resource, extranet locations, and extranet location groups to which the policy rule applies.",
+            "Select a location from the Extranet Locations drop-down menu. This field is only visible after an extranet resource is selected.",
+            "Select a group from the Extranet Location Groups drop-down menu. This field is only visible after an extranet resource is selected.",
+            "The Extranet Location criteria is not visible if you are within a Microtenant."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
+    },
+    "locations-types": {
+      "statement": "On the global rules and policy groups configuration page the Locations criteria lists the location types BC (Branch Connector), CC (Cloud Connector) and NONE (locations other than Branch Connector or Cloud Connector), where NONE location types are also used in Source IP Anchoring configurations in which traffic is routed from these locations to Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+          "quotes": [
+            "BC - Branch Connector",
+            "CC - Cloud Connector",
+            "NONE - Locations other than Branch Connector or Cloud Connector. NONE location types are also used in Source IP Anchoring configurations, where traffic is routed from these locations to Private Access."
+          ],
+          "after": "Configure an Access Policy for Global Rules"
+        }
+      ]
     }
   },
   "divergences": {
     "client-type-names": {
-      "summary": "The About Access Policy article, the Configuring Access Policies article and the wire values name client types differently.",
+      "summary": "The About Access Policy article, the Configuring Access Policies article, the global rules and policy groups configuration article and the wire values name client types differently.",
       "positions": [
         {
           "evidence": {
@@ -303,6 +458,24 @@
             ]
           },
           "says": "The list includes Cloud Browser and names the service edge type ZIA Service Edge."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-access-policies-global-rules-and-policy-groups.json",
+            "quotes": [
+              "Client Connector: To learn more, see What Is Zscaler Client Connector?",
+              "Client Connector Partner: To learn more, see About Partner Devices.",
+              "Cloud Browser: To learn more, see What Is Isolation?",
+              "Cloud Connector: To learn more, see About Cloud Connectors.",
+              "Branch Connector: To learn more, see About Branch Connectors.",
+              "Machine Tunnel: To learn more, see About Machine Tunnels.",
+              "Web Browser: To learn more, see About Browser Access.",
+              "ZIA Service Edge: To learn more, see Understanding Source IP Anchoring."
+            ],
+            "after": "Configure an Access Policy for Global Rules"
+          },
+          "says": "The global rules and policy groups page lists eight client types: Client Connector, Client Connector Partner, Cloud Browser, Cloud Connector, Branch Connector, Machine Tunnel, Web Browser and ZIA Service Edge, so like the Configuring Access Policies article it includes Cloud Browser and names the service edge type ZIA Service Edge."
         },
         {
           "evidence": {
@@ -357,10 +530,10 @@
   "gaps": {
     "workload-group-cloud-connector-client-type": {
       "kind": "semantic",
-      "status": "open",
-      "title": "Whether selecting a Workload Group requires Cloud Connector as a client type",
-      "blocks": "the client-type requirement for rules that use Workload Group criteria",
-      "detail": "Unverified legacy statement: \"If a Workload Group is selected, Cloud Connector is required as a client type.\" Previously sourced from Configuring_Access_Policies.txt (PDF text). The recapture (configuring-access-policies.json) has no Workload Group client-type rule, and zpa-access-policy-20260909.json lists Workload Groups only as a criterion.",
+      "status": "partial",
+      "title": "Whether selecting a Workload Group requires Cloud Connector as a client type outside the global rules and policy groups page",
+      "blocks": "the client-type requirement for rules that use Workload Group criteria on the access policy page",
+      "detail": "Partly answered: the global rules and policy groups configuration page, a limited-availability feature, says that if Workload Group is selected, Cloud Connector as a client type is required (claim workload-group-needs-cloud-connector). The legacy statement \"If a Workload Group is selected, Cloud Connector is required as a client type\" was previously sourced from Configuring_Access_Policies.txt (PDF text). The recapture (configuring-access-policies.json) has no Workload Group client-type rule, and zpa-access-policy-20260909.json lists Workload Groups only as a criterion.",
       "resolves_with": [
         "lab-test"
       ]

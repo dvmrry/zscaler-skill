@@ -1,0 +1,252 @@
+{
+  "schema_version": 1,
+  "id": "zia.dns-control.eun",
+  "title": "DNS Control end user notifications: static web, advanced web and Client Connector EUNs",
+  "aliases": [
+    "dns eun",
+    "blockpage.zscaler.com",
+    "static web eun",
+    "dns basic web eun",
+    "dns advanced web eun",
+    "34.215.46.88"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.actions"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control.doh"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.eun"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.eun.client-connector"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{eun-types}} The one-sentence summary of EUN logging is in [[zia.dns-control.actions]]."
+    },
+    {
+      "label": "Basic (static) web EUN.",
+      "text": "{{basic-web-eun}} {{static-server-web-only}} {{static-page-http-fallback}} The page does not say whether AAAA queries can reach the static page {{gap:static-eun-aaaa}}."
+    },
+    {
+      "label": "Advanced web EUN.",
+      "text": "{{advanced-web-eun}}"
+    },
+    {
+      "label": "Client Connector EUN.",
+      "text": "{{cc-eun}}"
+    },
+    {
+      "label": "Certificates, bypasses and DoH.",
+      "text": "{{static-certs}} {{bypass-static-eun}} {{ssl-bypass-for-eun}} {{doh-applicability}} {{block-quic-for-doh}} The DoH control itself is in [[zia.dns-control.doh]]."
+    }
+  ],
+  "claims": {
+    "eun-types": {
+      "statement": "DNS Control has three EUN types, all configured at the individual rule level: the DNS Basic Web EUN (Static Web EUN), the DNS Advanced Web EUN (integrated with the Internet & SaaS web proxy) and the Zscaler Client Connector-based EUN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-end-user-notifications.json",
+          "quotes": [
+            "All these notifications are configured at the individual rule level.",
+            "DNS Basic Web EUN (Static Web EUN) | DNS Advanced Web EUN (Integrated with Internet & SaaS (ZIA) Web Proxy) | Zscaler Client Connector-Based EUN"
+          ]
+        }
+      ]
+    },
+    "basic-web-eun": {
+      "statement": "The Basic (static) web EUN is enabled per rule by manually configuring an EUN IP address with the Redirect Response action. Zscaler hosts it at the fixed IP 34.215.46.88 and the FQDN blockpage.zscaler.com, a CNAME record that resolves to IP addresses that could change. It applies to DNS A requests, is static and non-customizable, is primarily designed for HTTP-based web EUN requests with potential HTTPS compatibility depending on browser behavior, suits unauthenticated users such as guest Wi-Fi, and its requests can reach the EUN web server via Internet & SaaS or directly through the internet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-end-user-notifications.json",
+          "quotes": [
+            "Enabled on a per-rule basis in DNS Control, requiring manual configuration of an EUN IP address using the Redirect Response action in a DNS Control rule.",
+            "Fixed IP: 34.215.46.88 FQDN: blockpage.zscaler.com (a CNAME record that resolves to IP addresses that could change).",
+            "| DNS Request Types | Applicable to DNS A requests. | Applicable to DNS A and AAAA requests. | Applicable to all DNS traffic managed by the DNS Control. |",
+            "Static, non-customizable.",
+            "Primarily designed to support HTTP-based web EUN requests, with potential compatibility for HTTPS-based web EUN requests depending on browser behavior, which is outside of Zscaler's control.",
+            "Best used for unauthenticated users, such as in guest Wi-Fi situations where a web EUN is presented.",
+            "Web EUN requests can reach the EUN web server via Internet & SaaS or directly through the internet (without going via Internet & SaaS)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "a Zscaler-hosted static EUN web page hosted at 34.215.46.88."
+          ]
+        }
+      ]
+    },
+    "advanced-web-eun": {
+      "statement": "The Advanced web EUN is enabled per rule with the Block action plus an option to enable the web EUN notification, and is supported only with the Block action. The EUN page is served only for A and AAAA DNS record types. Requests must reach Internet & SaaS via GRE, IPSec or Z-Tunnel 2.0, or come from a known location. For HTTPS a Zscaler intermediate CA certificate or an organization-configured custom certificate completes the TLS handshake, but in guest Wi-Fi environments without the certificate on the device a certificate error or warning displays. Its customization settings are shared by other browser-based EUNs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-end-user-notifications.json",
+          "quotes": [
+            "Enabled on a per-rule basis in DNS Control using the Block action in rules with an additional option to enable the web EUN notification.",
+            "This web EUN configuration is supported only with the Block action of the DNS Control policy.",
+            "The EUN web page is served only for DNS requests corresponding to A and AAAA DNS record types.",
+            "Web EUN requests must be sent to Internet & SaaS using standard forwarding methods (via Generic Routing Encapsulation (GRE), Internet Protocol Security (IPSec) tunnel, or Z-Tunnel 2.0) or from a known location defined in Internet & SaaS (guest Wi-Fi scenario).",
+            "For HTTPS access, a Zscaler intermediate CA certificate or a custom certificate that the organization configures is used to complete a Transport Layer Security (TLS) handshake with the client.",
+            "However, in guest Wi-Fi environments where a certificate is not installed on the user's device, a certificate error or warning displays in the browser.",
+            "These customization settings are shared by other browser-based EUNs, such as block notifications for other policies, caution messages, and quarantine notifications"
+          ]
+        }
+      ]
+    },
+    "cc-eun": {
+      "statement": "The Client Connector EUN is enabled per rule for the Block, Block with Response Code and Redirect Response actions, with an option to select the default or custom notification message. It is supported for all DNS transactions managed by DNS Control, including DNS over UDP, TCP and HTTPS, on Windows devices running Zscaler Client Connector version 4.8 and later over Z-Tunnel 2.0. The DNS Advanced Web EUN and the Client Connector EUN cannot function simultaneously: when both are enabled, the Web EUN takes precedence and only it is displayed to users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-end-user-notifications.json",
+          "quotes": [
+            "Enabled on a per-rule basis for Block, Block with Response Code, and Redirect Response actions in DNS Control, with an option to select the default or custom notification message.",
+            "Supported for all DNS transactions managed by the DNS Control, including DNS over UDP, TCP, and HTTPS.",
+            "This EUN is supported on Windows devices running Zscaler Client Connector version 4.8 and later over Z-Tunnel 2.0.",
+            "The DNS Advanced Web EUN and Zscaler Client Connector EUN cannot function simultaneously. When both options are enabled, the Web EUN takes precedence and only this notification is displayed to users."
+          ]
+        }
+      ]
+    },
+    "static-server-web-only": {
+      "statement": "The static DNS EUN web server (34.215.46.88/blockpage.zscaler.com) only responds to web requests and drops all other traffic, such as ping traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "The DNS EUN web server (34.215.46.88/blockpage.zscaler.com) only responds to web requests and drops all other traffic (e.g., ping traffic)."
+          ]
+        }
+      ]
+    },
+    "static-page-http-fallback": {
+      "statement": "The static DNS EUN web page is displayed only if the browser falls back to HTTP on receiving the \"HTTP 400 Bad Request\" response from the EUN web server and then makes an HTTP GET request using HTTP; otherwise it is not displayed. It might also not be displayed for blocked domains that use HTTP Strict Transport Security (HSTS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "The display of the DNS EUN web page is predicated upon the browser falling back to using HTTP on receiving the \"HTTP 400 Bad Request\" response from the EUN web server, and subsequently making an HTTP GET request using HTTP.",
+            "If the browser does not make this HTTP GET request using HTTP, the EUN page is not displayed.",
+            "The DNS EUN web page might not be displayed for blocked domains that use HTTP Strict Transport Security (HSTS)."
+          ]
+        }
+      ]
+    },
+    "static-certs": {
+      "statement": "If a web request to the static DNS EUN web server is sent via Internet & SaaS, the browser needs to trust the Zscaler Certificate Authority certificate (or an SSL/TLS Inspection bypass policy is configured), and the Internet & SaaS security policies must allow the traffic. If the request goes directly to the internet, the certificate shown for blockpage.zscaler.com is issued by a well-known CA, for which the page's example is DigiCert Global, and when it goes through Internet & SaaS with SSL/TLS Inspection the certificate is issued by the Zscaler Intermediate Root CA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "If the web request to this DNS EUN web server is sent via Internet & SaaS, the browser would need to trust the Zscaler Certificate Authority (CA) certificate.",
+            "Alternatively, you can configure an SSL/TLS Inspection bypass policy as outlined in the Recommended Policy Settings section.",
+            "If the web request to this DNS EUN web server is sent via Internet & SaaS, ensure that security policies configured in Internet & SaaS allow such traffic.",
+            "If the web request to the DNS EUN web server is sent directly to the internet instead of going via Internet & SaaS, the certificate displayed on the client browser for the web page, blockpage.zscaler.com, would be the one issued by a well-known CA.",
+            "The following image shows an example certificate issued by DigiCert Global.",
+            "If the web request to the DNS EUN web server is sent via Internet & SaaS and SSL/TLS Inspection is enabled for that web traffic, then the client browser displays a certificate for blockpage.zscaler.com that is issued by the Zscaler Intermediate Root CA"
+          ]
+        }
+      ]
+    },
+    "doh-applicability": {
+      "statement": "For the DNS Control policy to be applied to DoH traffic, DoH traffic must be sent using a tunnel (GRE, IPSec or Z-Tunnel 2.0) and SSL/TLS Inspection must be enabled for that traffic. In the page's guest Wi-Fi scenario, DoH traffic is not sent to Internet & SaaS, so the DNS Control policy is not applied to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "For the DNS Control policy to be applied to DoH (DNS over HTTPS) traffic, DoH traffic must be sent using a tunnel (GRE, IPSec, or Z-Tunnel 2.0) and SSL/TLS Inspection must be enabled for that traffic.",
+            "In the case of a guest Wi-Fi deployment, typically, only regular DNS traffic (DNS over UDP/TCP) is sent from a known location to a GRE VIP address configured as a DNS server address, with the rest of the traffic going out directly to the internet instead of going via Internet & SaaS.",
+            "In such a scenario, DoH traffic is not sent to Internet & SaaS and so the DNS Control policy is not applied to DoH traffic."
+          ]
+        }
+      ]
+    },
+    "bypass-static-eun": {
+      "statement": "Zscaler considers it preferable to bypass web traffic destined for the DNS EUN web server so it reaches the internet directly instead of going via Internet & SaaS. With Client Connector, 34.215.46.88 is added to the IPv4 Exclusion list under App and IP Bypass > IP Bypasses and blockpage.zscaler.com to the VPN Gateway Bypass list under App and IP Bypass > Global Bypasses, and with a PAC file the same entries are added to the PAC file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "It is preferable to bypass web traffic that is destined for the DNS EUN web server to directly reach the internet, instead of sending it via Internet & SaaS.",
+            "34.215.46.88 to the IPv4 Exclusion list under App and IP Bypass > IP Bypasses.",
+            "blockpage.zscaler.com to the VPN Gateway Bypass list under App and IP Bypass > Global Bypasses.",
+            "Similarly, if you are using a PAC file, add these entries to the PAC file to send the corresponding traffic directly to the internet."
+          ]
+        }
+      ]
+    },
+    "ssl-bypass-for-eun": {
+      "statement": "If the web request to the DNS EUN web server is sent via Internet & SaaS, the page says to add an SSL/TLS Inspection bypass policy for this web traffic, creating that policy for a custom URL category with the rule actions set to Do Not Inspect and Bypass Other Policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "If the web request to the DNS EUN web server is sent via Internet & SaaS, add an SSL/TLS Inspection bypass policy for this web traffic.",
+            "Then, create an SSL/TLS Inspection bypass policy for this custom URL category with rule actions set to Do Not Inspect and Bypass Other Policies."
+          ]
+        }
+      ]
+    },
+    "block-quic-for-doh": {
+      "statement": "If the client browser is using secure DNS or DoH, the page says to add a firewall filtering rule that blocks QUIC as a network service, or to ensure the Default Firewall Filtering Rule is blocking QUIC, or alternatively to block QUIC in the browser itself, because some secure DNS or DoH providers might use QUIC as the underlying transport protocol; when QUIC is blocked it has a failsafe to fall back to TCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-dns-static-web-end-user-notification.json",
+          "quotes": [
+            "If the client browser is using secure DNS or DoH, add a firewall filtering rule to block QUIC as a network service, or ensure that the Default Firewall Filtering Rule is blocking QUIC.",
+            "Alternatively, you can block QUIC in the browser itself.",
+            "This is because some secure DNS or DoH providers might use QUIC as the underlying transport protocol.",
+            "When it's blocked, QUIC has a failsafe to fall back to TCP."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "static-eun-aaaa": {
+      "kind": "semantic",
+      "title": "Whether the static EUN Redirect Response IP can be IPv6 or AAAA queries can be redirected to it",
+      "status": "open",
+      "detail": "The EUN comparison table lists the Basic web EUN as applicable to DNS A requests and the Advanced web EUN as A and AAAA. The captured pages do not say whether a Redirect Response IP can be IPv6 or whether AAAA queries can be redirected to the static page.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

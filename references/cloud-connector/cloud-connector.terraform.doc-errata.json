@@ -34,7 +34,7 @@
     },
     {
       "label": "Location template.",
-      "text": "{{template-apply-checks}} The bandwidth unit is given three ways {{divergence:template-bandwidth-unit}}, and which is right is open {{gap:bandwidth-unit}}. ZIA's own location bandwidth fields are in [[zia.locations.bandwidth]]."
+      "text": "{{template-apply-checks}} {{console-bandwidth-mbps}} The bandwidth unit is given in several ways {{divergence:template-bandwidth-unit}}, and which is right is open {{gap:bandwidth-unit}}. ZIA's own location bandwidth fields are in [[zia.locations.bandwidth]]."
     },
     {
       "label": "Fixed in 0.2.0.",
@@ -133,6 +133,19 @@
         }
       ]
     },
+    "console-bandwidth-mbps": {
+      "statement": "The console's location template form labels the Enforce Bandwidth Control limits Download (Mbps) and Upload (Mbps).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-location-template.json",
+          "quotes": [
+            "Enforce Bandwidth Control: Enable this setting to enter the maximum bandwidth limits for Download (Mbps) and Upload (Mbps)."
+          ]
+        }
+      ]
+    },
     "edge-connector-group-fix-0-2-0": {
       "statement": "Provider release 0.2.0 fixed a `ztc_edge_connector_group` panic involving the attribute type of `ec_instances.0.dns_ip`.",
       "tier": "A",
@@ -150,7 +163,7 @@
   },
   "divergences": {
     "template-bandwidth-unit": {
-      "summary": "The location template's upload and download bandwidth are documented in Kbps by the provider page, in bytes by the provider schema, and in Mbps by the API contract and the Python SDK.",
+      "summary": "The location template's upload and download bandwidth are documented in Kbps by the provider page, in bytes by the provider schema, and in Mbps by the API contract, the Python SDK and the console's location template form.",
       "positions": [
         {
           "says": "up_bandwidth and dn_bandwidth are in Kbps.",
@@ -194,6 +207,16 @@
               "``up_bandwidth`` (int): Upload bandwidth in Mbps, if bandwidth control is enabled."
             ]
           }
+        },
+        {
+          "says": "The console form labels the bandwidth limits Download (Mbps) and Upload (Mbps).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-configuring-location-template.json",
+            "quotes": [
+              "Enforce Bandwidth Control: Enable this setting to enter the maximum bandwidth limits for Download (Mbps) and Upload (Mbps)."
+            ]
+          }
         }
       ],
       "impact": "A value chosen from one source may be off by a factor of 1,000 or more from what the service applies."
@@ -208,7 +231,7 @@
       "resolves_with": [
         "lab-test"
       ],
-      "detail": "Unverified legacy statement: \"up_bandwidth: Upload limit in Kbps; 0 = no limit\". Resolves by applying a known value and reading the limit the console shows for locations created from the template. Two of the four sources (the API contract and the Python SDK) say Mbps."
+      "detail": "Unverified legacy statement: \"up_bandwidth: Upload limit in Kbps; 0 = no limit\". Resolves by applying a known value and reading the limit the console shows for locations created from the template. Three of the five sources (the API contract, the Python SDK and the console's location template form) say Mbps; the console form shows the unit the console uses, not what the provider sends."
     }
   }
 }

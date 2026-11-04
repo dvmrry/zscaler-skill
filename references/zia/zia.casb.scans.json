@@ -38,7 +38,11 @@
     },
     {
       "label": "What a schedule holds.",
-      "text": "{{schedule-columns}} {{actions-vary-by-app}}"
+      "text": "{{schedule-columns}} {{actions-vary-by-app}} {{one-scan-per-tenant}} {{slack-chat-bots}} {{polling-intervals}} {{schedule-description-limit}} The default polling interval and the Chat Bots default are open {{gap:schedule-defaults}}."
+    },
+    {
+      "label": "Resources to scan.",
+      "text": "{{resource-selection}} {{bitbucket-discovery-limit}} Buckets, bucket owners and blob containers on a rule are in [[zia.casb.dlp-rules:storage-containers-after-schedule]]."
     },
     {
       "label": "States.",
@@ -46,7 +50,11 @@
     },
     {
       "label": "Active and historical data.",
-      "text": "{{active-vs-historical}} {{rule-edits-reset-date}} {{historical-options}}"
+      "text": "{{active-vs-historical}} {{rule-edits-reset-date}} {{historical-options}} {{webex-historical-limits}}"
+    },
+    {
+      "label": "Scanning exceptions.",
+      "text": "{{scanning-exceptions}} Whether the 64 exceptions are one shared pool for folders and users is open {{gap:scanning-exception-pool}}. The per-policy exceptions are in [[zia.casb.dlp-rules:dlp-policy-exceptions]] and [[zia.casb.malware-rules:malware-policy-exceptions]]."
     },
     {
       "label": "Stopping and restarting.",
@@ -89,6 +97,203 @@
     }
   ],
   "claims": {
+    "one-scan-per-tenant": {
+      "statement": "Only one scan can be configured per SaaS application tenant, though scans can be configured for multiple application tenants, and a scan schedule must choose at least one policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "You can configure only one scan per SaaS application tenant, but you can configure scans for multiple application tenants.",
+            "You must choose at least one policy to schedule a scan."
+          ]
+        }
+      ]
+    },
+    "slack-chat-bots": {
+      "statement": "A scan schedule has a Chat Bots option, available only for Slack tenants, to include or exclude chatbots from the scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "Chat Bots: This option is only available for Slack tenants. Choose to include or exclude chatbots from the scan."
+          ]
+        }
+      ]
+    },
+    "polling-intervals": {
+      "statement": "A Polling Intervals setting sets how often the system scans the SaaS application tenant, at 5, 10, 15, 20, 25 or 30 minutes, and is currently available for Salesforce, ServiceNow and Jira.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "Polling Intervals: Select a polling interval from the drop-down menu to set how often the system scans the SaaS application tenant.",
+            "The available polling intervals are 5 mins, 10 mins, 15 mins, 20 mins, 25 mins, and 30 mins.",
+            "This feature is currently available for Salesforce, ServiceNow, and Jira."
+          ]
+        }
+      ]
+    },
+    "schedule-description-limit": {
+      "statement": "A scan schedule's description cannot exceed 10,240 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters."
+          ]
+        }
+      ]
+    },
+    "webex-historical-limits": {
+      "statement": "For Webex Teams tenants, a historical file can be scanned only if a user downloads it before the scan is started from the SaaS Security API Scan Configuration page, because the Webex API returns only download events for files. Only 15 days of historical data before the scan's start date can be scanned, so choosing an older date with Data Created or Modified After, or All Data, still inspects only those 15 days; in the vendor's example the scan inspects only data created or modified from November 7, 2025, to November 22, 2025.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "The Zscaler service can scan a historic data file only if a user downloads the file before the scan is started from the SaaS Security API Scan Configuration page.",
+            "This is due to an API limitation from Webex, where only downloaded events are returned if the resource is a file.",
+            "Due to a limitation from Webex, the Zscaler service can only scan historical data from 15 days prior to the scan’s start date.",
+            "If you choose a date older than 15 days with the Data Created or Modified After option or choose All Data, the scan only inspects 15 days of historical data.",
+            "The scan inspects only historical data created or modified from November 7, 2025, to November 22, 2025."
+          ]
+        }
+      ]
+    },
+    "resource-selection": {
+      "statement": "For Amazon S3, Atlassian Bitbucket, GitLab, Google Cloud Platform, Microsoft Azure and SharePoint tenants, the scan schedule has a section listing the tenant's buckets, repositories, blob containers or sites, which can be set to be scanned automatically for DLP or Malware rules or chosen manually. For Amazon S3, selecting bucket names creates the list of available buckets from which the DLP and Malware Detection policies specify buckets for inspection. Quarantine buckets, repositories, blob containers and sites cannot be selected, nor can CloudTrail buckets for Amazon S3. The bucket, repository and blob container tables show Exposure as external, internal, private or public, and SharePoint custom sites are entered by name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "This section appears only for Amazon S3 tenants. In the table, view a list of all buckets associated with the tenant. You can set all buckets to be automatically scanned for DLP or Malware rules, or you can manually choose which buckets are scanned."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "You can’t select the CloudTrail and quarantine buckets for inspection.",
+            "When you select the bucket names, you create a list of available buckets for the DLP and Malware Detection policies, where you can specify buckets for inspection. You can’t select the CloudTrail",
+            "Exposure: Displays if the bucket is external, internal, private, or public."
+          ],
+          "after": "Amazon S3 Buckets: This section appears only for Amazon S3 tenants."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "This section appears only for Atlassian Bitbucket tenants. In the table, view a list of all repositories associated with the tenant. You can set all repositories to be automatically scanned for DLP or Malware rules, or you can manually choose which repositories are scanned."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "You can’t select the quarantine repositories for inspection.",
+            "Exposure: Displays if the repository is external, internal, private, or public."
+          ],
+          "after": "Bitbucket Repositories to be Scanned: This section appears only for Atlassian Bitbucket tenants."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "This section appears only for GitLab tenants. In the table, view a list of all repositories associated with the tenant. You can set all repositories to be automatically scanned for DLP or Malware rules, or you can manually choose which repositories are scanned."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "You can’t select the quarantine repositories for inspection.",
+            "Exposure: Displays if the repository is external, internal, private, or public."
+          ],
+          "after": "GitLab Repositories to be Scanned: This section appears only for GitLab tenants."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "This section appears only for Google Cloud Platform tenants. In the table, view a list of all buckets associated with the tenant. You can set all buckets to be automatically scanned for DLP or Malware rules, or you can manually choose which buckets are scanned."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "You can’t select the quarantine buckets for inspection.",
+            "Exposure: Displays if the bucket is external, internal, private, or public."
+          ],
+          "after": "Google Cloud Platform Buckets: This section appears only for Google Cloud Platform tenants."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "Microsoft Azure Blob Containers: This section appears only for Microsoft Azure tenants.",
+            "You can set all blob containers to be automatically scanned for DLP or Malware rules, or you can manually choose which blob containers are scanned.",
+            "You can’t select the quarantine blob containers for inspection.",
+            "Exposure: Displays if the blob container is external, internal, private, or public."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "SharePoint Sites to be Scanned: This section appears only for SharePoint tenants.",
+            "You can set all sites to be automatically scanned for DLP or Malware rules, or you can manually choose which sites are scanned.",
+            "You can’t select the quarantine sites for inspection.",
+            "For custom sites, click Add Items to manually enter the site names to be scanned."
+          ]
+        }
+      ]
+    },
+    "bitbucket-discovery-limit": {
+      "statement": "For Bitbucket, if a user account's public repository is not shared with the admin, the admin does not know its exact path even though it is accessible, because Bitbucket cloud has no API to list all users; when a user shares a private repository with the admin, the admin can discover public repositories in that user's account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-saas-security-scan-schedules.json",
+          "quotes": [
+            "If a user account’s public repository isn’t shared with the admin, the admin doesn't know the exact path of those repositories even though they are accessible.",
+            "The admin can't identify the path because of the non-availability of Bitbucket cloud APIs to list all users, which limits the discovery of all accessible repositories against all user accounts.",
+            "If a user shares their private repository with the admin, they become known, allowing the admin to discover public repositories in that user's account."
+          ]
+        }
+      ]
+    },
+    "scanning-exceptions": {
+      "statement": "Data at Rest Scanning (scanning) exceptions for file sharing applications exempt specific folders or users from the Data at Rest Scanning policy, which consists of the DLP and Malware Detection policies: the service completely ignores the files within an exempted folder and does not evaluate an exempted user. A folder exception takes the folder's full path and a user exception the owner, and up to 64 exceptions for folders and users can be added.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-data-rest-scanning-exceptions.json",
+          "quotes": [
+            "Optionally, you can create Data at Rest Scanning exceptions for file sharing applications.",
+            "Configuring a scanning exception allows you to exempt specific folders or users from the Data at Rest Scanning policy, which consists of the Data Loss Prevention (DLP) and Malware Detection policies.",
+            "When you configure a scanning exception for a folder, the Zscaler service completely ignores the files within the folder",
+            "Likewise, the Zscaler service ignores an exempted user and the user isn’t evaluated with the policy.",
+            "Folder: Enter the full path for the folder you want to exempt from inspection.",
+            "From the Owner drop-down menu, choose the user you want to exempt from inspection.",
+            "You can add up to 64 exceptions for folders and users."
+          ]
+        }
+      ]
+    },
     "schedule-needs-policy": {
       "statement": "The Data at Rest Scanning DLP and Malware Detection policies inspect content only through a SaaS Security scan schedule; the policy rules are configured first, and the schedule then selects the Data at Rest Scanning policy for a tenant.",
       "tier": "A",
@@ -254,6 +459,26 @@
     }
   },
   "gaps": {
+    "schedule-defaults": {
+      "kind": "semantic",
+      "title": "The default polling interval and the Chat Bots default for Slack",
+      "status": "open",
+      "detail": "The Configuring SaaS Security Scan Schedules page lists the available polling intervals and the Chat Bots option without stating a default for either, or whether polling relates to webhooks.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "scanning-exception-pool": {
+      "kind": "semantic",
+      "title": "Whether the 64 scanning exceptions are one shared pool for folders and users",
+      "status": "open",
+      "detail": "The Configuring the Data at Rest Scanning Exceptions page says up to 64 exceptions for folders and users can be added, without saying whether folder and user exceptions share that count.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "scan-action-encoding": {
       "kind": "data",
       "title": "What the integer `scanAction` on scan information means",

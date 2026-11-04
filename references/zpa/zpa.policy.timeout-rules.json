@@ -38,23 +38,35 @@
     },
     {
       "label": "What they control.",
-      "text": "{{auth-vs-idle}} {{evaluated-on-access}} {{reauth-notification-per-rule}}"
+      "text": "{{auth-vs-idle}} {{evaluated-on-access}} {{message-to-user}}"
     },
     {
       "label": "Why sessions re-authenticate sooner.",
       "text": "{{reauth-resets-all}} {{activity-counts-per-group}}"
     },
     {
+      "label": "The reauthentication timestamp.",
+      "text": "The help names two different timestamps {{divergence:reauth-timestamp}}. {{assertion-timestamp-skew}} {{idp-change-applies-after-reauth}}"
+    },
+    {
       "label": "Defaults.",
-      "text": "The default rule is in [[zpa.policy.evaluation-order:default-timeout-rule]]. The MCP skill's defaults differ {{divergence:timeout-defaults}}."
+      "text": "The default rule is in [[zpa.policy.evaluation-order:default-timeout-rule]]. The MCP skill's defaults differ {{divergence:timeout-defaults}}. The pages also use the word default for the idle timeout in two ways {{divergence:default-idle-timeout}}."
+    },
+    {
+      "label": "Intervals and idle sessions.",
+      "text": "{{minimum-interval}} {{default-idle-session-timeouts}} {{idle-increase-per-segment}} {{default-rule-editable}}"
+    },
+    {
+      "label": "Certificates, Never and special cases.",
+      "text": "{{certificate-validity-never}} {{uag-never}} {{auth-timeout-client-version}} {{cloud-browser-recommended}}"
     },
     {
       "label": "Building a rule.",
-      "text": "{{action-re-auth-only}} {{timeout-value-format}} {{tf-read-seconds-as-strings}} The numeric type differs between sources {{divergence:reauth-value-type}}."
+      "text": "{{action-re-auth-only}} {{timeout-value-format}} {{tf-read-seconds-as-strings}} The numeric type differs between sources {{divergence:reauth-value-type}}. {{name-characters}} Whether a period is rejected in a timeout rule name is open {{gap:timeout-name-period}}."
     },
     {
       "label": "Conditions.",
-      "text": "{{condition-types-supported}} Which types a rule rejects is open {{gap:timeout-condition-restriction}}. {{posture-tiering-example}}"
+      "text": "{{condition-types-supported}} Which types a rule rejects is open {{gap:timeout-condition-restriction}}. {{console-criteria}} {{client-types}} {{federated-applications}} The 10-condition-set limit is in [[zpa.policy.conditions:condition-set-limit]]. {{posture-tiering-example}}"
     },
     {
       "text": "Fields and Terraform replacement are in [[zpa.policy.rule-fields]]."
@@ -88,6 +100,22 @@
       "uses": [
         "condition-types-supported",
         "timeout-condition-restriction"
+      ]
+    },
+    {
+      "do": "If a session ends or reauthenticates at an unexpected time, compare the rule's Specific Interval values with the 10 minute minimum, the Default idle timeouts, and the two named reauthentication timestamps.",
+      "uses": [
+        "minimum-interval",
+        "default-idle-session-timeouts",
+        "default-idle-timeout",
+        "reauth-timestamp"
+      ]
+    },
+    {
+      "do": "If users on Client Connector must renew a certificate or reach an application through VMware's Unified Access Gateway, check the rule's Authentication Timeout and the certificate renewal conditions.",
+      "uses": [
+        "certificate-validity-never",
+        "uag-never"
       ]
     }
   ],
@@ -229,10 +257,118 @@
         }
       ]
     },
-    "reauth-notification-per-rule": {
-      "statement": "Each additional timeout rule can set a custom notification message so users know which application requires reauthentication.",
+    "minimum-interval": {
+      "statement": "When the Authentication Timeout or the Idle Connection Timeout is set to a Specific Interval in days, hours or minutes, each interval must be at least 10 minutes.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "If you want to specify a time interval, select Specific Interval, then enter a value for the number of Days(s), Hours(s), or Minute(s). The Authentication Timeout must be at least 10 minutes.",
+            "If you want to specify a time interval other than the default, select Specific Interval, then enter a value for the number of Days(s), Hours(s), or Minute(s). The Idle Connection Timeout interval must be at least 10 minutes."
+          ]
+        }
+      ]
+    },
+    "default-idle-session-timeouts": {
+      "statement": "On the configuring page, if Default is selected for the Idle Connection Timeout, an open TCP session times out after 2 hours, a half-closed TCP session after 6 minutes, a fully-closed TCP session is terminated immediately, and a UDP session times out after 60 seconds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "If Default is selected:",
+            "For an open TCP session, the timeout is 2 hours.",
+            "For a half-closed TCP session, the timeout is 6 minutes.",
+            "For a fully-closed TCP session, the session is terminated immediately.",
+            "For a UDP session, the timeout is 60 seconds."
+          ]
+        }
+      ]
+    },
+    "idle-increase-per-segment": {
+      "statement": "The Idle Connection Timeout value can be increased granularly per application segment for long-lived sessions, and the TCP sessions ended by the default idle timeout of 2 hours are found in User Activity Diagnostics with the Connection: Status Code filter equal to SE: Timeout policy closed idle connection and the Application Duration filter greater than 7,200,000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "The Idle Connection Timeout value can be increased granularly per application segment for long-lived sessions.",
+            "To identify the TCP sessions that are terminated after the default idle timeout of 2 hours, set the Connection: Status Code filter equal to the SE: Timeout policy closed idle connection value, and then set the Application Duration filter to greater than the value 7,200,000 in the User Activity Diagnostics."
+          ]
+        }
+      ]
+    },
+    "assertion-timestamp-skew": {
+      "statement": "The configuring page says identity providers typically issue SAML assertions using a timestamp that is in the past by approximately 5 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "The reauthentication time interval is based on the SAML assertion's issue date. Typically, identity providers (IdPs) issue assertions using a timestamp that is in the past by approximately 5 minutes."
+          ]
+        }
+      ]
+    },
+    "idp-change-applies-after-reauth": {
+      "statement": "If a configuration change on an IdP also causes a change to the SAML assertion, the updated assertion is applied to Private Access policies after the user reauthenticates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "if a configuration change is made on an IdP that also causes a change to the SAML assertion, then the updated assertion is applied to Private Access (ZPA) policies after the user reauthenticates."
+          ]
+        }
+      ]
+    },
+    "certificate-validity-never": {
+      "statement": "Zscaler Client Connector certificates have a validity of 365 days from the date of enrollment; if the authentication timeout is set to Never, users are only prompted to re-enroll to renew device certificates. In some cases the certificate renewal might fail because of connectivity issues to the IdP, and the user might then need to log out of Client Connector and log back in.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "The Zscaler Client Connector certificates have a validity of 365 days from the date of enrollment.",
+            "If the authentication timeout is set to Never, users are only prompted to re-enroll to renew device certificates.",
+            "In some cases, the certificate renewal might fail because of connectivity issues to the identity provider (IdP).",
+            "If this occurs, you might need to log out of Zscaler Client Connector (request a logout password from your administrator if required) and log back in to renew the certificate."
+          ]
+        }
+      ]
+    },
+    "uag-never": {
+      "statement": "If VMware's Unified Access Gateway (UAG) is used for application access, a separate rule must be created with the Authentication Timeout set to Never.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "If you are using VMware’s Unified Access Gateway (UAG) for application access, you must create a separate rule and set the Authentication Timeout to Never."
+          ]
+        }
+      ]
+    },
+    "message-to-user": {
+      "statement": "A timeout rule's Message to User is optional and is displayed to users when they need to reauthenticate based on the Authentication Timeout setting; the page says to ensure the message helps the user identify the application that requires reauthentication. If additional timeout rules are created, each can set its own notification message, so that users know which application requires reauthentication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "Message to User: (Optional) Enter the message you want to display to users when they need to reauthenticate based on the Authentication Timeout setting.",
+            "Ensure the message helps the user identify the application that requires reauthentication."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "about-timeout-policy.json",
@@ -241,9 +377,168 @@
           ]
         }
       ]
+    },
+    "console-criteria": {
+      "statement": "The console's timeout rule criteria cover SAML and SCIM attributes (replaced by Session and User Attributes with Authentication Service), an external IAM IdP, application segments and segment groups, Client Connector Posture Profile condition sets, trusted networks, client types, an application federated by a partner, and platforms.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "If you are subscribed to Authentication Service for users, the SAML and SCIM Attributes criteria is replaced with Session and User Attributes.",
+            "To use External IAM IdP, select the IdP from the drop-down menu.",
+            "Choose the application segments and segment groups to which this rule applies:",
+            "You can add up to 10 Client Connector Posture Profile condition sets to the rule.",
+            "Choose the trusted networks to which the rule applies, and click Done.",
+            "Choose the client types to which the rule applies, and click Done.",
+            "Select a partner and application federated by the partner to which the policy applies:",
+            "Choose the platforms to which the rule applies and click Save."
+          ]
+        }
+      ]
+    },
+    "client-types": {
+      "statement": "The client types listed for a timeout rule are Client Connector, Cloud Browser, Web Browser and Internet & SaaS Service Edge, and rules using the Web Browser or Internet & SaaS (ZIA) Service Edge client types can not also use posture profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "Client Connector: To learn more, see What Is Zscaler Client Connector?",
+            "Cloud Browser: To learn more, see What Is Isolation?",
+            "Web Browser: To learn more, see About Browser Access.",
+            "Internet & SaaS Service Edge: To learn more, see About Source IP Anchoring.",
+            "Rules using the Web Browser or Internet & SaaS (ZIA) Service Edge client types can not also use posture profiles. The posture profile criteria only works with Client Connector."
+          ]
+        }
+      ]
+    },
+    "cloud-browser-recommended": {
+      "statement": "The recommended time interval for the Cloud Browser client type is one day; once the user is authenticated the session timeout value is the minimum timeout across the configured timeout policies, and after the timeout the user must reauthenticate with Private Access to reach applications through Isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "The recommended time interval for the Cloud Browser client type is one day.",
+            "When the user is authenticated, the session timeout value is the minimum timeout across all timeout policies configured though.",
+            "After the timeout happens, the user needs to reauthenticate with Private Access to access applications via Isolation."
+          ]
+        }
+      ]
+    },
+    "federated-applications": {
+      "statement": "When timeout policies use the Federated Applications criteria, only the Client Type criteria set to Client Connector is supported for the host partner, only the host partner can configure timeout policies for guest partners, and the guest partner's end users are also evaluated against the host partner's timeout policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "When configuring timeout policies and using the Federated Applications criteria, only the Client Type criteria set to Client Connector is supported for the host partner.",
+            "Additionally, only the host partner can configure timeout policies for guest partners.",
+            "The end users from the guest partner are also evaluated against the timeout policies configured by the host partner."
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "A timeout rule name cannot contain special characters except hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "Rule Name: Enter a timeout policy rule name. The name cannot contain special characters, except hyphens (-) and underscores ( _ )."
+          ]
+        }
+      ]
+    },
+    "default-rule-editable": {
+      "statement": "The default timeout policy rule can also be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-editing-timeout-policies.json",
+          "quotes": [
+            "You can also edit the default timeout policy rule."
+          ]
+        }
+      ]
+    },
+    "auth-timeout-client-version": {
+      "statement": "The page says the Authentication Timeout setting can be used within a policy rule only if users are running Zscaler Client Connector version 1.2.1 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-timeout-policies.json",
+          "quotes": [
+            "You can only use the Authentication Timeout setting within your policy rule if your users are running Zscaler Client Connector version 1.2.1 or later."
+          ]
+        }
+      ]
     }
   },
   "divergences": {
+    "reauth-timestamp": {
+      "summary": "The Configuring Timeout Policies page says the reauthentication interval is based on the SAML assertion's issue date, while About Timeout Policy says the Private Access Public Service Edge uses the notBefore timestamp in the SAML assertion response.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-timeout-policies.json",
+            "quotes": [
+              "The reauthentication time interval is based on the SAML assertion's issue date."
+            ]
+          },
+          "says": "The reauthentication interval is based on the SAML assertion's issue date."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-timeout-policy.json",
+            "quotes": [
+              "The Private Access Public Service Edge uses the notBefore timestamp in the SAML assertion response to calculate if reauthentication is necessary."
+            ]
+          },
+          "says": "The Public Service Edge uses the notBefore timestamp to calculate whether reauthentication is necessary."
+        }
+      ],
+      "impact": "The pages name different timestamps for the reauthentication timer and do not say whether the issue date and notBefore are the same value, so which one the timer uses is unresolved."
+    },
+    "default-idle-timeout": {
+      "summary": "The Configuring Timeout Policies page calls 2 hours for an open TCP session the default idle timeout, while About Timeout Policy says the default rule's sessions never end due to an idle connection timeout expiration.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-timeout-policies.json",
+            "quotes": [
+              "To identify the TCP sessions that are terminated after the default idle timeout of 2 hours",
+              "For an open TCP session, the timeout is 2 hours."
+            ]
+          },
+          "says": "The default idle timeout is 2 hours for an open TCP session, when Default is selected for the Idle Connection Timeout."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-timeout-policy.json",
+            "quotes": [
+              "The default rule specifies that all users have to authenticate every 7 days for any application, and that their sessions never end due to an idle connection timeout expiration."
+            ]
+          },
+          "says": "The default rule's sessions never end due to an idle connection timeout expiration. The same claim is zpa.policy.evaluation-order:default-timeout-rule."
+        }
+      ],
+      "impact": "The pages may mean two different things, the Default option of the Idle Connection Timeout and the default timeout policy rule, but neither page says how the two relate, so whether an idle session under the default rule ends after 2 hours is unresolved."
+    },
     "timeout-defaults": {
       "summary": "The help describes the default timeout rule as 7 days and never idle, while the MCP skill gives parameter defaults of 2 days and 10 minutes.",
       "positions": [
@@ -321,6 +616,18 @@
     }
   },
   "gaps": {
+    "timeout-name-period": {
+      "kind": "semantic",
+      "title": "Whether a period is rejected in a timeout rule name",
+      "status": "open",
+      "about": [
+        "zpa.policy.timeout-rules"
+      ],
+      "detail": "The configuring page lists hyphens and underscores as the only allowed special characters for a timeout rule name (claim name-characters), while the access, forwarding, redirection, isolation and Browser Protection pages also list periods. No captured source says whether a period is actually rejected in a timeout rule name. Create a timeout rule with a period in its name in a scratch tenant.",
+      "resolves_with": [
+        "lab-test"
+      ]
+    },
     "timeout-condition-restriction": {
       "kind": "semantic",
       "title": "Which condition types a timeout rule rejects at save",

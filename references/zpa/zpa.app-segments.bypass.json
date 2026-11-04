@@ -50,7 +50,7 @@
     },
     {
       "label": "Reauthentication.",
-      "text": "{{reauth-bypass}} How the SDKs serialize the field: [[zpa.app-segments.sdk-behavior]]."
+      "text": "{{reauth-bypass}} The Client Connector platforms it needs differ between pages {{divergence:reauth-bypass-platforms}}. {{always-disables-reauth-bypass}} How the SDKs serialize the field: [[zpa.app-segments.sdk-behavior]]."
     }
   ],
   "checks": [
@@ -184,8 +184,25 @@
         }
       ]
     },
+    "always-disables-reauth-bypass": {
+      "statement": "The AI-Powered Recommendations page's segment form says that if you select Always for the Bypass option, then Bypass during Reauthentication is automatically disabled and cannot be enabled.",
+      "tier": "A",
+      "binds": [
+        "zpa/application-segments#bypassType",
+        "zpa/application-segments#bypassOnReauth"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ai-powered-recommendations.json",
+          "quotes": [
+            "If you select Always for the Bypass option, then Bypass during Reauthentication is automatically disabled and cannot be enabled."
+          ]
+        }
+      ]
+    },
     "reauth-bypass": {
-      "statement": "Bypass during Reauthentication, when Enabled, makes application access during reauthentication bypass Private Access, needs Zscaler Client Connector 4.3 or later for Windows, macOS and iOS, and is the API field `bypassOnReauth`.",
+      "statement": "Bypass during Reauthentication, when Enabled, makes application access during reauthentication bypass Private Access, and is the API field `bypassOnReauth`.",
       "tier": "A",
       "binds": [
         "zpa/application-segments#bypassOnReauth"
@@ -195,8 +212,7 @@
           "source": "zscaler-help",
           "path": "zpa-configuring-defined-application-segments.json",
           "quotes": [
-            "Bypass during Reauthentication: Choose whether application access during reauthentication bypasses Private Access (Enabled) or not (Disabled).",
-            "This feature requires Zscaler Client Connector version 4.3 or later for Windows, macOS, and iOS."
+            "Bypass during Reauthentication: Choose whether application access during reauthentication bypasses Private Access (Enabled) or not (Disabled)."
           ]
         },
         {
@@ -208,6 +224,34 @@
           }
         }
       ]
+    }
+  },
+  "divergences": {
+    "reauth-bypass-platforms": {
+      "summary": "Two live pages name different Client Connector platforms for Bypass during Reauthentication: the Defined Application Segments page (the newer revision) and the AI-Powered Recommendations page, which embeds a copy of the segment form.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "This feature requires Zscaler Client Connector version 4.3 or later for Windows, macOS, and iOS."
+            ]
+          },
+          "says": "Bypass during Reauthentication requires Client Connector 4.3 or later for Windows, macOS and iOS."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-ai-powered-recommendations.json",
+            "quotes": [
+              "This feature requires versions Zscaler Client Connector 4.3 or later for Windows and macOS."
+            ]
+          },
+          "says": "Bypass during Reauthentication requires Client Connector 4.3 or later for Windows and macOS, with no mention of iOS."
+        }
+      ],
+      "impact": "Whether the setting applies to iOS clients is not settled; both pages give 4.3 as the minimum for Windows and macOS."
     }
   },
   "gaps": {

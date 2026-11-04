@@ -589,7 +589,7 @@ test("resolve --compact gives labels and one-line claims that fit the bundle sch
   assert.equal(subject.subject, undefined, "no prose body");
   // Claims inlined in prose carry no statement in the full bundle; the compact view states every claim.
   const firstMatch = subject.summary.claims.find((c) => c.id === "zia.url-filtering.rule-order:first-match");
-  assert.match(firstMatch.statement, /first rule whose criteria all match/);
+  assert.match(firstMatch.statement, /stops at the first match/);
   assert.ok(subject.summary.claims.every((c) => c.statement.length <= 200));
   assert.ok(subject.summary.neighbors.length > 0);
   assert.equal(type.view, "compact");

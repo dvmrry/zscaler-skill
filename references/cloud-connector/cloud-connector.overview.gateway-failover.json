@@ -83,7 +83,11 @@
     },
     {
       "label": "When no Cloud Connector reaches a Service Edge.",
-      "text": "{{fail-close-default}} {{fail-open-option}} The two clauses of the fail-open description are hard to reconcile, and where the toggle lives is not named {{gap:fail-open-egress}}."
+      "text": "{{fail-close-default}} {{fail-open-option}} The two clauses of the fail-open description are hard to reconcile, and where the toggle lives is not named {{gap:fail-open-egress}}. The Internet Access gateway page describes the disabled Fail Close setting as sending traffic directly to the server: [[cloud-connector.forwarding.gateways:iag-fail-close]] {{divergence:fail-open-path}}."
+    },
+    {
+      "label": "Tunnel encryption.",
+      "text": "{{zia-tunnel-mode}} {{fallback-to-tls}}"
     },
     {
       "text": "{{gateway-fail-closed-field}} {{fail-closed-is-the-toggle}}"
@@ -101,7 +105,8 @@
       "do": "Whether any Cloud Connector in the group could reach an Internet & SaaS Service Edge; only when none could does the fail-close or fail-open setting decide the outcome.",
       "uses": [
         "fail-close-default",
-        "fail-open-option"
+        "fail-open-option",
+        "fail-open-path"
       ]
     },
     {
@@ -263,6 +268,33 @@
       ],
       "conditions": "Inference: the help article names no setting, and the API description speaks of the gateway's primary and secondary proxies rather than of all Cloud Connectors in a group. Confirm in a tenant before relying on it."
     },
+    "zia-tunnel-mode": {
+      "statement": "A Cloud Connector group's ZIA Tunnel Mode selects Unencrypted UDP, DTLS or TLS as the encryption type used when forwarding traffic to Internet & SaaS, and Unencrypted UDP is selected by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "ZIA Tunnel Mode: Select Unencrypted UDP, DTLS, or TLS for the encryption type to be used when forwarding traffic to Internet & SaaS. By default, Unencrypted UDP is selected."
+          ]
+        }
+      ]
+    },
+    "fallback-to-tls": {
+      "statement": "Fallback to TLS can only be enabled if Unencrypted UDP or DTLS is selected as the ZIA Tunnel Mode; Enable switches the tunnel type to TLS automatically if the tunnel becomes unhealthy, Disable deactivates the feature, and it is enabled by default. A Fallback to TLS entry also views the status as Enable or Disable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Fallback to TLS: You can only enable this feature if Unencrypted UDP or DTLS is selected as the ZIA Tunnel Mode. Select Enable to have the tunnel type automatically switch to TLS if the tunnel becomes unhealthy. Select Disable to deactivate this feature. This feature is enabled by default.",
+            "Fallback to TLS: View the status of TLS fallback as Enable or Disable."
+          ]
+        }
+      ]
+    },
     "zpa-enrolled": {
       "statement": "Cloud Connectors enrolled with Private Access automatically establish a secure connection to an optimal Private Access Public or Private Service Edge; workloads reaching private applications are tunneled there, and the data path continues through the App Connectors configured for the application.",
       "tier": "A",
@@ -292,6 +324,34 @@
       ]
     }
   },
+  "divergences": {
+    "fail-open-path": {
+      "summary": "The high-availability article says the fail-open option sends egressing traffic through Zscaler for inspection and policy control, while the Internet Access gateway page says disabling Fail Close allows the traffic directly to the server without forwarding it to the proxy service.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "cbc-understanding-high-availability-and-failover.json",
+            "quotes": [
+              "The fail-open option means the egressing traffic is flowing through Zscaler for inspection and policy control."
+            ]
+          },
+          "says": "With the fail-open option the egressing traffic is flowing through Zscaler for inspection and policy control."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-cloud-configuring-internet-access-gateway.json",
+            "quotes": [
+              "Disable: Allows the traffic directly to the server without forwarding it to the proxy service when both proxies are unreachable."
+            ]
+          },
+          "says": "With Fail Close disabled, the traffic goes directly to the server without being forwarded to the proxy service when both proxies are unreachable."
+        }
+      ],
+      "impact": "Whether fail-open traffic stays inspected during a full Service Edge outage depends on the page read. Neither page ties the article's fail-open to the gateway's Fail Close setting, so they may describe different settings; the derived claim fail-closed-is-the-toggle is an inference, not a source statement."
+    }
+  },
   "gaps": {
     "fail-open-egress": {
       "kind": "semantic",
@@ -300,7 +360,7 @@
       "former_ids": [
         "cloud-connector-08"
       ],
-      "detail": "Fail-open applies only when no Cloud Connector in the group reaches any Internet & SaaS Service Edge, yet the article says fail-open egress \"is flowing through Zscaler for inspection and policy control\". Whether fail-open traffic goes direct to the internet uninspected or through some retained Zscaler path is not resolved; neither reading should be stated as fact. The article also does not name where the setting is changed (the gateway `failClosed` member is the likely place). The ledger entry's third question, the health-probe port, is in cloud-connector.overview.load-balancing:probe-port.",
+      "detail": "Fail-open applies only when no Cloud Connector in the group reaches any Internet & SaaS Service Edge, yet the article says fail-open egress \"is flowing through Zscaler for inspection and policy control\". Whether fail-open traffic goes direct to the internet uninspected or through some retained Zscaler path is not resolved; neither reading should be stated as fact; the Internet Access gateway page's Fail Close description is recorded against it in divergence fail-open-path. The article also does not name where the setting is changed (the gateway `failClosed` member is the likely place). The ledger entry's third question, the health-probe port, is in cloud-connector.overview.load-balancing:probe-port.",
       "blocks": "telling an operator whether workloads stay inspected during a full Service Edge outage",
       "resolves_with": [
         "lab-test",
@@ -332,7 +392,7 @@
       "kind": "semantic",
       "title": "Direction and ports of the Cloud Connector control channel",
       "status": "open",
-      "detail": "Unverified legacy statement: the control plane is \"Cloud Connector's bidirectional management channel to the Zero Trust Exchange for config, heartbeat, policy updates\", both planes are outbound-only, and \"No inbound connection is ever made to a Cloud Connector from Zscaler's side.\" Other captures establish that a management plane exists and is monitored (cloud-connector.insights.connector-status:inactive-meaning; control plane health checks raise Event logs, cloud-connector.logs.event-records:when-generated), but none states its direction, ports or whether anything is ever inbound.",
+      "detail": "Unverified legacy statement: the control plane is \"Cloud Connector's bidirectional management channel to the Zero Trust Exchange for config, heartbeat, policy updates\", both planes are outbound-only, and \"No inbound connection is ever made to a Cloud Connector from Zscaler's side.\" Other captures establish that a management plane exists and is monitored (cloud-connector.insights.connector-status:inactive-meaning; control plane health checks raise Event logs, cloud-connector.logs.event-records:when-generated), but none states its direction, ports or whether anything is ever inbound. The networking-flows page lists the management interface's control plane flows and an inbound SSH flow without ports or destinations (cloud-connector.overview.network-flows:mgmt-outbound, cloud-connector.overview.network-flows:mgmt-inbound).",
       "blocks": "firewall and security-group design for the Cloud Connector management interface",
       "resolves_with": [
         "source-read",

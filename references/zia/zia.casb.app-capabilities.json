@@ -57,7 +57,11 @@
     },
     {
       "label": "Actions.",
-      "text": "{{remediation-examples}} {{labels}} Whether the Dropbox label action is a carry-over is open {{gap:dropbox-label}}."
+      "text": "{{remediation-examples}} {{labels}} The Dropbox row's Apply Box Classification Label action disagrees with the DLP actions table {{divergence:dropbox-box-label}}, which resolves {{gap:dropbox-label}}."
+    },
+    {
+      "label": "DLP actions by application.",
+      "text": "{{dlp-actions-by-app}} Smartsheet's place under Admin Quarantine disagrees with the capability matrix {{divergence:smartsheet-admin-quarantine}}."
     },
     {
       "label": "Activities.",
@@ -78,11 +82,35 @@
       "do": "Whether the application's Actions row offers the action a rule needs, since remediation differs by application.",
       "uses": [
         "remediation-examples",
-        "labels"
+        "labels",
+        "dlp-actions-by-app",
+        "dropbox-box-label",
+        "smartsheet-admin-quarantine"
       ]
     }
   ],
   "claims": {
+    "dlp-actions-by-app": {
+      "statement": "The About Data at Rest Scanning DLP page's Supported DLP Actions table maps actions to applications, for example: Admin Quarantine to Box, Citrix ShareFile, Confluence, Dropbox, Google Drive, OneDrive, SharePoint and Smartsheet; Apply MIP Label to OneDrive and SharePoint; Apply Box Classification Label to Box; Notify Users Only to Microsoft Teams, Slack and Webex Teams; Quarantine to Jira, Dynamics 365, Salesforce, ServiceNow, Slack and Webex Teams; Move to Restricted Folder to Confluence; Remove All Collaborators to Dropbox and Google Cloud Platform; Remove External Collaborators to Smartsheet; and Update to Not Discoverable for All to Google Drive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-data-rest-scanning-dlp.json",
+          "quotes": [
+            "| Admin Quarantine | Box Citrix ShareFile Confluence Dropbox Google Drive Microsoft OneDrive Microsoft SharePoint Smartsheet |",
+            "| Apply MIP Label | Microsoft OneDrive Microsoft SharePoint |",
+            "| Apply Box Classification Label | Box |",
+            "| Notify Users Only | Microsoft Teams Slack Webex Teams |",
+            "| Quarantine | Atlassian Jira Dynamics 365 Salesforce ServiceNow Slack Webex Teams |",
+            "| Move to Restricted Folder | Atlassian Confluence |",
+            "| Remove All Collaborators | Dropbox Google Cloud Platform |",
+            "| Remove External Collaborators | Smartsheet |",
+            "| Update to Not Discoverable for All | Google Drive |"
+          ]
+        }
+      ]
+    },
     "matrix-columns": {
       "statement": "The article lists the supported administrative capabilities and actions for all SaaS Security applications; its capability table has per-application columns Onboarding Privileges, Webhooks, Historical Scan, Malware Support, Incident Management (Workflow Automation), Activity Alerts and Monitoring and Licensing.",
       "tier": "A",
@@ -247,6 +275,60 @@
       ]
     }
   },
+  "divergences": {
+    "smartsheet-admin-quarantine": {
+      "summary": "The About Data at Rest Scanning DLP table lists Smartsheet under Admin Quarantine; the Supported Capabilities matrix's Smartsheet row has no Admin Quarantine action.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-data-rest-scanning-dlp.json",
+            "quotes": [
+              "| Admin Quarantine | Box Citrix ShareFile Confluence Dropbox Google Drive Microsoft OneDrive Microsoft SharePoint Smartsheet |"
+            ]
+          },
+          "says": "Admin Quarantine is available for Box, Citrix ShareFile, Confluence, Dropbox, Google Drive, OneDrive, SharePoint and Smartsheet."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-saas-security-supported-capabilities.json",
+            "quotes": [
+              "| Smartsheet | Files and Folders | Remove Remove External Collaborators Remove Internal Collaborators and Shareable Link Remove Sharing Report Incident | Remove | Remove Malware Report Malware | Supported |"
+            ]
+          },
+          "says": "Smartsheet's actions are Remove, Remove External Collaborators, Remove Internal Collaborators and Shareable Link, Remove Sharing and Report Incident, with no Admin Quarantine."
+        }
+      ],
+      "impact": "Whether a Smartsheet DLP rule can use Admin Quarantine is not settled by the documentation. A related page says remediation actions are not supported for Smartsheet on the Assets with Incidents page (zia.reports.saas-security:awi-file-sharing-actions)."
+    },
+    "dropbox-box-label": {
+      "summary": "The Supported Capabilities Actions row for Dropbox lists Apply Box Classification Label; the About Data at Rest Scanning DLP table lists that action for Box only.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-understanding-saas-security-supported-capabilities.json",
+            "quotes": [
+              "| Dropbox | Files and Folders | Admin Quarantine Apply Box Classification Label Change to Read Only"
+            ]
+          },
+          "says": "The Dropbox row lists Admin Quarantine, Apply Box Classification Label and Change to Read Only among its actions."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-about-data-rest-scanning-dlp.json",
+            "quotes": [
+              "| Apply Box Classification Label | Box |"
+            ]
+          },
+          "says": "Apply Box Classification Label is listed for Box."
+        }
+      ],
+      "impact": "Whether Dropbox offers a Box classification label action is not settled; the matrix row may carry the Box action over, but neither page says which is intended."
+    }
+  },
   "gaps": {
     "historical-scan-meaning": {
       "kind": "semantic",
@@ -271,7 +353,8 @@
     "dropbox-label": {
       "kind": "semantic",
       "title": "Whether the Dropbox row's Apply Box Classification Label is intended",
-      "status": "open",
+      "status": "resolved",
+      "resolution": "Settled into the divergence dropbox-box-label: the Supported DLP Actions table lists Apply Box Classification Label for Box only, while the capability matrix lists it on the Dropbox row.",
       "detail": "The Dropbox actions row lists a Box classification label action, possibly carried over from the Box row; the article does not say.",
       "resolves_with": [
         "source-read",

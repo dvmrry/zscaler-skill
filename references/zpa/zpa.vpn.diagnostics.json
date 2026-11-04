@@ -52,6 +52,10 @@
       "text": "{{traffic-flow-fields}}"
     },
     {
+      "label": "Streamed VPN logs.",
+      "text": "{{connection-id-merge}} The streamed Traffic Flow VPN page's field table and example record differ on its time fields and session state {{divergence:traffic-flow-vpn-example}}."
+    },
+    {
       "label": "Export.",
       "text": "{{log-export}}"
     },
@@ -143,6 +147,27 @@
         }
       ]
     },
+    "connection-id-merge": {
+      "statement": "The User Status - VPN Service Edge and User Status - VPN Service Edge (IP Address Reservation) log types share a ConnectionID key field, which can be used to merge the user status logs produced by both, and which enables SIEM servers to link, correlate and integrate the data from both sources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-user-status-vpn-service-edge-log-fields.json",
+          "quotes": [
+            "You can use the shared ConnectionID key field to merge user status logs produced by both VPN Service Edge and VPN Service Edge (IP Address Reservation).",
+            "This common identifier enables SIEM servers to effectively link, correlate, and integrate the data from both sources."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-user-status-vpn-service-edge-ip-address-reservation-log-fields.json",
+          "quotes": [
+            "You can use the shared ConnectionID key field to merge user status logs produced by both User Status - VPN Service Edge (IP Address Reservation) and VPN Service Edge."
+          ]
+        }
+      ]
+    },
     "log-export": {
       "statement": "The user logs and the traffic logs can each be viewed in JSON format or downloaded as a text file.",
       "tier": "A",
@@ -183,6 +208,36 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "traffic-flow-vpn-example": {
+      "summary": "On the Traffic Flow for VPN (For Legacy Apps) log fields page, the table gives FlowStartTime integer and float format specifiers and describes SessionState as open or closed, while the example record writes FlowStartTime as an ISO date string and SessionState as \"close\".",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-traffic-flow-vpn-legacy-apps-log-fields.json",
+            "quotes": [
+              "| FlowStartTime | The time when the traffic flow started | %[OPT]d %[OPT]x %[OPT]f %[OPT]o |",
+              "| SessionState | The state of the traffic flow session (e.g., open or closed) | %[OPT]s %[OPT]j %[OPT]J %[OPT]o |"
+            ]
+          },
+          "says": "Table: FlowStartTime takes the integer and float specifiers %[OPT]d, %[OPT]x, %[OPT]f and %[OPT]o, and SessionState is described as open or closed."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-traffic-flow-vpn-legacy-apps-log-fields.json",
+            "quotes": [
+              "\"FlowStartTime\": \"2026-03-23T15:30:03.340Z\"",
+              "\"SessionState\": \"close\""
+            ]
+          },
+          "says": "Example record: FlowStartTime is an ISO date string and SessionState is \"close\"."
+        }
+      ],
+      "impact": "A consumer cannot tell from the article whether FlowStartTime is numeric or a date string, or whether SessionState takes open and closed or \"close\"."
     }
   },
   "gaps": {

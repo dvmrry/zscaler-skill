@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.gcp-ztg.vpc-registration",
+  "title": "Registering a VPC with a GCP Zero Trust Gateway: NSI in-band endpoint group, security profile group and firewall policy",
+  "aliases": [
+    "register vpc gcp zero trust gateway",
+    "nsi in-band intercept endpoint group",
+    "intercept deployment group zscaler",
+    "security profile group zscaler gcp",
+    "gcp ztg firewall policy intercept"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg.creation"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.gcp-ztg.operations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{nsi-in-band}} This is the GCP-console side of the setup; the Admin Console side is in [[cloud-connector.gcp-ztg.creation]]."
+    },
+    {
+      "label": "Before starting.",
+      "text": "{{prerequisites}} {{zscaler-provides}}"
+    },
+    {
+      "label": "Resources, in order.",
+      "text": "{{endpoint-group}} {{profile-and-group}} {{firewall-policy}}"
+    },
+    {
+      "label": "Verifying.",
+      "text": "{{verify}}"
+    },
+    {
+      "label": "Troubleshooting table.",
+      "text": "{{troubleshooting}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the intercept endpoint group is Active with the VPC association listed, and matching traffic appears in the Zscaler inspection logs.",
+      "uses": [
+        "verify"
+      ]
+    },
+    {
+      "do": "Whether the allow rule for trusted sources (priority 90) sits ahead of the ingress (100) and egress (101) intercept rules and shadows traffic meant to be inspected.",
+      "uses": [
+        "firewall-policy",
+        "troubleshooting"
+      ]
+    },
+    {
+      "do": "Whether the deployment group was entered manually from the Zscaler producer project and the Network Security IAM exists at the chosen scope.",
+      "uses": [
+        "endpoint-group",
+        "prerequisites",
+        "troubleshooting"
+      ]
+    }
+  ],
+  "claims": {
+    "nsi-in-band": {
+      "statement": "Traffic from a Google Cloud VPC is routed through the Zscaler GCP Zero Trust Gateway using Network Security Integration (NSI) in-band integration configured in the GCP console, for an existing VPC network, since NSI does not create a VPC network.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "This article instructs you on how to route traffic from your Google Cloud virtual private cloud (VPC) through the Zscaler Google Cloud Platform (GCP) Zero Trust Gateway using Network Security Integration (NSI) in-band integration in the GCP console.",
+            "An existing VPC network to protect. NSI does not create a VPC network."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Prerequisites include the consumer project details (such as where the endpoint group is deployed), the ingress source and egress destination CIDR ranges to inspect, the Security Profile Admin role for security profiles and groups (organization-level roles when organization scope is used), the Compute Engine and Network Security APIs enabled, and, optionally, trusted source ranges that bypass inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "Your consumer project details, such as where the endpoint group is deployed.",
+            "Ingress source and egress destination CIDR ranges to inspect.",
+            "The Security Profile Admin role is needed for security profiles and groups. If you are using organization scope, ensure that you have organization-level roles.",
+            "The Compute Engine and Network Security APIs enabled.",
+            "(Optional) Trusted source ranges that bypass inspection."
+          ]
+        }
+      ]
+    },
+    "zscaler-provides": {
+      "statement": "Zscaler provides the intercept deployment group, and any location guidance (NSI consumer resources use global) and recommended traffic match ranges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "The intercept deployment group.",
+            "Any location guidance (i.e., NSI consumer resources use global) and recommended traffic match ranges."
+          ]
+        }
+      ]
+    },
+    "endpoint-group": {
+      "statement": "Step 1 creates an intercept endpoint group with purpose NSI In-Band and type Intercept (the default); the deployment group can be entered manually as a project ID and name when it is in a different project, which the page describes as the most common case for a Zscaler producer project, and the VPC network to protect is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "after": "- Step 1: Create the Intercept Endpoint Group",
+          "quotes": [
+            "Purpose: Select NSI In-Band.",
+            "Enter manually: Enter the project ID and name where the group is located in a different project. This is the most common case for a Zscaler producer project.",
+            "Type: By default, this field is set to Intercept.",
+            "Network: From the drop-down menu, select the VPC network to protect."
+          ]
+        }
+      ]
+    },
+    "profile-and-group": {
+      "statement": "The security profile's traffic is directed to the deployment group selected in Step 1, and the firewall rules reference the security profile group, not the profile directly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "Traffic directed to: Select the deployment group you selected in Step 1.",
+            "The firewall rules reference this group, not the profile directly."
+          ]
+        }
+      ]
+    },
+    "firewall-policy": {
+      "statement": "The firewall policy has Global deployment scope and VPC policy type, an allow rule for trusted sources to bypass inspection at priority 90 (lower priority numbers are evaluated first), an ingress intercept rule at priority 100 and an egress intercept rule at priority 101, and is associated with the consumer VPC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "Deployment scope: Select Global.",
+            "Policy type: From the drop-down menu, select VPC policy.",
+            "Priority: Enter 90. Lower priority numbers are evaluated first.",
+            "Description: Enter a description for the rule. This is the allow rule for trusted sources to bypass inspection.",
+            "Priority: Enter 100.",
+            "Description: Enter a description for the rule. This is the ingress intercept rule.",
+            "Priority: Enter 101.",
+            "Description: Enter a description for the rule. This is the egress intercept rule.",
+            "In the Associate policy with VPC networks window, select your consumer VPC. Then, click Associate."
+          ]
+        }
+      ]
+    },
+    "verify": {
+      "statement": "Among the verification checks, the intercept endpoint group's Status is Active and its Associations column lists the VPC association, and generated traffic matching the ranges appears in the Zscaler inspection logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "In the Status column, the group is Active.",
+            "In the Associations column, the VPC association is listed.",
+            "Generate traffic that matches your ranges and confirm that it appears in the Zscaler inspection logs."
+          ]
+        }
+      ]
+    },
+    "troubleshooting": {
+      "statement": "The troubleshooting table says that a deployment group that cannot be selected is in the wrong project or the Zscaler producer project (enter the Zscaler project ID and name manually), that Permission denied on the security profile means the Network Security IAM is missing at the chosen scope, that uninspected traffic means wrong match ranges or an allow rule shadowing the intercept rule, and that a rule not offering the profile group means the group is not created yet or has the wrong purpose.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-registering-virtual-private-cloud-google-cloud-platform-zero-trust-gateway.json",
+          "quotes": [
+            "| You cannot select the deployment group. | It is the wrong project, or it is in the Zscaler producer project. | In the Enter manually field, enter the Zscaler project ID and name. |",
+            "| \"Permission denied\" appears on the security profile. | The Network Security IAM is missing at the chosen scope.",
+            "| The traffic is not inspected. | The match ranges are wrong, or an allow rule shadows the intercept rule.",
+            "| The rule does not offer the profile group. | The profile group is not created yet, or has the wrong purpose."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "egress-direction-value": {
+      "kind": "semantic",
+      "title": "The traffic direction set on the egress intercept rule",
+      "status": "open",
+      "detail": "In the capture, the egress intercept rule's Direction of traffic field has no value after the label, so the page does not state what to select.",
+      "blocks": "reproducing the egress intercept rule from the page alone",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

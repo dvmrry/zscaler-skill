@@ -45,6 +45,10 @@
     },
     {
       "rel": "see-also",
+      "to": "cloud-connector.upgrades.repo-certificate"
+    },
+    {
+      "rel": "see-also",
       "to": "cloud-connector.upgrades.monitoring"
     },
     {
@@ -77,8 +81,12 @@
       "text": "{{group-actions}} {{schedule-api}} {{release-channel-api}} {{vm-status-api}} The two API references list different upgrade operations [[cloud-connector.api.ec-groups-wire:upgrade-operations]]. Whether any operation starts an upgrade immediately is open {{gap:upgrade-now}}. {{mcp-no-ecgroup}}"
     },
     {
+      "label": "Upgrade Manager.",
+      "text": "{{upgrade-manager-filters}} {{upgrade-manager-actions}} What Blocked and Bootstrapping mean, and how the states map to the API's, is open {{gap:upgrade-state-meanings}}. {{group-release-channel}} {{gcp-replaced-instance}}"
+    },
+    {
       "label": "Related.",
-      "text": "OS images, which this schedule does not replace, are in [[cloud-connector.upgrades.os-images]]. Watching an upgrade is in [[cloud-connector.upgrades.monitoring]]. ZPA App Connectors upgrade by a separate mechanism with a 4-hour window: [[zpa.app-connectors.upgrades:four-hour-window]]."
+      "text": "OS images, which this schedule does not replace, are in [[cloud-connector.upgrades.os-images]]; the software update repository's certificate renewal is in [[cloud-connector.upgrades.repo-certificate]]. Watching an upgrade is in [[cloud-connector.upgrades.monitoring]]. ZPA App Connectors upgrade by a separate mechanism with a 4-hour window: [[zpa.app-connectors.upgrades:four-hour-window]]."
     }
   ],
   "checks": [
@@ -338,6 +346,80 @@
         }
       ]
     },
+    "upgrade-manager-filters": {
+      "statement": "The Upgrade Manager page filters by Cloud (AWS, Azure or GCP), Auto Scaling (True or False), Release Channel (Stable, Latest or Beta) and Upgrade Status (Bootstrapping, No Pending Upgrade, Scheduled, Blocked or Failed), and shows the number of Cloud Connectors and groups on the Stable, Latest and Beta versions and the distribution of Cloud Connectors in different upgrade states.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-upgrade-manager.json",
+          "quotes": [
+            "Cloud: From the drop-down menu, select AWS, Azure, or GCP.",
+            "Auto Scaling: From the drop-down menu, select True or False.",
+            "Release Channel: From the drop-down menu, select Stable, Latest, or Beta.",
+            "Upgrade Status: From the drop-down menu, select Bootstrapping, No Pending Upgrade, Scheduled, Blocked, or Failed.",
+            "View the number of Cloud Connectors and groups on the Stable, Latest, and Beta versions.",
+            "View the distribution of Cloud Connectors in different upgrade states."
+          ]
+        }
+      ]
+    },
+    "upgrade-manager-actions": {
+      "statement": "On the Upgrade Manager, actions apply to two or more selected groups or multiple selected individual Cloud Connectors: Schedule Upgrade (a day and time for periodic software updates), Enable, Disable (which stops traffic from processing without deleting the Cloud Connector) and Upgrade Release Channel (update the release channel by selecting Stable, Beta or Latest).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-upgrade-manager.json",
+          "quotes": [
+            "Select two or more groups or multiple individual Cloud Connector checkboxes to apply actions to the selected Cloud Connectors:",
+            "Schedule Upgrade: Designate a Day and Time for periodic software updates.",
+            "Enable: Enable an individual Cloud Connector or group of Cloud Connectors.",
+            "Disable: Disable an individual Cloud Connector or group of Cloud Connectors, which stops traffic from processing. Disabling a Cloud Connector does not delete it.",
+            "Upgrade Release Channel: Update the release channel by selecting Stable, Beta, or Latest."
+          ]
+        }
+      ]
+    },
+    "gcp-replaced-instance": {
+      "statement": "When a GCP instance deployed in an instance group is deleted it is replaced by a new one, and the new instance appears in the Upgrade Manager's table section for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cbc-about-upgrade-manager.json",
+          "quotes": [
+            "When a GCP instance deployed in an instance group is deleted, it is replaced by a new one. The new instance appears in this section of the table."
+          ]
+        }
+      ]
+    },
+    "group-release-channel": {
+      "statement": "In the Edit Cloud Connector Group window, the Release Channel section's Choose release channel drop-down selects Stable, Latest or Beta; in the Edit Cloud Connector window for an individual Cloud Connector, the Upgrade Information section shows the Current Version of the Cloud Connector and the Scheduled Version to be applied when it upgrades next.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "after": "- Cloud Connector group",
+          "quotes": [
+            "In the Edit Cloud Connector Group window, view or configure the following:",
+            "In the Release Channel section, from the Choose release channel drop-down menu, select Stable, Latest, or Beta:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "after": "- Individual Cloud Connector",
+          "quotes": [
+            "In the Edit Cloud Connector window:",
+            "In the Upgrade Information section, view the following:",
+            "Current Version: The current version of the Cloud Connector.",
+            "Scheduled Version: The version scheduled to be applied when Cloud Connector upgrades next."
+          ]
+        }
+      ]
+    },
     "mcp-no-ecgroup": {
       "statement": "The Zscaler MCP server's ZTW toolset has 19 tools, none of which reads or changes Cloud Connector groups or their upgrades.",
       "tier": "B",
@@ -356,6 +438,16 @@
     }
   },
   "gaps": {
+    "upgrade-state-meanings": {
+      "kind": "semantic",
+      "title": "What the Upgrade Manager's Blocked and Bootstrapping states mean",
+      "status": "open",
+      "detail": "The Upgrade Manager page lists Bootstrapping, No Pending Upgrade, Scheduled, Blocked and Failed as upgrade statuses without defining Blocked or Bootstrapping, and does not map them to the API's upgrade states in cloud-connector.upgrades.monitoring:upgrade-metrics.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
     "local-time-basis": {
       "kind": "semantic",
       "title": "Which time zone sets a connector's local upgrade time",

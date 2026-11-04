@@ -55,6 +55,14 @@
       "text": "{{internal-segment}}"
     },
     {
+      "label": "Log Connector groups.",
+      "text": "{{log-connector-groups}} {{log-connector-group-details}} How a Log Connector relates to an App Connector, and whether receivers use Log Connector groups or the App Connector groups above, is open {{gap:log-connector}}."
+    },
+    {
+      "label": "Business Continuity Event log.",
+      "text": "The field table and example record of the Business Continuity Event log disagree, a divergence recorded in [[zpa.log-receivers.log-types]]."
+    },
+    {
       "text": "Capacity of a receiver and reaching an internet-exposed SIEM are not sourced {{gap:capacity-limits}} {{gap:internet-exposed-receiver}}."
     }
   ],
@@ -227,9 +235,56 @@
           ]
         }
       ]
+    },
+    "log-connector-groups": {
+      "statement": "The Log Connector Groups page is under Data Explorer > Log Streaming > Private Log Streaming > Log Connector Groups. Each Log Connector is mapped to one Log Connector group, a log type is then mapped to one or multiple Log Connector groups for log forwarding, and the Log Connector must be up and running for the group to be active.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-log-connector-groups.json",
+          "quotes": [
+            "Each Log Connector is mapped to one Log Connector group. A log type is then mapped to one or multiple Log Connector groups for log forwarding. Ensure that your Log Connector is up and running for the Log Connector group to be active.",
+            "Data Explorer > Log Streaming > Private Log Streaming > Log Connector Groups"
+          ]
+        }
+      ]
+    },
+    "log-connector-group-details": {
+      "statement": "A Log Connector group's details include its Location, the Enrollment Certificate its Log Connectors use for enrollment, a DNS Resolution Option, Disaster Recovery, Disable AppProtection and Privileged Remote Access flags, a Version Profile for the Log Connector build, the next periodic software update, Network Settings (network parameters such as DNS, routing, proxy servers and time services), and the numbers of enrolled App Connectors and provisioning keys associated with the group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-log-connector-groups.json",
+          "quotes": [
+            "Location: The location where the Log Connector group, which the Log Connector belongs to, is set up.",
+            "Enrollment Certificate: The certificate the Log Connector uses for enrollment.",
+            "DNS Resolution Option: Specifies how the Log Connectors in the group resolve DNS queries.",
+            "Disaster Recovery: Indicates whether Disaster Recovery is enabled or disabled.",
+            "Disable AppProtection: Indicates whether AppProtection is enabled or disabled.",
+            "Privileged Remote Access: Indicates whether Privileged Remote Access (PRA) is enabled or disabled.",
+            "Version Profile: The profile used to specify a Log Connector build for the group.",
+            "Next Periodic Software Update is on: The date and time of the next periodic software update for all of the Log Connectors within the group.",
+            "Network Settings: Displays network parameters for the Log Connector group such as DNS, routing, proxy servers, and time services.",
+            "App Connectors: The number of enrolled App Connectors associated with this group.",
+            "Provisioning Keys: The number of enrolled provisioning keys associated with this group."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "log-connector": {
+      "kind": "semantic",
+      "title": "What a Log Connector is and how its groups relate to App Connector groups",
+      "status": "open",
+      "detail": "The Log Connector Groups page does not say how a Log Connector relates to an App Connector (the group drawer counts App Connectors and provisioning keys), whether log receivers in the Data Explorer view use Log Connector groups instead of the App Connector groups described in this subject, or why its benefits list says to group Log Connectors to ensure logs are streamed to an identity provider.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
     "internet-exposed-receiver": {
       "kind": "semantic",
       "title": "A receiver exposed to the internet and Splunk transports",

@@ -49,7 +49,15 @@
       "text": "{{unset-ignored}}"
     },
     {
-      "text": "{{url-categories2-and}}"
+      "text": "{{url-categories2-and}} {{groups-and}}"
+    },
+    {
+      "label": "Validity window.",
+      "text": "{{rule-validity-period}}"
+    },
+    {
+      "label": "User policy on HTTPS.",
+      "text": "{{https-user-policy}}"
     },
     {
       "label": "API field names.",
@@ -136,11 +144,66 @@
           ]
         },
         {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "The URL Categories fields are connected with a logical AND operator."
+          ]
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zia/url_filtering.py",
           "after": "def add_rule(self, **kwargs) -> APIResult[dict]:",
           "quotes": [
             "Note: The urlCategories and urlCategories2 parameters are connected with a logical AND operator"
+          ]
+        }
+      ]
+    },
+    "groups-and": {
+      "statement": "In the About URL Filtering rule table, the Groups fields are connected with a logical AND operator, as are the URL Categories fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "The Groups fields are connected with a logical AND operator.",
+            "The URL Categories fields are connected with a logical AND operator."
+          ]
+        }
+      ]
+    },
+    "rule-validity-period": {
+      "statement": "A rule can carry a Start Date and Time (the rule is valid starting this date and time), an End Date and Time (the rule ceases to be valid on this date and time) and a Time Zone in which the policy rule is valid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "Start Date and Time: The start date and time of the policy rule, if available. The rule is valid starting this date and time.",
+            "End Date and Time: The end date and time of the policy rule, if available. The rule ceases to be valid on this date and time.",
+            "Time Zone: The time zone in which the policy rule is valid."
+          ]
+        }
+      ]
+    },
+    "https-user-policy": {
+      "statement": "The page says user-based URL policy on HTTPS traffic can be enforced in different ways, which it describes under SSL/TLS Inspection, IP surrogate and Kerberos. With SSL/TLS Inspection enabled, the service decrypts SSL/TLS transactions and sees the HTTP traffic in the tunnel (with the URI and the Zscaler cookie representing the user), and the location must have authentication enabled. If SSL/TLS interception is not feasible, the IP surrogate feature maps a user to a device IP address so the user's policies apply. With Kerberos, the service can enforce user, group and department policies on proxied HTTPS transactions without decrypting them; the location must have authentication and Kerberos enabled, and Kerberos authentication is supported only for traffic forwarded in explicit mode.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-enforcing-user-based-url-policies-https-traffic.json",
+          "quotes": [
+            "The Zscaler service can enforce user-based URL policies on HTTPS traffic in different ways.",
+            "When SSL/TLS Inspection is enabled, the Zscaler service decrypts SSL/TLS transactions and has full visibility of the HTTP traffic in the SSL/TLS tunnel (with URI and the Zscaler cookie representing the user), so it can enforce user policies.",
+            "The location must have authentication enabled.",
+            "If enabling SSL/TLS interception is not a feasible option for your organization, you can use the IP surrogate feature, which enables the Zscaler service to map a user to a device IP address so it can apply the user's policies.",
+            "The service can enforce granular user, group and department policies on proxied HTTPS transactions, without having to decrypt the HTTPS transactions.",
+            "The location must have authentication and Kerberos enabled.",
+            "The service supports Kerberos authentication only for traffic forwarded in explicit mode."
           ]
         }
       ]

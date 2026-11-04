@@ -50,7 +50,7 @@
     },
     {
       "label": "Application settings.",
-      "text": "{{enable-and-defaults}} {{connection-security-help}}"
+      "text": "{{pra-purpose-and-prereq}} {{enable-and-defaults}} {{privileged-applications-page}} {{connection-security-help}} The extra ports for VNC and RealVNC file transfer also differ {{divergence:vnc-file-transfer-ports}}."
     },
     {
       "label": "Terraform and API.",
@@ -58,7 +58,7 @@
     },
     {
       "label": "Constraints.",
-      "text": "Whether Source IP Anchoring is allowed on a PRA segment is open {{gap:sipa-on-pra}}. The Multimatch restriction, where two captures disagree about PRA, is in [[zpa.app-segments.multimatch-requirements]]."
+      "text": "Whether Source IP Anchoring is allowed on a PRA segment is open {{gap:sipa-on-pra}}. The Multimatch restriction, where two captures disagree about PRA, is in [[zpa.app-segments.multimatch-requirements]]. A PRA application that matches a valid client hostname for peer-to-peer connectivity is covered in [[zpa.peer-to-peer:pra-conflict]]."
     },
     {
       "text": "Other settings blocked by Browser Access are in [[zpa.browser-access.segment-constraints]]. VNC file transfer needs SSH on port 22, covered in [[zpa.pra.consoles-policy]]. Update behavior of nested PRA apps in Terraform is in [[zpa.terraform.app-segment-lifecycle]]."
@@ -72,6 +72,12 @@
       "do": "Whether the RDP connection security matches the Windows version of the target.",
       "uses": [
         "connection-security-help"
+      ]
+    },
+    {
+      "do": "Which ports a VNC or RealVNC application with file transfer carries, since the captures differ.",
+      "uses": [
+        "vnc-file-transfer-ports"
       ]
     },
     {
@@ -106,8 +112,41 @@
         }
       ]
     },
+    "pra-purpose-and-prereq": {
+      "statement": "Privileged Remote Access allows temporary remote access to specific applications with Private Access, including for contractors and third-party users. Privileged portals and privileged consoles must be set up first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-privileged-remote-access-applications.json",
+          "quotes": [
+            "Privileged Remote Access (PRA) allows you to provide temporary remote access to specific applications with Private Access (ZPA).",
+            "PRA allows contractors and third-party users access to specific applications.",
+            "You must first set up privileged portals and privileged consoles."
+          ]
+        }
+      ]
+    },
+    "privileged-applications-page": {
+      "statement": "The Privileged Applications page lists the applications specifically configured for PRA within an application segment, with each application's Domain (FQDN), Application Protocol (VNC, RealVNC, SSH or RDP), Application Port, Segment Group and Server Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-privileged-remote-access-applications.json",
+          "quotes": [
+            "View a list of all applications that were specifically configured for PRA within an application segment.",
+            "Domain: The FQDN associated with the application.",
+            "Application Protocol: The protocol (VNC, RealVNC, SSH, or RDP) used for the application.",
+            "Application Port: The port number used for the application.",
+            "Segment Group: The segment group that the application segment is a member of.",
+            "Server Groups: The server groups that the application is hosted on."
+          ]
+        }
+      ]
+    },
     "connection-security-help": {
-      "statement": "For an RDP application the Connection Security options are Any, TLS, RDP and NLA. Any is for Windows 10, 11 and Server 2016 or later and uses the strongest mutually supported protocol including NLA, while RDP is for Windows Server 2012 R2 and earlier or Windows 7 and 8.x, which do not support TLS, NLA or Any.",
+      "statement": "For an RDP application the Connection Security options are Any, TLS, RDP and NLA. Any is for Windows 10, 11 and Server 2016 or later and uses the strongest mutually supported protocol including NLA, while RDP is for Windows Server 2012 R2 and earlier or Windows 7 and 8.x, which do not support TLS, NLA or Any. If the application server has network-level authentication enabled, select Any to provide access to the server.",
       "tier": "A",
       "evidence": [
         {
@@ -117,6 +156,13 @@
             "The options are Any, TLS, RDP, or NLA.",
             "Windows 10, 11, and Windows Server 2016 or later: Select Any. This option uses the strongest mutually supported protocol, including NLA.",
             "Windows Server 2012 R2 and earlier (e.g., Server 2008, 2008 R2, 2012, 2012 R2), or older client parting systems (e.g., Windows 7 or 8.x): Select RDP. These versions do not support TLS, NLA, or Any options."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-ai-powered-recommendations.json",
+          "quotes": [
+            "If the application server you select has network-level authentication enabled, select Any to provide access to the server."
           ]
         }
       ]
@@ -221,6 +267,32 @@
     }
   },
   "divergences": {
+    "vnc-file-transfer-ports": {
+      "summary": "The extra ports needed for VNC or RealVNC file transfer: port 22 on both TCP and UDP, or TCP port 22 for SFTP",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "you need to additionally enter TCP port 22 used for SFTP file transfer."
+            ]
+          },
+          "says": "Additionally enter TCP port 22, used for SFTP file transfer."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-ai-powered-recommendations.json",
+            "quotes": [
+              "you need to additionally enter port 22 for both the TCP and UDP port ranges."
+            ]
+          },
+          "says": "Additionally enter port 22 for both the TCP and UDP port ranges."
+        }
+      ],
+      "impact": "One page asks for port 22 on TCP only and names SFTP; the other asks for port 22 in both the TCP and UDP port ranges. Whether UDP port 22 is needed is not settled by either page."
+    },
     "realvnc-validation": {
       "summary": "Whether RealVNC is a PRA application protocol",
       "positions": [

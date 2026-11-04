@@ -49,6 +49,10 @@
     {
       "label": "Active Directory.",
       "text": "{{ad-log-types}} Whether Active Directory control hits also appear in the AppProtection log type is open {{gap:ad-in-appprotection-log}}."
+    },
+    {
+      "label": "KRB, LDAP and SMB templates.",
+      "text": "{{inspection-lss-send}} {{inspection-template-tail}} {{inspection-template-protocol-fields}} The field tables on those three pages do not match their templates {{divergence:inspection-field-tables}}. The template fields are not defined {{gap:inspection-template-fields}}, and the three log types are not among the generated field tables {{gap:inspection-not-generated}}."
     }
   ],
   "checks": [
@@ -157,9 +161,169 @@
           ]
         }
       ]
+    },
+    "inspection-lss-send": {
+      "statement": "The Log Streaming Service can send Kerberos (KRB), LDAP and SMB inspection log information to any third-party log analytics tool.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-krb-inspection-log-fields.json",
+          "quotes": [
+            "The Log Streaming Service (LSS) can send Kerberos (KRB) inspection log information to any third-party log analytics tool."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-ldap-inspection-log-fields.json",
+          "quotes": [
+            "The Log Streaming Service (LSS) can send LDAP inspection log information to any third-party log analytics tool."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-smb-inspection-log-fields.json",
+          "quotes": [
+            "The Log Streaming Service (LSS) can send SMB inspection log information to any third-party log analytics tool."
+          ]
+        }
+      ]
+    },
+    "inspection-template-tail": {
+      "statement": "The example templates on the KRB, LDAP and SMB inspection log pages each end with the per-control list fields InspectionControlArray, ControlTypeArray, InspectionControlCategories, Actions, SeveritiesArray and DescriptiveExplanationsArray, each written with a comma-separated list specifier.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-krb-inspection-log-fields.json",
+          "quotes": [
+            "%s(,){InspectionControlArray},%s(,){ControlTypeArray},%s(,){InspectionControlCategories},%s(,){Actions},%s(,){SeveritiesArray},%s(,){DescriptiveExplanationsArray}"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-ldap-inspection-log-fields.json",
+          "quotes": [
+            "%s(,){InspectionControlArray},%s(,){ControlTypeArray},%s(,){InspectionControlCategories},%s(,){Actions},%s(,){SeveritiesArray},%s(,){DescriptiveExplanationsArray}"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-smb-inspection-log-fields.json",
+          "quotes": [
+            "%s(,){InspectionControlArray},%s(,){ControlTypeArray},%s(,){InspectionControlCategories},%s(,){Actions},%s(,){SeveritiesArray},%s(,){DescriptiveExplanationsArray}"
+          ]
+        }
+      ]
+    },
+    "inspection-template-protocol-fields": {
+      "statement": "The KRB example template carries Transport, InspectionProtocolConfig, TrafficClassfication (as the page spells it), ProtocolClassification, ProtocolInspectionError, ProtocolVersion and ProtocolActivityType, followed by KRBRealm, KRBClientRealm, KRBUserPrincipal, KRBServicePrincipal, KRBEncryption, KRBTicketEncryption and KRBErrorCode. The LDAP example template carries request and query counters from LDAPNullBindRequests through LDAPWholeSubTreeQueries, and the SMB one carries SMBSessionControlRequests through SMBUserListEnum.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-krb-inspection-log-fields.json",
+          "quotes": [
+            "%s{Transport},%s{InspectionProtocolConfig},%s{TrafficClassfication},%s{ProtocolClassification},%s{ProtocolInspectionError},%s{ProtocolVersion},%s{ProtocolActivityType}",
+            "%s{KRBRealm},%s{KRBClientRealm},%s{KRBUserPrincipal},%s{KRBServicePrincipal},%s{KRBEncryption},%s{KRBTicketEncryption},%s{KRBErrorCode}"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-ldap-inspection-log-fields.json",
+          "quotes": [
+            "%d{LDAPNullBindRequests},%d{LDAPBindRequests},%d{LDAPGeneralRequests},%d{LDAPModifyRequests},%d{LDAPSearchRequests},%d{LDAPGroupQueryRequests},%d{LDAPACLQueryRequests},%d{LDAPObjectPropertyRequests},%d{LDAPBaseObjectQueries},%d{LDAPSingleLevelQueries},%d{LDAPWholeSubTreeQueries}"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zpa-understanding-smb-inspection-log-fields.json",
+          "quotes": [
+            "%d{SMBSessionControlRequests},%d{SMBFileOperationRequests},%d{SMBGeneralMessageRequests},%d{SMBRPC},%d{SMBEnumeration},%d{SMBSessionEnumeration},%d{SMBUserListEnum}"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "inspection-field-tables": {
+      "summary": "On the KRB, LDAP and SMB inspection log pages, the field table lists the HTTP fields of the AppProtection log, while the example template on the same page names protocol fields the table does not list.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-krb-inspection-log-fields.json",
+            "quotes": [
+              "| Method | The HTTP request method | %[OPT]s %[OPT]j |",
+              "| ExchangeSequenceIndex | The HTTP exchange sequence index within the TCP connection | %[OPT]d |"
+            ]
+          },
+          "says": "KRB page table: lists HTTP fields such as Method and ExchangeSequenceIndex."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-ldap-inspection-log-fields.json",
+            "quotes": [
+              "| Method | The HTTP request method | %[OPT]s %[OPT]j |"
+            ]
+          },
+          "says": "LDAP page table: lists the HTTP Method field."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-smb-inspection-log-fields.json",
+            "quotes": [
+              "| Method | The HTTP request method | %[OPT]s %[OPT]j |"
+            ]
+          },
+          "says": "SMB page table: lists the HTTP Method field."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-understanding-krb-inspection-log-fields.json",
+            "quotes": [
+              "%s{KRBRealm},%s{KRBClientRealm},%s{KRBUserPrincipal},%s{KRBServicePrincipal},%s{KRBEncryption},%s{KRBTicketEncryption},%s{KRBErrorCode}"
+            ]
+          },
+          "says": "KRB page example template: names protocol fields such as KRBRealm that the table does not list."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "understanding-appprotection-log-fields.json",
+            "quotes": [
+              "| Method | The HTTP request method | %[OPT]s %[OPT]j |"
+            ]
+          },
+          "says": "AppProtection log page: the same Method row appears in the AppProtection log field table."
+        }
+      ],
+      "impact": "The tables on these three pages cannot be used as the KRB, LDAP or SMB field definitions; the templates name the protocol fields but no captured page describes them."
     }
   },
   "gaps": {
+    "inspection-template-fields": {
+      "kind": "semantic",
+      "title": "What the KRB, LDAP and SMB template fields mean",
+      "status": "open",
+      "detail": "No captured page describes KRBErrorCode values, KRBEncryption values, TrafficClassfication, ProtocolClassification, ProtocolInspectionError, InspectionProtocolConfig, or the LDAP and SMB counters.",
+      "resolves_with": [
+        "tenant-data",
+        "support-ticket"
+      ]
+    },
+    "inspection-not-generated": {
+      "kind": "semantic",
+      "title": "KRB, LDAP and SMB inspection fields are not among the generated log types",
+      "status": "open",
+      "detail": "scripts/gen-log-types.mjs has no entry for KRB, LDAP or SMB Inspection and references/zpa/types/ has none of them. Generating from the page tables would give HTTP fields (see the divergence); the LSS API article configuring-log-streaming-service-configurations-using-api.json carries KRB and LDAP field names in its format examples and may be a better source.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
     "ad-in-appprotection-log": {
       "kind": "semantic",
       "title": "Whether Active Directory control hits also appear in the AppProtection log type",

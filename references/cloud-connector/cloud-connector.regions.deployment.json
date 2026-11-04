@@ -22,7 +22,11 @@
   ],
   "prose": [
     {
-      "text": "The captured help has no region list for the Cloud Connector VM in any cloud; what it does say is cloud-specific. The Zero Trust Gateway tables are not a VM allowlist: [[cloud-connector.regions.zero-trust-gateways]]."
+      "text": "Apart from the AWS AMI table, the captured help has no region list for the Cloud Connector VM; what it does say is cloud-specific. The Zero Trust Gateway tables are not a VM allowlist: [[cloud-connector.regions.zero-trust-gateways]]."
+    },
+    {
+      "label": "AWS.",
+      "text": "{{aws-ami-regions}}"
     },
     {
       "label": "Azure.",
@@ -37,7 +41,7 @@
       "text": "{{vm-size}}"
     },
     {
-      "text": "Per-region availability of the VM in AWS (including GovCloud and China), GCP, Azure Government and other sovereign clouds, and of each VM size, is not captured {{gap:standard-cc-regions}}."
+      "text": "Per-region availability of the VM in AWS China and in AWS regions outside the ZS42.1.0 row, GCP, Azure Government and other sovereign clouds, and of each VM size, is not captured {{gap:standard-cc-regions}}."
     }
   ],
   "checks": [
@@ -55,6 +59,21 @@
     }
   ],
   "claims": {
+    "aws-ami-regions": {
+      "statement": "The AWS AMI table lists the ZS42.1.0 image (March 10, 2026) in af-south-1, ap-east-1, ap-east-2, ap-northeast-1 to ap-northeast-3, ap-south-1, ap-south-2, ap-southeast-1 to ap-southeast-7, ca-central-1, ca-west-1, eu-central-1, eu-central-2, eu-north-1, eu-south-1, eu-south-2, eu-west-1 to eu-west-3, il-central-1, mx-central-1, sa-east-1, us-east-1, us-east-2, us-gov-east-1, us-gov-west-1, us-west-1 and us-west-2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-identifying-zscaler-cloud-connector-version.json",
+          "quotes": [
+            "| March 10, 2026: ZS42.1.0 | af-south-1 ap-east-1 ap-east-2 ap-northeast-1 ap-northeast-2 ap-northeast-3 ap-south-1 ap-south-2 ap-southeast-1 ap-southeast-2 ap-southeast-3 ap-southeast-4 ap-southeast-5 ap-southeast-6 ap-southeast-7",
+            "ap-southeast-6 ap-southeast-7 ca-central-1 ca-west-1 eu-central-1 eu-central-2 eu-north-1 eu-south-1 eu-south-2 eu-west-1 eu-west-2 eu-west-3 il-central-1 mx-central-1",
+            "il-central-1 mx-central-1 sa-east-1 us-east-1 us-east-2 us-gov-east-1 us-gov-west-1 us-west-1 us-west-2 | ami-0307c614efc107efb"
+          ]
+        }
+      ]
+    },
     "azure-marketplace-regions": {
       "statement": "The Zscaler Cloud Connector Application in the Azure Marketplace is available in all regions except China; deploying from the China region requires Terraform.",
       "tier": "A",
@@ -116,11 +135,11 @@
     "standard-cc-regions": {
       "kind": "semantic",
       "title": "Region availability of the customer-deployed Cloud Connector VM",
-      "status": "open",
+      "status": "partial",
       "former_ids": [
         "cloud-connector-22"
       ],
-      "detail": "Unverified legacy statements and open questions: AWS AMI availability has no enumerated region list; AWS GovCloud (`us-gov-east-1`, `us-gov-west-1`) and AWS China (`cn-north-1`, `cn-northwest-1`) are not addressed, and a GovCloud blog post reportedly names Cloud Connector without regional detail; Azure Government and other sovereign Azure clouds are not addressed; AWS China \"likely\" needs the same China gateway handling as Azure; the GCP VM's region list is not enumerated, and a 2026 release entry reportedly names a Google Cloud Marketplace image (the release-summary capture holds only its introduction); whether VM sizes other than Small exist for Azure and GCP, or vary by region, is not stated; the Azure Function App Flex Consumption plan is unavailable in some Azure regions, affecting VMSS deployments. The region-set comparison is in cloud-connector.regions:region-set-parity.",
+      "detail": "Unverified legacy statements and open questions: the AWS ZS42.1.0 AMI row lists `us-gov-east-1` and `us-gov-west-1` (aws-ami-regions), but no cn-* region appears in either the ZS42.1.0 or ZS6.1.26.1 row of that table, which is an absence and not a statement that AWS China is unsupported; `me-central-1` and `me-south-1` are listed only in the older ZS6.1.26.1 row; AWS China (`cn-north-1`, `cn-northwest-1`) is otherwise not addressed, and a GovCloud blog post reportedly names Cloud Connector without regional detail; Azure Government and other sovereign Azure clouds are not addressed; AWS China \"likely\" needs the same China gateway handling as Azure; the GCP VM's region list is not enumerated, and a 2026 release entry reportedly names a Google Cloud Marketplace image (the release-summary capture holds only its introduction); whether VM sizes other than Small exist for Azure and GCP, or vary by region, is not stated; the Azure Function App Flex Consumption plan is unavailable in some Azure regions, affecting VMSS deployments. The region-set comparison is in cloud-connector.regions:region-set-parity.",
       "blocks": "telling an operator whether a Cloud Connector VM can be deployed in a given region or sovereign cloud",
       "resolves_with": [
         "source-read",

@@ -44,7 +44,7 @@
     },
     {
       "label": "Settings that turn off interception for whole vendors.",
-      "text": "{{one-click-m365}} {{one-click-ucaas}} {{o365-optimize-bypass}}"
+      "text": "{{one-click-m365}} {{m365-inspection-choice}} The per-application Office 365 One Click Configuration option is not described {{gap:office365-per-app-option}}. {{one-click-ucaas}} {{o365-optimize-bypass}}"
     },
     {
       "label": "What that does to CAC.",
@@ -56,6 +56,7 @@
       "do": "Whether a one-click or Optimize bypass setting stops interception for an app before reading that app's CAC rule, since these settings turn off interception for whole vendors.",
       "uses": [
         "one-click-m365",
+        "m365-inspection-choice",
         "one-click-ucaas",
         "o365-optimize-bypass"
       ]
@@ -100,6 +101,23 @@
         }
       ]
     },
+    "m365-inspection-choice": {
+      "statement": "The Understanding Microsoft 365 article says Microsoft 365 applications rely on tunnel protocols such as MAPI/RPC over HTTPS (Outlook) and non-web protocols such as RTMP, SIP (Lync) and Autodiscover, and that, to comply with Microsoft's connectivity principles and recommendations, the Microsoft-Recommended One Click Office 365 Configuration can be enabled for all Microsoft 365 application URLs. To inspect Microsoft 365 web apps that run in a browser, such as SharePoint, Yammer and Office online, content inspection and SSL Inspection can be enabled through the Office 365 One Click Configuration option, which chooses individual cloud applications; Zscaler strongly recommends the Microsoft-Recommended configuration for better performance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-microsoft-365.json",
+          "quotes": [
+            "Microsoft 365 applications rely on tunnel protocols like MAPI/RPC over HTTPS (Outlook) and on non-web protocols like RTMP, SIP (Lync), and Autodiscover (for all Office apps) for data transfers.",
+            "To be in compliance with Microsoft's connectivity principles and recommendations, you can enable the Microsoft-Recommended One Click Office 365 Configuration for all Microsoft 365 application URLs.",
+            "If your organization has a requirement to inspect Microsoft 365 web apps, such as SharePoint, Yammer, and Office online, which run within a web browser,",
+            "then content inspection and SSL Inspection can be enabled using the Office 365 One Click Configuration option, where you can choose individual cloud applications.",
+            "However, Zscaler strongly recommends using the Microsoft-Recommended One Click Office 365 Configuration for better performance."
+          ]
+        }
+      ]
+    },
     "o365-optimize-bypass": {
       "statement": "The MS O365 Optimize URL category carries the note to bypass its sites from SSL/TLS Inspection and authentication.",
       "tier": "A",
@@ -124,6 +142,18 @@
         "zia.cloud-app-control.ssl-visibility:one-click-ucaas"
       ],
       "conditions": "Derived from the pipeline claims plus the one-click claims. No source states how CAC identifies applications, so how much less visibility matters per application is unverified (see zia.cloud-app-control.rule-criteria:app-identity)."
+    }
+  },
+  "gaps": {
+    "office365-per-app-option": {
+      "kind": "semantic",
+      "title": "What the per-application Office 365 One Click Configuration option does",
+      "status": "open",
+      "detail": "The Understanding Microsoft 365 article names an Office 365 One Click Configuration option where individual cloud applications can be chosen, but does not describe the option or say which applications it offers.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
     }
   }
 }

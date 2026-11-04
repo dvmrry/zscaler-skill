@@ -68,7 +68,7 @@
   ],
   "prose": [
     {
-      "text": "{{firewall-first}} {{nonweb-firewall-only}} {{firewall-beats-web-allow}}"
+      "text": "{{firewall-first}} {{nonweb-firewall-only}} {{firewall-beats-web-allow}} {{extends-to-proxy-traffic}} {{web-bypass-identification}}"
     },
     {
       "text": "{{enforcement-conditions}} {{explicit-forwarding-tuples}} {{connect-inner-outer}} {{ztunnel-pac-opt-in}} {{ztunnel1-pac-rules}} Whether Z-Tunnel 2.0 engages the firewall without an option is open {{gap:ztunnel-2-firewall}}."
@@ -247,6 +247,43 @@
           "path": "configuring-source-ip-anchoring.json",
           "quotes": [
             "you must enable the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-firewall-filtering.json",
+          "quotes": [
+            "If your organization uses Zscaler Tunnel (Z-Tunnel) 1.0 or PAC files to route traffic, ensure that the firewall is enabled for this type of traffic in the Advanced Settings."
+          ]
+        }
+      ]
+    },
+    "extends-to-proxy-traffic": {
+      "statement": "Firewall Filtering rules can be extended to traffic managed by the web proxy in specific cases: when the rules contain Layer 3, Layer 4 or FQDN conditions, or when non-web traffic appears in flows managed by the web proxy. Rules based on source IP address, destination IP address or destination FQDN apply to proxy-managed traffic in both Standard and Advanced Firewall, while handing non-web traffic over from the web proxy to the firewall needs Advanced Firewall; the page's example is SSH on destination port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-firewall-filtering.json",
+          "quotes": [
+            "Firewall Filtering rules can also be extended to traffic managed by the web proxy in specific cases when the rules contain Layer 3 or Layer 4 or FQDN conditions or when non-web traffic appears in flows managed by the web proxy.",
+            "Extend the Firewall Filtering policy to traffic managed by web proxy using rules configured based on source IP address, destination IP address, or destination FQDN.",
+            "This is supported in Standard and Advanced Firewall.",
+            "Extend the Firewall Filtering policy to non-web traffic handed over to firewall by the web proxy with Advanced Firewall.",
+            "For example, with Advanced Firewall, if SSH (non-web traffic) uses destination port 443 (typically a secure web traffic port), the web proxy hands over that traffic to the firewall for full non-web identification and policy application."
+          ]
+        }
+      ]
+    },
+    "web-bypass-identification": {
+      "statement": "Identifying web traffic that is bypassing the web proxy and forwarding it to the web proxy for policy application needs Advanced Firewall and auto-proxy configuration in the Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-firewall-filtering.json",
+          "quotes": [
+            "Identify web traffic that is bypassing the web proxy and forward it to the web proxy for policy application with Advanced Firewall. This requires auto-proxy configuration in the Advanced Settings."
           ]
         }
       ]

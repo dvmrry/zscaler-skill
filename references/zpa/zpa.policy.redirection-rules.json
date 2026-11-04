@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "id": "zpa.policy.redirection-rules",
+  "title": "ZPA redirection policy rules: Private Service Edge selection methods and criteria",
+  "aliases": [
+    "redirection policy",
+    "private service edge selection method",
+    "prefer private service edge over public service edge",
+    "redirect default preferred always"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.policy.timeout-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.private-service-edges.client-selection"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.microtenants.policy-evaluation"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.terraform.policy-rule-resources"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{redirection-purpose}}"
+    },
+    {
+      "label": "Selection methods.",
+      "text": "{{methods-default-preferred}} {{method-always}} How available differs from active under Always is not stated {{gap:always-available-vs-active}}. {{group-selection-and-always-client-types}}"
+    },
+    {
+      "label": "Criteria.",
+      "text": "{{criteria-list}} {{client-types}} The Terraform client types are in [[zpa.terraform.policy-rule-resources:redirection-client-types]]. The 10-condition-set limit is in [[zpa.policy.conditions:condition-set-limit]]."
+    },
+    {
+      "label": "The rule list.",
+      "text": "{{order-and-display}} {{managed-read-only}} {{name-characters}}"
+    },
+    {
+      "label": "Open points.",
+      "text": "What a rule managed by Zscaler is for, and the redirection limits, are not stated {{gap:redirection-details-not-stated}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Check the selection method of the matching rule, since Default keeps the current selection algorithm, Preferred falls back to Public Service Edges and Always prevents them while Private Service Edges are available.",
+      "uses": [
+        "methods-default-preferred",
+        "method-always",
+        "always-available-vs-active"
+      ]
+    },
+    {
+      "do": "If a Branch Connector or Cloud Connector user is not redirected as expected, check whether the rule's method is Always, which the page rules out for those client types.",
+      "uses": [
+        "group-selection-and-always-client-types",
+        "client-types"
+      ]
+    },
+    {
+      "do": "Check the position of the rule in the Redirection Policy page, since rules apply in the listed order.",
+      "uses": [
+        "order-and-display"
+      ]
+    }
+  ],
+  "claims": {
+    "redirection-purpose": {
+      "statement": "Redirection policy rules set criteria for preferring Private Service Edges for Private Access over Public Service Edges for Private Access, based on country code, client type, and SAML and SCIM attributes; the method used to select the Private Service Edge groups to redirect to is Default, Preferred or Always.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-redirection-policy.json",
+          "quotes": [
+            "Redirection policy rules allow you to set criteria for preferring Private Service Edges for Private Access (ZPA) over Public Service Edges for Private Access.",
+            "You can configure redirection policy rules to prefer Private Service Edges for Private Access based on country code, client type, and SAML and SCIM attributes.",
+            "You can specify the method used (Default, Preferred, or Always) for selecting Private Service Edges for Private Access groups to redirect to."
+          ]
+        }
+      ]
+    },
+    "methods-default-preferred": {
+      "statement": "Default uses the current Private Access Service Edge selection algorithm, and Preferred redirects users to the selected Private Service Edge groups if available, with Public Service Edges as a fallback.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-redirection-policy.json",
+          "quotes": [
+            "Default: Uses the current Private Access Service Edge selection algorithm.",
+            "Preferred: Redirects users to the selected Private Service Edges for Private Access groups if available, with Public Service Edges for Private Access as a fallback."
+          ]
+        }
+      ]
+    },
+    "method-always": {
+      "statement": "Always redirects users to the selected Private Service Edge groups, if available, and prevents the use of Public Service Edges; if there are no active Private Service Edges in the selected groups, users are redirected to a Public Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-redirection-policy.json",
+          "quotes": [
+            "Always: Always redirects users to the selected Private Service Edges for Private Access groups, if available, and prevents the use of Public Service Edges for Private Access.",
+            "If there are no active Private Service Edges for Private Access available in the selected Private Service Edges for Private Access groups, then users are redirected to a Public Service Edges for Private Access."
+          ]
+        }
+      ]
+    },
+    "group-selection-and-always-client-types": {
+      "statement": "If Preferred or Always is selected, one or more Private Service Edge groups are selected from the drop-down menu, and the Branch Connector and Cloud Connector client types cannot be used if the Private Service Edge Selection Method is Always.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-redirection-policies.json",
+          "quotes": [
+            "For Private Service Edge Groups, if Preferred or Always is selected, select one or more Private Service Edge groups from the drop-down menu.",
+            "You cannot use Branch Connector or Cloud Connector client types if the Private Service Edge Selection Method is Always."
+          ]
+        }
+      ]
+    },
+    "criteria-list": {
+      "statement": "The redirection rule criteria cover client types, countries (multiple country codes are joined by OR), an external IAM IdP, SAML attributes (by default Any SAML attribute), and SCIM user attributes and SCIM groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-redirection-policies.json",
+          "quotes": [
+            "Choose the client types to which the rule applies.",
+            "Choose one or more countries to which the rule applies.",
+            "If you've added multiple country codes to the policy rule, Private Access uses an OR Boolean operator between them.",
+            "To use External IAM IdP, select the IdP from the drop-down menu.",
+            "Select a specific SCIM user attribute from the drop-down menu to apply the rule action to specific users, groups, departments, etc:",
+            "Choose a specific SCIM group from the drop-down menu to apply the rule action to a specific group:",
+            "By default, the policy rule for SAML Attributes is set to Any SAML attribute."
+          ]
+        }
+      ]
+    },
+    "client-types": {
+      "statement": "The client types listed for a redirection rule are Branch Connector, Client Connector, Client Connector Partner, Cloud Connector and Machine Tunnel, joined by an OR Boolean operator when several are added, and rules using the Branch Connector, Cloud Connector or Machine Tunnel client types additionally can't use SAML and SCIM attributes criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-redirection-policies.json",
+          "quotes": [
+            "Branch Connector: To learn more, see About Branch Connectors.",
+            "Client Connector: To learn more, see What Is Zscaler Client Connector?",
+            "Client Connector Partner: To learn more, see About Partner Devices.",
+            "Cloud Connector: To learn more, see About Cloud Connectors.",
+            "Machine Tunnel: To learn more, see About Machine Tunnels.",
+            "If you added multiple client types to the policy rule, Private Access uses an OR Boolean operator between them.",
+            "Rules using the Branch Connector, Cloud Connector, or Machine Tunnel client types additionally can't use SAML and SCIM attributes criteria."
+          ]
+        }
+      ]
+    },
+    "managed-read-only": {
+      "statement": "Redirection policy rules that are managed by Zscaler are read only and cannot be configured, edited, or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-redirection-policy.json",
+          "quotes": [
+            "Redirection policy rules that are managed by Zscaler are read only and cannot be configured, edited, or deleted."
+          ]
+        }
+      ]
+    },
+    "order-and-display": {
+      "statement": "Private Access applies redirection policy rules in the order they are listed on the Redirection Policy page, the UI displays only the first 100 rules by default, and an existing rule's criteria can be copied to create a new rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "about-redirection-policy.json",
+          "quotes": [
+            "Private Access applies policy rules based on the order they are listed here.",
+            "By default, the UI only displays the first 100 rules.",
+            "Copy an existing redirection policy rule's criteria, and use it to create a new rule."
+          ]
+        }
+      ]
+    },
+    "name-characters": {
+      "statement": "A redirection rule name cannot contain special characters except periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-redirection-policies.json",
+          "quotes": [
+            "Name: Enter a redirection policy name. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "always-available-vs-active": {
+      "kind": "semantic",
+      "title": "How available differs from active for the Always selection method",
+      "status": "open",
+      "about": [
+        "zpa.policy.redirection-rules"
+      ],
+      "detail": "The page says Always redirects users to the selected groups if available and prevents the use of Public Service Edges, and also that users go to a Public Service Edge when no active Private Service Edges are available in the selected groups (claim method-always). It does not say how available differs from active, or what happens when a Private Service Edge is available but not active. A lab test with the selected group's edges stopped would show it.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "redirection-details-not-stated": {
+      "kind": "semantic",
+      "title": "What a Zscaler-managed redirection rule is for, and the redirection limits",
+      "status": "open",
+      "about": [
+        "zpa.policy.redirection-rules"
+      ],
+      "detail": "The captured pages say rules managed by Zscaler are read only (claim managed-read-only) but not what they do, and state no redirection rule limits. The configuring page also says the Web Browser and Internet & SaaS (ZIA) Service Edge client types cannot use posture or trusted network criteria, yet offers neither those client types nor those criteria for redirection rules.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

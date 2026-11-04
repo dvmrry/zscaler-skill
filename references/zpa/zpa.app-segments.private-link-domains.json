@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "id": "zpa.app-segments.private-link-domains",
+  "title": "How private link domains route CNAME-matched traffic to private link resources",
+  "aliases": [
+    "private link domains",
+    "Azure Private Link",
+    "Frontend Wildcard Domains for DNS Request and CNAME Match",
+    "privatelink.database.windows.net"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.matching"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.settings"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{five-cnames}}"
+    },
+    {
+      "label": "What must hold.",
+      "text": "{{both-conditions}} {{field}}"
+    },
+    {
+      "label": "Why not a broad domain.",
+      "text": "{{why-not-broad-domain}} The setting that lets Client Connector receive CNAME records is in [[zpa.app-segments.settings]]. Which component evaluates the CNAMEs, how this interacts with that setting and Multimatch, and any limit on domains are open {{gap:evaluation-details}}."
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Private link domains are in limited availability. Configuring them enables Private Access to identify and route traffic to applications hosted behind a private link such as Azure Private Link: when enabled, Private Access evaluates CNAME records returned during DNS resolution, and if a returned CNAME matches a configured private link domain, it forwards the request through the configured application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-link-domains.json",
+          "quotes": [
+            "This feature is in limited availability. To learn more or to enable this feature, contact Zscaler Support.",
+            "Configuring private link domains enables Private Access (ZPA) to identify and route traffic to applications hosted behind a private link (e.g., Azure Private Link).",
+            "When enabled, Private Access evaluates CNAME records returned during DNS resolution to determine whether the destination is associated with a configured private link domain.",
+            "If the returned CNAME record matches a configured private link domain, Private Access forwards the request through the configured application segment to securely access the private resource."
+          ]
+        }
+      ]
+    },
+    "five-cnames": {
+      "statement": "Private Access evaluates up to 5 CNAME records (from left to right in ascending order) in the public DNS response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-link-domains.json",
+          "quotes": [
+            "Private Access evaluates up to 5 CNAME records (from left to right in ascending order) in the public DNS response."
+          ]
+        }
+      ]
+    },
+    "both-conditions": {
+      "statement": "Private Access routes traffic only if both conditions are met: the resolved CNAME must match a configured private link domain, and the corresponding private link alias (for example *.privatelink.database.windows.net) must be defined in an application segment, including associated ports and protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-link-domains.json",
+          "quotes": [
+            "The resolved CNAME must match a configured private link domain.",
+            "The corresponding private link alias (e.g., *.privatelink.database.windows.net) must be defined in an application segment, including associated ports and protocols.",
+            "Private Access evaluates up to 5 CNAMEs and routes traffic only if both the domain and application segment conditions are met."
+          ]
+        }
+      ]
+    },
+    "why-not-broad-domain": {
+      "statement": "Configuring a public domain such as *.database.windows.net in an application segment can cause all traffic for that domain, including resources not associated with a private link, to be routed through Private Access, which can result in unnecessary or incorrect routing; private link domains let Private Access route only traffic that matches configured private link domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-link-domains.json",
+          "quotes": [
+            "To route private resources through Private Access, you can configure a public domain (e.g., *.database.windows.net) in an application segment.",
+            "However, configuring a broad domain can cause all traffic for that domain—including resources not associated with a private link—to be routed through Private Access, which can result in unnecessary or incorrect routing.",
+            "Private link domains address this issue by allowing Private Access to evaluate returned CNAME records and route only traffic that matches configured private link domains."
+          ]
+        }
+      ]
+    },
+    "field": {
+      "statement": "A private link domain is entered in the Frontend Wildcard Domains for DNS Request and CNAME Match field; the page's example enters the regular expression *.database.windows.net to match Azure SQL private link domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-configuring-private-link-domains.json",
+          "quotes": [
+            "In the Frontend Wildcard Domains for DNS Request and CNAME Match field, enter a valid private link domain.",
+            "For example, enter the regular expression *.database.windows.net to match Azure SQL private link domains."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "evaluation-details": {
+      "kind": "semantic",
+      "title": "Which component evaluates the CNAMEs, how private link domains interact with Client Connector can receive CNAME and Multimatch, and any domain limit",
+      "status": "open",
+      "detail": "The Configuring Private Link Domains page does not say whether Client Connector or the App Connector evaluates the CNAME records, does not describe the interaction with the Client Connector can receive CNAME setting or with Multimatch, and gives no limit on the number of domains. A name search for privateLink over the OpenAPI document, SDKs and Terraform provider found nothing; that is a lead for a source read, not proof it is absent.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket",
+        "source-read"
+      ]
+    }
+  }
+}

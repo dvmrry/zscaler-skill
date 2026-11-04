@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.forwarding.gateways",
+  "title": "Internet Access and Log and Control gateways: default gateways and proxy types; Fail Close and the 32-object limit for Internet Access gateways",
+  "aliases": [
+    "internet access gateway",
+    "internet & saas gateway",
+    "log and control gateway",
+    "fail close gateway setting",
+    "cloud connector gateway proxy automatic manual override"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.overview.gateway-failover"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.forwarding.log-and-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.terraform.gateways"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{iag-default}}"
+    },
+    {
+      "label": "Proxy choices.",
+      "text": "{{proxy-types}} What Automatic selects is not described {{gap:automatic-proxy}}. {{iag-limits}}"
+    },
+    {
+      "label": "Fail Close.",
+      "text": "{{iag-fail-close}} The high-availability article's fail-open option may describe a different setting from this one (divergence fail-open-path in [[cloud-connector.overview.gateway-failover]]), so the two are not equated here."
+    },
+    {
+      "label": "Log and Control gateway.",
+      "text": "{{lc-gateway}} {{lc-proxy-types}} Whether Log and Control gateways have a fail-close setting or share the 32-object limit is not stated {{gap:lc-limits-fail-close}}."
+    }
+  ],
+  "claims": {
+    "iag-default": {
+      "statement": "A default Internet & SaaS gateway with a predefined primary and secondary proxy is automatically created and cannot be deleted; gateways allow users to choose the primary and backup Zscaler data centers to be used for specific workload locations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-internet-access-gateways.json",
+          "quotes": [
+            "A default Internet & SaaS gateway with a predefined primary and secondary proxy is automatically created.",
+            "Allow users to choose the primary and backup Zscaler data centers to be used for specific workload locations.",
+            "You cannot delete the default Internet Access gateway."
+          ]
+        }
+      ]
+    },
+    "iag-fail-close": {
+      "statement": "On the Internet Access gateway page, Fail Close Enable (the default) drops the traffic when both proxies are unreachable, and Disable allows the traffic directly to the server without forwarding it to the proxy service when both proxies are unreachable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-internet-access-gateway.json",
+          "quotes": [
+            "Enable: (Default) Drops the traffic when both proxies are unreachable.",
+            "Disable: Allows the traffic directly to the server without forwarding it to the proxy service when both proxies are unreachable."
+          ]
+        }
+      ]
+    },
+    "proxy-types": {
+      "statement": "A gateway's primary proxy can forward through an automatic proxy (Automatic), through selected data centers (Manual) or through a specified IP address or domain name (Override); the secondary proxy is used when the primary is unreachable and switches back to the primary upon confirmation of reachability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-internet-access-gateway.json",
+          "after": "Primary: Select the primary proxy for the gateway.",
+          "quotes": [
+            "Automatic: Forwards traffic through an automatic proxy.",
+            "Manual: Forwards traffic through the selected data centers.",
+            "Override: Forwards traffic through the specified IP address or domain name."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-internet-access-gateway.json",
+          "quotes": [
+            "Secondary: Select the secondary proxy for the gateway. This is used when the primary proxy is unreachable. The secondary proxy switches to the primary proxy upon confirmation of reachability."
+          ]
+        }
+      ]
+    },
+    "iag-limits": {
+      "statement": "A gateway description cannot exceed 10,240 characters, and up to 32 gateway objects can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-internet-access-gateway.json",
+          "quotes": [
+            "The description cannot exceed 10,240 characters.",
+            "You can create up to 32 gateway objects."
+          ]
+        }
+      ]
+    },
+    "lc-gateway": {
+      "statement": "The log and control gateway allows traffic logs and operational messages to be controlled and forwarded to the Zscaler cloud; a default log and control gateway with a predefined primary and secondary proxy is automatically created and cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-log-and-control-gateways.json",
+          "quotes": [
+            "The log and control gateway allows you to control and forward traffic logs and operational messages to the Zscaler cloud. A default log and control gateway with a predefined primary and secondary proxy is automatically created.",
+            "You cannot delete the default log and control gateway."
+          ]
+        }
+      ]
+    },
+    "lc-proxy-types": {
+      "statement": "A Log and Control gateway defines a primary and a secondary proxy, each chosen as an automatic proxy, selected data centers or a specified IP address or domain name, and the secondary is used when the primary proxy is unreachable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-log-and-control-gateway.json",
+          "quotes": [
+            "This gateway allows you to define a primary proxy and a secondary proxy to which the traffic can be forwarded.",
+            "Secondary: Select the secondary proxy for the gateway. This is used when the primary proxy is unreachable."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-log-and-control-gateway.json",
+          "after": "Primary: Select the primary proxy for the gateway.",
+          "quotes": [
+            "Automatic: Forwards traffic through an automatic proxy.",
+            "Manual: Forwards traffic through the selected data centers.",
+            "Override: Forwards traffic through the specified IP address or domain name."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-configuring-log-and-control-gateway.json",
+          "after": "Secondary: Select the secondary proxy for the gateway. This is used when the primary proxy is unreachable.",
+          "quotes": [
+            "Automatic: Forwards traffic through an automatic proxy.",
+            "Manual: Forwards traffic through the selected data centers.",
+            "Override: Forwards traffic through the specified IP address or domain name."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "automatic-proxy": {
+      "kind": "semantic",
+      "title": "What the Automatic proxy choice selects",
+      "status": "open",
+      "detail": "The gateway pages say Automatic forwards traffic through an automatic proxy and do not say how that proxy is chosen.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "lc-limits-fail-close": {
+      "kind": "semantic",
+      "title": "Whether Log and Control gateways have Fail Close and share the 32-object limit",
+      "status": "open",
+      "detail": "The 32-object limit and the Fail Close setting are stated on the Internet Access gateway configuration page only. The Log and Control gateway pages as captured state neither, which is an absence found by comparing the two pages.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

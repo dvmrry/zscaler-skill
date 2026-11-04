@@ -41,10 +41,10 @@
     },
     {
       "label": "Allow Override.",
-      "text": "{{override-conditions}} {{override-unrestricted-without-inspection}} Whether a rule's action is enforceable on HTTPS at all depends on the inspection path: see [[zia.ssl-inspection.pipeline]]."
+      "text": "{{override-conditions}} {{override-prompt-session}} {{override-unrestricted-without-inspection}} Whether a rule's action is enforceable on HTTPS at all depends on the inspection path: see [[zia.ssl-inspection.pipeline]]."
     },
     {
-      "text": "{{api-action-values}} Reading an ISOLATE rule by ID may lack its isolation profile {{divergence:isolate-cbi-profile-get-by-id}}. {{header-insertion-custom-only}} {{quotas}}"
+      "text": "{{api-action-values}} Reading an ISOLATE rule by ID may lack its isolation profile {{divergence:isolate-cbi-profile-get-by-id}}. {{header-insertion-custom-only}} {{quotas}} {{quota-renewal}} {{rule-eun-precedence}}"
     }
   ],
   "checks": [
@@ -149,6 +149,50 @@
           "path": "configuring-url-filtering-policy.json",
           "quotes": [
             "By default, traffic matching the Allow Override rule is permitted without any restrictions if SSL/TLS Inspection is disabled and the Show End User Notifications option is disabled in the SSL/TLS Inspection rule for the corresponding traffic."
+          ]
+        }
+      ]
+    },
+    "override-prompt-session": {
+      "statement": "With the Allow Override option, some users or groups can be allowed to override a block; in the page's example, teachers are prompted to enter their override password, which can be company-provided credentials such as single sign-on credentials or hosted database credentials based on the Enable Identity-based Block Override settings. Permitted users can access the blocked page only during their current browser session and must reauthenticate in another browser session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "Additionally, you can allow some users or groups to override the block with the Allow Override option.",
+            "Teachers are prompted to enter their override password.",
+            "This can be company-provided credentials such as single sign-on credentials or hosted database credentials based on the Enable Identity-based Block Override settings.",
+            "Permitted users are allowed to access the blocked page only during their current browser session. They are required to reauthenticate when they try to access it in another browser session."
+          ]
+        }
+      ]
+    },
+    "quota-renewal": {
+      "statement": "For an Allow rule, the daily time quota is based on the time that the rule is created: for example, if the rule is created at 11:00 AM PST, the quota is renewed at 11:00 AM PST the next day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "Allow: The service allows access to the URLs in the selected categories.",
+            "You can still restrict access by specifying a daily quota for bandwidth and time.",
+            "The daily time quota is based on the time that the rule is created. For example, if the rule is created at 11:00 AM PST, then the quota is renewed at 11:00 AM PST the next day."
+          ]
+        }
+      ]
+    },
+    "rule-eun-precedence": {
+      "statement": "The EUNs specified in the rules take precedence over the default EUN configured on the Administration > End User Notification > End User Notifications page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-url-filtering.json",
+          "quotes": [
+            "The EUNs that you specify in the rules take precedence over the default EUN that you configure on the Administration > End User Notification > End User Notifications page."
           ]
         }
       ]

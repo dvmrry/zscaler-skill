@@ -56,11 +56,11 @@
     },
     {
       "label": "NAT Control.",
-      "text": "{{nat-order-nth}} {{nat-page-rank-column}} Rule details are in [[zia.firewall.nat]]."
+      "text": "{{nat-order-nth}} {{nat-page-rank-column}} {{nat-order-and-rank}} {{nat-disabled-keeps-place}} Rule details are in [[zia.firewall.nat]]."
     },
     {
       "label": "Firewall Filtering.",
-      "text": "URL Filtering's documented behavior is in [[zia.url-filtering.rule-order]]."
+      "text": "{{filtering-ascending-order}} Whether Filtering stops at the first match and whether a disabled Filtering rule holds its slot are still open {{gap:filtering-first-match}}. URL Filtering's documented behavior is in [[zia.url-filtering.rule-order]]."
     },
     {
       "label": "Predefined rules.",
@@ -214,6 +214,63 @@
         }
       ]
     },
+    "filtering-ascending-order": {
+      "statement": "Firewall Filtering policy rules are evaluated in ascending numerical order, and the Admin Rank column is visible only if admin ranking is enabled in Advanced Settings.",
+      "tier": "A",
+      "binds": [
+        "zia/firewall-filtering-rules#order",
+        "zia/firewall-filtering-rules#rank"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-firewall-filtering.json",
+          "quotes": [
+            "Rule Order: The policy rule order number. Firewall Filtering policy rules are evaluated in ascending numerical order. You can sort this column.",
+            "Admin Rank: The admin rank for this rule. This is only visible if you have enabled it in the Advanced Settings. You can sort this column."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-recommended-firewall-control-policy.json",
+          "quotes": [
+            "Rules are evaluated in ascending numerical order."
+          ]
+        }
+      ]
+    },
+    "nat-order-and-rank": {
+      "statement": "A NAT Control rule's order sets its position in the ascending order of evaluation used for all rules within the policy. If Admin Rank is enabled, the admin's assigned rank determines the rule order values that can be selected, rank runs 0 to 7 with 0 the highest, and a rule with a higher admin rank always precedes a rule with a lower one.",
+      "tier": "A",
+      "binds": [
+        "zia/nat-control-rules#order",
+        "zia/nat-control-rules#rank"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-nat-control-policy.json",
+          "quotes": [
+            "It determines the rule's position in the ascending order of evaluation used for all rules within the policy. You can modify the rule order, but if you've enabled Admin Rank, your assigned admin rank determines the rule order values you can select.",
+            "Admin Rank: Click Edit and select an admin rank 0 to 7 (0 is the highest rank) from the drop-down menu. This option appears if you enable Admin Ranking on the Advanced Settings page.",
+            "The rule's admin rank determines the value you can select for rule order, so that a rule with a higher admin rank always precedes a rule with a lower admin rank."
+          ]
+        }
+      ]
+    },
+    "nat-disabled-keeps-place": {
+      "statement": "A new NAT Control rule's status is Disabled by default; a disabled rule is not actively enforced but does not lose its place in the rule order, and the service skips it and moves to the next rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-nat-control-policy.json",
+          "quotes": [
+            "Rule Status: By default, the status is Disabled. You need to enable the rule to activate and enforce it on your traffic. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule."
+          ]
+        }
+      ]
+    },
     "nat-page-rank-column": {
       "statement": "The NAT Control page lists each rule's Rule Order and, when admin ranking is enabled in Advanced Settings, its Admin Rank.",
       "tier": "A",
@@ -233,8 +290,8 @@
     "filtering-first-match": {
       "kind": "semantic",
       "title": "First-match and rank semantics for Firewall Filtering and NAT rules",
-      "status": "open",
-      "detail": "The old reference said Firewall Filtering is first-match-wins in ascending order with admin rank as a gate, 'same model as URL Filtering'. The captures state ascending order for IPS rules only, and describe the Filtering order and rank fields without evaluation semantics. Whether a disabled Filtering rule holds its slot, and whether rank constrains order the way it does for URL Filtering, is not stated.",
+      "status": "partial",
+      "detail": "The old reference said Firewall Filtering is first-match-wins in ascending order with admin rank as a gate, 'same model as URL Filtering'. The captures now state ascending order for Firewall Filtering as well as IPS and NAT rules (filtering-ascending-order), and the NAT page gives the disabled-slot and rank rules for NAT Control (nat-order-and-rank, nat-disabled-keeps-place). No captured page says Firewall Filtering stops at the first match, that a disabled Filtering rule keeps its slot, or whether rank constrains Filtering order the way it does for NAT.",
       "blocks": "deterministic precedence answers for overlapping Filtering rules",
       "resolves_with": [
         "lab-test",

@@ -47,6 +47,10 @@
       "text": "{{group-types}} How a Zero Trust Gateway differs from a Cloud Connector: [[cloud-connector.overview.zero-trust-gateways]]."
     },
     {
+      "label": "Cleanup and forced delete.",
+      "text": "{{group-info}} {{auto-cleanup}} {{cleanup-activity}} What makes a group inactive for cleanup, what a deletion removes and the default of Forced Delete are not stated {{gap:cleanup-details}}. {{forced-delete}}"
+    },
+    {
       "label": "Status, disable, delete.",
       "text": "{{operational-status}} An Inactive connector has lost contact with its management plane but still processes traffic: [[cloud-connector.insights.connector-status:inactive-meaning]]. {{disable-not-delete}} {{delete-irreversible}} Upgrades of the connectors in a group are staggered within a two-hour window: [[cloud-connector.upgrades:two-hour-staggered]]. Whether a disabled VM keeps running, and whether an autoscaling group maps one-to-one to a Cloud Connector group, is not stated {{gap:status-semantics}}."
     }
@@ -163,6 +167,63 @@
         }
       ]
     },
+    "group-info": {
+      "statement": "A group's edit window shows the number of Cloud Connectors belonging to the Cloud Connector group (No. of Connectors).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "No. of Connectors: The number of Cloud Connectors belonging to the Cloud Connector group."
+          ]
+        }
+      ]
+    },
+    "auto-cleanup": {
+      "statement": "Auto Cleanup Frequency selects how often Cloud Connector groups are automatically deleted (Never, 60 Days, 90 Days or 120 Days); Auto Cleanup is in Limited Availability and is enabled by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Auto Cleanup Frequency: Select the frequency at which Cloud Connector groups are automatically deleted (i.e., Never, 60 Days, 90 Days, or 120 Days).",
+            "Auto Cleanup is in Limited Availability (LA). To enable this feature, contact Zscaler Support."
+          ]
+        }
+      ]
+    },
+    "cleanup-activity": {
+      "statement": "The Cleanup Activity page, in Limited Availability, shows inactive Cloud Connector groups scheduled for deletion, with a status of Scheduled, Delete failed or Deleted and who deleted the group (the user or system).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-about-cleanup-activity.json",
+          "quotes": [
+            "The Cleanup Activity page allows you to view inactive Cloud Connector groups that are scheduled for deletion.",
+            "Cleanup Activity is in Limited Availability (LA). To enable this feature, contact Zscaler Support.",
+            "Status: The status of the scheduled deletion for the Cloud Connector group (i.e., Scheduled, Delete failed, or Deleted).",
+            "Delete by: The user or system who deleted the Cloud Connector group."
+          ]
+        }
+      ]
+    },
+    "forced-delete": {
+      "statement": "The Forced Delete checkbox allows the deletion of Cloud Connectors even if they are used by Internet & SaaS or Private Access traffic forwarding policies; if the deleted connector was the only location the policy is bypassed, and if not the policy continues to apply to the remaining locations or Cloud Connector groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-editing-cloud-connectors.json",
+          "quotes": [
+            "Forced Delete: Select the checkbox to allow the deletion of Cloud Connectors, even if they are used by Internet & SaaS or Private Access traffic forwarding policies.",
+            "If the deleted connector was the only location, the policy is bypassed. If not, the policy continues to apply to the remaining locations or Cloud Connector groups."
+          ]
+        }
+      ]
+    },
     "delete-irreversible": {
       "statement": "Deleting a Cloud Connector cannot be undone.",
       "tier": "A",
@@ -178,6 +239,18 @@
     }
   },
   "gaps": {
+    "cleanup-details": {
+      "kind": "semantic",
+      "title": "What makes a group inactive for Auto Cleanup, what a deletion removes, and the Forced Delete default",
+      "status": "open",
+      "detail": "The Auto Cleanup and Cleanup Activity pages describe inactive groups scheduled for deletion without saying what makes a group inactive, whether a deletion removes the cloud VMs or only the console record, or whether Forced Delete is selected by default.",
+      "blocks": "predicting which groups Auto Cleanup deletes and with what effect",
+      "resolves_with": [
+        "source-read",
+        "lab-test",
+        "support-ticket"
+      ]
+    },
     "status-semantics": {
       "kind": "semantic",
       "title": "Effect of Disable on the VM, and autoscaling-group to Cloud Connector group mapping",

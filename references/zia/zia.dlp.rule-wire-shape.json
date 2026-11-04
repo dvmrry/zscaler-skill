@@ -82,7 +82,7 @@
     },
     {
       "label": "OCR, content locations and scoping.",
-      "text": "{{ocr-two-switches}} {{content-locations-field}} {{scoping-and-handles}}"
+      "text": "{{ocr-two-switches}} {{content-locations-field}} The help article for rules without content inspection has a Content Locations field {{divergence:content-locations-without-inspection}}. {{scoping-and-handles}}"
     },
     {
       "label": "Incident receiver fields.",
@@ -245,7 +245,7 @@
       "binds": [
         "zia/dlp-web-rules#withoutContentInspection"
       ],
-      "conditions": "The field description is stated directly; that the flag is the API form of the \"without content inspection\" console workflow is inferred from the matching names. The help article that names that workflow is not captured (see gap without-content-inspection-keying).",
+      "conditions": "The field description is stated directly; that the flag is the API form of the \"without content inspection\" console workflow is inferred from the matching names. The help article for that workflow is now captured and cited in zia.dlp.rules:without-ci-filter-mode, but it does not name the API flag (see gap without-content-inspection-keying).",
       "evidence": [
         {
           "source": "sdk-go",
@@ -347,7 +347,7 @@
       ]
     },
     "content-locations-field": {
-      "statement": "`dlpContentLocationsScopes` takes ANY, HTTP_BODY, FILE_CONTENT, DOCUMENT_PROPERTIES and FILENAME, and does not apply to DLP rules without content inspection. The 2026-06-21 overlay records it as absent from the Terraform provider.",
+      "statement": "`dlpContentLocationsScopes` takes ANY, HTTP_BODY, FILE_CONTENT, DOCUMENT_PROPERTIES and FILENAME, and the API reference says it does not apply to DLP rules without content inspection. The 2026-06-21 overlay records it as absent from the Terraform provider.",
       "tier": "A",
       "binds": [
         "zia/dlp-web-rules#dlpContentLocationsScopes"
@@ -557,6 +557,44 @@
     }
   },
   "divergences": {
+    "content-locations-without-inspection": {
+      "summary": "Whether the Content Locations criterion applies to DLP rules without content inspection.",
+      "positions": [
+        {
+          "says": "The API reference's description of dlpContentLocationsScopes says the criterion is not applicable to DLP rules without content inspection.",
+          "evidence": {
+            "source": "api-specs",
+            "path": "automate-zscaler/openapi/zia.openapi.json",
+            "pointer": "/paths/~1webDlpRules/post/requestBody/content/application~1json/schema/properties/dlpContentLocationsScopes",
+            "expect": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "ANY",
+                  "HTTP_BODY",
+                  "FILE_CONTENT",
+                  "DOCUMENT_PROPERTIES",
+                  "FILENAME"
+                ],
+                "type": "string"
+              },
+              "description": "<p>Specifies one or more content locations from the available values as a match criteria for the rule to target specific sections of a file or transaction. Matches against file metadata, actual file content (not including metadata), file name, and HTTP request body are supported. Matches vary depending on the content locations selected.</p><p><b>Note</b>: This rule criteria is not applicable to DLP rules without content inspection.</p>"
+            }
+          }
+        },
+        {
+          "says": "The help article for rules without content inspection has a Content Locations field described as selecting the content locations that are inspected for sensitive data.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-dlp-policy-rules-without-content-inspection.json",
+            "quotes": [
+              "Content Locations: Select the content locations that are inspected for sensitive data."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a rule without content inspection takes content locations is not settled; the API reference says the criterion does not apply to such rules while the console article for that rule kind has the field. Do not state either as fact."
+    },
     "match-only-docstring": {
       "summary": "The Python SDK's add-rule docstring describes `match_only` as matching file size, while the API reference, the Go SDK and the help article describe it as the engine Match Only criterion.",
       "positions": [
@@ -605,7 +643,7 @@
     "without-content-inspection-keying": {
       "kind": "semantic",
       "title": "What a rule without content inspection matches on and which forwarding handles it uses",
-      "status": "open",
+      "status": "partial",
       "former_ids": [
         "zia-58"
       ],
@@ -613,8 +651,8 @@
         "lab-test",
         "source-read"
       ],
-      "blocks": "explaining how such a rule decides to act when no ZIA engine inspects the payload",
-      "detail": "Unverified legacy statement: \"without_content_inspection ... forwards/acts without ZIA itself inspecting payload content (e.g. hand-off to a third party)\". The help article on rules without content inspection is not captured. The other parts of the zia-58 ledger entry are placed as follows: action and severity enums are claims here; parent and sub-rule composition is split between zia.dlp.evaluation and the gap below; the live-read fields are claim live-read-only-fields and the gap live-only-field-write-status."
+      "blocks": "saying which API fields and values carry what the console article describes for a rule without content inspection",
+      "detail": "Narrowed: the help article on rules without content inspection is now cited in zia.dlp.rules (zia.dlp.rules:without-ci-filter-mode, zia.dlp.rules:without-ci-criteria) and zia.dlp.incident-forwarding (zia.dlp.incident-forwarding:without-ci-destinations): Zscaler engines are not used, content is detected by the criteria specified and information is forwarded to an ICAP receiver, a Zscaler Incident Receiver or Cloud-to-Cloud Forwarding. It does not name `withoutContentInspection` or the `receiver` types, so the mapping from the console workflow to those API fields stays inferred. Earlier unverified legacy statement: \"without_content_inspection ... forwards/acts without ZIA itself inspecting payload content (e.g. hand-off to a third party)\". The other parts of the zia-58 ledger entry are placed as follows: action and severity enums are claims here; parent and sub-rule composition is split between zia.dlp.evaluation and the gap below; the live-read fields are claim live-read-only-fields and the gap live-only-field-write-status."
     },
     "ocr-switch-interaction": {
       "kind": "semantic",
@@ -643,13 +681,13 @@
     "parent-action-interaction": {
       "kind": "semantic",
       "title": "How a matched exception rule changes the parent rule's action",
-      "status": "open",
+      "status": "partial",
       "resolves_with": [
         "lab-test",
         "support-ticket"
       ],
-      "blocks": "predicting the outcome when both a parent rule and its exception rule match",
-      "detail": "Help says exception rules exclude users or groups; the SDK documents that sub-rules need Evaluate All Rules mode. Neither states precedence between a matched exception and its parent."
+      "blocks": "predicting the action when both a parent rule and its exception rule match",
+      "detail": "Help says exception rules exclude users or groups; the SDK documents that sub-rules need Evaluate All Rules mode. Narrowed by zia.dlp.evaluation:exception-rule-first-match: the About DLP page says an exception replaces a parent rule upon match and that exception rule evaluation stops at the first match. What that leaves unsaid is how the exception's own action relates to the parent's; separately, the page's statement that rule order is not enforced for parent rules differs from the Evaluate All Rules article (zia.dlp.evaluation:parent-rule-order)."
     },
     "uc-template-id": {
       "kind": "semantic",

@@ -42,6 +42,18 @@
     {
       "rel": "configured-via",
       "to": "zia.terraform.url-categories"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.admin-scope"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.bulk-upload"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.lookup"
     }
   ],
   "prose": [
@@ -54,7 +66,11 @@
     },
     {
       "label": "Predefined and custom.",
-      "text": "{{retain-parent-choice}} {{retain-parent-both-match}} {{without-retain-parent}} {{retain-parent-counters}}"
+      "text": "{{retain-parent-choice}} {{retain-parent-both-match}} {{without-retain-parent}} {{retain-parent-counters}} {{keyword-and-range-parent}} {{misc-unknown-retain-parent}} {{tld-vs-custom-url}}"
+    },
+    {
+      "label": "Managing custom categories.",
+      "text": "{{review-matches}} Who can manage a category is in [[zia.url-categories.admin-scope]], bulk changes through the tool are in [[zia.url-categories.bulk-upload]], and checking or disputing a category is in [[zia.url-categories.lookup]]."
     },
     {
       "label": "Predefined membership.",
@@ -172,30 +188,37 @@
           "quotes": [
             "If the site is added in the Retaining Parent category, check the rule order to make sure that another rule does not block access to this URL first."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "quotes": [
+            "URLs retaining parent category remain mapped to their parent category. So these URLs or IP addresses are covered by policies that reference the parent category and this custom category."
+          ]
         }
       ]
     },
     "without-retain-parent": {
       "statement": "A URL added to a custom category without retaining its parent is covered by the custom category instead of its original predefined category, so rules on the predefined category stop matching it.",
-      "tier": "B",
+      "tier": "A",
       "binds": [
         "zia/url-categories#urls",
         "zia/url-filtering-rules#urlCategories"
       ],
-      "conditions": "Chain of evidence: retaining the parent is an explicit opt-in, and only retained URLs are documented as covered by parent-category policies.",
       "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "quotes": [
+            "URLs or IP addresses added to Custom URLs do not remain mapped to the category in the Zscaler URL database, also called the parent category.",
+            "So these URLs or IP addresses are covered by policies that reference this specific custom category, but not by policies that reference their parent category."
+          ]
+        },
         {
           "source": "zscaler-help",
           "path": "about-url-categories.json",
           "quotes": [
             "you can specify whether you want google.com also to retain its original Web Search category."
-          ]
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
-          "quotes": [
-            "The URLs entered are covered by policies that reference the original parent URL category as well as those that reference the custom URL category."
           ]
         }
       ]
@@ -225,6 +248,87 @@
             "keywordsRetainingParentCategoryCount"
           ],
           "note": "the URL category schema has urlsRetainingParentCategoryCount and ipRangesRetainingParentCategoryCount but no patterns or keywords retaining-parent count"
+        }
+      ]
+    },
+    "misc-unknown-retain-parent": {
+      "statement": "If already categorized URLs or IP addresses are added to the Miscellaneous or Unknown category in the URLs retaining parent category field, the system categorizes them only under the pre-existing URL category and not under Miscellaneous or Unknown. Keywords retaining parent category and IP ranges retaining parent category on URLs or IP ranges belonging to Miscellaneous or Unknown categorize them only under the respective URL category and not under Miscellaneous or Unknown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "quotes": [
+            "If you add already categorized URLs or IP addresses to the Miscellaneous or Unknown category in the URLs retaining parent category field, the system only categorizes URLs or IP addresses under the pre-existing URL category and not under the Miscellaneous or Unknown category.",
+            "Adding keywords in the URLs belonging to the Miscellaneous or Unknown category to the Keywords retaining parent category in a URL category only categorizes the URLs under the respective URL category and not under Miscellaneous or Unknown.",
+            "Adding IP ranges belonging to the Miscellaneous or Unknown category to the IP Ranges Retaining Parent Category in a URL category only categorizes the IP ranges under the respective URL category and not under Miscellaneous or Unknown."
+          ]
+        }
+      ]
+    },
+    "keyword-and-range-parent": {
+      "statement": "URLs that match custom keywords are added to the custom category but are not retained under their original parent category, while URLs that match keywords retaining parent category are added to the custom category and also retained under their original parent category. IP ranges added to custom IP ranges do not remain mapped to the parent category in the Zscaler URL database, and IP ranges retaining parent category remain mapped to their parent category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "after": "Custom Keywords: Enter keywords that you want to add to this custom category and click Add Items.",
+          "quotes": [
+            "URLs that match the keywords are added to the custom category but are not retained under their original parent category."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "after": "Keywords Retaining Parent Category: Enter the keywords you want to add to this custom category and click Add Items.",
+          "quotes": [
+            "URLs that match the keywords are added to the custom category and also retained under their original parent category."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "after": "Custom IP Ranges: Enter the IP ranges you want to add to this custom category and click Add Items.",
+          "quotes": [
+            "IP ranges added to custom IP ranges do not remain mapped to the category in the Zscaler URL database, also called the parent category."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "after": "IP Ranges Retaining Parent Category: Enter the IP ranges you want to add to this custom category and click Add Items.",
+          "quotes": [
+            "IP ranges retaining parent category remain mapped to their parent category."
+          ]
+        }
+      ]
+    },
+    "review-matches": {
+      "statement": "The Review Matches drop-down menu shows whether the URLs or wildcard domains added in a custom URL category match any other custom categories with either the corresponding wildcard or a specific match, and a matching category can be chosen to add the URLs or wildcard domains to it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-configuring-custom-url-categories.json",
+          "quotes": [
+            "Review Matches: Select this drop-down menu to see if either the URLs or wildcard domains added in this custom URL category match any other custom categories with either the corresponding wildcard or a specific match, respectively.",
+            "Choose a matching category if you want to add the URLs or wildcard domains to it."
+          ]
+        }
+      ]
+    },
+    "tld-vs-custom-url": {
+      "statement": "For a transaction, if a TLD matches a custom URL that is linked to a parent category, it matches only the URL categories (the predefined parent category and the custom category) and not the TLD category. In the page's example, the FQDN www.yahoo.co.jp matches only the predefined category (Web Search) and the custom category (Yahoo Japan), not the custom TLD category (Japan).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-tld-categories.json",
+          "quotes": [
+            "For a transaction, if a TLD matches a custom URL that's linked to a parent category, then it only matches the URL categories (i.e., predefined parent category and custom category) and not the TLD category.",
+            "then the FQDN www.yahoo.co.jp only matches the predefined category (Web Search) and custom category (Yahoo Japan). It doesn't match the custom TLD category (Japan)."
+          ]
         }
       ]
     },

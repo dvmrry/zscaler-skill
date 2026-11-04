@@ -48,6 +48,10 @@
     {
       "rel": "see-also",
       "to": "zia.ssl-inspection.pipeline"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.advanced-settings.m365-one-click"
     }
   ],
   "prose": [
@@ -60,7 +64,7 @@
     },
     {
       "label": "Predefined and default rules.",
-      "text": "{{predefined-rules}} {{default-rule}} Whether the Default action interacts with URL Filtering's own default is still open: see [[zia.ssl-inspection.pipeline]]."
+      "text": "{{predefined-rules}} {{one-click-rule-edit}} {{one-click-exempts-web-policies}} Whether the Evaluate Other Policies choice and that exemption agree is open {{gap:one-click-evaluate-vs-exempt}}. {{default-rule}} Whether the Default action interacts with URL Filtering's own default is still open: see [[zia.ssl-inspection.pipeline]]."
     },
     {
       "label": "Flags.",
@@ -238,6 +242,35 @@
         }
       ]
     },
+    "one-click-rule-edit": {
+      "statement": "On the predefined One Click rule in SSL/TLS Inspection, the Rule Order, Admin Rank, Rule Status, Rule Label and Description can be modified, and under the Do Not Inspect action the admin can choose Evaluate Other Policies (URL Filtering and Cloud App Control) or Bypass Other Policies; other attributes cannot be edited. With the SSL/TLS bypass, policy application is limited by the lack of decryption: subsequent policy action is likely limited to only the domain portion and not the full URL, so for sample.com/chatBotAI only sample.com is seen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "You can modify the Rule Order, Admin Rank, Rule Status, Rule Label, and Description, and choose Evaluate Other Policies (i.e., URL Filtering and Cloud App Control) or Bypass Other Policies under the Do Not Inspect action for this rule and cannot edit other attributes.",
+            "However, with the SSL/TLS bypass, the policy application is limited due to the lack of decryption. This would mean that subsequent policy action is likely limited to only the domain portion and not the full URL.",
+            "For example, for the website sample.com/chatBotAI, only sample.com is seen."
+          ]
+        }
+      ]
+    },
+    "one-click-exempts-web-policies": {
+      "statement": "The Understanding Predefined Firewall Filtering Rules page says that if \"this rule\" is enabled, any Microsoft 365 traffic is exempted from SSL/TLS Inspection and other web policies such as URL Filtering and Cloud App Control, and that a URL policy created to block OneDrive or SharePoint is not applied.",
+      "tier": "A",
+      "conditions": "The sentence follows the Cloud App Control rules on that page and does not name which One Click rule it means.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-understanding-predefined-firewall-filtering-rules.json",
+          "quotes": [
+            "If this rule is enabled, any Microsoft 365 traffic is exempted from SSL/TLS Inspection and other web policies, such as URL Filtering and Cloud App Control. For example, if you created a URL policy to block OneDrive, Sharepoint, etc., it's not applied."
+          ]
+        }
+      ]
+    },
     "default-rule": {
       "statement": "The Leading Practices rule set ends with a Default rule whose action is Do Not Inspect with Evaluate Other Policies. The row above it, rule 7, is Inspect All with criteria Any/Any/Any and action Inspect, and the guide's list of the rule set describes item 7 as the new default that inspects everything not exempted.",
       "tier": "A",
@@ -406,6 +439,16 @@
     }
   },
   "gaps": {
+    "one-click-evaluate-vs-exempt": {
+      "kind": "semantic",
+      "title": "Whether Evaluate Other Policies on the One Click SSL rule and the page's exemption from other web policies describe the same rule",
+      "status": "open",
+      "detail": "One sentence on the page says URL Filtering and Cloud App Control rules can still match the bypassed traffic with Evaluate Other Policies (seeing only the domain), while another says Microsoft 365 traffic is exempted from SSL/TLS Inspection and other web policies when \"this rule\" is enabled, without naming the rule. The page does not reconcile them.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
     "name-truncation": {
       "kind": "semantic",
       "title": "What happens when automation sends a rule name longer than 31 characters",

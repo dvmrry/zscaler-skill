@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "zia.url-categories.bulk-upload",
+  "title": "Bulk URL Upload tool: file operations, config file and exit codes",
+  "aliases": [
+    "Bulk URL Upload tool",
+    "urlupload.jar",
+    "UrlUpload.gz"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.membership"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-categories.entry-format"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{tool-overview}}"
+    },
+    {
+      "label": "Config file.",
+      "text": "{{config-file}}"
+    },
+    {
+      "label": "Upload file.",
+      "text": "{{line-format}} {{operators}}"
+    },
+    {
+      "label": "Running it.",
+      "text": "{{run-modes}} The download location and version are open {{gap:download-and-version}}, and so is whether OneAPI or ZIdentity credentials work {{gap:credential-types}}."
+    },
+    {
+      "label": "Exit statuses.",
+      "text": "{{exit-statuses}} The table skips 4 {{gap:exit-status-4}}."
+    }
+  ],
+  "claims": {
+    "tool-overview": {
+      "statement": "The Bulk URL Upload tool is a JAVA CLI tool that runs locally on the client to update URLs in bulk, using the cloud service API credentials. The UrlUpload.gz file consists of urlupload.jar, truststore and example.csv, and the tool needs JAVA Runtime (JRE) version 8 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bulk-url-upload-tool.json",
+          "quotes": [
+            "The Bulk URL Upload tool is a JAVA CLI tool, which runs locally on your client to update URLs in bulk. This tool allows you to easily manage URL category updates using your cloud service API credentials.",
+            "The UrlUpload.gz file consists of urlupload.jar, truststore, and example.csv.",
+            "JAVA Runtime (JRE) version 8 or later."
+          ]
+        }
+      ]
+    },
+    "config-file": {
+      "statement": "The API config file sets BASE_URI (the base URI for the cloud) and API_KEY (the API key provisioned for the organization), and optionally USERNAME (the cloud service API username) and UPLOAD_CSV_FILE (the URL upload path for the CSV file).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bulk-url-upload-tool.json",
+          "quotes": [
+            "BASE_URI: The base URI for your cloud.",
+            "API_KEY: The API Key provisioned for your organization.",
+            "USERNAME: (Optional) The cloud service API username.",
+            "UPLOAD_CSV_FILE: (Optional) The URL upload path for the CSV file."
+          ]
+        }
+      ]
+    },
+    "line-format": {
+      "statement": "A URL line has the form `+, <category name>, <categorization type>, <url>`, where the categorization type is either CUSTOM or RETAIN_PARENT. The delete-category operation dissociates all the URLs associated to the category and then deletes the category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bulk-url-upload-tool.json",
+          "quotes": [
+            "+, <category name>, <categorization type>, <url>",
+            "+, <category name>, RETAIN_PARENT, <url>",
+            "Provide the correct categorization type in the line (i.e., either CUSTOM or RETAIN_PARENT).",
+            "This operation dissociates all the URLs associated to the category and then deletes the category."
+          ]
+        }
+      ]
+    },
+    "operators": {
+      "statement": "The `+` operator adds or associates a URL to a category, and a new category can be added only if a URL is associated with it. `- or D` deletes a category or a URL from a category. `* or R` replaces all the existing URLs of a category: the asterisk adds the first URL and the plus sign the subsequent instances under the same category. `#` marks a comment line that is not executed. RESET ignores all lines before it, and only the last RESET takes effect when there are several.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bulk-url-upload-tool.json",
+          "quotes": [
+            "Adds or associates a URL to a category. A new category can be added only if a URL is associated with it.",
+            "| - or D | Deletes a category or a URL from a category. |",
+            "| * or R | Replaces all the existing URLs from a category by removing them and adding a new set of URLs. |",
+            "To replace URLs in a category, use an asterisk (*) to add the first URL instance and the plus sign (+) for the subsequent instances under the same category.",
+            "| # | Marks the line that begins with this operator as a comment and does not execute the line. |",
+            "Ignores all the lines before the RESET line in the file and counts only the lines after for execution. Only the last instance of the RESET takes effect when there are multiple instances."
+          ]
+        }
+      ]
+    },
+    "run-modes": {
+      "statement": "When the username is defined in the API config file, it is auto-populated at the prompt. The tool can also be run as `java -jar urlupload.jar -c <API Config File Path> -f <url Upload CSV>`, which overrides the URL upload file path in the API config file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bulk-url-upload-tool.json",
+          "quotes": [
+            "If the username is defined in the API config file, then the username is auto-populated.",
+            "java -jar urlupload.jar -c <API Config File Path> -f <url Upload CSV>",
+            "This command overrides the URL upload file path in the API config file."
+          ]
+        }
+      ]
+    },
+    "exit-statuses": {
+      "statement": "The error table gives exit status 1 for a failure to establish the authenticated channel (a server error or incorrect credentials) and 2 for a failure to fetch URL categories. Statuses 3 and 5 are Invalid Operation, for example adding a new category without any URL or deleting a category that does not exist. Status 6 is a wrong format, 7 is file not found, and 8 is a Java IO error reading the file. Statuses 9, 10 and 11 are failures to add (POST), modify (PUT) or delete a category, and 12 is a failure to close the session, with no intervention required. Statuses 13 and 14 are an unknown classification (use RETAIN_PARENT or CUSTOM), and 15 to 18 are a missing JSON response for GET, POST, PUT and DELETE. Status 19 is no input provided, 20 is an error asking to specify BASE_URI, API_KEY, USERNAME(OPTIONAL) and UPLOAD_CSV_FILE(OPTIONAL) in the API config file (the API config file does not have a proper format), and 21 is that no console instance could be obtained.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-about-bulk-url-upload-tool.json",
+          "quotes": [
+            "| 1 | *ERROR* : Failed To Establish Authenticated Channel With Server | This error occurs due to a server error or incorrect credentials. | Retry after some time or provide correct credentials. |",
+            "| 2 | *ERROR* : Failed To Fetch URL CATEGORIES | This error occurs when the GET request fails to retrieve the existing categories. | Retry after some time. |",
+            "| 3, 5 | *ERROR* : Invalid Operation => <LINE>",
+            "For example, adding a new category without any URL associated with it or deleting a category that doesn't exist",
+            "| 6 | *ERROR* : Wrong Format...Please use one of the two formats:",
+            "| 7 | *ERROR* : <filename> Not Found... | This error occurs if there is an incorrect file path specified. | Provide the correct file path. |",
+            "| 8 | <JAVA IO EXCEPTION ERROR> | This error occurs when there is an error in reading the file. | Check permissions or contact Zscaler Support. |",
+            "| 9 | *ERROR* : Failed To Add Category : <CategoryName> | This error occurs when there is a failure during POST while adding a new category. | Contact Zscaler Support. |",
+            "| 10 | *ERROR* : Failed To Modify Category : <CategoryName> | This error occurs when there is a failure during PUT while modifying a category. | Contact Zscaler Support. |",
+            "| 11 | *ERROR* : Failed To Delete Category : <CategoryName> | This error occurs when there is a failure to delete a category. | Contact Zscaler Support. |",
+            "| 12 | *ERROR* : Failed To Close Established Authenticated Channel With Server | This error occurs when there is a failure to close the session. | No intervention required. |",
+            "| 13, 14 | *ERROR* : Unknown Classification in <LINE> Please use RETAIN_PARENT/CUSTOM | This error occurs when there is an incorrect categorization type.",
+            "| 15 | *ERROR* : Expected JSON Response for GET. Exiting...",
+            "| 16 | *ERROR* : Expected JSON Response for POST. Exiting...",
+            "| 17 | *ERROR* : Expected JSON Response for PUT. Exiting...",
+            "| 18 | *ERROR* : Expected JSON Response for DELETE. Exiting...",
+            "| 19 | *ERROR* : No Input Provided | This error occurs when the user prompt is empty.",
+            "| 20 | *ERROR* : Please Specify BASE_URI, API_KEY, USERNAME(OPTIONAL), UPLOAD_CSV_FILE(OPTIONAL) in API Config file...",
+            "This error occurs when the API config file does not have a proper format.",
+            "| 21 | *ERROR* : Couldn't get Console instance | This error occurs when the program needs to run on a console and could not find a console object."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "download-and-version": {
+      "kind": "data",
+      "title": "Where UrlUpload.gz is downloaded and which version is current",
+      "status": "open",
+      "detail": "The page gives no download location or version for UrlUpload.gz.",
+      "resolves_with": [
+        "source-read"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "credential-types": {
+      "kind": "semantic",
+      "title": "Whether the tool works with OneAPI or ZIdentity credentials",
+      "status": "open",
+      "detail": "The page's config sample uses the admin.zscaler.net/api/v1 base URI with an API key. It does not say whether the tool works with OneAPI or ZIdentity credentials.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "exit-status-4": {
+      "kind": "semantic",
+      "title": "What exit status 4 means",
+      "status": "open",
+      "detail": "The exit-status table lists 1 to 3, then 5 to 21, and has no row for 4.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

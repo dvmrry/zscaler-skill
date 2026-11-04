@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "cloud-connector.upgrades.repo-certificate",
+  "title": "The pkg-repo.zscaler.com certificate renewal: minimum images, autoscaling templates and why connectors might not update automatically",
+  "aliases": [
+    "pkg-repo.zscaler.com certificate",
+    "software update repository certificate",
+    "digicert g2 certificate chain cloud connector",
+    "cloud connector cannot connect to software update repository",
+    "cloud connector ca bundle update"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.upgrades.os-images"
+    },
+    {
+      "rel": "see-also",
+      "to": "cloud-connector.aws.troubleshooting"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{what-changes}}"
+    },
+    {
+      "label": "Existing connectors.",
+      "text": "{{existing-auto}} {{redeploy}}"
+    },
+    {
+      "label": "New deployments.",
+      "text": "{{minimum-images}} {{ami-product-code}}"
+    },
+    {
+      "label": "Autoscaling.",
+      "text": "{{asg-templates}} {{per-cloud-update}} {{no-replace-running}} {{worked-example}} The old image in that example is not in the version table {{gap:old-image-not-listed}}."
+    },
+    {
+      "label": "Why a connector might not update automatically.",
+      "text": "{{why-not-updating}}"
+    }
+  ],
+  "claims": {
+    "what-changes": {
+      "statement": "The article covers the TLS server certificate of the software update repository (pkg-repo.zscaler.com) for Cloud Connector, which expires; when it is renewed, the repository uses a new DigiCert G2 certificate chain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "This article provides troubleshooting information and guidelines about the TLS server certificate for Cloud Connector expiration of the software update repository (pkg-repo.zscaler.com). When this certificate is renewed, the repository uses a new DigiCert G2 certificate chain."
+          ]
+        }
+      ]
+    },
+    "existing-auto": {
+      "statement": "Existing, active Cloud Connectors update automatically through regularly scheduled upgrades, and those running version 1.146.5 or later have received the automatic CA bundle update and are not affected; the version is the Current Version in the Upgrade Information section of the Upgrade Status tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "Existing, active Cloud Connectors update automatically through regularly scheduled upgrades.",
+            "Cloud Connectors running version 1.146.5 or later have received the automatic CA bundle update and are not affected.",
+            "On the Upgrade Status tab, in the Upgrade Information section, locate the Current Version."
+          ]
+        }
+      ]
+    },
+    "minimum-images": {
+      "statement": "For new deployments the article gives AWS image version ZS42.1.0 or later (deployed AMI name starting with zs-cc-ga-03092026), Azure image version 42.1.0 or later and GCP image version zs-cc-ga-03092026 or later; unless older image versions are hard-coded in custom IaC templates, the main requirement is to rerun or refresh the templates so later deployments use the latest images.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "Amazon Web Services (AWS): Use image version ZS42.1.0 or later (Deployed AMI Name: starts with zs-cc-ga-03092026).",
+            "Microsoft Azure: Use image version 42.1.0 or later.",
+            "Google Cloud Platform (GCP): Use image version zs-cc-ga-03092026 or later.",
+            "Unless you hard-code older image versions in custom IaC templates, the main requirement is to rerun or refresh your templates so that subsequent deployments use the latest images."
+          ]
+        }
+      ]
+    },
+    "asg-templates": {
+      "statement": "For autoscaling group (ASG) deployments the launch or instance template must be updated to reference the new marketplace image; if not, new instances cannot connect to the software update repository, and newly scaled-out instances use the old image, which is unable to connect after the expiration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "For autoscaling group (ASG) deployments, you must update your launch/instance template to reference the new marketplace image. If you do not update your launch/instance template, new instances cannot connect to the software update repository.",
+            "If you do not update ASG configurations, newly scaled-out instances use the old image, which is unable to connect to the software update repository after expiration."
+          ]
+        }
+      ]
+    },
+    "per-cloud-update": {
+      "statement": "On AWS the AMI ID is updated in the launch template, a new launch template version is created and the ASG updated to use it; on Azure the image reference in the VMSS model is updated and a model update triggered; on GCP a new instance template with the updated image is created and the MIG updated to use it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "AWS: Update the AMI ID in your launch template and create a new launch template version. Update your ASG to use the new launch template version.",
+            "Azure: Update the image reference in your VMSS model and trigger a model update.",
+            "GCP: Create a new instance template with the updated image and update your MIG to use the new template."
+          ]
+        }
+      ]
+    },
+    "no-replace-running": {
+      "statement": "Updating the AWS launch template does not automatically replace existing EC2 instances; future scale-out or health-based replacement instances are deployed from the new AMI, and the Instance Refresh feature replaces instances in the ASG automatically as a rolling update that maintains availability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "Updating the launch template does not automatically replace existing EC2 instances.",
+            "Future scale-out or health-based replacement instances are automatically deployed from this new AMI.",
+            "Use the recommended Instance Refresh feature to replace instances in your ASG automatically. This performs a rolling update, ensuring availability is maintained."
+          ]
+        }
+      ]
+    },
+    "ami-product-code": {
+      "statement": "In the article's Terraform snippet the AMI filter value is 2l8tfysndbav4tv2nfjwak3cu, or axnpwhsb4facossmbm1h9yad6 when var.aws_region is cn-north-1 or cn-northwest-1, with owners set to aws-marketplace.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "values = var.aws_region == \"cn-north-1\" || var.aws_region == \"cn-northwest-1\" ? [\"axnpwhsb4facossmbm1h9yad6\"] : [\"2l8tfysndbav4tv2nfjwak3cu\"]",
+            "owners = [\"aws-marketplace\"]"
+          ]
+        }
+      ]
+    },
+    "why-not-updating": {
+      "statement": "The article lists reasons a connector might not update automatically: firewall and/or SSL inspection connectivity issues, modifying the scheduled upgrade windows to circumvent automatic updates, Zscaler-controlled block filtering (removed by contacting Zscaler Support), and appliance issues such as process errors, crashes or disk partition space issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "Firewall and/or SSL inspection connectivity issues. Users can resolve this issue in their own environment.",
+            "Modifying the scheduled upgrade windows to circumvent automatic updates.",
+            "Zscaler-controlled block filtering (per user request and/or Zscaler debugging necessities). To disable filtering, contact Zscaler Support.",
+            "Cloud Connector appliance issues might prevent updates from proceeding (i.e., process errors, crashes, or disk partition space issues)."
+          ]
+        }
+      ]
+    },
+    "redeploy": {
+      "statement": "Existing Cloud Connectors do not need to be redeployed as long as they remain current through regular, automatic scheduled upgrades, but some improvements might only be available through newer image releases, so Zscaler recommends that all new deployments use the latest marketplace images and that existing instance fleets be refreshed periodically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "Existing Cloud Connectors do not need to be redeployed, as long as they remain current by running the latest software through regular, automatic scheduled upgrades.",
+            "Some improvements (i.e., performance enhancements, operating system security fixes, and other platform updates) might only be available through newer image releases.",
+            "Zscaler recommends that all new deployments use the latest marketplace images and that existing instance fleets be refreshed periodically."
+          ]
+        }
+      ]
+    },
+    "worked-example": {
+      "statement": "The article's AWS launch template example changes the image_id from ami-0b11365e64b30005e (old ZS6.1.26.2) to ami-07c8a4afe978a3087 (new ZS42.1.0), and says applying the change has no effect on running Cloud Connector appliances on the ASGs using the launch template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-cloud-understanding-cloud-connector-repository-certificate-expiry-and-renewal.json",
+          "quotes": [
+            "the AWS launch template where the image_id is changed from ami-0b11365e64b30005e (old ZS6.1.26.2) to new ami-07c8a4afe978a3087 (new ZS42.1.0) is shown.",
+            "Applying this change has no effect on running Cloud Connector appliances on the ASGs that are using this launch template."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "old-image-not-listed": {
+      "kind": "semantic",
+      "title": "Whether the example's old image ZS6.1.26.2 is a published release",
+      "status": "open",
+      "detail": "The article's worked example names ZS6.1.26.2 as the old image, which is not a row of the AWS version table in cloud-connector.upgrades.os-images. The expiry date of the repository certificate is also not captured in the quoted passages.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}
