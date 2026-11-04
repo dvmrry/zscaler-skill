@@ -335,7 +335,7 @@
       ]
     },
     "vip-selection": {
-      "statement": "A tunnel names a primary and a secondary destination VIP; when neither is given the SDK picks the closest recommended VIPs. The within-country flag restricts VIPs to the source IP's country, and the unnumbered flag supports automated SD-WAN provisioning with no internal tunnel addresses.",
+      "statement": "A tunnel names a primary and a secondary destination VIP; the Python SDK's add_gre_tunnel docstring says the closest recommended VIPs are chosen automatically when they aren't specified. The within-country flag restricts VIPs to the source IP's country, and the unnumbered flag supports automated SD-WAN provisioning with no internal tunnel addresses.",
       "tier": "A",
       "evidence": [
         {
@@ -431,6 +431,30 @@
           "pointer": "/paths/~1greTunnels/get",
           "expect": {
             "description": "Gets all provisioned GRE tunnel information."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels/post",
+          "expect": {
+            "description": "<p>Adds a GRE tunnel configuration.</p><p><b>Note:</b> Specifying  <code>withinCountryOnly</code> or <code>subcloud</code> parameter is  mandatory if this endpoint uses a virtual IP address (VIP) retrieved by  passing either of these parameters in <code>GET /vips/recommendedList</code>.</p>"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels~1{Id}/put",
+          "expect": {
+            "description": "Updates the GRE tunnel information for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1greTunnels~1{Id}/delete",
+          "expect": {
+            "description": "Deletes the GRE tunnel information for the specified ID."
           }
         }
       ],

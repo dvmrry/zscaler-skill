@@ -81,6 +81,30 @@
             "func GetPolicyByApplication(ctx context.Context, service *zscaler.Service, policyType string, applicationID string) ([]PolicyRuleResource, *http.Response, error) {",
             "\"/policySet/rules/policyType/%s/application/%s\""
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "after": "func GetPolicyByApplication(",
+          "quotes": [
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[PolicyRuleResource](ctx, service.Client, relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "func GetAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, filters Filter)",
+          "quotes": [
+            "totalPages, result, resp, err := getAllPagesGenericWithCustomFilters[T](ctx, client, relativeURL, 1, DefaultPageSize, filters)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "func getAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, page, pageSize int, filters Filter) (int, []T, *http.Response, error) { var paged struct {",
+          "quotes": [
+            "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
+          ]
         }
       ]
     },
@@ -94,6 +118,14 @@
           "quotes": [
             "relativeURL := mgmtConfig + service.Client.GetCustomerID() + appSegmentEndpoint + \"/\" + applicationID + \"/mappings\"",
             "type ApplicationMappings struct { Name string `json:\"name,omitempty\"` Type string `json:\"type,omitempty\"` }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegment/zpa_application_segment.go",
+          "after": "func GetApplicationMappings(",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, &result)"
           ]
         }
       ]

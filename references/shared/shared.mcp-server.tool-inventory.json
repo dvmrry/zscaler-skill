@@ -226,7 +226,8 @@
           "path": "src/zscaler_mcp/server.py",
           "quotes": [
             "\"--no-entitlement-filter\",",
-            "default=os.getenv(\"ZSCALER_MCP_DISABLE_ENTITLEMENT_FILTER\", \"\").lower()",
+            "default=os.getenv(\"ZSCALER_MCP_DISABLE_ENTITLEMENT_FILTER\", \"\").lower()\n        in (\"true\", \"1\", \"yes\"),",
+            "\"Skip the OneAPI entitlement filter that downscopes tools to the \"",
             "\"filter is non-fatal and self-skips on any failure; use this only \"",
             "\"as an emergency override.\""
           ]
@@ -252,9 +253,10 @@
           "quotes": [
             "# Writes need BOTH knobs: the switch grants nothing on its own, and an",
             "# absent allowlist means zero write tools rather than all of them. Enforced",
-            "# here, at the registration boundary, so the CLI, tests and embedders all",
-            "default=os.getenv(\"ZSCALER_MCP_WRITE_ENABLED\", \"\").lower() in (\"true\", \"1\", \"yes\"),",
-            "default=os.getenv(\"ZSCALER_MCP_WRITE_TOOLS\", \"\"),",
+            "# here, at the registration boundary, so the CLI, tests and embedders all\n    # fail closed instead of trusting each caller to combine the flags safely.",
+            "\"--enable-write-tools\",\n        action=\"store_true\",\n        default=os.getenv(\"ZSCALER_MCP_WRITE_ENABLED\", \"\").lower() in (\"true\", \"1\", \"yes\"),",
+            "\"Master switch for write operations (create/update/delete). Off by default \"",
+            "\"--write-tools\",\n        default=os.getenv(\"ZSCALER_MCP_WRITE_TOOLS\", \"\"),",
             "\"Allowlist of write tools to permit (fnmatch patterns, e.g. 'zpa_create_*'). \""
           ]
         },
@@ -369,16 +371,19 @@
           "path": "zscaler-mcp-server-61.json",
           "quotes": [
             "There are a few additional ZIA API endpoints/tools that would be very helpful for evaluating security and performance settings in ZIA.",
-            "## Comment (MEMBER, 2026-05-17) Upgrade to v0.12.1. Zscaler DevRel",
+            "api-reference/zia/advanced-threat-protection-policy",
             "api-reference/zia/malware-protection-policy",
-            "api-reference/zia/mobile-malware-protection-policy"
+            "api-reference/zia/advanced-settings",
+            "api-reference/zia/mobile-malware-protection-policy",
+            "It would be great if you could at least add the _list_ tools for these endpoints so our process could evaluate all these settings configured in ZIA.",
+            "## Comment (MEMBER, 2026-05-17) Upgrade to v0.12.1. Zscaler DevRel"
           ]
         },
         {
           "source": "mcp-server",
           "path": "CHANGELOG.md",
+          "after": "## 0.12.0 (May 15, 2026)",
           "quotes": [
-            "## 0.12.0 (May 15, 2026)",
             "[Issue #61](https://github.com/zscaler/zscaler-mcp-server/issues/61) — Added **ZIA Advanced Threat Protection (ATP) policy** management tools",
             "Added **ZIA Advanced Threat Protection — Malware Protection Policy** management tools",
             "Added **ZIA Advanced Settings** management tools",

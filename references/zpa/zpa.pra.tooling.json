@@ -165,9 +165,12 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/pra_approval.py",
           "quotes": [
+            "working_hours = body.get(\"working_hours\") or {}",
+            "# omits working hours, default to UTC; the supplied start/end strings",
+            "time_zone = working_hours.get(\"time_zone\") or \"UTC\"",
             "# Only include working hours when explicitly provided. The API rejects a",
             "# partial/empty workingHours object because its sub-fields (start time, etc.)",
-            "time_zone = working_hours.get(\"time_zone\") or \"UTC\""
+            "if working_hours: body[\"workingHours\"] = {"
           ],
           "after": "def add_approval(self, **kwargs)"
         },
@@ -231,9 +234,8 @@
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_pra_approval.py",
           "quotes": [
-            "for approval_ in result: if sorted(approval_.email_ids or []) != sorted(email_ids or []): continue",
-            "if desired_application_ids is not None: current_application_ids = sorted( app.get(\"id\") for app in (approval_.applications or []) if app.get(\"id\") )",
-            "if current_application_ids != sorted(desired_application_ids): continue existing_approval = approval_.as_dict() break"
+            "for approval_ in result: if sorted(approval_.email_ids or []) != sorted(email_ids or []): continue if desired_application_ids is not None: current_application_ids = sorted(",
+            "current_application_ids = sorted( app.get(\"id\") for app in (approval_.applications or []) if app.get(\"id\") ) if current_application_ids != sorted(desired_application_ids): continue existing_approval = approval_.as_dict() break"
           ]
         }
       ],

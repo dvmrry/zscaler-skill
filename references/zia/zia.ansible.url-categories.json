@@ -33,7 +33,7 @@
   ],
   "claims": {
     "incremental-diff": {
-      "statement": "On update, the module compares the current and desired `urls` and `db_categorized_urls` lists and, when either list has additions or removals, sends the removals as a REMOVE_FROM_LIST call and the additions as an ADD_TO_LIST call instead of replacing the category.",
+      "statement": "On update, the module compares the current and desired `urls` and `db_categorized_urls` lists and, when either list has additions or removals, sends the removals as a REMOVE_FROM_LIST call and the additions as an ADD_TO_LIST call, adding or removing only the diff rather than replacing the entire list.",
       "tier": "A",
       "evidence": [
         {
@@ -43,7 +43,11 @@
             "# Use incremental updates: ADD_TO_LIST and/or REMOVE_FROM_LIST",
             "urls_to_add, urls_to_remove = _url_list_diff(current_urls, desired_urls)",
             "db_to_add, db_to_remove = _url_list_diff(current_db_urls, desired_db_urls)",
-            "desired_db_urls = desired_pre.get(\"db_categorized_urls\") or []"
+            "desired_db_urls = desired_pre.get(\"db_categorized_urls\") or []",
+            "if has_adds or has_removes:",
+            "action=\"REMOVE_FROM_LIST\", **remove_payload)",
+            "action=\"ADD_TO_LIST\", **add_payload)",
+            "adding or removing only the diff rather than replacing the entire list."
           ]
         }
       ]
@@ -57,6 +61,7 @@
           "path": "plugins/modules/zia_url_categories.py",
           "quotes": [
             "remove_payload = updated_data.copy()",
+            "# Only include URL fields with items to remove; empty lists could be misinterpreted if urls_to_remove: remove_payload[\"urls\"] = urls_to_remove else: remove_payload.pop(\"urls\", None) if db_to_remove: remove_payload[\"db_categorized_urls\"] = db_to_remove else: remove_payload.pop(\"db_categorized_urls\", None)",
             "remove_payload[\"urls\"] = urls_to_remove",
             "remove_payload.pop(\"urls\", None)",
             "result, _unused, error = client.url_categories.update_url_category(category_id=cat_id, action=\"REMOVE_FROM_LIST\", **remove_payload)",

@@ -100,7 +100,8 @@
             "AWS::IAM::Role"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: at f7725c7 (the repository has no tags), `git ls-files` returns LICENSE, README.md, create_iam_role_and_trust_step_2.yml and permissions_policy_step_1.yml, and `grep -l AWSTemplateFormatVersion $(git ls-files)` returns only the two .yml files."
     },
     "policy-purpose": {
       "statement": "The step 1 policy is described as a customer-managed IAM policy for ZPA Privileged Remote Access (PRA) that grants the necessary permissions for creating and managing disposable jump boxes and other resources.",
@@ -261,12 +262,8 @@
           "source": "zpa-privileged-desktops",
           "path": "permissions_policy_step_1.yml",
           "quotes": [
-            "Sid: \"RunInstancesWithTagRestrictions\"",
-            "\"aws:RequestTag/Name\": \"ZPA-PRA*\"",
-            "Sid: \"AllowInstanceActionsTagBased\"",
-            "- \"ec2:ModifyInstanceAttribute\"",
-            "- \"ec2:TerminateInstances\"",
-            "\"ec2:ResourceTag/Name\": \"ZPA-PRA*\""
+            "Sid: \"RunInstancesWithTagRestrictions\" Effect: \"Allow\" Action: \"ec2:RunInstances\" Resource: - !Sub \"arn:aws:ec2:${TargetRegion}:${TargetAccountId}:instance/*\" Condition: StringLike: \"aws:RequestTag/Name\": \"ZPA-PRA*\"",
+            "Sid: \"AllowInstanceActionsTagBased\" Effect: \"Allow\" Action: - \"ec2:ModifyInstanceAttribute\" - \"ec2:TerminateInstances\" Resource: - !Sub \"arn:aws:ec2:${TargetRegion}:${TargetAccountId}:instance/*\" Condition: StringLike: \"ec2:ResourceTag/Name\": \"ZPA-PRA*\""
           ]
         }
       ]

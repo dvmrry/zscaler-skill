@@ -151,8 +151,8 @@
           "path": "understanding-user-activity-log-fields.json",
           "quotes": [
             "\"SessionID\": \"SqyZIMkg0JTj7EABsvwA\",\"ConnectionID\": \"SqyZIMkg0JTj7EABsvwA,Q+EjXGdrvbF2lPiBbedm\"",
-            "| ConnectionID | The application connection ID",
-            "| SessionID | The TLS session ID"
+            "| ConnectionID | The application connection ID | %[OPT]s %[OPT]j %[OPT]J %[OPT]o |",
+            "| SessionID | The TLS session ID | %[OPT]s %[OPT]j %[OPT]J %[OPT]o |"
           ]
         }
       ],
@@ -278,7 +278,7 @@
       ]
     },
     "pra-file-transfer-json": {
-      "statement": "In the example record PRAFileTransferList and PRASharedUserList are JSON documents carried inside a string value; each file entry has name, action, status, start and end timestamps, an inspected flag, file type, md5, an inspection_verdict that is itself a JSON string, and inspection_time.",
+      "statement": "In the example record PRAFileTransferList and PRASharedUserList are JSON documents carried inside a string value; the first file entry has name, action, status, start and end timestamps, an inspected flag, file type, md5, an inspection_verdict that is itself a JSON string, and inspection_time.",
       "tier": "A",
       "evidence": [
         {
@@ -313,7 +313,8 @@
       "binds": [
         "zpa/user-activity-log#PolicyProcessingTime",
         "zpa/user-activity-log#ConnectionSetupTime"
-      ]
+      ],
+      "conditions": "Absence claim: `grep -o -i '[a-z]*second[a-z]*' understanding-user-activity-log-fields.json` in vendor/zscaler-help (captured 2026-10-18) returns 'microseconds' 19 times, each in another field's row (AppLearnTime, CAProcessingTime, ConnectorZENSetupTime, PolicyProcessingTime, ServerSetupTime and the fourteen Timestamp* rows), and 'second' 4 times, all in the example record's \"less than 1 second\" values; none is in the ConnectionSetupTime row or in the page text."
     },
     "client-zen-private-access": {
       "statement": "ClientZEN is the Public Service Edge for Private Access that received the request from Zscaler Client Connector, while TimestampConnectionStart is stamped when a Public Service Edge or Private Service Edge received the initial request.",

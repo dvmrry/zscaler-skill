@@ -544,10 +544,7 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "quotes": [
-            "// Registry / Windows-ish defaults (still required for macOS bodies — the API echoes them)",
-            "RegistryPath                      string             `json:\"registryPath\"`",
-            "RegistryName                      string             `json:\"registryName\"`",
-            "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`"
+            "// Registry / Windows-ish defaults (still required for macOS bodies — the API echoes them)"
           ]
         },
         {
@@ -555,6 +552,9 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "after": "// Registry / Windows-ish defaults (still required for macOS bodies — the API echoes them)",
           "quotes": [
+            "RegistryPath                      string             `json:\"registryPath\"`",
+            "RegistryName                      string             `json:\"registryName\"`",
+            "InstallSslCertsTop                common.IntOrString `json:\"install_ssl_certs\"`",
             "OverrideWPAD                      int                `json:\"overrideWPAD\"`"
           ]
         },
@@ -572,7 +572,7 @@
       ]
     },
     "ios-comment-vs-tags": {
-      "statement": "The Go SDK's iOS block comment says the password fields are serialized in snake_case, but its struct tags send them in camelCase (`disablePassword`). The Python SDK's iOS UI capture uses the snake_case key `disable_password` in `iosPolicy`, as the comment says.",
+      "statement": "The Go SDK's iOS block comment says the password fields are serialized in snake_case, but its struct tags send them in camelCase (`disablePassword`, `logoutPassword`, `uninstallPassword`). The Python SDK's iOS UI capture uses the snake_case key `disable_password` in `iosPolicy`, as the comment says.",
       "tier": "A",
       "conditions": "Extended per verifier with the iOS UI capture shipped as an SDK test fixture.",
       "evidence": [
@@ -608,7 +608,9 @@
           "path": "zscaler/zcc/services/web_policy/web_policy.go",
           "after": "type IosPolicy struct {",
           "quotes": [
-            "DisablePassword string `json:\"disablePassword\"`"
+            "DisablePassword string `json:\"disablePassword\"`",
+            "LogoutPassword string `json:\"logoutPassword\"`",
+            "UninstallPassword string `json:\"uninstallPassword\"`"
           ]
         }
       ]
@@ -724,7 +726,7 @@
       "derived_from": [
         "zcc.api.forwarding-profile-wire:python-keys-only"
       ],
-      "conditions": "Added per verifier: the serializer copies values as given (python-keys-only), and with the decorator commented out nothing maps the name to a code; not sent.",
+      "conditions": "Added per verifier: the serializer stores a value without converting its type (python-keys-only), and with the decorator commented out nothing maps the name to a code; not sent.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -836,7 +838,7 @@
     "snake-case-top-level": {
       "statement": "The contract's edit body defines three snake_case top-level keys, `pac_url`, `reauth_period` and `device_type`. The Go struct sends these and nine more at the top level that the contract lacks (`exit_password`, `billing_day`, `allowed_apps`, `custom_text`, `bypass_mms_apps`, `quota_in_roaming`, `wifi_ssid`, `bypass_android_apps` and `install_ssl_certs`), and the Python SDK keeps the same keys in snake_case: its `SNAKE_CASE_KEYS` lists the other eleven, and its key converter maps `exit_password` to itself.",
       "tier": "A",
-      "conditions": "Restated per verifier: the earlier statement said the contract and Go agree on three keys, but Go and Python send more. Python's preservation applies on the OneAPI client only (python-legacy-camelcases-web-policy).",
+      "conditions": "Restated per verifier: the earlier statement said the contract and Go agree on three keys, but Go and Python send more. Python's preservation applies on the OneAPI client only (python-legacy-camelcases-web-policy). Absence claim (the contract's only snake_case top-level keys): `jq -r '.paths[\"/papi/public/v1/web/policy/edit\"].put.requestBody.content[\"application/json\"].schema.properties | keys[] | select(test(\"_\"))' automate-zscaler/openapi/zcc.openapi.json` returns exactly three keys, `device_type`, `pac_url` and `reauth_period`.",
       "binds": [
         "zcc/application-profiles#pac_url",
         "zcc/application-profiles#reauth_period"
@@ -981,9 +983,9 @@
       ]
     },
     "ios-top-level": {
-      "statement": "The Go SDK's model says its iOS UI capture carries `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` and related keys at the top level as well as inside `iosPolicy`, with `useTunnelSDK4_3` a JSON number at the top level and a quoted string inside `iosPolicy`. The Python SDK's iOS UI capture has none of `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` or `deviceType` at the top level.",
+      "statement": "The Go SDK's model says its iOS UI capture carries `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` and related keys at the top level as well as inside `iosPolicy`, with `useTunnelSDK4_3` a JSON number at the top level and a quoted string inside `iosPolicy`. The Python SDK's iOS web policy payload fixture (`ios_policy.json`, one of the real payloads its serializer tests use) has none of `ipv6Mode`, `showVPNTunNotification`, `useTunnelSDK4_3` or `deviceType` at the top level.",
       "tier": "A",
-      "conditions": "Narrowed per verifier: restated as the Go model's account of its capture, and the Python iOS capture (a UI capture shipped as an SDK test fixture) added; which of the two the API requires is not shown.",
+      "conditions": "Narrowed per verifier: restated as the Go model's account of its capture, and the Python iOS capture (a UI capture shipped as an SDK test fixture) added; which of the two the API requires is not shown. Narrowed per review: no source calls the Python fixture a UI capture; the SDK's serializer test calls its fixtures real payloads.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -994,6 +996,14 @@
             "showVPNTunNotification",
             "useTunnelSDK4_3",
             "deviceType"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/unit/zcc/test_zcc_serialize.py",
+          "quotes": [
+            "Real payloads are committed under ``tests/unit/zcc/fixtures/web_policy/``",
+            "\"ios_policy.json\","
           ]
         },
         {
@@ -1109,9 +1119,9 @@
       ]
     },
     "read-back": {
-      "statement": "The Go SDK has no get-by-ID call: `GetWebPolicyByID` lists the platform's policies and matches the id, and when a field's JSON type does not fit its struct it returns only id, name, description, device type and active, with a partial-decode error. Its comment says the listing sometimes drops the numeric id of an entry that came from a fresh `/edit` write, and the SDK then fills in the id it was asked for.",
+      "statement": "The Go SDK calls no get-by-ID endpoint: `GetWebPolicyByID` lists the platform's policies and matches the id, and when a field's JSON type does not fit its struct it returns only id, name, description, device type and active, with a partial-decode error. Its comment says the listing sometimes drops the numeric id of an entry that came from a fresh `/edit` write, and the SDK then fills in the id it was asked for.",
       "tier": "A",
-      "conditions": "Restated per verifier: the Go code, not a quoted source, is what lacks a get-by-ID call; the dropped-id remark is the Go comment's, not observed (gap list-id-encoding).",
+      "conditions": "Restated per verifier: the Go code, not a quoted source, is what lacks a get-by-ID call; the dropped-id remark is the Go comment's, not observed (gap list-id-encoding). Absence claim: `grep -n baseWebPolicyEndpoint zscaler/zcc/services/web_policy/web_policy.go` in the Go SDK at v3.8.58 returns the constant (`/zcc/papi/public/v1/web/policy`) and four uses only, `/listByCompany`, `/activate`, `/edit` and `/%d/delete`, and `grep -rn web/policy zscaler/zcc` finds no other endpoint.",
       "evidence": [
         {
           "source": "sdk-go",
@@ -1268,6 +1278,14 @@
           "expect": {
             "type": "integer",
             "format": "int64"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1web~1policy~1edit/put",
+          "expect": {
+            "description": "Adds or updates a policy or app profile for the company by platform (iOS, Android, Windows, macOS, and Linux)."
           }
         },
         {

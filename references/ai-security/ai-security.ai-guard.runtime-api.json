@@ -475,7 +475,7 @@
       ]
     },
     "throttle-metrics": {
-      "statement": "The legacy helper's throttling handler treats a `metric` of `rq` as a request-count limit and `cs` as a content-size limit, sleeps for the longest retry-after value when `auto_retry_on_rate_limit` is on (the default), and makes later requests wait until the recorded limit resets.",
+      "statement": "The legacy helper's throttling handler treats a `metric` of `rq` as a request-count limit and `cs` as a content-size limit and sleeps for the longest retry-after value when `auto_retry_on_rate_limit` is on (the default); it also records, per metric, when that limit resets, and each later request first waits until both recorded resets have passed.",
       "tier": "A",
       "evidence": [
         {
@@ -484,14 +484,19 @@
           "quotes": [
             "auto_retry_on_rate_limit: bool = True,",
             "if metric == \"rq\":",
+            "self._request_count_wait_until = now + wait_seconds",
             "throttle_info.append(f\"Request rate limit (wait {wait_seconds:.1f}s)\")",
             "elif metric == \"cs\":",
+            "self._content_size_wait_until = now + wait_seconds",
             "throttle_info.append(f\"Content size limit (wait {wait_seconds:.1f}s)\")",
             "if self.auto_retry_on_rate_limit and max_wait_seconds > 0:",
+            "# Proactive rate limiting - wait if we know we should from previous responses",
             "self._wait_if_rate_limited()",
             "wait_seconds = (retry_after_millis or 0) / 1000.0",
             "max_wait_seconds = max(max_wait_seconds, wait_seconds)",
-            "time.sleep(max_wait_seconds)"
+            "time.sleep(max_wait_seconds)",
+            "max_wait = max(rq_wait, cs_wait)",
+            "time.sleep(wait_time)"
           ]
         }
       ]
@@ -531,7 +536,7 @@
       ]
     },
     "throttle-hook-skipped": {
-      "statement": "At the pin, a throttled detection response never reaches the helper's handler: the SDK neither sleeps on `retryAfterMillis` nor delays later requests, so a caller has to read `throttlingDetails` and wait itself.",
+      "statement": "At v1.11.3-1-g4f8f54df of the Python SDK, a throttled detection response never reaches the helper's handler: the SDK neither sleeps on `retryAfterMillis` nor delays later requests, so a caller has to read `throttlingDetails` and wait itself.",
       "tier": "B",
       "derived_from": [
         "throttle-hook-name",

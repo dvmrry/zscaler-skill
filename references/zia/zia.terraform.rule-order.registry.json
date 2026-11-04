@@ -804,6 +804,18 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_dlp_rules/casb_dlp_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func GetByRuleID(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int) (*CasbDLPRules, error) {",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"%s/%d?ruleType=%s\", casbDlpRulesEndpoint, ruleID, url.QueryEscape(ruleType))"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zia/services/saas_security_api/casb_malware_rules/casb_malware_rules.go",
           "at": [
             "v3.8.44",
@@ -811,6 +823,18 @@
           ],
           "quotes": [
             "endpoint := fmt.Sprintf(\"%s?ruleType=%s\", casbMalwareRulesEndpoint, url.QueryEscape(ruleType))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/saas_security_api/casb_malware_rules/casb_malware_rules.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func GetByRuleID(ctx context.Context, service *zscaler.Service, ruleType string, ruleID int) (*CasbMalwareRules, error) {",
+          "quotes": [
+            "endpoint := fmt.Sprintf(\"%s/%d?ruleType=%s\", casbMalwareRulesEndpoint, ruleID, url.QueryEscape(ruleType))"
           ]
         },
         {
@@ -849,6 +873,58 @@
             "v4.8.14",
             "v4.8.17",
             "HEAD"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.14"
+          ],
+          "after": "func resourceCasbDlpRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "list, err := casb_dlp_rules.GetByRuleType(ctx, service, req.Type)",
+            "rule, err := casb_dlp_rules.GetByRuleID(ctx, service, req.Type, id)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
+          "after": "func resourceCasbDlpRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "list, err := casb_dlp_rules.GetByRuleType(reorderCtx, service, req.Type)",
+            "rule, err := casb_dlp_rules.GetByRuleID(reorderCtx, service, req.Type, id)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_malware_rules.go",
+          "at": [
+            "v4.8.3",
+            "v4.8.14"
+          ],
+          "after": "func resourceCasbMalwareRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "list, err := casb_malware_rules.GetByRuleType(ctx, service, req.Type)",
+            "rule, err := casb_malware_rules.GetByRuleID(ctx, service, req.Type, id)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_casb_malware_rules.go",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
+          "after": "func resourceCasbMalwareRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "list, err := casb_malware_rules.GetByRuleType(reorderCtx, service, req.Type)",
+            "rule, err := casb_malware_rules.GetByRuleID(reorderCtx, service, req.Type, id)"
           ]
         }
       ],
@@ -1198,6 +1274,7 @@
           "after": "func resourceCloudAppControlRulesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "cloudAppRuleLock.Unlock() startWithoutLocking := time.Now() intendedOrder := req.Order",
+            "req.Order = cloudAppRuleStartingOrder",
             "intendedOrder := req.Order",
             "intendedRank := req.Rank if intendedRank < 7 {",
             "req.Rank = 7",
@@ -1210,6 +1287,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_bandwidth_control_rules.go",
           "quotes": [
+            "resp, err := bandwidth_control_rules.Create(ctx, service, &req) if isStaleOrderError(err) && staleOrderRetries < maxStaleOrderRetries {",
             "if isStaleOrderError(err) && staleOrderRetries < maxStaleOrderRetries {",
             "bandwidthControlStartingOrder = 0",
             "req.Order = order continue }"
@@ -1223,6 +1301,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_cloud_app_control_rules.go",
           "quotes": [
+            "resp, err := cloudappcontrol.Create(ctx, service, req.Type, &req) if isStaleOrderError(err) && staleOrderRetries < maxStaleOrderRetries {",
             "if isStaleOrderError(err) && staleOrderRetries < maxStaleOrderRetries {",
             "cloudAppRuleStartingOrder[req.Type] = 0",
             "req.Order, req.Rank = intendedOrder, intendedRank continue }"
@@ -1242,6 +1321,17 @@
           "at": [
             "v4.8.14"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "CHANGELOG.md",
+          "at": [
+            "v4.8.14"
+          ],
+          "after": "## 4.8.14 (October 21, 2026)",
+          "quotes": [
+            "a write rejected because the rule list changed during the apply, including rules deleted outside Terraform, is retried."
+          ]
         }
       ],
       "upstream": [
@@ -1249,7 +1339,8 @@
           "status": "unfiled",
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "`grep -c isStaleOrderError zia/common.go` returns 0 at v4.8.13 and 3 at v4.8.14, so the stale-order handling is not in the releases before v4.8.14."
     },
     "create-retry-loses-declared-order-sites": {
       "statement": "The same capture-inside-the-loop shape, with a `continue` after it, is in 14 create paths: bandwidth control, CASB DLP, CASB malware, cloud app control, DLP web, endpoint DLP rules and sub-rules, firewall DNS, firewall IPS, forwarding control, NAT control, outbound email DLP, sandbox and URL filtering. The retry is taken on `INVALID_INPUT_ARGUMENT` in all 14, and also on a failed post-POST read in the 7 with an in-loop Read.",
@@ -1359,7 +1450,7 @@
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
         }
       ],
-      "conditions": "Absence claim: at v4.8.17 the only rank assignment in resource_zia_bandwidth_control_rules.go and resource_zia_casb_dlp_rules.go is `req.Order, req.Rank = pos.Order, pos.Rank`, inside each update's own `func(pos OrderRule) error` placement write; the `func(id int, order OrderRule) error` callbacks handed to the reorder engine assign none."
+      "conditions": "Absence claim: at v4.8.17 the only rank assignment in resource_zia_bandwidth_control_rules.go and resource_zia_casb_dlp_rules.go is `req.Order, req.Rank = pos.Order, pos.Rank`, inside each update's own `func(pos OrderRule) error` placement write; the `func(id int, order OrderRule) error` callbacks handed to the reorder engine assign none. `grep -n '\\.Rank = \\|\\.Rank, '` over zia/resource_zia_bandwidth_control_rules.go and zia/resource_zia_casb_dlp_rules.go at v4.8.3 returns only format arguments in bandwidth control (`req.Rank` in a create error message, `r.Rank` in the order-versus-rank wording helper) and nothing in CASB DLP; at v4.8.17 it adds only `req.Order, req.Rank = pos.Order, pos.Rank` in each file."
     },
     "rank-mismatch-never-repaired": {
       "statement": "So when a registered bandwidth control or CASB DLP rule is at its declared order but not its declared rank, the worker reports a PUT each pass, no write happens, and the rank is never corrected. The pass is never clean; with the v4.8.3 worker nothing ends the cycle, and from v4.8.7 only the oscillation breaker does, abandoning the cycle with a WARN log and no error.",

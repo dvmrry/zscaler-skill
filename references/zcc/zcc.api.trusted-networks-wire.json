@@ -53,7 +53,7 @@
       "text": "The v1 `conditionType` is a string in the contract and an integer in the Go SDK {{divergence:condition-type-wire-type}}. Which code means All is open in [[zcc.trusted-networks.object:condition-type-values]]."
     },
     {
-      "text": "{{mutation-response}} {{error-code}} {{delete-missing-silent}} The Python create returns that acknowledgement as its result: [[zcc.sdk-python.return-shapes:add-result-has-no-id]]."
+      "text": "{{mutation-response}} {{error-code}} {{delete-missing-silent}} {{delete-missing-reports-success}} The Python create returns that acknowledgement as its result: [[zcc.sdk-python.return-shapes:add-result-has-no-id]]."
     },
     {
       "heading": "v2"
@@ -383,8 +383,15 @@
         {
           "source": "sdk-python",
           "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+          "after": "webTrustedNetwork/create response:",
           "quotes": [
-            "string: \"{\\n  \\\"conditionType\\\" : 0,\\n  \\\"active\\\" : false\\n}\"",
+            "string: \"{\\n  \\\"conditionType\\\" : 0,\\n  \\\"active\\\" : false\\n}\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "tests/integration/zcc/cassettes/TestTrustedNetworks.yaml",
+          "quotes": [
             "uri: https://easm.test.zscaler.com/zcc/papi/public/v1/webTrustedNetwork/create"
           ]
         },
@@ -425,20 +432,36 @@
       ]
     },
     "error-code": {
-      "statement": "The Go SDK treats a mutation as failed only when `errorCode` is non-empty and not \"0\".",
+      "statement": "The Go SDK's trusted network create and update return an error when the mutation response's `errorCode` is non-empty and not \"0\"; an empty or \"0\" `errorCode` passes that check whatever `success` says.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
           "quotes": [
-            "if r.ErrorCode != \"\" && r.ErrorCode != \"0\" {"
+            "func validateTrustedNetworkMutationResponse(r TrustedNetworkMutationResponse) error { if r.ErrorCode != \"\" && r.ErrorCode != \"0\" { return fmt.Errorf(\"trusted network mutation failed: errorCode=%q success=%q\", r.ErrorCode, r.Success) } return nil }"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "func CreateTrustedNetwork(",
+          "quotes": [
+            "if err := validateTrustedNetworkMutationResponse(apiResp); err != nil {"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network/trusted_network.go",
+          "after": "func UpdateTrustedNetwork(",
+          "quotes": [
+            "if err := validateTrustedNetworkMutationResponse(apiResp); err != nil {"
           ]
         }
       ]
     },
     "delete-missing-silent": {
-      "statement": "Deleting a v1 trusted network ID that does not exist returned HTTP 200 with `{\"success\" : \"false\", \"errorCode\" : \"3005\"}` in a recorded response, and the Go `DeleteTrustedNetwork` passes no response target and returns success whenever the request itself did not fail, so such a failure is silent in Go.",
+      "statement": "Deleting a v1 trusted network ID that does not exist returned HTTP 200 with `{\"success\" : \"false\", \"errorCode\" : \"3005\"}` in a recorded response, and the Go `DeleteTrustedNetwork` passes no response target and returns success whenever the request itself did not fail.",
       "tier": "A",
       "conditions": "Added per verifier from recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette); the HTTP 200 is the recording's status line. The Go half is read from the code, not run.",
       "evidence": [
@@ -476,6 +499,14 @@
           ]
         }
       ]
+    },
+    "delete-missing-reports-success": {
+      "statement": "The Go SDK therefore reports success when deleting a trusted network ID that does not exist.",
+      "tier": "B",
+      "derived_from": [
+        "delete-missing-silent"
+      ],
+      "conditions": "Follows from delete-missing-silent: the recorded delete of a missing ID answered HTTP 200 with `success` \"false\", and `DeleteTrustedNetwork` decodes no body. It rests on the request path raising no error for an HTTP 200 whose body reports failure: `grep -rn -E '\"success\"|errorCode|ErrorCode' zscaler/*.go zscaler/zcc/*.go` in the Go SDK at v3.8.58 returns nothing, so neither `NewZccRequestDo` and `ExecuteRequest` nor the legacy client reads the body's `success` or `errorCode`. Not run against the API; the recording is from one test tenant (Python SDK cassette)."
     }
   },
   "divergences": {

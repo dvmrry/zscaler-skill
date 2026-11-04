@@ -180,7 +180,7 @@
       ]
     },
     "gwlb-endpoint-per-subnet": {
-      "statement": "The reference modules create one GWLB endpoint per listed subnet, and the GWLB examples place one endpoint in each Cloud Connector subnet with workload routes pointing at the endpoint in the same AZ.",
+      "statement": "The reference modules create one GWLB endpoint per listed subnet, and the `base_cc_gwlb`, `base_cc_gwlb_zpa`, `base_cc_gwlb_asg` and `base_cc_gwlb_asg_zpa` examples place one endpoint in each Cloud Connector subnet with workload routes pointing at the endpoint in the same AZ.",
       "tier": "A",
       "evidence": [
         {
@@ -193,6 +193,27 @@
         {
           "source": "tfmod-aws-cloud-connector",
           "path": "examples/base_cc_gwlb/README.md",
+          "quotes": [
+            "2 GWLB Endpoints (1 in each Cloud Connector subnet); workload private subnet routes pointing to the GWLB Endpoint in their same AZ"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb_zpa/README.md",
+          "quotes": [
+            "2 GWLB Endpoints (1 in each Cloud Connector subnet); workload private subnet routes pointing to the GWLB Endpoint in their same AZ"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb_asg/README.md",
+          "quotes": [
+            "2 GWLB Endpoints (1 in each Cloud Connector subnet); workload private subnet routes pointing to the GWLB Endpoint in their same AZ"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_cc_gwlb_asg_zpa/README.md",
           "quotes": [
             "2 GWLB Endpoints (1 in each Cloud Connector subnet); workload private subnet routes pointing to the GWLB Endpoint in their same AZ"
           ]
@@ -234,7 +255,7 @@
       ]
     },
     "legacy-lambda-failover": {
-      "statement": "The deprecated HA examples deploy a Lambda that probes each Cloud Connector's HTTP probe port and fails workload route tables over between two Cloud Connectors; its IAM policy allows ec2:ReplaceRoute only on resources whose Name tag matches the deployment's route-table pattern.",
+      "statement": "The deprecated HA examples (`base_2cc`, `base_2cc_zpa`, which builds on it, and `cc_ha`, where Lambda HA failover is a toggle) deploy a Lambda that probes each Cloud Connector's HTTP probe port and fails workload route tables over between two Cloud Connectors; its IAM policy allows ec2:ReplaceRoute only on resources whose Name tag matches the deployment's route-table pattern.",
       "tier": "A",
       "evidence": [
         {
@@ -252,6 +273,16 @@
           "path": "examples/base_2cc/README.md",
           "quotes": [
             "with Lambda configured for HA failover of workload route tables between the two Cloud Connectors"
+          ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/README.md",
+          "quotes": [
+            "base_2cc (**deprecated**): Everything from base_1cc + Creates a second Cloud Connector in a new subnet/AZ w/ Lambda for HA failover of workload route tables",
+            "base_2cc_zpa (**deprecated**): Everything from Base_2cc",
+            "cc_ha (**deprecated**): Creates 1 new VPC",
+            "toggle ZPA/R53 and Lambda HA failover features"
           ]
         }
       ]

@@ -107,7 +107,7 @@
       ]
     },
     "nat-and-ips-rule-caps": {
-      "statement": "NAT Control is capped at 1,023 rules, and IPS rules share the 1,024-rule bucket for DLP, IPS and other policies, which the Zscaler Account team may raise to 2,048.",
+      "statement": "NAT Control is capped at 1,023 rules per organization, and IPS Control policy rules fall under the \"All Other Policy Rules\" limit of 1,024 rules (listed with DLP and Inline Web DLP), which the Zscaler Account team may raise to 2,048.",
       "tier": "A",
       "binds": [
         "zia/nat-control-rules",
@@ -125,7 +125,7 @@
       ]
     },
     "per-rule-identity-caps": {
-      "statement": "Per rule, on any policy: up to 32 users, 32 groups, 32 departments, 32 locations, 32 location groups, 8 times, 64 devices, 8 device groups and 8 workload groups.",
+      "statement": "The help's limits table gives, for all policy rule types, per rule: up to 32 users, 32 groups, 32 departments, 32 locations, 32 location groups, 8 times, 64 devices, 8 device groups and 8 workload groups.",
       "tier": "A",
       "binds": [
         "zia/firewall-filtering-rules#users",
@@ -143,6 +143,7 @@
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
           "quotes": [
+            "All Policy Rule Types:",
             "Users per Rule | 32",
             "| Groups per Rule | 32 groups |",
             "Departments per Rule | 32",
@@ -236,8 +237,25 @@
             "\"departments\": setIDsSchemaTypeCustom(nil,",
             "\"location_groups\": setIDsSchemaTypeCustom(nil,"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "after": "func setIDsSchemaTypeCustom(maxItems *int, desc string) *schema.Schema {",
+          "quotes": [
+            "if maxItems != nil && *maxItems > 0 { ids.MaxItems = *maxItems }"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "after": "func setIdNameSchemaCustom(maxItems int, description string) *schema.Schema {",
+          "quotes": [
+            "MaxItems: maxItems,"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -c MaxItems zia/resource_zia_firewall_filtering_rules.go` at v4.8.17 returns 0, so the caps on these fields come only from the first argument of the common.go schema helpers, and `setIDsSchemaTypeCustom` sets `MaxItems` on the ID set only when that argument is non-nil and positive."
     }
   },
   "divergences": {

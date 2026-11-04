@@ -30,7 +30,7 @@
     },
     {
       "label": "Endpoint.",
-      "text": "{{https-only-urls}}"
+      "text": "{{https-only-urls}} {{http-url-rejected-before-api}}"
     },
     {
       "label": "Authentication.",
@@ -41,7 +41,8 @@
     {
       "do": "Whether a feed's destination and authentication URLs use HTTPS, which the provider validates before calling the API.",
       "uses": [
-        "https-only-urls"
+        "https-only-urls",
+        "http-url-rejected-before-api"
       ]
     },
     {
@@ -53,9 +54,16 @@
   ],
   "claims": {
     "https-only-urls": {
-      "statement": "The Terraform provider validates a Cloud NSS feed's connection_url and authentication_url as HTTPS URLs, so an http endpoint is rejected before the API is called.",
+      "statement": "The Terraform provider's Cloud NSS feed resource validates connection_url and authentication_url with validation.IsURLWithHTTPS.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_cloud_nss_server.go",
+          "quotes": [
+            "func resourceCloudNSSFeed() *schema.Resource {"
+          ]
+        },
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_cloud_nss_server.go",
@@ -74,6 +82,14 @@
           "after": "\"authentication_url\": {"
         }
       ]
+    },
+    "http-url-rejected-before-api": {
+      "statement": "So a Cloud NSS feed whose connection_url or authentication_url is an http URL is rejected by the provider before the API is called.",
+      "tier": "B",
+      "derived_from": [
+        "https-only-urls"
+      ],
+      "conditions": "Follows from https-only-urls: both attributes take validation.IsURLWithHTTPS as their validator. That Terraform runs a schema attribute's validator while validating the configuration, before a create or update reaches the API, and that IsURLWithHTTPS rejects an http scheme, rest on terraform-plugin-sdk behavior, which no registered source states."
     },
     "oauth-fields": {
       "statement": "A Cloud NSS feed has an oauth_authentication switch, and its authentication URL is described as applying when the SIEM type is Azure Sentinel.",

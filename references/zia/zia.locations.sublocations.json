@@ -184,7 +184,7 @@
       "conditions": "The Ansible comment states the listing behavior as a code-level fact; the OpenAPI document does not say it. A provider or script that infers an absent sublocation from the top-level list will try to recreate it."
     },
     "other-auto-created": {
-      "statement": "After the first sublocation is added to a location, the service creates a sublocation named `other` for traffic from that location whose IP address is not in any defined sublocation; with IPv6 enabled on the location it also creates `other6`. Both can be renamed, and the API flags them with `otherSubLocation` and `other6SubLocation`.",
+      "statement": "After a sublocation is added to a location, the service creates a sublocation named `other` for traffic from that location whose IP address is not in any defined sublocation; with IPv6 enabled on the location it also creates `other6`. Both can be renamed, and the API flags them with `otherSubLocation` and `other6SubLocation`.",
       "tier": "A",
       "evidence": [
         {
@@ -203,7 +203,8 @@
           "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/otherSubLocation",
           "expect": {
             "x-applicableTo": "SUB",
-            "type": "boolean"
+            "type": "boolean",
+            "description": "If set to true, indicates that this is a default sub-location created  by the Zscaler service to accommodate IPv4 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name <b>Other</b> and it can be renamed, if required."
           }
         },
         {
@@ -212,7 +213,8 @@
           "pointer": "/paths/~1locations/get/responses/200/content/application~1json/schema/items/properties/other6SubLocation",
           "expect": {
             "x-applicableTo": "SUB",
-            "type": "boolean"
+            "type": "boolean",
+            "description": "If set to true, indicates that this is a default sub-location created by the Zscaler service to accommodate IPv6 addresses that are not part of any user-defined sub-locations. The default sub-location is created with the name <b>Other6</b> and it can be renamed, if required. This field is applicable only if <code>ipv6Enabled</code> is set is <code>true</code>."
           }
         }
       ],

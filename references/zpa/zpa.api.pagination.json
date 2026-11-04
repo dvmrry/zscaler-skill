@@ -61,7 +61,7 @@
     },
     {
       "label": "Go list helpers.",
-      "text": "{{go-requests-500-per-page}} {{partial-search-first-two-words}} {{python-search-no-retry}} {{remove-cloud-suffix-whitespace}} The effect on posture profile and trusted network lookups is in [[zpa.posture-profiles.object-model]] and [[zpa.trusted-networks.object]]. The name sanitizer and the microtenant-name resolver are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.data-source-selection]]."
+      "text": "{{go-requests-500-per-page}} {{go-default-page-size-unused}} {{partial-search-first-two-words}} {{python-search-no-retry}} {{remove-cloud-suffix-whitespace}} The effect on posture profile and trusted network lookups is in [[zpa.posture-profiles.object-model]] and [[zpa.trusted-networks.object]]. The name sanitizer and the microtenant-name resolver are in [[zpa.sdk-go.service-defects]] and [[zpa.terraform.data-source-selection]]."
     },
     {
       "label": "MCP server.",
@@ -102,7 +102,7 @@
       ]
     },
     {
-      "do": "Whether a request count for a list lookup should be estimated at 500 items per page.",
+      "do": "Whether a request count for a Go lookup that lists through GetAllPagesGeneric should be estimated at 500 items per page.",
       "uses": [
         "go-requests-500-per-page"
       ]
@@ -252,23 +252,34 @@
       ]
     },
     "go-requests-500-per-page": {
-      "statement": "The Go ZPA list helpers request every page with a page size of 500, the API's documented maximum, whereas the API's default page size when none is sent is 20. A Go caller therefore never sees the default page size, and a posture profile or trusted network lookup by UDID or network id pages through the whole tenant list at 500 per request.",
+      "statement": "The Go ZPA GetAllPagesGeneric helper requests every page with DefaultPageSize 500, the maximum the API documents for pagesize, whereas the API's default when none is sent is 20; a posture profile lookup by UDID or a trusted network lookup by network id calls it with an empty search, so it pages through the whole list at 500 per request.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/common/common.go",
           "quotes": [
-            "DefaultPageSize = 500"
+            "DefaultPageSize = 500",
+            "PageSize int `json:\"pagesize,omitempty\" url:\"pagesize,omitempty\"`"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/common/common.go",
           "quotes": [
-            "totalPages, result, resp, err := getAllPagesGeneric[T](ctx, client, relativeURL, 1, DefaultPageSize, Filter{Search: searchQuery})"
+            "totalPages, result, resp, err := getAllPagesGeneric[T](ctx, client, relativeURL, 1, DefaultPageSize, Filter{Search: searchQuery})",
+            "for page := 2; page <= totalPages; page++ { totalPages, l, resp, err = getAllPagesGeneric[T](ctx, client, relativeURL, page, DefaultPageSize, Filter{Search: searchQuery})"
           ],
           "after": "func GetAllPagesGeneric[T any]("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "func getAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, page, pageSize int, filters Filter) (int, []T, *http.Response, error) { var paged struct {",
+          "quotes": [
+            "PageSize: pageSize,",
+            "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
+          ]
         },
         {
           "source": "api-specs",
@@ -306,6 +317,14 @@
         }
       ]
     },
+    "go-default-page-size-unused": {
+      "statement": "A Go caller that lists through GetAllPagesGeneric therefore never gets the API's default page size of 20.",
+      "tier": "B",
+      "derived_from": [
+        "go-requests-500-per-page"
+      ],
+      "conditions": "Follows from go-requests-500-per-page: GetAllPagesGeneric passes DefaultPageSize (500) as the pagesize of its first and every later page request, and the API documents 20 as the page size only when none is provided. No source shows what page size the API applies to a request that sends 500."
+    },
     "partial-search-first-two-words": {
       "statement": "When the first list request with a multi-word search returns any error, GetAllPagesGenericWithCustomFilters retries once with only the first two words of the search value, and the retry's result and error replace the first attempt's. A name lookup can therefore succeed on a shortened search after the full-name search failed, with the first error discarded.",
       "tier": "A",
@@ -325,7 +344,7 @@
       "conditions": "The retry is made for any error from the first request, not only a not-found or search error. Which ZPA responses reject a multi-word search is not established."
     },
     "python-search-no-retry": {
-      "statement": "The Python SDK does not retry a failed list request with a shortened search: list_machine_groups, for example, sends one request with the caller's query parameters and returns the executor's error to the caller.",
+      "statement": "The Python SDK does not retry a failed list request with a shortened search: list_machine_groups, for example, builds one request with the caller's query parameters and returns the executor's error to the caller.",
       "tier": "A",
       "evidence": [
         {
@@ -339,10 +358,10 @@
           "after": "def list_machine_groups(self, query_params: Optional[dict] = None)"
         }
       ],
-      "conditions": "Absence claim: `grep -rnE \"tokens\\[:2\\]|split\\(\\)\\[:2\\]|first two words\" zscaler/zpa` in the Python SDK at v1.11.3-1-g4f8f54df returned no matches (a search for \"partial\" matched only two comments about `workingHours` in pra_approval.py), so no ZPA module shortens a search; `list_machine_groups` itself is quoted."
+      "conditions": "Absence claim: `grep -rnE \"tokens\\[:2\\]|split\\(\\)\\[:2\\]|first two words\" zscaler/zpa` in the Python SDK at v1.11.3-1-g4f8f54df returned no matches (a search for \"partial\" matched only two comments about `workingHours` in pra_approval.py), so no ZPA module shortens a search; `list_machine_groups` itself is quoted. In the executor, `grep -n -i 'retry\\|params\\[\"search\"\\]' zscaler/request_executor.py` at v1.11.3-1-g4f8f54df finds the search rewritten only to `name+EQ+<value>` when it carries no filter operator, and retries (a ZIA 409 edit lock; statuses 429, 500, 502, 503 and 504) that re-send the same request through `fire_request_helper`."
     },
     "remove-cloud-suffix-whitespace": {
-      "statement": "RemoveCloudSuffix drops a trailing parenthesised token of letters, digits, hyphen, underscore and dot when it is preceded by one or more whitespace characters of any kind (tab included) and followed by optional whitespace, then trims only literal spaces from the result.",
+      "statement": "RemoveCloudSuffix drops a trailing parenthesised token of letters, digits, hyphen, underscore and dot when it is preceded by one or more characters matching `\\s` (tab included) and followed by optional `\\s` characters, then trims only literal spaces from the result.",
       "tier": "A",
       "evidence": [
         {

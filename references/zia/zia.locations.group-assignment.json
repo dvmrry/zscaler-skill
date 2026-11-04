@@ -206,7 +206,7 @@
       ]
     },
     "tf-exclusive-enforced-one-side": {
-      "statement": "Terraform's docs say `dynamic_location_groups` and `static_location_groups` cannot be set when `exclude_from_dynamic_groups` and/or `exclude_from_manual_groups` is true; the provider enforces only the manual side, with a plan-time error when `static_location_groups` is set alongside `exclude_from_manual_groups = true`. The dynamic-side check is commented out in the source.",
+      "statement": "Terraform's docs say `dynamic_location_groups` and `static_location_groups` cannot be set when `exclude_from_dynamic_groups` and/or `exclude_from_manual_groups` is true; the provider enforces only the manual side, with a plan-time error when `exclude_from_manual_groups` is true and the plan changes `static_location_groups` to a non-empty set. The dynamic-side check is commented out in the source.",
       "tier": "A",
       "evidence": [
         {
@@ -223,6 +223,7 @@
             "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {",
             "return errors.New(\"static_location_groups cannot be set when exclude_from_manual_groups is set to true\")",
             "if d.Get(\"exclude_from_manual_groups\").(bool) && d.HasChange(\"static_location_groups\") {",
+            "if v, ok := d.GetOk(\"static_location_groups\"); ok && len(v.(*schema.Set).List()) > 0 {",
             "// return errors.New(\"dynamic_location_groups cannot be set when exclude_from_dynamic_groups is set to true\")"
           ]
         }
@@ -265,9 +266,12 @@
           "path": "plugins/modules/zia_location_management.py",
           "quotes": [
             "\"exclude_from_dynamic_groups\", \"exclude_from_manual_groups\",",
+            "for attr in computed_values:",
+            "normalized.pop(attr, None)",
             "desired_location = normalize_location(location_mgmt)",
             "current_location = normalize_location(existing_location) if existing_location else {}",
-            "# Compare differences"
+            "# Compare differences",
+            "for key in desired_location:"
           ],
           "after": "Normalize location data by removing computed values."
         }

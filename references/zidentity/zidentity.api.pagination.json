@@ -250,6 +250,81 @@
               "records"
             ]
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "results_total",
+              "pageOffset",
+              "pageSize",
+              "next_link",
+              "prev_link",
+              "records"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "results_total",
+              "pageOffset",
+              "pageSize",
+              "next_link",
+              "prev_link",
+              "records"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}~1users/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "results_total",
+              "pageOffset",
+              "pageSize",
+              "next_link",
+              "prev_link",
+              "records"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "results_total",
+              "pageOffset",
+              "pageSize",
+              "next_link",
+              "prev_link",
+              "records"
+            ]
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1groups/get/responses/200/content/application~1json/schema/items",
+          "expect": {
+            "required": [
+              "results_total",
+              "pageOffset",
+              "pageSize",
+              "next_link",
+              "prev_link",
+              "records"
+            ]
+          }
         }
       ]
     },
@@ -264,6 +339,51 @@
           "expect": {
             "type": "string",
             "description": "URL link to the next page of resource servers, if available. Helps to navigate through paginated results."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users/get/responses/200/content/application~1json/schema/items/properties/next_link",
+          "expect": {
+            "type": "string",
+            "description": "URL link to the next page of users records, if available. Helps to navigate through paginated results."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/get/responses/200/content/application~1json/schema/items/properties/next_link",
+          "expect": {
+            "type": "string",
+            "description": "URL link to the next page of group records, if available. Helps to navigate through paginated results."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1api-clients/get/responses/200/content/application~1json/schema/items/properties/next_link",
+          "expect": {
+            "type": "string",
+            "description": "URL link to the next page of API client records, if available. Helps to navigate through paginated results."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}~1users/get/responses/200/content/application~1json/schema/items/properties/next_link",
+          "expect": {
+            "type": "string",
+            "description": "URL link to the next page of user detail records, if available. Helps to navigate through paginated results."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1users~1{id}~1groups/get/responses/200/content/application~1json/schema/items/properties/next_link",
+          "expect": {
+            "type": "string",
+            "description": "URL link to the next page of the records, if available. Helps to navigate through paginated results."
           }
         }
       ]
@@ -286,6 +406,7 @@
           "path": "zscaler/ziam/services/common/common.go",
           "after": "func ReadAllPagesWithPagination[T any]",
           "quotes": [
+            "if queryParams == nil {",
             "Limit: DefaultPaginationOptions.DefaultPageSize,",
             "filtered, err := zscaler.ApplyJMESPathFromContext(ctx, allRecords)"
           ]
@@ -306,6 +427,7 @@
             "pageSize = DefaultPaginationOptions.DefaultPageSize",
             "DefaultPageSize: 100,",
             "if pageSize > DefaultPaginationOptions.MaxPageSize {",
+            "pageSize = DefaultPaginationOptions.MaxPageSize",
             "if limit > 0 && limit <= DefaultPaginationOptions.MaxPageSize {",
             "if offset >= 0 {",
             "func (p *PaginationQueryParams) WithLimit(limit int) *PaginationQueryParams {",

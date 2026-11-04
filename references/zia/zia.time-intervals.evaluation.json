@@ -39,7 +39,7 @@
   ],
   "prose": [
     {
-      "text": "{{outside-window-not-triggered}} That matters for rule order, because the rule leaves the decision to whatever comes after it. {{falls-through}} For the order mechanics see [[zia.url-filtering.rule-order]]; for which clock decides \"outside\", see [[zia.time-intervals.timezone]]."
+      "text": "{{outside-window-not-triggered}} {{outside-window-generalized}} That matters for rule order, because the rule leaves the decision to whatever comes after it. {{falls-through}} For the order mechanics see [[zia.url-filtering.rule-order]]; for which clock decides \"outside\", see [[zia.time-intervals.timezone]]."
     },
     {
       "label": "Holidays and one-off closures.",
@@ -66,23 +66,35 @@
   ],
   "claims": {
     "outside-window-not-triggered": {
-      "statement": "A rule with a time interval does not trigger when the resolved time falls outside the interval.",
+      "statement": "In the Time Intervals help example, a remote user's request is evaluated at the Public Service Edge's time (6:30 PM in Paris), which is outside the rule's Monday-to-Friday 9:00 AM - 5:00 PM interval, so the policy is not triggered and the user is allowed.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "about-time-intervals.json",
           "quotes": [
+            "This policy is set to block the Social Networking URL category Monday through Friday from 9:00 AM - 5:00 PM.",
+            "This remote user is allowed to access Facebook.",
+            "Therefore, the Public Service Edge's time zone is used for policy execution.",
             "Because the Public Service Edge used is in Paris and the time in Paris is 6:30 PM, the policy is not triggered."
           ]
         }
       ]
+    },
+    "outside-window-generalized": {
+      "statement": "A rule with a time interval does not trigger when the resolved time falls outside the interval.",
+      "tier": "B",
+      "derived_from": [
+        "outside-window-not-triggered"
+      ],
+      "conditions": "Generalized from the help page's remote-user example (outside-window-not-triggered); the page states no general rule. The same page's first example describes a known-location user at 5:30 PM London time as blocked by the 9:00 AM - 5:00 PM rule, which the general rule does not explain."
     },
     "falls-through": {
       "statement": "An out-of-window rule yields no verdict of its own: evaluation continues down the ordered list, so an allow rule limited to business hours stops allowing after hours and the outcome depends on the rules below it, ending at the default rule.",
       "tier": "B",
       "derived_from": [
         "outside-window-not-triggered",
+        "outside-window-generalized",
         "zia.url-filtering.rule-order:first-match"
       ],
       "conditions": "Follows from first-match evaluation as documented for URL Filtering; the same behavior for other rule types was not read."

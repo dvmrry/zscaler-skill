@@ -142,18 +142,22 @@
       ]
     },
     "legacy-retry-statuses": {
-      "statement": "The legacy Go ZTW client's retry callback retries every Too Many Requests response (`StatusTooManyRequests`). An Unauthorized, Conflict or Precondition Failed response (`StatusUnauthorized`, `StatusConflict`, `StatusPreconditionFailed`) is retried only when its JSON body carries one of these markers: code `EDIT_LOCK_NOT_AVAILABLE`, message \"Resource Access Blocked\", or code `UNEXPECTED_ERROR` with the message \"Failed during enter Org barrier\" or \"Request processing failed, possibly because an expected precondition was not met\".",
+      "statement": "The legacy Go ZTW client's retry callback (`checkRetry`) retries any Too Many Requests response (`StatusTooManyRequests`, the one code `getRetryOnStatusCodes` returns) while the request context is live. For an Unauthorized, Conflict or Precondition Failed response (`StatusUnauthorized`, `StatusConflict`, `StatusPreconditionFailed`) it reads the JSON body and retries when it carries one of these markers: code `EDIT_LOCK_NOT_AVAILABLE`, message \"Resource Access Blocked\", or code `UNEXPECTED_ERROR` with the message \"Failed during enter Org barrier\" or \"Request processing failed, possibly because an expected precondition was not met\"; any other such response falls through to retryablehttp's `DefaultRetryPolicy`.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/ztw/v2_client.go",
           "quotes": [
-            "return []int{http.StatusTooManyRequests}",
+            "retryableClient.CheckRetry = checkRetry",
+            "if ctx.Err() != nil {\n\t\treturn false, ctx.Err()",
+            "func getRetryOnStatusCodes() []int {\n\treturn []int{http.StatusTooManyRequests}",
+            "if resp != nil && containsInt(getRetryOnStatusCodes(), resp.StatusCode) {",
             "if resp != nil && (resp.StatusCode == http.StatusPreconditionFailed || resp.StatusCode == http.StatusConflict || resp.StatusCode == http.StatusUnauthorized) {",
             "if apiRespErr.Code == \"UNEXPECTED_ERROR\" && apiRespErr.Message == \"Failed during enter Org barrier\" ||",
             "apiRespErr.Code == \"EDIT_LOCK_NOT_AVAILABLE\" || apiRespErr.Message == \"Resource Access Blocked\" ||",
-            "apiRespErr.Code == \"UNEXPECTED_ERROR\" && apiRespErr.Message == \"Request processing failed, possibly because an expected precondition was not met\" {"
+            "apiRespErr.Code == \"UNEXPECTED_ERROR\" && apiRespErr.Message == \"Request processing failed, possibly because an expected precondition was not met\" {",
+            "return retryablehttp.DefaultRetryPolicy(ctx, resp, err)"
           ]
         }
       ]

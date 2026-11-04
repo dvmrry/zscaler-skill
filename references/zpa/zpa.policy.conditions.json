@@ -90,13 +90,13 @@
       ]
     },
     {
-      "do": "For a Chrome rule, check that CHROME_POSTURE_PROFILE uses values and CHROME_ENTERPRISE uses entry_values with lhs managed.",
+      "do": "For a Chrome rule checked by the Terraform provider's v2 policy validator, check that CHROME_POSTURE_PROFILE uses values and CHROME_ENTERPRISE uses entry_values with lhs managed.",
       "uses": [
         "chrome-operand-forms"
       ]
     },
     {
-      "do": "Check whether the rule has no conditions at all, since it then applies to everything of its policy type.",
+      "do": "Check whether the rule has no conditions at all, since an access rule then applies to all users and applications, a forwarding rule globally, and a timeout rule as the default timeout for all users and applications.",
       "uses": [
         "empty-conditions-match-all",
         "blank-criteria-mean-any"
@@ -133,7 +133,7 @@
           "source": "zscaler-help",
           "path": "zpa-access-policy-20260909.json",
           "quotes": [
-            "Private Access uses an explicit OR Boolean operator between application segment and segment group criteria."
+            "Private Access uses an explicit OR Boolean operator between application segment and segment group criteria. When a user requests access to an application, the policy rule is evaluated to check if an application segment OR its segment group are present."
           ]
         }
       ]
@@ -195,6 +195,7 @@
           "source": "mcp-server",
           "path": "skills/zpa/create-access-policy-rule/SKILL.md",
           "quotes": [
+            "Access policies use the v2 condition format",
             "Each condition block must contain a **single object type**. Multiple condition blocks are ANDed together. Within a condition block, multiple operands or entry_values are ORed."
           ]
         }
@@ -266,13 +267,15 @@
       ]
     },
     "chrome-operand-forms": {
-      "statement": "The Terraform provider requires CHROME_POSTURE_PROFILE operands to carry a profile ID in values, and CHROME_ENTERPRISE operands to carry entry_values with lhs managed and rhs true or false.",
+      "statement": "The Terraform provider's v2 policy validator (`ValidatePolicyRuleConditions`) requires CHROME_POSTURE_PROFILE operands to carry a profile ID in values, and CHROME_ENTERPRISE operands to carry entry_values with lhs managed and rhs true or false.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
           "quotes": [
+            "case \"CHROME_POSTURE_PROFILE\":\nif !valuesPresent || valuesSet.Len() == 0 {",
             "return fmt.Errorf(\"a Chrome Posture Profile ID must be provided when object_type = CHROME_POSTURE_PROFILE\")",
             "return fmt.Errorf(\"entry_values must be provided for CHROME_ENTERPRISE object_type\")",
             "return fmt.Errorf(\"LHS must be 'managed' for CHROME_ENTERPRISE object_type\")",
@@ -282,7 +285,7 @@
       ]
     },
     "empty-conditions-match-all": {
-      "statement": "A rule with no conditions applies to everything of its policy type: an access rule to all users and applications, a forwarding rule globally (a global bypass if the action is BYPASS), and a timeout rule as the default for all users and applications.",
+      "statement": "An access rule with no conditions applies to all users and all applications, a forwarding rule with no conditions applies globally (a global bypass if the action is BYPASS), and a timeout rule with no conditions applies as the default timeout for all users and applications.",
       "tier": "A",
       "evidence": [
         {

@@ -117,17 +117,17 @@
           "path": "cli/ztcActivator.go",
           "quotes": [
             "useLegacy := strings.ToLower(os.Getenv(\"ZSCALER_USE_LEGACY_CLIENT\")) == \"true\"",
-            "username := getEnvVarOrFail(\"ZTW_USERNAME\")",
+            "if useLegacy { log.Printf(\"[INFO] Using Legacy Client mode\") username := getEnvVarOrFail(\"ZTW_USERNAME\")",
             "password := getEnvVarOrFail(\"ZTW_PASSWORD\")",
             "apiKey := getEnvVarOrFail(\"ZTW_API_KEY\")",
             "cloud := getEnvVarOrFail(\"ZTW_CLOUD\")",
-            "clientID := getEnvVarOrFail(\"ZSCALER_CLIENT_ID\")",
+            "} else { log.Printf(\"[INFO] Using OneAPI Client mode\") clientID := getEnvVarOrFail(\"ZSCALER_CLIENT_ID\")",
             "clientSecret := getEnvVarOrFail(\"ZSCALER_CLIENT_SECRET\")",
             "vanityDomain := getEnvVarOrFail(\"ZSCALER_VANITY_DOMAIN\")",
             "cloud := strings.TrimSpace(os.Getenv(\"ZSCALER_CLOUD\"))",
             "// ZSCALER_CLOUD is optional: unset or empty selects the default production cloud",
             "resp, err := activation.UpdateActivationStatus(ctx, service, activation.ECAdminActivation{",
-            "log.Fatalf(\"[ERROR] Couldn't find environment variable %s\\n\", k)"
+            "func getEnvVarOrFail(k string) string { if v := os.Getenv(k); v != \"\" { return v } log.Fatalf(\"[ERROR] Couldn't find environment variable %s\\n\", k)"
           ]
         }
       ]

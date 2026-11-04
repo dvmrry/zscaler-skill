@@ -71,13 +71,16 @@
           "quotes": [
             "func SetSkipMFA(ctx context.Context, service *zscaler.Service, userID string, timestamp int64) (*http.Response, error) {",
             "func ResetPassword(ctx context.Context, service *zscaler.Service, userID string) (*http.Response, error) {",
-            "func UpdatePassword(ctx context.Context, service *zscaler.Service, userID string, payload *UpdatePasswordRequest) (*http.Response, error) {"
+            "func UpdatePassword(ctx context.Context, service *zscaler.Service, userID string, payload *UpdatePasswordRequest) (*http.Response, error) {",
+            "Note this is a PUT while the other two actions are POSTs.",
+            "executeUserAction issues one of the action requests above."
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no other action): `grep -c 'executeUserAction(' zscaler/ziam/services/users/users.go` in vendor/zscaler-sdk-go at v3.8.58 returns 4, the calls in `SetSkipMFA`, `ResetPassword` and `UpdatePassword` plus the helper's definition; users.go is the package's only file."
     },
     "python-no-user-actions": {
-      "statement": "Besides `__init__`, the Python users module (`UsersAPI`) defines only `list_users`, `get_user`, `add_user`, `update_user`, `delete_user` and `list_user_group_details`; none of them is a user action.",
+      "statement": "Besides `__init__`, the Python users module (`UsersAPI`) defines only `list_users`, `get_user`, `add_user`, `update_user`, `delete_user` and `list_user_group_details`; none of them sets skip MFA, resets a password or updates one.",
       "tier": "A",
       "evidence": [
         {
@@ -95,10 +98,10 @@
           ]
         }
       ],
-      "conditions": "The seven def lines quoted are every method the module defines at the pin."
+      "conditions": "Absence search: `grep -n -E '^\\s*(async )?def ' zscaler/zid/users.py` at v1.11.3-1-g4f8f54df returns exactly those seven def lines (`__init__`, `list_users`, `get_user`, `add_user`, `update_user`, `delete_user`, `list_user_group_details`), and `git grep -i -E 'reset|skip_?mfa|password' -- zscaler/zid` at the same release returns nothing."
     },
     "mcp-toolsets": {
-      "statement": "The MCP server's ZIdentity toolsets are `zid_groups` and `zid_users`, five tools each: get, list and search for groups and users, plus the members of a group and the groups of a user, each by ID or by name.",
+      "statement": "The MCP server's ZIdentity toolsets are `zid_groups` and `zid_users`, five tools each: get, list and search for groups and users, plus a group's members and a user's groups, which each have one tool by ID and one by name.",
       "tier": "A",
       "evidence": [
         {
@@ -107,6 +110,22 @@
           "quotes": [
             "| `zid_groups` | 5 | `zid_get_group`, `zid_get_group_users`, `zid_get_group_users_by_name`, `zid_list_groups`, `zid_search_groups` |",
             "| `zid_users` | 5 | `zid_get_user`, `zid_get_user_groups`, `zid_get_user_groups_by_name`, `zid_list_users`, `zid_search_users` |"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zid/groups.py",
+          "quotes": [
+            "Inputs for listing the users that belong to a ZIdentity group by ID.",
+            "Inputs for listing the users in a ZIdentity group resolved by group name."
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zid/users.py",
+          "quotes": [
+            "Inputs for listing the groups a ZIdentity user belongs to, by user ID.",
+            "Inputs for listing a ZIdentity user's groups, resolving the user by name."
           ]
         }
       ]
@@ -142,15 +161,15 @@
       ]
     },
     "mcp-lean-summaries": {
-      "statement": "The MCP list tools return lean summaries rather than the full SDK record: users as id, login name, display name and primary email, groups as id, name, description, dynamic flag and source IdP.",
+      "statement": "The MCP list tools `zid_list_users` and `zid_list_groups` return lean summaries rather than the full SDK record: users as id, login name, display name and primary email, groups as id, name, description, dynamic flag and source IdP.",
       "tier": "A",
       "evidence": [
         {
           "source": "mcp-server",
           "path": "docs/guides/supported-tools.md",
           "quotes": [
-            "Returns lean user summaries (id, login name, display name, primary email) rather than the full SDK user record.",
-            "Returns lean group summaries (id, name, description, dynamic flag, source IdP) rather than the full SDK group record."
+            "| `zid_list_users` | `zid_users` | Read-only | List ZIdentity users. Read-only.  Returns lean user summaries (id, login name, display name, primary email) rather than the full SDK user record.",
+            "| `zid_list_groups` | `zid_groups` | Read-only | List ZIdentity groups.  Read-only. Returns lean group summaries (id, name, description, dynamic flag, source IdP) rather than the full SDK group record."
           ]
         }
       ]

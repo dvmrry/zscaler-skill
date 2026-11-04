@@ -84,13 +84,15 @@
           "path": "zia/resource_zia_url_filtering_and_cloud_app_settings.go",
           "quotes": [
             "\"enable_per_plexity_prompt\": {",
-            "EnablePerPlexityPrompt:            d.Get(\"enable_per_plexity_prompt\").(bool),"
+            "Description: \"A Boolean value indicating if the use of generative AI prompts with Perplexity by users should be categorized and logged\",",
+            "EnablePerPlexityPrompt:            d.Get(\"enable_per_plexity_prompt\").(bool),",
+            "_ = d.Set(\"enable_per_plexity_prompt\", resp.EnablePerPlexityPrompt)"
           ]
         }
       ]
     },
     "update-is-full-typed-put": {
-      "statement": "Create and update build a typed `URLAdvancedPolicySettings` value from the schema and pass it to `UpdateUrlAndAppSettings`, which sends all the settings rather than a patch of changed ones.",
+      "statement": "Create and update build a typed `URLAdvancedPolicySettings` value from the schema and pass it to `UpdateUrlAndAppSettings`, which PUTs the whole struct rather than a patch of changed ones. Its booleans omit `omitempty`, so a disabled setting is sent as false; the exceptions are `BlockSkype` and `SafeSearchApps`, which are tagged `omitempty`.",
       "tier": "A",
       "evidence": [
         {
@@ -106,7 +108,12 @@
           "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
           "quotes": [
             "// URLAdvancedPolicySettings is the full set of advanced URL filtering and cloud",
-            "The booleans deliberately omit omitempty: a caller disabling a setting sends"
+            "The booleans deliberately omit omitempty: a caller disabling a setting sends // false, and dropping that false from the body would leave the setting enabled.",
+            "// The two exceptions are BlockSkype and SafeSearchApps, which the service",
+            "BlockSkype bool `json:\"blockSkype,omitempty\"`",
+            "SafeSearchApps []string `json:\"safeSearchApps,omitempty\"`",
+            "// Pass the struct directly to the UpdateWithPut method",
+            "resp, err := service.Client.UpdateWithPut(ctx, urladvSettingsEndpoint, urlAndAppSettings)"
           ]
         },
         {

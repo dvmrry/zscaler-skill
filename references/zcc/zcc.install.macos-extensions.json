@@ -96,6 +96,7 @@
           "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
           "quotes": [
             "Zscaler Client Connector can intercept traffic locally using either Route-based Interception or Transparent Proxy-based Interception.",
+            "Transparent Proxy-based Interception uses the macOS Transparent Network Proxy Extension to intercept traffic.",
             "The TRPTunnel Network Extension (com.zscaler.zscaler.TRPTunnel) is used for traffic interception and application bypass and has the following benefits:",
             "Zscaler Tunnel (Z-Tunnel) 2.0 compatibility with third-party VPN clients",
             "Removes the need for inbound firewall rules if not using machine tunnels",
@@ -186,6 +187,7 @@
         {
           "source": "zscaler-help",
           "path": "deploying-zscaler-client-connector-jamf-pro-macos.json",
+          "after": "Step 7: (Optional) Configure a Custom VPN Profile for Private Access VPN (for Legacy Apps)",
           "quotes": [
             "This configuration setting is supported with Route-based Traffic Interception on all supported releases of Zscaler Client Connector for macOS and with Transparent Proxy-based Traffic Interception on Zscaler Client Connector version 4.8 and later for macOS.",
             "Provider Bundle Identifier: Enter com.zscaler.zscaler.pktfilter",
@@ -205,7 +207,9 @@
             "Zscaler Endpoint Data Loss Prevention (DLP) requires full disk access for proper operation.",
             "| Identifier | com.zscaler.zdp.pd | com.zscaler.zdp.esd | com.zscaler.zdp.agent |",
             "| App or Service | SystemPolicyAllFiles | SystemPolicyAllFiles | SystemPolicyAllFiles |",
-            "Bundle ID: Enter com.zscaler.zdp.agent."
+            "Click Add to add a new notification.",
+            "Bundle ID: Enter com.zscaler.zdp.agent.",
+            "For Notifications, select Enable."
           ]
         }
       ]
@@ -231,7 +235,7 @@
       ]
     },
     "process-bypass": {
-      "statement": "Process-based application bypass is set in the Admin Console app profile with Transparent Proxy-based Interception from 4.8; with Route-based Interception, or Transparent Proxy-based on 4.7 and earlier, it is a preconfigured mobileconfig whose VPN payload lists bundle identifiers (Team ID and bundle ID together) under BypassAppProcesses, enabled by Process-Based Application Bypass using MDM in the app profile.",
+      "statement": "Process-based application bypass is set in the Admin Console app profile with Transparent Proxy-based Interception from 4.8; with Route-based Interception, or Transparent Proxy-based on 4.7 and earlier, it is a preconfigured mobileconfig whose VPN payload lists bundle identifiers under BypassAppProcesses (an identifier with both a Team ID and a Bundle ID is written <Team ID>.<Bundle ID>), enabled by Process-Based Application Bypass using MDM in the app profile.",
       "tier": "A",
       "evidence": [
         {
@@ -241,6 +245,8 @@
             "| Transparent Proxy-based | 4.8 and later | Set up in the Zscaler Admin Console |",
             "| Route-based | All supported versions | Preconfigured mobileconfig file |",
             "If your identifier has both a Team ID and a Bundle ID in it, enter them in the format <Team ID>.<Bundle ID>.",
+            "Application Bypass is deployed using the VPN payload in a configuration profile",
+            "To enter multiple processes or applications, you can add all the bundle identifiers using an array.",
             "modify the downloaded mobileconfig file's BypassAppProcesses key with the following:",
             "enable the Process-Based Application Bypass using MDM option.",
             "| Transparent Proxy-based | 4.8 and later | Set up in the Zscaler Admin Console | | 4.7 and earlier | Preconfigured mobileconfig file | |"

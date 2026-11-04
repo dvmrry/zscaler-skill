@@ -137,7 +137,9 @@
         {
           "source": "zscaler-help",
           "path": "cbc-deployment-templates-zscaler-cloud-connector.json",
+          "after": "Use the Starter Deployment Template with Autoscaling and GWLB (zs_cc_cf_template_asg_gwlb) to create the resources you need to deploy and operate Cloud Connector with autoscaling in an existing VPC.",
           "quotes": [
+            "Zscaler Cloud Connector instance size",
             "Currently, only small instance types are supported for Cloud Connector."
           ]
         },
@@ -181,7 +183,8 @@
           "source": "tfmod-aws-cloud-connector",
           "path": "modules/terraform-zscc-asg-aws/main.tf",
           "quotes": [
-            "count = var.zonal_asg_enabled ? length(var.cc_subnet_ids) : 1"
+            "count = var.zonal_asg_enabled ? length(var.cc_subnet_ids) : 1",
+            "vpc_zone_identifier = var.zonal_asg_enabled ? [element(distinct(var.cc_subnet_ids), count.index)] : distinct(var.cc_subnet_ids)"
           ]
         }
       ]
@@ -349,7 +352,8 @@
             "Invalid ASG Minimum size: ${min_size}. Enter a number 1-10"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (min_size unvalidated): at v1.4.3-18-gbb51f96, `grep -c 'var.min_size'` returns 0 for each of examples/base_cc_gwlb_asg/variables.tf, examples/base_cc_gwlb_asg_zpa/variables.tf and examples/cc_gwlb_asg/variables.tf, while `grep -c 'var.max_size'` returns 1 for each (its validation condition)."
     },
     "module-misc-defaults": {
       "statement": "Other ASG module defaults: `instance_warmup` 0, `protect_from_scale_in` false, and the group ignores changes to desired capacity and target groups so Terraform does not reset them.",
@@ -402,7 +406,9 @@
             "Minimum number of Cloud Connectors to maintain in Autoscaling group Default: 2",
             "AsgMaxSize: Type: Number MinValue: 1 MaxValue: 10",
             "Maximum number of Cloud Connectors to maintain in Autoscaling group Default: 4",
+            "Target value number for autoscaling policy CPU utilization target tracking.",
             "at/under this number Default: 80",
+            "TargetValue: !Ref AsgTargetCpuUtilValue",
             "MetricName: 'smedge_cpu_utilization' Namespace: 'Zscaler/CloudConnectors'"
           ]
         }

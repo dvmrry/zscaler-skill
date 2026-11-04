@@ -139,6 +139,7 @@
           "source": "zscaler-help",
           "path": "deploying-private-service-edge-internet-saas.json",
           "quotes": [
+            "Deploy outside the Corporate Firewall",
             "Zscaler highly recommends that you send your HTTP/HTTPS traffic through a GRE or IPSec tunnel from your firewall to the Private Service Edges.",
             "This arrangement does not require configuration changes to your firewall to accommodate the communication requirements of the Private Service Edge.",
             "Send only HTTP/HTTPS traffic to the Private Service Edges. Send all other traffic directly to the internet.",
@@ -193,13 +194,14 @@
       ]
     },
     "firewall-rules-published": {
-      "statement": "Where devices sit between the Private Service Edges and the Zscaler service, they must allow the traffic in the firewall rules posted at config.zscaler.com/<zscaler cloud name>/fcr.",
+      "statement": "If the Private Service Edges are deployed in the DMZ, inside the internal network or behind any network device that might filter or interfere with communication to and from the Zscaler service, the relevant network devices must allow the traffic in the firewall rules posted at config.zscaler.com/<zscaler cloud name>/fcr.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "deploying-private-service-edge-internet-saas.json",
           "quotes": [
+            "If the Private Service Edges are deployed in the DMZ of your organization, inside your internal network or behind any network device that might filter or otherwise interfere with communication to and from the Zscaler service,",
             "configure all relevant network devices to allow the necessary traffic per the firewall rules posted on config.zscaler.com/<zscaler cloud name>/fcr."
           ]
         }
@@ -226,14 +228,14 @@
           "source": "zscaler-help",
           "path": "deploying-private-service-edge-internet-saas.json",
           "quotes": [
-            "Set the switch ports connecting to the Private Service Edges or load balancers (LBs) to Access mode",
+            "Set the switch ports connecting to the Private Service Edges or load balancers (LBs) to Access mode so that traffic between the Private Service Edges and LB NIC ports is not VLAN tagged.",
             "The Private Service Edges and LBs do not support VLAN tagging."
           ]
         }
       ]
     },
     "lldp-and-flow-control-off": {
-      "statement": "Link Level Discovery Protocol (LLDP) must be disabled on the switch ports connected to the Private Service Edges, and Layer 2 flow control must be disabled on all switch ports serving the Internet and SaaS Private Infrastructure VLANs, because the service has its own Layer 4 flow control in the TCP stack.",
+      "statement": "Link Level Discovery Protocol (LLDP) must be disabled on the switch ports connected to the Private Service Edges, and Layer 2 flow control must be disabled on all switch ports serving the Internet and SaaS Private Infrastructure VLANs; the help adds that the service has its own Layer 4 flow control embedded in the TCP stack.",
       "tier": "A",
       "evidence": [
         {
@@ -264,14 +266,14 @@
       ]
     },
     "pac-subcloud": {
-      "statement": "If PAC files forward traffic to the Private Service Edges, the PAC variables that point to them must specify the subcloud Zscaler configured for the organization.",
+      "statement": "If the organization uses PAC files to forward traffic to the Zscaler service, the PAC variables that point to the Private Service Edges must specify the subcloud Zscaler configured for the organization.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "deploying-private-service-edge-internet-saas.json",
           "quotes": [
-            "ensure that the variables that point to the Private Service Edges specify the subcloud that Zscaler configured for your organization."
+            "If your organization uses PAC files to forward traffic to the Zscaler service, edit the PAC files and ensure that the variables that point to the Private Service Edges specify the subcloud that Zscaler configured for your organization."
           ]
         }
       ]

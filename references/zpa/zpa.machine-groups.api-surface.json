@@ -87,7 +87,7 @@
       ]
     },
     {
-      "do": "Whether the caller is in a custom microtenant, where groups are read-only.",
+      "do": "Whether the caller is in a custom microtenant, where machine groups defined in the Default Microtenant are read-only.",
       "uses": [
         "microtenant-permissions"
       ]
@@ -262,7 +262,7 @@
       ]
     },
     "data-source-feeds-policy": {
-      "statement": "The provider documents the machine group data source as the way to reference a machine group in an access, timeout, forwarding, inspection or isolation policy.",
+      "statement": "The provider documents that the machine group data source can be referenced in an access, timeout, forwarding, inspection or isolation policy.",
       "tier": "A",
       "binds": [
         "zpa/machine-groups"
@@ -290,6 +290,14 @@
           "quotes": [
             "common.Filter{Search: machineGroupName, MicroTenantID: service.MicroTenantID()}",
             "strings.EqualFold(app.Name, machineGroupName)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/machinegroup/zpa_machine_group.go",
+          "after": "func GetByName(",
+          "quotes": [
+            "for _, app := range list { if strings.EqualFold(app.Name, machineGroupName) { return &app, resp, nil"
           ]
         }
       ]
@@ -346,7 +354,7 @@
       ]
     },
     "microtenant-permissions": {
-      "statement": "Under microtenant configuration permissions, machine groups are fully editable in the default microtenant and read-only in a custom microtenant, while machine provisioning keys are not visible in a custom microtenant.",
+      "statement": "For machine groups and machine provisioning keys defined in the Default Microtenant, the Microtenant configuration permissions table gives the Default Microtenant (global administrator) full access to both, and gives a Microtenant read-only access to machine groups while the machine provisioning keys are not visible to it.",
       "tier": "A",
       "binds": [
         "zpa/machine-groups#microtenantId"
@@ -356,6 +364,7 @@
           "source": "zscaler-help",
           "path": "configuration-permissions-microtenants.json",
           "quotes": [
+            "The following table includes admin permissions at the Default Microtenant (i.e., global administrator) and Microtenant levels for resources defined in the Default Microtenant:",
             "| Machine Groups | Full | Read only |",
             "| Machine Provisioning Keys | Full | Not visible |"
           ]

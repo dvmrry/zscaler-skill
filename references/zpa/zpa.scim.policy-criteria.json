@@ -146,9 +146,17 @@
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
+          "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {",
           "quotes": [
             "_, _, err := idpcontroller.Get(ctx, zClient.Service, operand.LHS)",
-            "_, _, err = scimgroup.Get(ctx, zClient.Service, operand.RHS)",
+            "_, _, err = scimgroup.Get(ctx, zClient.Service, operand.RHS)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
+          "quotes": [
             "return fmt.Errorf(\"entry_values must be provided for SCIM_GROUP object_type\")",
             "return fmt.Errorf(\"LHS must be a valid IdP ID and cannot be empty for SCIM_GROUP object_type\")",
             "return fmt.Errorf(\"RHS must be a valid scim group ID and cannot be empty for SCIM_GROUP object_type\")"
@@ -172,6 +180,7 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
+            "`object_type` (String) This is for specifying the policy criteria. Supported values: `SCIM`\n        - `entry_values` (Block Set)",
             "The SCIM Attribute Header ID.",
             "The SCIM Attribute value to match"
           ]
@@ -179,9 +188,19 @@
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
+          "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {",
           "quotes": [
+            "case \"SCIM\":\n// Validate that IDP ID is provided\nif operand.IdpID == \"\" {",
             "scim, _, err := scimattributeheader.Get(ctx, zClient.Service, operand.IdpID, operand.LHS)",
             "when operand object type is %v Idp ID must be set"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
+          "quotes": [
+            "return fmt.Errorf(\"entry_values must be provided for SCIM object_type\")"
           ]
         }
       ]

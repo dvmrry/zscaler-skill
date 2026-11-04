@@ -41,7 +41,7 @@
     },
     {
       "label": "Getting a service.",
-      "text": "{{accessor-new-instance}}"
+      "text": "{{accessor-new-instance}} {{no-api-object-kept-between-accesses}}"
     },
     {
       "label": "Accessor names.",
@@ -92,7 +92,7 @@
   ],
   "claims": {
     "accessor-new-instance": {
-      "statement": "The OneAPI client builds one `ZIAService` and keeps it. `ZIAService` stores only the request executor, and its service properties, such as `user_management` and `activate`, construct a new API client object on each access, so nothing is cached below the service object.",
+      "statement": "The OneAPI client builds one `ZIAService` and keeps it. `ZIAService` stores only the request executor, and its service properties, such as `user_management` and `activate`, construct a new API client object on each access.",
       "tier": "A",
       "evidence": [
         {
@@ -114,6 +114,14 @@
           ]
         }
       ]
+    },
+    "no-api-object-kept-between-accesses": {
+      "statement": "No API client object is kept between accesses to a `ZIAService` property; what persists below the service object is the shared request executor.",
+      "tier": "B",
+      "derived_from": [
+        "accessor-new-instance"
+      ],
+      "conditions": "Follows from accessor-new-instance: `ZIAService.__init__` stores only `_request_executor` (`grep -n 'self\\._' zscaler/zia/zia_service.py | grep -v _request_executor` at v1.11.3-1-g4f8f54df returns nothing), and each property returns a new `...API(self._request_executor)`. The shared executor itself holds a GET response cache when caching is enabled (`self._cache = cache` in zscaler/request_executor.py). Whether an API class keeps state across its own calls was not checked."
     },
     "dns-gateway-accessor-misspelled": {
       "statement": "The unified ZIA service and the legacy ZIA client expose the DNS gateway client as the property `dns_gatways` (misspelled), imported from the module `zscaler/zia/dns_gatways.py`.",
@@ -179,7 +187,8 @@
             "def get_custom_file_type_count(self)"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: at v1.11.3-1-g4f8f54df, `grep -c 'def get_custom_file_type(' zscaler/zia/custom_file_types.py` returns 0 and `grep -rn 'get_custom_file_type(' zscaler/` returns nothing; `grep -n 'def get_custom_file_ty' zscaler/zia/custom_file_types.py` returns only `get_custom_file_tytpe` and `get_custom_file_type_count`."
     },
     "l10n-key-corruption-fixed": {
       "statement": "Before Python SDK 1.9.22, response keys with a digit-letter boundary such as `isNameL10nTag` or `ipV6Enabled` were re-cased by a generic camel-case helper (`L10n` became `L10N`), so the model field came back as `None`. The release replaced the normalizer with the SDK's own `to_lower_camel_case`, and the current response formatter uses it.",

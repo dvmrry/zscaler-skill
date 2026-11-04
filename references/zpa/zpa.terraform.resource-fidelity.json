@@ -118,7 +118,8 @@
             "ID:                d.Get(\"id\").(string),",
             "d.SetId(resp.ID)",
             "if strings.Contains(errStr, \"resource.already.exist\") {",
-            "// Get the current state of the resource resp, _, err := serviceedgeschedule.GetSchedule(ctx, service)"
+            "// Get the current state of the resource resp, _, err := serviceedgeschedule.GetSchedule(ctx, service)",
+            "\"id\": { Type: schema.TypeString, Computed: true, },"
           ]
         },
         {
@@ -142,7 +143,8 @@
           "quotes": [
             "_, _, err = appconnectorschedule.CreateSchedule(ctx, service, req)",
             "d.SetId(req.ID)",
-            "ID:                d.Get(\"id\").(string),"
+            "ID:                d.Get(\"id\").(string),",
+            "\"id\": { Type: schema.TypeString, Computed: true, },"
           ]
         },
         {
@@ -243,7 +245,8 @@
           "status": "unfiled",
           "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func resourceServiceEdgeAssistantScheduleRead\\(/,/^}/' zpa/resource_zpa_service_edge_assistant_schedule.go | grep -n 'SetId\\|\"id\"'` returns only `d.SetId(\"\")` in the not-found branch."
     },
     "schedule-delete-is-noop": {
       "statement": "Destroying the Service Edge assistant schedule resource makes no API call: the delete function returns nil. Terraform drops the resource from state while the remote schedule is untouched.",
@@ -581,7 +584,8 @@
           "status": "unfiled",
           "note": "Filing 17 (ZPA resource fidelity) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `sed -n '/^func <fn>(/,/^}/p' | grep -c 'Delete\\|defer\\|rollback\\|revert'` returns 0 for resourcePrivateCloudGroupCreate and resourcePrivateCloudGroupUpdate (zpa/resource_zpa_private_cloud_group.go) and for resourceServiceEdgeGroupCreate and resourceServiceEdgeGroupUpdate (zpa/resource_zpa_service_edge_group.go) in vendor/terraform-provider-zpa at v4.4.10 and v4.4.16."
     },
     "portal-capabilities-read-checks-wrong-field": {
       "statement": "The privileged portal rule Read guards on the length of the generic `PrivilegedCapabilities.Capabilities` but flattens `PrivilegedPortalCapabilities`. These are separate fields of the SDK response. A response with only portal capabilities is not written to state, and one with only generic capabilities sets the portal capabilities attribute to nil (the flattener returns nil for an empty list).",
@@ -867,9 +871,10 @@
         }
       ],
       "derived_from": [
-        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values",
+        "shared.sdk-go.zero-value-writes:zpa-writes-marshal-caller-struct"
       ],
-      "conditions": "Chain of evidence: the quoted tags plus the omission claim it derives from. Whether ZPA keeps or clears a stored true when the key is absent is server behavior (see the omission-semantics gap in shared.sdk-go.zero-value-writes).",
+      "conditions": "Chain of evidence: the quoted tags plus the omission claim it derives from, which holds where the writer marshals the caller's struct and the field's type has no MarshalJSON of its own. Both fields are plain `bool`, and the SDK's LSS config Update passes the struct it is given to `NewRequestDo` (zpa.api.lss-wire:update-returns-no-body), which marshals the caller's struct (zpa-writes-marshal-caller-struct); that the provider hands the expander's struct to that Update unchanged is not quoted here. Whether ZPA keeps or clears a stored true when the key is absent is server behavior (see the omission-semantics gap in shared.sdk-go.zero-value-writes).",
       "upstream": [
         {
           "status": "unfiled",
@@ -967,7 +972,7 @@
       ]
     },
     "assistant-schedules-share-one-shape": {
-      "statement": "The App Connector and Service Edge assistant schedule SDK packages define the same schedule type and the same UpdateSchedule checks (interval validation and a refusal to update a disabled schedule), and differ in the endpoint, /connectorSchedule and /serviceEdgeSchedule.",
+      "statement": "The App Connector and Service Edge assistant schedule SDK packages each define an `AssistantSchedule` type with the same fields (id, customerId, deleteDisabled, enabled, frequency, frequencyInterval) and the same UpdateSchedule checks (interval validation and a refusal to update a disabled schedule), and differ in the endpoint, /connectorSchedule and /serviceEdgeSchedule.",
       "tier": "A",
       "evidence": [
         {
@@ -985,6 +990,23 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type AssistantSchedule struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`",
+            "CustomerID string `json:\"customerId\"`",
+            "DeleteDisabled bool `json:\"deleteDisabled\"`",
+            "Enabled bool `json:\"enabled\"`",
+            "Frequency string `json:\"frequency\"`",
+            "FrequencyInterval string `json:\"frequencyInterval\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
           "at": [
             "v3.8.42",
@@ -995,8 +1017,26 @@
             "validIntervals := map[string]bool{\"5\": true, \"7\": true, \"14\": true, \"30\": true, \"60\": true, \"90\": true}",
             "return nil, fmt.Errorf(\"cannot update a disabled schedule\")"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "after": "type AssistantSchedule struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`",
+            "CustomerID string `json:\"customerId\"`",
+            "DeleteDisabled bool `json:\"deleteDisabled\"`",
+            "Enabled bool `json:\"enabled\"`",
+            "Frequency string `json:\"frequency\"`",
+            "FrequencyInterval string `json:\"frequencyInterval\"`"
+          ]
         }
-      ]
+      ],
+      "conditions": "Two types, one shape: at v3.8.58, `diff` of the two `AssistantSchedule` struct bodies (`awk '/^type AssistantSchedule struct/,/^}/'`) with comment lines removed is empty, and `diff` of the two `UpdateSchedule` bodies (`awk '/^func UpdateSchedule\\(/,/^}/'`) is empty."
     },
     "stale-state-hides-out-of-band-removal": {
       "statement": "Where a Read sets a block only inside a condition on the response, a block or capability removed out of band leaves the previous value in state, so a plan can show no difference from a configuration that still holds it.",

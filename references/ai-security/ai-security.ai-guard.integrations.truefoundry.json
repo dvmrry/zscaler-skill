@@ -108,6 +108,7 @@
             "turns = request_body[\"input\"]",
             "text_part_type = \"input_text\"",
             "turns = request_body[\"messages\"]",
+            "for item in response_body[\"output\"]:",
             "if item.get(\"type\") == \"message\" and item.get(\"role\") == \"assistant\":",
             "if isinstance(p, dict) and p.get(\"type\") == \"output_text\""
           ]
@@ -140,6 +141,7 @@
             "`verdict` field, not the status code. TrueFoundry treats a non-2xx as the",
             "guardrail itself failing (not a denial) — under \"Enforce But Ignore On",
             "return {\"verdict\": False, **detail}",
+            "logger.debug(\"/input-scan ALLOWED: transactionId=%s\", txn_id) return {\"verdict\": True}",
             "Error\" or \"Audit\" that would silently let a real AI Guard BLOCK through."
           ],
           "after": "def input_scan(request: InputGuardrailRequest):"
@@ -157,7 +159,8 @@
           "path": "TrueFoundry/examples/main.py",
           "quotes": [
             "Always returns HTTP 200; the policy decision is carried in the body's\n    `verdict` field, not the status code. See input_scan for why.",
-            "return {\"verdict\": False, **detail}"
+            "return {\"verdict\": False, **detail}",
+            "logger.debug(\"/output-scan ALLOWED: transactionId=%s\", txn_id) return {\"verdict\": True}"
           ],
           "after": "def output_scan(request: OutputGuardrailRequest):"
         }
@@ -220,6 +223,8 @@
             "(\"user.subjectId\", subject.subjectId if subject else None),",
             "user=user,",
             "for source, value in candidates:",
+            "if value:",
+            "\"end-user identity resolved: source=%s value=%s\",",
             "return value",
             "def _scan( content: str, direction: str, transaction_id: str, user: Optional[str] = None,",
             "result = _scan( content, \"IN\", txn_id, user=_extract_user(request.context),"
@@ -274,6 +279,8 @@
             "CONVERSATION_ID_HEADER = os.environ.get(\"AIGUARD_CONVERSATION_ID_HEADER\", \"X-Conversation-Id\")",
             "CONVERSATION_ID_METADATA_KEY = os.environ.get(\"AIGUARD_CONVERSATION_ID_METADATA_KEY\", \"\")",
             "CONVERSATION_ID_METADATA_FALLBACKS = (\"conversation_id\", \"chat_id\", \"session_id\")",
+            "for key in (CONVERSATION_ID_METADATA_KEY, *CONVERSATION_ID_METADATA_FALLBACKS):",
+            "so a configured key is tried first, then the names seen in practice, in request metadata before the subject's.",
             "# The conversation ID travels as a custom request header. AI Guard only records it # if the tenant lists this header in `headerNames` and names it in # `conversationIdHeaderName`, so the name has to match that tenant's config.",
             "candidates = [(f\"metadata.{k}\", request_metadata.get(k)) for k in keys]",
             "candidates += [(f\"user.metadata.{k}\", subject_metadata.get(k)) for k in keys]",

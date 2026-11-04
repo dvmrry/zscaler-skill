@@ -127,7 +127,8 @@
             "required": true
           }
         }
-      ]
+      ],
+      "conditions": "Every operation: in automate-zscaler/openapi/zpa.openapi.json, `jq '[.paths | to_entries[] | select(.key | contains(\"/customers/{customerId}\")) | .value | to_entries[] | select(.key | IN(\"get\",\"put\",\"post\",\"delete\",\"patch\")) | select([.value.parameters[]? | select(.name == \"customerId\" and .in == \"path\" and .required == true)] | length == 0)] | length'` returns 0 over the 214 such operations (165 under mgmtconfig/v1/admin, 12 mgmtconfig/v1, 16 mgmtconfig/v2/admin, 1 mgmtconfig/v2/admin/lssConfig, 3 userconfig/v1, 17 cbiconfig/cbi/api); no path item carries path-level parameters."
     },
     "oneapi-prefix": {
       "statement": "The ZPA OpenAPI document gives paths without a prefix (for example /mgmtconfig/v1/admin/customers/{customerId}/application) under the server https://api.zsapi.net/zpa, so the OneAPI route is /zpa/mgmtconfig/....",
@@ -462,11 +463,51 @@
             "in": "path",
             "required": true
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/put",
+          "expect": {
+            "operationId": "Updates the LSS configuration for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1{lssId}/delete",
+          "expect": {
+            "operationId": "Deletes the LSS configuration for the specified ID."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1lssConfig~1logType~1formats/get",
+          "expect": {
+            "operationId": "Gets all LSS log formats for the specified customer."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1clientTypes/get",
+          "expect": {
+            "operationId": "Gets all LSS client types. This API will be deprecated in a future release."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1lssConfig~1statusCodes/get",
+          "expect": {
+            "operationId": "Gets a list of LSS status codes."
+          }
         }
       ]
     },
     "v2-segment-under-v1": {
-      "statement": "Some Go SDK routes carry v2 as a path segment appended to the v1 base rather than using the v2 base: the Source IP Anchoring IP ranges (/v2/ipRanges), customer domains (/v2/associationtype) and SSO login options (/v2/ssoLoginOptions).",
+      "statement": "Some Go SDK routes carry v2 as a path segment appended to the v1 base rather than using the v2 base: the C2C IP ranges (c2c_ip_ranges, /v2/ipRanges), customer domains (/v2/associationtype) and SSO login options (/v2/ssoLoginOptions).",
       "tier": "A",
       "evidence": [
         {

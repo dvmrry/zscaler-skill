@@ -174,7 +174,19 @@
           ],
           "after": "func flattenSandboxRSS(items []*common.SandboxRSS) []interface{} {",
           "quotes": [
-            "m[\"signature_sources\"] = item.SignatureSources"
+            "m[\"signature_sources\"] = item.SignatureSources",
+            "out = append(out, m)"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_sandbox_report.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"spyware\", flattenSandboxRSS(resp.Details.Spyware)); err != nil {"
           ]
         },
         {
@@ -339,8 +351,11 @@
             "v4.8.3",
             "HEAD"
           ],
+          "after": "\"zpa_application_segments\": {",
           "quotes": [
-            "\"ddescription\": {"
+            "List of ZPA Application Segments for which this rule is applicable. This field is applicable only for the ECZPA forwarding method (used for Zscaler Cloud Connector).",
+            "\"ddescription\": {",
+            "if err := d.Set(\"zpa_application_segments\", flattenZPAApplicationSegments(resp.ZPAApplicationSegments)); err != nil {"
           ]
         },
         {
@@ -591,7 +606,8 @@
           "status": "unfiled",
           "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n primary_field zia/data_source_zia_dlp_dictionaries.go` at v4.8.3 and at v4.8.17 returns two lines, the schema's `\"primary_field\": {` under `exact_data_match_details` and the flattener's `\"primary_fields\": val.PrimaryFields,`; the schema declares no `primary_fields`."
     },
     "browser-control-data-source-sets-undeclared-keys": {
       "statement": "The browser control data source declares `smart_isolation_profile_id` and `smart_isolation_profile` but no `smart_isolation_groups` or `smart_isolation_users`, and then calls `d.Set` on those two keys with checked errors. It never sets `smart_isolation_profile_id`, which the SDK model carries.",
@@ -704,7 +720,7 @@
       ]
     },
     "endpoint-tag-id-lookup-uses-association-endpoint": {
-      "statement": "When `id` is given, the same data source passes it to the SDK's `GetResourceGroupTag`, which the SDK documents as returning the tags with which a specified DLP resource is associated and which requests `/dlpEndpointResource/{id}/groups`. The data source describes the value as a tag ID; the tag catalog is read by a different function from a different endpoint.",
+      "statement": "When `id` is given, the same data source passes it to the SDK's `GetResourceGroupTag`, which requests `/dlpEndpointResource/{id}/groups` and whose doc comment (written under the name `GetResourceTags`) says it retrieves the tags to which the specified DLP resource is associated. The data source describes the value as a tag ID; the tag catalog is read by a different function from a different endpoint.",
       "tier": "A",
       "evidence": [
         {
@@ -728,7 +744,7 @@
           "quotes": [
             "GetResourceTags retrieves the list of tags, in name-ID pairs, to which the",
             "specified DLP resource is associated.",
-            "endpoint := fmt.Sprintf(\"%s/%d/groups\", dlpEndpointResourceEndpoint, id)",
+            "parameter is required. func GetResourceGroupTag(ctx context.Context, service *zscaler.Service, id int) ([]common.IDNameExternalID, error) { var tags []common.IDNameExternalID endpoint := fmt.Sprintf(\"%s/%d/groups\", dlpEndpointResourceEndpoint, id)",
             "endPointDlpResourceGroupsEndpoint = \"/zia/api/v1/endPointDlpResourceGroups\"",
             "dlpEndpointResourceEndpoint = \"/zia/api/v1/dlpEndpointResource\"",
             "endpoint := fmt.Sprintf(\"%s/%s\", endPointDlpResourceGroupsEndpoint, url.PathEscape(string(channel)))"
@@ -756,7 +772,7 @@
       ]
     },
     "devices-unused-selectors-fall-back-to-first-device": {
-      "statement": "The devices data source declares `hostname` and `device_group_type` as optional selectors, but its lookup branches test only ID, name, model, owner, OS type and OS version, and its \"nothing was given\" fallback tests only name, model, owner, OS type and OS version. A configuration that sets only `hostname` or only `device_group_type` therefore takes the fallback, lists every device and binds to the first one. If that list is empty the read returns without setting an ID and without an error.",
+      "statement": "The devices data source declares `hostname` and `device_group_type` as optional selectors, but its lookup branches test only ID, name, model, owner, OS type and OS version, and its \"nothing was given\" fallback tests only name, model, owner, OS type and OS version. A configuration that sets only `hostname` or only `device_group_type` therefore takes the fallback, lists the devices with `GetAllDevices` and binds to the first one. If that list is empty the read returns without setting an ID and without an error.",
       "tier": "A",
       "evidence": [
         {
@@ -802,7 +818,8 @@
           "status": "unfiled",
           "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n '\"hostname\"\\|\"device_group_type\"\\|Hostname'` over zia/data_source_zia_devices.go at v4.8.3 and at v4.8.17 returns only the two schema keys and `_ = d.Set(\"device_group_type\", resp.DeviceGroupType)` in the result block, so neither value is read as a selector."
     },
     "domain-profiles-id-selector-never-read": {
       "statement": "The domain profiles data source declares the selector `profile_id`, but its read takes the integer from the key `id`, so `profile_id` is never consulted and an ID-only configuration reaches the not-found error. The selected profile's ID is never written back to `profile_id`.",
@@ -893,7 +910,8 @@
           "status": "unfiled",
           "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'ConflictsWith\\|ExactlyOneOf\\|AtLeastOneOf' zia/data_source_zia_casb_email_label.go zia/data_source_zia_casb_tombstone_template.go` at v4.8.3 and at v4.8.17 returns nothing, and after each loop the only check on the result is `if matched == nil {`."
     },
     "predefined-rule-count-never-sent": {
       "statement": "The firewall filtering rule data source accepts `predefined_rule_count` and copies it into the SDK filter options, but the only SDK function that turns that option into a query parameter is the rule-count function, which the data source does not call. The list call it does make ignores the option.",
@@ -945,6 +963,8 @@
           ],
           "quotes": [
             "if v, ok := d.GetOk(\"within_country_only\"); ok {",
+            "if v, ok := d.GetOk(\"include_private_service_edge\"); ok {",
+            "if v, ok := d.GetOk(\"include_current_vips\"); ok {",
             "if v, ok := d.GetOk(\"latitude\"); ok {",
             "if v, ok := d.GetOk(\"longitude\"); ok {",
             "if v, ok := d.GetOk(\"routable_ip\"); ok {"
@@ -1214,7 +1234,8 @@
           "status": "unfiled",
           "note": "Filing 15 (ZIA data sources) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n Errorf` over zia/data_source_zia_datacenters.go at v4.8.3 and at v4.8.17 returns only `error getting datacenters` and `error setting datacenters`; over zia/data_source_zia_dc_exclusions.go it returns `error getting DC exclusions`, `error setting exclusions` and `no DC exclusion found with datacenter id %d`, the last under `if hasID && len(filtered) == 0`. `grep -n 'return diag'` over each file returns the same lines."
     },
     "file-type-categories-swallow-enum-failure": {
       "statement": "To look a category up by ID or name without an enum, the file type categories data source queries three enum scopes. A failure of any one scope is logged as a warning and skipped. If the category lives in the failed scope the result is a not-found error, and otherwise the lookup succeeds from the scopes that answered, with the failure shown only as a logged warning.",
@@ -1255,7 +1276,7 @@
       ]
     },
     "value-structs-flattened-into-present-blocks": {
-      "statement": "Several data sources pass a value-typed (non-pointer) SDK sub-object to a flattener that always returns one block. The sandbox report wraps `Summary`, `Classification` and `FileProperties` unconditionally. The SSL inspection rule flattens `Action` unconditionally. The browser control data source passes the address of the value field `SmartIsolationProfile`. A response that omits the object decodes to a zero value and is then shown as a present block of empty values; the read cannot tell the two apart.",
+      "statement": "Several data sources pass a value-typed (non-pointer) SDK sub-object to a flattener that always returns one block. The sandbox report wraps `Summary`, `Classification` and `FileProperties` unconditionally, and the SSL inspection rule flattens `Action` unconditionally, so a response that omits the object decodes to a zero value and is shown as a present block of empty values. At v4.8.3 the browser control data source did the same with the address of the value field `SmartIsolationProfile`, whose flattener returned a block for any non-nil profile.",
       "tier": "A",
       "evidence": [
         {
@@ -1317,6 +1338,17 @@
           ],
           "quotes": [
             "d.Set(\"smart_isolation_profile\", flattenSmartIsolationProfile(&resp.SmartIsolationProfile))"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_browser_control_policy.go",
+          "at": [
+            "v4.8.3"
+          ],
+          "after": "func flattenSmartIsolationProfile(cbiProfile *browser_control_settings.SmartIsolationProfile) []interface{} {",
+          "quotes": [
+            "if cbiProfile == nil { return nil } return []interface{}{map[string]interface{}{"
           ]
         },
         {
@@ -1501,7 +1533,7 @@
           ],
           "after": "func flattenWorkloadGroups(workloadGroups []common.IDName) []interface{} {",
           "quotes": [
-            "wgMap[\"id\"] = wg.ID wgMap[\"name\"] = wg.Name"
+            "wgMap := make(map[string]interface{}) wgMap[\"id\"] = wg.ID wgMap[\"name\"] = wg.Name wgList[i] = wgMap"
           ]
         },
         {
@@ -1546,6 +1578,17 @@
           ],
           "quotes": [
             "WorkloadGroups []common.IDName `json:\"workloadGroups,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/common/common.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "quotes": [
+            "type IDName struct { ID int `json:\"id,omitempty\"` Name string `json:\"name,omitempty\"` Parent string `json:\"parent,omitempty\"` }"
           ]
         },
         {
@@ -1616,7 +1659,20 @@
             "HEAD"
           ],
           "quotes": [
-            "\"external_id\": {",
+            "Description: \"Tenant information for the receiver\",",
+            "\"external_id\": { Type: schema.TypeString, Computed: true, Description: \"External identifier for the tenant\",",
+            "if err := d.Set(\"receiver\", flattenCASBReceiver(resp.Receiver)); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/data_source_zia_casb_dlp_rules.go",
+          "at": [
+            "v4.8.3",
+            "HEAD"
+          ],
+          "after": "func flattenCASBReceiver(receiver *casb_dlp_rules.Receiver) []map[string]interface{} {",
+          "quotes": [
             "result[\"tenant\"] = flattenIDExtensionsList(receiver.Tenant)"
           ]
         },

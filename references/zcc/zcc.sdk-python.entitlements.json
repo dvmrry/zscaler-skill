@@ -47,7 +47,8 @@
           "path": "zscaler/oneapi_response.py",
           "after": "# ZCC can return either a single object or a list of objects",
           "quotes": [
-            "self._list = [self._body]"
+            "self._list = [self._body]",
+            "self._list = self._body if isinstance(self._body, list) else []"
           ]
         },
         {
@@ -62,6 +63,32 @@
           "path": "zscaler/zcc/entitlements.py",
           "quotes": [
             "result.append(ZpaGroupEntitlements(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def get_results(self) -> List[Any]:",
+          "quotes": [
+            "return [self._type(item) for item in self._list if isinstance(item, dict)]",
+            "return self._list"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/entitlements.py",
+          "after": "def get_zdx_group_entitlements(",
+          "quotes": [
+            "for item in response.get_results():",
+            "result.append(ZdxGroupEntitlements(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/entitlements.py",
+          "after": "def get_zpa_group_entitlements(",
+          "quotes": [
+            "for item in response.get_results():"
           ]
         }
       ]

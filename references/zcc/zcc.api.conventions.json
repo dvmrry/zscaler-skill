@@ -60,10 +60,11 @@
       ]
     },
     {
-      "do": "Whether a hand-built query used the camelCase names `pageSize`, `osType` and `deviceType` with numeric platform codes.",
+      "do": "Whether a hand-built request used the camelCase names, such as `pageSize` in a list query, and gave the platform as its numeric code where the contract asks for one: `deviceType` in the web policy list query, `osType` on the soft- and force-remove endpoints.",
       "uses": [
         "query-params-camel",
-        "os-type-codes"
+        "os-type-codes",
+        "zcc.api.web-policy-wire:list-device-type-numeric"
       ]
     },
     {
@@ -75,7 +76,7 @@
   ],
   "claims": {
     "query-params-camel": {
-      "statement": "The contract names the v1 list query parameters in camelCase (`page`, `pageSize`, `search`, `searchType`), and the Python SDK camel-cases every ZCC query parameter key before sending, so `page_size` goes on the wire as `pageSize`.",
+      "statement": "The contract names list query parameters in camelCase, for example `page`, `pageSize`, `search` and `searchType` on `/webTrustedNetwork/listByCompany`, and the Python SDK camel-cases every ZCC query parameter key before sending, so `page_size` goes on the wire as `pageSize`.",
       "tier": "A",
       "evidence": [
         {
@@ -208,9 +209,17 @@
       ]
     },
     "os-type-codes": {
-      "statement": "Platforms are numeric codes on the wire: 1 iOS, 2 Android, 3 Windows, 4 macOS, 5 Linux. The contract gives these for `osType` on the device-removal endpoints, where null means all OS types, and the Go SDK defines the same device-type constants.",
+      "statement": "The contract gives numeric platform codes for `osType` on the soft- and force-remove endpoints (`removeDevices`, `forceRemoveDevices`): 1 iOS, 2 Android, 3 Windows, 4 macOS, 5 Linux, where null means all OS types; the Go SDK defines the same device-type constants.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zcc.openapi.json",
+          "pointer": "/paths/~1papi~1public~1v1~1removeDevices/post",
+          "expect": {
+            "description": "<p>Soft removes the enrolled device from the portal. The soft removal marks the device state as device removal pending. At least one criterion (username, Zscaler Client Connector version, OS type, or UDID) must be specified to remove devices.</p><p>The following are the valid values for  the <code>osType</code> attribute. The default value is null, which represents ALL OS types.</p><ul><li>1 - iOS</li><li>2 - Android</li><li>3 - Windows</li><li>4 - macOS</li><li>5 - Linux</li></ul>"
+          }
+        },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
@@ -317,6 +326,7 @@
           "source": "zscaler-help",
           "path": "legacy-about-error-codes-zcc.json",
           "quotes": [
+            "The following table lists the HTTP status codes returned by the Zscaler Client Connector API:",
             "| 415 | Unsupported Media Type |",
             "exceeded the rate limit or device threshold",
             "| 500 | Not Implemented |",

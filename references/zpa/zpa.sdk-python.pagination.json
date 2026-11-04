@@ -117,9 +117,9 @@
   ],
   "claims": {
     "page-size-clamp": {
-      "statement": "The response wrapper's table gives ZPA a page-size ceiling of 500 and the wrapper clamps a caller-supplied size into its internal limit, but for ZPA that limit is never sent: the first request carries the caller's raw `pagesize`, and the ZPA `next()` branch reuses the same parameters with only `page` changed. The limit is read only in the ZIA paging branches.",
+      "statement": "The response wrapper's table gives ZPA a page-size ceiling of 500 and the wrapper clamps a caller-supplied size into its internal limit, but for ZPA that limit is never sent: the first request carries the caller's raw `pagesize`, and the ZPA `next()` branch reuses the same parameters with only `page` changed. The limit is read only in the ZIA next-page branch and in the has-next fallback that ZPA responses never reach, since ZPA's has-next check compares the page with the total page count.",
       "tier": "A",
-      "conditions": "Corrected because the clamped value is computed but not applied for ZPA; previously \"The ZPA response wrapper holds ZPA to a page-size ceiling of 500, and a caller-supplied size is forced between the service minimum and maximum before it is used.\" That the limit is read nowhere else rests on reading oneapi_response.py.",
+      "conditions": "Corrected because the clamped value is computed but not applied for ZPA; previously \"The ZPA response wrapper holds ZPA to a page-size ceiling of 500, and a caller-supplied size is forced between the service minimum and maximum before it is used.\" That the limit is read nowhere else rests on reading oneapi_response.py. At v1.11.3-1-g4f8f54df, `grep -n '_limit' zscaler/oneapi_response.py` returns the assignment from `validate_page_size`, the ZIA next-page branch's `if self._limit and \"pageSize\" not in self._params:` and its assignment, and two reads in the final `else` of `_has_next` (the full-page test and its debug log); that `else` follows the ZPA/ZCell case, which returns first.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -169,13 +169,22 @@
             "results, error = self._fetch_next_page()"
           ],
           "after": "def next(self) -> Tuple[Optional[List[Any]], \"ZscalerAPIResponse\", Optional[Exception]]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "if self._service_type in (\"zpa\", \"zcell\"): has_next = self._page < self._total_pages",
+            "if self._limit: has_next = len(self._list) >= self._limit"
+          ],
+          "after": "def _has_next(self) -> bool:"
         }
       ]
     },
     "admin-page-ceiling": {
       "statement": "The administrator list docstring says the maximum page size is 200, and the SDK enforces no ceiling for that call: `list_administrators` passes the caller's query parameters to the executor, which sends the page size as given.",
       "tier": "A",
-      "conditions": "Replaces the divergence admin-page-ceiling, whose second position (that the wrapper clamps every ZPA size at 500) was wrong: the clamp is not applied for ZPA (page-size-clamp). That nothing else limits the size rests on reading the wrapper and the executor.",
+      "conditions": "Replaces the divergence admin-page-ceiling, whose second position (that the wrapper clamps every ZPA size at 500) was wrong: the clamp is not applied for ZPA (page-size-clamp). That nothing else limits the size rests on reading the wrapper and the executor. Search: `grep -rn 'min(.*page\\|page_size.*500\\|MAX_PAGE\\|max_page' zscaler/*.py zscaler/zpa/*.py` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns three lines, all in zscaler/oneapi_response.py: a commented-out `# self._max_pages = max_pages` and, in validate_page_size, `max_page_size = limits.get(\"max\", 100)` and `validated_size = min(max(int(page_size), min_page_size), max_page_size)`, whose result is stored as `self._limit`; the ZPA next-page branch sets only `self._params[\"page\"]`, and `grep -n 'min(\\|max(' zscaler/request_executor.py` returns one line, the retry backoff `backoff_seconds = min(backoff_seconds, 60)`.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -460,11 +469,8 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "if search_value.startswith('\"') and search_value.endswith('\"'):",
-            "search_value = search_value[1:-1]",
             "if service_type.lower() == \"zpa\":",
-            "# Remove any existing quotes",
-            "# Check if the search string already contains filter operators"
+            "# Remove any existing quotes if search_value.startswith('\"') and search_value.endswith('\"'): search_value = search_value[1:-1] # Check if the search string already contains filter operators"
           ]
         }
       ]

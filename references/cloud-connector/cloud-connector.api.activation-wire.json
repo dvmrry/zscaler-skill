@@ -153,8 +153,16 @@
             "\"admin_activate_status\": { Type: schema.TypeString, Optional: true, ForceNew: true,",
             "\"admin_status_map\": { Type: schema.TypeMap, Computed: true,"
           ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "quotes": [
+            "func resourceFuncNoOp(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics { return nil }"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -c -E 'Update(Context|WithoutTimeout)?:' ztc/resource_ztc_activation_status.go` at v0.2.0 returns 0; the resource map sets only CreateContext, ReadContext, DeleteContext (resourceFuncNoOp) and Importer."
     },
     "tf-never-forces": {
       "statement": "The ZTC provider never calls forced activation: the resource has no force option, and the provider does not call `ForceActivationStatus` or the forced activate path.",

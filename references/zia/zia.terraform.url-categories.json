@@ -136,14 +136,31 @@
       ]
     },
     "predefined-incremental": {
-      "statement": "`zia_url_categories_predefined` changes predefined categories with incremental `ADD_TO_LIST` and `REMOVE_FROM_LIST` operations for its list fields rather than replacing the category.",
+      "statement": "`zia_url_categories_predefined` changes the URL, IP-range and parent-retaining IP-range lists of a predefined category with incremental `REMOVE_FROM_LIST` and `ADD_TO_LIST` operations, and replaces `keywords` and `keywords_retaining_parent_category` with a plain PUT. Its documentation says instead that all list fields, keywords included, use incremental operations rather than a full replacement.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
+          "path": "zia/resource_zia_url_categories_predefined.go",
+          "after": "func applyPredefinedCategoryDiff(ctx context.Context, service *zscaler.Service, categoryID string, current *urlcategories.URLCategory, desired *urlcategories.URLCategory) diag.Diagnostics {",
+          "quotes": [
+            "log.Printf(\"[INFO] Using REMOVE_FROM_LIST to remove %d items from url/ip fields\", incrementalRemoves)",
+            "removeCategory.Urls = urlsToRemove removeCategory.IPRanges = ipToRemove removeCategory.IPRangesRetainingParentCategory = ipRetToRemove",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &removeCategory, \"REMOVE_FROM_LIST\"); err != nil {",
+            "log.Printf(\"[INFO] Using ADD_TO_LIST to add %d items to url/ip fields\", incrementalAdds)",
+            "addCategory.Urls = urlsToAdd addCategory.IPRanges = ipToAdd addCategory.IPRangesRetainingParentCategory = ipRetToAdd",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &addCategory, \"ADD_TO_LIST\"); err != nil {",
+            "log.Printf(\"[INFO] Using plain PUT to update keyword fields (replacement semantics)\")",
+            "kwCategory.Keywords = desired.Keywords kwCategory.KeywordsRetainingParentCategory = desired.KeywordsRetainingParentCategory",
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &kwCategory, \"\"); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zia",
           "path": "docs/resources/zia_url_categories_predefined.md",
           "quotes": [
-            "The provider uses incremental `ADD_TO_LIST` and `REMOVE_FROM_LIST` API operations for all list fields"
+            "The provider uses incremental `ADD_TO_LIST` and `REMOVE_FROM_LIST` API operations for all list fields (`urls`, `ip_ranges`, `keywords`, `keywords_retaining_parent_category`, `ip_ranges_retaining_parent_category`).",
+            "issues targeted add/remove calls rather than a full replacement"
           ]
         }
       ]
@@ -250,6 +267,10 @@
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_url_categories.go",
+          "at": [
+            "v4.8.17",
+            "HEAD"
+          ],
           "quotes": [
             "func incrementalURLRequest(desired urlcategories.URLCategory, urls []string) urlcategories.URLCategory { req := desired req.Urls = urls req.DBCategorizedUrls = []string{} req.IPRanges = []string{} return req }",
             "return len(c.KeywordsRetainingParentCategory) > 0 || len(c.IPRangesRetainingParentCategory) > 0 || len(c.RegexPatterns) > 0 || len(c.RegexPatternsRetainingParentCategory) > 0"
@@ -279,6 +300,7 @@
           "path": "terraform-provider-zia-575.json",
           "quotes": [
             "`terraform plan` refresh of a single `zia_url_categories` resource holding ~19,000 entries in `urls` takes 15–20 minutes per run.",
+            "Create a `zia_url_categories` resource of `type = \"URL_CATEGORY\"`, `custom_category = true`, `super_category = \"USER_DEFINED\"` containing ~20,000 entries in `urls`.",
             "The same data via the underlying ZIA REST endpoint returns in ~5 seconds.",
             "Fresh create: several minutes → ~35 seconds. Refresh: many minutes → ~20 seconds.",
             "I tested v4.7.23 and looks like we're good. 17 URL cats, code over 20k lines and plan passed after 1m and 6 seconds.",

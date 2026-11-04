@@ -110,6 +110,7 @@
     "endpoints": {
       "statement": "ATP is three endpoints under cyberThreatProtection: advancedThreatSettings (one settings object), securityExceptions (the allowlist) and maliciousUrls (the denylist). The settings object and the allowlist are read with GET and written with PUT; the denylist is written with an action parameter.",
       "tier": "A",
+      "conditions": "Absence claim (only three ATP endpoints): `jq -r '.paths | to_entries[] | .key as $p | .value | to_entries[] | select(.value.tags? and (.value.tags | index(\"Advanced Threat Protection Policy\"))) | \"\\($p) \\(.key)\"' automate-zscaler/openapi/zia.openapi.json` returns GET and PUT on /cyberThreatProtection/advancedThreatSettings, /maliciousUrls and /securityExceptions and nothing else; the other four cyberThreatProtection paths (atpMalwareInspection, atpMalwareProtocols, malwarePolicy, malwareSettings) are tagged Malware Protection Policy. `grep -n 'Endpoint *=' zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go` (sdk-go) at v3.8.58 returns exactly the three quoted constants.",
       "evidence": [
         {
           "source": "api-specs",
@@ -245,7 +246,7 @@
       "conditions": "The count and the 'rest are booleans' reading come from the spec's property list; the validator checks only the pointed members."
     },
     "misspelled-file-format-key": {
-      "statement": "The file-format-vulnerability keys are misspelled on the wire: fileFormatVunerabilitesBlocked and fileFormatVunerabilitesCapture, missing the first l and an i. Both SDKs send the misspelled key: the Go field is spelled correctly but its json tag is not, and the Python model uses the misspelled attribute.",
+      "statement": "The file-format-vulnerability keys are misspelled on the wire: fileFormatVunerabilitesBlocked and fileFormatVunerabilitesCapture, missing the first l and an i. The Go fields are spelled correctly but their json tags carry the misspelled keys. The Python model's attributes and request_format use the misspelled keys, but update_atp_settings sends the caller's keyword arguments as the body and documents them as file_format_vulnerabilities_blocked and file_format_vulnerabilities_capture.",
       "tier": "A",
       "evidence": [
         {
@@ -268,14 +269,35 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/advancedthreatsettings/advancedthreatsettings.go",
           "quotes": [
-            "FileFormatVulnerabilitiesBlocked bool `json:\"fileFormatVunerabilitesBlocked\"`"
+            "FileFormatVulnerabilitiesBlocked bool `json:\"fileFormatVunerabilitesBlocked\"`",
+            "FileFormatVulnerabilitiesCapture bool `json:\"fileFormatVunerabilitesCapture\"`"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/advanced_threat_settings.py",
           "quotes": [
-            "self.file_format_vunerabilites_blocked = None"
+            "self.file_format_vunerabilites_blocked = None",
+            "self.file_format_vunerabilites_capture = None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/advanced_threat_settings.py",
+          "after": "def request_format(self) -> Dict[str, Any]:",
+          "quotes": [
+            "\"fileFormatVunerabilitesBlocked\": self.file_format_vunerabilites_blocked,",
+            "\"fileFormatVunerabilitesCapture\": self.file_format_vunerabilites_capture,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/atp_policy.py",
+          "after": "def update_atp_settings(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "- file_format_vulnerabilities_blocked (bool): Blocks file format vulnerabilities.",
+            "- file_format_vulnerabilities_capture (bool): Captures file format vulnerability attempts.",
+            "body.update(kwargs)"
           ]
         }
       ],

@@ -79,7 +79,7 @@
   ],
   "checks": [
     {
-      "do": "Which variant the predefined rule being copied uses, since Evaluate and Bypass keep different policies.",
+      "do": "Which variant a rule copied from the guide's example rule set uses, since Evaluate and Bypass keep different policies.",
       "uses": [
         "predefined-exemptions-differ"
       ]
@@ -101,7 +101,7 @@
       ]
     },
     "bypass-purposes": {
-      "statement": "The cases where a bypass is generally applicable are banking and finance destinations, healthcare destinations, business functions that need undecryptable traffic, business functions that need certificate-pinned sites or applications, and applications such as parts of Microsoft 365 that break when inspected.",
+      "statement": "In general, bypasses are applicable only for specific functions, such as banking and finance destinations, healthcare destinations, business functions that need undecryptable traffic, business functions that need certificate-pinned sites or applications, and applications such as parts of Microsoft 365 that break when inspected.",
       "tier": "A",
       "evidence": [
         {
@@ -201,24 +201,26 @@
       ]
     },
     "shared-storage-domains": {
-      "statement": "Do not exempt the shared-storage CDN domains `.s3.amazonaws.com`, `.blob.core.windows.net` or `.cloudfront.net` or similar: any subscriber can get its own storage subdomain there, so exempting the parent leaves every AWS S3 or Azure Blob account uninspected.",
+      "statement": "Avoid exempting the shared-storage CDN domains `.s3.amazonaws.com`, `.blob.core.windows.net`, `.cloudfront.net` or similar major CDNs without serious consideration: any subscriber can get its own storage subdomain there, so exempting the parent leaves every AWS S3 or Azure Blob storage account uninspected.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
+            "Common exemptions to avoid are:",
             "(.s3).amazonaws.com",
             "(.blob.core).windows.net",
             ".cloudfront.net",
+            "Similar major content delivery networks (CDNs)",
             "These are destinations where any subscriber can get their own file storage subdomain.",
-            "Exempting these domains from inspection means no inspection occurs for any AWS S3 or Azure Blob storage account"
+            "Exempting these domains from inspection means no inspection occurs for any AWS S3 or Azure Blob storage account and should not be exempted without serious consideration."
           ]
         }
       ]
     },
     "exception-hygiene": {
-      "statement": "Keep SSL exceptions in at least one dedicated URL category or destination group, investigate before adding any bypass, and document every entry for later audit.",
+      "statement": "Keep SSL exceptions in at least one dedicated URL category or destination group, don't create bypasses to resolve access issues without proper investigation, and document every entry for later audit.",
       "tier": "A",
       "evidence": [
         {
@@ -233,7 +235,7 @@
       ]
     },
     "predefined-exemptions-differ": {
-      "statement": "The two predefined exemption styles differ in what survives: the Zscaler Recommended Exemptions rule is Do Not Inspect with Evaluate Other Policies, so URL Filtering still runs, while the Zscaler Microsoft 365 Click-to-Run rule is Do Not Inspect with Bypass Other Policies, so it does not.",
+      "statement": "In the guide's example rule set, the Zscaler Recommended Exemption rule is Do Not Inspect with Evaluate Other Policies, so URL Filtering still runs, while the Zscaler Microsoft 365 Click-to-Run rule is Do Not Inspect with Bypass Other Policies, so it does not.",
       "tier": "A",
       "conditions": "Read from the guide's example rule table, which is flattened PDF text; the row alignment is the reading used here.",
       "evidence": [
@@ -241,6 +243,7 @@
           "source": "zscaler-help",
           "path": "ZIA_SSL_Inspection_Leading_Practices_Guide.txt",
           "quotes": [
+            "Build rules that align closely with the following Leading Practices examples.",
             "1 Zscaler N/A Do Not Inspect Recommended Evaluate Other Exemption Rule Policies Show End User Notifications: Disabled",
             "Zscaler Microsoft 365 Click-to-Run (Policy > URL & Cloud Do Not Inspect 3 N/A App Control > Bypass Other Policies",
             "Avoid Bypass Other Policies for any custom exemption rules. This feature bypasses the SSL inspection engines, the URL Filtering policies, and Cloud App Control policies."

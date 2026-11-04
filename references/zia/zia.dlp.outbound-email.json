@@ -68,10 +68,12 @@
           "quotes": [
             "The response body is a CSV file.",
             "/emailDlpRules/actions",
-            "tuple: A 2-tuple of (the CSV mapping of supported outbound email DLP rule actions as bytes, error)."
+            "tuple: A 2-tuple of (the CSV mapping of supported outbound email DLP rule actions as bytes, error).",
+            "return (content, None)"
           ],
           "after": "def get_actions(self, query_params: Optional[dict] = None, output_file: str = None) -> APIResult[bytes]:",
           "at": [
+            "v1.9.39",
             "v1.11.2"
           ]
         },
@@ -106,7 +108,8 @@
           "status": "fixed",
           "note": "Fixed in Python SDK v1.11.3 (PR 602, issue 598): the function returns the documented (result, response, error) tuple."
         }
-      ]
+      ],
+      "conditions": "`get_actions` first appears at v1.9.39: `git show <tag>:zscaler/zia/outbound_email_dlp_rules.py | grep -c 'def get_actions'` returns 0 for every v1.* tag before v1.9.39, and at v1.9.39, v1.10.0, v1.11.0 and v1.11.2 the function ends `return (content, None)`."
     },
     "release-notes-understate": {
       "statement": "The Go and Python release notes mention only the actions CSV endpoint, although the list, lite, get and CRUD methods are also present in code. The methods shipped in Go v3.8.41 and Python v1.9.39.",
@@ -174,7 +177,8 @@
             "def delete_rule(self, rule_id: int) -> APIResult[None]:"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n -i 'outbound email\\|emailDlpRules\\|outbound_email' CHANGELOG.md` matches, in the Go SDK at v3.8.58, only the 3.8.41 entry for `GET /emailDlpRules/actions`, and in the Python SDK at v1.11.3-1-g4f8f54df only the 1.9.39 entry for that endpoint and a 1.11.3 fix to the return tuple of `outbound_email_dlp_rules.get_actions`. `git show v3.8.40:zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go` and `git show v1.9.38:zscaler/zia/outbound_email_dlp_rules.py` both fail: neither file is in that release."
     },
     "terraform-resource": {
       "statement": "Terraform provider v4.8.0 added the `zia_outbound_email_dlp` resource and data source.",

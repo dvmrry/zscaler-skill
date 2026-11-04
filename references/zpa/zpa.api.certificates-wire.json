@@ -105,7 +105,7 @@
   ],
   "claims": {
     "enrollment-cert-v1-v2-split": {
-      "statement": "Enrollment certificate single-object reads and all writes use the mgmtconfig v1 path, while the list and the name lookup use the v2 path; the OpenAPI document lists a v1 get by ID and a v2 list.",
+      "statement": "In the Go SDK, enrollment certificate single-object reads and all writes use the mgmtconfig v1 path, while the list and the name lookup use the v2 path; the OpenAPI document lists a v1 get by ID and a v2 list.",
       "tier": "A",
       "evidence": [
         {
@@ -174,7 +174,8 @@
             "operationId": "Get All Signing Cert"
           }
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'NewRequestDo\\|mgmtConfigV' zscaler/zpa/services/enrollmentcert/zpa_enrollmentcert.go` at v3.8.58 lists a GET in Get, one POST each in Create, GenerateCSR and GenerateSelfSigned, a PUT in Update and a DELETE in Delete, all on mgmtConfigV1; the only mgmtConfigV2 uses are in GetByName and GetAll."
     },
     "enrollment-cert-csr-selfsigned-v1": {
       "statement": "Generating a CSR and generating a self-signed enrollment certificate are POSTs on the v1 enrollmentCert path, at csr/generate and selfsigned/generate.",
@@ -340,7 +341,7 @@
           ]
         }
       ],
-      "conditions": "Statement changed per verifier: it said any description sent through the model is dropped, but add_enrollment_cert and update_enrollment build the body from keyword arguments, and no call in enrollment_certificates.py uses request_format (read from the whole file). The absence of description from the config branch and from request_format was read from the whole model; a quote cannot prove an absence. The Go struct and the OpenAPI schema both define description."
+      "conditions": "Statement changed per verifier: it said any description sent through the model is dropped, but add_enrollment_cert and update_enrollment build the body from keyword arguments, and no call in enrollment_certificates.py uses request_format (read from the whole file). The absence of description from the config branch and from request_format was read from the whole model; a quote cannot prove an absence. The Go struct and the OpenAPI schema both define description. Absence claim: `grep -n description zscaler/zpa/models/enrollment_certificates.py` at v1.11.3-1-g4f8f54df returns one line, `self.description = None` in the no-config branch, and `grep -n request_format zscaler/zpa/enrollment_certificates.py` returns nothing."
     },
     "python-enrollment-empty-request-format": {
       "statement": "Calling request_format on an EnrollmentCertificate built without a config raises AttributeError.",
@@ -369,7 +370,7 @@
       "conditions": "Rests on the three Go write functions opening with the NewRequestDo call and on a read of the whole enrollmentcert package at the pin, which converts and validates nothing; a quote cannot pin the absence."
     },
     "python-validity-window-checks": {
-      "statement": "The Python SDK checks valid_from, valid_to and time_zone, rejecting a start more than one hour in the past, a range over 365 days, and a time zone not in the pytz list. The Go SDK's `Create`, `Update` and self-signed generate functions open by passing the certificate struct to `NewRequestDo`, with nothing before the call but allocating the response or building the path. add_enrollment_cert and generate_self_signed send the body as the keyword arguments, so the window goes out as epoch seconds in strings. update_enrollment copies the keyword arguments into a new body before converting, then writes the epoch values into the keyword arguments and removes the raw valid_from, valid_to and time_zone from them, not from the body.",
+      "statement": "When valid_from, valid_to and time_zone are all passed, the Python SDK checks them, rejecting a start more than one hour in the past, a range over 365 days, and a time zone not in the pytz list. The Go SDK's `Create`, `Update` and self-signed generate functions open by passing the certificate struct to `NewRequestDo`, with nothing before the call but allocating the response or building the path. add_enrollment_cert and generate_self_signed send the body as the keyword arguments, so the window goes out as epoch seconds in strings. update_enrollment copies the keyword arguments into a new body before converting, then writes the epoch values into the keyword arguments and removes the raw valid_from, valid_to and time_zone from them, not from the body.",
       "tier": "A",
       "evidence": [
         {
@@ -377,6 +378,7 @@
           "path": "zscaler/zpa/enrollment_certificates.py",
           "quotes": [
             "body = kwargs",
+            "if \"valid_from\" in kwargs and \"valid_to\" in kwargs and \"time_zone\" in kwargs: try: from_epoch, to_epoch = validate_and_convert_times( kwargs[\"valid_from\"], kwargs[\"valid_to\"], kwargs[\"time_zone\"] )",
             "kwargs[\"valid_from_in_epoch_sec\"] = str(from_epoch)"
           ],
           "after": "def add_enrollment_cert(self, **kwargs)"
@@ -386,6 +388,7 @@
           "path": "zscaler/zpa/enrollment_certificates.py",
           "quotes": [
             "body = kwargs",
+            "if \"valid_from\" in kwargs and \"valid_to\" in kwargs and \"time_zone\" in kwargs: try: from_epoch, to_epoch = validate_and_convert_times( kwargs[\"valid_from\"], kwargs[\"valid_to\"], kwargs[\"time_zone\"] )",
             "kwargs[\"valid_from_in_epoch_sec\"] = str(from_epoch)"
           ],
           "after": "def generate_self_signed(self, **kwargs)"
@@ -396,8 +399,9 @@
           "quotes": [
             "body = {}",
             "body.update(kwargs)",
+            "if \"valid_from\" in kwargs and \"valid_to\" in kwargs and \"time_zone\" in kwargs: try: from_epoch, to_epoch = validate_and_convert_times( kwargs[\"valid_from\"], kwargs[\"valid_to\"], kwargs[\"time_zone\"] )",
             "kwargs[\"valid_from_in_epoch_sec\"] = str(from_epoch)",
-            "kwargs.pop(key, None)",
+            "for key in (\"valid_from\", \"valid_to\", \"time_zone\"): kwargs.pop(key, None)",
             "request, error = self._request_executor.create_request(http_method, api_url, body, {}, {})"
           ],
           "after": "def update_enrollment("
@@ -921,7 +925,7 @@
           "after": "def update_certificate(self, certificate_id: str, **kwargs)"
         }
       ],
-      "conditions": "The absence of an Update in the Go package follows from its complete function list quoted above (zpa_ba_certificate.go is the package's only non-test file); the OpenAPI path object has no put.",
+      "conditions": "The absence of an Update in the Go package follows from its complete function list quoted above (zpa_ba_certificate.go is the package's only non-test file); the OpenAPI path object has no put. Absence claim: `grep -n '^func' zscaler/zpa/services/bacertificate/zpa_ba_certificate.go` at v3.8.58 returns only Get, GetIssuedByName, Create, Delete and GetAll, and `git grep -n BaCertificate -- zscaler/zpa | grep -i 'update\\|PUT'` returns nothing.",
       "gaps": [
         "ba-certificate-put-valid"
       ]

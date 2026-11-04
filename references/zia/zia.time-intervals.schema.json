@@ -117,7 +117,8 @@
             "type": "array"
           }
         }
-      ]
+      ],
+      "conditions": "Absence claim: over automate-zscaler/openapi/zia.openapi.json in the capture of 2026-09-07, `jq '.paths[\"/timeIntervals\"].post.requestBody.content[\"application/json\"].schema.properties | keys'` returns `[\"daysOfWeek\",\"endTime\",\"id\",\"name\",\"startTime\"]`, and the same over the GET 200 response's `items.properties` returns the same five keys."
     },
     "minutes-from-midnight": {
       "statement": "`startTime` and `endTime` are minutes from midnight, 0 to 1439 (480 is 08:00, 1020 is 17:00), not clock strings. The OpenAPI document says only \"start time\" and \"end time\"; the unit comes from the MCP server's tool description and the SDK example.",
@@ -255,6 +256,13 @@
             "ID int `json:\"id,omitempty\"`",
             "Name string `json:\"name,omitempty\"`",
             "DaysOfWeek []string `json:\"daysOfWeek,omitempty\"`"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "quotes": [
+            "Minutes from midnight (0-1439). E.g. 480 = 08:00, 1020 = 17:00."
           ]
         },
         {

@@ -220,10 +220,11 @@
     "terraform-cannot-choose-external-id": {
       "statement": "A Terraform configuration therefore cannot choose the external ID, and the first create sends none: state holds an empty value, and the SDK field is tagged `omitempty`, so it is left out of the body. Later updates send the value read back from the API.",
       "tier": "B",
-      "conditions": "Follows from the provider code and Go's omitempty semantics; not observed on the wire.",
+      "conditions": "Follows from the provider code, from the SDK's `CreatePublicCloudInfo` and `UpdatePublicCloudInfo` sending the struct through `CreateResource` and `UpdateWithPutResource` (quoted), which marshal the caller's struct (ztw-writes-marshal-caller-struct), and from Go's omitempty semantics for a plain string field; the package defines no MarshalJSON. Not observed on the wire.",
       "derived_from": [
         "terraform-external-id-computed",
-        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values",
+        "shared.sdk-go.zero-value-writes:ztw-writes-marshal-caller-struct"
       ],
       "evidence": [
         {
@@ -233,6 +234,18 @@
             "ExternalID string `json:\"externalId,omitempty\"`"
           ],
           "after": "type PublicCloudInfo struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.CreateResource(ctx, publicCloudInfoEndpoint, *cloudInfo)",
+            "resp, err := service.Client.UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", publicCloudInfoEndpoint, awsAccountID), *cloudInfo)"
+          ]
         }
       ]
     },
@@ -281,6 +294,8 @@
           "source": "zscaler-help",
           "path": "cbc-adding-amazon-web-services-account.json",
           "quotes": [
+            "In the Review section, confirm that the information is correct and click Save and Next.",
+            "To grant these permissions, in the CloudFormation section, launch or download the CloudFormation template:",
             "The CloudFormation template is displayed in your AWS account with custom values based on the information you entered in the Zscaler Admin Console. To proceed, you must confirm the information and execute the template.",
             "Download CloudFormation Template for Later Execution: If the Zscaler admin user does not have permission to execute the CloudFormation template in their AWS account, download the CloudFormation template to deploy at a later date.",
             "After the CloudFormation template is executed, your account is onboarded into the Zscaler Admin Console."
@@ -366,7 +381,7 @@
           "source": "sdk-python",
           "path": "zscaler/ztw/public_cloud_info.py",
           "quotes": [
-            "- cloudWatchGroupArn (str): CloudWatch log group ARN. Use \"DISABLED\" to disable."
+            "account_details (dict): Account details object containing: - awsAccountId (str): AWS account ID. - awsRoleName (str): AWS IAM role name. - cloudWatchGroupArn (str): CloudWatch log group ARN. Use \"DISABLED\" to disable."
           ],
           "after": "def add_public_cloud_info(self, **kwargs)"
         }

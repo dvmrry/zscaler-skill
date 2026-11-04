@@ -34,7 +34,7 @@
   ],
   "prose": [
     {
-      "text": "\"We disabled the user in the IdP, why can they still browse?\" starts with which SCIM action the IdP really sends. {{active-flag}} {{delete-removes}}"
+      "text": "\"We disabled the user in the IdP, why can they still browse?\" starts with which SCIM action the IdP really sends. {{active-flag}} {{delete-removes}} Which request an IdP sends when a user is deleted from the directory is open {{gap:deletion-request}}."
     },
     {
       "text": "{{zpa-deletes}} Directory synchronization behaves differently again: users removed from the directory are deactivated and have their cookies invalidated, see [[zia.ad-integration.directory-sync]]."
@@ -80,7 +80,7 @@
       ]
     },
     "delete-removes": {
-      "statement": "Deleting a user in the directory is carried to Zscaler as a SCIM delete (DELETE /Users/{UserID}), which deprovisions the user from the Zscaler database; this is a documented use of SCIM and a separate path from active=false.",
+      "statement": "SCIM is documented for deprovisioning users from the Zscaler database when they are deleted from the user directory, and the Zscaler SCIM servers support Delete User (DELETE /Users/{UserID}); active=false, which disables the user, is a separate path.",
       "tier": "A",
       "evidence": [
         {
@@ -88,6 +88,7 @@
           "path": "understanding-scim-zia.json",
           "quotes": [
             "Deprovisioning users from the Zscaler database when users are deleted from your user directory.",
+            "Operations Supported by Zscaler SCIM Servers",
             "| Delete User | DELETE /Users/{UserID} |",
             "When \"active=false,\" Zscaler disables this user"
           ]
@@ -116,6 +117,17 @@
     }
   },
   "gaps": {
+    "deletion-request": {
+      "kind": "semantic",
+      "title": "Which SCIM request an IdP sends when a user is deleted from the directory",
+      "status": "open",
+      "detail": "The page lists deprovisioning users deleted from the directory among SCIM's uses and Delete User (DELETE /Users/{UserID}) among the operations Zscaler's SCIM servers support, and active=false is a separate path that disables the user (delete-removes, active-flag). Whether a directory deletion arrives as that DELETE or as an update setting active=false is not in any captured source, and may differ by IdP. An IdP's SCIM provisioning documentation, or the Zscaler SCIM log for a test deletion, would settle it.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ],
+      "blocks": "saying what a directory deletion does to a Zscaler user"
+    },
     "session-kill": {
       "kind": "semantic",
       "title": "Whether active=false ends a live ZIA session",

@@ -139,25 +139,27 @@
       ]
     },
     "idp-scope": {
-      "statement": "In a rule that selects several IdPs, each IdP carries its own criteria, and a user authenticating from one IdP is matched by that IdP's criteria.",
+      "statement": "In a rule that selects several IdPs, each IdP carries its own criteria, and Private Access joins the IdPs with OR by default, so a user authenticating from one IdP is matched by that IdP's criteria; the operator can be toggled to AND.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-access-policies.json",
           "quotes": [
-            "In this case, the policy rule applies to a user authenticating from the first IdP if they have the specified First Name OR Last Name or it applies to any user authenticating from the second IdP."
+            "If you selected multiple IdPs for the policy rule, Private Access uses an OR Boolean operator between them by default.",
+            "For example, you can select one IdP that includes First Name OR Last Name and another IdP that includes Any SAML Attribute.",
+            "In this case, the policy rule applies to a user authenticating from the first IdP if they have the specified First Name OR Last Name or it applies to any user authenticating from the second IdP. However, you can toggle this to an AND operator by clicking on it."
           ]
         }
       ]
     },
     "other-idp-no-match": {
-      "statement": "A user who authenticates through one IdP is not matched by attribute criteria chosen only under a different IdP, even when an attribute there has the same name.",
+      "statement": "Under the default OR between IdPs, a user who authenticates through one IdP is not matched by attribute criteria chosen only under a different IdP, even when an attribute there has the same name.",
       "tier": "B",
       "derived_from": [
         "idp-scope"
       ],
-      "conditions": "Follows from criteria being chosen per IdP and applying to users authenticating from that IdP. The identical-name case is not shown in a source."
+      "conditions": "Follows from criteria being chosen per IdP and, with the IdPs joined by the default OR, applying to users authenticating from that IdP. The help does not say how a rule whose IdPs are toggled to AND matches a user who authenticates through one of them. The identical-name case is not shown in a source."
     },
     "multi-idp-and-advice": {
       "statement": "Zscaler recommends not using the AND operator between policy rules when the SSO configuration includes SAML or SCIM attributes from multiple IdPs.",
@@ -228,13 +230,31 @@
         },
         {
           "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func GetPolicyConditionsSchema(objectTypes []string) *schema.Schema {",
+          "quotes": [
+            "\"idp_id\": {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
+            "`object_type` (String) This is for specifying the policy criteria. Supported values: `SAML`\n        - `entry_values` (Block Set)",
             "`lhs` - (String) -  The ID of the SAML Attribute value.",
             "`rhs` - (String) - The SAML attribute string i.e Group name, Department Name, Email address etc."
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func ValidatePolicyRuleConditions(d *schema.ResourceData) error {",
+          "quotes": [
+            "return fmt.Errorf(\"entry_values must be provided for SAML object_type\")"
+          ]
         }
-      ]
+      ],
+      "conditions": "`grep -ln 'GetPolicyConditionsSchema(' zpa/*.go` at v4.4.16 returns common.go and the six v1 rule resources (access, forwarding, inspection, isolation, redirection and timeout), the resources this claim calls v1."
     },
     "v1-validates-lookup": {
       "statement": "When a v1 policy resource is created or updated, the provider looks the SAML operand's lhs up with samlattribute.Get and fails on an unknown ID or an empty rhs; the v2 resources call `ValidatePolicyRuleConditions` instead, whose SAML case, quoted from `case \"SAML\":` to the next case, checks that entry_values is present and that lhs and rhs are not empty, with no lookup.",
@@ -243,6 +263,16 @@
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
+          "after": "func ValidateConditions(",
+          "quotes": [
+            "if err := validateOperands(ctx, condition.Operands, zClient, microtenantID); err != nil {",
+            "if err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {",
           "quotes": [
             "_, _, err := samlattribute.Get(ctx, zClient.Service, operand.LHS)",
             "return lhsWarn(operand.ObjectType, \"valid SAML Attribute ID\", operand.LHS, err) } if operand.RHS == \"\" {",
@@ -293,7 +323,7 @@
           "after": "func resourcePolicyAccessV2Update(ctx"
         }
       ],
-      "conditions": "v1 call sites: every ValidateConditions caller is a v1 resource's create or update function; the v2 resources call ValidatePolicyRuleConditions instead, which does no lookup. The first quote pair is the v1 validator (lookup, then lhsWarn on error); the 'cannot be empty' quote is the v2 validator ValidatePolicyRuleConditions."
+      "conditions": "v1 call sites: every ValidateConditions caller is a v1 resource's create or update function; the v2 resources call ValidatePolicyRuleConditions instead, which does no lookup. The first quote pair is the v1 validator (lookup, then lhsWarn on error); the 'cannot be empty' quote is the v2 validator ValidatePolicyRuleConditions. Searches at v4.4.16: `grep -ln 'ValidateConditions(' zpa/*.go` returns common.go and the six v1 rule resources (access, forwarding, inspection, isolation, redirection and timeout), each calling it from its create and update functions; `grep -ln 'ValidatePolicyRuleConditions(d)' zpa/*.go` returns the six v2 rule resources (access, browser protection, forwarding, inspection, isolation and timeout) and the capabilities, credential and portal access rules."
     },
     "mixed-block-gui": {
       "statement": "A rule that combines different object types in one conditions block with OR is valid through Terraform and the API, but the Admin Console criteria builder cannot always represent it, and re-saving it there may silently drop the operands it cannot render.",

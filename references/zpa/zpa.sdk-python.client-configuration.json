@@ -131,7 +131,7 @@
       "conditions": "Assumes the SDK's to_snake_case turns customerId into customer_id and microtenantId into microtenant_id (zscaler/helpers.py), which was not exercised."
     },
     "zpa-base-path-from-config": {
-      "statement": "A ZPA service client builds its base URL path from the `customerId` value in the client configuration, and does not check that the value is set.",
+      "statement": "Most ZPA service clients, the customer controller among them, build their base URL path from the `customerId` value in the client configuration without checking that it is set; the App Connector and Service Edge schedule clients are the exceptions.",
       "tier": "A",
       "evidence": [
         {
@@ -141,8 +141,23 @@
             "customer_id = config[\"client\"].get(\"customerId\")",
             "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_schedule.py",
+          "quotes": [
+            "if not self.customer_id:"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/service_edge_schedule.py",
+          "quotes": [
+            "if not self.customer_id:"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: at v1.11.3-1-g4f8f54df, `grep -l 'customer_id = config[\"client\"].get(\"customerId\")' zscaler/zpa/*.py` returns 81 modules; `grep -A1 -h` with the same pattern shows the next line is the base-endpoint f-string in 79 of them and `if not self.customer_id:` in the two schedule modules, and `grep -n -E 'if not (self\\.)?customer_id|(self\\.)?customer_id is None|if (self\\.)?customer_id' zscaler/zpa/*.py` matches only in those two. The config validator's `_validate_zpa_customer_id` has no caller: `grep -rn --include='*.py' _validate_zpa_customer_id zscaler/` returns only its definition."
     },
     "schedule-env-fallback": {
       "statement": "The App Connector and Service Edge schedule client constructors each take the tenant ID from the configuration or from the environment variable ZPA_CUSTOMER_ID and raise ValueError when neither is set.",

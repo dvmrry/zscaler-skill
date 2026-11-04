@@ -241,7 +241,7 @@
             "entry_values must be provided for object_type %s",
             "entry_values should not be provided for object_type %s",
             "both lhs and rhs must be provided in entry_values",
-            "} else if operand.OperandsResourceLHSRHSValue != nil && len(*operand.OperandsResourceLHSRHSValue) != 0 {"
+            "return errors.New(\"both lhs and rhs must be provided in entry_values\") } } } else if operand.OperandsResourceLHSRHSValue != nil && len(*operand.OperandsResourceLHSRHSValue) != 0 { return fmt.Errorf(\"entry_values should not be provided for object_type %s\", objectType)"
           ],
           "after": "func validateLSSConfigControllerFilters("
         }
@@ -398,8 +398,10 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/lss.py",
+          "after": "def add_lss_config(",
           "quotes": [
-            "\"connectorGroups\": [{\"id\": group_id} for group_id in app_connector_group_ids] if app_connector_group_ids else [],"
+            "\"connectorGroups\": [{\"id\": group_id} for group_id in app_connector_group_ids] if app_connector_group_ids else [],",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=payload)"
           ]
         }
       ]
@@ -441,7 +443,7 @@
           ]
         }
       ],
-      "conditions": "Was a divergence between the provider validator and the Go test; the commented-out test line asserts nothing, so the sources do not disagree. That the test line is commented out was read from the file. Whether the API accepts the value as an operand stays open in the gap browser-isolation-accepted.",
+      "conditions": "Was a divergence between the provider validator and the Go test; the commented-out test line asserts nothing, so the sources do not disagree. That the test line is commented out was read from the file: `grep -n zpn_client_type_browser_isolation zscaler/zpa/services/lssconfigcontroller/*.go` at Go SDK v3.8.58 returns one line, the commented `// Values: []string{\"zpn_client_type_browser_isolation\"},` in zpa_lss_config_controller_test.go. Whether the API accepts the value as an operand stays open in the gap browser-isolation-accepted.",
       "gaps": [
         "browser-isolation-accepted"
       ]

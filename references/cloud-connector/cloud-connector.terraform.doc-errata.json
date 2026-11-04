@@ -116,7 +116,7 @@
     "template-apply-checks": {
       "statement": "On create and update, before calling the API, the location template resource rejects caution combined with authentication or with AUP, AUP enabled with an AUP timeout of 0 days, and bandwidth control enforced with both upload and download limits 0. These are apply-time errors, not plan-time ones, and a 0 AUP timeout is not accepted as \"no timeout\" when AUP is on.",
       "tier": "A",
-      "conditions": "Corrects the legacy doc's \"aup_timeout_in_days: 0 = no timeout\".",
+      "conditions": "Corrects the legacy doc's \"aup_timeout_in_days: 0 = no timeout\". Absence search at v0.2.0: `grep -c CustomizeDiff ztc/resource_ztc_location_template.go` returns 0, `grep -rn checkLocationTemplateDependencies ztc/` returns only its definition and the calls in resourceLocationTemplateCreate and resourceLocationTemplateUpdate, and `grep -n ValidateFunc` on the file returns only the `up_bandwidth` and `dn_bandwidth` checks, `validation.IntBetween(0, 99999999)`, which accept 0; `aup_timeout_in_days` and the caution, authentication and AUP settings have no plan-time validation.",
       "evidence": [
         {
           "source": "tf-ztc",
@@ -127,8 +127,8 @@
             "if template.LocationTemplateDetails.AupEnabled && template.LocationTemplateDetails.AupTimeoutInDays == 0 { return fmt.Errorf(\"AUP timeout in days is required, when AUP is enabled\")",
             "if template.LocationTemplateDetails.EnforceBandwidthControl && template.LocationTemplateDetails.UpBandwidth == 0 && template.LocationTemplateDetails.DnBandwidth == 0 {",
             "return fmt.Errorf(\"upload and download bandwidth is mandatory when enforce bandwidth setting is on\")",
-            "log.Printf(\"[INFO] Creating cloud connector location template\\n%+v\\n\", req) if err := checkLocationTemplateDependencies(req); err != nil {",
-            "log.Printf(\"[INFO] Updating location template ID: %v\\n\", id) req := expandLocationTemplate(d) if err := checkLocationTemplateDependencies(req); err != nil {"
+            "log.Printf(\"[INFO] Creating cloud connector location template\\n%+v\\n\", req) if err := checkLocationTemplateDependencies(req); err != nil { return diag.FromErr(err) } resp, err := locationtemplate.Create(ctx, service, &req)",
+            "log.Printf(\"[INFO] Updating location template ID: %v\\n\", id) req := expandLocationTemplate(d) if err := checkLocationTemplateDependencies(req); err != nil { return diag.FromErr(err) } if _, _, err := locationtemplate.Update(ctx, service, id, &req); err != nil {"
           ]
         }
       ]

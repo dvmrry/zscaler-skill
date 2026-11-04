@@ -91,7 +91,7 @@
   ],
   "claims": {
     "console-actions": {
-      "statement": "A Cloud App Control rule's console action is Allow, Caution, Block, Conditional or Isolate; Isolate requires Zero Trust Browser.",
+      "statement": "An AI & ML applications rule for Cloud App Control offers the console actions Allow, Caution, Block, Conditional and Isolate; Isolate is available only if Zero Trust Browser is enabled for the organization.",
       "tier": "A",
       "binds": [
         "zia/cloud-app-control#actions"
@@ -106,7 +106,8 @@
             "Choose to block the users from accessing the selected applications.",
             "Choose to conditionally allow the users to access the selected applications.",
             "Choose to isolate all the traffic that matches the cloud app control rule through a remote browser.",
-            "This action is available only if Zero Trust Browser is enabled for your organization."
+            "This action is available only if Zero Trust Browser is enabled for your organization.",
+            "In the Actions section, for Application Access, select one of the following actions to apply when the rule conditions are met:"
           ]
         }
       ]
@@ -152,7 +153,7 @@
       ]
     },
     "action-string-shape": {
-      "statement": "Each action string is a prefix naming the verdict followed by application and operation tokens, for example ALLOW_AI_ML_CHAT, DENY_AI_ML_UPLOAD, BLOCK_FILE_SHARE_DOWNLOAD, CAUTION_AI_ML_WEB_USE and ISOLATE_AI_ML_WEB_USE. The provider recognises the prefixes ALLOW, DENY, BLOCK, CAUTION, ISOLATE and ESC (conditional access).",
+      "statement": "The provider documents the action prefixes ALLOW, DENY, BLOCK, CAUTION, ISOLATE and ESC (conditional access) for filtering actions, with examples ALLOW_AI_ML_CHAT, DENY_AI_ML_UPLOAD, BLOCK_FILE_SHARE_DOWNLOAD, CAUTION_AI_ML_WEB_USE and ISOLATE_AI_ML_WEB_USE; its example of an ESC action is AI_ML_CONDITIONAL_ACCESS.",
       "tier": "A",
       "binds": [
         "zia/cloud-app-control#actions"
@@ -167,7 +168,9 @@
             "`BLOCK` - Block actions (e.g., BLOCK_FILE_SHARE_DOWNLOAD)",
             "`CAUTION` - Warning actions (e.g., CAUTION_AI_ML_WEB_USE)",
             "`ISOLATE` - Cloud Browser Isolation actions (e.g., ISOLATE_AI_ML_WEB_USE)",
-            "`ESC` - Conditional access actions"
+            "`ESC` - Conditional access actions",
+            "Optional list of action prefixes to filter results. Valid values: `ALLOW`, `DENY`, `BLOCK`, `CAUTION`, `ISOLATE`, `ESC`.",
+            "| `ESC` | Conditional access | AI_ML_CONDITIONAL_ACCESS | ALLOW, DENY |"
           ]
         }
       ]
@@ -331,7 +334,7 @@
       ]
     },
     "rule-notification-fields": {
-      "statement": "A rule form still carries notification fields: a Browser Notification Template (when the action is Caution or Block), an End User Notification Show/Hide choice (only when a granular action is blocked, shown by default) and a Notification Message for the Zscaler Client Connector-based EUN. The rule model has `eunEnabled`, `eunTemplateId` and `browserEunTemplateId`.",
+      "statement": "A rule form still carries notification fields: a Browser Notification Template (which appears when the action is Caution or Block), an End User Notification Show/Hide choice (which appears when a granular action is blocked and is set to Show by default) and a Notification Message for the Zscaler Client Connector-based EUN. The rule model has `eunEnabled`, `eunTemplateId` and `browserEunTemplateId`.",
       "tier": "A",
       "conditions": "Corrected on recapture (2026-10-18): previously \"A rule form still carries notification fields: a Browser Notification Template (when the action is Caution or Block), an End User Notification Show/Hide choice (only when a granular action is blocked, shown by default) and a Custom Message for Zscaler Client Connector. The rule model has `eunEnabled`, `eunTemplateId` and `browserEunTemplateId`.\" The recaptured page labels the field Notification Message, not Custom Message.",
       "binds": [
@@ -346,7 +349,9 @@
             "This field appears when the application access is set to either Caution or Block.",
             "This field appears when the granular action is blocked for the selected applications.",
             "This field is set to Show by default.",
-            "Notification Message: Select a notification message that you want to show as the Zscaler Client Connector-based EUN."
+            "Notification Message: Select a notification message that you want to show as the Zscaler Client Connector-based EUN.",
+            "Browser Notification Template: Select a browser-based EUN message from the drop-down menu",
+            "End User Notification: Select Show to show the Zscaler Client Connector-based EUN message on endpoints when the user activity triggers the Cloud App Control policy rule, or select Hide if you don't want an EUN message to appear."
           ]
         },
         {
@@ -361,14 +366,15 @@
       ]
     },
     "all-available-actions-reassigned": {
-      "statement": "At Go SDK v3.8.45 the exported `AllAvailableActions` posted to /{rule_type}/availableActions. In later releases the same exported name posts to /{rule_type}/allAvailableActions and `AvailableActions` holds the older /availableActions path, so a caller compiled against the earlier name selects a different endpoint after upgrading.",
+      "statement": "At Go SDK v3.8.45 the exported `AllAvailableActions` posted to /{rule_type}/availableActions. From v3.8.46 the same exported name posts to /{rule_type}/allAvailableActions and `AvailableActions` holds the older /availableActions path, so a caller compiled against the earlier name selects a different endpoint after upgrading.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
           "quotes": [
-            "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)"
+            "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)",
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
           ],
           "after": "func AllAvailableActions(ctx context.Context",
           "at": [
@@ -379,9 +385,14 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/cloudappcontrol/cloudappcontrol.go",
           "quotes": [
-            "url := fmt.Sprintf(\"%s/%s/allAvailableActions\", webApplicationRulesEndpoint, ruleType)"
+            "url := fmt.Sprintf(\"%s/%s/allAvailableActions\", webApplicationRulesEndpoint, ruleType)",
+            "resp, err := service.Client.CreateWithRawPayload(ctx, url, string(payloadData))"
           ],
-          "after": "func AllAvailableActions(ctx context.Context"
+          "after": "func AllAvailableActions(ctx context.Context",
+          "at": [
+            "v3.8.46",
+            "HEAD"
+          ]
         },
         {
           "source": "sdk-go",
@@ -389,7 +400,37 @@
           "quotes": [
             "url := fmt.Sprintf(\"%s/%s/availableActions\", webApplicationRulesEndpoint, ruleType)"
           ],
-          "after": "func AvailableActions(ctx context.Context"
+          "after": "func AvailableActions(ctx context.Context",
+          "at": [
+            "v3.8.46",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ziarequests.go",
+          "after": "func (c *Client) CreateWithRawPayload(ctx",
+          "quotes": [
+            "// Send the raw string as a POST request",
+            "resp, _, _, err := c.ExecuteRequest(ctx, \"POST\", endpoint, bytes.NewReader(data), nil, contentTypeJSON)"
+          ],
+          "at": [
+            "v3.8.45",
+            "HEAD"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "after": "func (c *Client) CreateWithRawPayload(ctx",
+          "quotes": [
+            "// Send the raw string as a POST request",
+            "resp, err := c.Request(ctx, endpoint, \"POST\", data, \"application/json\")"
+          ],
+          "at": [
+            "v3.8.45",
+            "HEAD"
+          ]
         }
       ]
     },
@@ -457,11 +498,7 @@
           "path": "src/zscaler_mcp/tools/zia/cloud_app_control.py",
           "after": "def zia_list_cloud_app_control_actions(args: ListActionsInput) -> list[dict[str, Any]]:",
           "quotes": [
-            "client = get_zscaler_client(service=\"zia\")",
-            "actions, _, err = client.zia.cloudappcontrol.list_available_actions(",
-            "rule_type=args.rule_type, cloud_apps=args.cloud_apps or []",
-            "if err: raise RuntimeError(f\"Failed to list CAC actions for {args.rule_type}: {err}\")",
-            "return shape_many(list(actions or []))"
+            "client = get_zscaler_client(service=\"zia\") actions, _, err = client.zia.cloudappcontrol.list_available_actions( rule_type=args.rule_type, cloud_apps=args.cloud_apps or [] ) if err: raise RuntimeError(f\"Failed to list CAC actions for {args.rule_type}: {err}\") return shape_many(list(actions or []))"
           ]
         }
       ]
@@ -492,7 +529,7 @@
       "conditions": "The no-validation half is an absence claim from reading the create tool at zscaler-mcp-server v0.15.4: between `build_rule_payload` and `add_rule` it calls only `apply_default_order` and `apply_default_rank`. `grep -n \"list_available_actions\\|validate\" src/zscaler_mcp/tools/zia/cloud_app_control.py` returns the list-actions tool's call and the `validate_order`/`validate_rank` calls in the update tool, none in the create tool. Whether the API itself rejects the tuple is the gap per-tuple-validation-contract."
     },
     "issue-522-actions-endpoint-omits-actions": {
-      "statement": "Provider issues #522 and #570 concern the actions the `zia_cloud_app_control_rule_actions` data source returns not including every action the API accepts. In #522 the reporter wrote that the call was not returning all the actions that can be used in a specific Cloud App, and a MEMBER commenter confirmed that ALLOW_FILE_SHARE_UPLOAD and ALLOW_FILE_SHARE_VIEW are not returned by that endpoint, said an internal bug would be raised with the API team, and advised listing the actions manually in `actions` to stop the drift. In #570 the reporter quoted the documentation note that some new actions may not be returned in the API response, and a MEMBER commenter called it an API issue under investigation, not addressable in the provider. Both issues were closed as completed, #522 with a MEMBER reply to upgrade to v4.8.6 that does not say what that release changed.",
+      "statement": "Provider issues #522 and #570 concern actions that can be used in a rule but that the `zia_cloud_app_control_rule_actions` data source does not return. In #522 the reporter wrote that the call was not returning all the actions that can be used in a specific Cloud App, and a MEMBER commenter confirmed that ALLOW_FILE_SHARE_UPLOAD and ALLOW_FILE_SHARE_VIEW are not returned by that endpoint, said an internal bug would be raised with the API team, and advised listing the actions manually in `actions` to stop the drift. In #570 the reporter quoted a note that some new actions may not be returned in the API response, and a MEMBER commenter called it an API issue under investigation, not addressable in the provider. Both issues were closed as completed; after #522 closed, a MEMBER replied there on 2026-08-13 to upgrade to v4.8.6, which \"addresses the problem\".",
       "tier": "A",
       "evidence": [
         {
@@ -528,7 +565,8 @@
           "quotes": [
             "This is a known issue, and is being investigated via the following issue ONEAPI-2421.",
             "As you already outlined this is a API issue and is being investigated. This isn't an issue addressable at the provider level.",
-            "Note that some new actions may not be returned in the API response."
+            "Note that some new actions may not be returned in the API response.",
+            "missing actions in the response are an API based issue that as indicated is being handled by the backend API team"
           ]
         },
         {

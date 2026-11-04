@@ -91,6 +91,7 @@
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
+          "after": "func CommonPolicySchema() map[string]*schema.Schema {",
           "quotes": [
             "\"reauth_idle_timeout\": { Type: schema.TypeString, Optional: true, ForceNew: true, },",
             "\"reauth_timeout\": { Type: schema.TypeString, Optional: true, ForceNew: true, },"
@@ -165,7 +166,8 @@
           ],
           "after": "## 4.4.15 (October 19, 2026)"
         }
-      ]
+      ],
+      "conditions": "Release search: in vendor/terraform-provider-zpa, for each tag that has zpa/resource_zpa_policy_access_timeout_rule_v2.go, `git show <tag>:zpa/resource_zpa_policy_access_timeout_rule_v2.go | grep -c DiffSuppressFunc` returns 0 at all 92 tags from v3.2.0 (the first with the file) through v4.4.14 and 2 at v4.4.15 and v4.4.16, and `grep -c ForceNew` on the same file returns 0 at all 94 tags."
     },
     "device-posture-notification": {
       "statement": "A rule's device posture failure notification flag is the JSON key `devicePostureFailureNotificationEnabled`, and the message it enables displays only for Client Connector 4.8 or later on Windows and 5.0 or later on macOS, with a notification template that enables it.",
@@ -203,7 +205,8 @@
           ],
           "after": "def add_isolation_rule(self, name: str, action: str, zpn_isolation_profile_id: str = None, **kwargs)"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n zpn_isolation_profile_id zscaler/zpa/policies.py` at v1.11.3-1-g4f8f54df, read between `def add_isolation_rule(` and `def update_isolation_rule(`, returns the signature, the docstring entry, a comment, the `if action == \"isolate\" and not zpn_isolation_profile_id:` check with its error return, the payload's `\"zpnIsolationProfileId\": zpn_isolation_profile_id,` and the `if action == \"isolate\":` reassignment; no other line in the function tests the ID, and the payload carries it, or None, for every action."
     },
     "profile-id-fields": {
       "statement": "Rules carry the profile references as `zpnIsolationProfileId`, `zpnInspectionProfileId` and `zpnInspectionProfileName`.",

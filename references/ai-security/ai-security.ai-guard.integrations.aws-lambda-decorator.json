@@ -99,6 +99,8 @@
           "path": "AWS/lambda-decorator/aiguard_decorator.py",
           "after": "def default_prompt_from(event):",
           "quotes": [
+            "parsed = json.loads(raw) if isinstance(raw, str) else raw",
+            "except (ValueError, TypeError):",
             "return raw if isinstance(raw, str) and raw.strip() else None"
           ]
         },
@@ -160,6 +162,8 @@
           "path": "AWS/lambda-decorator/aiguard_decorator.py",
           "quotes": [
             "for key in (\"prompt\", \"response\", \"code_prompt\", \"code_response\", \"context\"):",
+            "# Send the prompt alongside the response: AI Guard detections",
+            "contents = {\"response\": response_text}",
             "contents[\"prompt\"] = prompt_text",
             "contents[\"context\"] = grounding",
             "contents[\"code_prompt\"] = code_prompt",
@@ -284,6 +288,7 @@
           "path": "AWS/lambda-decorator/aiguard_decorator.py",
           "quotes": [
             "# None means \"take AIGUARD_TIMEOUT\", resolved once at decoration time.",
+            "Request timeout in seconds; AIGUARD_TIMEOUT overrides the default.",
             "return float(os.environ.get(\"AIGUARD_TIMEOUT\", \"\").strip() or 30.0)"
           ]
         },

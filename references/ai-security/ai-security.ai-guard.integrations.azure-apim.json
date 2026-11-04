@@ -28,7 +28,7 @@
     },
     {
       "label": "What it extracts.",
-      "text": "{{prompt-extraction}} {{response-extraction}} {{sse-empty}} What AI Guard returns for empty content is open {{gap:empty-content}}."
+      "text": "{{prompt-extraction}} {{response-extraction}} {{tool-call-reply-empty}} {{sse-empty}} What AI Guard returns for empty content is open {{gap:empty-content}}."
     },
     {
       "label": "The call.",
@@ -68,6 +68,7 @@
       "do": "Whether clients stream or receive tool-call-only replies; those responses are scanned as empty content.",
       "uses": [
         "response-extraction",
+        "tool-call-reply-empty",
         "sse-empty",
         "empty-content"
       ]
@@ -157,7 +158,7 @@
       ]
     },
     "response-extraction": {
-      "statement": "The outbound scan runs only when the backend answered HTTP 200 and scans the text of the last content item of the last `output` entry (Responses API) or the `message.content` of the last choice; a reply carrying only tool calls yields empty content.",
+      "statement": "The outbound scan runs only when the backend answered HTTP 200 and scans the text of the last content item of the last `output` entry (Responses API) or the `message.content` of the last choice, using an empty string when that value is missing.",
       "tier": "A",
       "evidence": [
         {
@@ -170,6 +171,14 @@
           ]
         }
       ]
+    },
+    "tool-call-reply-empty": {
+      "statement": "A reply carrying only tool calls has no text at either path, so its outbound scan sends empty content.",
+      "tier": "B",
+      "derived_from": [
+        "response-extraction"
+      ],
+      "conditions": "Follows from response-extraction: the fragment reads text only from the last `output` entry's last content item and from the last choice's `message.content`, and uses \"\" when the value is missing. That a tool-call-only reply has no text at either path rests on the OpenAI Responses and Chat Completions reply shapes, which no source the fragment ships states. What AI Guard returns for empty content is open (gap empty-content)."
     },
     "sse-empty": {
       "statement": "A streamed (SSE) response body does not parse as a JSON object, so the outbound extraction falls into its catch branch and the fragment sends an empty `content` for the response scan.",
@@ -188,6 +197,7 @@
           "path": "Microsoft/zscaler-aiguard-scan",
           "quotes": [
             "<send-request id=\"aiguard-scan\" mode=\"new\" response-variable-name=\"aiguardScanResponse\" timeout=\"10\" ignore-error=\"true\">",
+            "string cloud = \"{{AIGUARD-CLOUD}}\";",
             "return $\"https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy\";",
             "<value>Bearer {{AIGUARD-API-KEY}}</value>",
             "requestBody.Add(\"policyId\", int.Parse(policyId));",
@@ -202,7 +212,8 @@
             "var policyId = context.Variables.GetValueOrDefault<string>(\"currentPolicy\", \"\");"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (the policy ID does not change the endpoint): in Microsoft/zscaler-aiguard-scan at v0.2.0-11-g70d5c9c, `grep -c '<send-request'` and `grep -c '<set-url>'` each return 1, `grep -c 'execute-policy'` returns 1 (the resolve-and-execute-policy line) and `grep -c -F '/v1/detection/execute-policy'` returns 0; the one set-url body holds only the cloud assignment and that return."
     },
     "scan-body": {
       "statement": "The scan body is `content` and `direction` (IN for prompts, OUT for responses), plus `policyId` when `currentPolicy` is set; no transaction ID is sent.",
@@ -237,7 +248,8 @@
           ],
           "after": "<when condition=\"@(context.Variables.GetValueOrDefault<string>(\"ScanType\", \"prompt\") == \"prompt\")\">"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n -i transaction Microsoft/zscaler-aiguard-scan` at v0.2.0-11-g70d5c9c returns two lines, the header bullet \"Transaction ID tracking for audit correlation.\" and the block body's `response.Add(\"transactionId\", ...)`, which copies the scan reply's ID into the 403 body; the request body's only `requestBody.Add` is for `policyId`."
     },
     "current-policy-ignored": {
       "statement": "Setting `currentPolicy` most likely has no effect: the fragment sends the ID only to resolve-and-execute-policy, which the Apigee example reports ignores `policyId` and applies the key's own policy.",
@@ -274,6 +286,7 @@
           "source": "zguard-integrations",
           "path": "Microsoft/zscaler-aiguard-scan",
           "quotes": [
+            "// Fail closed. ALLOW passes, and so does DETECT, which is",
             "if (action.Equals(\"ALLOW\", StringComparison.OrdinalIgnoreCase) ||",
             "action.Equals(\"DETECT\", StringComparison.OrdinalIgnoreCase)) {",
             "return !Convert.ToBoolean(context.Variables.GetValueOrDefault<object>(\"FailOpen\", false));",
@@ -287,6 +300,14 @@
           "path": "Microsoft/zscaler-aiguard-scan",
           "quotes": [
             "((IResponse)context.Variables[\"aiguardScanResponse\"]).StatusCode == 200)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Microsoft/zscaler-aiguard-scan",
+          "after": "if (string.IsNullOrEmpty(action)) {",
+          "quotes": [
+            "return true;"
           ]
         }
       ]
@@ -360,7 +381,7 @@
       ]
     },
     "detector-details": {
-      "statement": "The block body's `details` is built by reading `detectorResponses` as an array of objects with `detectorName` and `action`, listing each detector whose action is BLOCK with a description from `aiguardDescriptions` when set, else the built-in `scanDescriptions`, else \"Blocked by security policy.\"",
+      "statement": "The block body's `details` is built by reading `detectorResponses` as an array of objects with `detectorName` and `action` and listing each detector whose action is BLOCK, with its description from the `aiguardDescriptions` variable when that is set, otherwise from the fragment's own `scanDescriptions`, and \"Blocked by security policy.\" when the chosen table has no entry for that detector.",
       "tier": "A",
       "evidence": [
         {
@@ -375,11 +396,14 @@
           "source": "zguard-integrations",
           "path": "Microsoft/zscaler-aiguard-scan",
           "quotes": [
+            "<set-variable name=\"scanDescriptions\" value=\"@{",
             "var detectorAction = detector[\"action\"]?.ToString() ?? \"\";",
             "var descriptions = context.Variables.GetValueOrDefault<object>(\"aiguardDescriptions\") as JObject;",
             "response.Add(\"details\", details);",
             "if (detectorAction.Equals(\"BLOCK\", StringComparison.OrdinalIgnoreCase)) {",
+            "if (descriptions == null) {",
             "descriptions = context.Variables.GetValueOrDefault<object>(\"scanDescriptions\") as JObject;",
+            "if (descriptions != null && descriptions[detectorName] != null) {",
             "details.Add(detectorName, \"Blocked by security policy.\");"
           ]
         }
@@ -411,7 +435,8 @@
           "source": "github-issues",
           "path": "zguard-ai-integrations-10.json",
           "quotes": [
-            "The following API endpoint no longer works and the 'cloud' variable is no longer needed.",
+            "https://github.com/zscaler/zguard-ai-integrations/tree/master/Microsoft#ai-guard-api-integration",
+            "The following API endpoint no longer works and the 'cloud' variable is no longer needed. https://api.{cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy",
             "The following API endpoint works. My understanding is that the API endpoint now uses a global load balancer."
           ]
         },

@@ -78,6 +78,7 @@
           "source": "zscaler-help",
           "path": "configuring-ftp-control-policy.json",
           "quotes": [
+            "Allow FTP over HTTP: By default, the Zscaler service doesn't allow users from a location to upload or download files from FTP sites that use FTP over HTTP.",
             "Enable this option to allow browsers to connect to FTP over HTTP sites and download files.",
             "If a remote user uses a dedicated port, then the service supports FTP over HTTP for them."
           ]
@@ -201,7 +202,7 @@
           "after": "def update_ftp_settings(self, **kwargs)"
         }
       ],
-      "conditions": "The 'nothing to create or delete' half rests on the path item holding only `get` and `put` in the contract."
+      "conditions": "The 'nothing to create or delete' half rests on the path item holding only `get` and `put` in the contract. Over automate-zscaler/openapi/zia.openapi.json in the capture of 2026-09-07, `jq -r '.paths | keys[] | select(test(\"ftp\"; \"i\"))'` returns only /ftpSettings, and its path item holds only get and put."
     },
     "api-fields": {
       "statement": "The settings object has four fields: `ftpOverHttpEnabled`, `ftpEnabled`, `urlCategories` and `urls`. A read returns `ftpEnabled` and `ftpOverHttpEnabled` always.",
@@ -257,7 +258,8 @@
             "type": "array"
           }
         }
-      ]
+      ],
+      "conditions": "Closed count: over the 2026-09-07 capture of automate-zscaler/openapi/zia.openapi.json, `python3 -c \"import json;s=json.load(open('automate-zscaler/openapi/zia.openapi.json'));print(list(s['paths']['/ftpSettings']['get']['responses']['200']['content']['application/json']['schema']['properties']))\"` returns ['ftpEnabled', 'ftpOverHttpEnabled', 'urlCategories', 'urls'], and the PUT request body has the same four properties."
     },
     "enable-fohttp-flag": {
       "statement": "Enabling FTP over HTTP for Client Connector and PAC users is a single boolean write, `ftpOverHttpEnabled`, scoped by `urlCategories` and `urls`; there is no per-flow rule object.",

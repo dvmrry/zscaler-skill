@@ -164,6 +164,7 @@
           "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
           "after": "func Create(ctx context.Context, service *zscaler.Service, associationType string, provisioningKey *ProvisioningKey)",
           "quotes": [
+            "path := fmt.Sprintf(mgmtConfig+service.Client.GetCustomerID()+\"/associationType/%s/provisioningKey\", associationType)",
             "resp, err := service.Client.NewRequestDo(ctx, \"POST\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, provisioningKey, v)"
           ]
         },
@@ -172,6 +173,7 @@
           "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
           "after": "func Update(ctx context.Context, service *zscaler.Service, associationType, provisioningKeyID string, provisioningKey *ProvisioningKey)",
           "quotes": [
+            "path := fmt.Sprintf(mgmtConfig+service.Client.GetCustomerID()+\"/associationType/%s/provisioningKey/%s\", associationType, provisioningKeyID)",
             "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, provisioningKey, nil)"
           ]
         },
@@ -230,23 +232,13 @@
           "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey~1{provisioningKeyId}/put",
           "expect": {
-            "operationId": "Updates the Provisioning Key details for the specified ID."
-          }
-        },
-        {
-          "source": "api-specs",
-          "path": "automate-zscaler/openapi/zpa.openapi.json",
-          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1associationType~1{associationType}~1provisioningKey~1{provisioningKeyId}/put/responses",
-          "expect": {
-            "204": {
-              "description": "No Content"
+            "operationId": "Updates the Provisioning Key details for the specified ID.",
+            "responses": {
+              "204": {
+                "description": "No Content"
+              }
             }
-          },
-          "expect_absent": [
-            "200",
-            "201",
-            "202"
-          ]
+          }
         },
         {
           "source": "sdk-go",

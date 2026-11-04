@@ -58,7 +58,7 @@
     },
     {
       "label": "Rule builders.",
-      "text": "{{python-credential-exclusive}} {{python-isolation-client-type}} {{python-capabilities-mapping}} {{python-redirection-rules}} {{python-timeout-defaults}} {{python-reformat-params-key}} {{timeout-action-fixed-re-auth}} {{isolation-update-action-guard}} {{update-rules-are-full-replacements}}"
+      "text": "{{python-credential-exclusive}} {{python-isolation-client-type}} {{python-capabilities-mapping}} {{python-redirection-rules}} {{python-timeout-defaults}} {{python-timeout-update-overwrites}} {{python-reformat-params-key}} {{timeout-action-fixed-re-auth}} {{isolation-update-action-guard}} {{update-rules-are-full-replacements}}"
     },
     {
       "label": "Reordering.",
@@ -263,7 +263,9 @@
           "path": "zscaler/zpa/policies.py",
           "quotes": [
             "policy_type_response, _, err = self.get_policy(policy_type, query_params={\"microtenantId\": microtenant_id})",
-            "api_url = format_url(f\"{self._zpa_base_endpoint_v1}/policySet/{policy_set_id}/rule/{rule_id}\")"
+            "policy_set_id = policy_type_response.get(\"id\")",
+            "api_url = format_url(f\"{self._zpa_base_endpoint_v1}/policySet/{policy_set_id}/rule/{rule_id}\")",
+            "response, error = self._request_executor.execute(request, PolicySetControllerV1)"
           ],
           "after": "def get_rule("
         }
@@ -361,11 +363,27 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
+            "if not client_type_present: payload[\"conditions\"].append( {\"operator\": \"OR\", \"operands\": [{\"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_exporter\"}]} )"
+          ],
+          "after": "def update_isolation_rule("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
             "{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]}",
             "if not client_type_present:",
             "if not client_type_present: payload[\"conditions\"].append( {\"operator\": \"OR\", \"operands\": [{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]} ) request, error = self._request_executor.create_request(http_method, api_url, body=payload, params=params)"
           ],
           "after": "def add_isolation_rule_v2(self, name: str, action: str, zpn_isolation_profile_id: str = None, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "if not client_type_present: payload[\"conditions\"].append( {\"operator\": \"OR\", \"operands\": [{\"objectType\": \"CLIENT_TYPE\", \"values\": [\"zpn_client_type_exporter\"]}]} )"
+          ],
+          "after": "def update_isolation_rule_v2("
         },
         {
           "source": "sdk-python",
@@ -424,7 +442,7 @@
           "after": "func UpdateRule("
         }
       ],
-      "conditions": "Extended per verifier to add_browser_protection_rule_v2 and update_browser_protection_rule_v2, which append the same condition (v1.10.0 and HEAD). Applies to the add and update isolation builders; the Go-side absence is a read of the two Go policy packages (no client-type string appears in CreateRule or UpdateRule)."
+      "conditions": "Extended per verifier to add_browser_protection_rule_v2 and update_browser_protection_rule_v2, which append the same condition (v1.10.0 and HEAD). Applies to the add and update isolation builders; the Go-side absence is a read of the two Go policy packages (no client-type string appears in CreateRule or UpdateRule). At v3.8.58, `grep -n -i 'client_type\\|exporter'` over zscaler/zpa/services/policysetcontroller/policysetcontroller.go and zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go returns nothing, and `awk '/^func CreateRule\\(/,/^}/'` and `awk '/^func UpdateRule\\(/,/^}/'` over each file, piped to `grep -n append`, return nothing."
     },
     "python-capabilities-mapping": {
       "statement": "The Python capability rule builder turns its flags into the strings CLIPBOARD_COPY, CLIPBOARD_PASTE, FILE_DOWNLOAD, FILE_UPLOAD, INSPECT_FILE_UPLOAD, INSPECT_FILE_DOWNLOAD, MONITOR_SESSION, RECORD_SESSION and SHARE_SESSION, and maps `file_upload=False` to INSPECT_FILE_UPLOAD (not to nothing), while `file_upload=True` gives FILE_UPLOAD. The OpenAPI document types `capabilities` as a free list of strings, and the Go SDK tests exercise five of the values.",
@@ -458,6 +476,14 @@
               "type": "string"
             }
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/privilegedCapabilities/properties/capabilities/items",
+          "expect_absent": [
+            "enum"
+          ]
         },
         {
           "source": "sdk-go",
@@ -525,7 +551,7 @@
       "conditions": "These are client-side checks in the Python SDK; the Go SDK has none. Whether the API enforces the same rules is not shown. The client-type clause was narrowed because the check reads only operand[\"values\"][0]; previously it said the builder \"limits `CLIENT_TYPE` values to five client types\"."
     },
     "python-timeout-defaults": {
-      "statement": "The Python `add_timeout_rule_v2` and `update_timeout_rule_v2` send `reauthTimeout` 172800 and `reauthIdleTimeout` 600 when the caller does not pass them, so an update that omits them writes those values rather than leaving the rule's current ones.",
+      "statement": "The Python `add_timeout_rule_v2` and `update_timeout_rule_v2` send `reauthTimeout` 172800 and `reauthIdleTimeout` 600 when the caller does not pass them.",
       "tier": "A",
       "evidence": [
         {
@@ -548,6 +574,25 @@
         }
       ],
       "conditions": "Whether the API treats the values as seconds is not stated in the pinned spec; the type difference with the Go SDK is divergence zpa.policy.timeout-rules reauth-value-type."
+    },
+    "python-timeout-update-overwrites": {
+      "statement": "So an update through `update_timeout_rule_v2` that omits the timeouts writes those default values rather than leaving the rule's current ones.",
+      "tier": "B",
+      "derived_from": [
+        "python-timeout-defaults"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/policies.py",
+          "quotes": [
+            "http_method = \"put\".upper()",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=payload, params=params)"
+          ],
+          "after": "def update_timeout_rule_v2(self, rule_id: str, name: str = None, **kwargs)"
+        }
+      ],
+      "conditions": "Follows from python-timeout-defaults and the update's request: update_timeout_rule_v2 puts the defaulted values in its payload and sends the payload as a PUT without reading the rule first. That the API stores the PUT body's timeouts in place of the current ones rests on the PUT replacing the rule, which the SDK maintainers describe in update-rules-are-full-replacements; no source states it for the timeout fields."
     },
     "python-reformat-params-key": {
       "statement": "The Python `reformat_params` table maps `app_connector_group_ids` to the wire key `PolicySetControllers`, but the access rule builders set `appConnectorGroups` directly from their named argument before the table is used.",
@@ -665,7 +710,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "mapped_policy_type = self.POLICY_MAP.get(policy_type)"
+            "mapped_policy_type = self.POLICY_MAP.get(policy_type)",
+            "raise ValueError(f\"Incorrect policy type provided: {policy_type}\")"
           ],
           "after": "def get_policy(self, policy_type: str"
         },
@@ -673,7 +719,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
-            "mapped_policy_type = self.POLICY_MAP.get(policy_type)"
+            "mapped_policy_type = self.POLICY_MAP.get(policy_type)",
+            "raise ValueError(f\"Incorrect policy type provided: {policy_type}\")"
           ],
           "after": "def list_rules(self, policy_type: str"
         },
@@ -685,7 +732,8 @@
           ],
           "after": "def delete_rule(self, policy_type: str"
         }
-      ]
+      ],
+      "conditions": "At v1.11.3-1-g4f8f54df, `grep -n 'policy_type'` within each of `get_policy` and `list_rules` in zscaler/zpa/policies.py (`awk` from the `def` to the next `def`) returns only the signature, docstring lines, the `POLICY_MAP.get` lookup, the `ValueError` raised for an unmapped type and the URL's use of `mapped_policy_type`; no other check filters the type."
     },
     "fixed-type-writes": {
       "statement": "Several add and update rule methods resolve their policy set with a fixed type: `add_access_rule` and `update_access_rule` with `get_policy(\"access\", ...)`, `add_timeout_rule` and `update_timeout_rule` with `get_policy(\"timeout\", ...)`, and `update_app_protection_rule` with `get_policy(\"inspection\")`.",
@@ -790,6 +838,14 @@
       "statement": "Python SDK issue #579 reported that the SDK's v2 timeout rule method documents an `action` keyword but hard-codes the action; it was closed as completed on 2026-10-06 with a reply from a member of the repository's organization, signed Zscaler DevRel, that the timeout policy only supports RE_AUTH so the SDK always sets it, and v1.11.1 removed `action` from the v2 timeout docstrings.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "github-issues",
+          "path": "zscaler-sdk-python-579.json",
+          "quotes": [
+            "`PolicySetControllerAPI.add_timeout_rule_v2` documents `action` as a supported keyword argument",
+            "so `action=` is accepted without complaint. But the payload hard-codes it"
+          ]
+        },
         {
           "source": "github-issues",
           "path": "zscaler-sdk-python-579.json",

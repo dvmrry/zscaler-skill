@@ -87,11 +87,35 @@
           "quotes": [
             "cche, err := cache.NewCache(time.Duration(c.Zscaler.Client.Cache.DefaultTtl), time.Duration(c.Zscaler.Client.Cache.DefaultTti), int(c.Zscaler.Client.Cache.DefaultCacheMaxSizeMB))"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func WithCacheTtl(",
+          "quotes": [
+            "c.Zscaler.Client.Cache.DefaultTtl = i"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func WithCacheTti(",
+          "quotes": [
+            "c.Zscaler.Client.Cache.DefaultTti = i"
+          ]
         }
       ]
     },
     "waiters-ignore-cancellation": {
-      "statement": "When a GET for the same URL is already in flight, later identical GETs wait for it on a plain wait group, so a cancelled or timed-out caller stays blocked until the first request finishes.",
+      "statement": "With the cache enabled, when a non-sandbox GET for the same URL is already in flight, later GETs for that URL wait for it on a plain wait group, so a cancelled or timed-out caller stays blocked until the first request finishes.",
       "tier": "A",
       "evidence": [
         {
@@ -104,6 +128,8 @@
           "quotes": [
             "type inFlightRequest struct {",
             "wg     sync.WaitGroup",
+            "if method == http.MethodGet && c.oauth2Credentials.Zscaler.Client.Cache.Enabled && !isSandboxRequest {",
+            "// Check if there's an in-flight request for the same URL",
             "if inFlight, exists := c.inFlightRequests.Load(key); exists {",
             "existingIfr.wg.Wait() // Wait for the in-flight request to complete"
           ]
@@ -151,7 +177,8 @@
             "c.inFlightRequests.Store(key, ifr)"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (check and store not atomic): `grep -c LoadOrStore zscaler/oneapiconfig.go` returns 0 at v3.8.44 and at v3.8.58, and `grep -n 'Lock()' zscaler/oneapiconfig.go` at v3.8.58 finds locks only in startTokenRenewalTicker, Close, authenticate and the token refresh inside ExecuteRequest (`c.Lock() // Prevent concurrent token refresh`), none around the cache-miss Load and Store (the same four functions at v3.8.44)."
     },
     "write-invalidates-but-inflight-get-repopulates": {
       "statement": "Up to v3.8.57, a write clears the cached entries for its URL and parent collection before it is sent, and caching a GET response is unconditional, so a GET that started before the write took effect can store the pre-write response after the invalidation, and that response is then served until it expires. From v3.8.58 the SDK registers each write and each GET, and a GET that overlaps a write affecting its key is not cached, unless the write starts between the overlap check and the store (gap cache-done-then-set-window).",
@@ -350,7 +377,8 @@
             "// Check if there's an in-flight request for the same URL"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no write tracker before v3.8.58): `git grep -n -e BeginWrite -e cacheWrites -e write_tracker <release> -- .` returns nothing at v3.8.44 or v3.8.57 (cache/ holds cache.go, go-cache.go and nop-cache.go at v3.8.44, plus cache_test.go at v3.8.57); at v3.8.58 the same search finds cache/write_tracker.go and its `func (t *WriteTracker) BeginWrite(prefixes ...string) (end func()) {`."
     },
     "cached-body-read-errors-ignored": {
       "statement": "When serving from cache, an error reading the cached body is ignored: the caller gets whatever was read, and no error.",

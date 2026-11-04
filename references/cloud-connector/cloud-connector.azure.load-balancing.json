@@ -97,21 +97,23 @@
   ],
   "claims": {
     "ilb-standard": {
-      "statement": "The load balancer module creates a Standard SKU internal load balancer whose frontend takes a dynamic private IP in the given subnet and is zone-redundant across zones 1, 2 and 3 unless a single zone is specified.",
+      "statement": "The load balancer module creates a Standard SKU internal load balancer whose frontend takes a dynamic private IP in `var.subnet_id` and, when `zones_enabled` is true and the region is in the module's list of zone-supporting regions, is zone-redundant across zones 1, 2 and 3 unless a single zone is specified.",
       "tier": "A",
       "evidence": [
         {
           "source": "tfmod-azure-cloud-connector",
           "path": "modules/terraform-zscc-lb-azure/main.tf",
           "quotes": [
+            "# Create internal load balancer.",
             "sku = \"Standard\"",
-            "private_ip_address_allocation = \"dynamic\""
+            "subnet_id = var.subnet_id private_ip_address_allocation = \"dynamic\" zones = local.zones_supported ? local.frontend_zone_specific : null"
           ]
         },
         {
           "source": "tfmod-azure-cloud-connector",
           "path": "modules/terraform-zscc-lb-azure/variables.tf",
           "quotes": [
+            "zones_supported = ( contains(local.az_supported_regions, var.location) && var.zones_enabled == true )",
             "frontend_zone_specific = length(var.zones) == 1 ? var.zones : [\"1\", \"2\", \"3\"] ##If user specifies a single zone number for a zones supported region set just that zone. Otherwise, set all 3 zones (zone-redundant)"
           ]
         }
@@ -132,11 +134,25 @@
           "source": "tfmod-azure-cloud-connector",
           "path": "modules/terraform-zscc-lb-azure/variables.tf",
           "quotes": [
-            "default = 50000",
+            "variable \"http_probe_port\" { type = number description = \"Port number for Cloud Connector cloud init to enable listener port for HTTP probe from Azure LB\" default = 50000",
             "error_message = \"Input http_probe_port must be set to a single value of 80 or any number between 1024-65535.\"",
-            "The default value is 15, the minimum value is 5\" default = 15",
-            "require the same number of successful consecutive probes to be placed back in rotation.\" default = 2",
-            "This values allows endpoints to be taken out of rotation faster or slower than the typical times used in Azure\" default = 1"
+            "variable \"number_of_probes\" { type = number description = \"The number of probes where if no response, will result in stopping further traffic from being delivered to the endpoint. This values allows endpoints to be taken out of rotation faster or slower than the typical times used in Azure\" default = 1"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-lb-azure/variables.tf",
+          "after": "variable \"health_check_interval\" {",
+          "quotes": [
+            "The default value is 15, the minimum value is 5\" default = 15"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-lb-azure/variables.tf",
+          "after": "variable \"probe_threshold\" {",
+          "quotes": [
+            "require the same number of successful consecutive probes to be placed back in rotation.\" default = 2"
           ]
         }
       ]
@@ -188,7 +204,7 @@
           "source": "zscaler-help",
           "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
           "quotes": [
-            "Only select this setting when deploying in a non-production environment.",
+            "Opt out from configuring a Load Balancer: Select this setting to opt out from configuring a load balancer. Only select this setting when deploying in a non-production environment.",
             "HTTP Probe Port for Load Balancer: Enter the HTTP Probe Port 80 or 1024 to 65535. If selecting an existing load balancer, ensure that the ports match.",
             "Availability Sets and Availability Zones: Select either Availability Sets or Availability Zones."
           ]
@@ -206,7 +222,9 @@
             "Azure Gateway Load Balancer (GWLB) support for Cloud Connector — enables transparent inline inspection for ingress traffic that is not possible with the existing egress-only Private LB topology.",
             "add: greenfield example base_cc_gwlb (CC VMs + GWLB)",
             "add: brownfield example cc_gwlb (CC VMs + GWLB in existing VNet)",
-            "add: greenfield example base_cc_public_lb (CC VMs + standalone Public LB)"
+            "add: greenfield example base_cc_public_lb (CC VMs + standalone Public LB)",
+            "add: greenfield example base_cc_public_vmss (CC VMSS + standalone Public LB)",
+            "add: brownfield example cc_public_lb (CC VMs + standalone Public LB in existing VNet)"
           ]
         }
       ]

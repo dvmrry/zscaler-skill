@@ -46,7 +46,7 @@
   ],
   "checks": [
     {
-      "do": "Whether a provider build carries SDK v3.8.43 or later, which decides whether an operator sees the API's own error and whether a retried write keeps its body.",
+      "do": "Whether a provider build carries SDK v3.8.43 or later, which decides whether an operator sees the API's own error and, in the audited releases, whether a write retried by the outer loop's rate-limit or 5xx path keeps its body.",
       "uses": [
         "provider-sdk-pins",
         "exhaustion-hid-api-error-before-3-8-43",
@@ -56,7 +56,7 @@
   ],
   "claims": {
     "retry-policy-ignores-method": {
-      "statement": "The SDK's OneAPI client decides whether to retry from the response or error only, never from the HTTP method: its policy retries configured status codes and edit-lock conflicts, then defers to the retryablehttp default. From v3.8.43 it also stops retrying a 5xx that carries a deterministic API verdict; before that, every 5xx except 501 was retried.",
+      "statement": "The SDK's OneAPI client decides whether to retry from the context, the response and the error, never from the HTTP method: its policy stops once the context is done, retries configured status codes and edit-lock conflicts, then defers to the retryablehttp default. From v3.8.43 it also stops retrying a 5xx that carries a deterministic API verdict; before that, every 5xx except 501 was retried.",
       "tier": "A",
       "evidence": [
         {
@@ -74,6 +74,20 @@
             "// Retry 409 Conflict and 412 Precondition Failed when body indicates edit lock / org barrier",
             "if errorx.IsEditLockError(resp) {\n\t\t\treturn true, nil",
             "return retryablehttp.DefaultRetryPolicy(ctx, resp, err)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.37",
+            "v3.8.42",
+            "v3.8.43",
+            "HEAD"
+          ],
+          "after": "func checkRetry(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+          "quotes": [
+            "if ctx.Err() != nil { return false, ctx.Err() }"
           ]
         },
         {
@@ -113,16 +127,29 @@
             "if resp.StatusCode == 0 || (resp.StatusCode >= 500 && resp.StatusCode != http.StatusNotImplemented) {"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (never from the method): `git show <release>:zscaler/oneapiconfig.go | sed -n '/^func checkRetry(/,/^}/p' | grep -c Method` returns 0 at v3.8.37, v3.8.42, v3.8.43 and v3.8.58, as does the same count over the bodies of errorx.IsEditLockError (all four releases) and IsRetryableServerError (v3.8.43 and v3.8.58; absent before) in zscaler/errorx/errors.go, and over DefaultRetryPolicy and baseRetryPolicy in zscalerctl's vendored go-retryablehttp v0.7.8."
     },
     "default-retries-connection-errors": {
-      "statement": "The retryablehttp default retries most transport errors (anything except redirect, scheme, header, and certificate failures), 429, and 500-range responses other than 501.",
+      "statement": "The retryablehttp default policy (`DefaultRetryPolicy`) does not retry once the request's context is cancelled or past its deadline; otherwise it defers to `baseRetryPolicy`, which retries transport errors other than redirect, scheme, header and certificate failures, 429, and 500-range responses other than 501.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscalerctl",
           "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
           "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
+          "after": "func DefaultRetryPolicy(ctx context.Context, resp *http.Response, err error) (bool, error) {",
+          "quotes": [
+            "// do not retry on context.Canceled or context.DeadlineExceeded",
+            "if ctx.Err() != nil { return false, ctx.Err() }",
+            "shouldRetry, _ := baseRetryPolicy(resp, err)"
+          ]
+        },
+        {
+          "source": "zscalerctl",
+          "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
+          "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
+          "after": "func baseRetryPolicy(resp *http.Response, err error) (bool, error) {",
           "quotes": [
             "// Don't retry if the error was due to too many redirects.",
             "// Don't retry if the error was due to an invalid protocol scheme.",
@@ -137,7 +164,7 @@
       ]
     },
     "body-buffered-for-replay": {
-      "statement": "`ExecuteRequest` reads the request body into memory once and builds each request from a reader over that buffer. retryablehttp reads the body into its own buffer and gives every attempt a fresh reader over it, so POST and PUT bodies are resent intact by the inner retry loop in every audited SDK version.",
+      "statement": "`ExecuteRequest` reads the request body into memory once and builds the request from a reader over that buffer. retryablehttp reads the body into its own buffer and gives every attempt a fresh reader over it, so POST and PUT bodies are resent intact by the inner retry loop in every audited SDK version.",
       "tier": "A",
       "evidence": [
         {
@@ -184,7 +211,8 @@
           "path": "vendor/github.com/hashicorp/go-retryablehttp/client.go",
           "note": "go-retryablehttp v0.7.8, the version zscaler-sdk-go requires at v3.8.37 and later, as vendored by zscalerctl-dev.",
           "quotes": [
-            "bodyReader, _, err := getBodyReaderAndContentLength(r.Body)"
+            "bodyReader, _, err := getBodyReaderAndContentLength(r.Body)",
+            "// Always rewind the request body when non-nil.\n\t\tif req.body != nil {\n\t\t\tbody, err := req.body()"
           ]
         },
         {
@@ -202,7 +230,7 @@
     "write-replay-on-lost-response": {
       "statement": "If the server commits a POST or PUT but the client then sees a transport error or a retryable 5xx, the SDK sends the same write again (through retryablehttp's inner loop in every audited version). A create can therefore be applied twice, or report failure after it succeeded.",
       "tier": "B",
-      "conditions": "Needs a failure after the server commits, which code cannot show happening.",
+      "conditions": "Needs a failure after the server commits, which code cannot show happening, and a request context that is not yet cancelled or past its deadline: both retry policies stop once it is.",
       "gaps": [
         "replay-outcome"
       ],
@@ -315,7 +343,7 @@
             "HEAD"
           ],
           "quotes": [
-            "## 0.2.0 (June 29, 2026)"
+            "# Changelog ## 0.2.0 (June 29, 2026)"
           ]
         },
         {
@@ -334,13 +362,15 @@
       ]
     },
     "outer-retry-reused-consumed-body-before-3-8-43": {
-      "statement": "Before v3.8.43, the outer retry loop's rate-limit and 5xx paths resent the already-consumed request without rebuilding it, which for a POST or PUT means an empty body. v3.8.43 rebuilds the request from the buffered body on those paths.",
+      "statement": "In the audited releases before v3.8.43 (v3.8.37, v3.8.40 and v3.8.42), the outer retry loop's rate-limit and 5xx paths resent the already-consumed request without rebuilding it, which for a POST or PUT means an empty body. v3.8.43 rebuilds the request from the buffered body on those paths.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/oneapiconfig.go",
           "at": [
+            "v3.8.37",
+            "v3.8.40",
             "v3.8.42"
           ],
           "after": "// Handle retryable errors with exponential backoff",
@@ -353,6 +383,8 @@
           "source": "sdk-go",
           "path": "zscaler/oneapiconfig.go",
           "at": [
+            "v3.8.37",
+            "v3.8.40",
             "v3.8.42"
           ],
           "after": "// Check if context is still valid before sleeping",
@@ -398,14 +430,14 @@
       ]
     },
     "empty-body-resend-rarely-reached": {
-      "statement": "In practice this was rarely reached before v3.8.43: the inner retry loop runs first, and without the v3.8.43 error handler an exhausted inner loop returns an error, so the outer 5xx path saw mainly responses the inner loop never retries, such as 501. v3.8.43 made the outer paths reachable and fixed the body in the same release.",
+      "statement": "In practice this was rarely reached in the audited releases before v3.8.43: the inner retry loop runs first, and without the v3.8.43 error handler an exhausted inner loop returns an error, so the outer 5xx path saw mainly responses the inner loop never retries, such as 501. v3.8.43 made the outer paths reachable and fixed the body in the same release.",
       "tier": "B",
       "derived_from": [
         "outer-retry-reused-consumed-body-before-3-8-43",
         "exhaustion-hid-api-error-before-3-8-43",
         "default-retries-connection-errors"
       ],
-      "conditions": "Inference from the retry structure before v3.8.43 (the claims derived from): which responses reach the outer path depends on what the inner loop retries; not measured."
+      "conditions": "Inference from the retry structure of the audited releases before v3.8.43, v3.8.37, v3.8.40 and v3.8.42 (the claims derived from): which responses reach the outer path depends on what the inner loop retries; not measured."
     },
     "replay-hazard-limited-to-writes": {
       "statement": "Because the retry decision ignores the HTTP method, a GET is replayed on the same triggers as a POST or PUT, but the duplicate-change hazard needs a write the server may have committed: a replayed GET changes nothing on the server, and a request answered with 429 was declined rather than applied. The hazard is therefore confined to writes whose outcome the client did not see, or that failed with a retried 5xx or transport error.",
@@ -431,6 +463,7 @@
           "source": "sdk-go",
           "path": "zscaler/zcc/v2_client.go",
           "quotes": [
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {",
             "return errorx.IsRetryableServerError(resp), nil"
           ]
         },
@@ -438,6 +471,7 @@
           "source": "sdk-go",
           "path": "zscaler/zdx/v2_client.go",
           "quotes": [
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {",
             "return errorx.IsRetryableServerError(resp), nil"
           ]
         },
@@ -445,6 +479,7 @@
           "source": "sdk-go",
           "path": "zscaler/zia/v2_client.go",
           "quotes": [
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {",
             "return errorx.IsRetryableServerError(resp), nil"
           ]
         },
@@ -452,6 +487,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/v2_client.go",
           "quotes": [
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {",
             "return errorx.IsRetryableServerError(resp), nil"
           ]
         },
@@ -459,6 +495,7 @@
           "source": "sdk-go",
           "path": "zscaler/ztw/v2_client.go",
           "quotes": [
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {",
             "return errorx.IsRetryableServerError(resp), nil"
           ]
         },
@@ -466,6 +503,7 @@
           "source": "sdk-go",
           "path": "zscaler/zwa/v2_client.go",
           "quotes": [
+            "if err == nil && resp != nil && resp.StatusCode >= 500 {",
             "return errorx.IsRetryableServerError(resp), nil"
           ]
         },
@@ -477,7 +515,8 @@
           ],
           "after": "// Only retry a 5xx when the body does not carry a deterministic API verdict."
         }
-      ]
+      ],
+      "conditions": "The seven are the SDK's only retry policies: `grep -rln 'CheckRetry\\|RetryPolicy' zscaler/` over vendor/zscaler-sdk-go at v3.8.58, excluding _test.go files, returns exactly oneapiconfig.go and the six v2_client.go files (zcc, zdx, zia, zpa, ztw, zwa)."
     },
     "max-retries-both-layers": {
       "statement": "`MaxNumOfRetries` defaults to 10 and is the cap for both the retryablehttp inner loop (`RetryMax`) and the `ExecuteRequest` outer loop, which returns the last response's API error once the outer count passes the configured maximum.",

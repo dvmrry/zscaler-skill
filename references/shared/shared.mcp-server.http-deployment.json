@@ -163,6 +163,15 @@
             "raise SystemExit(f\"ERROR: TLS key file not found: {keyfile}\")",
             "raise SystemExit(f\"ERROR: TLS CA certificate file not found: {ca_certs}\")"
           ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "after": "tls_kwargs = _tls_kwargs_from_env()",
+          "quotes": [
+            "uvicorn.run(",
+            "**tls_kwargs,"
+          ]
         }
       ]
     },
@@ -218,10 +227,19 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/security/hardening.py",
           "quotes": [
+            "``ZSCALER_MCP_DISABLE_HOST_VALIDATION=true`` opt-out. Anything else exits.",
             "\"ERROR: Cannot bind to 0.0.0.0 without host validation configuration.\\n\"",
             "if host_validation_disabled() or get_allowed_hosts() is not None:",
             "ZSCALER_MCP_ALLOWED_HOSTS=your-host:*,localhost:*  (recommended)",
             "ZSCALER_MCP_DISABLE_HOST_VALIDATION=true           (disables protection)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/server.py",
+          "after": "def _run_http(",
+          "quotes": [
+            "validate_host_binding(host)"
           ]
         }
       ]
@@ -300,6 +318,8 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/security/auth.py",
           "quotes": [
+            "True when a platform in front of this server already authenticated the caller.",
+            "Set ``ZSCALER_MCP_TRUST_PLATFORM_AUTH=true`` **only** where an ingress the",
             "return os.getenv(\"ZSCALER_MCP_TRUST_PLATFORM_AUTH\", \"\").strip().lower() in (",
             "When trusted, the ``api-key`` and ``zscaler`` providers fall back to the",
             "container's own credentials for a request that carries none.",
@@ -309,20 +329,30 @@
       ]
     },
     "scope-id-errors": {
-      "statement": "The client checks the OneAPI credentials first and the tenant-scope ID only for `zpa` (`ZSCALER_CUSTOMER_ID`) and `zcell` (`ZCELL_CUSTOMER_ID`); a missing scope ID gets its own error saying it is a tenant/customer ID, that authentication is unaffected, and that it may not exist on a tenant not entitled to the product.",
+      "statement": "The client checks the client ID and vanity domain first, then the tenant-scope ID, which it requires only for `zpa` (`ZSCALER_CUSTOMER_ID`) and `zcell` (`ZCELL_CUSTOMER_ID`); a missing scope ID gets its own error saying it is a tenant/customer ID, that authentication is unaffected, and that it may not exist on a tenant not entitled to the product.",
       "tier": "A",
       "evidence": [
         {
           "source": "mcp-server",
           "path": "src/zscaler_mcp/client.py",
           "quotes": [
+            "credentials = {\"ZSCALER_CLIENT_ID\": client_id, \"ZSCALER_VANITY_DOMAIN\": vanity_domain}",
+            "scope_ids: dict[str, str | None] = {}",
             "missing_credentials = _absent(credentials)",
-            "missing_scope = _absent(scope_ids)",
+            "\"Zscaler SDK failed to initialize due to missing OneAPI credentials: \"",
             "authentication itself is unaffected",
             "if service == \"zpa\": scope_ids[\"ZSCALER_CUSTOMER_ID\"] = customer_id",
             "if service == \"zcell\": scope_ids[\"ZCELL_CUSTOMER_ID\"] = zcell_customer_id",
             "\"environment or .env file (the tenant/customer ID, not an OneAPI \"",
             "f\"is not entitled to {service}, this value may not exist.\""
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/client.py",
+          "after": "missing_credentials = _absent(credentials)",
+          "quotes": [
+            "missing_scope = _absent(scope_ids)"
           ]
         }
       ]
@@ -335,11 +365,15 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/cloud/aws_secrets.py",
           "quotes": [
+            "from Secrets Manager at startup and publishes them as environment variables",
             "Set ``ZSCALER_SECRET_NAME`` to the secret's name or ARN. Presence of that",
             "AWS_REGION           — region of the secret. Falls back to",
             "``AWS_DEFAULT_REGION``, then to boto3's own",
             "Requires the optional ``aws`` extra: ``pip install 'zscaler-mcp[aws]'``.",
-            "No-op unless :func:`is_enabled`. Raises ``SystemExit`` on any fatal error so"
+            "ZSCALER_SECRET_NAME is set but boto3 is not installed.",
+            "No-op unless :func:`is_enabled`. Raises ``SystemExit`` on any fatal error so\n    the server stops cleanly rather than starting without credentials.",
+            "Every failure is fatal.",
+            "is not valid JSON: {exc}"
           ]
         }
       ]
@@ -356,12 +390,16 @@
             "# MCP client authentication (who may connect to this server)",
             "# SEP-2322 request-state key ring.",
             "# Write posture, for parity with the GCP loader.",
+            "missing = [key for key in _REQUIRED_KEYS if not _satisfied(key)]",
             "f\"Required credentials missing after loading '{secret_id}': \"",
             "Only the keys in :data:`CREDENTIAL_KEYS` are published to the environment.",
             "Values from the secret **override** anything already in the environment.",
             "\"Ignoring %d unrecognised key(s) in secret '%s': %s. \"",
+            "Unrecognised keys are named in a warning so a misspelling is",
             "_REQUIRED_KEYS = (\"ZSCALER_CLIENT_ID\", \"ZSCALER_CLIENT_SECRET\")",
-            "_SECRET_EQUIVALENTS = {\"ZSCALER_CLIENT_SECRET\": (\"ZSCALER_PRIVATE_KEY\",)}"
+            "_SECRET_EQUIVALENTS = {\"ZSCALER_CLIENT_SECRET\": (\"ZSCALER_PRIVATE_KEY\",)}",
+            "candidates = (key,) + _SECRET_EQUIVALENTS.get(key, ())",
+            "the server stops cleanly rather than starting without credentials."
           ]
         }
       ]
@@ -374,8 +412,7 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/cloud/__init__.py",
           "quotes": [
-            "(``ZSCALER_MCP_WRITE_ENABLED``, ``ZSCALER_MCP_AUTH_API_KEY``, …)",
-            "``main()`` has to call :func:`load_secrets` *before* ``parse_args()``, because",
+            "``main()`` has to call :func:`load_secrets` *before* ``parse_args()``, because\n    a secret can carry the very variables the CLI reads for its defaults\n    (``ZSCALER_MCP_WRITE_ENABLED``, ``ZSCALER_MCP_AUTH_API_KEY``, …)",
             "_PROVIDERS = (aws_secrets, gcp_secrets)"
           ]
         }
@@ -415,9 +452,10 @@
           "quotes": [
             "``logging/setLevel`` is part of the ``2025-06-18`` and ``2025-11-25`` base",
             "**It is deliberately a no-op on ``2026-07-28``.**",
+            "that revision drops the method from its surface",
             "revision are expected to use OpenTelemetry",
             "The level applies to the ``zscaler_mcp`` logger tree only.",
-            "logging, which at ``debug`` prints credential-bearing headers"
+            "logger would drag in ``httpx``, ``uvicorn`` and the Zscaler SDK's own request\n    logging, which at ``debug`` prints credential-bearing headers"
           ]
         }
       ]

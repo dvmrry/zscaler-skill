@@ -56,7 +56,7 @@
     },
     {
       "label": "Read-back converter.",
-      "text": "{{v2-conversion-drops-idp-and-workload-tag}} {{v2-conversion-values-list-4-4-15}} {{v2-read-state-comes-from-converter}} {{cleanup-rewrites-rule-from-converter}} {{converter-callers}} {{idp-condition-lost-from-state-and-cleanup-writes}} How ZPA represents identity provider and workload tag operands on a read is open {{gap:api-idp-operand-shape}}."
+      "text": "{{v2-conversion-drops-idp-and-workload-tag}} {{v2-conversion-values-list-4-4-15}} {{v2-read-state-comes-from-converter}} {{cleanup-rewrites-rule-from-converter}} {{cleanup-put-omits-converter-drops}} {{converter-callers}} {{idp-condition-lost-from-state-and-cleanup-writes}} How ZPA represents identity provider and workload tag operands on a read is open {{gap:api-idp-operand-shape}}."
     },
     {
       "label": "Import and schema.",
@@ -169,7 +169,8 @@
           "status": "unfiled",
           "note": "Filing 6 (ZPA policy-rule writes) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func resourcePolicyForwardingRuleUpdate\\(/,/^}/' zpa/resource_zpa_policy_access_forwarding_rule.go | grep -n -E 'policysetcontroller\\.|Get[A-Za-z]*\\('` returns only `d.Get` and `d.GetOk` reads, `fetchPolicySetIDByType` (the policy set, when `policy_set_id` is unset), `ValidateConditions` (operand lookups) and `policysetcontroller.UpdateRule`; there is no `GetPolicyRule`. At v3.8.58, `awk '/^func UpdateRule\\(/,/^}/' zscaler/zpa/services/policysetcontroller/policysetcontroller.go | grep -n 'NewRequestDo'` returns only the PUT."
     },
     "v2-update-reads-then-discards": {
       "statement": "A v2 policy rule update does read the rule first, but only to detect a deleted rule: the response is thrown away and the request sent is again built from Terraform state. The v2 SDK request type has the same always-serialized fields (`devicePostureFailureNotificationEnabled`, `appServerGroups`, `appConnectorGroups`, `serviceEdgeGroups`).",
@@ -354,8 +355,23 @@
           "quotes": [
             "op := policysetcontrollerv2.PolicyRuleResourceOperands{ ID: id, ObjectType: operandSet[\"object_type\"].(string), IDPID: IdpID, Values: values, EntryValuesLHSRHS: entryValues, }"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_v2.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "\"operands\": {",
+          "quotes": [
+            "\"values\": {",
+            "\"object_type\": {",
+            "\"entry_values\": {"
+          ]
         }
-      ]
+      ],
+      "conditions": "Search: in vendor/terraform-provider-zpa at v4.4.10 and v4.4.16, `git grep -l policysetcontrollerv2 -- 'zpa/resource_zpa_policy*.go'` lists nine resource files besides tests (the six *_v2 rules for access, browser protection, forwarding, inspection, isolation and timeout, and the capabilities, credential and portal access rules), and `grep -c '\"name\": {'` returns 1 in each, the rule's own top-level name declared above its one `\"operands\": {` block, so no operand has a name attribute."
     },
     "operand-name-erasure-reaches-all-v1-writers": {
       "statement": "Every provider path that updates a v1 rule goes through that SDK function: the access, forwarding, inspection, isolation, redirection and timeout rule resources, and the cleanup code that edits rules when a segment group, application segment, server group, app connector group or PRA credential is deleted.",
@@ -472,7 +488,8 @@
           "status": "fixed",
           "note": "Fixed in provider v4.4.15 (PR 698)."
         }
-      ]
+      ],
+      "conditions": "Release search: for every tag of vendor/terraform-provider-zpa whose zpa/common.go has `func ConvertV1ResponseToV2Request(` (85 tags, first at v3.3.24), `sed -n '/^func ConvertV1ResponseToV2Request(/,/^}/p' | grep -c -F 'operand.Values...'` returns 0 at all 83 tags from v3.3.24 through v4.4.14, each of which has the `append(operandMap[operand.ObjectType], operand.RHS)` line (twice at v3.33.0 and v3.33.1), and 1 at v4.4.15 and v4.4.16."
     },
     "v2-read-state-comes-from-converter": {
       "statement": "The v2 access rule's read converts the API response and builds the `conditions` state from the converted rule, so a condition the converter dropped is absent from refreshed state.",
@@ -494,9 +511,33 @@
       ]
     },
     "cleanup-rewrites-rule-from-converter": {
-      "statement": "When a segment group is deleted, the provider reads the v2 rules of the ACCESS, TIMEOUT, SIEM, CLIENT_FORWARDING and INSPECTION policy types, removes the segment group operand, converts the whole rule with the same converter and PUTs the converted rule. Whatever the converter drops is dropped from the stored rule too, not only from state.",
+      "statement": "When a segment group is deleted, the provider reads the v2 rules of the ACCESS, TIMEOUT, SIEM, CLIENT_FORWARDING and INSPECTION policy types, removes the segment group operand, converts the whole rule with ConvertV1ResponseToV2Request and PUTs the converted rule.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceSegmentGroupDelete(",
+          "quotes": [
+            "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func detachSegmentGroupFromAllPolicyRules(",
+          "quotes": [
+            "if err := detachSegmentGroupFromV2Policies(ctx, id, service); err != nil {"
+          ]
+        },
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
@@ -522,6 +563,17 @@
         }
       ]
     },
+    "cleanup-put-omits-converter-drops": {
+      "statement": "So whatever the converter drops from a rule is also missing from the PUT that rewrites it, and is lost from the stored rule if the API treats that PUT as a full replacement.",
+      "tier": "B",
+      "derived_from": [
+        "cleanup-rewrites-rule-from-converter"
+      ],
+      "conditions": "Follows from cleanup-rewrites-rule-from-converter: the PUT body is the converter's output, so nothing the converter leaves out reaches the request. That the stored rule then loses it rests on the API replacing the whole rule on a v2 rule PUT rather than merging, which no captured source states (gap api-put-semantics).",
+      "gaps": [
+        "api-put-semantics"
+      ]
+    },
     "converter-callers": {
       "statement": "The converter is used by the read function of the v2 access, timeout, forwarding, inspection, isolation, browser-protection, capabilities, credential and portal rule resources, and by cleanup code in the app connector group, segment group and PRA console resources, which write the converted rule back.",
       "tier": "B",
@@ -531,16 +583,18 @@
       "conditions": "Search: `git -C vendor/terraform-provider-zpa grep -n \"ConvertV1ResponseToV2Request\" v4.4.10 -- 'zpa/*.go' ':!*_test.go'` lists those files; in resource_zpa_app_connector_group.go, resource_zpa_pra_console_controller.go and resource_zpa_segment_group.go the result is passed to policysetcontrollerv2.UpdateRule. No other callers were found at v4.4.10. Re-run at v4.4.16 with the same search: the same files."
     },
     "idp-condition-lost-from-state-and-cleanup-writes": {
-      "statement": "So up to v4.4.15 a v2 rule with an `IDP` or `WORKLOAD_TAG_GROUP` condition can refresh to state without that condition, and a delete-time cleanup that touches such a rule can write it back without the condition; v4.4.16 adds those object types to the converter.",
+      "statement": "So up to v4.4.15 a v2 rule with an `IDP` or `WORKLOAD_TAG_GROUP` condition can refresh to state without that condition, and a delete-time cleanup that touches such a rule can PUT it back without the condition; v4.4.16 adds those object types to the converter.",
       "tier": "C",
       "derived_from": [
         "v2-conversion-drops-idp-and-workload-tag",
         "v2-read-state-comes-from-converter",
-        "cleanup-rewrites-rule-from-converter"
+        "cleanup-rewrites-rule-from-converter",
+        "cleanup-put-omits-converter-drops"
       ],
-      "conditions": "Depends on the ZPA v2 read response returning such conditions as operands whose object type is `IDP` or `WORKLOAD_TAG_GROUP` (gap api-idp-operand-shape), and, for the cleanup, on a rule of this shape also referencing the deleted object.",
+      "conditions": "Depends on the ZPA v2 read response returning such conditions as operands whose object type is `IDP` or `WORKLOAD_TAG_GROUP` (gap api-idp-operand-shape), and, for the cleanup, on a rule of this shape also referencing the deleted object. That the stored rule then loses the condition further rests on the API replacing the whole rule on that PUT (gap api-put-semantics).",
       "gaps": [
-        "api-idp-operand-shape"
+        "api-idp-operand-shape",
+        "api-put-semantics"
       ],
       "upstream": [
         {
@@ -934,6 +988,18 @@
             "if _, err := policysetcontroller.UpdateRule(ctx, service, globalPolicySet.ID, ruleID, req); err != nil {",
             "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := policysetcontroller.UpdateRule(ctx, service, globalPolicySet.ID, ruleID, req); err != nil {"
           ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentUpdate(",
+          "quotes": [
+            "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {"
+          ]
         }
       ],
       "upstream": [
@@ -1031,9 +1097,10 @@
           ],
           "after": "func expandCredentialPolicyRule(d *schema.ResourceData, policySetID string) (*policysetcontrollerv2.PolicyRule, error) {",
           "quotes": [
+            "conditions, err := ExpandPolicyConditionsV2(d)",
             "credential = &policysetcontrollerv2.Credential{ID: id}",
             "credentialPool = &policysetcontrollerv2.Credential{ID: id}",
-            "CredentialPool: credentialPool,"
+            "Conditions: conditions, Credential: credential, CredentialPool: credentialPool,"
           ]
         },
         {
@@ -1049,7 +1116,8 @@
             "CredentialPool *Credential `json:\"credentialPool,omitempty\"`"
           ]
         }
-      ]
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func expandCredentialPolicyRule\\(/,/^}/' zpa/resource_zpa_policy_credential_access_rule.go | grep -n -i 'credential\\|conditions'` returns, besides the signature, the `ExpandPolicyConditionsV2(d)` call, the two variable declarations, the `credential` and `credential_pool` reads and assignments, the check that only one is set, and the returned rule's `Conditions`, `Credential` and `CredentialPool` fields; `ExpandPolicyConditionsV2` in zpa/common.go reads only `d.GetOk(\"conditions\")`, so no credential or pool is placed in a condition."
     },
     "credential-delete-leaves-reference": {
       "statement": "So deleting a credential or pool that a credential policy rule uses does not clear the rule's reference: the helper never looks at the top-level fields. The delete then proceeds if ZPA accepts it, or fails if ZPA rejects a delete of a referenced object.",

@@ -42,7 +42,7 @@
     {
       "rel": "interacts-with",
       "to": "zia.url-filtering.rule-order",
-      "because": "zia.dlp.evaluation:earlier-block-skips-dlp"
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
     },
     {
       "rel": "depends-on",
@@ -527,7 +527,11 @@
           "quotes": [
             "Native FTP: Data transactions and file uploads from native FTP servers.",
             "WebSocket SSL/TLS: Data transactions from WebSocket websites encrypted by SSL/TLS.",
-            "The WebSocket protocol is supported only for the Microsoft Copilot application."
+            "The WebSocket protocol is supported only for the Microsoft Copilot application.",
+            "Protocols: Select the protocols to which the rule applies.",
+            "HTTP: Data transactions and file uploads from HTTP websites.",
+            "HTTPS: Data transactions and file uploads from HTTP websites encrypted by SSL/TLS.",
+            "WebSocket: Data transactions from WebSocket websites."
           ],
           "after": "- The DLP policy applies OR logic to the Users, Groups, and Departments fields when inspecting your organization’s traffic. In order for the DLP rule to trigger, the Zscaler service must detect at least one of the rule’s selected users, groups, or departments."
         }
@@ -537,7 +541,7 @@
       ]
     },
     "actions": {
-      "statement": "A rule's action is Allow (allow and log), Block (block and log) or Confirm (the user can justify and continue, or cancel; both are logged).",
+      "statement": "In Evaluate All Rules mode a rule's action is Allow (allow and log), Block (block and log) or Confirm (the user can justify and continue, or cancel; both are logged); the default-mode article lists only Allow and Block.",
       "tier": "A",
       "binds": [
         "zia/dlp-web-rules#action"
@@ -547,14 +551,29 @@
           "source": "zscaler-help",
           "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
           "quotes": [
+            "This article applies only to organizations with Evaluate All Rules mode enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-evaluate-all-rules-mode-enabled.json",
+          "quotes": [
             "Allow: The service allows and logs the transaction.",
             "Block: The service blocks and logs the transaction.",
             "Confirm: Users can justify the transaction to continue, or cancel the transaction altogether; in both cases, the service logs the transaction accordingly."
           ],
           "after": "If disabled, the DLP exception rule only applies to content being sent to cloud apps."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-dlp-policy-rules-content-inspection.json",
+          "quotes": [
+            "Allow: Allow the packets to pass through the DLP rule.",
+            "Block: Block the packets to pass through the DLP rule."
+          ]
         }
       ],
-      "conditions": "Confirm is documented in the Evaluate All Rules mode article; the default-mode article (recaptured 2026-10-18) lists only Allow and Block."
+      "conditions": "Confirm is documented in the Evaluate All Rules mode article; the default-mode article (recaptured 2026-10-18) lists only Allow and Block. `grep -c -i confirm configuring-dlp-policy-rules-content-inspection.json` in the capture of 2026-10-25 returns 0."
     },
     "confirm-timeout-cancels": {
       "statement": "If the Confirm message times out without the user acting, the service automatically cancels the transaction.",

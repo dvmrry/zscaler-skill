@@ -141,13 +141,15 @@
       ]
     },
     "vpn-gateway-mechanism": {
-      "statement": "With the route-based driver the app creates exclude routes in the routing table for these bypasses; with the filter-based driver it creates bypass filters.",
+      "statement": "On Windows, for VPN gateway bypasses the app creates IP-based exclude routes in the routing table when a route-based driver is in use, and bypass filters in the filter table when a filter-based driver is in use.",
       "tier": "A",
+      "conditions": "Narrowed per review: the filter-based sentence appears only under the Windows policy rule; the macOS, iOS and Android sections' copies of the note have only the route-based sentence.",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-zscaler-client-connector-app-profiles.json",
           "quotes": [
+            "VPN Gateway Bypass: You can allow traffic destined for the VPN to bypass Zscaler Client Connector.",
             "When a route-based driver is in use, the app creates IP-based exclude routes in the routing table. When a filter-based driver is in use, it creates bypass filters in the filter table."
           ],
           "after": "To add a new Windows policy rule:"
@@ -241,6 +243,8 @@
           "path": "best-practices-adding-bypasses-z-tunnel-2.0.json",
           "quotes": [
             "Configuring port-based bypasses is only possible for Windows and macOS.",
+            "To add a port-based bypass, add the port to the network bypass in the Destination Exclusions field in the Zscaler Client Connector app profile. You must add the port to the end of the network bypass.",
+            "You can also bypass a range of ports by adding the port range to the end of the network bypass.",
             "The port-based bypass is 192.168.1/24:80.",
             "The port-based bypass is 192.168.1/24:80-85."
           ]

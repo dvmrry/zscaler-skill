@@ -154,9 +154,17 @@
           "source": "sdk-python",
           "path": "zscaler/zcell/models/sim_location_groups.py",
           "quotes": [
-            "\"id\": self.id, \"name\": self.name, \"trackedDevices\": self.tracked_devices, }"
+            "parent_req_format = super().request_format() current_obj_format = { \"id\": self.id, \"name\": self.name, \"trackedDevices\": self.tracked_devices, } parent_req_format.update(current_obj_format)"
           ],
           "after": "class SimLocationGroups(ZscalerObject):"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "after": "def request_format(self) -> Dict[str, Any]:",
+          "quotes": [
+            "return {}"
+          ]
         },
         {
           "source": "sdk-python",
@@ -166,7 +174,8 @@
           ],
           "after": "class ApiCreateSimLocationGroupRequestBody(ZscalerObject):"
         }
-      ]
+      ],
+      "conditions": "Absence claim (not imported): `grep -c ApiCreateSimLocationGroupRequestBody zscaler/zcell/sim_location_groups.py` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns 0. The parent format that `SimLocationGroups.request_format` updates is `ZscalerObject.request_format`, which returns `{}`."
     },
     "create-drops-geofence": {
       "statement": "Creating a SIM location group through the SDK sends no geofence, even with the docstring's `geo_fence_details` argument, so the request lacks a field the contract requires.",

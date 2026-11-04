@@ -137,7 +137,7 @@
       ]
     },
     "vmss-behavior": {
-      "statement": "A VMSS adds Cloud Connector VMs as load increases and removes them as it decreases, removes unhealthy VMs and replaces them, and replaces a VM someone terminates manually; stopping or rebooting a scale-set VM from the Azure portal could cause it to be terminated.",
+      "statement": "A VMSS adds Cloud Connector VMs as load increases and removes them as it decreases, removes unhealthy VMs and replaces them, and replaces a VM someone terminates manually from the Azure portal; stopping or rebooting a scale-set VM from the Azure portal could cause it to be terminated.",
       "tier": "A",
       "evidence": [
         {
@@ -188,6 +188,13 @@
           "quotes": [
             "resource \"azurerm_orchestrated_virtual_machine_scale_set\" \"cc_vmss\" {",
             "termination_notification { enabled = true timeout = \"PT5M\" }"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-ccvmss-azure/README.md",
+          "quotes": [
+            "This module provides all required configuration parameters to create a flexible orchestration Virtual Machine Scale Set (VMSS) and scaling policies for Zscaler Cloud Connector deployment."
           ]
         }
       ]
@@ -278,7 +285,7 @@
           "source": "tfmod-azure-cloud-connector",
           "path": "modules/terraform-zscc-ccvmss-azure/main.tf",
           "quotes": [
-            "count = length(azurerm_orchestrated_virtual_machine_scale_set.cc_vmss[*].id)",
+            "resource \"azurerm_monitor_autoscale_setting\" \"vmss_autoscale_setting\" { count = length(azurerm_orchestrated_virtual_machine_scale_set.cc_vmss[*].id)",
             "capacity { default = var.vmss_default_ccs minimum = var.vmss_min_ccs maximum = var.vmss_max_ccs }"
           ]
         },
@@ -289,7 +296,7 @@
             "Enter the minimum amount of Cloud Connectors per VMSS?",
             "Enter the default amount of Cloud Connectors per VMSS?",
             "Enter the maximum amount of Cloud Connectors per VMSS?",
-            "echo \"${dtype} will deploy $zones_count VMSS each with min: ${vmss_min} default: ${vmss_default} max: ${vmss_max} Cloud Connectors in ${azure_location}\""
+            "if [[ \"$zones_enabled\" == \"true\" ]]; then echo \"${dtype} will deploy $zones_count VMSS each with min: ${vmss_min} default: ${vmss_default} max: ${vmss_max} Cloud Connectors in ${azure_location}\""
           ]
         }
       ]
@@ -348,7 +355,8 @@
             "vmss_max_ccs = var.vmss_max_ccs"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no validation): at v0.8.0-31-g6fe2d8f, `grep -c 'var.vmss_max_ccs'` returns 0 for both examples/base_cc_vmss/variables.tf and examples/cc_vmss/variables.tf, so no validation condition refers to the variable."
     },
     "zsec-counts": {
       "statement": "The `zsec` helper accepts 1-20 for the VMSS minimum, default and maximum (prompt defaults 2, 2 and 5) and requires the default to lie between minimum and maximum; for the load-balancer types (names containing lb, and cc_gwlb) it asks for a `cc_count` and accepts 1-20 (prompt default 2).",
@@ -398,9 +406,12 @@
           "source": "zscaler-help",
           "path": "cbc-understanding-azure-vmss-deployments.json",
           "quotes": [
+            "There are two Azure functions:",
             "Health Monitoring: Uses the custom metrics published by each Cloud Connector to determine whether there are any unhealthy Cloud Connectors that need to be replaced. The function terminates an unhealthy instance and immediately replaces it with a new one. This function runs at one-minute intervals.",
+            "Resource Sync: Ensures that the VMs in a Cloud Connector Group on the Zscaler Admin Console match the VMs in your VMSS.",
             "If the function finds a Cloud Connector in the Cloud Connector Group that is not in the VMSS, it cleans up that instance in the Cloud Connector Group to ensure that the two entities are in sync. This function runs at 30-minute intervals.",
             "The Azure Functions communicate with the Cloud Connector API server via REST APIs. Azure Functions do not communicate directly with Cloud Connectors.",
+            "The Azure Functions app contains Azure Functions and runs a ZIP file to start them.",
             "It finds the ZIP file in a new storage account that is created at runtime or from an existing storage account that you specify during deployment."
           ]
         }
@@ -595,7 +606,7 @@
       ]
     },
     "metrics": {
-      "statement": "In namespace zscaler/cloudconnectors, the per-VM health metric is `cloud_connector_aggr_health`, and scale-set metrics are published under `smedge_metrics` with a `metric_name` dimension covering `smedge_cpu_utilization`, `smedge_mem_utilization`, `smedge_bytes_in` and `smedge_bytes_out`; the scaling rules compare `smedge_cpu_utilization`.",
+      "statement": "In namespace zscaler/cloudconnectors, each Cloud Connector's VM-level health metric is shown as `cloud_connector_aggr_health`. The scaling metrics include `smedge_cpu_utilization`, `smedge_mem_utilization`, `smedge_bytes_in` and `smedge_bytes_out`; Help's procedure for viewing VMSS metrics selects the metric `smedge_metrics` and filters on the property `metric_name` with the value `smedge_cpu_utilization`, and the scaling rules compare `smedge_cpu_utilization`.",
       "tier": "A",
       "evidence": [
         {
@@ -604,9 +615,18 @@
           "quotes": [
             "Each Cloud Connector publishes a VM-level custom health metric at one-minute intervals.",
             "- Metric Namespace: zscaler/cloudconnectors - Metric: cloud_connector_aggr_health",
-            "The scaling metrics include smedge_cpu_utilization, smedge_mem_utilization, smedge_bytes_in, and smedge_bytes_out. The scaling rules compare the smedge_cpu_utilization value with the defined threshold.",
+            "In logs and reports, the health metric is displayed as cloud_connector_aggr_health.",
+            "The scaling metrics include smedge_cpu_utilization, smedge_mem_utilization, smedge_bytes_in, and smedge_bytes_out. The scaling rules compare the smedge_cpu_utilization value with the defined threshold."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-understanding-azure-vmss-deployments.json",
+          "after": "To display the VMSS metrics:",
+          "quotes": [
             "- Metric: smedge_metrics",
-            "- Property: metric_name"
+            "- Property: metric_name",
+            "- Values: smedge_cpu_utilization"
           ]
         }
       ]

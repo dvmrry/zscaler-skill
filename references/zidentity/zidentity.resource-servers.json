@@ -136,7 +136,10 @@
             "post",
             "put",
             "patch",
-            "delete"
+            "delete",
+            "head",
+            "options",
+            "trace"
           ]
         },
         {
@@ -147,7 +150,10 @@
             "post",
             "put",
             "patch",
-            "delete"
+            "delete",
+            "head",
+            "options",
+            "trace"
           ]
         },
         {
@@ -242,6 +248,22 @@
               "orgName"
             ]
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/serviceScopes/items/properties/service/properties/cloudName",
+          "expect": {
+            "description": "Name of the cloud in which the service is hosted."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1resource-servers~1{id}/get/responses/200/content/application~1json/schema/items/properties/serviceScopes/items/properties/service/properties/orgName",
+          "expect": {
+            "description": "Name of the organization associated with the service."
+          }
         }
       ]
     },
@@ -288,7 +310,7 @@
           ]
         }
       ],
-      "conditions": "The five reads quoted are every field the Python Service model reads at the pin."
+      "conditions": "The five reads quoted are every field the Python Service model reads at v1.11.3-1-g4f8f54df. Search: `awk '/^class Service\\(ZscalerObject\\):/{f=1;next} /^class /{f=0} f' zscaler/zid/models/resource_servers.py | grep -c 'config\\['` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns 5 (id, name, displayName, cloudName, orgName); Service is the last class in the file, and the `ZscalerObject` constructor it calls reads nothing (`pass`)."
     },
     "clients-reference-resources": {
       "statement": "An API client's `clientResources` lists the resource servers it may reach and the scopes selected on each; the Go SDK says to resolve those resource and scope IDs with its resource servers package.",

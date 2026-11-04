@@ -142,7 +142,8 @@
             "# Create Zonal Managed Instance Groups per number of zones defined",
             "resource \"google_compute_instance_group_manager\" \"cc_instance_group_manager\" { count = length(var.zones)",
             "version { instance_template = google_compute_instance_template.cc_instance_template.id }",
-            "count = var.autoscaling_enabled ? length(google_compute_instance_group_manager.cc_instance_group_manager[*].instance_group) : 0"
+            "resource \"google_compute_autoscaler\" \"cc_asg\" { count = var.autoscaling_enabled ? length(google_compute_instance_group_manager.cc_instance_group_manager[*].instance_group) : 0",
+            "target = element(google_compute_instance_group_manager.cc_instance_group_manager[*].id, count.index) autoscaling_policy { max_replicas = var.max_replicas min_replicas = var.min_replicas"
           ]
         },
         {
@@ -213,6 +214,7 @@
           "path": "modules/terraform-zscc-ccvm-gcp/variables.tf",
           "quotes": [
             "description = \"The target custom CPU utilization value for the autoscaling policy\" default = 80",
+            "variable \"cooldown_period\" { type = number description = \"The number of seconds that the autoscaler should wait before it starts collecting information from a new instance.",
             "during which the collected usage would not be reliable\" default = 900"
           ]
         }
@@ -287,9 +289,14 @@
           "path": "examples/zsec",
           "quotes": [
             "min_replicas_default=2",
+            "Enter the minimum number of Cloud Connectors to maintain per each Autoscale Instance Group",
+            "case $min_replicas in 1|2|3|4|5|6|7|8|9|10)",
             "Invalid ASG Minimum size: ${min_replicas}. Enter a number 1-10",
             "max_replicas_default=4",
+            "Enter the maximum number of Cloud Connectors to maintain per each Autoscale Instance Group",
+            "if [[ \"$max_replicas\" -lt \"$min_replicas\" ]]; then",
             "Max size must be greater than or equal to ${min_replicas}",
+            "case $max_replicas in 1|2|3|4|5|6|7|8|9|10)",
             "Invalid ASG Maximum size: ${max_replicas}. Enter a number 1-10"
           ]
         }

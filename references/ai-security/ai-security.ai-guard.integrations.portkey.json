@@ -72,7 +72,7 @@
             "if str(pre_result.get(\"action\") or \"\").upper() not in (\"ALLOW\", \"DETECT\"):",
             "post_result = scan_content(response_text, \"OUT\", txn_id)",
             "if str(post_result.get(\"action\") or \"\").upper() not in (\"ALLOW\", \"DETECT\"):",
-            "print(\"\\nScan error — aborting.\")",
+            "print(\"\\nScan error — aborting.\")\n        return",
             "return choices[0].get(\"message\", {}).get(\"content\", \"\")",
             "txn_id = str(uuid.uuid4())",
             "portkey_url = os.getenv(\"PORTKEY_GATEWAY_URL\", \"http://127.0.0.1:8787\")",
@@ -86,7 +86,9 @@
           "path": "Portkey/examples/README.md",
           "quotes": [
             "Each test script follows a three-step flow:",
-            "2. **Gateway request** — Sends the prompt through the local Portkey gateway to the LLM provider."
+            "1. **Pre-scan** — Scans the prompt via the AI Guard SDK (direction=IN).",
+            "2. **Gateway request** — Sends the prompt through the local Portkey gateway to the LLM provider.",
+            "3. **Post-scan** — Scans the LLM response via the AI Guard SDK (direction=OUT)."
           ]
         }
       ]

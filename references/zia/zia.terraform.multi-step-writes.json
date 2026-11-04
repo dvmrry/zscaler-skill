@@ -52,7 +52,7 @@
     },
     {
       "label": "Virtual Service Edge cluster deletion.",
-      "text": "{{vzen-delete-is-detach-update-delete}} {{vzen-delete-comments-state-detach-intent}} {{vzen-detach-list-omitted-on-wire}} {{vzen-delete-effect}}"
+      "text": "{{vzen-delete-is-detach-update-delete}} {{vzen-delete-comments-state-detach-intent}} {{vzen-detach-list-omitted-on-wire}} {{vzen-detach-body-omits-nodes}} {{vzen-delete-effect}}"
     },
     {
       "label": "Node update.",
@@ -115,7 +115,7 @@
   ],
   "claims": {
     "delta-helpers-read-then-add-then-remove": {
-      "statement": "The SDK's malicious-URL and exempted-URL updaters do not send the desired list. Each reads the current list, computes additions and removals locally, then sends the additions as one write and the removals as a second write, in that order. An error from either write is returned immediately.",
+      "statement": "The SDK's malicious-URL and exempted-URL updaters do not send the desired list. Each reads the current list, computes additions and removals locally, then sends any additions as one write and any removals as a second write, in that order. An error from either write is returned immediately.",
       "tier": "A",
       "evidence": [
         {
@@ -131,7 +131,8 @@
             "newUrls := zscaler.Difference(urls.MaliciousUrls, currentUrls.MaliciousUrls)",
             "removedUrls := zscaler.Difference(currentUrls.MaliciousUrls, urls.MaliciousUrls)",
             "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", maliciousUrlsEndpoint), MaliciousURLs{newUrls}) if err != nil { return nil, err }",
-            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", maliciousUrlsEndpoint), MaliciousURLs{removedUrls}) if err != nil { return nil, err }"
+            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", maliciousUrlsEndpoint), MaliciousURLs{removedUrls}) if err != nil { return nil, err }",
+            "if len(newUrls) > 0 { _, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s?action=ADD_TO_LIST\", maliciousUrlsEndpoint), MaliciousURLs{newUrls}) if err != nil { return nil, err } } if len(removedUrls) > 0 { _, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\""
           ]
         },
         {
@@ -147,7 +148,8 @@
             "newUrls := zscaler.Difference(urls.URLs, currentUrls.URLs)",
             "removedUrls := zscaler.Difference(currentUrls.URLs, urls.URLs)",
             "fmt.Sprintf(\"%s?action=ADD_TO_LIST\", exemptedUrlsEndpoint), ExemptedUrls{newUrls}) if err != nil { return nil, err }",
-            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", exemptedUrlsEndpoint), ExemptedUrls{removedUrls}) if err != nil { return nil, err }"
+            "fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\", exemptedUrlsEndpoint), ExemptedUrls{removedUrls}) if err != nil { return nil, err }",
+            "if len(newUrls) > 0 { _, err := service.Client.Create(ctx, fmt.Sprintf(\"%s?action=ADD_TO_LIST\", exemptedUrlsEndpoint), ExemptedUrls{newUrls}) if err != nil { return nil, err } } if len(removedUrls) > 0 { _, err := service.Client.Create(ctx, fmt.Sprintf(\"%s?action=REMOVE_FROM_LIST\""
           ]
         }
       ],
@@ -319,8 +321,7 @@
           ],
           "after": "func UpdateListUrls(ctx context.Context, service *zscaler.Service, listUrls ListUrls) (*ListUrls, error) {",
           "quotes": [
-            "whitelist, err := UpdateWhiteListUrls(ctx, service, ListUrls{White: listUrls.White}) if err != nil { return nil, err }",
-            "blacklist, err := UpdateBlackListUrls(ctx, service, ListUrls{Black: listUrls.Black}) if err != nil { return nil, err }"
+            "whitelist, err := UpdateWhiteListUrls(ctx, service, ListUrls{White: listUrls.White}) if err != nil { return nil, err } blacklist, err := UpdateBlackListUrls(ctx, service, ListUrls{Black: listUrls.Black}) if err != nil { return nil, err }"
           ]
         },
         {
@@ -333,8 +334,8 @@
           "quotes": [
             "securityAdvancedEndpoint = \"/zia/api/v1/security/advanced\"",
             "securityEndpoint = \"/zia/api/v1/security\"",
-            "_, err := service.Client.UpdateWithPut(ctx, securityEndpoint, list)",
-            "_, err := service.Client.UpdateWithPut(ctx, securityAdvancedEndpoint, list)"
+            "func UpdateWhiteListUrls(ctx context.Context, service *zscaler.Service, list ListUrls) (*ListUrls, error) { _, err := service.Client.UpdateWithPut(ctx, securityEndpoint, list)",
+            "func UpdateBlackListUrls(ctx context.Context, service *zscaler.Service, list ListUrls) (*ListUrls, error) { _, err := service.Client.UpdateWithPut(ctx, securityAdvancedEndpoint, list)"
           ]
         },
         {
@@ -371,7 +372,7 @@
           "after": "func resourceBrowserControlPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if _, _, err := browser_control_settings.UpdateBrowserControlSettings(ctx, service, expandBrowserControlBaseSettings(d)); err != nil {",
-            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil {",
+            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil { return diag.FromErr(err) }",
             "if shouldUpdateSmartIsolation(d) {"
           ]
         },
@@ -388,7 +389,7 @@
             "if _, _, err := browser_control_settings.UpdateBrowserControlSettings(ctx, service, expandBrowserControlBaseSettings(d)); err != nil {",
             "// separate endpoint, which we only call when the user has actually",
             "if shouldUpdateSmartIsolation(d) {",
-            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil {"
+            "if _, _, err := secure_browsing.UpdateSmartIsolation(ctx, service, expandSmartIsolation(d)); err != nil { return diag.FromErr(err) }"
           ]
         },
         {
@@ -488,7 +489,7 @@
       ]
     },
     "vzen-detach-list-omitted-on-wire": {
-      "statement": "The node list in the cluster model is tagged `omitempty`, and Go's JSON encoder drops an empty slice with that tag. The detach PUT the delete path builds therefore does not carry `virtualZenNodes` at all, whatever the code comment says it does.",
+      "statement": "The node list in the cluster model is tagged `omitempty`, and the detach PUT the delete path builds sets it to an empty slice with the comment `// Detach all service edges`.",
       "tier": "A",
       "evidence": [
         {
@@ -522,12 +523,23 @@
         }
       ]
     },
+    "vzen-detach-body-omits-nodes": {
+      "statement": "Because ZIA updates marshal the caller's struct with `json.Marshal` and a field tagged `omitempty` that holds an empty slice is left out of the body, that detach PUT does not carry `virtualZenNodes` at all, whatever the code comment says it does.",
+      "tier": "B",
+      "derived_from": [
+        "vzen-detach-list-omitted-on-wire",
+        "zia.sdk-go.write-encoding:marshals-caller-struct",
+        "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
+      ],
+      "conditions": "Rests on the `omitempty` tag and the empty slice the delete path sets (vzen-detach-list-omitted-on-wire), on ZIA updates serializing the caller's struct with `json.Marshal`, and on encoding/json omitting an empty slice tagged `omitempty`, which is Go standard-library behavior no cited source states (see omitempty-drops-zero-values). It assumes no custom MarshalJSON: `grep -rn MarshalJSON` over zscaler/zia/services/vzen_clusters/ and zscaler/zia/services/common/ at v3.8.58 finds only the one for `EndPointApplications`. No captured request body shows the PUT."
+    },
     "vzen-delete-effect": {
       "statement": "So the PUT before the DELETE does not express the intended empty node list. If the API treats an omitted list as unchanged, the cluster is deleted (or the DELETE is refused) with nodes still attached; if the PUT succeeds and the DELETE then fails, the cluster remains and other fields were rewritten from the earlier GET.",
       "tier": "C",
       "derived_from": [
         "vzen-delete-is-detach-update-delete",
-        "vzen-detach-list-omitted-on-wire"
+        "vzen-detach-list-omitted-on-wire",
+        "vzen-detach-body-omits-nodes"
       ],
       "conditions": "Depends on how the API treats an omitted `virtualZenNodes` in a PUT, and on whether it permits deleting a cluster that still has nodes (gap vzen-empty-nodes-semantics). The write encoding is in [[zia.sdk-go.write-encoding]] and [[shared.sdk-go.zero-value-writes]].",
       "gaps": [
@@ -647,7 +659,8 @@
             "_, _, err = staticips.Update(ctx, svc, tempResp.ID, &updateReq)",
             "d.SetId(strconv.Itoa(tempResp.ID))",
             "return fmt.Errorf(\"failed to fetch static IP coordinates: %w\", err)",
-            "return fmt.Errorf(\"failed to update static IP with geo_override: %w\", err)"
+            "return fmt.Errorf(\"failed to update static IP with geo_override: %w\", err)",
+            "_, _, err = staticips.Update(ctx, svc, tempResp.ID, &updateReq) if err != nil { return fmt.Errorf(\"failed to update static IP with geo_override: %w\", err) } // Set the ID so the rest of Create knows it's already created d.SetId(strconv.Itoa(tempResp.ID))"
           ]
         },
         {
@@ -763,6 +776,7 @@
           "quotes": [
             "removesAllURLs := hasRemoves && len(urlsToRemove) == len(currentUrls)",
             "actionListsChanged := !stringSetsEqual(currentCategory.DBCategorizedUrls, desiredCategory.DBCategorizedUrls) || !stringSetsEqual(currentCategory.IPRanges, desiredCategory.IPRanges)",
+            "hasUnverifiedLists := hasUnverifiedActionLists(currentCategory) || hasUnverifiedActionLists(&desiredCategory)",
             "return len(c.KeywordsRetainingParentCategory) > 0 || len(c.IPRangesRetainingParentCategory) > 0 || len(c.RegexPatterns) > 0 || len(c.RegexPatternsRetainingParentCategory) > 0"
           ]
         },
@@ -849,7 +863,9 @@
             "failed to add items to predefined category: %w",
             "log.Printf(\"[INFO] Using plain PUT to update keyword fields (replacement semantics)\")",
             "kwCategory.Keywords = desired.Keywords",
-            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &kwCategory, \"\"); err != nil {"
+            "if _, _, err := urlcategories.UpdateURLCategories(ctx, service, categoryID, &kwCategory, \"\"); err != nil {",
+            "return diag.FromErr(fmt.Errorf(\"failed to remove items from predefined category: %w\", err)) } } if incrementalAdds > 0 {",
+            "return diag.FromErr(fmt.Errorf(\"failed to add items to predefined category: %w\", err)) } } if keywordsChanged || kwRetChanged {"
           ]
         }
       ],
@@ -861,7 +877,7 @@
       ]
     },
     "user-auth-enrollment-error-logged": {
-      "statement": "User create and update send the user and then enroll its authentication methods as a separate call. If the enrollment call fails, the provider only logs it and goes on to refresh and report success.",
+      "statement": "User create and update send the user and then, when authentication methods are set (on update, only if the password or auth methods changed), enroll them as a separate call. If the enrollment call fails, the provider only logs it and goes on to refresh; the error is not returned.",
       "tier": "A",
       "evidence": [
         {
@@ -873,7 +889,8 @@
           ],
           "after": "func resourceUserManagementCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "_, err = users.EnrollUser(ctx, service, resp.ID, users.EnrollUserRequest{",
+            "resp, err := users.Create(ctx, service, &req)",
+            "authMethods := SetToStringList(d, \"auth_methods\") if len(authMethods) > 0 { _, err = users.EnrollUser(ctx, service, resp.ID, users.EnrollUserRequest{",
             "if err != nil { log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err) } } d.SetId(strconv.Itoa(resp.ID))",
             "return resourceUserManagementRead(ctx, d, meta)"
           ]
@@ -887,7 +904,8 @@
           ],
           "after": "func resourceUserManagementUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "if (d.HasChange(\"password\") || d.HasChange(\"auth_methods\")) && len(authMethods) > 0 {",
+            "if _, _, err := users.Update(ctx, service, id, &req); err != nil {",
+            "if (d.HasChange(\"password\") || d.HasChange(\"auth_methods\")) && len(authMethods) > 0 { _, err := users.EnrollUser(ctx, service, id, users.EnrollUserRequest{",
             "if err != nil { log.Printf(\"[ERROR] enrolling user failed: %v\\n\", err) } }",
             "return resourceUserManagementRead(ctx, d, meta)"
           ]
@@ -1036,7 +1054,7 @@
           "after": "func detachCategoryFromSSLInspectionRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "rules, err := sslinspection.GetAll(ctx, service)",
-            "for i := range rules { rule := &rules[i]",
+            "for i := range rules { rule := &rules[i] c, removed := removeStringFromSlice(rule.URLCategories, categoryID) if !removed { continue }",
             "if _, err := sslinspection.Update(ctx, service, rule.ID, rule); err != nil {"
           ]
         },
@@ -1050,7 +1068,7 @@
           "after": "func detachCategoryFromSandboxRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "rules, err := sandbox_rules.GetAll(ctx, service)",
-            "for i := range rules { rule := &rules[i]",
+            "for i := range rules { rule := &rules[i] c, removed := removeStringFromSlice(rule.URLCategories, categoryID) if !removed { continue }",
             "if _, err := sandbox_rules.Update(ctx, service, rule.ID, rule); err != nil {"
           ]
         },
@@ -1064,7 +1082,7 @@
           "after": "func detachCategoryFromFileTypeControlRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "rules, err := filetypecontrol.GetAll(ctx, service)",
-            "for i := range rules { rule := &rules[i]",
+            "for i := range rules { rule := &rules[i] c, removed := removeStringFromSlice(rule.URLCategories, categoryID) if !removed { continue }",
             "if _, err := filetypecontrol.Update(ctx, service, rule.ID, rule); err != nil {"
           ]
         },
@@ -1078,7 +1096,7 @@
           "after": "func detachCategoryFromBandwidthClasses(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "classes, err := bandwidth_classes.GetAll(ctx, service)",
-            "for i := range classes { class := &classes[i]",
+            "for i := range classes { class := &classes[i] c, removed := removeStringFromSlice(class.UrlCategories, categoryID) if !removed { continue }",
             "if _, _, err := bandwidth_classes.Update(ctx, service, class.ID, class); err != nil {"
           ]
         },
@@ -1092,7 +1110,7 @@
           "after": "func detachCategoryFromFirewallDNSRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "rules, err := firewalldnscontrolpolicies.GetAll(ctx, service)",
-            "for i := range rules { rule := &rules[i]",
+            "for i := range rules { rule := &rules[i] dest, r1 := removeStringFromSlice(rule.DestIpCategories, categoryID) res, r2 := removeStringFromSlice(rule.ResCategories, categoryID) if !r1 && !r2 { continue }",
             "if _, err := firewalldnscontrolpolicies.Update(ctx, service, rule.ID, rule); err != nil {"
           ]
         },
@@ -1106,7 +1124,7 @@
           "after": "func detachCategoryFromFirewallIPSRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "rules, err := ips_policies.GetAll(ctx, service)",
-            "for i := range rules { rule := &rules[i]",
+            "for i := range rules { rule := &rules[i] dest, r1 := removeStringFromSlice(rule.DestIpCategories, categoryID) res, r2 := removeStringFromSlice(rule.ResCategories, categoryID) if !r1 && !r2 { continue }",
             "if _, err := ips_policies.Update(ctx, service, rule.ID, rule); err != nil {"
           ]
         },
@@ -1134,7 +1152,7 @@
           "after": "func detachCategoryFromDLPWebRules(ctx context.Context, client *Client, categoryID string) (bool, error) {",
           "quotes": [
             "rules, err := dlp_web_rules.GetAll(ctx, service)",
-            "for i := range rules { rule := &rules[i]",
+            "for i := range rules { rule := &rules[i] kept := make([]common.IDNameExtensions, 0, len(rule.URLCategories)) removed := false for _, cat := range rule.URLCategories { if fmt.Sprintf(\"%d\", cat.ID) == categoryID || cat.Name == categoryID { removed = true continue } kept = append(kept, cat) } if !removed { continue }",
             "if _, err := dlp_web_rules.Update(ctx, service, rule.ID, rule); err != nil {"
           ]
         },

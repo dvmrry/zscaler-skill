@@ -341,14 +341,26 @@
       ]
     },
     "cfn-tags-policy": {
-      "statement": "The workload-tag policy the CloudFormation templates create, when the tag parameter is true (its default), allows sqs:DeleteMessage, ReceiveMessage, GetQueueUrl, GetQueueAttributes, SetQueueAttributes, DeleteQueue, CreateQueue and sns:Subscribe, ListSubscriptions and Unsubscribe on all resources.",
+      "statement": "The workload-tag policy (`CcCloudTagsPolicy`) that the Starter and autoscaling CloudFormation templates create when the tag parameter is true (its default) allows sqs:DeleteMessage, ReceiveMessage, GetQueueUrl, GetQueueAttributes, SetQueueAttributes, DeleteQueue, CreateQueue and sns:Subscribe, ListSubscriptions and Unsubscribe on all resources.",
       "tier": "A",
       "evidence": [
         {
           "source": "cft-aws-cloud-connector",
           "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
           "quotes": [
+            "CcCloudTagsPolicy: Condition: CreateCloudTagsIAM Type: AWS::IAM::ManagedPolicy Properties: Description: Zscaler Cloud Connector AWS Workload Tagging Policy",
             "'sqs:DeleteMessage' - 'sqs:ReceiveMessage' - 'sqs:GetQueueUrl' - 'sqs:GetQueueAttributes' - 'sqs:SetQueueAttributes' - 'sqs:DeleteQueue' - 'sqs:CreateQueue' - 'sns:Subscribe' - 'sns:ListSubscriptions' - 'sns:Unsubscribe' Resource: - '*'",
+            "CreateCloudTagsIAM: !Equals - !Ref ZscalerCloudTagsEnabled - true",
+            "ZscalerCloudTagsEnabled: Type: String Description: \"Select \\\"true\\\" to enable Cloud Tag Collection IAM Policy (default), else \\\"false\\\"\" Default: true"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
+          "quotes": [
+            "CcCloudTagsPolicy: Condition: CreateCloudTagsIAM Type: AWS::IAM::ManagedPolicy Properties: Description: Zscaler Cloud Connector AWS Workload Tagging Policy",
+            "'sqs:DeleteMessage' - 'sqs:ReceiveMessage' - 'sqs:GetQueueUrl' - 'sqs:GetQueueAttributes' - 'sqs:SetQueueAttributes' - 'sqs:DeleteQueue' - 'sqs:CreateQueue' - 'sns:Subscribe' - 'sns:ListSubscriptions' - 'sns:Unsubscribe' Resource: - '*'",
+            "CreateCloudTagsIAM: !Equals - !Ref ZscalerCloudTagsEnabled - true",
             "ZscalerCloudTagsEnabled: Type: String Description: \"Select \\\"true\\\" to enable Cloud Tag Collection IAM Policy (default), else \\\"false\\\"\" Default: true"
           ]
         }

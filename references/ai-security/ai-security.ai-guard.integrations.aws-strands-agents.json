@@ -227,6 +227,13 @@
           "quotes": [
             "event.cancel_tool = self._reason(\"tool_input\", verdict, tool=name)"
           ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/strands-agents/README.md",
+          "quotes": [
+            "`BeforeToolCallEvent` -- a blocked tool input sets `cancel_tool`; the tool does not run"
+          ]
         }
       ]
     },
@@ -239,7 +246,9 @@
           "path": "AWS/strands-agents/aiguard_strands.py",
           "quotes": [
             "event.result = self._error_result(tool_use, self._reason(\"tool_output\", verdict, tool=name))",
+            "event.result = self._error_result(tool_use, self._reason(\n                \"tool_output\", {\"action\": \"block\", \"reason\": \"unscannable\"}, tool=name))",
             "\"status\": \"error\",",
+            "\"content\": [{\"text\": text}],",
             "The member list is an allowlist: `text` and `json` are the two text-bearing",
             "on_error=\"block\", on_unscannable=\"block\", strict_verdict=False,",
             "# Block: AfterToolCallEvent CAN substitute -- replace the result so the\n        # poisoned / leaking output never re-enters the model."
@@ -311,10 +320,12 @@
             "agent_arn=None, agent_id=None, agent_version=None,",
             "on_error=\"block\", on_unscannable=\"block\", strict_verdict=False,",
             "on_verdict=None, retry_limit=2, tool_server=\"strands-tools\",",
-            "timeout=10.0):"
+            "timeout=10.0):",
+            "registry.add_callback(BeforeToolCallEvent, self._on_before_tool)"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no tool-input switch): `grep -c 'scan_tool_input' AWS/strands-agents/aiguard_strands.py` at v0.2.0-11-g70d5c9c returns 0 (the name appears only in the folder's README.md), and `register_hooks` adds the BeforeToolCallEvent callback with no condition around it."
     },
     "readme-invalid-python": {
       "statement": "The README's configuration example has two bare `policy_id=` lines, so it is not valid Python as written; one calls the value an \"AI profile UUID\", while the module parses the policy ID with int().",

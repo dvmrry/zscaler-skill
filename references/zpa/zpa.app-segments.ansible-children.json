@@ -78,7 +78,7 @@
   ],
   "claims": {
     "child-ids-parent-scoped": {
-      "statement": "The Browser Access v2 and PRA modules resolve child IDs only from the children owned by the current parent segment; on create the parent and child IDs are left empty and nothing is marked for deletion, and on update stale children owned by that parent can be deleted.",
+      "statement": "The Browser Access v2 and PRA modules resolve child IDs only from the children owned by the current parent segment; on create the parent and child IDs are left empty and nothing is marked for deletion, and on update the parent's children whose domain is no longer declared are listed for deletion in `deleted_ba_apps` (Browser Access v2) or `deleted_pra_apps` (PRA).",
       "tier": "A",
       "evidence": [
         {
@@ -88,6 +88,7 @@
             "for ba_app in existing_app.get(\"clientless_apps\") or []:",
             "config[\"app_id\"] = existing_app[\"id\"] if existing_app else \"\"",
             "deleted_ids = [",
+            "for domain, ba_app in ba_by_domain.items() if domain not in found_domains and ba_app.get(\"id\")",
             "Sub-app IDs are resolved exclusively from the clientless apps owned by",
             "the segment being updated. Resolving them from a tenant-wide lookup",
             "On create",
@@ -104,6 +105,7 @@
             "for pra_app in existing_app.get(\"pra_apps\") or []:",
             "config[\"app_id\"] = existing_app[\"id\"] if existing_app else \"\"",
             "deleted_ids = [",
+            "for domain, pra_app in pra_by_domain.items() if domain not in found_domains and pra_app.get(\"id\")",
             "Sub-app IDs are resolved exclusively from the PRA apps owned by the",
             "segment being updated.",
             "there is no parent segment yet, so the IDs are left empty and nothing",
@@ -115,14 +117,19 @@
       ]
     },
     "child-domains-compared-both-ways": {
-      "statement": "Both modules compare declared and live child domains in both directions using trimmed, case-folded values, so removing a child outside Ansible, or declaring an empty child list, is treated as drift.",
+      "statement": "Both modules compare declared and live child domains in both directions using trimmed, case-folded values on each side, so a child removed outside Ansible, or a declared child list emptied while live children remain, is treated as drift.",
       "tier": "A",
       "evidence": [
         {
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_application_segment_ba_v2.py",
           "quotes": [
+            "segment's other fields: a sub-app deleted outside Ansible leaves",
+            "domain_names intact, and dropping a declared apps_config entry (including",
+            "the last one, via an empty list) leaves the live sub-app behind. Compare",
+            "declared vs live domains both ways.",
             "(ba_app.get(\"domain\") or \"\").strip().casefold()",
+            "(app_config.get(\"domain\") or \"\").strip().casefold()",
             "if desired_domains != current_domains:"
           ]
         },
@@ -130,7 +137,12 @@
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_application_segment_pra.py",
           "quotes": [
+            "segment's other fields: a sub-app deleted outside Ansible leaves",
+            "domain_names intact, and dropping a declared apps_config entry (including",
+            "the last one, via an empty list) leaves the live sub-app behind. Compare",
+            "declared vs live domains both ways.",
             "(pra_app.get(\"domain\") or \"\").strip().casefold()",
+            "(app_config.get(\"domain\") or \"\").strip().casefold()",
             "if desired_domains != current_domains:"
           ]
         }
@@ -144,6 +156,8 @@
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_application_segment_ba_v2.py",
           "quotes": [
+            "desired_app = normalize_app(normalize_port_processing(app))",
+            "existing_app.update(app)",
             "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
             "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
             "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),",
@@ -155,11 +169,21 @@
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_application_segment_pra.py",
           "quotes": [
+            "desired_app = normalize_app(normalize_port_processing(app))",
+            "existing_app.update(app)",
             "desired_app[\"tcp_port_range\"] = list(declared_ports) + [",
             "tcp_port_ranges=convert_ports_list( existing_app.get(\"tcp_port_range\", None)",
             "tcp_port_ranges=convert_ports_list(app.get(\"tcp_port_range\", None)),",
             "# Merge the PRA app domains and ports into the declared values instead",
             "desired_app[\"domain_names\"] = list(declared_domains) + ["
+          ]
+        },
+        {
+          "source": "ansible-zpa",
+          "path": "plugins/module_utils/utils.py",
+          "after": "def normalize_app(app):",
+          "quotes": [
+            "normalized = app.copy()"
           ]
         }
       ]
@@ -250,7 +274,8 @@
             "for key, desired_value in desired_app.items(): if key in fields_to_exclude: continue"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n common_apps_dto plugins/modules/zpa_application_segment_ba_v2.py` at v2.2.12 returns, between `differences_detected = False` and `if module.check_mode:`, only the exclusion list and the domain-set comprehension; its other lines are the documentation and examples, the parameter read, the payload enrichment after the check and the argument spec. `grep -n differences_detected` on the same file returns three assignments in the check: the domain-set inequality, the sorted `domain_names` comparison and the general loop's inequality. Both greps return the same pattern on `zpa_application_segment_pra.py`."
     },
     "inspection-module-differences": {
       "statement": "The Inspection module looks up child apps only when `existing_app` is set (create skips the lookup), queries them with `get_segments_by_type` for type `INSPECT`, records deletions under `deleted_pra_apps`, and sends updates through the PRA client method `update_segment_pra`.",

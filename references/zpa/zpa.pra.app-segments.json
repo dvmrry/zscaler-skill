@@ -132,10 +132,8 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_pra.go",
           "quotes": [
-            "\"application_protocol\": {",
-            "\"RDP\", \"SSH\", \"VNC\",",
-            "\"connection_security\": {",
-            "\"ANY\", \"NLA\", \"NLA_EXT\", \"TLS\", \"VM_CONNECT\", \"RDP\","
+            "\"application_protocol\": { Type: schema.TypeString, Optional: true, // Computed: true, ValidateFunc: validation.StringInSlice([]string{ \"RDP\", \"SSH\", \"VNC\", }, false), },",
+            "\"connection_security\": { Type: schema.TypeString, Optional: true, // Computed: true, ValidateFunc: validation.StringInSlice([]string{ \"ANY\", \"NLA\", \"NLA_EXT\", \"TLS\", \"VM_CONNECT\", \"RDP\", }, false), },"
           ]
         }
       ]
@@ -151,8 +149,18 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_pra.go",
           "quotes": [
+            "if existing != nil {",
             "// Rebuild apps from existing state: keep only apps still present in HCL; mark removed ones for deletion",
+            "if _, found := currentHCLDomains[domain]; found {",
             "AppTypes:            []string{\"SECURE_REMOTE_ACCESS\"},"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "after": "func resourceApplicationSegmentPRAUpdate(",
+          "quotes": [
+            "req := expandSRAApplicationSegment(ctx, d, zClient, id, resp)"
           ]
         },
         {

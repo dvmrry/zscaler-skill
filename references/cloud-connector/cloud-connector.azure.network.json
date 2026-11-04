@@ -235,7 +235,8 @@
           "source": "tfmod-azure-cloud-connector",
           "path": "modules/terraform-zscc-ccvmss-azure/variables.tf",
           "quotes": [
-            "#### module by default pushes the same single subnet ID for both mgmt_subnet_id and service_subnet_id, so they are effectively the same variable"
+            "#### module by default pushes the same single subnet ID for both mgmt_subnet_id and service_subnet_id, so they are effectively the same variable",
+            "#### leaving each as unique values should customer choose to deploy mgmt and service as individual subnets for additional isolation"
           ]
         },
         {
@@ -318,7 +319,7 @@
           "path": "modules/terraform-zscc-nsg-azure/main.tf",
           "after": "resource \"azurerm_network_security_group\" \"cc_mgmt_nsg\" {",
           "quotes": [
-            "name = \"OUTBOUND\" priority = 4000 direction = \"Outbound\" access = \"Allow\" protocol = \"*\""
+            "name = \"OUTBOUND\" priority = 4000 direction = \"Outbound\" access = \"Allow\" protocol = \"*\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"*\" destination_address_prefix = \"*\""
           ]
         }
       ]
@@ -365,7 +366,7 @@
           "path": "modules/terraform-zscc-nsg-azure/main.tf",
           "after": "resource \"azurerm_network_security_group\" \"cc_service_nsg\" {",
           "quotes": [
-            "name = \"OUTBOUND\" priority = 4000 direction = \"Outbound\" access = \"Allow\" protocol = \"*\""
+            "name = \"OUTBOUND\" priority = 4000 direction = \"Outbound\" access = \"Allow\" protocol = \"*\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"*\" destination_address_prefix = \"*\""
           ]
         }
       ]
@@ -386,7 +387,7 @@
       ]
     },
     "nat-per-zone": {
-      "statement": "The network module creates one NAT gateway and one static Standard public IP per distinct zone (zonal when the region supports zones) unless existing ones are supplied, and associates each Cloud Connector subnet with a NAT gateway.",
+      "statement": "The network module creates one NAT gateway and one static Standard public IP per distinct zone (zonal when `zones_enabled` is true in a region the module lists as zone-supporting) unless the deployment is base-only or existing ones are supplied (`byo_nat_gws`, `byo_pips`), and, unless `existing_nat_gw_subnet_association` is true, associates each Cloud Connector subnet with a NAT gateway.",
       "tier": "A",
       "evidence": [
         {
@@ -396,7 +397,7 @@
             "count = var.byo_pips == false && var.base_only == false ? length(distinct(var.zones)) : 0",
             "allocation_method = \"Static\" sku = \"Standard\"",
             "count = var.byo_nat_gws == false && var.base_only == false ? length(distinct(var.zones)) : 0",
-            "resource \"azurerm_subnet_nat_gateway_association\" \"cc_subnet_nat_association\""
+            "resource \"azurerm_subnet_nat_gateway_association\" \"cc_subnet_nat_association\" { count = var.existing_nat_gw_subnet_association == false ? length(data.azurerm_subnet.cc_subnet_selected[*].id) : 0 subnet_id = data.azurerm_subnet.cc_subnet_selected[count.index].id"
           ]
         },
         {
@@ -405,6 +406,21 @@
           "after": "resource \"azurerm_nat_gateway\" \"ngw\" {",
           "quotes": [
             "zones = local.zones_supported ? [element(var.zones, count.index)] : null"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/main.tf",
+          "after": "resource \"azurerm_public_ip\" \"pip\" {",
+          "quotes": [
+            "zones = local.zones_supported ? [element(var.zones, count.index)] : null"
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/variables.tf",
+          "quotes": [
+            "zones_supported = ( contains(local.az_supported_regions, var.location) && var.zones_enabled == true )"
           ]
         }
       ]
@@ -456,10 +472,12 @@
           "source": "zscaler-help",
           "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
           "quotes": [
+            "Select your newly created workload route table and click Routes.",
             "Destination IP addresses/CIDR ranges: Enter 0.0.0.0/0.",
             "Next hop type: From the drop-down menu, select Virtual appliance.",
             "Next hop address: Enter the front-end IP address of your load balancer.",
-            "Propagate gateway routes: Select Yes to propagate gateway routes, or No to prevent the propagation of routes to the network interfaces in associated subnets."
+            "Propagate gateway routes: Select Yes to propagate gateway routes, or No to prevent the propagation of routes to the network interfaces in associated subnets.",
+            "In the Associate subnet window, from the drop-down menu, select your Virtual network and workload Subnet."
           ]
         }
       ]
@@ -479,6 +497,14 @@
             "next_hop_type = (var.base_only == true || (var.lb_enabled == true && var.lb_frontend_ip == null) || (var.lb_enabled == false && length(var.cc_service_ip) == 0)) ? \"Internet\" : \"VirtualAppliance\"",
             "(var.lb_enabled == true ? var.lb_frontend_ip : element(var.cc_service_ip, count.index))"
           ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "modules/terraform-zscc-network-azure/main.tf",
+          "quotes": [
+            "resource \"azurerm_subnet\" \"workload_subnet\" { count = var.workloads_enabled == true ? 1 : 0",
+            "subnet_id = azurerm_subnet.workload_subnet[count.index].id route_table_id = azurerm_route_table.workload_rt[count.index].id"
+          ]
         }
       ]
     },
@@ -492,7 +518,7 @@
           "quotes": [
             "This module creates the required resource dependencies to deploy Azure Private DNS that can be utilized to facilitate conditional DNS forwarding from Azure to Zscaler Cloud Connector for ZPA resolution and/or ZIA DNS Controls security.",
             "Resources included: Private DNS Resolver, Ruleset, Forwarding Rules, and Outbound Endpoint resources.",
-            "Terraform will create a new subnet delegated for the dnsResolvers service in the same VNet as the Cloud Connector(s).",
+            "If deploying via one of the Zscaler provider example templates, there is a creation dependency with the terraform-zscc-network-azure module where Terraform will create a new subnet delegated for the dnsResolvers service in the same VNet as the Cloud Connector(s).",
             "Terraform will also create a new Route Table associated with this subnet pointing a default route (0.0.0.0/0) towards the Cloud Connector service IP or Load Balancer Front-End IP for HA deployments"
           ]
         }
@@ -564,14 +590,15 @@
       ]
     },
     "gwlb-no-zpa-variant": {
-      "statement": "The changelog notes that ZPA (Private DNS Resolver) variants are intentionally not provided for the Gateway Load Balancer and Public Load Balancer examples, since ZPA conditional forwarding is paired with the Cloud Connector egress (Private LB) topologies.",
+      "statement": "The changelog notes that ZPA (Azure Private DNS Resolver) variants are intentionally not provided for the new Gateway Load Balancer and Public Load Balancer greenfield examples: ZPA conditional forwarding is paired with the Cloud Connector egress (Private LB) topologies, and the GWLB ingress-inspection and standalone Public LB topologies do not require a Private DNS Resolver in their reference deployment.",
       "tier": "A",
       "evidence": [
         {
           "source": "tfmod-azure-cloud-connector",
           "path": "CHANGELOG.md",
           "quotes": [
-            "ZPA (Azure Private DNS Resolver) variants are intentionally not provided for the new GWLB and Public LB greenfield examples. ZPA conditional forwarding is paired with Cloud Connector egress (Private LB) topologies"
+            "ZPA (Azure Private DNS Resolver) variants are intentionally not provided for the new GWLB and Public LB greenfield examples. ZPA conditional forwarding is paired with Cloud Connector egress (Private LB) topologies",
+            "the GWLB ingress-inspection and standalone Public LB topologies do not require an Azure Private DNS Resolver in their reference deployment."
           ]
         }
       ]

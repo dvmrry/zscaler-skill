@@ -59,7 +59,7 @@
   ],
   "claims": {
     "endpoint": {
-      "statement": "Sandbox keeps a custom list of MD5 file hashes it blocks, under /zia/api/v1/behavioralAnalysisAdvancedSettings: GET reads the list and PUT replaces it.",
+      "statement": "Sandbox keeps a custom list of MD5 file hashes it blocks, under /zia/api/v1/behavioralAnalysisAdvancedSettings: GET reads the list and PUT updates it, and the Python SDK says passing an empty list clears the blocklist.",
       "tier": "A",
       "binds": [
         "zia/sandbox-settings#fileHashesToBeBlocked"
@@ -70,6 +70,7 @@
           "path": "zscaler/zia/services/sandbox/sandbox_settings/sandbox_settings.go",
           "quotes": [
             "advancedSettingsEndpoint = \"/zia/api/v1/behavioralAnalysisAdvancedSettings\"",
+            "err := service.Client.Read(ctx, advancedSettingsEndpoint, &hashes)",
             "UpdateWithPut(ctx, advancedSettingsEndpoint, payload)"
           ]
         },
@@ -77,7 +78,9 @@
           "source": "sdk-python",
           "path": "zscaler/zia/sandbox.py",
           "quotes": [
-            "Returns the custom list of MD5 file hashes that are blocked by Sandbox."
+            "Returns the custom list of MD5 file hashes that are blocked by Sandbox.",
+            "Updates the custom list of MD5 file hashes that are blocked by Sandbox.",
+            "Pass an empty list to clear the blocklist."
           ]
         }
       ]
@@ -112,7 +115,8 @@
       ],
       "gaps": [
         "enum-and-help-framing"
-      ]
+      ],
+      "conditions": "Absence claim: `grep -rn \"CUSTOM_FILEHASH\\|MALWARE\" zscaler/zia/services/sandbox/sandbox_settings/` at v3.8.58 returns only the Type field's comment, `// e.g. \"MALWARE\"`."
     },
     "allow-entries": {
       "statement": "Because the Python type includes CUSTOM_FILEHASH_ALLOW, the same list may hold allow entries as well as deny entries, so \"blocklist\" can understate what is in it.",

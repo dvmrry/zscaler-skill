@@ -181,6 +181,7 @@
           "source": "tfmod-gcp-zpa-app-connector",
           "path": "examples/README.md",
           "quotes": [
+            "This directory holds **four** working example configurations",
             "Fixed (`base_ac` / `ac`)** examples deploy a pinned number of App Connectors per zone (`ac_count`).",
             "Autoscaling (`base_ac_asg` / `ac_asg`)** examples add a `google_compute_autoscaler` per zonal MIG",
             "Every network primitive is byo_* togglable",
@@ -202,6 +203,7 @@
         {
           "source": "tfmod-gcp-zpa-app-connector",
           "path": "modules/terraform-zsac-acvm-gcp/variables.tf",
+          "after": "variable \"acvm_instance_type\" {",
           "quotes": [
             "default     = \"n2-standard-4\"",
             "var.acvm_instance_type == \"n2-standard-4\" || var.acvm_instance_type == \"n2-highcpu-4\" || var.acvm_instance_type == \"n1-standard-4\" || var.acvm_instance_type == \"n1-highcpu-4\" ||",
@@ -368,12 +370,103 @@
       ]
     },
     "bootstrap-provision-key": {
-      "statement": "The example startup scripts stop the zpa-connector service, write the Terraform-managed provisioning key to /opt/zscaler/var/provision_key, run yum update -y, start zpa-connector, sleep 60 and restart it.",
+      "statement": "The startup scripts in all four examples (ac, ac_asg, base_ac and base_ac_asg, in both their appuserdata and RHEL9 user data) stop the zpa-connector service, write the Terraform-managed provisioning key to /opt/zscaler/var/provision_key, run yum update -y, start zpa-connector, sleep 60 and restart it.",
       "tier": "A",
       "evidence": [
         {
           "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "appuserdata = <<APPUSERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "rhel9userdata = <<RHEL9USERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
           "path": "examples/ac_asg/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "appuserdata = <<APPUSERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "rhel9userdata = <<RHEL9USERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "appuserdata = <<APPUSERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "rhel9userdata = <<RHEL9USERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac_asg/main.tf",
+          "quotes": [
+            "systemctl stop zpa-connector",
+            "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
+            "yum update -y",
+            "sleep 60",
+            "systemctl start zpa-connector",
+            "systemctl stop zpa-connector systemctl start zpa-connector"
+          ],
+          "after": "appuserdata = <<APPUSERDATA"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac_asg/main.tf",
           "quotes": [
             "systemctl stop zpa-connector",
             "echo \"${module.zpa_provisioning_key.provisioning_key}\" > /opt/zscaler/var/provision_key",
@@ -648,7 +741,7 @@
       ]
     },
     "network-firewall": {
-      "statement": "The module's management firewall allows tcp on allowed_ports (an empty default list means all ports) and icmp (icmpv6 in the IPv6 rule) only from allowed_ssh_from_internal_cidr, split into an IPv4 rule and an IPv6 rule because GCP firewall rules cannot mix address families; the examples set that source list to the bastion subnet CIDR.",
+      "statement": "The module's management firewall allows tcp on allowed_ports (an empty default list means all ports) and icmp (icmpv6 in the IPv6 rule) only from allowed_ssh_from_internal_cidr, split into an IPv4 rule and an IPv6 rule because GCP firewall rules cannot mix address families; all four examples set that source list to `[var.subnet_bastion]`, which the ac, base_ac and base_ac_asg examples describe as the subnet CIDR for the greenfield/test bastion host and the ac_asg example as an SSH allow-list reference (it creates no bastion).",
       "tier": "A",
       "evidence": [
         {
@@ -671,6 +764,59 @@
         },
         {
           "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/main.tf",
+          "quotes": [
+            "allowed_ssh_from_internal_cidr = [var.subnet_bastion]"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac/main.tf",
+          "quotes": [
+            "allowed_ssh_from_internal_cidr = [var.subnet_bastion]"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac_asg/main.tf",
+          "quotes": [
+            "allowed_ssh_from_internal_cidr = [var.subnet_bastion]"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac/variables.tf",
+          "quotes": [
+            "A subnet IP CIDR for the greenfield/test bastion host in the Management VPC"
+          ],
+          "after": "variable \"subnet_bastion\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac/variables.tf",
+          "quotes": [
+            "A subnet IP CIDR for the greenfield/test bastion host in the Management VPC"
+          ],
+          "after": "variable \"subnet_bastion\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac_asg/variables.tf",
+          "quotes": [
+            "A subnet IP CIDR for the greenfield/test bastion host in the Management VPC"
+          ],
+          "after": "variable \"subnet_bastion\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/ac_asg/variables.tf",
+          "quotes": [
+            "A subnet IP CIDR for SSH allow-list reference (brownfield does NOT create a bastion)"
+          ],
+          "after": "variable \"subnet_bastion\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
           "path": "modules/terraform-zsac-network-gcp/variables.tf",
           "quotes": [
             "A list of ports to permit inbound to App Connector. Default empty list means to allow all."
@@ -687,7 +833,7 @@
       ]
     },
     "bastion-open": {
-      "statement": "In the greenfield examples the bastion host gets an ephemeral public IP and firewall rules allowing tcp/22 from bastion_ssh_allow_ip (IPv4 and IPv6 ranges in separate rules), which defaults to 0.0.0.0/0.",
+      "statement": "In the greenfield examples (base_ac and base_ac_asg) the bastion host gets an ephemeral public IP and firewall rules allowing tcp/22 from bastion_ssh_allow_ip (IPv4 and IPv6 ranges in separate rules), which defaults to 0.0.0.0/0.",
       "tier": "A",
       "evidence": [
         {
@@ -700,11 +846,37 @@
         },
         {
           "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac_asg/variables.tf",
+          "quotes": [
+            "default     = [\"0.0.0.0/0\"]"
+          ],
+          "after": "variable \"bastion_ssh_allow_ip\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
           "path": "modules/terraform-zsac-bastion-gcp/main.tf",
           "quotes": [
             "#Ephemeral IP",
             "Permit SSH access to bastion host from approved IPv4 source ranges",
-            "Permit SSH access to bastion host from approved IPv6 source ranges"
+            "Permit SSH access to bastion host from approved IPv6 source ranges",
+            "bastion_ssh_allow_ip_v4 = [for c in var.bastion_ssh_allow_ip : c if !strcontains(c, \":\")]",
+            "bastion_ssh_allow_ip_v6 = [for c in var.bastion_ssh_allow_ip : c if strcontains(c, \":\")]",
+            "protocol = \"tcp\"\n    ports    = [\"22\"]\n  }\n  source_ranges           = local.bastion_ssh_allow_ip_v4",
+            "protocol = \"tcp\"\n    ports    = [\"22\"]\n  }\n  source_ranges           = local.bastion_ssh_allow_ip_v6"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac/main.tf",
+          "quotes": [
+            "bastion_ssh_allow_ip = var.bastion_ssh_allow_ip"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-app-connector",
+          "path": "examples/base_ac_asg/main.tf",
+          "quotes": [
+            "bastion_ssh_allow_ip = var.bastion_ssh_allow_ip"
           ]
         }
       ]

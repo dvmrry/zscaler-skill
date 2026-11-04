@@ -49,7 +49,7 @@
   "prose": [
     {
       "label": "Which rules take an interval.",
-      "text": "{{rule-types}} {{traffic-capture-rules}} A rule with no interval is not scheduled: {{default-always}}"
+      "text": "{{rule-types}} {{traffic-capture-rules}} {{default-always}} {{no-interval-applies-always}}"
     },
     {
       "text": "{{rule-field-is-list}} {{time-in-rule-criteria}} The effect of being outside the window is in [[zia.time-intervals.evaluation]]."
@@ -186,10 +186,11 @@
             "/trafficCaptureRules"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: over automate-zscaler/openapi/zia.openapi.json in the capture of 2026-09-07, `grep -c -i '\"/[^\"]*capture'` returns 0 (no path key contains \"capture\"), and `grep -c -i trafficCapture` returns 4 lines, each the property `cmdCtlTrafficCapture`, none a path."
     },
     "default-always": {
-      "statement": "A rule with no time interval applies at all times: Firewall Filtering Help says Always is the default, and URL Filtering Help offers Always or up to two time intervals.",
+      "statement": "Firewall Filtering Help says a rule's Time field is set to Always by default, and URL Filtering Help offers Always, which applies the rule to all time intervals, or up to two time intervals.",
       "tier": "A",
       "evidence": [
         {
@@ -208,6 +209,14 @@
         }
       ]
     },
+    "no-interval-applies-always": {
+      "statement": "A rule with no time interval selected applies at all times.",
+      "tier": "B",
+      "derived_from": [
+        "default-always"
+      ],
+      "conditions": "Rests on Always being the Time field's default and applying the rule to all time intervals (default-always). No source states that a rule with no interval selected, such as one whose `timeWindows` list is empty in the API, behaves as Always."
+    },
     "rule-field-is-list": {
       "statement": "The rule field is a list, so a rule can reference more than one interval; the sources do not say how several intervals combine (any one matching versus all).",
       "tier": "B",
@@ -222,7 +231,8 @@
       "tier": "B",
       "derived_from": [
         "rule-types",
-        "zia.time-intervals.evaluation:outside-window-not-triggered"
+        "zia.time-intervals.evaluation:outside-window-not-triggered",
+        "zia.time-intervals.evaluation:outside-window-generalized"
       ],
       "conditions": "Inference from Time being listed with the other rule criteria in the configuration pages; no source spells out the conjunction."
     }

@@ -207,7 +207,7 @@
       ]
     },
     "terraform-data-source-by-name": {
-      "statement": "The `zia_rule_labels` data source looks a label up by `name`, and rule resources take its `id`.",
+      "statement": "The `zia_rule_labels` data source looks a label up by `name`, and rule resources take its `id` in the `id` set of their `labels` block.",
       "tier": "A",
       "binds": [
         "zia/rule-labels#name"
@@ -226,8 +226,24 @@
           "quotes": [
             "id = [data.zia_rule_labels.this.id]"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "\"labels\":                       setIDsSchemaTypeCustom(intPtr(1), \"list of Labels that are applicable to the rule.\"),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "after": "func setIDsSchemaTypeCustom(",
+          "quotes": [
+            "\"id\": ids,"
+          ]
         }
-      ]
+      ],
+      "conditions": "Every rule resource: `grep -n '\"labels\":' zia/resource_zia_*.go` at v4.8.17 returns 18 rule resources (bandwidth control, CASB DLP and malware, cloud app control, web, endpoint and outbound email DLP and endpoint DLP sub-rules, file type control, firewall DNS, filtering and IPS, forwarding control, NAT control, sandbox, SSL inspection, traffic capture and URL filtering), each declaring `labels` with `setIDsSchemaTypeCustom`; `zia_ips_signature_rules` has no `labels` attribute."
     },
     "traffic-capture-one-label": {
       "statement": "The Terraform provider documents that a traffic capture rule takes at most one label.",

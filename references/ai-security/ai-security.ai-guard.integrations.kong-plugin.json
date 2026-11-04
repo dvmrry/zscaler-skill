@@ -59,24 +59,43 @@
         {
           "source": "zguard-integrations",
           "path": "Kong/custom-plugin/handler.lua",
+          "after": "local function extract_user_prompt(request_body)",
           "quotes": [
-            "kong.service.request.enable_buffering()",
-            "if request_body.messages[i].role == \"user\" then",
-            "local action, reason = perform_scan(config, \"IN\", prompt, transaction_id)",
-            "local msg = decoded.choices[1].message",
-            "local delta = decoded.choices[1].delta",
-            "local action, reason = perform_scan(config, \"OUT\", llm_response, transaction_id)",
             "if request_body and request_body.messages and type(request_body.messages) == \"table\" then",
             "for i = #request_body.messages, 1, -1 do",
-            "local response_body_str = ngx.ctx.buffered_body"
+            "if request_body.messages[i].role == \"user\" then",
+            "return request_body.messages[i].content"
           ]
         },
         {
           "source": "zguard-integrations",
           "path": "Kong/custom-plugin/handler.lua",
+          "after": "local function extract_llm_response(response_body_str)",
           "quotes": [
+            "local msg = decoded.choices[1].message",
             "if msg then return msg.content end",
+            "local delta = decoded.choices[1].delta",
             "if delta then return delta.content end"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "after": "function ZscalerAIGuardHandler:access(config)",
+          "quotes": [
+            "kong.service.request.enable_buffering()",
+            "local prompt = extract_user_prompt(request_body)",
+            "local action, reason = perform_scan(config, \"IN\", prompt, transaction_id)"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Kong/custom-plugin/handler.lua",
+          "after": "function ZscalerAIGuardHandler:response(config)",
+          "quotes": [
+            "local response_body_str = ngx.ctx.buffered_body",
+            "local llm_response = extract_llm_response(response_body_str)",
+            "local action, reason = perform_scan(config, \"OUT\", llm_response, transaction_id)"
           ]
         }
       ]
@@ -125,7 +144,8 @@
             "{ timeout_ms = { type = \"number\", required = false, default = 10000 }, },\n        },\n      },"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n -E '^\\s+\\{ [a-z_]+ = \\{' Kong/custom-plugin/schema.lua` at v0.2.0-11-g70d5c9c returns exactly the four config fields (api_key, api_endpoint, ssl_verify, timeout_ms), and `grep -n -i -E 'policy|cloud'` on the file matches only the api_endpoint default URL."
     },
     "endpoint-only-knob": {
       "statement": "With no policy-ID or cloud field and no `policyId` in the scan body, the plugin cannot pin a policy, and reaching another cloud means setting `api_endpoint` to that cloud's URL.",
@@ -216,7 +236,10 @@
             "kong.log.warn(\"ZscalerAIGuard: Original request context not found. Skipping response scan.\")",
             "kong.log.warn(\"ZscalerAIGuard: Could not extract LLM response content. Skipping response scan.\")",
             "if ok and decoded and decoded.choices and decoded.choices[1] then",
-            "if msg then return msg.content end"
+            "if msg then return msg.content end",
+            "local ok, decoded = pcall(cjson.decode, response_body_str)",
+            "if delta then return delta.content end",
+            "if not llm_response or llm_response == \"\" then"
           ]
         }
       ]

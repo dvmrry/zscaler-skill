@@ -63,6 +63,27 @@
             "| `zeasm_findings` | 4 | `zeasm_get_finding_details`, `zeasm_get_finding_evidence`, `zeasm_get_finding_scan_output`, `zeasm_list_findings` |",
             "| `zeasm_lookalike_domains` | 2 | `zeasm_get_lookalike_domain`, `zeasm_list_lookalike_domains` |"
           ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/organizations.py",
+          "quotes": [
+            "Read-only. Returns one row per organization configured in the EASM Admin Portal"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/findings.py",
+          "quotes": [
+            "The four read-only tools expose the EASM finding surface for an organization's internet-facing assets:"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/easm/lookalike_domains.py",
+          "quotes": [
+            "Two read-only tools surface the lookalike/impersonation domains EASM detects"
+          ]
         }
       ]
     },
@@ -82,36 +103,60 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/easm/findings.py",
           "quotes": [
+            "results = getattr(findings, \"results\", None) or []",
             "return shape_many([f.as_dict() for f in results])",
-            "return shape_one(finding.as_dict())"
+            "return shape_one(finding.as_dict())",
+            "return shape_one(evidence.as_dict())",
+            "return shape_one(scan_output.as_dict())"
           ]
         },
         {
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/easm/lookalike_domains.py",
           "quotes": [
+            "results = getattr(domains, \"results\", None) or []",
             "return shape_many([d.as_dict() for d in results])",
             "return shape_one(domain.as_dict())"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/shaping/helpers.py",
+          "quotes": [
+            "Return the FULL record with the shaper's highlighted fields merged on top.",
+            "record = _as_record(raw) if shaper is None: return record",
+            "Shape a list, preserving every attribute of every record.",
+            "return [shape_one(item, shaper) for item in raw_items]"
           ]
         }
       ]
     },
     "arg-names": {
-      "statement": "The tools take `org_id` and, for the lookalike get, `lookalike_raw`.",
+      "statement": "The finding and lookalike tools take `org_id`; the three finding get tools also take `finding_id`, and the lookalike get takes `lookalike_raw`.",
       "tier": "A",
       "evidence": [
         {
           "source": "mcp-server",
-          "path": "src/zscaler_mcp/tools/easm/lookalike_domains.py",
+          "path": "src/zscaler_mcp/tools/easm/findings.py",
           "quotes": [
-            "org_id=args.org_id, lookalike_raw=args.lookalike_raw"
+            "class ListFindingsInput(BaseModel): \"\"\"Inputs for listing EASM findings for an organization.\"\"\" org_id: Annotated[",
+            "class GetFindingInput(BaseModel): \"\"\"Inputs for fetching one finding's details / evidence / scan output.\"\"\" org_id: Annotated[ str, Field(description=\"Organization ID (from `zeasm_list_organizations`).\"), ] finding_id: Annotated[",
+            "def zeasm_list_findings(args: ListFindingsInput)",
+            "def zeasm_get_finding_details(args: GetFindingInput)",
+            "def zeasm_get_finding_evidence(args: GetFindingInput)",
+            "def zeasm_get_finding_scan_output(args: GetFindingInput)",
+            "findings, _, err = client.zeasm.findings.list_findings(org_id=args.org_id)"
           ]
         },
         {
           "source": "mcp-server",
-          "path": "src/zscaler_mcp/tools/easm/findings.py",
+          "path": "src/zscaler_mcp/tools/easm/lookalike_domains.py",
           "quotes": [
-            "findings, _, err = client.zeasm.findings.list_findings(org_id=args.org_id)"
+            "class ListLookalikeDomainsInput(BaseModel): \"\"\"Inputs for listing EASM lookalike domains for an organization.\"\"\" org_id: Annotated[",
+            "class GetLookalikeDomainInput(BaseModel): \"\"\"Inputs for fetching one EASM lookalike domain by its raw domain name.\"\"\" org_id: Annotated[ str, Field(description=\"Organization ID (from `zeasm_list_organizations`).\"), ] lookalike_raw: Annotated[",
+            "def zeasm_list_lookalike_domains(args: ListLookalikeDomainsInput)",
+            "def zeasm_get_lookalike_domain(args: GetLookalikeDomainInput)",
+            "org_id=args.org_id, lookalike_raw=args.lookalike_raw"
           ]
         }
       ]

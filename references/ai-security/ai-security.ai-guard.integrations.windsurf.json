@@ -93,12 +93,15 @@
           "source": "zguard-integrations",
           "path": "Windsurf/.windsurf/hooks.json",
           "quotes": [
+            "\"command\": \"python3 .windsurf/hooks/pre_user_prompt.py\"",
+            "\"command\": \"python3 .windsurf/hooks/pre_run_command.py\"",
             "\"command\": \"python3 .windsurf/hooks/pre_mcp_tool_use.py\", \"show_output\": true",
             "\"command\": \"python3 .windsurf/hooks/post_mcp_tool_use.py\", \"show_output\": true",
             "\"command\": \"python3 .windsurf/hooks/post_cascade_response.py\", \"show_output\": true"
           ]
         }
-      ]
+      ],
+      "conditions": "Count of hooks: `grep -c '\"command\"' Windsurf/.windsurf/hooks.json` at v0.2.0-11-g70d5c9c returns 5 and `grep -c show_output` on the same file returns 3."
     },
     "post-cannot-block": {
       "statement": "The README says Windsurf post-hooks cannot block or redact content and that `show_output` only displays stdout to the user without changing Cascade's context.",
@@ -133,7 +136,9 @@
             "log_message(f\"pre_user_prompt: API error (fail-closed): {r['error']}\")",
             "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
             "block_stderr(r, \"user prompt\") return EXIT_BLOCK",
-            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())"
+            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())",
+            "print( f\"Zscaler AI Guard scan failed: {r['error']}\", file=sys.stderr, )",
+            "print( \"Zscaler AI Guard returned an unexpected response; blocked for safety.\", file=sys.stderr, )"
           ]
         },
         {
@@ -142,7 +147,9 @@
           "quotes": [
             "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\")",
             "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
-            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())"
+            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())",
+            "print(f\"Zscaler AI Guard scan failed: {r['error']}\", file=sys.stderr)",
+            "print( \"Zscaler AI Guard returned an unexpected response; blocked for safety.\", file=sys.stderr, )"
           ]
         },
         {
@@ -151,7 +158,9 @@
           "quotes": [
             "log_message(\"WARNING: AIGUARD_API_KEY not set — allowing without scan\")",
             "if action not in (\"ALLOW\", \"BLOCK\", \"DETECT\"):",
-            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())"
+            "return EXIT_ALLOW if __name__ == \"__main__\": raise SystemExit(main())",
+            "print(f\"Zscaler AI Guard scan failed: {r['error']}\", file=sys.stderr)",
+            "print( \"Zscaler AI Guard returned an unexpected response; blocked for safety.\", file=sys.stderr, )"
           ]
         },
         {
@@ -181,6 +190,7 @@
           "path": "Windsurf/.windsurf/hooks/pre_run_command.py",
           "quotes": [
             "cmd = ti.get(\"command_line\") or \"\"",
+            "cmd_s = str(cmd)",
             "r = scan_content(cmd_s, \"IN\")"
           ]
         },
@@ -203,8 +213,17 @@
             "if not scan: scan = str( args.get(\"query\") or args.get(\"prompt\") or args.get(\"message\") or args.get(\"content\") or \"\" )",
             "path_param = ( args.get(\"path\") or args.get(\"file\") or args.get(\"resource\") or args.get(\"url\") or args.get(\"uri\") or \"\" )"
           ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Windsurf/.windsurf/hooks/aiguard_utils.py",
+          "after": "def normalize_tool_io(raw: Any) -> str:",
+          "quotes": [
+            "return json.dumps(raw, separators=(\",\", \":\"), ensure_ascii=False)"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no truncation of the command line): `grep -c truncate Windsurf/.windsurf/hooks/pre_run_command.py` at v0.2.0-11-g70d5c9c returns 0, and `scan_content` in aiguard_utils.py passes its `content` to `execute_policy` or `resolve_and_execute_policy` unchanged."
     },
     "post-handling": {
       "statement": "`post_mcp_tool_use` scans server, tool, arguments and result in one text (arguments and result each truncated to 20000 characters) and `post_cascade_response` scans the response text truncated the same way; both skip short content and a missing key, exit 0 on scan errors, and on `BLOCK` print an alert saying the content would be blocked.",

@@ -153,7 +153,8 @@
             "description": "Gets all SCIM attribute values for the specified ID."
           }
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -o -i '\"/[^\"]*scim[^\"]*\": {' automate-zscaler/openapi/zpa.openapi.json` over the capture of 2026-09-07 returns the five paths cited, and each defines only a `get` operation; `grep -o -E 'Send a [A-Z]+ request'` over obtaining-scim-group-details-using-api.json and obtaining-scim-attribute-details-using-api.json (captures of 2026-10-18) returns only \"Send a GET request\", three and five times. The claim covers the management API, not the separate SCIM server (go-scim-server-client)."
     },
     "spec-get-only": {
       "statement": "The captured API specification has only get operations on its SCIM group, SCIM attribute and SCIM value paths, and no operation that creates, changes or deletes them.",
@@ -210,6 +211,14 @@
           "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=startTime]",
           "expect": {
             "description": "The start of a time range for requesting last updated data (modified_time) for the SCIM group. This requires setting the endTime parameter as well."
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1userconfig~1v1~1customers~1{customerId}~1scimgroup~1idpId~1{idpId}/get/parameters/[name=endTime]",
+          "expect": {
+            "description": "The end of a time range for requesting last updated data (modified_time) for the SCIM group. This requires setting the startTime parameter as well."
           }
         },
         {
@@ -377,6 +386,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/scim_groups.py",
           "quotes": [
+            "class SCIMGroupsAPI(APIClient):",
             "def list_scim_groups(self, idp_id: str, query_params: Optional[dict] = None)",
             "def get_scim_group(self, group_id: str, query_params: Optional[dict] = None)"
           ]
@@ -385,6 +395,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/scim_attributes.py",
           "quotes": [
+            "class ScimAttributeHeaderAPI(APIClient):",
             "def list_scim_attributes(self, idp_id: str, query_params: Optional[dict] = None)",
             "def get_scim_attribute(self, idp_id: str, attribute_id: str, query_params: Optional[dict] = None)",
             "def get_scim_values(self, idp_id: str, attribute_id: str, query_params: Optional[dict] = None)"
@@ -456,22 +467,16 @@
       ]
     },
     "name-lookups": {
-      "statement": "The Go lookups by name for SCIM attribute headers list the IdP's headers and match the name case-insensitively with strings.EqualFold.",
+      "statement": "The Go SDK's scimattributeheader.GetByName lists the IdP's SCIM attribute headers and matches the name case-insensitively with strings.EqualFold.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
           "quotes": [
-            "if strings.EqualFold(scimAttribute.Name, scimAttributeName) {"
-          ]
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zpa/services/scimattributeheader/zpa_scim_attribute_header.go",
-          "quotes": [
             "relativeURL := fmt.Sprintf(\"%s/%s%s\", mgmtConfig+service.Client.GetCustomerID()+idpId, IdpId, scimAttrEndpoint)",
-            "list, resp, err := common.GetAllPagesGeneric[ScimAttributeHeader](ctx, service.Client, relativeURL, \"\")"
+            "list, resp, err := common.GetAllPagesGeneric[ScimAttributeHeader](ctx, service.Client, relativeURL, \"\")",
+            "if strings.EqualFold(scimAttribute.Name, scimAttributeName) {"
           ],
           "after": "func GetByName(ctx context.Context, service *zscaler.Service, scimAttributeName, IdpId string)"
         }
@@ -584,6 +589,21 @@
             "func GetGroup(ctx context.Context, service *zscaler.ScimZPAService, groupID string)",
             "func GetGroupByName(ctx context.Context, service *zscaler.ScimZPAService, groupName string)",
             "func GetAllGroups(ctx context.Context, service *zscaler.ScimZPAService, count ...int)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/service.go",
+          "after": "type ScimZPAService struct {",
+          "quotes": [
+            "Config *zpa.ScimConfiguration"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/config_scim.go",
+          "quotes": [
+            "scimdefaultBaseURL = \"https://scim1.private.zscaler.com/scim/1/\""
           ]
         }
       ]

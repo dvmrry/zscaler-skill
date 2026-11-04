@@ -137,6 +137,7 @@
           "path": "README.md",
           "quotes": [
             "Use the [**Starter Deployment Template**](examples/vzen_standalone/) to deploy your Virtual Service Edge (VZEN) in a new VPC.",
+            "Use the [**Starter Deployment Template with GWLB**](examples/vzen_with_gwlb/) to deploy your Virtual Service Edges (VZENs) in a new VPC and to load balance traffic across multiple VZENs.",
             "Zscaler\\'s recommended deployment method is Gateway Load Balancer (GWLB). GWLB distributes traffic across multiple VZENs and achieves high availability."
           ]
         }
@@ -174,9 +175,7 @@
           "quotes": [
             "ebs_optimized        = true",
             "http_tokens            = \"required\"",
-            "volume_type           = \"gp3\"",
-            "volume_size           = 501",
-            "iops                  = 3000"
+            "root_block_device { volume_type = \"gp3\" volume_size = 501 delete_on_termination = true iops = 3000"
           ]
         }
       ]
@@ -218,8 +217,17 @@
         {
           "source": "tfmod-aws-vse",
           "path": "modules/terraform-zsvzen-sg-aws/variables.tf",
+          "after": "variable \"vzen_mgmt_sg_allowed_ssh_ips\" {",
           "quotes": [
             "default     = [\"10.1.0.0/16\"]"
+          ]
+        },
+        {
+          "source": "tfmod-aws-vse",
+          "path": "modules/terraform-zsvzen-sg-aws/main.tf",
+          "after": "resource \"aws_vpc_security_group_ingress_rule\" \"ingress_vzen_service_all\" {",
+          "quotes": [
+            "security_group_id = aws_security_group.vzen_service_sg[count.index].id cidr_ipv4 = data.aws_vpc.selected.cidr_block ip_protocol = \"-1\""
           ]
         }
       ]
@@ -538,17 +546,41 @@
           "source": "tfmod-azure-vse",
           "path": "modules/terraform-vzen-lb-azure/main.tf",
           "quotes": [
-            "protocol            = \"Tcp\"\n  port                = var.lb_health_port"
+            "protocol            = \"Tcp\"\n  port                = var.lb_health_port\n  interval_in_seconds = var.health_check_interval\n  probe_threshold     = var.probe_threshold\n  number_of_probes    = var.number_of_probes"
+          ],
+          "after": "resource \"azurerm_lb_probe\" \"vzen_lb_probe\" {"
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-lb-azure/variables.tf",
+          "after": "variable \"health_check_interval\" {",
+          "quotes": [
+            "The default value is 15, the minimum value is 5",
+            "default     = 15",
+            "var.health_check_interval > 4"
           ]
         },
         {
           "source": "tfmod-azure-vse",
           "path": "modules/terraform-vzen-lb-azure/variables.tf",
+          "after": "variable \"probe_threshold\" {",
           "quotes": [
-            "default     = 15",
-            "var.health_check_interval > 4",
-            "default     = 2",
-            "description = \"The number of probes where if no response, will result in stopping further traffic from being delivered to the endpoint. This values allows endpoints to be taken out of rotation faster or slower than the typical times used in Azure\"\n  default     = 1",
+            "default     = 2"
+          ]
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-lb-azure/variables.tf",
+          "after": "variable \"number_of_probes\" {",
+          "quotes": [
+            "default     = 1"
+          ]
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-lb-azure/variables.tf",
+          "after": "variable \"lb_health_port\" {",
+          "quotes": [
             "default     = 80",
             "(tonumber(var.lb_health_port) >= 80 && tonumber(var.lb_health_port) <= 65535)"
           ]
@@ -563,10 +595,18 @@
           "source": "tfmod-azure-vse",
           "path": "modules/terraform-vzen-nsg-azure/main.tf",
           "quotes": [
-            "name                       = \"SSH_VNET\"\n    priority                   = 100\n    direction                  = \"Inbound\"\n    access                     = \"Allow\"\n    protocol                   = \"Tcp\"\n    source_port_range          = \"*\"\n    destination_port_range     = \"22\"",
-            "name                       = \"ICMP_VNET\"",
-            "name                       = \"ALL_VNET\"",
+            "name = \"SSH_VNET\" priority = 100 direction = \"Inbound\" access = \"Allow\" protocol = \"Tcp\" source_port_range = \"*\" destination_port_range = \"22\" source_address_prefix = \"VirtualNetwork\"",
+            "name = \"ICMP_VNET\" priority = 110 direction = \"Inbound\" access = \"Allow\" protocol = \"Icmp\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"VirtualNetwork\"",
             "for_each = var.allow_ssh_from_existing_ips ? var.allowed_ips_for_ssh : []"
+          ],
+          "after": "resource \"azurerm_network_security_group\" \"vzen_mgmt_nsg\" {"
+        },
+        {
+          "source": "tfmod-azure-vse",
+          "path": "modules/terraform-vzen-nsg-azure/main.tf",
+          "after": "resource \"azurerm_network_security_group\" \"vzen_service_nsg\" {",
+          "quotes": [
+            "name = \"ALL_VNET\" priority = 100 direction = \"Inbound\" access = \"Allow\" protocol = \"*\" source_port_range = \"*\" destination_port_range = \"*\" source_address_prefix = \"VirtualNetwork\""
           ]
         },
         {

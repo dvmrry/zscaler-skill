@@ -29,7 +29,7 @@
     },
     {
       "label": "Token state under concurrency.",
-      "text": "{{token-read-unlocked}} {{stop-channel-unsynchronized}}"
+      "text": "{{token-read-unlocked}} {{token-read-race}} {{stop-channel-unsynchronized}}"
     },
     {
       "label": "Renewal edge case.",
@@ -47,7 +47,8 @@
     {
       "do": "Whether intermittent 401s line up with token renewal under parallel requests.",
       "uses": [
-        "token-read-unlocked"
+        "token-read-unlocked",
+        "token-read-race"
       ]
     },
     {
@@ -163,7 +164,7 @@
       ]
     },
     "token-read-unlocked": {
-      "statement": "Requests read the access token for the Authorization header without the client lock, while the renewal goroutine and the session-refresh path replace the token under that lock. Under concurrent requests and renewal this is a data race.",
+      "statement": "Requests read the access token for the Authorization header in buildRequest without holding the client lock (buildRequest takes it only inside c.authenticate(), which releases it on return), while the renewal goroutine and the session-refresh path replace the token under that lock.",
       "tier": "A",
       "evidence": [
         {
@@ -173,8 +174,23 @@
             "v3.8.44",
             "HEAD"
           ],
+          "after": "func (c *Client) buildRequest(",
           "quotes": [
+            "err = c.authenticate()",
             "req.Header.Set(\"Authorization\", fmt.Sprintf(\"Bearer %s\", c.oauth2Credentials.Zscaler.Client.AuthToken.AccessToken))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiconfig.go",
+          "at": [
+            "v3.8.44",
+            "HEAD"
+          ],
+          "after": "func (c *Client) authenticate() error {",
+          "quotes": [
+            "c.Lock()",
+            "defer c.Unlock()"
           ]
         },
         {
@@ -209,7 +225,16 @@
           "status": "unfiled",
           "note": "Filing 1 (SDK client lifecycle) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `awk '/^func /{f=$0} /Lock\\(\\)/{print f}' zscaler/oneapiconfig.go` at v3.8.44 and at v3.8.58 prints four functions, startTokenRenewalTicker, Close, ExecuteRequest (its SESSION_NOT_VALID refresh) and authenticate (which pairs `c.Lock()` with `defer c.Unlock()`); buildRequest is not among them, and `grep -c RLock` on the file returns 0 at both releases."
+    },
+    "token-read-race": {
+      "statement": "Under concurrent requests and renewal, that unlocked read of a value written under the lock is a data race.",
+      "tier": "B",
+      "derived_from": [
+        "token-read-unlocked"
+      ],
+      "conditions": "Follows from token-read-unlocked: buildRequest reads `AuthToken.AccessToken` after c.authenticate() has released the lock, while startTokenRenewalTicker and ExecuteRequest's session-refresh path assign `AuthToken` while holding it, so the read is not ordered against a concurrent write. That this is a data race rests on the Go memory model; no source states it, and no run under the Go race detector is recorded."
     },
     "stop-channel-unsynchronized": {
       "statement": "`Close` closes and clears the renewal goroutine's stop channel under the client lock, but the goroutine reads that channel without the lock, so closing a client concurrently with renewal is not race-free.",

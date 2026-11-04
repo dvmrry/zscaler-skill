@@ -165,7 +165,7 @@
       ]
     },
     "status-pointer": {
-      "statement": "The Go API client and user models hold `Status` as a pointer, because as a plain bool with `omitempty` a false was dropped from the request body, so a client or user could be enabled but never disabled.",
+      "statement": "The Go API client and user models hold `Status` as a pointer so that disabling is expressible: as a plain bool with `omitempty`, a false would be indistinguishable from unset and dropped from the request body (the user model's comment says it was), making it possible to enable a client or user but never to disable one.",
       "tier": "A",
       "evidence": [
         {
@@ -173,6 +173,9 @@
           "path": "zscaler/ziam/services/api_clients/api_clients.go",
           "quotes": [
             "Status is a pointer so that disabling a client is expressible.",
+            "As a plain bool with `omitempty`, false would be indistinguishable from",
+            "unset and dropped from the request body, making it possible to enable a",
+            "client but never to disable one.",
             "Status *bool `json:\"status,omitempty\"`"
           ]
         },
@@ -181,7 +184,9 @@
           "path": "zscaler/ziam/services/users/users.go",
           "quotes": [
             "Status is a pointer so that disabling a user is expressible.",
-            "and was dropped from the request body, which made it possible to enable a"
+            "As a plain bool with `omitempty`, false was indistinguishable from unset",
+            "and was dropped from the request body, which made it possible to enable a",
+            "user but never to disable one."
           ]
         }
       ]
@@ -210,10 +215,12 @@
           "source": "sdk-go",
           "path": "zscaler/ziam/services/api_clients/api_clients.go",
           "quotes": [
+            "otherwise dereference nil and panic the calling process. A nil return with a",
             "nil error means the update succeeded but the endpoint reported no body",
             "caller should re-read the client if it needs the current representation.",
             "// Update replaces an API client via PUT.",
-            "func Update(ctx context.Context, service *zscaler.Service, clientID string, apiClient *APIClients) (*APIClients, *http.Response, error) {"
+            "func Update(ctx context.Context, service *zscaler.Service, clientID string, apiClient *APIClients) (*APIClients, *http.Response, error) {",
+            "if !ok || updatedAPIClient == nil {"
           ]
         },
         {
@@ -222,6 +229,7 @@
           "quotes": [
             "caller should re-read the user if it needs the current representation.",
             "// Update replaces a user via PUT.",
+            "otherwise dereference nil and panic the calling process. A nil return with a",
             "nil error means the update succeeded but the endpoint reported no body",
             "if !ok || updatedUser == nil {"
           ]

@@ -79,7 +79,7 @@
           "source": "sdk-python",
           "path": "zscaler/zdx/legacy.py",
           "quotes": [
-            "* ``zdxbeta``",
+            "cloud (str): The Zscaler cloud for your tenancy, accepted values are:\n\n            * ``zdxcloud``\n            * ``zdxbeta``",
             "self.url = f\"https://api.{self._env_cloud}.net\"",
             "raise ValueError(\"Both client_id and client_secret are required for ZDX authentication.\")"
           ]
@@ -114,13 +114,16 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zdx/legacy.py",
+          "after": "def create_token(self):",
           "quotes": [
+            "epoch_time = int(time.time())",
             "api_secret_format = f\"{self._client_secret}:{epoch_time}\"",
             "api_secret_hash = sha256(api_secret_format.encode(\"utf-8\")).hexdigest()",
             "\"key_id\": self._client_id,",
             "\"key_secret\": api_secret_hash,",
             "\"timestamp\": epoch_time,",
-            "token_url = f\"{self.url}/v1/oauth/token\""
+            "token_url = f\"{self.url}/v1/oauth/token\"",
+            "response = requests.post(\n                token_url,\n                json=payload,"
           ]
         }
       ]
@@ -151,6 +154,55 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zdx/users.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/alerts.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/apps.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/troubleshooting.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/admin.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/snapshot.py",
+          "quotes": [
+            "self._zdx_base_endpoint = \"/zdx/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/inventory.py",
           "quotes": [
             "self._zdx_base_endpoint = \"/zdx/v1\""
           ]
@@ -192,7 +244,7 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "or zdx_legacy_client is not None",
+            "self.use_legacy_client = ( zpa_legacy_client is not None or zia_legacy_client is not None or zwa_legacy_client is not None or zcc_legacy_client is not None or ztw_legacy_client is not None or zdx_legacy_client is not None",
             "# OAuth2 setup - only for OneAPI clients, not legacy clients",
             "if not self.use_legacy_client: self._oauth = OAuth(self, self._config) self._access_token = None else: self._oauth = None",
             "if attempts < max_retries and self._oauth is not None:",

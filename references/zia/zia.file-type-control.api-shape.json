@@ -352,7 +352,8 @@
             "description": "File type description"
           }
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n -i fileTypeCategor zscaler/zia/models/filetyperules.py` at v1.11.3-1-g4f8f54df returns nothing; `grep -n fileTypeCategories zscaler/zia/file_type_control_rule.py` returns only the `/fileTypeCategories` path of `list_file_type_categories`, a lookup call, not a model field."
     },
     "file-types-contract-enum": {
       "statement": "The contract's `fileTypes` vocabulary is a closed list beginning ANY and NONE followed by FTCATEGORY_* tokens (JAVASCRIPT, FLASH, ZIP and so on, ending FTCATEGORY_TS). The Terraform provider declares `file_types` as an unconstrained set of strings, so it does not check values against this list.",
@@ -665,7 +666,7 @@
           ]
         }
       ],
-      "conditions": "The provider half rests on an absence: the `file_types` schema block declares a TypeSet of TypeString and no ValidateFunc (the only file_types check is the active_content CustomizeDiff, see zia.file-type-control.criteria:provider-active-content-checks). Tenant custom file types are runtime data and are not in this list; use the fileTypeCategories lookup."
+      "conditions": "The provider half rests on an absence: the `file_types` schema block declares a TypeSet of TypeString and no ValidateFunc (the only file_types check is the active_content CustomizeDiff, see zia.file-type-control.criteria:provider-active-content-checks). Tenant custom file types are runtime data and are not in this list; use the fileTypeCategories lookup. Searched: `grep -n 'ValidateFunc\\|ValidateDiagFunc' zia/resource_zia_file_type_control_rules.go` at v4.8.17 returns eight validators, all on other attributes and none in the `file_types` block; `grep -n file_types` on the same file returns the schema block, the read's `d.Set`, the expand and the CustomizeDiff active_content branch, which allows four values."
     },
     "categories-lookup": {
       "statement": "`GET /fileTypeCategories` returns predefined and custom file types for use as rule conditions. The `enums` query parameter selects ZSCALERDLP (DLP rules with content inspection), EXTERNALDLP (DLP rules without content inspection) or FILETYPECATEGORYFORFILETYPECONTROL (File Type Control); `excludeCustomFileTypes` drops custom types.",

@@ -340,8 +340,8 @@
           "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
           "quotes": [
             "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
-            "policySetRule.Conditions = []Conditions{}",
-            "policySetRule.Conditions[i].Operands = []Operands{}"
+            "if policySetRule != nil && len(policySetRule.Conditions) == 0 { policySetRule.Conditions = []Conditions{}",
+            "if len(condtion.Operands) == 0 { policySetRule.Conditions[i].Operands = []Operands{}"
           ]
         },
         {
@@ -365,8 +365,8 @@
           "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
           "quotes": [
             "func UpdateRule(ctx context.Context, service *zscaler.Service, policySetID, ruleId string, policySetRule *PolicyRule) (*http.Response, error) {",
-            "policySetRule.Conditions = []PolicyRuleResourceConditions{}",
-            "policySetRule.Conditions[i].Operands = []PolicyRuleResourceOperands{}"
+            "if policySetRule != nil && len(policySetRule.Conditions) == 0 { policySetRule.Conditions = []PolicyRuleResourceConditions{}",
+            "if len(condition.Operands) == 0 { policySetRule.Conditions[i].Operands = []PolicyRuleResourceOperands{}"
           ]
         },
         {
@@ -431,6 +431,14 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/conditions/items/properties",
+          "expect_absent": [
+            "setIds"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
           "pointer": "/paths/~1mgmtconfig~1v2~1admin~1customers~1{customerId}~1policySet~1{policySetId}~1rule/post/requestBody/content/application~1json/schema/properties/conditions/items/properties/operands/items/properties/entryValues",
           "expect": {
             "type": "array",
@@ -488,7 +496,7 @@
           ]
         }
       ],
-      "conditions": "The last clause was split by source, because the contract v2 operand has no lhs or rhs while the Go v2 operand keeps them. The absences (no microtenantId on the v2 condition, no lhs or rhs on the contract v2 operand, whose properties are commonProperties, creationTime, entryValues, id, idpId, idpName, modifiedBy, modifiedTime, objectType and values) are read from the property lists of the v2 rule POST schema."
+      "conditions": "The last clause was split by source, because the contract v2 operand has no lhs or rhs while the Go v2 operand keeps them. The absences (no microtenantId on the v2 condition, no lhs or rhs on the contract v2 operand, whose properties are commonProperties, creationTime, entryValues, id, idpId, idpName, modifiedBy, modifiedTime, objectType and values) are read from the property lists of the v2 rule POST schema. On the v1 side, `grep -n 'json:\"values\\|json:\"entryValues' zscaler/zpa/services/policysetcontroller/policysetcontroller.go` at Go SDK v3.8.58 returns nothing, and the v1 rule POST condition's properties are creationTime, id, microtenantId, modifiedBy, modifiedTime, negated, operands and operator."
     },
     "capabilities-microtenant-tag": {
       "statement": "`PrivilegedCapabilities.MicroTenantID` is tagged `omitempty` in the v1 package and not in the v2 package, so a v2 request always carries a `microtenantId` key inside `privilegedCapabilities`, empty when unset. `PrivilegedPortalCapabilities.MicroTenantID` has `omitempty` in both.",
@@ -794,6 +802,20 @@
           ]
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "quotes": [
+            "// GET operations don't need locking - they're safe to run concurrently"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
+          "quotes": [
+            "// GET operations don't need locking - they're safe to run concurrently"
+          ]
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/policies.py",
           "quotes": [
@@ -809,7 +831,7 @@
           ]
         }
       ],
-      "conditions": "Each lock is process-local: it does not serialize writers in other processes. v1 BulkReorder lacking a lock is read from the first statements of the function; it is also noted in zpa.terraform.rule-order. Changed upstream in v3.8.51 (checked 2026-10-18): previously \"The Go v2 package takes its package-level `ruleMutex` in create, update, delete, reorder and `BulkReorder`; the v1 package takes its own in create, update, delete and reorder but its `BulkReorder` starts without taking it. Reads do not lock. The Python SDK wraps its rule add, update, delete and reorder methods, including `bulk_reorder_rules`, in one module-level lock.\""
+      "conditions": "Each lock is process-local: it does not serialize writers in other processes. v1 BulkReorder lacking a lock is read from the first statements of the function; it is also noted in zpa.terraform.rule-order. Changed upstream in v3.8.51 (checked 2026-10-18): previously \"The Go v2 package takes its package-level `ruleMutex` in create, update, delete, reorder and `BulkReorder`; the v1 package takes its own in create, update, delete and reorder but its `BulkReorder` starts without taking it. Reads do not lock. The Python SDK wraps its rule add, update, delete and reorder methods, including `bulk_reorder_rules`, in one module-level lock.\" Absence claim (reads do not lock): `grep -n 'PolicyRuleMutex.Lock\\|^func' zscaler/zpa/services/policysetcontroller/policysetcontroller.go zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go` at Go SDK v3.8.58 shows the lock only in CreateRule, UpdateRule, Delete and Reorder, and in v2 also BulkReorder; no Get*, GetAllByType or GetPolicy* function takes it. In the Python SDK at v1.11.3-1-g4f8f54df, `grep -n '@synchronized' -A1 zscaler/zpa/policies.py` shows only add_*, update_*, delete_rule, reorder_rule and bulk_reorder_rules decorated, no get_ or list_ method."
     },
     "go-bulk-reorder-default-last": {
       "statement": "In both Go packages `BulkReorder` reads the policy set and every rule of the type, sorts them by the caller's order map, takes out the rule named exactly `Default_Rule`, appends its id last, and PUTs a bare ordered list of rule ids to the policy set's `reorder` endpoint.",
@@ -924,9 +946,20 @@
           "path": "zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go",
           "quotes": [
             "ID string `json:\"id,omitempty\"`",
-            "PolicySetID string `json:\"policySetId,omitempty\"`"
+            "PolicySetID string `json:\"policySetId,omitempty\"`",
+            "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
           ],
           "after": "type PolicyRule struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/policysetcontroller/policysetcontroller.go",
+          "after": "type PolicyRule struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`",
+            "PolicySetID string `json:\"policySetId\"`",
+            "func CreateRule(ctx context.Context, service *zscaler.Service, rule *PolicyRule) (*PolicyRule, *http.Response, error) {"
+          ]
         },
         {
           "source": "sdk-python",

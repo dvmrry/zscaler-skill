@@ -261,9 +261,11 @@
           "quotes": [
             "return {\"action\": \"ALLOW\", \"severity\": \"NONE\", \"detectors\": {}}",
             "action_val = str(_get_attr(result, \"action\", \"BLOCK\")).upper()",
+            "\"action\": action_val,",
             "@action(is_system_action=True, output_mapping=call_zscaler_aiguard_api_mapping)",
             "return action_val not in ALLOWED_ACTIONS",
             "log.warning(\"AI Guard returned None — blocking by default\")",
+            "return {\"action\": \"BLOCK\", \"severity\": \"UNKNOWN\", \"detectors\": {}}",
             "return {\"action\": \"BLOCK\", \"severity\": \"UNKNOWN\", \"detectors\": {}, \"error\": str(e)}",
             "if not text:\n        return {\"action\": \"ALLOW\", \"severity\": \"NONE\", \"detectors\": {}}",
             "Returns True (block) for anything that is not an explicit ALLOW or the\n    monitor-only DETECT",
@@ -280,8 +282,24 @@
         },
         {
           "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.co",
+          "after": "flow zscaler aiguard moderation on output",
+          "quotes": [
+            "if $result.action == \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
           "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.v1.co",
           "after": "define subflow zscaler aiguard moderation on input",
+          "quotes": [
+            "if $result.action == \"BLOCK\""
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "NemoGuardrails/library-plugin/zscaler_aiguard/flows.v1.co",
+          "after": "define subflow zscaler aiguard moderation on output",
           "quotes": [
             "if $result.action == \"BLOCK\""
           ]

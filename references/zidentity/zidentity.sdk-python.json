@@ -124,21 +124,35 @@
           "path": "zscaler/zid/models/api_client.py",
           "quotes": [
             "self.results_total = config[\"results_total\"] if \"results_total\" in config else None",
-            "self.next_link = config[\"next_link\"] if \"next_link\" in config else None"
+            "self.page_offset = config[\"pageOffset\"] if \"pageOffset\" in config else None",
+            "self.page_size = config[\"pageSize\"] if \"pageSize\" in config else None",
+            "self.next_link = config[\"next_link\"] if \"next_link\" in config else None",
+            "self.prev_link = config[\"prev_link\"] if \"prev_link\" in config else None",
+            "self.records = ZscalerCollection.form_list(config[\"records\"] if \"records\" in config else [], APIClientRecords)"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zid/models/groups.py",
           "quotes": [
-            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None"
+            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None",
+            "self.page_offset = config[\"pageOffset\"] if \"pageOffset\" in config else None",
+            "self.page_size = config[\"pageSize\"] if \"pageSize\" in config else None",
+            "self.next_link = config[\"next_link\"] if \"next_link\" in config else None",
+            "self.prev_link = config[\"prev_link\"] if \"prev_link\" in config else None",
+            "self.records = ZscalerCollection.form_list(config[\"records\"] if \"records\" in config else [], GroupRecord)"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zid/models/resource_servers.py",
           "quotes": [
-            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None"
+            "self.results_total = config[\"results_total\"] if \"results_total\" in config else None",
+            "self.page_offset = config[\"pageOffset\"] if \"pageOffset\" in config else None",
+            "self.page_size = config[\"pageSize\"] if \"pageSize\" in config else None",
+            "self.next_link = config[\"next_link\"] if \"next_link\" in config else None",
+            "self.prev_link = config[\"prev_link\"] if \"prev_link\" in config else None",
+            "self.records = ZscalerCollection.form_list(config[\"records\"] if \"records\" in config else [], ResourceServersRecord)"
           ]
         },
         {
@@ -217,7 +231,8 @@
             "self.expires_at = config[\"expiresAt\"] if \"expiresAt\" in config else None",
             "self.id = config[\"id\"] if \"id\" in config else None",
             "self.created_at = config[\"createdAt\"] if \"createdAt\" in config else None",
-            "self.value = config[\"value\"] if \"value\" in config else None\n        else:"
+            "self.value = config[\"value\"] if \"value\" in config else None\n        else:",
+            "current_obj_format = {\"expiresAt\": self.expires_at, \"id\": self.id, \"createdAt\": self.created_at, \"value\": self.value}"
           ]
         }
       ]
@@ -309,7 +324,9 @@
           "after": "def add_users_to_group(self, group_id: str, **kwargs) -> APIResult[dict]:",
           "quotes": [
             "if \"id\" in kwargs and isinstance(kwargs[\"id\"], list):",
+            "for user_id in kwargs[\"id\"]:",
             "transformed_ids.append({\"id\": user_id})",
+            "body = transformed_ids",
             "body = kwargs"
           ]
         },
@@ -319,6 +336,7 @@
           "after": "def replace_users_groups(self, group_id: str, **kwargs) -> APIResult[dict]:",
           "quotes": [
             "if \"id\" in kwargs and isinstance(kwargs[\"id\"], list):",
+            "for user_id in kwargs[\"id\"]:",
             "transformed_ids.append({\"id\": user_id})",
             "body = transformed_ids",
             "body = kwargs"

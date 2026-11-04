@@ -209,7 +209,8 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/cloudbrowserisolation/cbizpaprofile/cbizpaprofile.go",
           "quotes": [
-            "// The current API does not seem to support search by ID",
+            "// The current API does not seem to support search by ID func Get(ctx context.Context, service *zscaler.Service, profileID string)",
+            "// The current API does not seem to support search by Name func GetByName(ctx context.Context, service *zscaler.Service, profileName string)",
             "var list []ZPAProfiles resp, err := service.Client.NewRequestDo(ctx, \"GET\", relativeURL, nil, nil, &list)",
             "profiles, resp, err := GetAll(ctx, service)",
             "if profile.ID == profileID {",
@@ -439,12 +440,28 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/cbi_profile.py",
           "quotes": [
-            "body = kwargs"
+            "body = kwargs",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body)"
           ],
           "after": "def add_cbi_profile(self, **kwargs)"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "# Preserve existing logic for other services if body: body = convert_keys_to_camel_case(body)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/helpers.py",
+          "after": "def convert_keys_to_camel_case(data):",
+          "quotes": [
+            "result[to_lower_camel_case(k)] = convert_keys_to_camel_case(v)"
+          ]
         }
       ],
-      "conditions": "The Python half was added per verifier as the real contrast with Go; the executor camel-cases the keys but keeps a false value. Was a divergence whose Python position quoted the CBIProfile class in models/cbi_zpa_profile.py, which no module imports and which only GETs, and whose impact said an explicit false reaches the API through the read-only isolationprofile struct; now a claim about the one writable Go struct. That isolationprofile has no Create or Update is read from the whole file at HEAD."
+      "conditions": "The Python half was added per verifier as the real contrast with Go; the executor camel-cases the keys but keeps a false value. Was a divergence whose Python position quoted the CBIProfile class in models/cbi_zpa_profile.py, which no module imports and which only GETs, and whose impact said an explicit false reaches the API through the read-only isolationprofile struct; now a claim about the one writable Go struct. Absence claim (isolationprofile has no Create or Update): `grep -n '^func' zscaler/zpa/services/cloudbrowserisolation/isolationprofile/isolationprofile.go` at v3.8.58 returns only GetByName and GetAll."
     },
     "cbi-user-experience-omitempty": {
       "statement": "In the Go CBI profile, UserExperience tags sessionPersistence, browserInBrowser, persistIsolationBar and translate without omitempty (false is always sent) but zgpu with omitempty, and ForwardToZia tags enabled and organizationId without omitempty.",
@@ -608,7 +625,7 @@
             "if inspectionProfile.PredefinedControlsVersion == \"\" {",
             "for _, control := range inspectionProfile.PredefinedControls {",
             "if control.Version != \"\" {",
-            "inspectionProfile.PredefinedControlsVersion = control.Version",
+            "inspectionProfile.PredefinedControlsVersion = control.Version break",
             "if !found {",
             "inspectionProfile.PredefinedControlsVersion = defaultVersion"
           ],

@@ -161,6 +161,30 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "path := fmt.Sprintf(\"%s/%d/deeptraces/%s\", deepTracesEndpoint, deviceID, traceID)"
+          ],
+          "after": "func GetDeepTraceSession(ctx context.Context, service *zscaler.Service, deviceID int, traceID string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "path := fmt.Sprintf(\"%s/%d/deeptraces\", deepTracesEndpoint, deviceID)"
+          ],
+          "after": "func CreateDeepTraceSession(ctx context.Context, service *zscaler.Service, deviceID int, payload DeepTraceSessionPayload) (*DeepTraceSession, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/services/troubleshooting/deeptrace/deeptrace.go",
+          "quotes": [
+            "path := fmt.Sprintf(\"%s/%d/deeptraces/%s\", deepTracesEndpoint, deviceID, traceID)"
+          ],
+          "after": "func DeleteDeepTraceSession(ctx context.Context, service *zscaler.Service, deviceID int, traceID string) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zdx/services/reports/devices/device_apps.go",
           "quotes": [
             "func GetDeviceApp(ctx context.Context, service *zscaler.Service, deviceID, appID string, filters common.GetFromToFilters) (*App, *http.Response, error) {"
@@ -283,10 +307,10 @@
           "path": "zscaler/zdx/services/reports/applications/application_score_metrics.go",
           "after": "func GetAppScores(ctx context.Context, service *zscaler.Service, appID int, filters common.GetFromToFilters) ([]common.Metric, *http.Response, error) {",
           "quotes": [
-            "if err == nil {",
+            "var v []common.Metric\n\tvar single common.Metric",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &v)\n\tif err == nil {\n\t\treturn v, resp, nil",
             "// If unmarshalling to an array fails, try unmarshalling to a single object",
-            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)",
-            "v = append(v, single)"
+            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)\n\tif err == nil {\n\t\tv = append(v, single)"
           ]
         },
         {
@@ -294,8 +318,10 @@
           "path": "zscaler/zdx/services/reports/applications/application_score_metrics.go",
           "after": "func GetAppMetrics(ctx context.Context, service *zscaler.Service, appID int, filters common.GetFromToFilters) ([]common.Metric, *http.Response, error) {",
           "quotes": [
+            "var v []common.Metric\n\tvar single common.Metric",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &v)\n\tif err == nil {\n\t\treturn v, resp, nil",
             "// If unmarshalling to an array fails, try unmarshalling to a single object",
-            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)"
+            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)\n\tif err == nil {\n\t\tv = append(v, single)"
           ]
         },
         {
@@ -303,9 +329,10 @@
           "path": "zscaler/zdx/services/reports/devices/device_web_probes.go",
           "after": "func GetWebProbes(",
           "quotes": [
-            "var v []common.Metric",
+            "var v []common.Metric\n\tvar single common.Metric",
+            "resp, err := service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &v)\n\tif err == nil {\n\t\treturn v, resp, nil",
             "// If unmarshalling to an array fails, try unmarshalling to a single object",
-            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)"
+            "resp, err = service.Client.NewRequestDo(ctx, \"GET\", path, filters, nil, &single)\n\tif err == nil {\n\t\tv = append(v, single)"
           ]
         }
       ]
@@ -388,7 +415,8 @@
             }
           }
         }
-      ]
+      ],
+      "conditions": "\"Flat\" over the capture: `jq -c '.paths[\"/v1/devices\"].get.responses[\"200\"].content[\"application/json\"].schema.properties.devices.items.properties | to_entries | map(.value.type) | group_by(.) | map([.[0], length])' automate-zscaler/openapi/zdx.openapi.json` returns 13 string and 2 integer members (client_conn_ver, cpu, dns_servers, dns_suffix, gateway, hw_model, hw_serial, id, mem, name, os, private_ip, public_ip, tunnel, userid), none with a `$ref`, and no `hardware`, `network` or `software` member."
     },
     "go-device-list-loses-fields": {
       "statement": "So the Go device list gives each device's ID and name but no user ID, and its hardware, network and software stay empty, since the flat list keys match none of the struct's nested fields.",

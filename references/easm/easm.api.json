@@ -124,7 +124,8 @@
           ],
           "after": "## 1.9.6 (December 2, 2025)"
         }
-      ]
+      ],
+      "conditions": "Count of resources: `grep -c '@property' zscaler/zeasm/zeasm_service.py` at v1.11.3-1-g4f8f54df returns 3, and `grep -c '    def '` on the same file returns 4 (`__init__` plus `organizations`, `findings` and `lookalike_domains`)."
     },
     "assets-api-only": {
       "statement": "The asset endpoints (list assets, and an asset's certificates, services and technologies) are in the API contract but no SDK resource or MCP tool calls them.",
@@ -167,7 +168,10 @@
           "source": "sdk-python",
           "path": "zscaler/zeasm/findings.py",
           "quotes": [
-            "def list_findings(self, org_id: str) -> APIResult[Findings]:"
+            "def list_findings(self, org_id: str) -> APIResult[Findings]:",
+            "def get_finding_details(self, org_id: str, finding_id: str) -> APIResult[FindingDetails]:",
+            "def get_finding_evidence(self, org_id: str, finding_id: str) -> APIResult[CommonFindings]:",
+            "def get_finding_scan_output(self, org_id: str, finding_id: str) -> APIResult[CommonFindings]:"
           ]
         },
         {
@@ -180,9 +184,19 @@
         },
         {
           "source": "sdk-python",
+          "path": "zscaler/zeasm/findings.py",
+          "quotes": [
+            "{self._zeasm_base_endpoint} /organizations/{org_id}/findings/{finding_id}/details",
+            "{self._zeasm_base_endpoint} /organizations/{org_id}/findings/{finding_id}/evidence",
+            "{self._zeasm_base_endpoint} /organizations/{org_id}/findings/{finding_id}/scan-output"
+          ]
+        },
+        {
+          "source": "sdk-python",
           "path": "zscaler/zeasm/lookalike_domains.py",
           "quotes": [
-            "def list_lookalike_domains(self, org_id: str) -> APIResult[LookALikeDomains]:"
+            "def list_lookalike_domains(self, org_id: str) -> APIResult[LookALikeDomains]:",
+            "def get_lookalike_domain(self, org_id: str, lookalike_raw: str) -> APIResult[LookalikeDomainDetails]:"
           ]
         },
         {
@@ -192,6 +206,13 @@
             "{self._zeasm_base_endpoint} /organizations/{org_id}/lookalike-domains"
           ],
           "after": "def list_lookalike_domains("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zeasm/lookalike_domains.py",
+          "quotes": [
+            "{self._zeasm_base_endpoint} /organizations/{org_id}/lookalike-domains/{lookalike_raw}/details"
+          ]
         }
       ]
     },
@@ -352,7 +373,7 @@
       ]
     },
     "client-search": {
-      "statement": "SDK responses support client-side filtering and projection with `resp.search(expression)` in JMESPath syntax.",
+      "statement": "SDK responses support client-side filtering and projection over the current page of results with `resp.search(expression)` in JMESPath syntax.",
       "tier": "A",
       "evidence": [
         {
@@ -363,6 +384,16 @@
             "`JMESPath documentation <https://jmespath.org/>`_ for"
           ],
           "after": "def list_findings("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "class ZscalerAPIResponse:",
+          "quotes": [
+            "def search(self, expression: str) -> List[Any]:",
+            "Applies a JMESPath expression to the current page of results for",
+            "client-side filtering and projection."
+          ]
         }
       ]
     },

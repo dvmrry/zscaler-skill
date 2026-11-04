@@ -115,7 +115,7 @@
   ],
   "claims": {
     "schedule-duplicate-packages": {
-      "statement": "The Go SDK defines the same `AssistantSchedule` type and a `/serviceEdgeSchedule` endpoint constant in both the serviceedgecontroller and serviceedgeschedule packages; the serviceedgeschedule package defines GetSchedule, CreateSchedule and UpdateSchedule.",
+      "statement": "The Go SDK defines an `AssistantSchedule` struct with the same fields and JSON tags (`id`, `customerId`, `deleteDisabled`, `enabled`, `frequency`, `frequencyInterval`) and a `/serviceEdgeSchedule` endpoint constant in both the serviceedgecontroller and serviceedgeschedule packages; the serviceedgeschedule package defines GetSchedule, CreateSchedule and UpdateSchedule.",
       "tier": "A",
       "evidence": [
         {
@@ -128,6 +128,19 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgecontroller/zpa_service_edge_controller.go",
+          "after": "type AssistantSchedule struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`",
+            "CustomerID string `json:\"customerId\"`",
+            "DeleteDisabled bool `json:\"deleteDisabled\"`",
+            "Enabled bool `json:\"enabled\"`",
+            "Frequency string `json:\"frequency\"`",
+            "FrequencyInterval string `json:\"frequencyInterval\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
           "quotes": [
             "scheduleEndpoint = \"/serviceEdgeSchedule\"",
@@ -135,6 +148,19 @@
             "func GetSchedule(ctx context.Context",
             "func CreateSchedule(ctx context.Context",
             "func UpdateSchedule(ctx context.Context"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/serviceedgeschedule/serviceedgeschedule.go",
+          "after": "type AssistantSchedule struct {",
+          "quotes": [
+            "ID string `json:\"id,omitempty\"`",
+            "CustomerID string `json:\"customerId\"`",
+            "DeleteDisabled bool `json:\"deleteDisabled\"`",
+            "Enabled bool `json:\"enabled\"`",
+            "Frequency string `json:\"frequency\"`",
+            "FrequencyInterval string `json:\"frequencyInterval\"`"
           ]
         }
       ],
@@ -342,14 +368,23 @@
       ]
     },
     "restart-go-path": {
-      "statement": "The Go SDK restarts a private cloud controller with a request to `/privateCloudController/restart/{id}`.",
+      "statement": "The Go SDK's `ControllerRestart` restarts a private cloud controller with a PUT to `/privateCloudController/restart/{id}`.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
           "quotes": [
+            "privateCloudControllerEndpoint = \"/privateCloudController\"",
             "privateCloudControllerEndpoint+\"/restart\", controllerID)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/private_cloud_controller/private_cloud_controller.go",
+          "after": "func ControllerRestart(",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
           ]
         }
       ]
@@ -562,7 +597,7 @@
       ]
     },
     "sub-module-upgrade-list-typing": {
-      "statement": "The Go private cloud controller holds `zpnSubModuleUpgradeList` as `[]interface{}`; the Python SDK types its entries with class ZPNSubmoduleUpgradeList.",
+      "statement": "The Go private cloud controller holds `zpnSubModuleUpgradeList` as `[]interface{}`; the Python PrivateCloudController model builds its `zpn_sub_module_upgrade_list` as ZPNSubmoduleUpgradeList objects read from the response key `zpnSubModuleUpgrade`, and its request_format emits that list as `zpnSubModuleUpgradeList`.",
       "tier": "A",
       "evidence": [
         {
@@ -575,12 +610,21 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/models/private_cloud_controller.py",
+          "after": "class PrivateCloudController(ZscalerObject):",
+          "quotes": [
+            "self.zpn_sub_module_upgrade_list = ZscalerCollection.form_list( config[\"zpnSubModuleUpgrade\"] if \"zpnSubModuleUpgrade\" in config else [], ZPNSubmoduleUpgradeList",
+            "\"zpnSubModuleUpgradeList\": self.zpn_sub_module_upgrade_list,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/private_cloud_controller.py",
           "quotes": [
             "class ZPNSubmoduleUpgradeList(ZscalerObject):"
           ]
         }
       ],
-      "conditions": "Converted from a divergence: the two SDKs describe the same list at different typing depth and neither contradicts the other about the wire."
+      "conditions": "Converted from a divergence: the two SDKs describe the same list at different typing depth. The Python model reads it from a different response key than it writes (sub-module-upgrade-key)."
     },
     "private-broker-version-empty-object": {
       "statement": "A Go service edge write that leaves `PrivateBrokerVersion` at its zero value therefore carries an empty `privateBrokerVersion` object instead of omitting the member.",

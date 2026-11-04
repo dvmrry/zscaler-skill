@@ -129,9 +129,10 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zia/models/cloudappcontrol.py",
+          "after": "class Application(ZscalerObject):",
           "quotes": [
             "self.val = config[\"val\"] if \"val\" in config else None",
-            "\"val\": self.val,"
+            "def request_format(self) -> Dict[str, Any]: return { \"val\": self.val,"
           ]
         },
         {
@@ -199,7 +200,8 @@
           "quotes": [
             "/webApplicationRules/{rule_type}/{rule_id}",
             "http_method = \"put\".upper()",
-            "transform_common_id_fields(reformat_params, body, body)"
+            "transform_common_id_fields(reformat_params, body, body)",
+            "body = kwargs"
           ],
           "after": "def update_rule(self, rule_type: str, rule_id: str, **kwargs)"
         },
@@ -299,13 +301,14 @@
           "source": "sdk-python",
           "path": "zscaler/zia/models/cloudappcontrol.py",
           "quotes": [
-            "# USED IN /webApplicationRules/{rule_type}/availableActions"
+            "# USED IN /webApplicationRules/{rule_type}/availableActions class Application(ZscalerObject):"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zia/cloudappcontrol.py",
           "quotes": [
+            "result = response.get_body()",
             "raise ValueError(\"Unexpected response format: Expected a list.\")",
             "if not isinstance(result, list):",
             "return (result, response, None)"
@@ -334,7 +337,8 @@
           ],
           "after": "type WebApplicationRules struct"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -nE 'len\\(|31|validate|maxLength|MaxLen' zscaler/zia/services/cloudappcontrol/cloudappcontrol.go` at v3.8.58 returns nothing; over the package directory it matches only cloudappcontrol_test.go, on result counts (`len(allResources)`, `len(actions)`, `len(mappings)`)."
     },
     "mcp-skill-name-31": {
       "statement": "The MCP create workflow skill states that ZIA enforces a hard 31-character maximum on the rule name and rejects longer names with `INVALID_INPUT_ARGUMENT` / \"Name exceeds the max length 31 characters\". The executable MCP create input declares `name` as an unconstrained string.",
@@ -359,7 +363,7 @@
       ]
     },
     "python-risk-profile-single-object": {
-      "statement": "From Python SDK v1.11.2 the model parses `cloudAppRiskProfile` as a single object, as the Go struct does; up to v1.11.1 `cloudappcontrol.list_rules` failed with `KeyError: 0` on any rule that has a risk profile (#586).",
+      "statement": "Python SDK v1.11.2 fixed ZIA `cloudappcontrol.list_rules` failing with `KeyError: 0` when a rule has a `cloudAppRiskProfile` (#586); from v1.11.2 the model parses `cloudAppRiskProfile` as a single object, as the Go struct does.",
       "tier": "A",
       "evidence": [
         {
@@ -376,6 +380,10 @@
           "path": "zscaler/zia/models/cloudappcontrol.py",
           "quotes": [
             "common_reference.ResourceReference(config[\"cloudAppRiskProfile\"])"
+          ],
+          "at": [
+            "v1.11.2",
+            "HEAD"
           ]
         },
         {
@@ -388,7 +396,7 @@
       ]
     },
     "mcp-read-rules-tools-request": {
-      "statement": "MCP server issue #76 asked for `zia_list_cloud_app_control_rules` and `zia_get_cloud_app_control_rule` because only `zia_list_cloud_app_control_actions` existed in the build the reporter tested; it was closed as completed on 2026-06-03 with a reply from a member of the repository's organization, signed Zscaler DevRel, that both tools already shipped in v0.11.0.",
+      "statement": "MCP server issue #76 asked for `zia_list_cloud_app_control_rules` and `zia_get_cloud_app_control_rule` because the build the reporter tested exposed `zia_list_cloud_app_control_actions` but no tool to read configured Cloud App Control rules; it was closed as completed on 2026-06-03 with a reply from a member of the repository's organization, signed Zscaler DevRel, that both tools already shipped in v0.11.0.",
       "tier": "A",
       "evidence": [
         {
@@ -397,7 +405,8 @@
           "quotes": [
             "The MCP server currently exposes `zia_list_cloud_app_control_actions`, which returns the *available action types*",
             "## Comment (MEMBER, 2026-06-03) @(user) Both tools you're requesting — `zia_list_cloud_app_control_rules` and `zia_get_cloud_app_control_rule` — already exist; they shipped in v0.11.0",
-            "Closing as already-implemented — let us know if a current build still shows the tools missing. Zscaler DevRel"
+            "Closing as already-implemented — let us know if a current build still shows the tools missing. Zscaler DevRel",
+            "but there is no tool to read the *configured* Cloud App Control rules (policies)"
           ]
         },
         {

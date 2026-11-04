@@ -143,7 +143,8 @@
             "for the hook provider)."
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no Zscaler SDK): `grep -rnE '^\\s*(import|from)\\s+zscaler' AWS` at v0.2.0-11-g70d5c9c returns no lines; the four module files (aiguard_agentcore.py, aiguard_boto3_hook.py, aiguard_decorator.py, aiguard_strands.py) import only standard-library modules plus botocore, bedrock_agentcore or strands. The same grep over the whole repository does find Zscaler SDK imports in other integrations (Cursor, Cline, Windsurf, TrueFoundry and others)."
     },
     "leg-directions": {
       "statement": "Each leg is one detection call: the prompt and tool input legs are sent with direction `IN`, the tool output and response legs with `OUT`; the Lambda decorator and the boto3 hook have only the prompt and response legs.",
@@ -153,6 +154,7 @@
           "source": "zguard-integrations",
           "path": "AWS/README.md",
           "quotes": [
+            "Each leg is one API call.",
             "| prompt | `IN` | all four |",
             "| tool input | `IN` | agentcore, strands |",
             "| tool output | `OUT` | agentcore, strands |",
@@ -234,7 +236,8 @@
           "source": "zguard-integrations",
           "path": "AWS/README.md",
           "quotes": [
-            "| `AIGUARD_OVERRIDE_URL` | no | Full base URL, overriding `AIGUARD_CLOUD` |"
+            "| `AIGUARD_OVERRIDE_URL` | no | Full base URL, overriding `AIGUARD_CLOUD` |",
+            "| `AIGUARD_CLOUD` | no | Cloud region, defaults to `us1` (us1, us2, eu1, eu2) |"
           ]
         }
       ]
@@ -336,7 +339,10 @@
           "source": "zguard-integrations",
           "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
           "quotes": [
-            "payload = {\"content\": text, \"direction\": direction}"
+            "payload = {\"content\": text, \"direction\": direction}",
+            "payload[\"transactionId\"] = api_transaction_id",
+            "payload[\"policyId\"] = self.policy_id",
+            "return (\"\\n\".join(texts) if texts else None), opaque"
           ]
         },
         {
@@ -344,20 +350,25 @@
           "path": "AWS/lambda-decorator/aiguard_decorator.py",
           "quotes": [
             "payload = {\"content\": text, \"direction\": direction}",
-            "payload[\"policyId\"] = resolved_policy_id"
+            "payload[\"policyId\"] = resolved_policy_id",
+            "payload[\"transactionId\"] = api_transaction_id",
+            "Flatten a leg's content list into (text, direction) for the scan API."
           ]
         },
         {
           "source": "zguard-integrations",
           "path": "AWS/strands-agents/aiguard_strands.py",
           "quotes": [
-            "payload = {\"content\": text, \"direction\": direction}"
+            "payload = {\"content\": text, \"direction\": direction}",
+            "payload[\"transactionId\"] = api_transaction_id",
+            "payload[\"policyId\"] = self.policy_id",
+            "Flatten a leg's content list into (text, direction) for the scan API."
           ]
         }
       ]
     },
     "transaction-id": {
-      "statement": "An ID that is not already a UUID (a Lambda request ID, a caller's session string) is hashed into a UUID with uuid5 before it is sent as `transactionId`; the modules' notes say AI Guard rejects a non-UUID `transactionId` with HTTP 500.",
+      "statement": "An ID that does not parse as a UUID is hashed into a UUID with uuid5 before it is sent as `transactionId` (one that parses is sent in canonical form); the modules' notes say AI Guard rejects a non-UUID `transactionId` with HTTP 500 and that callers pass request IDs and session strings (the Lambda decorator, `aws_request_id`).",
       "tier": "A",
       "evidence": [
         {
@@ -365,6 +376,8 @@
           "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
           "quotes": [
             "AI Guard rejects a transactionId that is not a standard 36-character UUID",
+            "return str(uuid.UUID(raw))",
+            "except (ValueError, AttributeError, TypeError):",
             "return str(uuid.uuid5(_TRANSACTION_NAMESPACE, raw))",
             "with an HTTP 500, and callers pass request ids and session strings."
           ]
@@ -387,8 +400,10 @@
           "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
           "after": "def _resolve_policy_id(explicit=None):",
           "quotes": [
+            "Explicit policy id, else AIGUARD_POLICY_ID, else None for auto-resolve.",
             "raw = explicit if explicit is not None else os.environ.get(\"AIGUARD_POLICY_ID\")",
             "raw = raw.strip().strip('\"').strip(\"'\")",
+            "if raw in (None, \"\")",
             "return int(raw)",
             "except (TypeError, ValueError):",
             "return None"
@@ -399,6 +414,10 @@
           "path": "AWS/bedrock-sdk-hooks/python/aiguard_boto3_hook.py",
           "after": "def _resolve_policy_id(explicit=None):",
           "quotes": [
+            "Explicit policy id, else AIGUARD_POLICY_ID, else None for auto-resolve.",
+            "raw = explicit if explicit is not None else os.environ.get(\"AIGUARD_POLICY_ID\")",
+            "raw = raw.strip().strip('\"').strip(\"'\")",
+            "if raw in (None, \"\")",
             "return int(raw)",
             "except (TypeError, ValueError):"
           ]
@@ -408,6 +427,10 @@
           "path": "AWS/lambda-decorator/aiguard_decorator.py",
           "after": "def _resolve_policy_id(explicit=None):",
           "quotes": [
+            "Explicit policy id, else AIGUARD_POLICY_ID, else None for auto-resolve.",
+            "raw = explicit if explicit is not None else os.environ.get(\"AIGUARD_POLICY_ID\")",
+            "raw = raw.strip().strip('\"').strip(\"'\")",
+            "if raw in (None, \"\")",
             "return int(raw)",
             "except (TypeError, ValueError):"
           ]
@@ -417,6 +440,10 @@
           "path": "AWS/strands-agents/aiguard_strands.py",
           "after": "def _resolve_policy_id(explicit=None):",
           "quotes": [
+            "Explicit policy id, else AIGUARD_POLICY_ID, else None for auto-resolve.",
+            "raw = explicit if explicit is not None else os.environ.get(\"AIGUARD_POLICY_ID\")",
+            "raw = raw.strip().strip('\"').strip(\"'\")",
+            "if raw in (None, \"\")",
             "return int(raw)",
             "except (TypeError, ValueError):"
           ]
@@ -462,7 +489,7 @@
       "conditions": "Follows from the parsing and endpoint choice in the four modules; no log line is written on the int() failure (the except branch only returns None). Not exercised against the live API."
     },
     "verdict-mapping": {
-      "statement": "The verdict's `action` is upper-cased: BLOCK blocks, ALLOW and DETECT allow (DETECT is treated as monitor-only), a response with no action is a scan error that names the in-body `statusCode` and `errorMsg`, and any other action is an 'unknown scan action' error.",
+      "statement": "The verdict's `action` is upper-cased: BLOCK blocks, ALLOW and DETECT allow (DETECT is treated as monitor-only), a response with no action is a scan error that names the in-body `statusCode` and `errorMsg` when the body carries either, and any other action is an 'unknown scan action' error.",
       "tier": "A",
       "evidence": [
         {
@@ -505,7 +532,9 @@
           "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
           "quotes": [
             "\"error_msg\": parsed.get(\"errorMsg\"),",
-            "\"status_code\": parsed.get(\"statusCode\"),"
+            "\"status_code\": parsed.get(\"statusCode\"),",
+            "+ (\" (statusCode=%s %s)\" % (verdict.get(\"status_code\"),",
+            "if verdict.get(\"error_msg\") or verdict.get(\"status_code\") else \"\"))"
           ]
         }
       ]
@@ -635,6 +664,7 @@
           "source": "zguard-integrations",
           "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
           "quotes": [
+            "timeout         seconds per scan call.",
             "on_verdict=None, timeout=10.0):",
             "self.timeout = timeout"
           ]
@@ -643,6 +673,7 @@
           "source": "zguard-integrations",
           "path": "AWS/strands-agents/aiguard_strands.py",
           "quotes": [
+            "timeout        seconds per scan call.",
             "on_verdict=None, retry_limit=2, tool_server=\"strands-tools\",",
             "timeout=10.0):"
           ]
@@ -659,7 +690,8 @@
           "source": "zguard-integrations",
           "path": "AWS/lambda-decorator/aiguard_decorator.py",
           "quotes": [
-            "scan_timeout = _default_timeout() if timeout is None else timeout"
+            "scan_timeout = _default_timeout() if timeout is None else timeout",
+            "return float(os.environ.get(\"AIGUARD_TIMEOUT\", \"\").strip() or 30.0)"
           ]
         }
       ]

@@ -210,8 +210,8 @@
             "_, parseIDErr := strconv.ParseInt(id, 10, 64)",
             "_, associationTypeSet := d.GetOk(\"association_type\")",
             "if parseIDErr == nil { // assume if the passed value is an int",
-            "if !associationTypeSet { _, assoc_type, _, err := provisioningkey.GetByIDAllAssociations(ctx, service, id)",
-            "} else { resp, assoc_type, _, err := provisioningkey.GetByNameAllAssociations(ctx, service, id)"
+            "if !associationTypeSet { _, assoc_type, _, err := provisioningkey.GetByIDAllAssociations(ctx, service, id) if err != nil { return []*schema.ResourceData{d}, err } else { _ = d.Set(\"association_type\", assoc_type) } } } else {",
+            "} else { resp, assoc_type, _, err := provisioningkey.GetByNameAllAssociations(ctx, service, id) if err == nil { d.SetId(resp.ID) _ = d.Set(\"id\", resp.ID) if !associationTypeSet { _ = d.Set(\"association_type\", assoc_type) }"
           ]
         },
         {
@@ -431,7 +431,7 @@
       ]
     },
     "provider-schedule-resources-pass-enabled-through": {
-      "statement": "Both provider assistant-schedule resources declare `enabled` as Optional without a default, copy `d.Get(\"enabled\").(bool)` into the request, and call the SDK update. So `enabled = false`, and an omitted `enabled` (which reads as false), make every update that reaches the SDK update fail there, before its PUT is sent. An empty or invalid `frequency_interval` fails the same way, and a create that finds the schedule already exists falls into this update path; a first create with `enabled = false` can succeed, since create has no such check.",
+      "statement": "Both provider assistant-schedule resources declare `enabled` as Optional without a default, copy `d.Get(\"enabled\").(bool)` into the request, and call the SDK update. So `enabled = false`, and an omitted `enabled` (which reads as false), make every update that reaches the SDK update fail there, before its PUT is sent. An empty or invalid `frequency_interval` fails the same way, and a create that finds the schedule already exists falls into this update path; the SDK create has no such check, so a first create with `enabled = false` is not refused client-side.",
       "tier": "A",
       "derived_from": [
         "assistant-schedule-update-rejects-disabled"
@@ -547,7 +547,9 @@
           ],
           "quotes": [
             "query.Set(\"search\", appName)",
-            "filter.Search = appName"
+            "constructedURL := relativeURL + \"?\" + query.Encode()",
+            "filter.Search = appName",
+            "list, resp, err := common.GetAllPagesGenericWithCustomFilters[AppSegmentBaseAppDto](ctx, service.Client, constructedURL, filter)"
           ],
           "after": "func GetByApplicationType(ctx context.Context, service *zscaler.Service, appName, applicationType string, expandAll bool) ([]AppSegmentBaseAppDto, *http.Response, error) {"
         },
@@ -578,9 +580,21 @@
             "endpoint += \"&\" + params"
           ],
           "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zparequests.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "for _, v := range vs {"
+          ],
+          "after": "func encodeQueryWithSpacesAsPercent20(v url.Values) string {"
         }
       ],
-      "conditions": "The two-values result follows from the endpoint already containing `?` (the pager's parameters are appended with `&`) and `url.ParseQuery` keeping repeated keys; it was not captured on the wire. Which value the server honors is server behavior.",
+      "conditions": "The two-values result follows from the endpoint already containing `?` (the pager's parameters are appended with `&`) `url.ParseQuery` keeping repeated keys, and the ZPA encoder `encodeQueryWithSpacesAsPercent20` writing every value of a key; it was not captured on the wire. Which value the server honors is server behavior.",
       "upstream": [
         {
           "status": "unfiled",
@@ -664,7 +678,7 @@
       "conditions": "Derived by applying the two quoted escapes; reproduced with a Go snippet (`v.Set(\"search\", \"name+EQ+\"+url.QueryEscape(\"a+b\")); v.Encode()` gives `search=name%2BEQ%2Ba%252Bb`). Not observed in a captured request."
     },
     "search-sanitizer-strips-name-characters": {
-      "statement": "For ZPA list endpoints (other than SCIM) the shared pager rewrites a plain search string into `name+EQ+<value>` after deleting every character outside letters, digits, whitespace, `_`, `/`, `-` and `.`. The lookups then compare the listed results to the original name case-insensitively.",
+      "statement": "For ZPA list endpoints (other than SCIM) the shared pager rewrites a plain search string into `name+EQ+<value>` after deleting every character outside letters, digits, whitespace, `_`, `/`, `-` and `.`. The segment group lookup by name, for one, then compares the listed results to the original name case-insensitively.",
       "tier": "A",
       "evidence": [
         {
@@ -1041,45 +1055,11 @@
             "HEAD"
           ],
           "quotes": [
-            "setVersion(inspectionProfile)"
-          ],
-          "after": "func Update(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
-          "at": [
-            "v3.8.42",
-            "HEAD"
-          ],
-          "quotes": [
-            "setVersion(inspectionProfile)"
-          ],
-          "after": "func PutAssociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
-          "at": [
-            "v3.8.42",
-            "HEAD"
-          ],
-          "quotes": [
-            "setVersion(inspectionProfile)"
-          ],
-          "after": "func PutDeassociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
-        },
-        {
-          "source": "sdk-go",
-          "path": "zscaler/zpa/services/inspectioncontrol/inspection_profile/zpa_inspection_profile.go",
-          "at": [
-            "v3.8.42",
-            "HEAD"
-          ],
-          "quotes": [
-            "setVersion(inspectionProfile)"
-          ],
-          "after": "func Patch(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {"
+            "func Update(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {\nsetVersion(inspectionProfile)",
+            "func PutAssociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {\nsetVersion(inspectionProfile)",
+            "func PutDeassociate(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {\nsetVersion(inspectionProfile)",
+            "func Patch(ctx context.Context, service *zscaler.Service, profileID string, inspectionProfile *InspectionProfile) (*http.Response, error) {\nsetVersion(inspectionProfile)"
+          ]
         }
       ],
       "conditions": "At v4.4.10 the provider calls inspection profile `Update` with `&req` and `PutAssociate` with a local pointer, and no provider call to tag key `Update` was found (git grep `tag_key.Update` in zpa/). It is not shown to pass nil.",
@@ -1120,6 +1100,7 @@
           "quotes": [
             "if resp.StatusCode >= 400 && resp.StatusCode < 500 {",
             "return nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"client error\"))",
+            "// Handle other non-success status codes\nif resp.StatusCode >= 300 {\nreturn nil, resp, nil, errorx.CheckErrorInResponse(resp, fmt.Errorf(\"API error\"))",
             "if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode == http.StatusServiceUnavailable {",
             "// Handle success",
             "if resp.StatusCode < 300 {",
@@ -1254,6 +1235,14 @@
             "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", \"NP_ASSISTANT_GRP\", }"
           ],
           "after": "var ProvisioningKeyAssociationTypes []string = []string{"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/provisioningkey/zpa_provisioning_key.go",
+          "quotes": [
+            "for _, associationType := range ProvisioningKeyAssociationTypes {"
+          ],
+          "after": "func GetByNameAllAssociations(ctx context.Context, service *zscaler.Service, name string) (p *ProvisioningKey, assoc_type string, resp *http.Response, err error) {"
         },
         {
           "source": "tf-zpa",

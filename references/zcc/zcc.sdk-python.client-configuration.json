@@ -44,7 +44,7 @@
     },
     {
       "label": "Legacy limits and retries.",
-      "text": "The helper's counters and 429 handling are [[zcc.api.rate-limits:legacy-local-counters]], [[zcc.api.rate-limits:legacy-429-retry]] and [[zcc.api.rate-limits:legacy-download-raise]]. {{legacy-preflight-message}} {{legacy-network-retries}}"
+      "text": "The helper's counters and 429 handling are [[zcc.api.rate-limits:legacy-local-counters]], [[zcc.api.rate-limits:legacy-429-retry]] and [[zcc.api.rate-limits:legacy-download-raise]]. {{legacy-preflight-message}} {{legacy-network-retries}} {{legacy-network-retries-duplicate-writes}}"
     },
     {
       "label": "OneAPI retries.",
@@ -60,7 +60,7 @@
       ]
     },
     {
-      "do": "Whether a legacy-client error is a ValueError naming 3 calls per day on `/downloadServiceStatus` (a server 429) or an AttributeError about `isoformat` (an exhausted local counter).",
+      "do": "Whether a legacy-client error is a ValueError giving a wait in seconds on `/downloadDevices` or `/downloadServiceStatus` (a server 429) or an AttributeError about `isoformat` (an exhausted local counter).",
       "uses": [
         "legacy-preflight-message",
         "zcc.api.rate-limits:legacy-download-raise"
@@ -122,7 +122,7 @@
     "legacy-missing-secrets": {
       "statement": "The legacy helper exposes the same ZCC service properties as `ZCCService` except `secrets`, so `get_otp` and `get_passwords` are not reachable through `client.zcc` on a legacy client.",
       "tier": "A",
-      "conditions": "Absence: legacy.py defines properties for devices, admin_user, company, entitlements, forwarding_profile, fail_open_policy, web_policy, web_app_service, web_privacy, trusted_networks, application_profiles and the three app catalogs, and no `secrets` property.",
+      "conditions": "Absence: legacy.py defines properties for devices, admin_user, company, entitlements, forwarding_profile, fail_open_policy, web_policy, web_app_service, web_privacy, trusted_networks, application_profiles and the three app catalogs, and no `secrets` property. `grep -c secrets zscaler/zcc/legacy.py` in the Python SDK at v1.11.3-1-g4f8f54df returns 0 and `grep -c __getattr__` on the same file returns 0, so no fallback reaches a `secrets` attribute; `grep -c @property` returns 14 there and 15 in zscaler/zcc/zcc_service.py, the extra one being `secrets`; `grep -n '^class ' zscaler/zcc/legacy.py` returns only `class LegacyZCCClientHelper:`, with no base class to inherit one from.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -212,9 +212,8 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/legacy.py",
-          "after": "def __exit__(self, exc_type, exc_val, exc_tb):",
           "quotes": [
-            "logger.debug(\"Deauthenticating...\") def refreshToken(self):"
+            "def __exit__(self, exc_type, exc_val, exc_tb): logger.debug(\"Deauthenticating...\") def refreshToken(self):"
           ]
         },
         {
@@ -268,15 +267,15 @@
       ]
     },
     "legacy-network-retries": {
-      "statement": "On a transport error (`requests.RequestException`) the legacy helper sleeps five seconds and sends the same request again, up to three attempts in all, without regard to the HTTP method, so a POST or PUT whose response was lost is sent again.",
+      "statement": "On a transport error (`requests.RequestException`) the legacy helper sleeps five seconds and sends the same request again, up to three attempts in all, without checking the HTTP method.",
       "tier": "A",
+      "conditions": "Absence claim (no method check): `grep -n method zscaler/zcc/legacy.py` in the Python SDK at v1.11.3-1-g4f8f54df returns the `send` signature, the `method=method` argument to `requests.request`, the `\"method\": method` entry of the returned request info, a `@staticmethod` decorator and a docstring; no line compares the method.",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/legacy.py",
-          "after": "except requests.RequestException as e:",
           "quotes": [
-            "if attempts == max_attempts:",
+            "except requests.RequestException as e: attempts += 1 if attempts == max_attempts: raise",
             "time.sleep(5)"
           ]
         },
@@ -290,6 +289,14 @@
           ]
         }
       ]
+    },
+    "legacy-network-retries-duplicate-writes": {
+      "statement": "A POST or PUT whose response was lost to a transport error can therefore be applied twice.",
+      "tier": "B",
+      "derived_from": [
+        "legacy-network-retries"
+      ],
+      "conditions": "Follows from legacy-network-retries: the helper resends any request, whatever its method, after a `requests.RequestException`. It rests on a transport error (a read timeout or a dropped connection) arriving after the server has received and applied the request, which no source states, and on the ZCC write endpoints not rejecting a repeated write; neither has been observed."
     }
   },
   "gaps": {

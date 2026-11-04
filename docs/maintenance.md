@@ -129,9 +129,11 @@ whole graph, and `--all` adds the overreach claims, which are fixed before merge
 too large for one pull request goes to GitHub issues: `review --checklists --out <dir>` writes one checklist per
 product (split to fit an issue body), each claim a checkbox with its statement and a link to its line at the
 current commit; open each file as an issue labelled `claim-review`. A ticked box is fine as written; a comment
-naming a claim asks for a fix, which lands in a pull request like any other. One run's flags are noisy: two full runs
-agreed on 90% of unchanged claims and on only 69% of borderline ones, so pass `--ids` the claims flagged in two runs
-to review those first.
+naming a claim asks for a fix, which lands in a pull request like any other. One run's verdicts vary (two full runs
+agreed on 90% of unchanged claims and on only 69% of borderline ones), but a flag is usually real: when an Opus
+reviewer read each of the 1,259 claims either run flagged, against its quotes and sources, 97% of those flagged in
+both runs and 88% of those flagged in one needed a change, most often a quote that stops short of the part it
+backs. So review every flag; to review a subset first, such as the claims flagged in two runs, pass `review --checklists` that list with `--ids`.
 
 Verdicts are kept per claim with a hash of its statement and evidence, so `build --unaudited` finds what changed
 since its audit. It runs through the `claude` CLI on a Claude plan's quota, never in CI. Before trusting a

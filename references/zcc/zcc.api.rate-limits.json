@@ -135,6 +135,7 @@
           "source": "zscaler-help",
           "path": "legacy-understanding-rate-limiting-zcc.json",
           "quotes": [
+            "The system sets the following headers when rate limits are enforced:",
             "X-Rate-Limit-Remaining: Indicates the number of API requests remaining within the current rate limit window.",
             "X-Rate-Limit-Retry-After-Seconds: Specifies the number of seconds the client must wait before making another API call if the rate limit has exceeded.",
             "receiving the 429 (Too Many Requests) error code"
@@ -205,7 +206,7 @@
       ]
     },
     "legacy-429-retry": {
-      "statement": "On a 429 from any path other than `/downloadDevices` and `/downloadServiceStatus`, the Python legacy client waits the `X-Rate-Limit-Retry-After-Seconds` value plus one second, or 60 seconds when the header is absent, and gives up when the third 429 arrives.",
+      "statement": "On a 429 from any path other than `/downloadDevices` and `/downloadServiceStatus`, the Python legacy client adds one to an attempt counter and raises a ValueError when the counter reaches three; otherwise it waits the `X-Rate-Limit-Retry-After-Seconds` value plus one second, or 60 seconds when the header is absent or not all digits, and sends again. The counter starts at zero for each call, and zero-remaining responses and network errors add to it too, so with only 429s the client gives up on the third.",
       "tier": "A",
       "evidence": [
         {
@@ -216,7 +217,10 @@
             "return int(retry_after_sec) + 1  # 1-second pad",
             "max_attempts = 3",
             "backoff = self._get_backoff_seconds(response, default=60)",
-            "if retry_after_sec and retry_after_sec.isdigit(): return int(retry_after_sec) + 1 # 1-second pad return default"
+            "if retry_after_sec and retry_after_sec.isdigit(): return int(retry_after_sec) + 1 # 1-second pad return default",
+            "attempts = 0",
+            "if remaining is not None and remaining.isdigit() and int(remaining) == 0: # treat as a soft-429 attempts += 1",
+            "except requests.RequestException as e: attempts += 1"
           ]
         },
         {
@@ -233,7 +237,7 @@
       ]
     },
     "legacy-download-raise": {
-      "statement": "For `/downloadDevices` and `/downloadServiceStatus` the Python legacy client does not retry a 429: it raises a ValueError at once, reporting the header's wait or a default of 86400 seconds.",
+      "statement": "For `/downloadDevices` and `/downloadServiceStatus` the Python legacy client does not retry a 429: it raises a ValueError at once whose message gives the `X-Rate-Limit-Retry-After-Seconds` value plus one second, or 86400 seconds when the header is absent or not all digits.",
       "tier": "A",
       "conditions": "Corrected per two verifiers: the earlier statement also covered an exhausted local counter, but that branch never produces its message; the pre-flight raise fails with an AttributeError on any path (zcc.sdk-python.client-configuration:legacy-preflight-message).",
       "evidence": [
@@ -253,6 +257,16 @@
           "after": "# ---------- 429 handling -----------------------------",
           "quotes": [
             "raise ValueError( f\"This endpoint has a rate limit of 3 calls per day. Try again in {retry_after} seconds.\""
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/legacy.py",
+          "after": "def _get_backoff_seconds(response, default=60):",
+          "quotes": [
+            "retry_after_sec = response.headers.get(\"X-Rate-Limit-Retry-After-Seconds\")",
+            "if retry_after_sec and retry_after_sec.isdigit():",
+            "return int(retry_after_sec) + 1  # 1-second pad"
           ]
         }
       ]

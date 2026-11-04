@@ -207,9 +207,22 @@
             "v4.4.10",
             "HEAD"
           ],
+          "after": "func detachPRAConsoleFromPolicy(ctx context.Context, id string, svc *zscaler.Service) error {",
           "quotes": [
-            "types := []string{\"CREDENTIAL_POLICY\"} // Add others if needed",
-            "return diag.FromErr(fmt.Errorf(\"failed to detach PRA console from policy: %w\", err))"
+            "types := []string{\"CREDENTIAL_POLICY\"} // Add others if needed"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_pra_console_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourcePRAConsoleControllerDelete(",
+          "quotes": [
+            "if err := detachPRAConsoleFromPolicy(ctx, d.Id(), svc); err != nil { return diag.FromErr(fmt.Errorf(\"failed to detach PRA console from policy: %w\", err)) }",
+            "if _, err := praconsole.Delete(ctx, svc, d.Id()); err != nil {"
           ]
         }
       ]
@@ -229,6 +242,8 @@
           "quotes": [
             "maxRetries := 3",
             "return fmt.Errorf(\"failed to update rule %s after %d attempts: %w\", rule.ID, maxRetries, err)",
+            "if modifiedRules[rule.ID] {",
+            "for i := 0; i < maxRetries; i++ {",
             "for _, rule := range allRules {",
             "_, err := policysetcontrollerv2.UpdateRule(ctx, svc, rule.PolicySetID, rule.ID, &convertedRule)",
             "if i == maxRetries-1 {"
@@ -253,7 +268,8 @@
           "status": "unfiled",
           "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim (no revert step): `sed -n '/^func detachPRAConsoleFromPolicy(/,/^}/p' zpa/resource_zpa_pra_console_controller.go | grep -i -c 'phase 2\\|revert\\|rollback\\|restore'` in vendor/terraform-provider-zpa returns 0 at v4.4.10 and v4.4.16; the function's only phase comment is \"// Phase 1: Update all rules to remove the PRA console reference\"."
     },
     "segment-group-delete-two-loops": {
       "statement": "Deleting a segment group first rewrites policy rules in two sequential loops, version 1 rules and then version 2 rules, and each loop returns an error on the first rule update that fails, except a not-found update, which is skipped. The group delete call comes only after both succeed.",
@@ -269,7 +285,9 @@
           "after": "func detachSegmentGroupFromAllPolicyRules(ctx context.Context, id string, service *zscaler.Service) error {",
           "quotes": [
             "if err := detachSegmentGroupFromV1Policies(ctx, id, service); err != nil {",
-            "if err := detachSegmentGroupFromV2Policies(ctx, id, service); err != nil {"
+            "return fmt.Errorf(\"failed to detach from v1 policies: %w\", err)",
+            "if err := detachSegmentGroupFromV2Policies(ctx, id, service); err != nil {",
+            "return fmt.Errorf(\"failed to detach from v2 policies: %w\", err)"
           ]
         },
         {
@@ -318,6 +336,7 @@
           "after": "func resourceSegmentGroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if err := detachSegmentGroupFromAllPolicyRules(ctx, d.Id(), service); err != nil {",
+            "return diag.FromErr(fmt.Errorf(\"error detaching SegmentGroup with ID %s from PolicySetControllers: %s\", d.Id(), err))",
             "if _, err := segmentgroup.Delete(ctx, service, d.Id()); err != nil {"
           ]
         }
@@ -507,7 +526,8 @@
           "status": "unfiled",
           "note": "Filing 4 (delete-path protection gaps) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Search: `sed -n '/^func detachServerGroupFromAppConnectorGroups(/,/^}/p' zpa/resource_zpa_server_group.go | grep -n return` in vendor/terraform-provider-zpa returns two lines at v4.4.10 and v4.4.16, `return fmt.Errorf(\"failed to fetch server group %s: %w\", serverGroupID, err)` and `return nil`; detachServerGroupFromAllAccessPolicyRules and detachServerGroupFromAllAppSegments are declared with no return value."
     },
     "server-group-delete-can-succeed-with-references": {
       "statement": "So a server-group destroy can finish successfully in Terraform while policy rules, application segments or connector groups still reference the deleted group, with the only trace in the provider's debug log.",

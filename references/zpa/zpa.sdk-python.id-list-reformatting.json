@@ -185,9 +185,9 @@
       ]
     },
     "segment-keys": {
-      "statement": "The Browser Access segment wrapper lists `clientless_app_ids` to `clientlessApps` and `server_group_ids` to `serverGroups` in its key map, but `add_segment_ba` and `update_segment_ba` take `clientless_app_ids` out before calling transform_common_id_fields: add renames it to `clientlessApps` as given, and update rebuilds it from a BROWSER_ACCESS segment lookup matched by domain, so clientless apps are never rebuilt into `{\"id\": ...}` objects. Since v1.11.1 `server_group_ids` is mapped only by transform_common_id_fields; up to v1.10.0 each method first built `serverGroups` in its own loop.",
+      "statement": "The Browser Access segment wrapper lists `clientless_app_ids` to `clientlessApps` and `server_group_ids` to `serverGroups` in its key map, but `add_segment_ba` and `update_segment_ba` pop `clientless_app_ids` from the body, which is the kwargs dict transform_common_id_fields reads, before calling it: add renames it to `clientlessApps` as given, and update rebuilds it from a BROWSER_ACCESS segment lookup matched by domain, setting each app's `appId` and `id`, so transform_common_id_fields never converts clientless apps. Since v1.11.1 `server_group_ids` is mapped only by transform_common_id_fields; up to v1.11.0 each method first built `serverGroups` in its own loop.",
       "tier": "A",
-      "conditions": "Changed upstream in v1.11.1 (checked 2026-10-18): previously \"The Browser Access segment wrapper maps `clientless_app_ids` to `clientlessApps` and `server_group_ids` to `serverGroups`.\" The clientless_app_ids clause was also corrected: neither method lets transform_common_id_fields see that key, at either pin.",
+      "conditions": "Changed upstream in v1.11.1 (checked 2026-10-18): previously \"The Browser Access segment wrapper maps `clientless_app_ids` to `clientlessApps` and `server_group_ids` to `serverGroups`.\" The clientless_app_ids clause was also corrected: neither method lets transform_common_id_fields see that key, at either pin. At v1.11.0 `git show v1.11.0:zscaler/zpa/app_segments_ba.py | grep -n 'serverGroups.*server_group_ids'` still returns the loop line in both methods; at v1.11.1 it returns nothing.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -201,6 +201,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "quotes": [
+            "body = kwargs",
             "body[\"clientlessApps\"] = body.pop(\"clientless_app_ids\")",
             "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
           ],
@@ -210,8 +211,11 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "quotes": [
+            "body = kwargs",
             "clientless_apps = body.pop(\"clientless_app_ids\")",
             "segments_list, _, err = app_segment_api.get_segments_by_type(application_type=\"BROWSER_ACCESS\")",
+            "app[\"appId\"] = segment_id",
+            "app[\"id\"] = matched_segment.id",
             "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)",
             "seg.domain == app.get(\"domain\") and str(seg.app_id) == segment_id"
           ],
@@ -221,7 +225,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "at": [
-            "v1.10.0"
+            "v1.10.0",
+            "v1.11.0"
           ],
           "quotes": [
             "body[\"serverGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"server_group_ids\")]"
@@ -232,7 +237,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segments_ba.py",
           "at": [
-            "v1.10.0"
+            "v1.10.0",
+            "v1.11.0"
           ],
           "quotes": [
             "body[\"serverGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"server_group_ids\")]"
@@ -252,7 +258,8 @@
           "source": "sdk-python",
           "path": "zscaler/utils.py",
           "quotes": [
-            "convert that list/dict to the final ``{\"id\": ...}`` structure,"
+            "convert that list/dict to the final ``{\"id\": ...}`` structure,",
+            "source_dict: Dict to read (and pop) the snake-case keys from."
           ],
           "after": "def transform_common_id_fields("
         },

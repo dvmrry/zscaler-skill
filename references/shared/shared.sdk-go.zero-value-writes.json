@@ -177,7 +177,7 @@
       "conditions": "Search: `git -C vendor/zscaler-sdk-go grep -n -E '\"(POST|PUT|DELETE|PATCH)\"' v3.8.42 -- zscaler/zpa/services` finds only `NewRequestDo` calls; the example quoted is the segment group service."
     },
     "ztw-writes-marshal-caller-struct": {
-      "statement": "Cloud and Branch Connector (ZTW) writes serialize the caller's struct directly with `json.Marshal`, and the PUT helper `UpdateWithPutResource`, which ZTW services such as locations, forwarding rules and IP groups use for updates, sends the whole struct.",
+      "statement": "The Cloud and Branch Connector (ZTW) create and update helpers (`CreateResource`, and `UpdateWithPutResource` through the shared `updateGeneric`) serialize the caller's struct directly with `json.Marshal`, and `UpdateWithPutResource`, which ZTW services such as locations, forwarding rules and IP groups use for updates, sends the whole struct.",
       "tier": "A",
       "evidence": [
         {
@@ -188,6 +188,18 @@
             "HEAD"
           ],
           "after": "func (c *Client) updateGeneric(ctx context.Context, endpoint string, o interface{}, method, contentType string) (interface{}, error) {",
+          "quotes": [
+            "data, err := json.Marshal(o)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztwrequests.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func (c *Client) CreateResource(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
           "quotes": [
             "data, err := json.Marshal(o)"
           ]
@@ -240,7 +252,7 @@
       ]
     },
     "zcc-writes-marshal-caller-struct": {
-      "statement": "Client Connector (ZCC) writes serialize the caller's struct directly with `json.Marshal`.",
+      "statement": "Client Connector (ZCC) service creates and updates such as the trusted network v2, notification template, ZIA posture and forwarding profile ones call `NewZccRequestDo` with the caller's struct, which it serializes directly with `json.Marshal`.",
       "tier": "A",
       "evidence": [
         {
@@ -254,11 +266,59 @@
           "quotes": [
             "bodyBytes, err := json.Marshal(body)"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/trusted_network_v2/trusted_network_v2.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"POST\", trustedNetworkEndpointV2, nil, network, &created)"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, network *TrustedNetworkV2) (*TrustedNetworkV2, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/notification_template/notification_template.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"PUT\", endpoint, nil, template, &updated)"
+          ],
+          "after": "func Update(ctx context.Context, service *zscaler.Service, templateID int, template *NotificationTemplate) (*NotificationTemplate, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"POST\", ziaPostureEndpointV2, nil, posture, &created)"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, posture *ZIAPosture) (*ZIAPosture, *http.Response, error) {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/forwarding_profile/forwarding_profile.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "quotes": [
+            "_, err := service.Client.NewZccRequestDo(ctx, \"POST\", url, nil, request, &response)"
+          ],
+          "after": "func CreateForwardingProfile(ctx context.Context, service *zscaler.Service, request *ForwardingProfileRequest) (*CreateUpdateResponse, error) {"
         }
       ]
     },
     "omitempty-drops-zero-values": {
-      "statement": "In every product, a field tagged `omitempty` is left out of the request body when it holds false, 0, an empty string, or a nil or empty slice. So when a provider rebuilds a struct from Terraform state and sends it as a full PUT, a user's change to false, zero, empty string or empty list reaches the SDK but never reaches the wire.",
+      "statement": "In every product, where a writer marshals the caller's struct and a field's type has no MarshalJSON of its own, a field tagged `omitempty` is left out of the request body when it holds false, 0, an empty string, or a nil or empty slice. So when a provider rebuilds such a struct from Terraform state and sends it as a full PUT, a user's change to false, zero, empty string or empty list reaches the SDK but never reaches the wire.",
       "tier": "B",
       "derived_from": [
         "zpa-writes-marshal-caller-struct",
@@ -266,7 +326,7 @@
         "zcc-writes-marshal-caller-struct",
         "zia.sdk-go.write-encoding:marshals-caller-struct"
       ],
-      "conditions": "Chain of evidence: the writers marshal the caller's struct (the claims derived from), and Go's encoding/json omits a zero-valued scalar or an empty slice when the field is tagged omitempty. That language behavior was reproduced with a scratch program on go1.26.8, not quoted from the repositories. It also assumes the cited struct types define no custom MarshalJSON; a search of the ZPA common package, the ZPA server-group and policy-v2 packages at v3.8.42 found none. Each instance claim checks the tag on its own field, because tags differ field by field inside one struct.",
+      "conditions": "Chain of evidence: the writers marshal the caller's struct (the claims derived from), and Go's encoding/json omits a zero-valued scalar or an empty slice when the field is tagged omitempty. That language behavior was reproduced with a scratch program on go1.26.8, not quoted from the repositories. It also assumes the cited struct types define no custom MarshalJSON; a search of the ZPA common package, the ZPA server-group and policy-v2 packages at v3.8.42 found none. Each instance claim checks the tag on its own field, because tags differ field by field inside one struct. Two limits from the claims it rests on: not every ZCC or ZTW write marshals the caller's struct, and ZIA's `common.EndPointApplications` defines its own MarshalJSON (from v3.8.44), so fields of that type are outside this rule.",
       "upstream": [
         {
           "status": "unfiled",
@@ -535,7 +595,7 @@
       ]
     },
     "zpa-some-structs-send-false": {
-      "statement": "Tags differ field by field, and the SDK sometimes handles it deliberately. The ZPA server group sends `enabled`, `dynamicDiscovery` and `extranetEnabled` without omitempty, the PRA app segment sends `passiveHealthEnabled` without it, and the tag group update replaces a nil `Tags` slice with an empty one because, per the SDK comment, the API requires tags even when empty. A false in these fields does reach the wire.",
+      "statement": "Struct tags differ field by field, and the SDK sometimes handles it deliberately. The ZPA server group sends `enabled`, `dynamicDiscovery` and `extranetEnabled` without omitempty (it tags `readOnly` with it), the PRA app segment sends `passiveHealthEnabled` without it, and the tag group update replaces a nil `Tags` slice with an empty one because, per the SDK comment, the API requires tags even when empty. A false in these fields does reach the wire.",
       "tier": "A",
       "evidence": [
         {
@@ -549,7 +609,8 @@
           "quotes": [
             "Enabled bool `json:\"enabled\"`",
             "DynamicDiscovery bool `json:\"dynamicDiscovery\"`",
-            "ExtranetEnabled bool `json:\"extranetEnabled\"`"
+            "ExtranetEnabled bool `json:\"extranetEnabled\"`",
+            "ReadOnly bool `json:\"readOnly,omitempty\"`"
           ]
         },
         {

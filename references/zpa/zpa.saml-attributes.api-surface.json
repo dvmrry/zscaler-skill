@@ -130,7 +130,8 @@
             "description": "Gets all SAML attributes configured for the specified ID."
           }
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -o '\"/mgmtconfig/[^\"]*samlAttribute[^\"]*\": {' automate-zscaler/openapi/zpa.openapi.json` over the capture of 2026-09-07 returns the three paths above, and each defines only a `get` operation; `grep -o -E 'Send a [A-Z]+ request' obtaining-saml-attribute-details-using-api.json` over the capture of 2026-10-18 returns five matches, all \"Send a GET request\": the three endpoints and the paginated forms of the two v2 paths."
     },
     "spec-get-only": {
       "statement": "The captured API specification has no create, update or delete operation for SAML attributes: its three samlAttribute paths each define only a get.",
@@ -201,7 +202,6 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/samlattribute/zpa_saml_attribute.go",
           "quotes": [
-            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", url, nil, samlAttribute, v)",
             "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", url, nil, attribute, nil)",
             "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", url, nil, nil, nil)",
             "mgmtConfigV1          = \"/zpa/mgmtconfig/v1/admin/customers/\"",
@@ -210,9 +210,18 @@
           ]
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/samlattribute/zpa_saml_attribute.go",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", url, nil, samlAttribute, v)"
+          ],
+          "after": "func Create(ctx context.Context, service *zscaler.Service, samlAttribute *SamlAttribute) (*SamlAttribute, *http.Response, error) {"
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/saml_attributes.py",
           "quotes": [
+            "class SAMLAttributesAPI(APIClient):",
             "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
         },

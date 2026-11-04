@@ -201,9 +201,17 @@
             "self.t1 = config[\"t1\"] if \"t1\" in config else None",
             "current_obj_format = {\"device_id\": self.device_id, \"app_id\": self.app_id, \"t0\": self.t0, \"t1\": self.t1}"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "after": "class ZscalerObject:",
+          "quotes": [
+            "def __init__(self, config: Optional[Any] = None) -> None: pass"
+          ]
         }
       ],
-      "conditions": "The four quoted assignments are every attribute the model's constructor sets at the pin."
+      "conditions": "The four quoted assignments are every attribute the model's constructor sets at the pin. `sed -n '/^class DeviceApplicationAnalysis/,/^class /p' zscaler/zdx/models/troubleshooting.py | grep 'config\\['` over vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns only the four quoted `device_id`, `app_id`, `t0` and `t1` lines, and the base `ZscalerObject.__init__` in zscaler/oneapi_object.py is just `pass`."
     },
     "python-start-loses-id": {
       "statement": "So the object the Python `start_analysis` returns carries none of the `analysis_id` and `status` the contract's start response holds, and the ID needed to poll the job has to be read from the raw response.",

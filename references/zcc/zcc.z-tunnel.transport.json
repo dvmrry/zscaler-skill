@@ -138,8 +138,15 @@
           "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
           "quotes": [
             "Enable DTLS Instability Detection and Fallback: If DTLS is set as your primary transport selection and Allow TLS Fallback is enabled, you can enable this option to have Zscaler Client Connector monitor the stability of the DTLS connection and automatically switch to TLS if a data transfer rate restriction is detected",
-            "Applies only to Zscaler Client Connector version 4.8 and later for Windows. Contact Zscaler Support to enable this feature.",
             "(e.g., throttling due to a misconfigured network device or a network policy)"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "configuring-forwarding-profiles-zscaler-client-connector.json",
+          "after": "Enable DTLS Instability Detection and Fallback:",
+          "quotes": [
+            "Applies only to Zscaler Client Connector version 4.8 and later for Windows. Contact Zscaler Support to enable this feature."
           ]
         }
       ]
@@ -221,6 +228,7 @@
     "fallback-field": {
       "statement": "The Terraform provider documents the action field `tunnel2_fallback_type` (wire `tunnel2FallbackType`) as the behavior when the Tunnel 2.0 transport fails, without listing its values.",
       "tier": "A",
+      "conditions": "Absence claim (no value list): `grep -n tunnel2_fallback_type docs/resources/zcc_forwarding_profile.md` (tf-zcc) at v0.1.2-beta.3-1-g11d461c returns the quoted row, the unified-tunnel row \"Same semantics as the ZIA action block.\" and eight example lines setting `tunnel2_fallback_type = 0`; `grep -n '\"tunnel2_fallback_type\"' internal/framework/resources/forwarding_profile.go` returns two schema entries, each `schema.Int64Attribute{Optional: true, Computed: true}` with no description, and the flatten line.",
       "evidence": [
         {
           "source": "tf-zcc",

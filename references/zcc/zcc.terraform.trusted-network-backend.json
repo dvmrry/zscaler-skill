@@ -97,7 +97,7 @@
   ],
   "claims": {
     "probe-unavailable-statuses": {
-      "statement": "The provider treats a failed probe of the v2 list as 'v2 not served' when the error is a not-found (including a parsed `resource.not.found`) or carries status Bad Request, Forbidden, Not Found, Method Not Allowed or 501, and then uses the v1 backend; its unit test asserts this for Bad Request and Forbidden among others.",
+      "statement": "The provider treats a failed probe of the v2 list as 'v2 not served' when the error is a not-found (including a parsed `resource.not.found`) or carries status Bad Request, Forbidden, Not Found, Method Not Allowed or 501, and then uses the v1 backend; its unit test asserts this for each of those statuses, for a response status of Not Found and for a parsed `resource.not.found`.",
       "tier": "A",
       "evidence": [
         {
@@ -117,9 +117,17 @@
         {
           "source": "tf-zcc",
           "path": "internal/framework/tnbackend/tnbackend_test.go",
+          "after": "func TestV2EndpointUnavailable(t *testing.T) {",
           "quotes": [
+            "unavailable := []*errorx.ErrorResponse{",
+            "byParsedStatus(http.StatusNotFound),",
             "byParsedStatus(http.StatusBadRequest),",
-            "byParsedStatus(http.StatusForbidden),"
+            "byParsedStatus(http.StatusForbidden),",
+            "byParsedStatus(http.StatusMethodNotAllowed),",
+            "byParsedStatus(http.StatusNotImplemented),",
+            "byResponseStatus(http.StatusNotFound),",
+            "{Parsed: &errorx.ParsedAPIError{ID: \"resource.not.found\"}},",
+            "t.Errorf(\"v2EndpointUnavailable(%v) = false, want true\", e.Parsed)"
           ]
         }
       ]

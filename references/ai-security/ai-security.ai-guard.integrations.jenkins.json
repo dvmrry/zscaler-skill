@@ -50,8 +50,10 @@
           "path": "Jenkins/declarative-pipeline/Jenkinsfile",
           "quotes": [
             "pollSCM('H/5 * * * *')",
+            "def scanPaths = [",
             "'config/model-config.yaml', 'config/test-prompts.yaml', 'scripts/scan_policy.py', 'Jenkinsfile',",
             "if (params.FORCE_RUN) { echo 'FORCE_RUN enabled — skipping change detection.' env.SCAN_NEEDED = 'true'",
+            "aiguard-api-key           (Secret text) — Zscaler AI Guard API key (Bearer)",
             "string(credentialsId: 'aiguard-api-key', variable: 'AIGUARD_API_KEY'),",
             "export AIGUARD_CLOUD='${params.AIGUARD_CLOUD.trim() ?: \"us1\"}'",
             "export AIGUARD_POLICY_ID='${params.AIGUARD_POLICY_ID.trim()}'",
@@ -98,6 +100,13 @@
           "after": "stage('Test Model Endpoint') {",
           "quotes": [
             "allOf { expression { env.SCAN_NEEDED == 'true' } expression { !params.SKIP_DEPLOY } expression { env.GIT_BRANCH == 'main' || env.GIT_BRANCH == 'origin/main' } }"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Jenkins/declarative-pipeline/Jenkinsfile",
+          "quotes": [
+            "stage('Zscaler AI Guard Policy Validation') { when { expression { env.SCAN_NEEDED == 'true' } }"
           ]
         }
       ]

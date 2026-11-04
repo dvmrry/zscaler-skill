@@ -83,7 +83,7 @@
         },
         {
           "label": "Kerberos.",
-          "text": "{{road-warrior-kerberos}}"
+          "text": "{{road-warrior-kerberos}} {{road-warrior-kerberos-is-console-criterion}}"
         }
       ]
     },
@@ -326,17 +326,17 @@
       ]
     },
     "road-warrior-kerberos": {
-      "statement": "`roadWarriorForKerberos` is the API form of the Remote Users with Kerberos criterion: when true the rule applies to remote users on PAC with Kerberos authentication, and it does not cover users forwarded by Client Connector.",
+      "statement": "When `roadWarriorForKerberos` is true, the rule applies to remote users that use PAC with Kerberos authentication. The console's Remote Users with Kerberos criterion applies only to remote user traffic with Kerberos authentication forwarded via PAC files, not via Client Connector.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#roadWarriorForKerberos"
       ],
-      "conditions": "That the API field is the console's Remote Users with Kerberos criterion is inferred from matching wording; no source names the pair.",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-ssl-tls-inspection-policy.json",
           "quotes": [
+            "Remote Users with Kerberos: Select Yes to apply this policy to remote users using Kerberos authentication.",
             "This criterion applies only to remote user traffic with Kerberos authentication, which is forwarded via PAC files and not via Zscaler Client Connector."
           ]
         },
@@ -345,11 +345,19 @@
           "path": "automate-zscaler/openapi/zia.openapi.json",
           "pointer": "/paths/~1sslInspectionRules/get/responses/200/content/application~1json/schema/items/properties/roadWarriorForKerberos",
           "expect": {
+            "description": "When set to true, the rule is applied to remote users that use PAC with Kerberos authentication. Otherwise, it is a don't care.",
             "type": "boolean"
-          },
-          "note": "roadWarriorForKerberos: 'When set to true, the rule is applied to remote users that use PAC with Kerberos authentication.'"
+          }
         }
       ]
+    },
+    "road-warrior-kerberos-is-console-criterion": {
+      "statement": "`roadWarriorForKerberos` is the API form of the console's Remote Users with Kerberos criterion.",
+      "tier": "B",
+      "derived_from": [
+        "road-warrior-kerberos"
+      ],
+      "conditions": "Inferred from matching wording: the spec describes the field as applying the rule to remote users that use PAC with Kerberos authentication, and the help describes the criterion as applying to remote users using Kerberos authentication whose traffic is forwarded via PAC files. No source names the pair."
     },
     "identity-needs-zcc-or-surrogate-ip": {
       "statement": "User, Group and Department criteria work only when traffic arrives through Client Connector (preferred) or through GRE/IPsec with Enforce Surrogate IP; without either the service cannot identify the user before inspection to properly apply user-based policies. Device Group criteria need Client Connector.",

@@ -315,6 +315,7 @@
           "source": "tf-zcc",
           "path": "internal/framework/resources/forwarding_profile.go",
           "quotes": [
+            "The API omits isSameAsOnTrustedNetwork from the GET response,",
             "which the API omits entirely from the GET response"
           ]
         },
@@ -387,7 +388,9 @@
           "quotes": [
             "ConditionType int `json:\"conditionType\"`",
             "EvaluateTrustedNetwork int `json:\"evaluateTrustedNetwork\"`",
-            "EnableSplitVpnTN int `json:\"enableSplitVpnTN\"`"
+            "EnableSplitVpnTN int `json:\"enableSplitVpnTN\"`",
+            "EnableUnifiedTunnel int `json:\"enableUnifiedTunnel\"`",
+            "SkipTrustedCriteriaMatch int `json:\"skipTrustedCriteriaMatch\"`"
           ],
           "after": "type ForwardingProfile struct {"
         },
@@ -401,7 +404,10 @@
             "PrimaryTransport int `json:\"primaryTransport\"`",
             "AllowTLSFallback int `json:\"allowTLSFallback\"`",
             "Tunnel2FallbackType int `json:\"tunnel2FallbackType\"`",
-            "PathMtuDiscovery int `json:\"pathMtuDiscovery\"`"
+            "PathMtuDiscovery int `json:\"pathMtuDiscovery\"`",
+            "EnablePacketTunnel int `json:\"enablePacketTunnel\"`",
+            "OptimiseForUnstableConnections int `json:\"optimiseForUnstableConnections\"`",
+            "UseTunnel2ForProxiedWebTraffic int `json:\"useTunnel2ForProxiedWebTraffic\"`"
           ]
         }
       ]
@@ -572,7 +578,7 @@
       ]
     },
     "python-keys-only": {
-      "statement": "The Python SDK's `update_forwarding_profile` renames keys the model declares to their wire keys, keeps wire-form keys and the legacy snake_case set (`WebPolicy.SNAKE_CASE_KEYS`) unchanged, camel-cases any other key, and copies values as given, so it does not convert a value's type.",
+      "statement": "The Python SDK's `update_forwarding_profile` renames keys the model declares to their wire keys, keeps wire-form keys and the legacy snake_case set (`WebPolicy.SNAKE_CASE_KEYS`) unchanged, camel-cases any other key, and stores each value under its new key without converting its type; only the keys inside a nested dict or list value are rewritten.",
       "tier": "A",
       "conditions": "Corrected per verifier: unknown snake_case keys are not passed through but camel-cased by `to_lower_camel_case`; the module docstring's \"unknown keys pass through unchanged\" holds only for keys without an underscore.",
       "evidence": [
@@ -589,10 +595,13 @@
           "path": "zscaler/zcc/_serialize.py",
           "quotes": [
             "if provided_key in fmap:",
+            "return fmap[provided_key]",
             "if provided_key in wkeys:",
             "if provided_key in _legacy_snake_preserve_keys():",
             "4. Otherwise -> fall back to ``to_lower_camel_case`` (which honours",
             "return to_lower_camel_case(provided_key)",
+            "value = zcc_to_wire(value, nested_cls)",
+            "value = convert_keys_to_camel_case_selective(value, snake_preserve)",
             "out[wire_key] = value",
             "preserved on the wire (currently ``WebPolicy.SNAKE_CASE_KEYS``).",
             "any key listed here passes through"
@@ -618,12 +627,13 @@
       ]
     },
     "unified-tunnel-shape": {
-      "statement": "Both SDKs model a `unifiedTunnel` list, switched by `enableUnifiedTunnel`, whose entries each name a `networkType` and carry separate `actionTypeZIA` and `actionTypeZPA` codes alongside transport, MTU, fallback, IPv6 and system proxy settings and a `sameAsOnTrusted` flag; the Go entry also carries `sendAllDNSToTrustedServer`.",
+      "statement": "Both SDKs model an `enableUnifiedTunnel` flag and a `unifiedTunnel` list whose entries each name a `networkType` and carry separate `actionTypeZIA` and `actionTypeZPA` codes alongside transport, MTU, fallback, IPv6 and system proxy settings and a `sameAsOnTrusted` flag; the Go entry also carries `sendAllDNSToTrustedServer`.",
       "tier": "A",
       "binds": [
         "zcc/forwarding-profiles#unifiedTunnel",
         "zcc/forwarding-profiles#enableUnifiedTunnel"
       ],
+      "conditions": "Absence claim (the Python entry has no `sendAllDNSToTrustedServer`): `grep -rn -i -E 'sendAllDNS|send_all_dns' zscaler/zcc` in the Python SDK at v1.11.3-1-g4f8f54df returns nothing.",
       "evidence": [
         {
           "source": "sdk-go",

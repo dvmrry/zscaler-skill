@@ -25,7 +25,7 @@
     {
       "rel": "interacts-with",
       "to": "zia.url-filtering",
-      "because": "zia.dlp.evaluation:earlier-block-skips-dlp"
+      "because": "zia.dlp.evaluation:dlp-after-url-and-file-type"
     },
     {
       "rel": "interacts-with",
@@ -61,7 +61,7 @@
     },
     {
       "label": "Is DLP reached?",
-      "text": "{{dlp-after-url-and-file-type}} {{earlier-block-skips-dlp}} Earlier policies are in [[zia.url-filtering]] and [[zia.cloud-app-control.precedence]]. {{decrypt-dependency}} {{scope-bounded-by-decryption}} The decrypt side is in [[zia.ssl-inspection.pipeline]]. Whether this is the most common cause is open {{gap:ssl-bypass-most-common-cause}}."
+      "text": "{{dlp-after-url-and-file-type}} {{earlier-block-skips-dlp}} {{earlier-block-no-dlp}} Earlier policies are in [[zia.url-filtering]] and [[zia.cloud-app-control.precedence]]. {{decrypt-dependency}} {{scope-bounded-by-decryption}} The decrypt side is in [[zia.ssl-inspection.pipeline]]. Whether this is the most common cause is open {{gap:ssl-bypass-most-common-cause}}."
     },
     {
       "label": "Which mode?",
@@ -115,7 +115,7 @@
       ]
     },
     "earlier-block-skips-dlp": {
-      "statement": "If an earlier policy blocks the transaction, the DLP policy is never triggered and no DLP notification is sent. The vendor's example is a PDF containing credit card numbers blocked by File Type Control, so the auditor is never told about attempted Social Security number exfiltration.",
+      "statement": "In the vendor's example, where File Type Control blocks outbound PDFs and the DLP policy blocks documents containing US Social Security numbers and notifies auditors, a PDF containing credit card numbers is blocked by File Type Control rather than DLP: the DLP policy is never triggered, and the auditor is not notified that a user attempted to send Social Security numbers out of the organization.",
       "tier": "A",
       "evidence": [
         {
@@ -129,6 +129,15 @@
           ]
         }
       ]
+    },
+    "earlier-block-no-dlp": {
+      "statement": "So when an earlier policy blocks a transaction, the DLP policy is not triggered and sends no notification.",
+      "tier": "B",
+      "derived_from": [
+        "earlier-block-skips-dlp",
+        "dlp-after-url-and-file-type"
+      ],
+      "conditions": "Generalized from the vendor's one example, a File Type Control block (earlier-block-skips-dlp), and from the listed order in which Cloud App Control, URL Filtering, Malware Protection and File Type Control come before Data Loss Prevention (dlp-after-url-and-file-type). No source states the outcome for every earlier policy that blocks."
     },
     "decrypt-dependency": {
       "statement": "Payload-based checks, DLP among them, do not run on traffic that SSL inspection does not decrypt, so an SSL inspection bypass upstream silently removes DLP for that traffic.",
@@ -147,7 +156,7 @@
       "conditions": "Inference from the decrypt dependency; no source states it for DLP scope directly."
     },
     "evaluate-all-default-vs-mode": {
-      "statement": "By default DLP rules are evaluated in rule order and evaluation stops at the first match. In Evaluate All Rules mode (enabled through the Zscaler account team) the service evaluates all rules and enforces the rule with the most restrictive action; rule order decides only among matched rules with the same action.",
+      "statement": "By default inline DLP rules are evaluated in rule order and evaluation stops at the first match. In Evaluate All Rules mode (enabled through the Zscaler account team) the service evaluates all rules and enforces the rule with the most restrictive action; rule order decides only among matched rules with the same action.",
       "tier": "A",
       "evidence": [
         {

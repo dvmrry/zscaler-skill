@@ -218,11 +218,31 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentinspection/zpa_application_segment_inspection.go",
+          "after": "func Update(ctx context.Context, service *zscaler.Service, id string, appSegmentInspection *AppSegmentInspection) (*http.Response, error) {",
+          "quotes": [
+            "for _, inspectionApp := range existingResource.InspectionAppDto {",
+            "for i, appConfig := range appSegmentInspection.CommonAppsDto.AppsConfig {",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appSegmentInspection, nil)"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
           "quotes": [
             "PRAApps []PRAApps `json:\"praApps\"`",
             "AppsConfig []AppsConfig `json:\"appsConfig,omitempty\"`",
             "CommonAppsDto CommonAppsDto `json:\"commonAppsDto\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/applicationsegmentpra/zpa_application_segment_pra.go",
+          "after": "// Step 2: Map existing PRA apps by name",
+          "quotes": [
+            "for _, praApp := range existingResource.PRAApps {",
+            "for i, appConfig := range appSegmentPra.CommonAppsDto.AppsConfig {",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appSegmentPra, nil)"
           ]
         },
         {
@@ -760,7 +780,7 @@
       "conditions": "No path with `/provision` appears among the Go ZPA service packages for application segments: `git grep -n /provision HEAD -- zscaler/zpa` in the Go SDK matched only provisioning-key URLs. Absence in the Go SDK is not evidence that the endpoint does not exist."
     },
     "delete-by-type-request": {
-      "statement": "Deleting a sub-application by type is `DELETE /application/{id}/deleteAppByType` with the application type as a query parameter; the Go function sends only the type and the Microtenant filter, while Go's application segment, browser access, inspection and PRA deletes pass `ForceDelete: true`, and the Python function sends `applicationType` and an optional `microtenantId`.",
+      "statement": "Deleting by application type is `DELETE /application/{id}/deleteAppByType` with the application type as a query parameter; the Go function sends only the type and the Microtenant filter, while Go's application segment, browser access, inspection and PRA deletes pass `ForceDelete: true`, and the Python function sends `applicationType` and an optional `microtenantId`.",
       "tier": "A",
       "evidence": [
         {
@@ -858,6 +878,17 @@
           }
         },
         {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1admin~1customers~1{customerId}~1application~1getAppsByType/get/parameters/[name=applicationType]/schema",
+          "expect": {
+            "type": "string"
+          },
+          "expect_absent": [
+            "enum"
+          ]
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/app_segment_by_type.py",
           "quotes": [
@@ -879,7 +910,7 @@
           "note": "the function body goes from the docstring straight to building the request, with no check on application_type"
         }
       ],
-      "conditions": "Corrects the legacy statement that both SDKs validate the set client-side: the Python docstrings list the three values but no code compares them."
+      "conditions": "Corrects the legacy statement that both SDKs validate the set client-side: the Python docstrings list the three values but no code compares them. Absence claim: `grep -n 'application_type\\|raise' zscaler/zpa/app_segment_by_type.py` at v1.11.3-1-g4f8f54df returns one raise, the ValueError in get_segments_by_type; in delete_segments_by_type application_type appears only in the signature, the docstring and `params = {\"applicationType\": application_type}`."
     },
     "connection-security-values": {
       "statement": "The API's `connectionSecurity` on a PRA sub-application takes ANY, NLA, NLA_EXT, TLS, VM_CONNECT or RDP, and the Python docstring lists the same six; the Go PRA sub-application field is a plain string with no value list.",

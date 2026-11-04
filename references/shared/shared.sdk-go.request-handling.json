@@ -280,6 +280,21 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "at": [
+            "v3.8.40",
+            "v3.8.42",
+            "v3.8.44"
+          ],
+          "after": "func setHttpClients(cfg *Configuration) {",
+          "quotes": [
+            "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
+            "cfg.ZIAHTTPClient = getHTTPClient(cfg.Logger, ziaRateLimiter, cfg)",
+            "cfg.ZPAHTTPClient = getHTTPClient(cfg.Logger, zpaRateLimiter, cfg)"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/oneapiconfig.go",
           "at": [
             "v3.8.40",
@@ -973,14 +988,14 @@
             "if reason, ok := jsonBody[\"reason\"].(string); ok {",
             "if ex, ok := jsonBody[\"exception\"].(string); ok {",
             "msg := strings.TrimSpace(string(bodyBytes))",
-            "if !isJSON && strings.Contains(strings.ToLower(msg), \"only through zscaler oneapi\") {",
+            "if !isJSON && strings.Contains(strings.ToLower(msg), \"only through zscaler oneapi\") {\n\t\treturn NewOneAPIFallbackError(bodyBytes, res.Request.Method, res.Request.URL.Path, getBaseURL(res.Request.URL))",
             "} else { parsed.Message = msg }"
           ]
         }
       ]
     },
     "oneapi-exits-typed-vs-plain": {
-      "statement": "In the Go SDK's OneAPI `ExecuteRequest`, four exits pass the HTTP response through `errorx.CheckErrorInResponse`, so the caller gets the API's own error: retries exhausted when a response exists, a tenant `LIMIT_EXCEEDED`, any other 4xx (\"client error\") and any other status of 300 or more (\"API error\"). Other exits return a plain `fmt.Errorf` error with no response parsed: retries exhausted with no response, the request timeout, `SESSION_NOT_VALID` retries exhausted, a token refresh failure after session invalidation, a rate-limit wait the API requires, and a context cancelled during a rate-limit wait.",
+      "statement": "In the Go SDK's OneAPI `ExecuteRequest`, four exits pass the HTTP response through `errorx.CheckErrorInResponse`, so the caller gets the API's own error: retries exhausted when a response exists, a tenant `LIMIT_EXCEEDED`, any other 4xx (\"client error\") and any other status of 300 or more (\"API error\"). These exits instead return a plain `fmt.Errorf` error with no response parsed: retries exhausted with no response, the request timeout, `SESSION_NOT_VALID` retries exhausted, a token refresh failure after session invalidation, a rate-limit wait the API requires, and a context cancelled during a rate-limit wait.",
       "tier": "A",
       "evidence": [
         {
@@ -1004,7 +1019,8 @@
             "// Handle 403 LIMIT_EXCEEDED immediately — tenant resource capacity exhausted, non-retryable"
           ]
         }
-      ]
+      ],
+      "conditions": "Count of the typed exits: `awk '/^func \\(c \\*Client\\) ExecuteRequest\\(/{f=1} f&&/^}/{f=0} f' zscaler/oneapiconfig.go | grep -c errorx.CheckErrorInResponse` over vendor/zscaler-sdk-go at v3.8.58 returns 4. The plain exits listed are not all of them: the transport and request-build errors return the raw error, and a request-body read failure is another `fmt.Errorf`."
     }
   },
   "gaps": {

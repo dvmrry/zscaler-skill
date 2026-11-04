@@ -19,7 +19,7 @@
   ],
   "prose": [
     {
-      "text": "The temptation when an app breaks on pinning or inspection is to bypass the CDN or storage domain it uses. For shared storage and CDN domains the rule is in [[zia.ssl-inspection.exemptions]]: do not exempt `.s3.amazonaws.com`, `.blob.core.windows.net`, `.cloudfront.net` or similar, because any subscriber can have a subdomain there."
+      "text": "The temptation when an app breaks on pinning or inspection is to bypass the CDN or storage domain it uses. For shared storage and CDN domains the rule is in [[zia.ssl-inspection.exemptions]]: avoid exempting `.s3.amazonaws.com`, `.blob.core.windows.net`, `.cloudfront.net` or similar major CDNs without serious consideration, because any subscriber can have a subdomain there."
     },
     {
       "text": "If one bucket, container or distribution really must be exempt: {{exact-subdomain-only}} {{parent-exemption-is-exfil-path}}"
@@ -30,13 +30,13 @@
   ],
   "claims": {
     "exact-subdomain-only": {
-      "statement": "When one S3 bucket, Blob container or CloudFront distribution must be exempted, exempt its exact hostname (for example `mybucket.s3.amazonaws.com`) and never the shared parent domain.",
+      "statement": "When one S3 bucket, Blob container or CloudFront distribution must be exempted, exempt its exact hostname (for example `mybucket.s3.amazonaws.com`) rather than the shared parent domain.",
       "tier": "B",
       "derived_from": [
         "zia.ssl-inspection.exemptions:shared-storage-domains",
         "zia.ssl-inspection.exemptions:specific-not-wildcard"
       ],
-      "conditions": "Combination of the guide's warning about shared storage parents and its advice to prefer the most specific domains; the guide does not give a bucket example."
+      "conditions": "Combination of the guide's advice to avoid exempting shared storage parents without serious consideration and its advice to prefer the most specific domains; the guide does not give a bucket example."
     },
     "parent-exemption-is-exfil-path": {
       "statement": "A parent-domain exemption on shared storage becomes an uninspected path for any subscriber's storage account, including one an attacker controls, so it is a data-exfiltration channel as well as a malware one.",

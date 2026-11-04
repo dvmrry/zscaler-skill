@@ -43,7 +43,7 @@
   ],
   "claims": {
     "legacy-switch": {
-      "statement": "The Python SDK's unified client chooses a legacy client through its `use_legacy_client` constructor argument, which defaults to False.",
+      "statement": "The Python SDK's unified client switches to a legacy client when its `use_legacy_client` constructor argument (default False) is true and a product's legacy client helper is passed, using that helper as its request executor.",
       "tier": "A",
       "evidence": [
         {
@@ -51,7 +51,15 @@
           "path": "zscaler/oneapi_client.py",
           "quotes": [
             "use_legacy_client: bool = False,",
-            "self.use_legacy_client = use_legacy_client"
+            "self.use_legacy_client = use_legacy_client",
+            "if use_legacy_client and zcc_legacy_client:\n            self._config = {}\n            self._request_executor = zcc_legacy_client",
+            "if use_legacy_client and ztb_legacy_client:\n            self._config = {}\n            self._request_executor = ztb_legacy_client",
+            "if use_legacy_client and aiguard_legacy_client:\n            self._config = {}\n            self._request_executor = aiguard_legacy_client",
+            "if use_legacy_client and zdx_legacy_client:\n            self._config = {}\n            self._request_executor = zdx_legacy_client",
+            "if use_legacy_client and zwa_legacy_client:\n            self._config = {}\n            self._request_executor = zwa_legacy_client",
+            "if use_legacy_client and zpa_legacy_client:\n            self._config = {}\n            self._request_executor = zpa_legacy_client",
+            "if use_legacy_client and zia_legacy_client:\n            self._config = {}\n            self._request_executor = zia_legacy_client",
+            "if use_legacy_client and ztw_legacy_client:\n            self._config = {}\n            self._request_executor = ztw_legacy_client"
           ]
         }
       ]
@@ -150,7 +158,7 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "self._request_timeout = config[\"client\"].get(\"requestTimeout\", 240)"
+            "self._request_timeout = config[\"client\"].get(\"requestTimeout\", 240)  # Default to 240 seconds"
           ]
         }
       ]

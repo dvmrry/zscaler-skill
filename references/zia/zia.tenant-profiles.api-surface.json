@@ -246,12 +246,20 @@
           ]
         }
       ],
-      "conditions": "Statement changed from \"each is a free string\": item_value is a TypeSet of strings. The quotes now show each full schema block, none with a ValidateFunc."
+      "conditions": "Statement changed from \"each is a free string\": item_value is a TypeSet of strings. The quotes now show each full schema block, none with a ValidateFunc. `grep -n 'ValidateFunc\\|ValidateDiagFunc\\|CustomizeDiff\\|validate' zia/resource_zia_tenant_restriction_profile.go` at v4.8.17 returns nothing."
     },
     "app-item-count": {
-      "statement": "A separate call returns how many items of an item type are already in use for an application, with an optional `excludeProfile` profile ID to leave out. The Go SDK sends the optional ID; the Python method does not accept it, although its docstring lists `exclude_profile`.",
+      "statement": "A separate call returns the item count of an item type for an application, with an optional `excludeProfile` profile ID to leave out of the count. The Go SDK sends the optional ID; the Python method does not accept it, although its docstring lists `exclude_profile`.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1tenancyRestrictionProfile~1app-item-count~1{appType}~1{itemType}/get",
+          "expect": {
+            "description": "Retrieves the item count of the specified item type for a given application, excluding any specified profile"
+          }
+        },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zia.openapi.json",
@@ -291,11 +299,11 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/tenancy_restriction/tenancy_restriction.go",
           "quotes": [
-            "`json:\"restrictPersonalO365Domains,omitempty\"`",
-            "`json:\"allowGoogleConsumers,omitempty\"`",
-            "`json:\"msLoginServicesTrV2,omitempty\"`",
-            "`json:\"allowGoogleVisitors,omitempty\"`",
-            "`json:\"allowGcpCloudStorageRead,omitempty\"`"
+            "RestrictPersonalO365Domains bool `json:\"restrictPersonalO365Domains,omitempty\"`",
+            "AllowGoogleConsumers bool `json:\"allowGoogleConsumers,omitempty\"`",
+            "MsLoginServicesTrV2 bool `json:\"msLoginServicesTrV2,omitempty\"`",
+            "AllowGoogleVisitors bool `json:\"allowGoogleVisitors,omitempty\"`",
+            "AllowGcpCloudStorageRead bool `json:\"allowGcpCloudStorageRead,omitempty\"`"
           ]
         },
         {
@@ -310,16 +318,18 @@
       "binds": [
         "zia/tenancy-restriction-profiles#restrictPersonalO365Domains",
         "zia/tenancy-restriction-profiles#msLoginServicesTrV2"
-      ]
+      ],
+      "conditions": "Absence claim (all five): `grep -c ' bool ' zscaler/zia/services/tenancy_restriction/tenancy_restriction.go` at v3.8.58 returns 5, the five field lines quoted, all in `type TenancyRestrictionProfile struct`."
     },
     "go-false-not-sent": {
-      "statement": "So a flag set to false is not sent, and Terraform or Go cannot write false explicitly.",
+      "statement": "So an update leaves a flag set to false out of the request body, and Terraform or Go cannot write false explicitly.",
       "tier": "B",
       "derived_from": [
         "go-omits-false-flags",
+        "zia.sdk-go.write-encoding:marshals-caller-struct",
         "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
       ],
-      "conditions": "Follows from the tags and Go's encoding/json dropping a false field tagged omitempty (the general mechanism claim). Not observed on the wire for this resource.",
+      "conditions": "Follows from the tags (go-omits-false-flags), from ZIA updates marshalling the caller's struct with `json.Marshal` (zia.sdk-go.write-encoding:marshals-caller-struct), and from Go's encoding/json dropping a false field tagged omitempty (the general mechanism claim, which holds where the field's type has no MarshalJSON of its own; the five flags are plain `bool`). How the create path encodes the struct is not quoted here. Not observed on the wire for this resource.",
       "gaps": [
         "omitted-false-server-reaction"
       ]
@@ -358,7 +368,8 @@
       "binds": [
         "zia/tenancy-restriction-profiles#lastModifiedTime",
         "zia/tenancy-restriction-profiles#lastModifiedUserId"
-      ]
+      ],
+      "conditions": "Absence claim: `grep -c -i 'lastModified\\|last_modified'` over zscaler/zia/models/tenancy_restriction_profile.py and over zscaler/zia/tenancy_restriction_profile.py at v1.11.3-1-g4f8f54df returns 0 for each file."
     },
     "tf-profile-ids-cap-8": {
       "statement": "At v4.7.22 the Terraform provider capped `tenancy_profile_ids` on `zia_cloud_app_control_rule` at eight, below the 16 profiles per rule the limits page documents. 4.7.23 removed the local cap, leaving the limit to the API.",

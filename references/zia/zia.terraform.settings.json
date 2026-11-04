@@ -120,7 +120,7 @@
           "quotes": [
             "// smartIsolationProfileConfigured reports whether a smart_isolation_profile // value holds an actual profile. The presence of the block is not sufficient:",
             "// the service reports an all-zero profile object on tenants that have none, // and a bare block in HCL flattens to empty strings.",
-            "id, _ := profile[\"id\"].(string) name, _ := profile[\"name\"].(string) url, _ := profile[\"url\"].(string) if id != \"\" || name != \"\" || url != \"\" { return true }"
+            "id, _ := profile[\"id\"].(string) name, _ := profile[\"name\"].(string) url, _ := profile[\"url\"].(string) if id != \"\" || name != \"\" || url != \"\" { return true } } return false }"
           ]
         }
       ]
@@ -181,7 +181,7 @@
       ]
     },
     "issue-472-javascript-and-escape-drift": {
-      "statement": "Provider issue #472, still open, reports that `zia_end_user_notification` `custom_text` holding JavaScript was rejected, which a repository member put down to the API not supporting JavaScript tags in the payload and escalated as an internal bug, and that on provider 4.4.9/10 a heredoc using the Terraform escape `$${` produced a change back to `${`; the member answered that the provider sets the HCL as returned by the API and pointed the reporter to Zscaler support.",
+      "statement": "Provider issue #472, still open, reports that `zia_end_user_notification` `custom_text` holding JavaScript was rejected, which a repository member put down to the API not supporting JavaScript tags in the payload and escalated as an internal bug, and that on provider 4.4.9/10 heredoc formatting was not respected and a heredoc using the Terraform escape `$${` led to a change swapping it back to native `${`. On the heredoc indentation, the member answered that the provider sets the HCL as returned by the API and pointed the reporter to Zscaler support.",
       "tier": "A",
       "evidence": [
         {
@@ -191,7 +191,7 @@
             "## Comment (MEMBER, 2025-09-03) @(user) This is an api issue and has been escalated. The API does not support JavaScript tags in the payload.",
             "## Comment (MEMBER, 2025-09-09) @(user) WebUI and API are not the same. An internal BUG issue has been raised with our engineering team",
             "it wants to do a change and swap back to escape from native `${` result",
-            "the provider sets the HCL as returned by the API",
+            "As for the heredoc indentation, the provider sets the HCL as returned by the API.",
             "- there's still a problem with 4.4.9/10 and not respecting heredoc format",
             "the terraform escape characters `$${` to pass the java vars thru",
             "uses the arg `custom_text`",

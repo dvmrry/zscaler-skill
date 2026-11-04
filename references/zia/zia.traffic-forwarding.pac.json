@@ -81,7 +81,7 @@
     },
     {
       "label": "Hosting and changes.",
-      "text": "{{default-files}} {{limits}} {{version-states}} The request body of the version action differs across sources {{divergence:version-action-body}}. {{validation}} {{changes-immediate}} When clients pick up a changed file is open {{gap:client-cache}}, the default hosted URL is open {{gap:default-pac-url}}, and WPAD or MDM delivery is open {{gap:delivery-methods}}."
+      "text": "{{default-files}} {{limits}} {{version-states}} The request body of the version action differs across sources {{divergence:version-action-body}}. {{validation}} {{changes-immediate}} {{staged-not-on-deployed-url}} When clients pick up a changed file is open {{gap:client-cache}}, the default hosted URL is open {{gap:default-pac-url}}, and WPAD or MDM delivery is open {{gap:delivery-methods}}."
     },
     {
       "label": "Dedicated proxy ports.",
@@ -221,7 +221,7 @@
       ]
     },
     "changes-immediate": {
-      "statement": "PAC file changes immediately affect the organization's traffic, so they should be verified and applied in a maintenance window, with a copy of the current file saved first. Staging serves a test version from its own hosted URL, different from the deployed version's, so users on the deployed URL do not receive it.",
+      "statement": "PAC file changes immediately affect the organization's traffic, so they should be verified and applied in a maintenance window, with a copy of the current file saved first. Staging serves a test version from its own hosted URL, different from the deployed version's.",
       "tier": "A",
       "evidence": [
         {
@@ -237,6 +237,14 @@
           ]
         }
       ]
+    },
+    "staged-not-on-deployed-url": {
+      "statement": "Users whose browsers use the deployed PAC URL do not receive a staged version.",
+      "tier": "B",
+      "derived_from": [
+        "changes-immediate"
+      ],
+      "conditions": "Inferred from the staged version's hosted URL being different from the deployed version's (changes-immediate). The page does not say which URL clients fetch or that the deployed URL keeps serving the deployed version while another is staged."
     },
     "over-tunnel": {
       "statement": "PAC-forwarded traffic that goes through a GRE or IPSec tunnel is subject to the tunnel's throughput limit. Government clouds support PAC files only when the proxy traffic is sent through a GRE or IPSec tunnel, not directly over the internet.",

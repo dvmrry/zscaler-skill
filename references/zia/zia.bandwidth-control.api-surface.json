@@ -398,6 +398,15 @@
             "setIDsSchemaTypeCustom(intPtr(8), \"Name-ID pairs of locations for which rule must be applied\")",
             "setIDsSchemaTypeCustom(intPtr(32), \"Name-ID pairs of the location groups to which the rule must be applied.\")"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "after": "func setIDsSchemaTypeCustom(maxItems *int, desc string) *schema.Schema {",
+          "quotes": [
+            "ids.MaxItems = *maxItems",
+            "\"id\": ids,"
+          ]
         }
       ]
     },
@@ -566,7 +575,8 @@
             "\"applications\": {"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -c '\"type\"\\|\"applications\"' zia/resource_zia_bandwidth_classes.go` at v4.8.17 returns 0; the schema's keys are id, class_id, name, urls, url_categories and web_applications."
     },
     "tf-wrappers-update-existing": {
       "statement": "The file-size and web conferencing resources do not create a class: each finds the existing class by name and updates it with PUT. Destroying either is a no-op.",
@@ -596,8 +606,17 @@
             "if _, _, err := bandwidth_classes.Update(ctx, service, req.ID, &req); err != nil {"
           ],
           "after": "func resourceBandwdithClassesWebConferencingCreate("
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/bandwidth_control/bandwidth_classes/bandwidth_classes.go",
+          "after": "func Update(ctx context.Context, service *zscaler.Service, classID int, classes *BandwidthClasses)",
+          "quotes": [
+            "resp, err := service.Client.UpdateWithPut(ctx, fmt.Sprintf(\"%s/%d\", bandwidthClassEndpoint, classID), *classes)"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no create): `grep -c \"bandwidth_classes.Create\" zia/resource_zia_bandwidth_classes_file_size.go zia/resource_zia_bandwidth_classes_web_conferencing.go` at v4.8.17 returns 0 for each file."
     },
     "tf-rule-oneapi-only": {
       "statement": "The Terraform bandwidth control rule documentation says the resource is only supported through Zscaler OneAPI.",

@@ -114,7 +114,7 @@
       ]
     },
     "fields": {
-      "statement": "In Terraform a gateway has a name, optional description, `type` (ZPA for Zscaler Internet Access or ECZPA for Cloud Connector), a required `zpa_server_group` (`external_id` and `name`) and optional `zpa_app_segments` (each `name` and `external_id`). The Python SDK adds `zpa_tenant_id`, the ZPA tenant where Source IP Anchoring is configured.",
+      "statement": "In the Terraform resource a gateway has a name, optional description, `type` (ZPA for Zscaler Internet Access or ECZPA for Cloud Connector), a required `zpa_server_group` (`external_id` and `name`) and optional `zpa_app_segments` (each `name` and `external_id`). The Python SDK adds `zpa_tenant_id`, the ZPA tenant where Source IP Anchoring is configured.",
       "tier": "A",
       "evidence": [
         {
@@ -144,16 +144,18 @@
         "zia/zpa-gateways#zpaServerGroup",
         "zia/zpa-gateways#zpaAppSegments",
         "zia/zpa-gateways#zpaTenantId"
-      ]
+      ],
+      "conditions": "Absence claim: `grep -c 'zpa_tenant_id\\|zpaTenantId' zia/resource_zia_forwarding_control_zpa_gateway.go` at v4.8.17 returns 0, so the resource has no tenant ID argument; the provider's data source (zia/data_source_zia_forwarding_control_zpa_gateway.go) does read `zpa_tenant_id`, and the Go SDK model has `ZPATenantId`."
     },
     "sdk-requires-segments": {
-      "statement": "The Python SDK raises an error when `zpa_app_segments` is missing on add or update, although the Terraform resource treats the argument as optional.",
+      "statement": "The Python SDK returns `(None, None, ValueError(\"zpa_app_segments is required\"))` when `zpa_app_segments` is missing or empty on add or update, although the Terraform resource treats the argument as optional.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/zpa_gateway.py",
           "quotes": [
+            "if not zpa_app_segments:",
             "return (None, None, ValueError(\"zpa_app_segments is required\"))"
           ],
           "after": "def add_gateway("
@@ -162,6 +164,7 @@
           "source": "sdk-python",
           "path": "zscaler/zia/zpa_gateway.py",
           "quotes": [
+            "if not zpa_app_segments:",
             "return (None, None, ValueError(\"zpa_app_segments is required\"))"
           ],
           "after": "def update_gateway("

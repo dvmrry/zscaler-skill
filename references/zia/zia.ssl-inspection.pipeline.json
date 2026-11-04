@@ -143,7 +143,7 @@
       ]
     },
     "first-pass-block": {
-      "statement": "A first-pass block on a destination known to contain an advanced threat ends the connection immediately, without an end user notification even when SSL/TLS Inspection is enabled: a block on the CONNECT host header returns HTTP 403, a block on the SNI resets the connection. With SSL/TLS Inspection disabled, any first-pass block ends the connection the same way.",
+      "statement": "A first-pass block on a destination known to contain an advanced threat ends the connection immediately, without an end user notification even when SSL/TLS Inspection is enabled: a block on the CONNECT host header returns HTTP 403, a block on the SNI resets the connection. With SSL/TLS Inspection disabled and Show EUN for Blocked Traffic off, any first-pass block ends the connection the same way.",
       "tier": "A",
       "evidence": [
         {
@@ -152,7 +152,25 @@
           "quotes": [
             "block happens on the CONNECT host header, the service responds with a 403 error. If the block happens on the SNI, the service resets the connection.",
             "When the destination domain is known to contain an advanced threat, the connection terminates immediately without showing an EUN even if SSL/TLS Inspection is enabled",
-            "If the request hits the block rule, then the Public Service Edge closes the connection and returns a 403 error.",
+            "If SSL/TLS Inspection is disabled, but Show EUN for Blocked Traffic is enabled, then the Public Service Edge performs SSL/TLS Inspection on the first HTTPS transaction to respond with an end user notification (EUN).",
+            "In the SSL/TLS Policy Evaluation Workflow diagram, this case is considered under the scenario where SSL/TLS Inspection is enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "after": "The SSL/TLS Inspection policy is evaluated against the CONNECT request.",
+          "quotes": [
+            "When SSL/TLS Inspection is disabled",
+            "If the request hits the block rule, then the Public Service Edge closes the connection and returns a 403 error."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "understanding-policy-enforcement.json",
+          "after": "The policies are evaluated on the incoming SSL/TLS connection based on the SNI.",
+          "quotes": [
+            "When SSL/TLS Inspection is disabled",
             "If the traffic hits the block rule, then the Public Service Edge resets the connection."
           ]
         }
@@ -251,7 +269,7 @@
       ]
     },
     "eun-inspects-first-transaction": {
-      "statement": "With SSL inspection off but Show EUN for Blocked Traffic on, ZIA still decrypts the first HTTPS transaction of a blocked connection to show the notification, so it behaves like the inspected case for blocks.",
+      "statement": "With SSL inspection off but Show EUN for Blocked Traffic on, ZIA still decrypts the first HTTPS transaction of a blocked connection to show the notification; the help's policy evaluation workflow places this case under the SSL/TLS Inspection enabled scenario.",
       "tier": "A",
       "evidence": [
         {
@@ -259,6 +277,7 @@
           "path": "understanding-policy-enforcement.json",
           "quotes": [
             "If SSL/TLS Inspection is disabled, but Show EUN for Blocked Traffic is enabled, then the Public Service Edge performs SSL/TLS Inspection on the first HTTPS transaction to respond with an end user notification (EUN).",
+            "In the SSL/TLS Policy Evaluation Workflow diagram, this case is considered under the scenario where SSL/TLS Inspection is enabled.",
             "If the traffic hits the block rule, then the Public Service Edge continues with decrypting the first HTTP transaction to show EUN."
           ]
         }
@@ -279,7 +298,7 @@
       ]
     },
     "transparent-matches-destination-ip": {
-      "statement": "Under transparent forwarding, SSL inspection exemptions match on the destination IP as well as the SNI, and most IP addresses are categorized Miscellaneous or Unknown, so exempting that category exempts almost all traffic. Under explicit forwarding only the SNI is evaluated.",
+      "statement": "Under transparent forwarding, SSL inspection exemption policies are evaluated on the IP address as well as the SNI, and most IP addresses are categorized Miscellaneous or Unknown, so exempting that category exempts almost all traffic. Under explicit forwarding only the SNI is evaluated.",
       "tier": "A",
       "binds": [
         "zia/ssl-inspection-rules#action"
@@ -289,8 +308,8 @@
           "source": "zscaler-help",
           "path": "best-practices-testing-and-rolling-out-ssltls-inspection.json",
           "quotes": [
-            "policies on both SNI and IP addresses are evaluated for exemption from SSL/TLS Inspection",
-            "exempts almost all traffic from SSL/TLS Inspection as most IP addresses are categorized as miscellaneous or unknown.",
+            "In transparent mode, policies on both SNI and IP addresses are evaluated for exemption from SSL/TLS Inspection.",
+            "Exempting SSL/TLS Inspection for the Miscellaneous or Unknown category exempts almost all traffic from SSL/TLS Inspection as most IP addresses are categorized as miscellaneous or unknown.",
             "in the case of explicit traffic forwarding, Zscaler evaluates the policies only based on SNI"
           ]
         }
@@ -476,7 +495,7 @@
       "expect": {
         "verdict": "allow"
       },
-      "note": "Not decrypted: the exemption matched on the destination IP even though the SNI is categorized elsewhere. Under explicit forwarding the same request would be inspected."
+      "note": "Not decrypted: the exemption matched on the IP address even though the SNI is categorized elsewhere. Under explicit forwarding the same request would be inspected."
     }
   }
 }

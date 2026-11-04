@@ -191,6 +191,8 @@
           "source": "zguard-integrations",
           "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
           "quotes": [
+            "Scans file contents BEFORE Claude reads them to prevent exposure of:",
+            "# Not a sensitive file pattern, allow without scanning",
             "content=content, direction=\"IN\", policy_id=policy_id"
           ]
         },
@@ -220,7 +222,7 @@
       ]
     },
     "endpoint-selection": {
-      "statement": "Each hook calls `resolve_and_execute_policy` through `LegacyAIGuardClient` unless `AIGUARD_POLICY_ID` parses as a non-zero integer, in which case it calls `execute_policy` with that ID.",
+      "statement": "Each hook calls `execute_policy` through `LegacyAIGuardClient` when the policy ID it parsed from `AIGUARD_POLICY_ID` is a non-zero integer, and `resolve_and_execute_policy` when the parse gives None or 0.",
       "tier": "A",
       "evidence": [
         {
@@ -232,7 +234,8 @@
             "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\")",
             "result, response, error = client.aiguard.policy_detection.execute_policy(",
             "client.aiguard.policy_detection.resolve_and_execute_policy(",
-            "return int(raw)"
+            "return int(raw)",
+            "try: return int(raw) except ValueError: return None"
           ]
         },
         {
@@ -240,7 +243,9 @@
           "path": "Anthropic/claude-code-aiguard/hooks/scan_url.py",
           "quotes": [
             "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=url, direction=\"OUT\", policy_id=policy_id )",
-            "client.aiguard.policy_detection.resolve_and_execute_policy( content=url, direction=\"OUT\" )"
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=url, direction=\"OUT\" )",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None"
           ]
         },
         {
@@ -248,7 +253,9 @@
           "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
           "quotes": [
             "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=content, direction=\"IN\", policy_id=policy_id )",
-            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=\"IN\" )"
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=\"IN\" )",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None"
           ]
         },
         {
@@ -256,7 +263,9 @@
           "path": "Anthropic/claude-code-aiguard/hooks/scan_file_read.py",
           "quotes": [
             "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=content, direction=\"IN\", policy_id=policy_id )",
-            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=\"IN\" )"
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=\"IN\" )",
+            "raw = os.environ.get(\"AIGUARD_POLICY_ID\", \"\").strip().strip('\"').strip(\"'\")",
+            "try: return int(raw) except ValueError: return None"
           ]
         },
         {
@@ -264,7 +273,8 @@
           "path": "Anthropic/claude-code-aiguard/hooks/scan_response.py",
           "quotes": [
             "with LegacyAIGuardClient(config) as client: if policy_id: result, response, error = client.aiguard.policy_detection.execute_policy( content=content, direction=direction, policy_id=policy_id )",
-            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=direction )"
+            "client.aiguard.policy_detection.resolve_and_execute_policy( content=content, direction=direction )",
+            "return int(policy_id) if policy_id else None"
           ]
         }
       ]
@@ -359,6 +369,7 @@
             "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
             "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
             "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
+            "# Load .env file at import time",
             "env_file = Path(__file__).parent / \".env\"",
             "env_file = Path(__file__).parent.parent / \".env\"",
             "if key and value and key not in os.environ:",
@@ -371,7 +382,11 @@
           "quotes": [
             "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
             "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
-            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
+            "env_file = Path(__file__).parent / \".env\"",
+            "env_file = Path(__file__).parent.parent / \".env\"",
+            "if key and value and key not in os.environ:",
+            "\"SECURITY_LOG_PATH\", os.path.expanduser(\"~/.claude/hooks/aiguard/security.log\")"
           ]
         },
         {
@@ -380,7 +395,11 @@
           "quotes": [
             "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
             "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
-            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
+            "env_file = Path(__file__).parent / \".env\"",
+            "env_file = Path(__file__).parent.parent / \".env\"",
+            "if key and value and key not in os.environ:",
+            "\"SECURITY_LOG_PATH\", os.path.expanduser(\"~/.claude/hooks/aiguard/security.log\")"
           ]
         },
         {
@@ -389,7 +408,11 @@
           "quotes": [
             "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
             "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
-            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
+            "env_file = Path(__file__).parent / \".env\"",
+            "env_file = Path(__file__).parent.parent / \".env\"",
+            "if key and value and key not in os.environ:",
+            "\"SECURITY_LOG_PATH\", os.path.expanduser(\"~/.claude/hooks/aiguard/security.log\")"
           ]
         },
         {
@@ -398,7 +421,11 @@
           "quotes": [
             "\"api_key\": os.environ.get(\"AIGUARD_API_KEY\"),",
             "\"cloud\": os.environ.get(\"AIGUARD_CLOUD\", \"us1\"),",
-            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),"
+            "\"timeout\": int(os.environ.get(\"AIGUARD_TIMEOUT\", \"30\")),",
+            "env_file = Path(__file__).parent / \".env\"",
+            "env_file = Path(__file__).parent.parent / \".env\"",
+            "if key and value and key not in os.environ:",
+            "\"SECURITY_LOG_PATH\", os.path.expanduser(\"~/.claude/hooks/aiguard/security.log\")"
           ]
         }
       ]
@@ -435,7 +462,10 @@
           "quotes": [
             "log_message(\"ERROR: AIGUARD_API_KEY not set - blocking (fail-closed)\")",
             "log_message(f\"ERROR: AI Guard API error: {error} - blocking (fail-closed)\")",
-            "log_message(f\"ERROR: Exception during scan: {str(e)} - blocking (fail-closed)\")"
+            "log_message(f\"ERROR: Exception during scan: {str(e)} - blocking (fail-closed)\")",
+            "return True, (\"Zscaler AI Guard is not configured (AIGUARD_API_KEY is \" \"not set), so your prompt could not be scanned.\"), {}",
+            "return True, (\"Zscaler AI Guard could not scan your prompt \" f\"(API error: {error}).\"), {}",
+            "return True, (\"Zscaler AI Guard could not scan your prompt \" f\"({type(e).__name__}: {e}).\"), {}"
           ]
         },
         {
@@ -444,7 +474,10 @@
           "quotes": [
             "log_message(\"ERROR: AIGUARD_API_KEY not set - blocking (fail-closed)\")",
             "log_message(f\"ERROR: Exception during URL scan: {str(e)} - blocking (fail-closed)\")",
-            "log_message(f\"ERROR: AI Guard API error for URL scan: {error} - blocking (fail-closed)\")"
+            "log_message(f\"ERROR: AI Guard API error for URL scan: {error} - blocking (fail-closed)\")",
+            "return True, (\"Zscaler AI Guard is not configured (AIGUARD_API_KEY is \" f\"not set), so this URL could not be scanned.\\nURL: {url}\"), {}",
+            "return True, (\"Zscaler AI Guard could not scan this URL \" f\"(API error: {error}).\\nURL: {url}\"), {}",
+            "return True, (\"Zscaler AI Guard could not scan this URL \" f\"({type(e).__name__}: {e}).\\nURL: {url}\"), {}"
           ]
         },
         {
@@ -453,7 +486,10 @@
           "quotes": [
             "log_message(\"ERROR: AIGUARD_API_KEY not set - blocking (fail-closed)\")",
             "log_message(f\"ERROR: AI Guard API error for {tool_name}: {error} - blocking (fail-closed)\")",
-            "log_message(f\"ERROR: Exception during MCP scan for {tool_name}: {str(e)} - blocking (fail-closed)\")"
+            "log_message(f\"ERROR: Exception during MCP scan for {tool_name}: {str(e)} - blocking (fail-closed)\")",
+            "return True, (\"Zscaler AI Guard is not configured (AIGUARD_API_KEY is not \" f\"set), so the MCP request to {tool_name} could not be scanned.\"), {}",
+            "return True, (\"Zscaler AI Guard could not scan the MCP request to \" f\"{tool_name} (API error: {error}).\"), {}",
+            "return True, (\"Zscaler AI Guard could not scan the MCP request to \" f\"{tool_name} ({type(e).__name__}: {e}).\"), {}"
           ]
         },
         {
@@ -540,7 +576,9 @@
             "if action == \"BLOCK\":",
             "# Allow with warning",
             "# ALLOW if detectors_str:",
-            "elif action == \"DETECT\": if detectors_str: log_message( f\"WARNING USER INPUT: severity={severity} policy={policy_name} detectors=[{detectors_str}] (txn:{transaction_id})\""
+            "elif action == \"DETECT\": if detectors_str: log_message( f\"WARNING USER INPUT: severity={severity} policy={policy_name} detectors=[{detectors_str}] (txn:{transaction_id})\"",
+            "# Allow with warning return False, None, details else: # ALLOW",
+            "log_message(f\"ALLOWED USER INPUT (txn:{transaction_id})\") return False, None, details"
           ]
         },
         {
@@ -580,7 +618,9 @@
             "action = str(result.action or \"\").upper()",
             "if action == \"BLOCK\":",
             "# Allow with warning",
-            "elif action == \"DETECT\": if detectors_str: log_message( f\"WARNING FILE READ {filepath}: severity={severity} policy={policy_name} detectors=[{detectors_str}] (txn:{transaction_id})\""
+            "elif action == \"DETECT\": if detectors_str: log_message( f\"WARNING FILE READ {filepath}: severity={severity} policy={policy_name} detectors=[{detectors_str}] (txn:{transaction_id})\"",
+            "# Allow with warning return False, None, details else: # ALLOW",
+            "log_message(f\"ALLOWED FILE READ {filepath} (txn:{transaction_id})\") return False, None, details"
           ]
         }
       ]
@@ -704,7 +744,7 @@
       "conditions": "Rests on the field order in extract_url (url-extraction) and on the web search tools carrying their search text in a query or search_term field, which no file in the example states."
     },
     "mcp-extraction": {
-      "statement": "`scan_mcp_request.py` scans the first non-empty field of the tool input among query, message, prompt, text, content, request, input, data, body, url and path (JSON-encoding a dict or list value); only when none is present does it join up to ten strings from the whole input, and it skips content under 5 characters.",
+      "statement": "`scan_mcp_request.py` scans the first field of the tool input, among query, message, prompt, text, content, request, input, data, body, url and path, that holds a non-empty string, dict or list (JSON-encoding a dict or list); only when none does it join up to ten strings from the whole input, and it skips content under 5 characters.",
       "tier": "A",
       "evidence": [
         {
@@ -712,15 +752,16 @@
           "path": "Anthropic/claude-code-aiguard/hooks/scan_mcp_request.py",
           "quotes": [
             "\"query\", \"message\", \"prompt\", \"text\", \"content\", \"request\", \"input\", \"data\", \"body\", \"url\", \"path\",",
+            "for field in content_fields: if field in tool_input and tool_input[field]: value = tool_input[field] if isinstance(value, str): return value",
             "elif isinstance(value, (dict, list)): return json.dumps(value)",
-            "return \" \".join(strings[:10])",
+            "extract_strings(tool_input) return \" \".join(strings[:10])",
             "if not content or len(content) < 5:"
           ]
         }
       ]
     },
     "mcp-partial-scan": {
-      "statement": "An MCP call is scanned on one argument when any of the listed fields is present: a benign `query` or `path` lets the call's other arguments through unscanned.",
+      "statement": "An MCP call is scanned on one argument when any of the listed fields holds a non-empty string, dict or list: a benign `query` or `path` lets the call's other arguments through unscanned.",
       "tier": "B",
       "derived_from": [
         "mcp-extraction"

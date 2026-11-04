@@ -58,7 +58,7 @@
       "heading": "Templates and examples"
     },
     {
-      "text": "Where each cloud's templates are published is [[cloud-connector.aws:iac-paths]]. {{help-azure-templates}} {{package-examples}} {{readme-type-lists}} {{no-bicep}} Whether ARM templates sit behind the Marketplace wizard is not covered {{gap:arm-marketplace-path}}."
+      "text": "Which forms each cloud's deployment templates come in is [[cloud-connector.aws:iac-paths]]. {{help-azure-templates}} {{package-examples}} {{readme-type-lists}} {{no-bicep}} Whether ARM templates sit behind the Marketplace wizard is not covered {{gap:arm-marketplace-path}}."
     },
     {
       "label": "What each example builds.",
@@ -300,7 +300,7 @@
           "source": "tfmod-azure-cloud-connector",
           "path": "examples/base_1cc/versions.tf",
           "quotes": [
-            "version = \">= 4.9.0, < 5.0.0\""
+            "azurerm = { source = \"hashicorp/azurerm\" version = \">= 4.9.0, < 5.0.0\" }"
           ]
         }
       ]
@@ -370,7 +370,7 @@
     "no-bicep": {
       "statement": "No captured source describes Bicep templates for Cloud Connector; the published Azure paths are the Terraform repository and the Marketplace application.",
       "tier": "B",
-      "conditions": "Rests on the Deployment Templates article naming only CloudFormation and Terraform repositories (held in cloud-connector.aws:iac-paths), the Azure deployment article naming the Marketplace application and Terraform as its two methods, and a search of vendor/zscaler-help for Bicep that found nothing.",
+      "conditions": "Rests on the Deployment Templates article giving the AWS templates as CloudFormation and Terraform and the Azure and GCP templates as Terraform (cloud-connector.aws:iac-paths), the Azure deployment article naming the Marketplace application and Terraform as its two methods, and a search of vendor/zscaler-help for Bicep that found nothing.",
       "derived_from": [
         "cloud-connector.aws:iac-paths",
         "cloud-connector.azure:two-methods"
@@ -506,7 +506,7 @@
           "source": "zscaler-help",
           "path": "cbc-deploying-cloud-connector-microsoft-azure.json",
           "quotes": [
-            "configure tags to categorize resources. To opt out of Microsoft Azure Network Adapter (MANA)-enabled hardware, enable LegacyVMNVA."
+            "On the Tags tab, configure tags to categorize resources. To opt out of Microsoft Azure Network Adapter (MANA)-enabled hardware, enable LegacyVMNVA."
           ]
         }
       ]
@@ -553,6 +553,7 @@
           "source": "tfmod-azure-cloud-connector",
           "path": "examples/base_1cc_zpa/README.md",
           "quotes": [
+            "intended for greenfield/pov/lab purposes",
             "Private DNS Resolver, Private DNS Resolver Ruleset, Private DNS Resolver rules based on the number of domains entered, Virtual Network Link for Ruleset, and Outbound Endpoint in a dedicated Outbound DNS subnet."
           ]
         },
@@ -560,6 +561,15 @@
           "source": "tfmod-azure-cloud-connector",
           "path": "examples/base_cc_lb_zpa/README.md",
           "quotes": [
+            "intended for greenfield/pov/lab purposes",
+            "Private DNS Resolver, Private DNS Resolver Ruleset, Private DNS Resolver rules based on the number of domains entered, Virtual Network Link for Ruleset, and Outbound Endpoint in a dedicated Outbound DNS subnet."
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "examples/base_cc_vmss_zpa/README.md",
+          "quotes": [
+            "intended for greenfield/pov/lab purposes",
             "Private DNS Resolver, Private DNS Resolver Ruleset, Private DNS Resolver rules based on the number of domains entered, Virtual Network Link for Ruleset, and Outbound Endpoint in a dedicated Outbound DNS subnet."
           ]
         }
@@ -595,7 +605,7 @@
       ]
     },
     "ex-public-lb": {
-      "statement": "`base_cc_public_lb` fronts the Cloud Connectors with an Azure Standard Public Load Balancer for inbound traffic distribution (for example fwd ZIA DNAT), implementing a routed PLB to Cloud Connector to ILB ingress topology; `base_cc_public_vmss` does the same with scale sets.",
+      "statement": "`base_cc_public_lb` fronts the Cloud Connectors with an Azure Standard Public Load Balancer for inbound traffic distribution (for example fwd ZIA DNAT), implementing a routed PLB to Cloud Connector to ILB ingress topology; `base_cc_public_vmss` fronts Cloud Connector scale sets with an Azure Standard Public Load Balancer for elastic inbound traffic handling.",
       "tier": "A",
       "evidence": [
         {
@@ -603,7 +613,7 @@
           "path": "README.md",
           "quotes": [
             "fronted by an Azure Standard Public Load Balancer for inbound traffic distribution (e.g. `fwd ZIA` DNAT use cases).",
-            "Use the [**Starter Deployment Template with Public Load Balancer and VMSS**](examples/base_cc_public_vmss)"
+            "Use the [**Starter Deployment Template with Public Load Balancer and VMSS**](examples/base_cc_public_vmss) to deploy your Cloud Connectors in a new resource group and virtual network fronted by an Azure Standard Public Load Balancer with Virtual Machine Scale Sets for elastic inbound traffic handling."
           ]
         },
         {
@@ -632,6 +642,8 @@
           "source": "tfmod-azure-cloud-connector",
           "path": "examples/cc_vmss/README.md",
           "quotes": [
+            "This deployment type is intended for brownfield/production purposes.",
+            "at least 1 Cloud Connector private subnet; at least 1 NAT Gateway with Public IP Address association to the Cloud Connector subnets;",
             "at least 1 Virtual Machine Scale Set (VMSS); and 1 function app for VMSS;",
             "1 Standard Azure Load Balancer with all rules, probes, and NIC associations."
           ]
@@ -642,6 +654,15 @@
           "after": "(examples/cc_lb)",
           "quotes": [
             "to deploy your Cloud Connector in a new or existing VNet and load balance traffic across multiple Cloud Connectors.",
+            "Optional Azure Private DNS Resolver resource creation per variable zpa_enabled."
+          ]
+        },
+        {
+          "source": "tfmod-azure-cloud-connector",
+          "path": "README.md",
+          "after": "(examples/cc_vmss)",
+          "quotes": [
+            "to deploy your Cloud Connectors in a new or existing VNet and load balance traffic across multiple Cloud Connectors.",
             "Optional Azure Private DNS Resolver resource creation per variable zpa_enabled."
           ]
         }

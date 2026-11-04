@@ -111,13 +111,14 @@
       ]
     },
     "same-customer-path": {
-      "statement": "The Python and Go SDKs address Microtenants under the parent tenant's own customer ID (`/zpa/mgmtconfig/v1/admin/customers/{customerId}/microtenants`).",
+      "statement": "The Python and Go SDKs address Microtenants under the customer ID the client is configured with (`/zpa/mgmtconfig/v1/admin/customers/{customerId}/microtenants`), and the API describes the list as the Microtenants 'for the specified customer'.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/microtenants.py",
           "quotes": [
+            "customer_id = config[\"client\"].get(\"customerId\")",
             "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{customer_id}\""
           ]
         },
@@ -126,7 +127,8 @@
           "path": "zscaler/zpa/services/microtenants/microtenants.go",
           "quotes": [
             "mgmtConfig = \"/zpa/mgmtconfig/v1/admin/customers/\"",
-            "microtenantsEndpoint = \"/microtenants\""
+            "microtenantsEndpoint = \"/microtenants\"",
+            "relativeURL := mgmtConfig + service.Client.GetCustomerID() + microtenantsEndpoint\nlist, resp, err := common.GetAllPagesGeneric[MicroTenant](ctx, service.Client, relativeURL, \"\")"
           ]
         },
         {

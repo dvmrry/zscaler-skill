@@ -46,7 +46,7 @@
     },
     {
       "label": "Association types.",
-      "text": "{{python-key-types}} {{provider-data-source-two-types}} The Go lookup helpers and the provider's five-value schema are in [[zpa.sdk-go.service-defects]]; the `enabled = false` write is in [[shared.sdk-go.zero-value-writes]]."
+      "text": "{{python-key-types}} {{provider-data-source-two-types}} {{data-source-other-types-unreachable}} The Go lookup helpers and the provider's five-value schema are in [[zpa.sdk-go.service-defects]]; the `enabled = false` write is in [[shared.sdk-go.zero-value-writes]]."
     },
     {
       "label": "Create and delete.",
@@ -76,10 +76,11 @@
       ]
     },
     {
-      "do": "Which association types a key lookup can reach: the data source and the Python SDK see two.",
+      "do": "Which association types a key lookup can reach: the data source validates association_type against two, and the Python SDK's provisioning key module accepts two.",
       "uses": [
         "provider-data-source-two-types",
-        "python-key-types"
+        "python-key-types",
+        "data-source-other-types-unreachable"
       ]
     },
     {
@@ -114,7 +115,8 @@
             "self.enrollment_cert_name = config[\"enrollmentCertName\"] if \"enrollmentCertName\" in config else None"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: at sdk-python v1.11.3-1-g4f8f54df `grep -c 'config\\[' zscaler/zpa/models/provisioning_keys.py` returns 13, the quoted lines, and `grep -n '^class '` on the file returns only ProvisioningKey."
     },
     "go-struct-extra-fields": {
       "statement": "The Go SDK ProvisioningKey struct defines eleven further fields: appConnectorGroupId, appConnectorGroupName, expirationInEpochSec, ipAcl, uiConfig, associationType, readOnly, restrictionType, zscalerManaged, microtenantId and microtenantName.",
@@ -229,7 +231,7 @@
       ]
     },
     "python-key-types": {
-      "statement": "The Python SDK accepts only the key types connector and service_edge, mapping them to CONNECTOR_GRP and SERVICE_EDGE_GRP, and raises ValueError for anything else; it has no path for NP_ASSISTANT_GRP, which the Go SDK lists.",
+      "statement": "The Python SDK's provisioning key module accepts only the key types connector and service_edge, mapping them to CONNECTOR_GRP and SERVICE_EDGE_GRP, and raises ValueError for anything else; the module has no provisioning key path for NP_ASSISTANT_GRP, which the Go SDK lists.",
       "tier": "A",
       "evidence": [
         {
@@ -248,19 +250,22 @@
             "\"NP_ASSISTANT_GRP\","
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: at sdk-python v1.11.3-1-g4f8f54df `grep -c NP_ASSISTANT zscaler/zpa/provisioning.py` returns 0, and `grep -rn NP_ASSISTANT zscaler/` returns one source line, zscaler/zpa/oauth2_user_code.py's own simplify_key_type returning \"NP_ASSISTANT_GRP\" for assistant_group (with SITE_CONTROLLER_GRP for site_controller_group), which builds the user-code paths, not the provisioning key ones."
     },
     "provider-data-source-two-types": {
-      "statement": "The provider's zpa_provisioning_key data source accepts only CONNECTOR_GRP and SERVICE_EDGE_GRP for association_type, while the resource accepts five (see the service-defects subject), so discovery through the data source cannot return keys of the other types.",
+      "statement": "The provider's zpa_provisioning_key data source requires association_type and validates it against only CONNECTOR_GRP and SERVICE_EDGE_GRP, while the resource accepts five (see the service-defects subject).",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_provisioning_key.go",
           "quotes": [
+            "Required:    true,",
             "The supported values are CONNECTOR_GRP and SERVICE_EDGE_GRP.",
-            "\"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\","
-          ]
+            "ValidateFunc: validation.StringInSlice([]string{ \"CONNECTOR_GRP\", \"SERVICE_EDGE_GRP\", }, false),"
+          ],
+          "after": "\"association_type\": {"
         },
         {
           "source": "tf-zpa",
@@ -272,6 +277,14 @@
         }
       ],
       "conditions": "The five-value resource schema is held in zpa.sdk-go.service-defects:provider-provisioning-key-schema-and-importer."
+    },
+    "data-source-other-types-unreachable": {
+      "statement": "Discovery through the data source therefore cannot look up provisioning keys of the SITE_CONTROLLER_GRP, EXPORTER_GRP or NP_ASSISTANT_GRP types.",
+      "tier": "B",
+      "derived_from": [
+        "provider-data-source-two-types"
+      ],
+      "conditions": "Follows from provider-data-source-two-types: association_type is required and its validator accepts only CONNECTOR_GRP and SERVICE_EDGE_GRP, so a configuration naming one of the resource's other three types fails validation before any lookup. No source states the consequence for discovery, and no such lookup was run."
     },
     "mcp-requires-cert-for-connector": {
       "statement": "The MCP create tool raises an error when key_type is connector and enrollment_cert_id is missing; the function body opens with a name and component_id check, then this connector-only check, then gets the client, so the tool itself raises no error for a service_edge key without it. The rule is enforced in the tool, not in the SDK.",
@@ -302,7 +315,8 @@
       ],
       "gaps": [
         "api-requires-cert-for-connector-key"
-      ]
+      ],
+      "conditions": "Absence claim: at sdk-python v1.11.3-1-g4f8f54df `grep -n 'enrollment_cert_id\\|raise ' zscaler/zpa/provisioning.py` finds only `raise ValueError(\"Unexpected key type.\")` in simplify_key_type and `raise ValueError(\"key_type must be provided.\")` in add_provisioning_key and update_provisioning_key; enrollment_cert_id appears otherwise only in docstrings and in add's `body.get(\"enrollment_cert_id\")` and `\"enrollmentCertId\": enrollment_cert_id` lines. Over zscaler/, `grep -rn 'enrollment_cert_id\\|enrollmentCertId'` returns no line that raises or says the ID is required."
     },
     "mcp-delete-masks-lookup-errors": {
       "statement": "The MCP delete tool looks the key up first and, if the lookup returns an error or no object, reports success with 'does not exist or was already deleted' without calling delete; any lookup error is therefore reported as an already-deleted key.",

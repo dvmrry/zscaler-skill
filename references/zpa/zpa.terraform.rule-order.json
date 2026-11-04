@@ -197,6 +197,7 @@
             "HEAD"
           ],
           "quotes": [
+            "if resp.StatusCode < 200 || resp.StatusCode >= 300 {",
             "return resp, fmt.Errorf(\"API request failed with status code %d: %s\", resp.StatusCode, string(bodyBytes))",
             "resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, ruleIdsOrdered, nil) if err != nil { return nil, err }"
           ],
@@ -245,16 +246,15 @@
             "HEAD"
           ],
           "quotes": [
-            "return orderi <= orderj",
-            "// If only one of the rules exists in the map, prioritize it",
-            "return i <= j"
+            "orderi, existsi := ruleIdToOrder[ruleIDi] orderj, existsj := ruleIdToOrder[ruleIDj] // If both rules exist in the map, compare their orders if existsi && existsj { return orderi <= orderj }",
+            "if existsi && existsj { return orderi <= orderj } // If only one of the rules exists in the map, prioritize it if existsi { return true } else if existsj { return false } // If neither rule exists in the map, maintain their relative order return i <= j"
           ],
           "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
         }
       ]
     },
     "default-rule-pinned-last-by-name": {
-      "statement": "After sorting, the one rule whose name is exactly `Default_Rule` is taken out and appended last. No other rule is pinned by name or attribute inside `BulkReorder` (the provider separately pins an unconfigured Deception rule to 1 through the map). If several rules carry that name, only the last one's ID is appended and the others are left out of the list.",
+      "statement": "After sorting, the one rule whose name is exactly `Default_Rule` is taken out and appended last. No other rule is pinned by name or attribute inside `BulkReorder` (the provider separately pins an unconfigured Deception rule that sits at order 1 to 1 through the map). If several rules carry that name, only the last one's ID is appended and the others are left out of the list.",
       "tier": "A",
       "evidence": [
         {
@@ -284,6 +284,7 @@
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
             "_, managedByTerraform := userDefinedRules.Orders[deceptionID] if !managedByTerraform { ruleIdToOrder[deceptionID] = 1 }"
           ]
         },
@@ -295,6 +296,7 @@
             "HEAD"
           ],
           "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
             "_, managedByTerraform := configured.Orders[rule.ID] return rule.ID, !managedByTerraform",
             "deceptionID, deceptionAtOne := deceptionRuleAtOrderOne(existingRules, userDefinedRules) if deceptionAtOne { ruleIdToOrder[deceptionID] = 1 }"
           ]
@@ -303,7 +305,7 @@
       "conditions": "Absence claim: the body of `BulkReorder` in zscaler/zpa/services/policysetcontroller/policysetcontroller.go at Go SDK v3.8.58 makes one comparison that picks a rule out, `rule.Name == \"Default_Rule\"`."
     },
     "map-holds-configured-rules": {
-      "statement": "The map handed to `BulkReorder` is filled from the configured `rules` blocks, plus a pin of a rule named \"Zscaler Deception\" at order 1 to 1 when that rule is not itself configured. Up to v4.4.15 the configured numbers were offset by one whenever that rule sat at order 1, configured or not, and a configured Deception rule was left out of the map; from v4.4.16 the map holds every configured rule, and the offset and pinning the Deception rule to 1 apply only when the Deception rule is at order 1 and not configured. The provider adds no other policy rules to it.",
+      "statement": "The map handed to `BulkReorder` is filled from the configured `rules` blocks, plus a pin of a rule named \"Zscaler Deception\" at order 1 to 1 when that rule is not itself configured. Up to v4.4.15 the configured numbers were offset by one whenever that rule sat at order 1, configured or not, and from v4.1.13 through v4.4.15 a configured Deception rule was left out of the map; from v4.4.16 the map holds every configured rule, and the offset and pinning the Deception rule to 1 apply only when the Deception rule is at order 1 and not configured. The provider adds no other policy rules to it.",
       "tier": "A",
       "evidence": [
         {
@@ -341,6 +343,7 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
+            "v4.1.13",
             "v4.4.10",
             "v4.4.15"
           ],
@@ -356,12 +359,26 @@
             "deceptionAtOne = true"
           ],
           "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
+          "at": [
+            "v4.0.0",
+            "v4.1.11"
+          ],
+          "after": "func resourcePolicyAccessReorderUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if rule.Name == \"Zscaler Deception\" && rule.RuleOrder == \"1\" {",
+            "if deceptionAtOne { ruleIdToOrder[deceptionID] = 1 baseOrder = 2 }",
+            "for id, order := range userDefinedRules.Orders { ruleIdToOrder[id] = order + baseOrder - 1 }"
+          ]
         }
       ],
-      "conditions": "Absence claim: `grep -n 'ruleIdToOrder\\[' zpa/resource_zpa_policy_access_rule_reorder.go` at v4.4.16 finds three writes: the Deception rule's pin to 1 and the two branches of the loop over the configured orders."
+      "conditions": "Absence claim: `grep -n 'ruleIdToOrder\\[' zpa/resource_zpa_policy_access_rule_reorder.go` at v4.4.16 finds three writes: the Deception rule's pin to 1 and the two branches of the loop over the configured orders. Per tag, `git show <tag>:zpa/resource_zpa_policy_access_rule_reorder.go | awk '/^func resourcePolicyAccessReorderUpdate\\(/,/^}/'` piped to `grep -c 'if id == deceptionID'` returns 0 at v4.0.0 through v4.1.11 and 1 from v4.1.12 through v4.4.15, and piped to `grep -c managedByTerraform` returns 0 through v4.1.12 and 2 from v4.1.13 through v4.4.15. So at v4.1.12 a Deception rule at order 1 is pinned to 1 whether configured or not, and before v4.1.12 a configured one is overwritten in the loop with its configured number plus one; a configured Deception rule is left out of the map only from v4.1.13 through v4.4.15."
     },
     "unmanaged-rules-sent-below-managed": {
-      "statement": "So the list sent is: every configured rule in numeric order (up to v4.4.15, a configured Deception rule at order 1 goes with the other rules instead), then every other rule of the policy type in its current relative order, then `Default_Rule` (placed last even when it is configured with another number). Rules interleaved with configured rules, and any terminal rule not named exactly `Default_Rule`, end up below all configured rules.",
+      "statement": "So the list sent is: every configured rule in numeric order (from v4.1.13 through v4.4.15, a configured Deception rule at order 1 goes with the other rules instead), then every other rule of the policy type in its current relative order, then `Default_Rule` (placed last even when it is configured with another number). Rules interleaved with configured rules, and any terminal rule not named exactly `Default_Rule`, end up below all configured rules.",
       "tier": "B",
       "derived_from": [
         "comparator-managed-first",
@@ -369,7 +386,7 @@
         "map-holds-configured-rules",
         "sends-id-list-only"
       ],
-      "conditions": "Follows from the comparator, the name pin and the provider's map as read at the audited refs. Up to v4.4.15 a configured Deception rule at order 1 was not in the map and so counted among the other rules; from v4.4.16 it is a configured rule. The sort is sort.SliceStable, and its fallback for two unmanaged rules compares their current slice positions, so unmanaged rules keep their relative order; read, not run. Applies to whatever list the rules read returned.",
+      "conditions": "Follows from the comparator, the name pin and the provider's map as read at the audited refs. From v4.1.13 through v4.4.15 a configured Deception rule at order 1 was not in the map and so counted among the other rules; from v4.4.16 it is a configured rule. The sort is sort.SliceStable, and its fallback for two unmanaged rules compares their current slice positions, so unmanaged rules keep their relative order; read, not run. Applies to whatever list the rules read returned.",
       "upstream": [
         {
           "status": "unfiled",
@@ -396,7 +413,7 @@
       ]
     },
     "configured-deception-rule-treated-as-unmanaged": {
-      "statement": "Up to v4.4.15, if the rule named \"Zscaler Deception\" at order 1 is itself listed in the configuration, it is neither pinned to 1 nor added to the map: the loop skips it, and the comparator then treats it as an unmanaged rule. From v4.4.16 the loop has no skip, so a configured Deception rule is neither pinned nor does it trigger the offset, and goes into the map at its configured number like any other configured rule.",
+      "statement": "From v4.1.13 through v4.4.15, if the rule named \"Zscaler Deception\" at order 1 is itself listed in the configuration, it is neither pinned to 1 nor added to the map: the loop skips it, and the comparator then treats it as an unmanaged rule. From v4.4.16 the loop has no skip, so a configured Deception rule is neither pinned nor does it trigger the offset, and goes into the map at its configured number like any other configured rule.",
       "tier": "B",
       "derived_from": [
         "comparator-managed-first"
@@ -406,6 +423,7 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule_reorder.go",
           "at": [
+            "v4.1.13",
             "v4.4.10",
             "v4.4.15"
           ],
@@ -480,7 +498,8 @@
           ],
           "after": "func BulkReorder(ctx context.Context, service *zscaler.Service, policySetType string, ruleIdToOrder map[string]int) (*http.Response, error) {"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `sed -n '/^func BulkReorder(/,/^}/p' zscaler/zpa/services/policysetcontroller/policysetcontroller.go | grep -n 'ruleIdToOrder\\|ruleIdsOrdered = append'` in vendor/zscaler-sdk-go returns six lines at v3.8.42, v3.8.47 and v3.8.58: the signature, a comment, the two comparator lookups (`ruleIdToOrder[ruleIDi]`, `ruleIdToOrder[ruleIDj]`) and two appends, `append(ruleIdsOrdered, rule.ID)` inside `for _, rule := range all` and `append(ruleIdsOrdered, defaultRuleID)`, where defaultRuleID is set from that same loop."
     },
     "provider-does-not-check-ids-exist": {
       "statement": "The update reads the existing rules, but only to look for the Deception rule. It never checks that each configured ID is among them before calling `BulkReorder`.",
@@ -704,7 +723,8 @@
           "status": "unfiled",
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `sed -n '/^func BulkReorder(/,/^}/p' zscaler/zpa/services/policysetcontroller/policysetcontroller.go | grep -n '\\bctx\\b'` in vendor/zscaler-sdk-go returns two lines at v3.8.42, v3.8.47 and v3.8.58: the signature and `resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path, ...`."
     },
     "read-skips-unparseable-order": {
       "statement": "Read parses each API rule's order with `strconv.Atoi` and, if that fails, leaves the rule out of the current-order map with no log or diagnostic. A configured rule whose API order cannot be parsed keeps its configured number in state.",

@@ -327,8 +327,11 @@
           "source": "ansible-zpa",
           "path": "plugins/modules/zpa_app_connector_groups.py",
           "quotes": [
-            "If omitted, the module automatically resolves the certificate named C(Connector)."
-          ]
+            "If omitted, the module automatically resolves the certificate named C(Connector).",
+            "Resolve the default Connector enrollment certificate ID when the user does not provide enrollment_cert_id explicitly.",
+            "if not effective_enrollment_cert_id: effective_enrollment_cert_id = resolve_connector_enrollment_cert_id("
+          ],
+          "after": "enrollment_cert_id:\n    description:"
         }
       ],
       "binds": [
@@ -518,10 +521,26 @@
             "self.pra_enabled = config[\"praEnabled\"] if \"praEnabled\" in config else False",
             "self.waf_disabled = config[\"wafDisabled\"] if \"wafDisabled\" in config else False",
             "self.lss_app_connector_group = config[\"lssAppConnectorGroup\"] if \"lssAppConnectorGroup\" in config else False",
-            "self.lss_app_connector_group = None",
             "self.tcp_quick_ack_app = config[\"tcpQuickAckApp\"] if \"tcpQuickAckApp\" in config else False",
             "self.tcp_quick_ack_assistant = config[\"tcpQuickAckAssistant\"] if \"tcpQuickAckAssistant\" in config else False",
             "self.tcp_quick_ack_read_assistant = ( config[\"tcpQuickAckReadAssistant\"] if \"tcpQuickAckReadAssistant\" in config else False )"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "after": "class AppConnectorGroup(ZscalerObject):",
+          "quotes": [
+            "super().__init__(config) if config:",
+            "else: self.id = None self.ip_acl = None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/models/app_connector_groups.py",
+          "after": "self.ip_acl = None",
+          "quotes": [
+            "self.lss_app_connector_group = None"
           ]
         },
         {
@@ -729,7 +748,7 @@
           "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
           "quotes": [
             "func Update(ctx context.Context, service *zscaler.Service, appConnectorGroupID string, appConnectorGroup *AppConnectorGroup) (*http.Response, error) { path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+appConnectorGroupEndpoint, appConnectorGroupID)",
-            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appConnectorGroup, nil) if err != nil { return nil, err } return resp, err }"
+            "appConnectorGroupEndpoint, appConnectorGroupID) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appConnectorGroup, nil) if err != nil { return nil, err } return resp, err }"
           ]
         },
         {
@@ -738,7 +757,7 @@
           "quotes": [
             "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`",
             "func Update(ctx context.Context, service *zscaler.Service, serviceEdgeGroupID string, serviceEdge *ServiceEdgeGroup) (*http.Response, error) { relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfig+service.Client.GetCustomerID()+serviceEdgeGroupEndpoint, serviceEdgeGroupID)",
-            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, serviceEdge, nil) if err != nil { return nil, err } return resp, nil }"
+            "serviceEdgeGroupEndpoint, serviceEdgeGroupID) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, serviceEdge, nil) if err != nil { return nil, err } return resp, nil }"
           ]
         },
         {
@@ -747,7 +766,7 @@
           "quotes": [
             "EnrollmentCertID string `json:\"enrollmentCertId,omitempty\"`",
             "func Update(ctx context.Context, service *zscaler.Service, groupID string, controllerGroup *PrivateCloudGroup) (*http.Response, error) { path := fmt.Sprintf(\"%v/%v\", mgmtConfig+service.Client.GetCustomerID()+privateCloudControllerGroupEndpoint, groupID)",
-            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, controllerGroup, nil) if err != nil { return nil, err } return resp, err }"
+            "privateCloudControllerGroupEndpoint, groupID) resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, controllerGroup, nil) if err != nil { return nil, err } return resp, err }"
           ]
         }
       ]
@@ -761,6 +780,7 @@
           "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group_test.go",
           "quotes": [
             "enrollmentcert.GetByName(context.Background(), service, \"Connector\")",
+            "createdResource, _, err := Create(context.Background(), service, AppConnectorGroup{",
             "EnrollmentCertID:         enrollmentCertList.ID,"
           ]
         }

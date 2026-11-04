@@ -159,6 +159,7 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/appconnectorschedule/appconnectorschedule.go",
           "quotes": [
+            "scheduleEndpoint = \"/connectorSchedule\"",
             "relativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfig+service.Client.GetCustomerID()+scheduleEndpoint, schedulerID)",
             "\"PUT\", relativeURL, nil, assistantSchedule, nil)"
           ]
@@ -206,20 +207,36 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "after": "type AppConnectorGroup struct {",
           "quotes": [
-            "`json:\"enabled\"`",
-            "`json:\"overrideVersionProfile\"`",
-            "`json:\"praEnabled\"`",
-            "`json:\"wafDisabled\"`",
-            "`json:\"tcpQuickAckApp\"`",
-            "`json:\"tcpQuickAckAssistant\"`",
-            "`json:\"useInDrMode\"`",
-            "`json:\"tcpQuickAckReadAssistant\"`",
-            "`json:\"lssAppConnectorGroup\"`",
-            "`json:\"cityCountry\"`",
-            "`json:\"dcHostingInfo\"`"
-          ],
-          "after": "type AppConnectorGroup struct {"
+            "Enabled bool `json:\"enabled\"`",
+            "OverrideVersionProfile bool `json:\"overrideVersionProfile\"`",
+            "PRAEnabled bool `json:\"praEnabled\"`",
+            "WAFDisabled bool `json:\"wafDisabled\"`",
+            "TCPQuickAckApp bool `json:\"tcpQuickAckApp\"`",
+            "TCPQuickAckAssistant bool `json:\"tcpQuickAckAssistant\"`",
+            "UseInDrMode bool `json:\"useInDrMode\"`",
+            "TCPQuickAckReadAssistant bool `json:\"tcpQuickAckReadAssistant\"`",
+            "LSSAppConnectorGroup bool `json:\"lssAppConnectorGroup\"`",
+            "CityCountry string `json:\"cityCountry\"`",
+            "DCHostingInfo string `json:\"dcHostingInfo\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "after": "func Create(",
+          "quotes": [
+            "appConnectorGroupEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, appConnectorGroup, &v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "after": "func Update(",
+          "quotes": [
+            "\"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, appConnectorGroup, nil)"
+          ]
         }
       ],
       "conditions": "Group `enabled` and `overrideVersionProfile` are the fields the provider writes from state; the zero-value effect is in shared.sdk-go.zero-value-writes."
@@ -338,6 +355,22 @@
           "path": "zscaler/zpa/models/app_connector_groups.py",
           "quotes": [
             "self.version = app_connectors.ComponentLevelVersion(config[\"version\"])"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connectors.py",
+          "after": "def get_connector(self, connector_id: str, query_params: Optional[dict] = None)",
+          "quotes": [
+            "result = AppConnectorController(self.form_response_body(response.get_body()))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/app_connector_groups.py",
+          "after": "def list_connector_groups(self, query_params: Optional[dict] = None)",
+          "quotes": [
+            "result.append(AppConnectorGroup(self.form_response_body(item)))"
           ]
         },
         {
@@ -479,7 +512,7 @@
           "after": "def update_connector_group(self, group_id: str, **kwargs)"
         }
       ],
-      "conditions": "The group docstrings still document `version_profile` with the three slugs as accepted values. The executor camel-cases the request body, so a `version_profile` keyword reaches the wire as `versionProfile`; what the server does with that key is not shown.",
+      "conditions": "The group docstrings still document `version_profile` with the three slugs as accepted values. The executor camel-cases the request body, so a `version_profile` keyword reaches the wire as `versionProfile`; what the server does with that key is not shown. Absence claim: at v1.11.3-1-g4f8f54df `grep -c pick_version_profile zscaler/zpa/app_connector_groups.py` returns 0 and `grep -rn pick_version_profile zscaler/zpa/` returns nothing; over zscaler/ the only match is the definition in zscaler/utils.py.",
       "gaps": [
         "python-version-profile-wire"
       ]

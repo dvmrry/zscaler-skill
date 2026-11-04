@@ -135,7 +135,7 @@
           "after": "def to_lower_camel_case(string):"
         }
       ],
-      "conditions": "That no code in the file maps these keys rests on reading it; connector_ids and server_group_ids occur only in docstrings. The camel-casing is claim body-camel in zpa.sdk-python.microtenant-scoping.",
+      "conditions": "That no code in the file maps these keys rests on reading it; connector_ids and server_group_ids occur only in docstrings. The camel-casing is claim body-camel in zpa.sdk-python.microtenant-scoping. At v1.11.3-1-g4f8f54df, `grep -n 'connector_ids\\|server_group_ids' zscaler/zpa/app_connector_groups.py` returns four lines, the `**connector_ids (list):` and `**server_group_ids (list):` docstring entries of `add_connector_group` and `update_connector_group`; neither function body (`body = kwargs`, and `body = {}` then `body.update(kwargs)`) touches them.",
       "gaps": [
         "group-id-list-wire-keys"
       ]
@@ -168,7 +168,7 @@
       "conditions": "The key names are computed by applying the quoted rule; `grep -rn connectorIds zscaler` in the SDK finds no occurrence, so no exception or model maps them differently."
     },
     "version-profile-no-auto-override": {
-      "statement": "The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function contains no code that sets it: it sends the keyword arguments as the body, unchanged up to v1.10.0 and, since v1.11.2, changed only to fill in a missing `enrollment_cert_id`.",
+      "statement": "The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function contains no code that sets it: it sends the keyword arguments as the body, unchanged up to v1.11.1 and, since v1.11.2, changed only to fill in a missing `enrollment_cert_id`.",
       "tier": "A",
       "evidence": [
         {
@@ -201,7 +201,9 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/app_connector_groups.py",
           "at": [
-            "v1.10.0"
+            "v1.10.0",
+            "v1.11.0",
+            "v1.11.1"
           ],
           "quotes": [
             "body = kwargs",
@@ -219,12 +221,12 @@
           "after": "## 1.11.2 (October 7 2026)"
         }
       ],
-      "conditions": "Absence of such code rests on reading the function; at v1.11.3, `grep -n \"override_version_profile\" zscaler/zpa/app_connector_groups.py` finds only docstring lines, and within `add_connector_group` `grep -n \"body\"` finds `body = kwargs`, the `microtenant_id` read, the `enrollment_cert_id` fill and the `create_request` call; at v1.10.0 the same search finds no `enrollment_cert_id` fill, so the body is passed unchanged. Changed upstream in v1.11.2 (checked 2026-10-18): previously \"The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function sends the keyword arguments unchanged and contains no code that sets it.\""
+      "conditions": "Absence of such code rests on reading the function; at v1.11.3, `grep -n \"override_version_profile\" zscaler/zpa/app_connector_groups.py` finds only docstring lines, and within `add_connector_group` `grep -n \"body\"` finds `body = kwargs`, the `microtenant_id` read, the `enrollment_cert_id` fill and the `create_request` call; at v1.10.0 the same search finds no `enrollment_cert_id` fill, so the body is passed unchanged. Changed upstream in v1.11.2 (checked 2026-10-18): previously \"The `add_connector_group` docstring says that `version_profile` automatically sets `override_version_profile` to true, but the function sends the keyword arguments unchanged and contains no code that sets it.\" At v1.11.0 and v1.11.1 (there is no v1.10.1 tag), `git show <tag>:zscaler/zpa/app_connector_groups.py | awk '/def add_connector_group\\(/,/def update_connector_group\\(/' | grep -n 'body\\|enrollment_cert'` returns the `body = kwargs`, `microtenant_id` and `create_request` lines and docstring lines only, with no `enrollment_cert_id` fill; the fill first appears at v1.11.2."
     },
     "version-profile-docstring-diverges": {
       "statement": "The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and `add_connector_group` does not map them to the `versionProfileId` that the App Connector group model carries; the executor sends `version_profile` camel-cased as `versionProfile`, a key the model does not have.",
       "tier": "A",
-      "conditions": "Corrected because \"numeric IDs\" was unsourced; the model's key is versionProfileId. At v1.11.3, `grep -rn \"pick_version_profile\" --include='*.py' .` returns only its definition in zscaler/utils.py, which does map the three names to IDs 0, 1 and 2 but has no caller, and the group module imports only `format_url` from zscaler.utils; `grep -n '\"versionProfile\"' zscaler/zpa/models/app_connector_groups.py` returns nothing, so the model has no `versionProfile` key. Previously \"The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and does not map them to the numeric version profile IDs the API object carries.\"",
+      "conditions": "Corrected because \"numeric IDs\" was unsourced; the model's key is versionProfileId. At v1.11.3, `grep -rn \"pick_version_profile\" --include='*.py' .` returns only its definition in zscaler/utils.py, which does map the three names to IDs 0, 1 and 2 but has no caller, and the group module imports only `format_url` from zscaler.utils; `grep -n '\"versionProfile\"' zscaler/zpa/models/app_connector_groups.py` returns nothing, so the model has no `versionProfile` key. Previously \"The docstring names three `version_profile` values, `default`, `previous_default` and `new_release`, and does not map them to the numeric version profile IDs the API object carries.\" At v1.11.3-1-g4f8f54df, `grep -n 'version_profile\\|versionProfile' zscaler/zpa/app_connector_groups.py` returns only docstring lines, the `override_version_profile` and `version_profile` entries of `add_connector_group` and `update_connector_group`; no code maps `version_profile` to `versionProfileId`.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -367,7 +369,7 @@
       "conditions": "That `payload` is never sent rests on reading the function; it is assigned and not referenced again."
     },
     "schedule-get-env-microtenant": {
-      "statement": "`get_connector_schedule` accepts a `customer_id` argument that does not change the URL (the path uses the tenant ID fixed at construction), and takes its microtenant only from the ZPA_MICROTENANT_ID environment variable.",
+      "statement": "`get_connector_schedule` accepts a `customer_id` argument that does not change the URL (the path uses the tenant ID fixed at construction). The function itself reads a microtenant only from the ZPA_MICROTENANT_ID environment variable; when that is unset, the request executor adds the client's configured microtenantId, if one is set.",
       "tier": "A",
       "evidence": [
         {
@@ -388,9 +390,19 @@
           "quotes": [
             "self._zpa_base_endpoint = f\"/zpa/mgmtconfig/v1/admin/customers/{self.customer_id}\""
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/request_executor.py",
+          "quotes": [
+            "self.microtenant_id = self._config[\"client\"].get(\"microtenantId\")",
+            "params = self._prepare_params(service_type, endpoint, params, body)",
+            "microtenant_id = self._get_microtenant_id(body, params)",
+            "return self.microtenant_id"
+          ]
         }
       ],
-      "conditions": "That customer_id is unused afterwards rests on reading the function."
+      "conditions": "That customer_id is unused afterwards rests on reading the function. Search: `sed -n '/def get_connector_schedule(/,/^    def [a-z_]*(/p' zscaler/zpa/app_connector_schedule.py | grep -n customer_id` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns four lines, the signature, the docstring, a comment and the assignment `customer_id = customer_id or self.customer_id`; nothing reads it after the assignment."
     }
   },
   "divergences": {

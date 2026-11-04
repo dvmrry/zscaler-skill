@@ -68,7 +68,7 @@
     },
     {
       "label": "Counters.",
-      "text": "{{interface-vs-total-sample}} What the totals count is open {{gap:total-bytes-scope}}. {{resource-fields-at-event}} {{service-count-monitored}}"
+      "text": "{{interface-vs-total-sample}} What the totals count is open {{gap:total-bytes-scope}}. {{resource-fields-at-event}} {{status-resource-snapshot}} {{service-count-monitored}}"
     },
     {
       "label": "Private Service Edge and Private Cloud Controller field names.",
@@ -181,7 +181,7 @@
       ]
     },
     "resource-fields-at-event": {
-      "statement": "The three status logs carry CPUUtilization and MemUtilization described only as the utilization in %, alongside interface byte, packet, error and discard counters, so each status record includes a resource snapshot; the App Connector Metrics CPUUtilization is instead the maximum CPU usage in the past 5 minutes.",
+      "statement": "The three status logs carry CPUUtilization and MemUtilization described only as the utilization in %, alongside interface byte, packet, error and discard counters; the App Connector Metrics CPUUtilization is instead the maximum CPU usage in the past 5 minutes.",
       "tier": "A",
       "evidence": [
         {
@@ -234,6 +234,14 @@
         "zpa/app-connector-metrics-log#CPUUtilization"
       ]
     },
+    "status-resource-snapshot": {
+      "statement": "So each status record includes a resource snapshot: its CPU and memory utilization and interface counters as of that record.",
+      "tier": "B",
+      "derived_from": [
+        "resource-fields-at-event"
+      ],
+      "conditions": "Follows from resource-fields-at-event: the App Connector, Private Service Edge and Private Cloud Controller status pages describe CPUUtilization and MemUtilization only as the utilization in %, with no window, unlike the Metrics log's maximum over the past 5 minutes. No source states that the status values are readings taken at the record's time, or over what period the interface counters accumulate."
+    },
     "service-count-monitored": {
       "statement": "In the App Connector Status log ServiceCount is the number of services, meaning combinations of domains or IP addresses and TCP or UDP ports, being monitored by the App Connector.",
       "tier": "A",
@@ -242,7 +250,7 @@
           "source": "zscaler-help",
           "path": "app-connector-status-log-fields.json",
           "quotes": [
-            "The number of services (i.e., combinations of domains or IP addresses and TCP or UDP ports) being monitored by the App Connector"
+            "| ServiceCount | The number of services (i.e., combinations of domains or IP addresses and TCP or UDP ports) being monitored by the App Connector |"
           ]
         }
       ],
@@ -333,8 +341,8 @@
           "source": "zscaler-help",
           "path": "app-connector-status-log-fields.json",
           "quotes": [
-            "| BytesRxInterface | The bytes received on the interface",
-            "| TotalBytesRx | The total bytes received",
+            "| BytesRxInterface | The bytes received on the interface |",
+            "| TotalBytesRx | The total bytes received |",
             "\"BytesRxInterface\": 319831966346",
             "\"TotalBytesRx\": 10902554"
           ]
@@ -343,6 +351,8 @@
           "source": "zscaler-help",
           "path": "private-service-edge-status-log-fields.json",
           "quotes": [
+            "| BytesRxInterface | The bytes received on the interface |",
+            "| TotalBytesRx | The total bytes received |",
             "\"BytesRxInterface\": 15435341381",
             "\"TotalBytesRx\": 5257"
           ]
@@ -351,6 +361,8 @@
           "source": "zscaler-help",
           "path": "private-cloud-controller-status-log-fields.json",
           "quotes": [
+            "| BytesRxInterface | The bytes received on the interface |",
+            "| TotalBytesRx | The total bytes received |",
             "\"BytesRxInterface\": 65413384825",
             "\"TotalBytesRx\": 1835,\"TotalBytesTx\": 0"
           ]

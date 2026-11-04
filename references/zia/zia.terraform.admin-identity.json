@@ -114,7 +114,9 @@
             "HEAD"
           ],
           "quotes": [
-            "the role_type cannot be changed once the resource is created. old=%v new=%v"
+            "CustomizeDiff: adminRolesCustomizeDiff,",
+            "// CustomizeDiff function enforces your special validations at plan-time",
+            "if d.Id() != \"\" && d.HasChange(\"role_type\") { old, new := d.GetChange(\"role_type\") if old != new { return fmt.Errorf(\"the role_type cannot be changed once the resource is created. old=%v new=%v\", old, new)"
           ]
         }
       ]
@@ -151,10 +153,8 @@
             "HEAD"
           ],
           "quotes": [
-            "Default value is 7 (the lowest rank).",
-            "This is applicable only when admin rank is enabled in the advanced settings.",
-            "\"rank\": { Type: schema.TypeInt, Optional: true, Description: \"Admin rank of this admin role.",
-            "and which rule orders this admin can access.\", }, \"policy_access\": {"
+            "\"rank\": { Type: schema.TypeInt, Optional: true, Description: \"Admin rank of this admin role. This is applicable only when admin rank is enabled in the advanced settings. Default value is 7 (the lowest rank).",
+            "Default value is 7 (the lowest rank). The assigned admin rank determines the roles or admin users this user can manage, and which rule orders this admin can access.\", }, \"policy_access\": {"
           ]
         }
       ]
@@ -179,7 +179,7 @@
       ]
     },
     "user-read-sets-no-password": {
-      "statement": "The `zia_user_management` Read copies name, email, comments, temp_auth_email, groups and department from the response into state and sets neither `password` nor `auth_methods`, so the configured password is never refreshed from ZIA.",
+      "statement": "The `zia_user_management` Read copies name, email, comments, temp_auth_email, groups and department from the response into state and sets neither `password` nor `auth_methods`, so the password in state is never refreshed from ZIA.",
       "tier": "A",
       "evidence": [
         {
@@ -198,7 +198,8 @@
             "if err := d.Set(\"department\", flattenUserDepartment(resp.Department)); err != nil { return diag.FromErr(err) } return nil }"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: in zia/resource_zia_user_management_users.go at v4.8.17, `grep -c 'd.Set(\"password\"'` and `grep -c 'd.Set(\"auth_methods\"'` each return 0; `grep -n 'd.Set('` returns only `user_id` (in the importer, create and read), `name`, `email`, `comments`, `temp_auth_email`, `groups` and `department`."
     },
     "user-read-from-list": {
       "statement": "Since provider v4.7.24 the `zia_user_management` Read resolves the user from the list endpoint (name-filtered first, then a full list scan) instead of the per-ID lookup, because on Zidentity-migrated tenants the per-ID lookup returns name and email in an encoded form that produced a perpetual in-place update on every plan.",

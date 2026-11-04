@@ -129,7 +129,15 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_posture_profile.md",
           "quotes": [
-            "Posture Profile (posture_udid) required when ``object_type = \"POSTURE\"``."
+            "`lhs` (String) - Posture Profile (posture_udid) required when ``object_type = \"POSTURE\"``."
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_access_rule.md",
+          "quotes": [
+            "| Object Type | LHS | RHS |",
+            "| [POSTURE](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_posture_profile) | ``posture_udid``  | ``\"true\"`` / ``\"false\"`` |"
           ]
         }
       ],
@@ -194,6 +202,15 @@
           ]
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/postureprofile/zpa_posture_profile.go",
+          "after": "func GetByPostureUDID(ctx context.Context, service *zscaler.Service, postureUDID string)",
+          "quotes": [
+            "if postureProfile.PostureudID == postureUDID {",
+            "return nil, resp, fmt.Errorf(\"no posture profile with postureUDID '%s' was found\", postureUDID)"
+          ]
+        },
+        {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule.go",
           "quotes": [
@@ -219,7 +236,8 @@
             "\"zpa_policy_access_rule_v2\": resourcePolicyAccessRuleV2(),"
           ]
         }
-      ]
+      ],
+      "conditions": "`grep -ln 'ValidateConditions(' zpa/resource_*.go` at v4.4.16 lists six resources, the access, forwarding, inspection, isolation, redirection and timeout rule resources; these are the v1 policy rule resources this claim covers, and each calls it in create and update (the redirection rule proceeds on `err == nil` and returns a validation error otherwise). The SDK quote is at v3.8.58; `GetByPostureUDID` returns the same error at v3.8.56, the release v4.4.16's go.mod pins."
     },
     "v2-no-lookup": {
       "statement": "For v2 policy rule resources the provider requires a non-empty lhs and an rhs of \"true\" or \"false\" for a POSTURE operand and does not look the lhs up.",
@@ -254,7 +272,7 @@
           "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         }
       ],
-      "conditions": "ValidatePolicyRuleConditions is the v2 validator; the v1 resources call ValidateConditions, which does the lookup (same split as zpa.saml-attributes.policy-criteria:v1-validates-lookup)."
+      "conditions": "ValidatePolicyRuleConditions is the v2 validator; the v1 resources call ValidateConditions, which does the lookup (same split as zpa.saml-attributes.policy-criteria:v1-validates-lookup). Absence claim: `grep -n GetByPostureUDID zpa/*.go` at v4.4.16 returns one line, in `validateOperand` (the v1 path); `ValidatePolicyRuleConditions` takes only `d *schema.ResourceData`, and its POSTURE case, from `case \"POSTURE\":` to `case \"TRUSTED_NETWORK\":`, calls nothing."
     },
     "families": {
       "statement": "The provider's access, forwarding, timeout and inspection rule resources, in their v1 and v2 forms, list POSTURE among their operand object types.",

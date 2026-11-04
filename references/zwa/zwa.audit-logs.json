@@ -198,12 +198,21 @@
         {
           "source": "zscaler-help",
           "path": "dlp-incidents-workflow-automation-api.json",
+          "pointer": "/spec/paths/~1dlp~1v1~1customer~1audit/post/parameters/[name=pageSize]/schema",
+          "expect_absent": [
+            "maximum"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dlp-incidents-workflow-automation-api.json",
           "pointer": "/spec/paths/~1dlp~1v1~1customer~1audit/post/parameters/[name=pageId]",
           "expect": {
             "description": "Specifies the page ID of the incident in a multi-paginated response. It is a unique identifier returned in the first search request. You can use the page ID instead of the page number in subsequent search requests for faster and more efficient results."
           }
         }
-      ]
+      ],
+      "conditions": "Absence claim (no stated maximum): `jq -c '.spec.paths[\"/dlp/v1/customer/audit\"].post.parameters[] | select(.name==\"pageSize\")'` on dlp-incidents-workflow-automation-api.json returns the description \"Specifies the page size (i.e., number of incidents per page).\" and the schema `{\"type\":\"integer\",\"minimum\":1,\"default\":10}`, with no `maximum`; `grep -c -F 'The maximum page size is 100.'` on the file returns 1, the `/dlp/v1/incidents/search` parameter's description."
     },
     "python-model": {
       "statement": "Python's audit model keeps `cursor` and `logs`, and each log entry reads only `action`, `module` and `resource`, so `changedAt`, `changedBy`, `oldRowJson`, `newRowJson` and `changeNote` are not attributes of the parsed result; Go's `AuditLog` struct carries all eight.",

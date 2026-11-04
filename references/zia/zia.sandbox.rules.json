@@ -78,7 +78,7 @@
     },
     {
       "label": "Through the API.",
-      "text": "{{python-crud}}"
+      "text": "{{python-crud}} {{first-time-configurable-both-sdks}}"
     }
   ],
   "checks": [
@@ -209,7 +209,7 @@
       ]
     },
     "scope-fields": {
-      "statement": "A rule is scoped by threat categories (`baPolicyCategories`, for example ADWARE_BLOCK, BOTMAL_BLOCK, RANSOMWARE_BLOCK, SUSPICIOUS_BLOCK), file types (`fileTypes`), URL categories, users, groups, departments, locations, location groups, time windows, Client Connector devices and device groups, labels, and ZPA Application Segments, which apply only to the ZPA Gateway forwarding method.",
+      "statement": "A rule is scoped by threat categories (`baPolicyCategories`, for example ADWARE_BLOCK, BOTMAL_BLOCK, RANSOMWARE_BLOCK, SUSPICIOUS_BLOCK), file types (`fileTypes`), URL categories, users, groups, departments, locations, location groups, time windows, Client Connector devices and device groups, and ZPA Application Segments, which apply only to the ZPA Gateway forwarding method; the rule also carries `labels`.",
       "tier": "A",
       "binds": [
         "zia/sandbox-rules#baPolicyCategories",
@@ -290,8 +290,15 @@
             "if rule.Order != 127 && rule.Name != \"Default BA Rule\" {",
             "// Ignore default rule if r.Order == 127 || r.Name == \"Default BA Rule\" { continue } if r.Order > sandboxStartingOrder { sandboxStartingOrder = r.Order }",
             "req.Order = sandboxStartingOrder",
-            "if resp.Order == 127 || resp.Name == \"Default BA Rule\" {",
             "// Filter out Default BA Rule"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_sandbox_rules.go",
+          "after": "func resourceSandboxRulesRead(",
+          "quotes": [
+            "if resp.Order == 127 || resp.Name == \"Default BA Rule\" { log.Printf(\"[INFO] Skipping default rule '%s' with order %d to prevent drift\", resp.Name, resp.Order) d.SetId(\"\")"
           ]
         },
         {
@@ -309,7 +316,7 @@
       "conditions": "The captured help page (about-sandbox) says the default rule is evaluated last but never mentions order 127, so 127 is visible only in provider code and the API."
     },
     "python-crud": {
-      "statement": "The Python SDK has full CRUD for sandbox rules (`list_rules`, `get_rule`, `add_rule`, `update_rule`, `delete_rule`) over /sandboxRules, and its rule model carries `firstTimeEnable`, `firstTimeOperation`, `mlActionEnabled` and `byThreatScore`, as the Go SDK's does, so first-time behavior is configurable through either SDK.",
+      "statement": "The Python SDK has full CRUD for sandbox rules (`list_rules`, `get_rule`, `add_rule`, `update_rule`, `delete_rule`) over /sandboxRules, and its rule model carries `firstTimeEnable`, `firstTimeOperation`, `mlActionEnabled` and `byThreatScore`, as the Go SDK's does.",
       "tier": "A",
       "evidence": [
         {
@@ -352,6 +359,15 @@
           ]
         }
       ]
+    },
+    "first-time-configurable-both-sdks": {
+      "statement": "First-time behavior (`firstTimeEnable`, `firstTimeOperation`) is configurable through either SDK.",
+      "tier": "B",
+      "derived_from": [
+        "python-crud",
+        "first-time-operation"
+      ],
+      "conditions": "Follows from python-crud: the Python SDK's `add_rule` and `update_rule` write sandbox rules and its model carries `firstTimeEnable` and `firstTimeOperation`, as the Go SDK's struct does. That the Go SDK writes the fields rests on its `Create` and `Update` functions sending that struct, which no claim here quotes; neither SDK says first-time behavior is configurable through it, and no write was exercised against the API."
     },
     "default-rule-last": {
       "statement": "The default rule is always the last rule checked, and rules are applied in rule order from first to last.",

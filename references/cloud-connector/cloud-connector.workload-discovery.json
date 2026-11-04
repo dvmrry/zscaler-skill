@@ -183,7 +183,7 @@
       ]
     },
     "api-surface-generated": {
-      "statement": "The Cloud Connector API documents the AWS account, account group and discovery-service operations under its Partner Integrations tag.",
+      "statement": "The Cloud Connector API documents the AWS account (`/publicCloudInfo`), account group (`/accountGroups`) and discovery-service (`/discoveryService`) operations under its Partner Integrations tag.",
       "tier": "A",
       "evidence": [
         {
@@ -216,7 +216,8 @@
             ]
           }
         }
-      ]
+      ],
+      "conditions": "Tally over the capture: `jq -r '.paths | to_entries[] | select(.key|test(\"^/(publicCloudInfo|accountGroups|discoveryService)\")) | .value | to_entries[] | .value.tags[]?' automate-zscaler/openapi/zcloudconnector.openapi.json | sort | uniq -c` returns `20 Partner Integrations` and no other tag; the three path prefixes hold 20 operations, so each carries that one tag. The `/publicCloudAccountDetails` and `/publicCloudAccountIdStatus` paths are outside these prefixes."
     }
   },
   "gaps": {

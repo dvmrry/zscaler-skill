@@ -46,7 +46,7 @@
     },
     {
       "label": "When a rule matches.",
-      "text": "{{actions}} {{browser-notification-template}} {{operation}} {{capture-on-block}}"
+      "text": "{{actions}} {{browser-notification-template}} {{operation}} {{operation-split-directions}} {{capture-on-block}}"
     },
     {
       "text": "Caution for traffic with no user to acknowledge is open {{gap:caution-without-a-user}}, and the fate of unscannable or unknown files that no rule names is open {{gap:unscannable-and-unknown-default}}."
@@ -120,7 +120,7 @@
       ]
     },
     "browser-notification-template": {
-      "statement": "A browser notification template can be selected for the rule; the field appears only when the action is Caution or Block.",
+      "statement": "A browser notification template can be selected for the rule; the field appears when the action is Caution or Block.",
       "tier": "A",
       "binds": [
         "zia/file-type-rules#browserEunTemplateId"
@@ -137,7 +137,7 @@
       ]
     },
     "operation": {
-      "statement": "Each rule's action applies to uploads, downloads or both, so a file type can be allowed one way and blocked the other.",
+      "statement": "Each rule's action applies to uploads, downloads or both.",
       "tier": "A",
       "binds": [
         "zia/file-type-rules#operation"
@@ -158,6 +158,14 @@
           ]
         }
       ]
+    },
+    "operation-split-directions": {
+      "statement": "So a file type can be allowed in one direction and blocked in the other.",
+      "tier": "B",
+      "derived_from": [
+        "operation"
+      ],
+      "conditions": "Follows from operation: one rule carries one action for uploads, downloads or both, so splitting the directions takes two rules for the same file type, one per direction, with different actions. No source states the combination."
     },
     "capture-on-block": {
       "statement": "When Traffic Capture is enabled, the Capture option appears for rules whose action is Block, and captured traffic is stored as PCAP files.",

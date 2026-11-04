@@ -65,15 +65,14 @@
   ],
   "claims": {
     "errors-in-third-slot": {
-      "statement": "A ZIA list call catches its own exceptions and returns them in the third slot with a None result, instead of raising.",
+      "statement": "The URL filtering `list_rules` call catches exceptions raised while building its result models and returns them in the third slot with a None result, instead of raising.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-python",
           "path": "zscaler/zia/url_filtering.py",
           "quotes": [
-            "except Exception as error:",
-            "return (None, response, error)"
+            "try: result = [] for item in response.get_results(): result.append(URLFilteringRule(self.form_response_body(item))) except Exception as error: return (None, response, error)"
           ],
           "after": "def list_rules("
         }
@@ -87,7 +86,7 @@
           "source": "sdk-python",
           "path": "zscaler/zia/url_filtering.py",
           "quotes": [
-            "ValueError(f\"Invalid configuration: '{key}' cannot be True when 'enable_cipa_compliance' is True\"),",
+            "for key in mutually_exclusive: if kwargs.get(key) is True: return ( None, None, ValueError(f\"Invalid configuration: '{key}' cannot be True when 'enable_cipa_compliance' is True\"), )",
             "Updates the URL and Cloud App Control advanced policy settings",
             "if kwargs.get(\"enable_cipa_compliance\") is True:",
             "/advancedUrlFilterAndCloudAppSettings"
@@ -101,9 +100,11 @@
       "tier": "B",
       "derived_from": [
         "shared.sdk-python.response-handling:tuple-return",
+        "shared.sdk-python.errors:api-error-object",
+        "shared.sdk-python.errors:raise-exception",
         "errors-in-third-slot"
       ],
-      "conditions": "Holds with the default `raiseException=False` (with True, `check_response_for_error` raises `ZscalerAPIException`), for calls that complete the request path as the ZIA methods read at the pin do; construction errors and the page iterator can still raise."
+      "conditions": "Holds with the default `raiseException=False` (with True, the same API errors are raised as `ZscalerAPIException`: raise-exception), for calls that complete the request path as the ZIA methods read at the pin do; construction errors and the page iterator can still raise. API errors reach the error slot because the request executor hands a non-2xx response back there as a `ZscalerAPIError` (api-error-object). errors-in-third-slot is quoted from one method, URL filtering `list_rules`, and covers only exceptions raised while building its result models; that every other ZIA method catches those the same way is not quoted."
     },
     "single-assignment-yields-tuple": {
       "statement": "Assigning a call to a single name therefore binds the whole tuple, not the list or object, so iterating it yields the result, response and error.",
@@ -132,7 +133,7 @@
           "path": "zscaler/oneapi_object.py",
           "quotes": [
             "for key, val in self.request_format().items():",
-            "if val is None:",
+            "if val is None: continue",
             "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
             "The keys are in camelCase as expected by the API."
           ]

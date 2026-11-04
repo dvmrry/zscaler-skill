@@ -250,8 +250,17 @@
           "quotes": [
             "[ZSCALER] CC_URL=${var.cc_vm_prov_url} SECRET_NAME=${var.secret_name} HTTP_PROBE_PORT=${var.http_probe_port} FIPS_ENABLED=${var.fips_enabled}"
           ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "examples/base_1cc/variables.tf",
+          "after": "variable \"cc_vm_prov_url\" {",
+          "quotes": [
+            "description = \"Zscaler Cloud Connector Provisioning URL\""
+          ]
         }
-      ]
+      ],
+      "conditions": "Scope of \"the examples\": at v1.4.3-18-gbb51f96, `grep -c -F '[ZSCALER]' examples/*/main.tf` returns 1 for every example except examples/base (0), whose modules are only network, bastion and workload."
     },
     "asg-launch-template-user-data": {
       "statement": "The autoscaling module sets the user data, base64-encoded, on the launch template it creates, and the group launches from that template at version `$Latest` by default.",
@@ -271,6 +280,14 @@
           "quotes": [
             "description = \"Launch template version. Can be version number, `$Latest` or `$Default`\" default = \"$Latest\""
           ]
+        },
+        {
+          "source": "tfmod-aws-cloud-connector",
+          "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "after": "resource \"aws_autoscaling_group\" \"cc_asg\" {",
+          "quotes": [
+            "launch_template { id = aws_launch_template.cc_launch_template[0].id version = var.launch_template_version }"
+          ]
         }
       ]
     },
@@ -281,8 +298,9 @@
         {
           "source": "tfmod-aws-cloud-connector",
           "path": "modules/terraform-zscc-asg-lambda-aws/main.tf",
+          "after": "resource \"aws_lambda_function\" \"asg_lambda_function\" {",
           "quotes": [
-            "CC_URL = var.cc_vm_prov_url SECRET_NAME = var.secret_name"
+            "environment { variables = { ASG_NAMES = jsonencode(var.autoscaling_group_names) CC_URL = var.cc_vm_prov_url SECRET_NAME = var.secret_name"
           ]
         }
       ]
@@ -322,6 +340,7 @@
           "source": "zscaler-help",
           "path": "cbc-troubleshooting-cloud-connector-amazon-web-services.json",
           "quotes": [
+            "Cloud Connector does not appear in the Zscaler Admin Console after provisioning.",
             "The cloud provisioning template in the Zscaler Admin Console is for AWS.",
             "The CloudFormation or Terraform cloud automation script process used the correct provisioning URL. If it used an incorrect provisioning URL, remove the instance and create a new instance."
           ]

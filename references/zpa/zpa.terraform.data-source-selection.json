@@ -123,7 +123,8 @@
           "status": "unfiled",
           "note": "Filing 7 (data-source selection) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func dataSourceSegmentGroupRead\\(/,/^}/' zpa/data_source_zpa_segment_group.go | grep -n -E '==|!=|Equal'` returns only `microTenantID != \"\"`, `id != \"\"`, `name != \"\"`, two `err != nil` checks after the lookups, `resp != nil` and the `applications` d.Set error check; nothing compares the ID result with the name result."
     },
     "overwrite-pattern-is-widespread": {
       "statement": "The same structure (an `id` block assigning `resp`, then an independent `name` block assigning `resp` again, with no conflict constraint on the schema) is present in 44 data source files, including connector groups, server groups, service edge groups, user portal objects, tag objects, PRA objects and the main application segment data sources.",
@@ -451,9 +452,9 @@
             "v4.4.10",
             "HEAD"
           ],
-          "after": "\"microtenant_id\": {",
           "quotes": [
-            "Type: schema.TypeString, Computed: true, Description: \"The unique identifier of the Microtenant for the ZPA tenant."
+            "\"microtenant_id\": { Type: schema.TypeString, Computed: true, Description: \"The unique identifier of the Microtenant for the ZPA tenant. If you are within the Default Microtenant, pass microtenantId as 0",
+            "pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant.\", },"
           ]
         },
         {
@@ -815,7 +816,8 @@
             "\"id\": { Type: schema.TypeString, Optional: true, Description: \"The unique identifier of the location.\", }, \"name\": { Type: schema.TypeString, Optional: true, Description: \"Name of the location.\", },"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'ConflictsWith\\|ExactlyOneOf\\|AtLeastOneOf\\|Errorf'` over zpa/data_source_zpa_cloud_browser_isolation_certificate.go, data_source_zpa_scim_group.go and data_source_zpa_location_controller_summary.go in vendor/terraform-provider-zpa at v4.4.10 and v4.4.16 finds no conflict check on `id` and `name`: the only ConflictsWith pair is `iam_idp_id`/`iam_idp_name` in the SCIM group data source at v4.4.16 (none at v4.4.10), and the errors are for neither being set (\"either 'id' or 'name' must be specified\" / \"must be provided\"), an unavailable SCIM group service, a missing or unfetchable IdP, or a failed lookup."
     }
   },
   "gaps": {

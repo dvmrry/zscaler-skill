@@ -609,7 +609,8 @@
             "// Endpoint misses important attributes",
             "// domainProfilesLiteEndpoint          = \"/zia/api/v1/domainProfiles/lite\"",
             "// Endpoint is publicly available but not present in the swagger",
-            "domainProfilesEndpoint              = \"/zia/api/v1/domainProfiles\""
+            "domainProfilesEndpoint              = \"/zia/api/v1/domainProfiles\"",
+            "func GetDomainProfiles(ctx context.Context, service *zscaler.Service) ([]DomainProfiles, error) { var profiles []DomainProfiles err := common.ReadAllPages(ctx, service.Client, domainProfilesEndpoint, &profiles)"
           ]
         }
       ]
@@ -747,7 +748,7 @@
       ]
     },
     "terraform-import-and-target": {
-      "statement": "A CASB rule imports with `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID. Up to v4.8.13 the resource page said a custom rule is removed by pointing Terraform's `-target` flag at it; the v4.8.14 changelog says deleting the rule with `-target` first is no longer needed.",
+      "statement": "A CASB DLP or malware rule imports with `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID. At v4.8.13 both rule resource pages said a custom rule is removed by pointing Terraform's `-target` flag at it; the v4.8.14 changelog says deleting the rule with `-target` first is no longer needed.",
       "tier": "A",
       "evidence": [
         {
@@ -763,7 +764,24 @@
         },
         {
           "source": "tf-zia",
+          "path": "docs/resources/zia_casb_malware_rules.md",
+          "quotes": [
+            "can be imported by using `<RULE_TYPE:RULE_ID>` or `<RULE_TYPE:RULE_NAME>` as the import ID."
+          ]
+        },
+        {
+          "source": "tf-zia",
           "path": "docs/resources/zia_casb_dlp_rules.md",
+          "quotes": [
+            "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
+          ],
+          "at": [
+            "v4.8.13"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/resources/zia_casb_malware_rules.md",
           "quotes": [
             "When deleting existing custom rules, use the Terraform `-target` flag to target the specific rule to be removed."
           ],

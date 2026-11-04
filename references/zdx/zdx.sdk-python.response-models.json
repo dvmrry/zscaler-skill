@@ -106,7 +106,7 @@
       ]
     },
     "models-read-snake": {
-      "statement": "The ZDX models look their fields up under the API's snake_case keys (for example `trace_id` in `DeviceDeepTraces`, `next_offset` in `Devices`, `total_users` in `ActiveApplications`), and methods such as `get_deeptrace` and `list_apps` build the models from `form_response_body` of the response.",
+      "statement": "ZDX models such as `DeviceDeepTraces`, `Devices` and `ActiveApplications` look their fields up under the API's snake_case keys (`trace_id`, `next_offset`, `total_users`), and methods such as `get_deeptrace` and `list_apps` build the models from `form_response_body` of the response.",
       "tier": "A",
       "evidence": [
         {
@@ -128,6 +128,7 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zdx/models/applications.py",
+          "after": "class ActiveApplications(ZscalerObject):",
           "quotes": [
             "self.total_users = config[\"total_users\"] if \"total_users\" in config else None"
           ]
@@ -178,13 +179,13 @@
       ]
     },
     "multiword-attrs-lost": {
-      "statement": "So on those methods every model attribute whose API key has more than one word (a deep trace's `trace_id`, a device list's `next_offset`, an application's `total_users`, and the like) comes back None, and the MCP tools that return these models' records omit those fields; single-word keys such as `id`, `name` and `score` survive.",
+      "statement": "So on those methods a model attribute looked up under a multi-word snake_case key (a deep trace's `trace_id`, a device list's `next_offset`, an application's `total_users`, and the like) comes back None, and the MCP tools that return these models' records omit those fields; single-word keys such as `id`, `name` and `score` survive.",
       "tier": "B",
       "derived_from": [
         "models-read-snake",
         "zcc.sdk-python.wire-keys:response-keys-camel-cased"
       ],
-      "conditions": "Follows from the camel-casing helper and the models' snake_case lookups at the pin; no recorded ZDX response at the pin shows it, and the ZDX integration tests that would read these fields are commented out.",
+      "conditions": "Follows from the camel-casing helper and the models' snake_case lookups at v1.11.3-1-g4f8f54df; the only snake_case keys FIELD_EXCEPTIONS yields are `exit_password` and `tunnel_two_fori_os_devices`, neither of them a ZDX key named here. Which ZDX models beyond the three named look up multi-word keys was not enumerated. No recorded ZDX response at that release shows it, and the ZDX integration tests that would read these fields are commented out.",
       "upstream": [
         {
           "status": "unfiled"
@@ -200,6 +201,7 @@
           "path": "zscaler/zdx/troubleshooting.py",
           "quotes": [
             "def list_deeptraces(self, device_id: str) -> APIResult[List[DeviceDeepTraces]]:",
+            "for item in response.get_results():",
             "results.append(DeviceDeepTraces(item))"
           ]
         },
@@ -207,7 +209,15 @@
           "source": "sdk-python",
           "path": "zscaler/zdx/devices.py",
           "quotes": [
-            "def get_call_quality_metrics(",
+            "def get_call_quality_metrics("
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zdx/devices.py",
+          "after": "def get_call_quality_metrics(",
+          "quotes": [
+            "for item in response.get_results():",
             "result.append(CallQualityMetrics(item))"
           ]
         },
@@ -267,6 +277,10 @@
               "format": "double",
               "type": "number"
             },
+            "geo_long": {
+              "description": "The geo longitude of location.",
+              "type": "string"
+            },
             "geo_detection": {
               "description": "The detection type of location.",
               "type": "string"
@@ -316,11 +330,33 @@
         {
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
+          "after": "def _build_json_response(self, response_body: str) -> None:",
           "quotes": [
-            "self._list = self._body.get(\"items\", [])",
-            "self._next_offset = self._body.get(\"next_offset\")",
-            "self._params[\"offset\"] = self._next_offset",
-            "has_next = self._next_offset is not None"
+            "elif self._service_type == \"zdx\":\n            self._list = self._body.get(\"items\", [])\n            self._next_offset = self._body.get(\"next_offset\")"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def has_next(self) -> bool:",
+          "quotes": [
+            "return self._has_next()"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def _fetch_next_page(self) -> Tuple[List[Any], Optional[Exception]]:",
+          "quotes": [
+            "if self._service_type == \"zdx\":\n            logger.debug(\"[DEBUG] Taking ZDX pagination branch.\")\n            self._params[\"offset\"] = self._next_offset"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def _has_next(self) -> bool:",
+          "quotes": [
+            "elif self._service_type == \"zdx\":\n            has_next = self._next_offset is not None"
           ]
         }
       ]
@@ -489,6 +525,7 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zdx/models/devices.py",
+          "after": "class DeviceModelInfo(ZscalerObject):",
           "quotes": [
             "self.network = ZscalerCollection.form_list(config[\"network\"] if \"network\" in config else [], Network)"
           ]
@@ -496,9 +533,9 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zdx/devices.py",
+          "after": "def get_device(self, device_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:",
           "quotes": [
-            "result = [DeviceModelInfo(self.form_response_body(response.get_body()))]",
-            "def get_device(self, device_id: str, query_params: Optional[dict] = None) -> APIResult[dict]:"
+            "result = [DeviceModelInfo(self.form_response_body(response.get_body()))]"
           ]
         },
         {

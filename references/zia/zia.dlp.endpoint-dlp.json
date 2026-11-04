@@ -119,7 +119,16 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/endpoint_dlp/endpoint_dlp_sub_rules/endpoint_dlp_sub_rules.go",
           "quotes": [
-            "endPointDlpSubRulesEndpoint = \"/zia/api/v1/endPointDlpRules\""
+            "endPointDlpSubRulesEndpoint = \"/zia/api/v1/endPointDlpRules\"",
+            "resp, err := service.Client.Create(ctx, fmt.Sprintf(\"%s/%d/subRule\", endPointDlpSubRulesEndpoint, ruleID), *dlpRule)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "CHANGELOG.md",
+          "after": "# 3.8.41 (July 20, 2026)",
+          "quotes": [
+            "Added the following new ZIA Endpoint DLP Exception (Sub) Rules endpoints"
           ]
         }
       ]
@@ -158,13 +167,21 @@
       ]
     },
     "go-aggregates-pages": {
-      "statement": "The Go SDK's endpoint application list functions page through the results themselves, requesting 5000 per page.",
+      "statement": "The Go SDK's `GetAllEndpointApplications` and `GetAllEndpointApplicationsLite` page through the results themselves, requesting 5000 per page.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go",
           "after": "func GetAllEndpointApplications(ctx",
+          "quotes": [
+            "err := common.ReadAllPages(ctx, service.Client, endpoint, &applications, 5000)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/endpoint_dlp/endpoint_applications/endpoint_applications.go",
+          "after": "func GetAllEndpointApplicationsLite(ctx",
           "quotes": [
             "err := common.ReadAllPages(ctx, service.Client, endpoint, &applications, 5000)"
           ]
@@ -221,9 +238,18 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zia/endpoint_custom_apps.py",
+          "after": "def list_custom_apps(self, query_params: Optional[dict] = None) -> APIResult[List[EndpointApplicationsCustomApps]]:",
+          "quotes": [
+            "result.append(EndpointApplicationsCustomApps(self.form_response_body(item)))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/endpoint_custom_apps.py",
           "after": "def add_custom_app(self, **kwargs) -> APIResult[DlpEndpointResource]:",
           "quotes": [
-            "response, error = self._request_executor.execute(request, DlpEndpointResource)"
+            "response, error = self._request_executor.execute(request, DlpEndpointResource)",
+            "result = DlpEndpointResource(self.form_response_body(response.get_body()))"
           ]
         },
         {
@@ -231,7 +257,8 @@
           "path": "zscaler/zia/endpoint_custom_apps.py",
           "after": "def update_custom_app(self, app_id: int, **kwargs) -> APIResult[DlpEndpointResource]:",
           "quotes": [
-            "response, error = self._request_executor.execute(request, DlpEndpointResource)"
+            "response, error = self._request_executor.execute(request, DlpEndpointResource)",
+            "result = DlpEndpointResource(self.form_response_body(response.get_body()))"
           ]
         }
       ]

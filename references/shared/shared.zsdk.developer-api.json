@@ -223,6 +223,8 @@
           "source": "zscaler-help",
           "path": "zsdk-developer-reference.json",
           "quotes": [
+            "ZSDK provides notifications to monitor the state of the tunnel.",
+            "| Android | iOS |  |  |",
             "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_CONNECTED | NSNotification.ZscalerSDKTunnelConnected | The tunnel is in a connected state and ready for use for outbound network requests. Your application can send HTTPS and WebView traffic via the tunnel now.",
             "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_DISCONNECTED | NSNotification.ZscalerSDKTunnelDisconnected | Describes that the tunnel has stopped operations.",
             "ZscalerSDKNotificationEnum.ZSCALERSDK_TUNNEL_RECONNECTING | NSNotification.ZscalerSDKTunnelReconnecting | There was an issue establishing a connection to the ZSDK Public Service Edge. ZSDK continues to connect and sends a Tunnel Connected notification if the connection is successfully established."
@@ -359,21 +361,16 @@
           "source": "zsdk-android",
           "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/lifecycle/AppLifecycleObserver.kt",
           "quotes": [
-            "// Call this as soon as app comes to foreground or network requests are going to be resumed, whichever is earlier.",
-            "ZscalerSDK.resume()",
-            "// Call this when app goes to background or when ongoing network requests are finished, whichever is later.",
-            "ZscalerSDK.suspend()",
-            "@OnLifecycleEvent(Lifecycle.Event.ON_START)",
-            "@OnLifecycleEvent(Lifecycle.Event.ON_STOP)"
+            "@OnLifecycleEvent(Lifecycle.Event.ON_START)\n    fun onAppForeground() {\n        // Call this as soon as app comes to foreground or network requests are going to be resumed, whichever is earlier.\n        ZscalerSDK.resume()",
+            "@OnLifecycleEvent(Lifecycle.Event.ON_STOP)\n    fun onAppBackground() {\n        // Call this when app goes to background or when ongoing network requests are finished, whichever is later.\n        ZscalerSDK.suspend()"
           ]
         },
         {
           "source": "zsdk-android",
           "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/lifecycle/MainApplication.kt",
           "quotes": [
-            "ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())",
             "class MainApplication : Application() {",
-            "override fun onCreate() {"
+            "override fun onCreate() {\n        super.onCreate()\n\n        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver())"
           ]
         }
       ]
@@ -454,6 +451,7 @@
           "source": "zsdk-android",
           "path": "sample-app/app/src/main/java/com/zscaler/sdk/demoapp/util/ProxyUtility.kt",
           "quotes": [
+            "import androidx.webkit.ProxyController",
             "* After starting either tunnel, this needs to be called for setting the web view proxy settings to route network traffic over the tunnel",
             "* Note that as per android official docs, web view network connections are not guaranteed to",
             "* immediately use the new proxy setting; wait for the success listener before loading a page.",

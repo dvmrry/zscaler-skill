@@ -119,7 +119,8 @@
             "description": "The search string used to support search by features and fields for the API."
           }
         }
-      ]
+      ],
+      "conditions": "Every member: over automate-zscaler/openapi/zpa.openapi.json (captured 2026-09-07), `jq -r '.paths | to_entries[] | select(.key|test(\"posture\";\"i\")) | \"\\(.key) \\(.value|keys|join(\",\"))\"'` returns two paths, /mgmtconfig/v2/admin/customers/{customerId}/posture and /mgmtconfig/v1/admin/customers/{customerId}/posture/{id}, each with only a get operation; vendor/zscaler-help/obtaining-posture-profile-details-using-api.json (captured 2026-10-18) has two sections, 'Getting Details for All Posture Profiles V2' and 'Getting Details for a Particular Posture Profile', and `grep -o 'Send a [A-Z]* request'` on it returns four lines, all 'Send a GET request', while `grep -o -w 'POST\\|PUT\\|DELETE\\|PATCH'` returns nothing. (The page's own search example uses a v1 path, /mgmtconfig/v1/admin/customers/73186051597795328/posture&search=, while the spec puts search on the v2 path; the statement follows the spec.)"
     },
     "spec-get-only": {
       "statement": "The captured API specification defines only get operations on its two posture paths, and no operation that creates, changes or deletes a posture profile.",

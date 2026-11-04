@@ -162,17 +162,17 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "body[\"tcpPortRanges\"] = []",
-            "body[\"tcpPortRange\"] = []",
-            "body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
-            "body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
+            "if \"tcp_port_ranges\" in body: body[\"tcpPortRanges\"] = body.pop(\"tcp_port_ranges\") else: body[\"tcpPortRanges\"] = []",
+            "if \"tcp_port_range\" in body: body[\"tcpPortRange\"] = [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in body.pop(\"tcp_port_range\")] else: body[\"tcpPortRange\"] = []",
+            "if \"udp_port_ranges\" in body: body[\"udpPortRanges\"] = body.pop(\"udp_port_ranges\") else: body[\"udpPortRanges\"] = []  # Explicitly clear if not provided",
+            "if \"udp_port_range\" in body: body[\"udpPortRange\"] = [{\"from\": pr[\"from\"], \"to\": pr[\"to\"]} for pr in body.pop(\"udp_port_range\")] else: body[\"udpPortRange\"] = []  # Explicitly clear if not provided"
           ],
           "after": "def update_segment(self, segment_id: str, **kwargs)"
         }
       ]
     },
     "python-clientless-key-presence": {
-      "statement": "In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup. Up to v1.10.0 that path returned 'No matching clientless App found with appId' (the v1.11.1 changelog says the update failed whenever `clientless_app_ids` was passed, #581); v1.11.1 matches each supplied app by domain and segment ID and returns 'No matching clientless App found for domain' only for an entry with no match. `add_segment` renames the key to `clientlessApps`.",
+      "statement": "In the Python SDK `update_segment` tests whether the key `clientless_app_ids` is present, not whether it has a value, and a present key triggers a `BROWSER_ACCESS` lookup. At v1.10.0 and v1.11.0 that path returned 'No matching clientless App found with appId' (the v1.11.1 changelog says the update failed whenever `clientless_app_ids` was passed, #581); v1.11.1 matches each supplied app by domain and segment ID and returns 'No matching clientless App found for domain' only for an entry with no match. `add_segment` renames the key to `clientlessApps`.",
       "tier": "A",
       "binds": [
         "zpa/browser-access#clientlessApps"
@@ -183,7 +183,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "at": [
-            "v1.10.0"
+            "v1.10.0",
+            "v1.11.0"
           ],
           "quotes": [
             "if \"clientless_app_ids\" in body:",
@@ -287,8 +288,10 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/models/application_segment.py",
           "quotes": [
+            "super().__init__(config) if config:",
             "self.enabled = config[\"enabled\"] if \"enabled\" in config else True",
-            "self.guest_details = [] self.enabled = None self.double_encrypt = None"
+            "self.tags = ZscalerCollection.form_list(config[\"tags\"] if \"tags\" in config else [], Tags) else: self.id = None self.name = None self.description = None self.creation_time = None self.modified_time = None self.modified_by = None self.domain_names = []",
+            "self.domain_names = [] self.server_groups = [] self.pra_apps = [] self.common_apps_dto = None self.tcp_port_ranges = [] self.udp_port_ranges = [] self.tcp_port_range = [] self.udp_port_range = [] self.guest_details = [] self.enabled = None self.double_encrypt = None"
           ],
           "after": "class ApplicationSegments(ZscalerObject):"
         }
@@ -366,6 +369,7 @@
           "source": "github-issues",
           "path": "zscaler-sdk-python-580.json",
           "quotes": [
+            "[ISSUE] update_segment sends empty port-range lists for the port keys the caller did not pass, clearing them **Environment**",
             "## Comment (MEMBER, 2026-10-06) This is intentional: since v1.4.3 (#296), update_segment sends omitted port fields as empty lists so ports removed from the desired configuration are actually cleared",
             "Updates are full replacements, so pass the segment's current ports on every update if you want to keep them.",
             "In 1.11.1 we added a note to the update_segment* docstrings to make this explicit. Zscaler DevRel"

@@ -82,7 +82,7 @@
       "text": "The Status log's ServiceCount counts the domain or IP and port services the connector monitors [[zpa.logs.control-session-status:service-count-monitored]]."
     },
     {
-      "text": "CPUUtilization means a point value in the Status log and a 5-minute maximum in the Metrics log [[zpa.logs.control-session-status:resource-fields-at-event]]; see [[zpa.logs.app-connector-metrics]]."
+      "text": "The Status and Metrics logs describe CPUUtilization differently: [[zpa.logs.control-session-status:resource-fields-at-event]] [[zpa.logs.control-session-status:status-resource-snapshot]]; see [[zpa.logs.app-connector-metrics]]."
     }
   ],
   "checks": [
@@ -116,7 +116,7 @@
       ]
     },
     {
-      "do": "Whether a log gap overlaps a connector outage, since LSS retransmits at most 15 minutes.",
+      "do": "Whether a log gap overlaps a connection loss between Private Access and the App Connectors, since LSS does not send the data generated during the loss and, once the connection is restored, can retransmit the last 15 minutes of it, with delivery not guaranteed.",
       "uses": [
         "lss-retransmit-limits"
       ]
@@ -404,14 +404,15 @@
       ]
     },
     "cert-expiry-in-status-output": {
-      "statement": "A running connector periodically writes a status line to the local logs that includes how long its certificate has left.",
+      "statement": "A running connector periodically writes a status message to the local logs that includes how long its certificate has left.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "managing-deployed-software-components.json",
           "quotes": [
-            "Certificate will expire in 370 days, 21 hours, 39 minutes"
+            "The information displayed includes the log output of the software component to the local system logging facilities. Also, a running software component periodically outputs status messages, for example:",
+            "App Connector Status:ID=217246525011525974:Name=Test App Connector-1:Ver=18.42.1 -------- Certificate will expire in 370 days, 21 hours, 39 minutes"
           ]
         }
       ]
@@ -476,7 +477,7 @@
       ]
     },
     "lss-retransmit-limits": {
-      "statement": "After a connection loss between Private Access and the App Connectors, LSS does not send the log data generated during the loss and can retransmit only the last 15 minutes after restoration, with delivery not guaranteed; during a loss between the App Connector and the SIEM, LSS sends nothing for that period except audit logs.",
+      "statement": "After a connection loss between Private Access and the App Connectors, LSS does not send the log data generated during the loss; after the connection is restored it can retransmit the last 15 minutes of log data, with delivery not guaranteed. During a loss between the App Connector and the SIEM, LSS sends nothing for that period except audit logs.",
       "tier": "A",
       "evidence": [
         {

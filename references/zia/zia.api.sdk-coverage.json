@@ -79,8 +79,24 @@
           "quotes": [
             "func GetUser(ctx context.Context, service *zscaler.ScimZIAService, userID string) (*SCIMUser, *http.Response, error) {"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/service.go",
+          "quotes": [
+            "type ScimZIAService struct { Config *zia.ScimConfiguration Client *zia.ScimZiaClient",
+            "Client *Client // use the common Zscaler OneAPI Client here"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/scim_api/scim_group_api.go",
+          "quotes": [
+            "func CreateGroup(ctx context.Context, service *zscaler.ScimZIAService, group *SCIMGroup)"
+          ]
         }
-      ]
+      ],
+      "conditions": "`grep -n \"^func \" zscaler/zia/services/scim_api/*.go` at v3.8.58 returns 12 functions, the user and group get, get-by-name, create, update, delete and get-all calls, all taking `service *zscaler.ScimZIAService`."
     },
     "go-devicegroups-read-only": {
       "statement": "Every function in the Go devicegroups package is a read: lookups of device groups and devices by name, model, owner, OS type or version, and list-all calls; the package defines no create, update or delete.",
@@ -106,7 +122,7 @@
       "conditions": "The absence of a create, update or delete was checked by listing every function: `grep -n \"^func \" zscaler/zia/services/devicegroups/devicegroups.go` at v3.8.58 returns ten functions, all named Get..., each quoted here."
     },
     "python-devicegroups-read-only": {
-      "statement": "The Python SDK reads device groups through list_device_groups on device_management and on a separate device_groups client, plus device listings, and likewise has no group create, update or delete.",
+      "statement": "The Python SDK reads device groups through list_device_groups on device_management and on a separate device_groups client, plus device listings, and has no group create, update or delete.",
       "tier": "A",
       "evidence": [
         {
@@ -135,7 +151,7 @@
           ]
         }
       ],
-      "conditions": "The absence of a group create, update or delete was checked at 4f8f54df (v1.11.3 plus one commit): `grep -n \"def \" zscaler/zia/device_groups.py` returns __init__ and three list_ methods, and the same grep over zscaler/zia/device_management.py returns __init__, list_device_groups, list_devices and list_device_lite. This covers these two files only, not other modules that might write device groups."
+      "conditions": "The absence of a group create, update or delete was checked at 4f8f54df (v1.11.3 plus one commit): `grep -n \"def \" zscaler/zia/device_groups.py` returns __init__ and three list_ methods, and the same grep over zscaler/zia/device_management.py returns __init__, list_device_groups, list_devices and list_device_lite. This covers these two files only, not other modules that might write device groups. Over the whole package, `grep -rn \"/deviceGroups\" zscaler --include='*.py'` at v1.11.3-1-g4f8f54df returns six paths, all in device_groups.py and device_management.py, and `grep -n http_method` on both files returns only \"get\"."
     },
     "email-profiles-both": {
       "statement": "Email profiles are covered by both SDKs: Python has an EmailProfilesAPI client with list_email_profiles, and Go has an email_profiles package.",
@@ -282,6 +298,7 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/endpoint_dlp/outbound_email_dlp/outbound_email_dlp.go",
           "quotes": [
+            "emailDlpRulesEndpoint = \"/zia/api/v1/emailDlpRules\"",
             "func GetLite(ctx context.Context, service *zscaler.Service) ([]OutboundEmailDlp, error) {",
             "func Create(ctx context.Context, service *zscaler.Service, dlpRule *OutboundEmailDlp)",
             "func Delete(ctx context.Context, service *zscaler.Service, profileID int)",
@@ -290,10 +307,11 @@
             "func GetAll(ctx context.Context, service *zscaler.Service, orgID *int) ([]OutboundEmailDlp, error) {"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `awk '/^# 3.8.41/,/^# 3.8.40/' CHANGELOG.md | grep -c -i emailDlp` at v3.8.58 returns 1, the `GET /emailDlpRules/actions` line."
     },
     "python-changelog-lists-only-actions": {
-      "statement": "The Python v1.9.39 release notes likewise add one Outbound Email DLP endpoint, `GET /emailDlpRules/actions`, while the module implements `/emailDlpRules` and its lite and per-rule paths.",
+      "statement": "The Python v1.9.39 release notes add one Outbound Email DLP endpoint, `GET /emailDlpRules/actions`, while the module implements `/emailDlpRules` and its lite and per-rule paths.",
       "tier": "A",
       "evidence": [
         {
@@ -324,8 +342,17 @@
           "quotes": [
             "/emailDlpRules/{rule_id}"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/outbound_email_dlp_rules.py",
+          "after": "def list_rules(self, query_params: Optional[dict] = None) -> APIResult[List[OutboundEmailDlpRules]]:",
+          "quotes": [
+            "/emailDlpRules"
+          ]
         }
-      ]
+      ],
+      "conditions": "`awk '/^## 1.9.39/,/^## 1.9.38/' CHANGELOG.md | grep -c -i emailDlp` at v1.11.3-1-g4f8f54df returns 1, the `GET /emailDlpRules/actions` line."
     },
     "ips-categories-in-code": {
       "statement": "Both SDKs implement a read of `/ipsCategories`.",
@@ -372,6 +399,7 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/filetypecontrol/custom_file_types/custom_file_types.go",
           "quotes": [
+            "customFilefileType          = \"/zia/api/v1/customFileTypes\"",
             "customFileTypeCountEndpoint = \"/zia/api/v1/customFileTypes/count\""
           ]
         },
@@ -481,6 +509,7 @@
     "july-lists-single-page": {
       "statement": "The DNS application group, endpoint application and Outbound Email DLP rule list methods each send one request and build their results from `get_results()`, without a loop over further pages.",
       "tier": "A",
+      "conditions": "Absence claim (no page loop): `grep -cE 'while |has_next|\\.next\\(|page'` over zscaler/zia/dns_application_groups.py, zscaler/zia/endpoint_applications.py and zscaler/zia/outbound_email_dlp_rules.py (sdk-python) at v1.11.3-1-g4f8f54df returns 0 for each file.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -547,7 +576,9 @@
           "path": "zscaler/zia/services/shadowitreport/shadowit_report.go",
           "quotes": [
             "if entity != \"USER\" && entity != \"LOCATION\" {",
-            "invalid entity value; must be 'USER' or 'LOCATION'"
+            "invalid entity value; must be 'USER' or 'LOCATION'",
+            "appExportCsvEndpointTemplate = \"/zia/api/v1/shadowIT/applications/%s/exportCsv\"",
+            "endpoint := fmt.Sprintf(appExportCsvEndpointTemplate, entity)"
           ]
         }
       ]

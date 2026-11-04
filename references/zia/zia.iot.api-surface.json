@@ -109,8 +109,53 @@
             "classificationsEndpoint = \"/zia/api/v1/iotDiscovery/classifications\"",
             "deviceListEndpoint      = \"/zia/api/v1/iotDiscovery/deviceList\""
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceTypes",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1categories",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1classifications",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1iotDiscovery~1deviceList",
+          "expect_absent": [
+            "post",
+            "put",
+            "patch",
+            "delete"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: over automate-zscaler/openapi/zia.openapi.json in the capture of 2026-09-07, `jq -r '.paths | keys[] | select(test(\"iot\"; \"i\"))'` returns exactly the four /iotDiscovery paths, and each path item holds only `get`."
     },
     "no-write-operations": {
       "statement": "The IoT Report has no create, update or delete operation: the OpenAPI spec lists only GET for these paths and the Go SDK exposes only four read functions.",
@@ -478,8 +523,17 @@
           "quotes": [
             "No time window — this reflects the present network state."
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zins/iot.py",
+          "after": "def get_device_stats(",
+          "quotes": [
+            "query IoTDeviceStats($limit: Int, $filter_by: IoTDeviceFilterBy, $order_by: [IoTDeviceOrderBy]) {"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: in the Python SDK at v1.11.3-1-g4f8f54df, `get_device_stats(self, limit, filter_by, order_by)` in zscaler/zins/iot.py takes no time argument, `IoTDeviceFilterBy` in zscaler/zins/models/inputs.py has only `classifications`, `classification_uuid` and `category`, and `grep -c -iE 'start_time|end_time|startTime|endTime|time_range|timeRange' zscaler/zins/iot.py` returns 0. The MCP tool's input model `IotDeviceStatsInput` at v0.15.4 has only `limit`."
     },
     "graphql-role": {
       "statement": "A Z-Insights GraphQL API client is registered with Authentication Service and given a role; the default role is Zscaler Insights Reader.",
@@ -514,7 +568,8 @@
             "is_list=False,"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'Annotated\\[' src/zscaler_mcp/tools/zins/iot.py` at v0.15.4 returns one field, `limit`, in `IotDeviceStatsInput`, the file's only input model."
     },
     "device-names-from-taxonomy": {
       "statement": "The deviceList records carry only UUIDs for device type, category and classification, so their names come from joining to the three taxonomy lists, which return name with uuid.",

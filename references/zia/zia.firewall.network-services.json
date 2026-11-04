@@ -67,10 +67,9 @@
       ]
     },
     {
-      "do": "Whether a service is custom from its type and tag, rather than from its name.",
+      "do": "Whether a service is custom from its type, rather than from its name.",
       "uses": [
-        "type-values",
-        "tag-values"
+        "type-values"
       ]
     },
     {
@@ -116,7 +115,7 @@
       ]
     },
     "tag-values": {
-      "statement": "The API's `tag` field is an enumeration of identifiers for predefined services, such as HTTP, HTTPS, DNS, FTP, SSH, plus ICMP_ANY, UDP_ANY, TCP_ANY and OTHER_NETWORK_SERVICE.",
+      "statement": "The API's `tag` field is an enumeration of network service identifiers, such as HTTP, HTTPS, DNS, FTP, SSH, plus ICMP_ANY, UDP_ANY, TCP_ANY and OTHER_NETWORK_SERVICE.",
       "tier": "A",
       "binds": [
         "zia/network-services#tag"
@@ -227,7 +226,8 @@
             "services, _, err = client.zia.cloud_firewall.list_network_services(query_params=qp)"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'Literal\\|validator\\|ICMP' src/zscaler_mcp/tools/zia/network_services.py` at v0.15.4 returns only the Field description; `grep -n protocol` on the file returns the field declaration `protocol: Annotated[` (typed `Optional[str]`), its description and the `if args.protocol:` branch that uppercases it into `qp`."
     },
     "port-tuples": {
       "statement": "The SDK and MCP accept ports as tuples of direction (src or dest), protocol (tcp or udp), start port and optionally end port; the end port is omitted for a single port.",
@@ -243,7 +243,7 @@
           "source": "sdk-python",
           "path": "zscaler/zia/cloud_firewall.py",
           "quotes": [
-            "`start port`, `end port`. If this is a single port and not a port range then `end port` can be omitted."
+            "A list of port protocol tuples. Tuples must follow the convention `src/dest`, `protocol`, `start port`, `end port`. If this is a single port and not a port range then `end port` can be omitted."
           ],
           "after": "def add_network_service("
         },
@@ -277,7 +277,8 @@
           ],
           "after": "def add_network_service("
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'items\\[0\\]\\|items\\[1\\]' zscaler/zia/cloud_firewall.py` at v1.11.3-1-g4f8f54df returns only the two `body.setdefault(f\"{items[0]}{items[1].title()}Ports\", ...)` lines, one in `add_network_service` and one in `update_network_service`; each loop body sets `port_dict` start, adds the end when `len(items) == 4`, then calls `setdefault`, with no check on direction or protocol."
     },
     "single-port-encoding": {
       "statement": "A port entry with no `end` value is encoded differently by the two SDKs: the Python `PortRange` always emits both `start` and `end`, while the Go `NetworkPorts` tags both `omitempty`, so a zero `end` is left out and the entry is sent as `start` alone.",

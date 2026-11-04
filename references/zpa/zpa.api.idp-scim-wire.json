@@ -248,6 +248,7 @@
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/models/idp.py",
+          "after": "class ServiceProvider(ZscalerObject):",
           "quotes": [
             "self.sp_entity_id = config[\"spEntityId\"] if \"spEntityId\" in config else False",
             "self.sp_metadata_url = config[\"spMetadataUrl\"] if \"spMetadataUrl\" in config else False",
@@ -328,7 +329,7 @@
       "conditions": "The absence of these members from the Go struct follows from the complete struct quoted above; encoding/json drops response keys that have no struct field."
     },
     "scim-group-sort-order-dsc": {
-      "statement": "The SCIM group list takes sortOrder ASC or DSC (not DESC) and defaults to DSC.",
+      "statement": "The SCIM group list documents sortOrder as ascending (ASC) or descending (DSC) and defaults to DSC.",
       "tier": "A",
       "evidence": [
         {
@@ -469,7 +470,7 @@
       ]
     },
     "scim-helper-page-limits": {
-      "statement": "The Go SCIM list helper uses itemsPerPage 10 when the input is not positive and caps it at 100, sends one-based startIndex and count, and reads the envelope members Resources and totalResults. The management API list calls use page and pagesize instead, so these limits belong to this helper.",
+      "statement": "The Go SCIM list helper uses itemsPerPage 10 when the input is not positive and caps it at 100, sends one-based startIndex and count, and reads the envelope members Resources and totalResults. The management API's v2 IdP list instead takes page and pagesize query parameters, with a default page size of 20 and a maximum of 500.",
       "tier": "A",
       "evidence": [
         {
@@ -572,8 +573,7 @@
           "path": "zscaler/zpa/config_scim.go",
           "quotes": [
             "func (c *ScimZpaClient) DoRequest(ctx context.Context, method, endpoint string, payload interface{}, target interface{}) (*http.Response, error) {",
-            "req.Header.Add(\"Content-Type\", \"application/scim+json\")",
-            "req.Header.Add(\"Authorization\", fmt.Sprintf(\"Bearer %s\", c.ScimConfig.AuthToken))"
+            "// Add headers, including the Authorization token req.Header.Add(\"Content-Type\", \"application/scim+json\") req.Header.Add(\"Authorization\", fmt.Sprintf(\"Bearer %s\", c.ScimConfig.AuthToken))"
           ]
         },
         {
@@ -584,7 +584,8 @@
             "req.Header.Add(\"Content-Type\", \"application/json\")"
           ]
         }
-      ]
+      ],
+      "conditions": "`grep -n 'func (c \\*ScimZpaClient)' zscaler/zpa/config_scim.go` at Go SDK v3.8.58 returns one method, DoRequest; its Content-Type and Authorization adds sit at function level, outside any `if`."
     },
     "scim-cloud-base-urls": {
       "statement": "The Go SCIM client maps the cloud name to a base URL: PRODUCTION (the default) scim1.private.zscaler.com, BETA scim1.zpabeta.net, ZPATWO scim1.zpatwo.net, GOV scim1.zpagov.net, GOVUS scim1.zpagov.us and PREVIEW scim1.zpapreview.net, each under /scim/1/ followed by the IdP ID.",

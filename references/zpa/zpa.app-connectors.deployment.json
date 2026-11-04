@@ -405,7 +405,7 @@
       "conditions": "The base_ac_vmss, ac and ac_vmss types are named by the titles of their example READMEs; their full descriptions are not quoted."
     },
     "module-aws-defaults": {
-      "statement": "AWS module defaults: standalone instance type m5.large, ac_count 1 per module call, ASG min_size 2, max_size 4 and target CPU 50%.",
+      "statement": "AWS module defaults: standalone instance type m5.large, ac_count 1, ASG min_size 2, max_size 4 and target CPU utilization 50.",
       "tier": "A",
       "evidence": [
         {
@@ -518,6 +518,14 @@
             "default = \"PT5M\""
           ],
           "after": "variable \"scale_out_evaluation_period\" {"
+        },
+        {
+          "source": "tfmod-azure-zpa-app-connector",
+          "path": "modules/terraform-zsac-acvmss-azure/variables.tf",
+          "quotes": [
+            "default = \"PT5M\""
+          ],
+          "after": "variable \"scale_in_evaluation_period\" {"
         },
         {
           "source": "tfmod-azure-zpa-app-connector",
@@ -874,7 +882,7 @@
       ]
     },
     "scale-out-small-and-two-minimum": {
-      "statement": "Zscaler recommends more connectors with lower specifications over fewer large ones, and a minimum of two healthy connectors per group; more connectors can be added at any time with the same provisioning key.",
+      "statement": "Zscaler recommends more connectors with lower specifications over fewer large ones, and a minimum of two healthy connectors to always ensure an available path; more connectors can be added at any time with the same provisioning key.",
       "tier": "A",
       "evidence": [
         {
@@ -906,13 +914,14 @@
       ]
     },
     "ranges-limits-100": {
-      "statement": "The ZPA Ranges and Limitations article lists 100 App Connectors, 100 App Connector groups and 100 App Connector provisioning keys under App Connector Management.",
+      "statement": "The ranges and limitations help article, whose values are per organization unless noted otherwise, lists in its Private Access (ZPA) section 100 App Connectors, 100 App Connector groups and 100 App Connector provisioning keys under App Connector Management.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
           "quotes": [
+            "This article lists the ranges and limitations of rules, policies, fields, and other features. All values are per organization unless noted otherwise.",
             "| App Connectors | 100 App Connectors |",
             "| App Connector Groups | 100 groups |",
             "| App Connector Provisioning Keys | 100 keys |",
@@ -925,7 +934,7 @@
         "zpa/app-connectors",
         "zpa/app-connector-groups"
       ],
-      "conditions": "The table gives no scope (tenant, organization or group) for these limits; they are read as tenant-wide limits alongside tenant-limit-100. They are not per-group maximums."
+      "conditions": "The App Connector Management table notes no scope of its own, so the article's per-organization default applies: these are read as tenant-wide limits alongside tenant-limit-100. They are not per-group maximums."
     },
     "get-network-interfaces-july13": {
       "statement": "The July 13, 2026 release summary lists support for a Get Network Interfaces command that collects a list of the network interfaces an App Connector uses, to help with remote troubleshooting.",
@@ -964,7 +973,10 @@
           "path": "terraform-azurerm-zpa-app-connector-modules-24.json",
           "quotes": [
             "Standard_B1s is deprecated in most Azure regions, please update bastion module default instance type to utilise a newer VM SKU e.g. Standard_B2ts_v2",
-            "This variable can be customised when calling modules directly but it breaks with zsac script"
+            "This variable can be customised when calling modules directly but it breaks with zsac script",
+            "## Current behavior In most regions",
+            "SkuNotAvailable: The requested VM size for resource 'Following SKUs have failed for Capacity Restrictions: Standard_B1s' is currently not available in location 'southeastasia'.",
+            "Run zsac up in e.g. AustraliaSouthEast or SouthEastAsia"
           ]
         },
         {

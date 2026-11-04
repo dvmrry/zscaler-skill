@@ -109,7 +109,8 @@
             "operationId": "Subscription Resource Verify Sns Topic Access"
           }
         }
-      ]
+      ],
+      "conditions": "Closed count: over automate-zscaler/openapi/event-monitoring.openapi.json in the capture of 2026-09-07, `jq -r '.paths | to_entries[] | select(.key|startswith(\"/subscriptions/channels\")) | .key as $p | .value | keys[] | select(test(\"^(get|put|post|delete|patch)$\")) | \"\\(.) \\($p)\"'` returns five lines: get /subscriptions/channels, get /subscriptions/channels/email, get /subscriptions/channels/sns, post /subscriptions/channels/sns:verify and get /subscriptions/channels/webhook."
     },
     "channel-list": {
       "statement": "GET /subscriptions/channels lists the channel types supported for the tenant, each with `type`, `description` and `setup_required`; SNS shows `setup_required: true`, meaning more configuration is needed before it can be used.",
@@ -130,7 +131,9 @@
           "after": "Use GET /subscriptions/channels to retrieve the list of all notification channel types supported for your tenant, shown as follows.",
           "quotes": [
             "\"type\": \"email\",",
-            "\"setup_required\": false,"
+            "\"setup_required\": false,",
+            "\"type\": \"webhook\", \"description\": \"Webhook notifications\", \"setup_required\": false,",
+            "\"type\": \"sns\", \"description\": \"AWS SNS topic notifications\", \"setup_required\": true,"
           ]
         }
       ]
@@ -211,8 +214,10 @@
           "quotes": [
             "| topic_arn | string | Yes | Full SNS topic ARN. Must match arn:aws:sns:<region>:<12-digit-account>:<topic-name> (optional .fifo suffix). |",
             "| region | string | No | AWS region of the topic. If omitted, region is inferred from the ARN. |",
+            "Example response for successful request (200 OK):",
             "\"verified\": true,",
             "\"message_sent\": \"{\\\"message\\\": \\\"Event Monitoring Message Test\\\"}\"",
+            "Example response for failed request (code 400 or 422):",
             "\"error\": \"<Error that happened while verification>\""
           ]
         },
@@ -241,7 +246,7 @@
       ]
     },
     "verify-codes": {
-      "statement": "sns:verify returns 200 when publish access is validated, 400 for a malformed request or ARN, 404 only for a wrong endpoint path (never for a missing topic), 422 when the request is valid but verification failed at AWS (missing permission, missing topic or another AWS error), and 500 for an internal error.",
+      "statement": "sns:verify returns 200 when publish access is validated, 400 for a malformed request or ARN, 404 for a wrong endpoint path (the guide says it does not indicate a missing topic), 422 when the request is valid but verification failed at AWS (missing permission, missing topic or another AWS error), and 500 for an internal error.",
       "tier": "A",
       "evidence": [
         {

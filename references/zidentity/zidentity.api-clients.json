@@ -250,12 +250,10 @@
           "source": "sdk-go",
           "path": "zscaler/ziam/services/api_clients/api_clients.go",
           "quotes": [
-            "The three values are mutually exclusive and each one determines which of",
-            "the client authenticates with a secret, managed",
-            "through AddSecret / GetSecrets / DeleteSecret.",
-            "the client authenticates with a certificate, supplied",
-            "in ClientCertificates or PublicKeys.",
-            "the client authenticates with keys published at",
+            "The three values are mutually exclusive and each one determines which of\n// ClientAuthentication's other fields the API expects:",
+            "AuthTypeSecret     — the client authenticates with a secret, managed\n//     through AddSecret / GetSecrets / DeleteSecret.",
+            "AuthTypePubKeyCert — the client authenticates with a certificate, supplied\n//     in ClientCertificates or PublicKeys.",
+            "AuthTypeJWKS       — the client authenticates with keys published at\n//     ClientJWKsURL.",
             "ClientJWKsURL string `json:\"clientJWKsUrl,omitempty\"`",
             "AuthTypeSecret     AuthType = \"SECRET\"",
             "AuthTypePubKeyCert AuthType = \"PUBKEYCERT\"",
@@ -335,6 +333,7 @@
           "source": "sdk-go",
           "path": "zscaler/ziam/services/api_clients/api_clients.go",
           "quotes": [
+            "SelectedScope is one scope selected on a resource.",
             "ID is the composite id that resource_servers reports verbatim, and it is",
             "passed through unchanged. Its internal shape is \"<serviceId>:<zpaScopeId>:<id>\"",
             "with the middle segment empty for every service except ZPA",
@@ -345,7 +344,7 @@
       ]
     },
     "scope-examples": {
-      "statement": "The Python SDK's create example pairs scope IDs such as `hhlm44raf07ps::hpopqi71j075n` (ZIA) and `hhlm44rae07ib:mplm44rqi07jb:hplm44rqvg7n5` (ZPA) with scope names such as `zs:config:zia.zscalerbeta.net:8061240:config:33860:ZIA_API_Role01`, `zs:config:ziam:0:config:9h6p7ebv903k4:Super Admin` for ZIdentity itself, and `zs:config:zpa.zpabeta.net:72058304855015424:config:Default:Default:28:FullAccess` for ZPA.",
+      "statement": "The Python SDK's create example pairs scope IDs with scope names: `hhlm44raf07ps::hpopqi71j075n` with `zs:config:zia.zscalerbeta.net:8061240:config:33860:ZIA_API_Role01`, and `hhlm44rae07ib:mplm44rqi07jb:hplm44rqvg7n5` with `zs:config:zpa.zpabeta.net:72058304855015424:config:Default:Default:28:FullAccess`; it also selects the scope named `zs:config:ziam:0:config:9h6p7ebv903k4:Super Admin`.",
       "tier": "A",
       "evidence": [
         {
@@ -353,11 +352,9 @@
           "path": "zscaler/zid/api_client.py",
           "after": "def add_api_client(self, **kwargs) -> APIResult[dict]:",
           "quotes": [
-            "\"id\": \"hhlm44raf07ps::hpopqi71j075n\",",
-            "\"name\": \"zs:config:zia.zscalerbeta.net:8061240:config:33860:ZIA_API_Role01\"",
+            "\"id\": \"hhlm44raf07ps::hpopqi71j075n\",\n            ...                     \"name\": \"zs:config:zia.zscalerbeta.net:8061240:config:33860:ZIA_API_Role01\"",
             "\"name\": \"zs:config:ziam:0:config:9h6p7ebv903k4:Super Admin\"",
-            "\"id\": \"hhlm44rae07ib:mplm44rqi07jb:hplm44rqvg7n5\",",
-            "\"name\": \"zs:config:zpa.zpabeta.net:72058304855015424:config:Default:Default:28:FullAccess\""
+            "\"id\": \"hhlm44rae07ib:mplm44rqi07jb:hplm44rqvg7n5\",\n            ...                     \"name\": \"zs:config:zpa.zpabeta.net:72058304855015424:config:Default:Default:28:FullAccess\""
           ]
         }
       ]
@@ -370,7 +367,7 @@
         "zidentity.api-clients:scope-examples",
         "shared.oneapi.authentication:one-resource-per-product"
       ],
-      "conditions": "Inferred from resources defining the permitted endpoints per service and from the example's ZIdentity scope; no source names the ZIdentity resource as required for this API in so many words."
+      "conditions": "Inferred from resources defining the permitted endpoints per service and from the example's `ziam` scope, read as ZIdentity's own because the name says ziam (no source spells out that ziam is ZIdentity); no source names the ZIdentity resource as required for this API in so many words."
     },
     "scope-checked-at-call": {
       "statement": "A client whose resources do not cover a product can still obtain a token, since the token request names no scope; the failure appears when the token is presented, as a 403 for a client without access to the resource.",

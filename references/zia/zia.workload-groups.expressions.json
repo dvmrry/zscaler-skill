@@ -91,7 +91,7 @@
   ],
   "claims": {
     "json-nesting": {
-      "statement": "The structured form (`expressionJson`) is a list of `expressionContainers`; each container has a `tagType`, an `operator`, and a `tagContainer`, and the tag container holds a list of `tags` (each a `key` and `value`) plus its own `operator`.",
+      "statement": "The structured form (`expressionJson`) holds a list of `expressionContainers`; each container has a `tagType`, an `operator`, and a `tagContainer`, and the tag container holds a list of `tags` (each a `key` and `value`) plus its own `operator`.",
       "tier": "A",
       "binds": [
         "zia/workload-groups"
@@ -102,13 +102,43 @@
           "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
           "quotes": [
             "WorkloadTagExpression WorkloadTagExpression `json:\"expressionJson,omitempty\"`",
-            "// The workload group expression containing tag types, tags, and their relationships represented in a JSON format.",
-            "ExpressionContainers []ExpressionContainer `json:\"expressionContainers\"`",
+            "// The workload group expression containing tag types, tags, and their relationships represented in a JSON format."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "after": "type WorkloadTagExpression struct {",
+          "quotes": [
+            "ExpressionContainers []ExpressionContainer `json:\"expressionContainers\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "after": "type ExpressionContainer struct {",
+          "quotes": [
             "TagType string `json:\"tagType,omitempty\"`",
             "// The operator (either AND or OR) used to create logical relationships among tag types",
-            "TagContainer TagContainer `json:\"tagContainer\"`",
+            "Operator string `json:\"operator,omitempty\"`",
+            "TagContainer TagContainer `json:\"tagContainer\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "after": "type TagContainer struct {",
+          "quotes": [
             "Tags []Tags `json:\"tags\"`",
             "// The logical operator (either AND or OR) used to combine the tags within a tag type",
+            "Operator string `json:\"operator,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/workloadgroups/workloadgroups.go",
+          "after": "type Tags struct {",
+          "quotes": [
             "Key string `json:\"key,omitempty\"`",
             "Value string `json:\"value,omitempty\"`"
           ]
@@ -145,7 +175,7 @@
           "quotes": [
             "Click the Add+ icon within the inner tag expression to configure multiple key-value pairs for the same tag scope and tag type. These values are connected through AND or OR operations.",
             "Click the Add+ icon in the outer tag expression to configure tags with different tag scopes and tag types that are connected through AND or OR operations.",
-            "This field displays a two-dimensional expression table with a single operator in each row and column."
+            "Click Show Expression to verify the tag expression you created for the workload group. This field displays a two-dimensional expression table with a single operator in each row and column."
           ]
         }
       ]

@@ -78,6 +78,7 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_object.py",
           "quotes": [
+            "class ZscalerObject:",
             "def get(self, key: str, default: Optional[Any] = None) -> Any:",
             "key (str): The attribute name to get default: The default value to return if the attribute doesn't exist",
             "if hasattr(self, key): return getattr(self, key) return default",
@@ -85,7 +86,8 @@
             "def __getitem__(self, key: str) -> Any: if hasattr(self, key): return getattr(self, key)"
           ]
         }
-      ]
+      ],
+      "conditions": "Every member: `grep -h '^class ' zscaler/zpa/models/*.py | grep -vc '(ZscalerObject)'` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns 0 of 190 class lines, so every ZPA model class subclasses ZscalerObject directly; ZscalerObject itself is declared with no base class."
     },
     "result-model-objects": {
       "statement": "A ZPA call returns model objects, not plain dictionaries; callers can use item access and get on them but dictionary methods are not guaranteed, and as_dict is the way to a dictionary.",

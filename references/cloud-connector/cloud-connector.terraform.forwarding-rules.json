@@ -128,8 +128,10 @@
           "path": "ztc/resource_ztc_traffic_forwarding_rule.go",
           "quotes": [
             "if forwardMethod == \"ECZPA\" { prohibitedAttrs := []string{ \"dest_addresses\", \"dest_countries\", \"dest_ip_groups\", \"dest_ip_categories\", \"proxy_gateway\", \"nw_services\", \"nw_service_groups\", \"app_service_groups\", }",
+            "return fmt.Errorf(\"%s attribute cannot be set when forward_method is 'ECZPA'\", attr)",
             "if forwardMethod == \"ZIA\" || forwardMethod == \"DIRECT\" || forwardMethod == \"LOCAL_SWITCH\" || forwardMethod == \"DROP\" { prohibitedAttrs := []string{ \"zpa_application_segments\", \"zpa_application_segment_groups\", }",
-            "forwardMethod := d.Get(\"forward_method\").(string)"
+            "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error { forwardMethod := d.Get(\"forward_method\").(string)",
+            "return fmt.Errorf(\"%s attribute cannot be set when forward_method is '%s'\", attr, forwardMethod)"
           ]
         }
       ]

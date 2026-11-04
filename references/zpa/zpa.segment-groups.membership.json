@@ -229,15 +229,17 @@
           "source": "sdk-go",
           "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
           "quotes": [
-            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil)"
-          ]
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV1+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId) resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, nil, nil) if err != nil { return nil, err } return resp, err }"
+          ],
+          "after": "func Delete(ctx context.Context, service *zscaler.Service, segmentGroupId string) (*http.Response, error) {"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/segment_groups.py",
           "quotes": [
             "http_method = \"delete\".upper()",
-            "request, error = self._request_executor.create_request(http_method, api_url, params=params)"
+            "request, error = self._request_executor.create_request(http_method, api_url, params=params)",
+            "response, error = self._request_executor.execute(request) if error: return (None, response, error) return (None, response, None)"
           ],
           "after": "def delete_group(self, group_id: str, microtenant_id: str = None)"
         }

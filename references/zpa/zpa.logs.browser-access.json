@@ -142,7 +142,8 @@
         "zpa/browser-access-log#TotalTimeConnectionSetup",
         "zpa/browser-access-log#TimestampRequestReceiveStart",
         "zpa/browser-access-log#TimestampRequestTransmitStart"
-      ]
+      ],
+      "conditions": "Absence claim: `grep -o -i '[a-z]*second[a-z]*' browser-access-log-fields.json` in vendor/zscaler-help (captured 2026-10-18) returns 'microseconds' 9 times, all in the nine Timestamp* rows; `grep -o 'TotalTime[A-Za-z]*'` on the same file finds only the six quoted fields, each twice (its table row and the example), and none of their rows names a unit."
     },
     "status-reason-empty-sample": {
       "statement": "In the example record ConnectionStatus and ConnectionReason are both empty strings, and the field table describes them only as the status of the connection and the internal reason.",
@@ -153,8 +154,8 @@
           "path": "browser-access-log-fields.json",
           "quotes": [
             "\"ConnectionStatus\":\"\",\"ConnectionReason\":\"\"",
-            "| ConnectionStatus | The status of the connection",
-            "| ConnectionReason | The internal reason"
+            "| ConnectionStatus | The status of the connection | %[OPT]s %[OPT]j %[OPT]J %[OPT]o |",
+            "| ConnectionReason | The internal reason | %[OPT]s %[OPT]j %[OPT]J %[OPT]o |"
           ]
         }
       ],
@@ -181,9 +182,9 @@
       ]
     },
     "cors-values-unlabeled": {
-      "statement": "The example record ends with two unlabeled, unquoted values, https://example.com and token_created, after ConnectionReason; the table gives CorsToken as the token from the CORS request and Origin as the Browser Access domain that led to the CORS request, and the default Browser Access JSON template ends with ConnectionReason, then Origin, then CorsToken, each labelled, which places https://example.com as Origin and token_created as CorsToken.",
+      "statement": "The example record ends with two unlabeled, unquoted values, https://example.com and token_created, after ConnectionReason; the table gives CorsToken as the token from the CORS request and Origin as the Browser Access domain that led to the CORS request, and the Browser Access (zpn_http_trans_log) JSON format in the LSS API article's example response for all log formats ends with ConnectionReason, then Origin, then CorsToken, each labelled, which places https://example.com as Origin and token_created as CorsToken.",
       "tier": "A",
-      "conditions": "Added the default template's field order and labels, which identify the example's two trailing values, and a quote for the CorsToken description.",
+      "conditions": "Added the Browser Access log format's field order and labels, which identify the example's two trailing values, and a quote for the CorsToken description.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -198,8 +199,10 @@
           "source": "zscaler-help",
           "path": "configuring-log-streaming-service-configurations-using-api.json",
           "quotes": [
+            "\"zpn_http_trans_log\":{ - \"tsv\":\"%s{LogTimestamp:time} Browser Access zpa-lss:",
             "\\\"ConnectionReason\\\":%j{ConnectionReason},\\\"Origin\\\":%j{Origin},\\\"CorsToken\\\":%j{CorsToken}}"
-          ]
+          ],
+          "after": "## Getting Details of All LSS Log Formats"
         }
       ],
       "binds": [

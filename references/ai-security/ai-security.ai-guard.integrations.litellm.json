@@ -27,7 +27,7 @@
     },
     {
       "label": "The SDK callback.",
-      "text": "{{callback-hooks}} {{callback-skips}} {{callback-verdict}} What LiteLLM does with the callback's exceptions, and whether the hooks run for streamed responses, is open {{gap:hook-behavior}}."
+      "text": "{{callback-hooks}} {{callback-skips}} {{tool-call-reply-unscanned}} {{callback-verdict}} What LiteLLM does with the callback's exceptions, and whether the hooks run for streamed responses, is open {{gap:hook-behavior}}."
     },
     {
       "label": "SDK version.",
@@ -89,6 +89,7 @@
           "source": "zguard-integrations",
           "path": "LiteLLM/README.md",
           "quotes": [
+            "| Feature | Native Plugin | SDK Callback |",
             "| Policy selection | Explicit `policy_id` | Auto-resolution |"
           ]
         }
@@ -134,7 +135,7 @@
       ]
     },
     "callback-skips": {
-      "statement": "When the request has no user content, or the response has no choice with message content (for example a tool-call-only reply), the callback returns without scanning.",
+      "statement": "When the request has no user content, or the response has no choice with message content, the callback returns without scanning.",
       "tier": "A",
       "evidence": [
         {
@@ -154,8 +155,25 @@
             "if not content:",
             "return response"
           ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "LiteLLM/examples/aiguard_guardrail.py",
+          "after": "def _extract_response_content(self, result) -> str:",
+          "quotes": [
+            "for choice in choices:",
+            "if content: return str(content)"
+          ]
         }
       ]
+    },
+    "tool-call-reply-unscanned": {
+      "statement": "A tool-call-only reply, whose message carries no content, is therefore returned unscanned.",
+      "tier": "B",
+      "derived_from": [
+        "callback-skips"
+      ],
+      "conditions": "Follows from callback-skips: the response extractor returns the content of the first choice whose `message.content` is truthy, and \"\" when none is, and the hook returns on empty content. That a reply carrying only tool calls has no message content rests on the OpenAI chat-completion reply shape, which no source in the example states."
     },
     "callback-verdict": {
       "statement": "The callback raises an HTTP 403 `HTTPException` unless the action is ALLOW or DETECT, so a missing action blocks; an SDK error is logged and raised as a plain Exception carrying the error text.",

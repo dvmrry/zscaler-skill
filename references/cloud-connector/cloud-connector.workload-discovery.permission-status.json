@@ -205,7 +205,7 @@
       ]
     },
     "go-permission-status-commented-out": {
-      "statement": "The Go SDK's account struct has the permission status field commented out, so Go callers cannot read it.",
+      "statement": "The Go SDK's account struct has the permission status field commented out, so Go SDK callers cannot read it from a returned account.",
       "tier": "A",
       "evidence": [
         {
@@ -216,7 +216,8 @@
           ],
           "after": "type PublicCloudInfo struct {"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -rn 'PermissionStatus\\|permissionStatus' zscaler/ztw` in vendor/zscaler-sdk-go at v3.8.58 returns only the commented-out line in zscaler/ztw/services/partner_integrations/public_cloud_info/public_cloud_info.go, so no ZTW type decodes `permissionStatus`."
     },
     "python-permission-status": {
       "statement": "The Python SDK model reads `permissionStatus` into `permission_status`, and the create docstring lists `permission_status` as an optional string with the example value \"TBD\".",

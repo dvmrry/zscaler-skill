@@ -72,9 +72,7 @@
           "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
-            "req.Rank = 7",
-            "req.Order = nextAvailableOrder",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_dns_rules.Update(ctx, service, id, &req)",
             "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID,"
           ]
         },
@@ -88,9 +86,7 @@
           "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
-            "req.Rank = 7",
-            "req.Order = nextAvailableOrder",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = forwarding_rules.Update(ctx, service, id, &req)",
             "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID,"
           ]
         },
@@ -104,9 +100,7 @@
           "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "sort.Slice(existingRules, func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) })",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
-            "req.Rank = 7",
-            "req.Order = nextAvailableOrder",
+            "nextAvailableOrder := existingRules[len(existingRules)-1].Order // always start rank 7 rules at the next available order after all ranked rules req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_log_rules.Update(ctx, service, id, &req)",
             "reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID,"
           ]
         },
@@ -167,8 +161,8 @@
           ],
           "after": "func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "log.Printf(\"[ERROR] error getting all traffic dns forwarding rules: %v\", err)",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "existingRules, err := traffic_dns_rules.GetAll(ctx, service) if err != nil { log.Printf(\"[ERROR] error getting all traffic dns forwarding rules: %v\", err) } sort.Slice(existingRules, func(i, j int) bool {",
+            "func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) }) intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order",
             "req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_dns_rules.Update(ctx, service, id, &req)"
           ]
         },
@@ -181,8 +175,8 @@
           ],
           "after": "func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "log.Printf(\"[ERROR] error getting all traffic forwarding rules: %v\", err)",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "existingRules, err := forwarding_rules.GetAll(ctx, service) if err != nil { log.Printf(\"[ERROR] error getting all traffic forwarding rules: %v\", err) } sort.Slice(existingRules, func(i, j int) bool {",
+            "func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) }) intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order",
             "req.Rank = 7 req.Order = nextAvailableOrder _, err = forwarding_rules.Update(ctx, service, id, &req)"
           ]
         },
@@ -195,8 +189,8 @@
           ],
           "after": "func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "log.Printf(\"[ERROR] error getting all traffic log forwarding rules: %v\", err)",
-            "nextAvailableOrder := existingRules[len(existingRules)-1].Order",
+            "existingRules, err := traffic_log_rules.GetAll(ctx, service) if err != nil { log.Printf(\"[ERROR] error getting all traffic log forwarding rules: %v\", err) } sort.Slice(existingRules, func(i, j int) bool {",
+            "func(i, j int) bool { return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order) }) intendedOrder := req.Order intendedRank := req.Rank nextAvailableOrder := existingRules[len(existingRules)-1].Order",
             "req.Rank = 7 req.Order = nextAvailableOrder _, err = traffic_log_rules.Update(ctx, service, id, &req)"
           ]
         },
@@ -351,7 +345,7 @@
       ]
     },
     "create-list-error-seeds-order-1": {
-      "statement": "On create, the error from listing existing rules is discarded. After scanning that list the staging order is set to 1 if it is still 0, and the rule is submitted with `req.Order` set to the staging order.",
+      "statement": "On create, the error from listing existing rules is discarded. After scanning that list for its highest order, the staging order is set to 1 if it is still 0, and the rule is submitted with `req.Order` set to the staging order.",
       "tier": "A",
       "evidence": [
         {
@@ -363,10 +357,8 @@
           ],
           "after": "func resourceTrafficForwardingDNSRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "list, _ := traffic_dns_rules.GetAll(ctx, service)",
-            "trafficForwardingDNSStartingOrder = 1",
-            "req.Order = trafficForwardingDNSStartingOrder",
-            "if trafficForwardingDNSStartingOrder == 0 { trafficForwardingDNSStartingOrder = 1 }"
+            "list, _ := traffic_dns_rules.GetAll(ctx, service) for _, r := range list { if r.Order > trafficForwardingDNSStartingOrder { trafficForwardingDNSStartingOrder = r.Order } } if trafficForwardingDNSStartingOrder == 0 { trafficForwardingDNSStartingOrder = 1 }",
+            "req.Order = trafficForwardingDNSStartingOrder resp, err := traffic_dns_rules.Create(ctx, service, &req)"
           ]
         },
         {
@@ -378,10 +370,8 @@
           ],
           "after": "func resourceTrafficForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "list, _ := forwarding_rules.GetAll(ctx, service)",
-            "forwardingControlStartingOrder = 1",
-            "req.Order = forwardingControlStartingOrder",
-            "if forwardingControlStartingOrder == 0 { forwardingControlStartingOrder = 1 }"
+            "list, _ := forwarding_rules.GetAll(ctx, service) for _, r := range list { if r.Order > forwardingControlStartingOrder { forwardingControlStartingOrder = r.Order } } if forwardingControlStartingOrder == 0 { forwardingControlStartingOrder = 1 }",
+            "req.Order = forwardingControlStartingOrder resp, err := forwarding_rules.Create(ctx, service, &req)"
           ]
         },
         {
@@ -393,10 +383,8 @@
           ],
           "after": "func resourceTrafficForwardingLogRuleRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
-            "list, _ := traffic_log_rules.GetAll(ctx, service)",
-            "trafficForwardingLogStartingOrder = 1",
-            "req.Order = trafficForwardingLogStartingOrder",
-            "if trafficForwardingLogStartingOrder == 0 { trafficForwardingLogStartingOrder = 1 }"
+            "list, _ := traffic_log_rules.GetAll(ctx, service) for _, r := range list { if r.Order > trafficForwardingLogStartingOrder { trafficForwardingLogStartingOrder = r.Order } } if trafficForwardingLogStartingOrder == 0 { trafficForwardingLogStartingOrder = 1 }",
+            "req.Order = trafficForwardingLogStartingOrder resp, err := traffic_log_rules.Create(ctx, service, &req)"
           ]
         }
       ],
@@ -466,7 +454,7 @@
       ]
     },
     "registry-keyed-by-type-only": {
-      "statement": "All reorder state is one package-level registry keyed by resource type and rule ID, with no client, tenant or service in the key. The first registration for a resource type starts the worker, which keeps that registrant's callbacks; later registrations only add their ID and desired order to the shared map.",
+      "statement": "All reorder state is one package-level registry keyed by resource type and rule ID, with no client, tenant or service in the key. The first registration for a resource type starts the worker, which keeps that registrant's callbacks; a registration made while that worker is still running only adds its ID and desired order to the shared map.",
       "tier": "A",
       "evidence": [
         {
@@ -615,7 +603,7 @@
       ]
     },
     "worker-cannot-report-failure": {
-      "statement": "The worker has no way to report failure: `reorderAll` returns no value, and waiting resources are released by closing a channel that carries no result. The channel is closed whenever `reorderAll` returns, so a waiter then proceeds whatever the worker did.",
+      "statement": "The worker cannot pass a failure to the resources waiting on it: `reorderAll` returns no value, and waiting resources are released by closing a channel that carries no result. The channel is closed whenever `reorderAll` returns, so a waiter then proceeds whatever the worker did.",
       "tier": "A",
       "evidence": [
         {
@@ -637,7 +625,7 @@
             "HEAD"
           ],
           "quotes": [
-            "reorderDone map[string]chan struct{}",
+            "type listrules struct { orders map[string]map[int]orderWithState orderer map[string]int reorderDone map[string]chan struct{} sync.Mutex }",
             "go func() { reorderAll(resourceType, getCount, updateOrder, beforeReorder) close(doneCh) }()",
             "func waitForReorder(resourceType string) { rules.Lock() ch := rules.reorderDone[resourceType] rules.Unlock() if ch != nil { <-ch } }"
           ]
@@ -747,7 +735,7 @@
       ]
     },
     "write-error-logged-only": {
-      "statement": "A failed order write is logged and the loop moves on; the pass then records the registry size as handled whatever the writes did, and the worker does not retry the failed rule.",
+      "statement": "A failed order write is logged and the loop moves on; the pass then records the registry size as handled whatever the writes did, so within that worker the failed rule is written again only if a later registration changes the registry size and triggers a new pass.",
       "tier": "A",
       "evidence": [
         {
@@ -964,7 +952,7 @@
       ]
     },
     "worker-lock-held-across-network-calls": {
-      "statement": "The worker takes the global registry lock at the start of each tick and releases it only at the end of the tick, so the count read, the optional before-reorder hook and every order write run with the lock held (in the three resources, the count callback calls the SDK's GetAll and each order-write callback calls its Get and Update). Registration, marking a rule done and the waiters' channel lookup take the same lock, so a slow API call blocks them, for every resource type.",
+      "statement": "The worker takes the global registry lock at the start of each tick and releases it only at the end of the tick, so the count read, the optional before-reorder hook and every order write run with the lock held (in the three resources the count callback calls the SDK's GetAll; the DNS and log rule order-write callbacks call Get and then Update, and the traffic forwarding rule's calls `getRule`, which lists every rule with GetAll, and then Update). Registration, marking a rule done and the waiters' channel lookup take the same lock, so a slow API call blocks them, for every resource type.",
       "tier": "A",
       "evidence": [
         {
@@ -1058,7 +1046,8 @@
           "status": "unfiled",
           "note": "Filing 2 (reorder redesign) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Search: `grep -n 'rules.Unlock()' ztc/common.go` at v0.2.0 returns five lines: two in reorderAll, the unlock before the stable-tick return and the end-of-tick unlock, both after the order writes; and one each in markOrderRuleAsDone, reorderWithBeforeReorder and waitForReorder."
     },
     "deleted-ids-stay-registered": {
       "statement": "Deleting a ZTC traffic rule removes the remote rule and the Terraform state but not the rule's entry in the reorder registry. The entry stays for the life of the provider process and counts toward the registry size.",

@@ -103,87 +103,91 @@
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
-          "pointer": "/paths/~1papi~1public~1v1~1setWebPrivacyInfo/put/requestBody/content/application~1json/schema/properties",
+          "pointer": "/paths/~1papi~1public~1v1~1setWebPrivacyInfo/put/requestBody/content/application~1json/schema",
           "expect": {
-            "active": {
-              "type": "string"
-            },
-            "collectMachineHostname": {
-              "type": "string"
-            },
-            "collectUserInfo": {
-              "type": "string"
-            },
-            "collectZdxLocation": {
-              "type": "string"
-            },
-            "disableCrashlytics": {
-              "type": "string"
-            },
-            "enablePacketCapture": {
-              "type": "string"
-            },
-            "exportLogsForNonAdmin": {
-              "type": "string"
-            },
-            "grantAccessToZscalerLogFolder": {
-              "type": "string"
-            },
-            "id": {
-              "type": "string"
-            },
-            "overrideT2ProtocolSetting": {
-              "type": "string"
-            },
-            "restrictRemotePacketCapture": {
-              "type": "string"
+            "properties": {
+              "active": {
+                "type": "string"
+              },
+              "collectMachineHostname": {
+                "type": "string"
+              },
+              "collectUserInfo": {
+                "type": "string"
+              },
+              "collectZdxLocation": {
+                "type": "string"
+              },
+              "disableCrashlytics": {
+                "type": "string"
+              },
+              "enablePacketCapture": {
+                "type": "string"
+              },
+              "exportLogsForNonAdmin": {
+                "type": "string"
+              },
+              "grantAccessToZscalerLogFolder": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "overrideT2ProtocolSetting": {
+                "type": "string"
+              },
+              "restrictRemotePacketCapture": {
+                "type": "string"
+              }
             }
           }
         },
         {
           "source": "api-specs",
           "path": "automate-zscaler/openapi/zcc.openapi.json",
-          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get/responses/200/content/application~1json/schema/properties",
+          "pointer": "/paths/~1papi~1public~1v1~1getWebPrivacyInfo/get/responses/200/content/application~1json/schema",
           "expect": {
-            "active": {
-              "type": "string"
-            },
-            "collectMachineHostname": {
-              "type": "string"
-            },
-            "collectUserInfo": {
-              "type": "string"
-            },
-            "collectZdxLocation": {
-              "type": "string"
-            },
-            "disableCrashlytics": {
-              "type": "string"
-            },
-            "enablePacketCapture": {
-              "type": "string"
-            },
-            "exportLogsForNonAdmin": {
-              "type": "string"
-            },
-            "grantAccessToZscalerLogFolder": {
-              "type": "string"
-            },
-            "id": {
-              "type": "string"
-            },
-            "overrideT2ProtocolSetting": {
-              "type": "string"
-            },
-            "restrictRemotePacketCapture": {
-              "type": "string"
+            "properties": {
+              "active": {
+                "type": "string"
+              },
+              "collectMachineHostname": {
+                "type": "string"
+              },
+              "collectUserInfo": {
+                "type": "string"
+              },
+              "collectZdxLocation": {
+                "type": "string"
+              },
+              "disableCrashlytics": {
+                "type": "string"
+              },
+              "enablePacketCapture": {
+                "type": "string"
+              },
+              "exportLogsForNonAdmin": {
+                "type": "string"
+              },
+              "grantAccessToZscalerLogFolder": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "overrideT2ProtocolSetting": {
+                "type": "string"
+              },
+              "restrictRemotePacketCapture": {
+                "type": "string"
+              }
             }
           }
         }
       ]
     },
     "provider-sends-01": {
-      "statement": "The Terraform provider writes each web privacy toggle as \"1\" or \"0\" and reads it back as true only when the value is \"1\", except `enforceSecurePacUrls` and `enableFQDNMatchForVpnBypasses`, whose read-back keeps the prior plan or state value when one is set; the Python docstring example passes the same strings.",
+      "statement": "The Terraform provider writes each web privacy toggle that the plan sets as \"1\" or \"0\" (a toggle the plan leaves unset keeps the value it has just read from the API) and reads each back as true only when the value is \"1\", except `enforceSecurePacUrls` and `enableFQDNMatchForVpnBypasses`, whose read-back keeps the prior plan or state value when one is set; the Python docstring example passes the same strings.",
       "tier": "A",
       "conditions": "Extended per verifier with the two fields the provider fills from prior state (zcc.terraform.field-fidelity:prior-state-overlays-elsewhere).",
       "evidence": [
@@ -191,17 +195,63 @@
           "source": "tf-zcc",
           "path": "internal/framework/resources/web_privacy.go",
           "quotes": [
-            "func boolToStr01(b types.Bool) string {",
+            "func boolToStr01(b types.Bool) string { if b.ValueBool() { return \"1\" } return \"0\" }",
+            "func expandWebPrivacy(plan *WebPrivacyResourceModel, existing *web_privacy.WebPrivacyInfo) *web_privacy.WebPrivacyInfo { p := *existing",
+            "if !plan.CollectUserInfo.IsNull() && !plan.CollectUserInfo.IsUnknown() { p.CollectUserInfo = boolToStr01(plan.CollectUserInfo)",
+            "p.Active = boolToStr01(plan.Active)",
+            "p.CollectUserInfo = boolToStr01(plan.CollectUserInfo)",
+            "p.CollectMachineHostname = boolToStr01(plan.CollectMachineHostname)",
+            "p.CollectZdxLocation = boolToStr01(plan.CollectZdxLocation)",
+            "p.EnablePacketCapture = boolToStr01(plan.EnablePacketCapture)",
+            "p.DisableCrashlytics = boolToStr01(plan.DisableCrashlytics)",
+            "p.OverrideT2ProtocolSetting = boolToStr01(plan.OverrideT2ProtocolSetting)",
+            "p.RestrictRemotePacketCapture = boolToStr01(plan.RestrictRemotePacketCapture)",
+            "p.GrantAccessToZscalerLogFolder = boolToStr01(plan.GrantAccessToZscalerLogFolder)",
+            "p.ExportLogsForNonAdmin = boolToStr01(plan.ExportLogsForNonAdmin)",
+            "p.EnableAutoLogSnippet = boolToStr01(plan.EnableAutoLogSnippet)",
+            "p.EnforceSecurePacUrls = boolToStr01(plan.EnforceSecurePacUrls)",
+            "p.EnableFQDNMatchForVpnBypasses = boolToStr01(plan.EnableFQDNMatchForVpnBypasses)",
             "m.Active = types.BoolValue(p.Active == \"1\")",
+            "m.CollectUserInfo = types.BoolValue(p.CollectUserInfo == \"1\")",
+            "m.CollectMachineHostname = types.BoolValue(p.CollectMachineHostname == \"1\")",
+            "m.CollectZdxLocation = types.BoolValue(p.CollectZdxLocation == \"1\")",
+            "m.EnablePacketCapture = types.BoolValue(p.EnablePacketCapture == \"1\")",
+            "m.DisableCrashlytics = types.BoolValue(p.DisableCrashlytics == \"1\")",
+            "m.OverrideT2ProtocolSetting = types.BoolValue(p.OverrideT2ProtocolSetting == \"1\")",
+            "m.RestrictRemotePacketCapture = types.BoolValue(p.RestrictRemotePacketCapture == \"1\")",
+            "m.GrantAccessToZscalerLogFolder = types.BoolValue(p.GrantAccessToZscalerLogFolder == \"1\")",
+            "m.ExportLogsForNonAdmin = types.BoolValue(p.ExportLogsForNonAdmin == \"1\")",
+            "m.EnableAutoLogSnippet = types.BoolValue(p.EnableAutoLogSnippet == \"1\")",
+            "m.EnforceSecurePacUrls = types.BoolValue(p.EnforceSecurePacUrls == \"1\")",
+            "m.EnableFQDNMatchForVpnBypasses = types.BoolValue(p.EnableFQDNMatchForVpnBypasses == \"1\")",
             "// API GET omits these fields; preserve existing plan/state value to avoid drift.",
             "if m.EnforceSecurePacUrls.IsNull() || m.EnforceSecurePacUrls.IsUnknown() {",
             "if m.EnableFQDNMatchForVpnBypasses.IsNull() || m.EnableFQDNMatchForVpnBypasses.IsUnknown() {"
           ]
         },
         {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/web_privacy.go",
+          "after": "func (r *WebPrivacyResource) Create(",
+          "quotes": [
+            "existing, err := web_privacy.GetWebPrivacyInfo(ctx, r.client.Service)",
+            "payload := expandWebPrivacy(&plan, existing)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/web_privacy.go",
+          "after": "func (r *WebPrivacyResource) Update(",
+          "quotes": [
+            "existing, err := web_privacy.GetWebPrivacyInfo(ctx, r.client.Service)",
+            "payload := expandWebPrivacy(&plan, existing)"
+          ]
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zcc/web_privacy.py",
           "quotes": [
+            "...     active='1',",
             "...     enable_auto_log_snippet='0'"
           ]
         }

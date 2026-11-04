@@ -224,11 +224,63 @@
         },
         {
           "source": "sdk-python",
+          "path": "zscaler/zms/agent_groups.py",
+          "quotes": [
+            "page: int = 1, page_size: int = 20,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/nonces.py",
+          "quotes": [
+            "page: int = 1, page_size: int = 20,"
+          ]
+        },
+        {
+          "source": "sdk-python",
           "path": "zscaler/zms/resources.py",
           "quotes": [
             "page_num: int = 1, page_size: int = 20,"
           ],
           "after": "def list_resources("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/resource_groups.py",
+          "quotes": [
+            "page_num: int = 1, page_size: int = 20,"
+          ],
+          "after": "def list_resource_groups("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/policy_rules.py",
+          "quotes": [
+            "page_num: int = 1, page_size: int = 20,"
+          ],
+          "after": "def list_policy_rules("
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/app_zones.py",
+          "quotes": [
+            "page_num: int = 1, page_size: int = 20,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/app_catalog.py",
+          "quotes": [
+            "page_num: int = 1, page_size: int = 20,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zms/tags.py",
+          "quotes": [
+            "page_num: int = 1, page_size: int = 20,"
+          ],
+          "after": "def list_tag_namespaces("
         }
       ]
     },
@@ -261,7 +313,8 @@
           "source": "sdk-python",
           "path": "zscaler/zms/agents.py",
           "quotes": [
-            "result = response.get_body().get(\"data\", {}).get(\"agents\", {})"
+            "tuple: (agents_connection dict, response, error)",
+            "result = response.get_body().get(\"data\", {}).get(\"agents\", {}) except Exception as error: return (None, response, error) return (result, response, None)"
           ]
         },
         {
@@ -271,7 +324,8 @@
             "result = response.get_body().get(\"data\", {}).get(\"nonces\", {})"
           ]
         }
-      ]
+      ],
+      "conditions": "Every method: `grep -c 'result = response.get_body().get(\"data\", {})' zscaler/zms/*.py` at v1.11.3-1-g4f8f54df sums to 20, one in each of the 20 public methods of the domain modules (agent_groups, agents, app_catalog, app_zones, nonces, policy_rules, resource_groups, resources, tags), and `grep -c 'return (result, response, None)'` over the same files also sums to 20."
     },
     "typed-models-unused": {
       "statement": "The typed classes in `zscaler/zms/models/common.py` (for example `AgentEntry`, which maps only part of the agents selection) are not what the query methods return, so the selection set in each module, not those classes, shows which fields come back.",
@@ -323,7 +377,7 @@
       ]
     },
     "eyez-id": {
-      "statement": "Agents, agent groups and nonces are identified by a non-numeric `eyezId`, which the single-item queries type as `String!`.",
+      "statement": "Agents, agent groups and nonces are identified by a non-numeric `eyezId`, which the agent-group TOTP-secrets query and the single-nonce query type as `String!`.",
       "tier": "A",
       "evidence": [
         {

@@ -117,7 +117,8 @@
             "Application segments must have unique ports and cannot have overlapping domain names using the same tcp/udp ports across multiple application segments."
           ]
         }
-      ]
+      ],
+      "conditions": "At v4.4.16, `grep -n -i 'enforce\\|overlapping\\|unique ports'` over docs/resources/zpa_application_segment.md, zpa_application_segment_inspection.md and zpa_application_segment_pra.md returns only the NOTE line in each, plus an unrelated \"enforce policies\" in the main doc's `policy_style` description; nothing says when or how the API enforces the rule."
     },
     "port-range-blocks-recommended": {
       "statement": "The segment docs recommend the tcp_port_range and udp_port_range blocks over the older tcp_port_ranges and udp_port_ranges string lists.",
@@ -194,6 +195,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_application_segment_inspection.md",
           "at": [
+            "v4.0.0",
+            "v4.4.0",
             "v4.4.11"
           ],
           "quotes": [
@@ -203,6 +206,10 @@
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_application_segment_inspection.md",
+          "at": [
+            "v4.4.12",
+            "HEAD"
+          ],
           "quotes": [
             "This field is **required** if the ``application_protocol`` is set to `HTTPS` and `auto_app_protect_enabled` is unset or `false`; the provider rejects the configuration at plan time otherwise.",
             "It is not required when `auto_app_protect_enabled` is `true`, because the API manages the certificate itself. The ``certificate_id`` is **NOT** supported if the application_protocol is set to `HTTP`."
@@ -226,7 +233,7 @@
           ]
         }
       ],
-      "conditions": "Changed upstream in v4.4.12 (checked 2026-10-18): previously \"On an inspection segment the nested app's certificate_id is required when application_protocol is HTTPS and not supported when it is HTTP.\""
+      "conditions": "Changed upstream in v4.4.12 (checked 2026-10-18): previously \"On an inspection segment the nested app's certificate_id is required when application_protocol is HTTPS and not supported when it is HTTP.\" `git show <tag>:docs/resources/zpa_application_segment_inspection.md` has the old \"required if the ``application_protocol`` is set to `HTTPS`. The\" text at v4.0.0, v4.4.0 and v4.4.11 and not at v4.4.12, where the \"`auto_app_protect_enabled` is unset or `false`\" text first appears."
     },
     "pra-connection-security-rdp-only": {
       "statement": "On a PRA segment connection_security is required when application_protocol is RDP and is accepted only for RDP, so it must not be set for SSH.",
@@ -337,8 +344,8 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_app_connector_assistant_schedule.md",
           "quotes": [
-            "The minimum supported value is 5. Supported values are: `5`, `7`, `14`, `30`, `60` and `90`",
-            "Supported value is: `days`"
+            "`frequency_interval` - (String) - The interval for the configured frequency value. The minimum supported value is 5. Supported values are: `5`, `7`, `14`, `30`, `60` and `90`",
+            "`frequency` (String) - The scheduled frequency at which the disconnected App Connectors are deleted. Supported value is: `days`"
           ]
         }
       ]
@@ -370,6 +377,7 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_ba_certificate.md",
           "quotes": [
+            "`cert_blob` - (Required) The content of the certificate in PEM format.",
             "`certblob`          | `cert.pem`",
             "`certblob`          | `privkey.pem`"
           ]
@@ -551,7 +559,8 @@
             "DefaultActionValue: d.Get(\"default_action_value\").(string),"
           ]
         }
-      ]
+      ],
+      "conditions": "At v4.4.16, `grep -n -i 'default_action_value\\|DefaultActionValue\\|REDIRECT' zpa/resource_zpa_inspection_custom_controls.go` returns, besides comments and the `default_action` StringInSlice list, the `default_action_value` schema entry (no ValidateFunc), the expander's and the profile patch's copies of the value, the read's `d.Set`, and one REDIRECT check, `if req.Action == \"REDIRECT\" && req.ActionValue == \"\"`, which tests `Action` and `ActionValue`, fields the expander never sets because the `action` and `action_value` schema entries are commented out."
     },
     "cbi-profile-constraints": {
       "statement": "The CBI external profile docs say flattened_pdf must be false when upload_download is all and upload_download must be none or upstream when flattened_pdf is true; they also say at least two regions are required.",
@@ -599,8 +608,9 @@
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_cloud_config.go",
+          "after": "\"zia_cloud_domain\": {",
           "quotes": [
-            "return domain + \".net\""
+            "StateFunc: func(val interface{}) string { domain := val.(string) // Ensure the domain ends with .net if domain != \"\" && !strings.HasSuffix(domain, \".net\") { return domain + \".net\" }"
           ]
         },
         {
@@ -715,7 +725,8 @@
             "source_log_type = \"zpn_pbroker_comprehensive_stats\""
           ]
         }
-      ]
+      ],
+      "conditions": "Every member: `ls docs/resources | grep lss` in vendor/terraform-provider-zpa at v4.4.16 lists ten pages, zpa_lss_config_controller.md and the nine quoted, and `grep -o 'resource \"zpa_lss_[a-z_]*\"'` finds only `resource \"zpa_lss_config_controller\"`, once, in each; `grep -n '\"zpa_lss' zpa/provider.go` returns one ResourcesMap entry (zpa_lss_config_controller) and four data sources (zpa_lss_config_controller, zpa_lss_config_client_types, zpa_lss_config_status_codes and zpa_lss_config_log_type_formats)."
     },
     "lss-policy-rule-action-log": {
       "statement": "The LSS User Activity example sets a policy_rule_resource whose action is LOG, and the same doc lists LOG as the supported action value.",
@@ -738,7 +749,7 @@
       ]
     },
     "tags-on-rules-and-segments-request": {
-      "statement": "Provider issue #696 asked for tags on `zpa_policy_access_rule_v2` and `zpa_application_segment`, which until then could only be applied with an API call after Terraform; it was closed as completed on 2026-10-22 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v4.4.15.",
+      "statement": "Provider issue #696 asked for tags on `zpa_policy_access_rule_v2` and `zpa_application_segment`, saying the reporter had found no way to apply them to segments and policies managed in Terraform without an API call after Terraform; it was closed as completed on 2026-10-22 with a reply from a member of the repository's organization, signed Zscaler DevRel, to upgrade to v4.4.15.",
       "tier": "A",
       "evidence": [
         {
@@ -873,16 +884,37 @@
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
-          "quotes": [
-            "return customValidate(operand, []string{\"id\"}, \"tag group ID\", acceptAnyID)",
-            "return customValidate(operand, []string{\"id\"}, \"tag value ID\", acceptAnyID)",
-            "// acceptAnyID is the Getter of object types whose RHS cannot be looked up by ID.",
-            "var acceptAnyID = Getter(func(string) error { return nil })",
-            "err := clientRHS.Get(operand.RHS)"
-          ],
           "at": [
             "v4.4.16",
             "HEAD"
+          ],
+          "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {",
+          "quotes": [
+            "case \"ENTITY_TAG_GRP\": return customValidate(operand, []string{\"id\"}, \"tag group ID\", acceptAnyID) case \"ENTITY_TAG_VAL\": return customValidate(operand, []string{\"id\"}, \"tag value ID\", acceptAnyID)"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "quotes": [
+            "// acceptAnyID is the Getter of object types whose RHS cannot be looked up by ID.",
+            "var acceptAnyID = Getter(func(string) error { return nil })"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "at": [
+            "v4.4.16",
+            "HEAD"
+          ],
+          "after": "func customValidate(",
+          "quotes": [
+            "err := clientRHS.Get(operand.RHS)"
           ]
         }
       ]

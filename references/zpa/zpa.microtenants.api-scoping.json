@@ -54,7 +54,7 @@
     },
     {
       "label": "Search and models.",
-      "text": "{{search-filter-shape}} [[zpa.app-segments.api-fields:governance-fields]] What those fields signal is in [[zpa.microtenants.share-and-move]], and a missing `microtenantId` on a response is open {{gap:unset-microtenant-id-meaning}}."
+      "text": "{{search-filter-shape}} {{search-dto-nested}} [[zpa.app-segments.api-fields:governance-fields]] What those fields signal is in [[zpa.microtenants.share-and-move]], and a missing `microtenantId` on a response is open {{gap:unset-microtenant-id-meaning}}."
     },
     {
       "label": "Resolver defects.",
@@ -69,7 +69,7 @@
   ],
   "checks": [
     {
-      "do": "Which scope the request targets: the specification's 0 for the Default Microtenant, null for customer data, and the default for creates and updates that omit the parameter.",
+      "do": "Which scope the request targets: the specification's 0 for the Default Microtenant, null for customer data, and, on the application federation and tenant federation operations, the Default Microtenant for creates and updates that omit the parameter.",
       "uses": [
         "scope-param-values",
         "omitted-scope-defaults-default"
@@ -110,7 +110,7 @@
   ],
   "claims": {
     "scope-param-values": {
-      "statement": "The ZPA API reference describes the `microtenantId` query parameter as the Microtenant's unique identifier, where 0 is passed for the Default Microtenant and null for the customer data Microtenant.",
+      "statement": "The ZPA API reference describes the `microtenantId` query parameter on most operations that take it, including the application move, as the Microtenant's unique identifier, where 0 is passed for the Default Microtenant and null for the customer data Microtenant.",
       "tier": "A",
       "evidence": [
         {
@@ -123,10 +123,11 @@
             "required": false
           }
         }
-      ]
+      ],
+      "conditions": "Tally over the capture of 2026-09-07: `jq -c '[.paths[][] | objects | .parameters[]? | select(.name==\"microtenantId\") | .description] | group_by(.) | map(length)' automate-zscaler/openapi/zpa.openapi.json` counts 116 `microtenantId` parameters: 83 carry this description word for word, 11 the federation text of omitted-scope-defaults-default, 5 a text that passes 0 for the Default Microtenant and null for all customers, 5 'Default value is 0 and get data from Default microtenant.', 3 an identifier-only text and 9 no description."
     },
     "omitted-scope-defaults-default": {
-      "statement": "The ZPA API reference for the B2B federation operations says that if you are within a Microtenant you must pass `microtenantId` to retrieve that Microtenant's data, and that a create or update that omits it takes effect in the Default Microtenant.",
+      "statement": "The ZPA API reference for the application federation and tenant federation operations (`application/federate`, `application/host/{host_id}` and the `tenant-federation` paths) says that if you are within a Microtenant you must pass `microtenantId` to retrieve that Microtenant's data, and that a create or update that omits it takes effect in the Default Microtenant.",
       "tier": "A",
       "evidence": [
         {
@@ -138,8 +139,109 @@
             "in": "query",
             "required": false
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1application~1host~1{host_id}/get/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation/get/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1approval/put/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1partners/get/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token/post/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1token~1verify/post/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}/delete/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}~1federation-state~1{status}/put/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}~1notes/put/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zpa.openapi.json",
+          "pointer": "/paths/~1mgmtconfig~1v1~1customers~1{customerId}~1tenant-federation~1{federation_id}~1provisioning-state~1{status}/put/parameters/[name=microtenantId]",
+          "expect": {
+            "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+            "in": "query",
+            "required": false
+          }
         }
-      ]
+      ],
+      "conditions": "Tally over the capture of 2026-09-07: `jq -r '.paths | to_entries[] | .key as $p | .value | to_entries[] | select(.value | objects | [.parameters[]? | select(.name==\"microtenantId\") | .description // \"\" | startswith(\"The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant\")] | any) | \"\\(.key) \\($p)\"' automate-zscaler/openapi/zpa.openapi.json` returns the eleven operations cited and no others; the B2B guest policy operation (`policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id}`) carries the shorter description of scope-param-values."
     },
     "add-method-builds-no-scope": {
       "statement": "`add_microtenant` sends its keyword arguments as the request body and builds no `microtenantId` query parameter itself, and the OpenAPI create operation declares only the customer ID parameter.",
@@ -194,7 +296,7 @@
       ]
     },
     "search-filter-shape": {
-      "statement": "`POST /microtenants/search` takes a body of `filterBy` (name, operator and values per condition), `pageBy` and `sortBy` (`sortName`, `sortOrder`), and the Python SDK's `get_microtenant_search` passes a `filter_and_sort_dto` through.",
+      "statement": "`POST /microtenants/search` takes a body of `filterBy` (name, operator and values per condition), `pageBy` and `sortBy` (`sortName`, `sortOrder`); the Python SDK's `get_microtenant_search` documents a `filter_and_sort_dto` keyword argument, which its docstring example passes the whole DTO under, and sends its keyword arguments as the body.",
       "tier": "A",
       "evidence": [
         {
@@ -250,10 +352,22 @@
           "path": "zscaler/zpa/microtenants.py",
           "after": "def get_microtenant_search(self, **kwargs)",
           "quotes": [
-            "filter_and_sort_dto"
+            "filter_and_sort_dto (dict): A dictionary containing filtering, pagination, and sorting information.",
+            "search_payload = { ... \"filter_and_sort_dto\": {",
+            "get_microtenant_search(**search_payload)",
+            "body = kwargs",
+            "request, error = self._request_executor.create_request(http_method, api_url, body=body)"
           ]
         }
       ]
+    },
+    "search-dto-nested": {
+      "statement": "A call shaped like that docstring example therefore sends the DTO nested under one `filterAndSortDto` key, rather than `filterBy`, `pageBy` and `sortBy` at the top level of the body.",
+      "tier": "B",
+      "derived_from": [
+        "search-filter-shape"
+      ],
+      "conditions": "Follows from search-filter-shape: `body = kwargs` makes the `filter_and_sort_dto` keyword a top-level body key. That it reaches the wire as `filterAndSortDto` rests on the request executor camel-casing ZPA body keys (`convert_keys_to_camel_case` in `_prepare_body`, zscaler/request_executor.py), which no evidence here quotes. How the API answers a nested body is not captured, and no such request was sent."
     },
     "credential-move-target-zero-only": {
       "statement": "On the credential move operation the microtenantId query parameter is described as taking 0 for the Default Microtenant and null for the customer data Microtenant, while targetMicrotenantId is described as taking 0 for the Default Microtenant and says nothing about null.",

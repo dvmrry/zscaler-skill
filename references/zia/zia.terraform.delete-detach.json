@@ -146,7 +146,8 @@
             "for _, rule := range rules {"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `awk '/^func DetachRuleIDNameExtensions\\(/,/^}/' zia/utils.go | grep -oE '[a-z_]+\\.(GetAll|Get|Update|List[A-Za-z]*)\\('` at v4.8.3 and at v4.8.17 returns only `filteringrules.GetAll(`, `filteringrules.Get(` and `filteringrules.Update(`, one each; the helper calls no other package's list, get or update function."
     },
     "helper-label-selects-nothing": {
       "statement": "The `resource` string a caller passes to the helper is used only in a log line. Which field is swept is decided entirely by the getter and setter closures.",
@@ -322,6 +323,8 @@
           ],
           "after": "func resourceFWNetworkServiceGroupsDelete(",
           "quotes": [
+            "err := DetachRuleIDNameExtensions(",
+            "func(r *filteringrules.FirewallFilteringRules) []common.IDNameExtensions {",
             "\"NwApplicationGroups\",",
             "return r.NwApplicationGroups",
             "r.NwApplicationGroups = ids"

@@ -43,7 +43,7 @@
     },
     {
       "label": "How the clients pace.",
-      "text": "The Go OneAPI client's ZDX limiter is [[shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc]]. The Go direct client's fixed limiter paces only its sign-in ([[zdx.sdk-go.legacy-client:limiter-auth-only]]) and its backoff follows the per-second headers ([[zdx.sdk-go.legacy-client:backoff]]). The Python executor's wait on a 429 comes from `Retry-After` or the reset header ([[shared.sdk-python.retries:wait-from-headers]]), and its legacy ZDX client reads the per-second headers only around sign-in ([[zdx.sdk-python.legacy-client:second-headers]]). {{no-tier-awareness}} The earlier question about reconciling the client limiters with the tier is closed by this reading {{gap:tier-vs-client-limiter}}."
+      "text": "The Go OneAPI client's ZDX limiter is [[shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc]]. The Go direct client's fixed limiter paces only its sign-in ([[zdx.sdk-go.legacy-client:limiter-auth-only]]) and its backoff waits a fixed time chosen from the per-second headers and the status code ([[zdx.sdk-go.legacy-client:backoff]]). The Python executor's wait on a 429 comes from `Retry-After` or the reset header ([[shared.sdk-python.retries:wait-from-headers]]), and its legacy ZDX client reads the per-second headers only around sign-in ([[zdx.sdk-python.legacy-client:second-headers]]). {{no-tier-awareness}} The earlier question about reconciling the client limiters with the tier is closed by this reading {{gap:tier-vs-client-limiter}}."
     }
   ],
   "checks": [
@@ -63,7 +63,7 @@
   ],
   "claims": {
     "no-tier-awareness": {
-      "statement": "Neither SDK reads the tenant's tier: the Go limiters are fixed constants (100 calls per hour on the OneAPI client, 100 per 60 seconds on the direct client's sign-in) and the other pacing reacts only to response headers and 429s.",
+      "statement": "Neither SDK reads the tenant's tier: the Go limiters are fixed constants (100 calls per hour on the OneAPI client, 100 per 60 seconds on the direct client's sign-in) and the other pacing reacts only to what a request gets back: response headers, a 429 or another status, or no response.",
       "tier": "B",
       "derived_from": [
         "shared.oneapi.rate-limits:go-zdx-limiter-copies-zcc",

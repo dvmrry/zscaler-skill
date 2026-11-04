@@ -99,9 +99,20 @@
             "req, err := http.NewRequest(\"POST\", url, strings.NewReader(string(data)))",
             "currTimestamp := time.Now().Unix()",
             "APIKeySecret: generateHash(cfg.ZDX.Client.ZDXAPISecret, currTimestamp),",
+            "Timestamp:    currTimestamp,",
             "hash := sha256.New()",
             "hash.Write([]byte(apiSecret + \":\" + currTimestampStr))",
             "return hex.EncodeToString(hash.Sum(nil))"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_config.go",
+          "after": "type AuthRequest struct {",
+          "quotes": [
+            "APIKeyID     string `json:\"key_id\"`",
+            "APIKeySecret string `json:\"key_secret\"`",
+            "Timestamp    int64  `json:\"timestamp\"`"
           ]
         }
       ]
@@ -176,13 +187,18 @@
             "MaxNumOfRetries = 100",
             "RetryWaitMaxSeconds = 20",
             "RetryWaitMinSeconds = 5",
-            "cfg.ZDX.Client.RateLimit.MaxRetries = MaxNumOfRetries"
+            "cfg.ZDX.Client.RateLimit.MaxRetries = MaxNumOfRetries",
+            "cfg.ZDX.Client.RateLimit.RetryWaitMin = time.Second * time.Duration(RetryWaitMinSeconds)",
+            "cfg.ZDX.Client.RateLimit.RetryWaitMax = time.Second * time.Duration(RetryWaitMaxSeconds)"
           ]
         },
         {
           "source": "sdk-go",
           "path": "zscaler/zdx/v2_client.go",
           "quotes": [
+            "retryableClient.RetryWaitMin = cfg.ZDX.Client.RateLimit.RetryWaitMin",
+            "retryableClient.RetryWaitMax = cfg.ZDX.Client.RateLimit.RetryWaitMax",
+            "retryableClient.RetryMax = int(cfg.ZDX.Client.RateLimit.MaxRetries)",
             "if retryableClient.RetryMax == 0 {",
             "retryableClient.RetryMax = math.MaxInt32"
           ]
@@ -190,19 +206,38 @@
       ]
     },
     "backoff": {
-      "statement": "Its backoff reads `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`, waits 1 second plus jitter when fewer than the threshold (2 by default) requests remain, waits 2 seconds after a 429, and otherwise backs off exponentially.",
+      "statement": "Its backoff reads `X-Ratelimit-Remaining-Second` and `X-Ratelimit-Limit-Second`. When there is a response it waits 1 second plus up to 500 ms of jitter if fewer than the threshold (2 by default) requests remain, otherwise 2 seconds after a 429 and 500 ms for any other response; it backs off exponentially only when there is no response.",
       "tier": "A",
       "evidence": [
         {
           "source": "sdk-go",
           "path": "zscaler/zdx/v2_client.go",
           "quotes": [
+            "proactiveThreshold = 2"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "after": "retryableClient.Backoff = func(min, max time.Duration, attemptNum int, resp *http.Response) time.Duration {",
+          "quotes": [
+            "if resp != nil {\n\t\t\tretryAfter := getRetryAfter(resp, l, proactiveThreshold)\n\t\t\tif retryAfter > 0 {\n\t\t\t\treturn retryAfter",
+            "// Use exponential backoff for all retries"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "after": "func getRetryAfter(resp *http.Response, l logger.Logger, threshold int) time.Duration {",
+          "quotes": [
             "remaining := resp.Header.Get(\"X-Ratelimit-Remaining-Second\")",
             "limit := resp.Header.Get(\"X-Ratelimit-Limit-Second\")",
+            "if val, err := strconv.Atoi(remaining); err == nil && val < threshold {",
+            "jitter := time.Duration(rand.Intn(500)) * time.Millisecond",
             "return time.Second + jitter",
-            "l.Printf(\"[WARN] 429 received, applying fallback retry delay (2s)\")",
-            "proactiveThreshold = 2",
-            "// Use exponential backoff for all retries"
+            "if resp.StatusCode == http.StatusTooManyRequests {",
+            "l.Printf(\"[WARN] 429 received, applying fallback retry delay (2s)\")\n\t\treturn 2 * time.Second",
+            "// Default fallback delay for other cases\n\treturn 500 * time.Millisecond"
           ]
         }
       ]
@@ -233,6 +268,7 @@
           "source": "sdk-go",
           "path": "zscaler/zdx/v2_config.go",
           "quotes": [
+            "// Initialize the global rate limiter (example: 100 requests/min)",
             "globalLimiter := rl.NewGlobalRateLimiter(100, 60)",
             "AdditionalDelay: 5 * time.Second,",
             "cfg.HTTPClient = httpClient"
@@ -240,9 +276,28 @@
         },
         {
           "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "after": "type GlobalRateLimiter struct {",
+          "quotes": [
+            "Limit       int         // Maximum number of requests allowed",
+            "Freq        int         // Frequency window in seconds",
+            "func NewGlobalRateLimiter(limit, freq int) *GlobalRateLimiter {",
+            "Limit:       limit,",
+            "Freq:        freq,"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zdx/v2_client.go",
+          "after": "func Authenticate(",
+          "quotes": [
+            "resp, err := cfg.HTTPClient.Do(req)"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zdx/v2_client.go",
           "quotes": [
-            "resp, err := cfg.HTTPClient.Do(req)",
             "httpClient := getHTTPClient(client.Config.Logger, nil, client.Config)",
             "transport := &http.Transport{",
             "retryableClient.HTTPClient.Transport = transport"
@@ -251,7 +306,7 @@
       ]
     },
     "limiter-auth-only": {
-      "statement": "So the fixed 100-per-60-seconds limiter paces only sign-in requests; API calls through this client are paced only by the header-driven backoff and the server's limits.",
+      "statement": "So the fixed 100-per-60-seconds limiter paces only sign-in requests; API calls through this client are paced only by the backoff and the server's limits.",
       "tier": "B",
       "derived_from": [
         "global-limiter",
@@ -273,10 +328,10 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zparequests.go",
+          "after": "func (client *Client) NewRequestDo(ctx context.Context, method, endpoint string, options, body, v interface{}) (*http.Response, error) {",
           "quotes": [
-            "if client.oauth2Credentials.LegacyClient == nil || client.oauth2Credentials.LegacyClient.ZpaClient == nil {",
-            "return client.oauth2Credentials.LegacyClient.ZpaClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)",
-            "return nil, errLegacyClientNotSet"
+            "if client.oauth2Credentials.UseLegacyClient {\n\t\tif client.oauth2Credentials.LegacyClient == nil || client.oauth2Credentials.LegacyClient.ZpaClient == nil {\n\t\t\treturn nil, errLegacyClientNotSet",
+            "return client.oauth2Credentials.LegacyClient.ZpaClient.NewRequestDo(method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
           ]
         },
         {
@@ -294,7 +349,8 @@
             "return client.oauth2Credentials.LegacyClient.ZdxClient.NewRequestDo(ctx, method, removeOneApiEndpointPrefix(endpoint), options, body, v)"
           ]
         }
-      ]
+      ],
+      "conditions": "Which client the ZDX services call: `grep -rhoE \"service\\.Client\\.[A-Za-z]*\\(\" zscaler/zdx/services --include='*.go'` over vendor/zscaler-sdk-go at v3.8.58 finds only `service.Client.NewRequestDo(`, 38 calls in 17 non-test files, and `grep -rn NewZdxRequestDo zscaler/` finds only its definition in zdxrequests.go."
     },
     "services-not-routed": {
       "statement": "So a service built with `NewLegacyZdxClient` cannot run the ZDX service functions: they reach the missing legacy ZPA client and return an error, and the direct ZDX client's sign-in, retries and limiter never apply to them; the SDK's ZDX example builds a OneAPI service instead.",

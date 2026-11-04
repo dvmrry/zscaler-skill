@@ -107,7 +107,8 @@
           "path": "zscaler/zpa/services/client_settings/client_settings.go",
           "quotes": [
             "v := new(ClientSettings)",
-            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+clientSettingEndpoint, settings, v, nil)"
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+clientSettingEndpoint, settings, v, nil)",
+            "return v, resp, nil"
           ],
           "after": "func Create("
         },
@@ -147,7 +148,7 @@
       ]
     },
     "sdk-client-setting-calls": {
-      "statement": "Both SDKs call GET /clientSetting (with an optional type filter), GET /clientSetting/all for the unfiltered object, POST /clientSetting to create and DELETE /clientSetting with no id, which deletes the customer-level setting. Neither SDK has an update call.",
+      "statement": "Both SDKs call GET /clientSetting (with an optional type filter), GET /clientSetting/all with no filter, POST /clientSetting to create and DELETE /clientSetting with no id. Neither SDK has an update call.",
       "tier": "A",
       "evidence": [
         {
@@ -244,7 +245,8 @@
           ],
           "note": "the complete ClientSettings struct, with no microtenant member"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -in microtenant zscaler/zpa/services/client_settings/client_settings.go` at Go SDK v3.8.58 returns nothing."
     },
     "managed-browser-search-path": {
       "statement": "Both SDKs list managed browser profiles with a GET on the /managedBrowserProfile/search path. The Go GetByName sends no name filter, only the microtenant id, and matches the name client-side with a case-insensitive comparison.",
@@ -267,10 +269,34 @@
           "after": "func GetByName("
         },
         {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "func GetAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, filters Filter) ([]T, *http.Response, error) {",
+          "quotes": [
+            "totalPages, result, resp, err := getAllPagesGenericWithCustomFilters[T](ctx, client, relativeURL, 1, DefaultPageSize, filters)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "func getAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, page, pageSize int, filters Filter) (int, []T, *http.Response, error) { var paged struct {",
+          "quotes": [
+            "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
+          ]
+        },
+        {
           "source": "sdk-python",
           "path": "zscaler/zpa/managed_browser_profile.py",
           "quotes": [
             "/managedBrowserProfile/search"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zpa/managed_browser_profile.py",
+          "after": "def list_managed_browser_profiles(",
+          "quotes": [
+            "http_method = \"get\".upper()"
           ]
         }
       ],

@@ -99,6 +99,7 @@
           "source": "zguard-integrations",
           "path": "Kong/request-callout/README.md",
           "quotes": [
+            "local original_body, err = kong.request.get_raw_body()",
             "local content_pattern = '\"role\"%s*:%s*\"user\".-\"content\"%s*:%s*\"([^\"]*)\"'",
             "for content in string.gmatch(original_body, content_pattern) do",
             "local tr_id = ngx.var.request_id",
@@ -116,7 +117,8 @@
             "\"transactionId\": %s"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n -i -c -E 'decode|cjson' Kong/request-callout/README.md` at v0.2.0-11-g70d5c9c returns 0; the snippet reads the body with `kong.request.get_raw_body()` and matches the pattern against that string."
     },
     "pattern-gaps": {
       "statement": "A prompt containing an escaped double quote is scanned only up to the backslash before it, a message whose content is an array (multimodal parts) produces no match, and a body with no match sends an empty `content` string.",

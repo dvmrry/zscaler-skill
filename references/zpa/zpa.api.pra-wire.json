@@ -61,7 +61,7 @@
       "text": "{{working-hours-fields}} {{approval-times}} {{approval-status-values}}"
     },
     {
-      "text": "{{approval-nil-working-hours}} {{approval-delete-expired}}"
+      "text": "{{approval-nil-working-hours}} {{approval-nil-sent-as-null}} {{approval-delete-expired}}"
     },
     {
       "heading": "Credentials"
@@ -409,7 +409,7 @@
       "conditions": "The two Python bounds are client-side checks; whether the API enforces the same limits is not shown. The same helper validates enrollment-certificate times."
     },
     "approval-nil-working-hours": {
-      "statement": "In the Go SDK a privileged approval's workingHours pointer and applications slice are tagged without omitempty, so a nil workingHours, and an applications slice that was never set, are sent as null; only an empty non-nil applications slice is sent as an empty array.",
+      "statement": "In the Go SDK a privileged approval's workingHours pointer and applications slice are tagged without omitempty, and Create and Update pass the PrivilegedApproval as the request body.",
       "tier": "A",
       "evidence": [
         {
@@ -420,9 +420,33 @@
             "Applications []Applications `json:\"applications\"`"
           ],
           "after": "type PrivilegedApproval struct {"
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "after": "func Create(ctx context.Context, service *zscaler.Service, privilegedApproval *PrivilegedApproval)",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"POST\", mgmtConfig+service.Client.GetCustomerID()+privilegedApprovalEndpoint, common.Filter{MicroTenantID: service.MicroTenantID()}, privilegedApproval, &v)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/privilegedremoteaccess/praapproval/praapproval.go",
+          "after": "func Update(ctx context.Context, service *zscaler.Service, approvalID string, privilegedApproval *PrivilegedApproval)",
+          "quotes": [
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", relativeURL, common.Filter{MicroTenantID: service.MicroTenantID()}, privilegedApproval, nil)"
+          ]
         }
       ],
       "conditions": "Corrected: Go's encoding/json writes a nil slice as null, not an empty array, so an unset applications slice is sent as null. What the API does with a null workingHours on update was not established. The Python SDK sends workingHours only when supplied: [[zpa.pra.tooling]]."
+    },
+    "approval-nil-sent-as-null": {
+      "statement": "Under Go's encoding/json, a nil workingHours and an applications slice that was never set are therefore sent as null, and only an empty non-nil applications slice is sent as an empty array.",
+      "tier": "B",
+      "derived_from": [
+        "approval-nil-working-hours"
+      ],
+      "conditions": "Follows from approval-nil-working-hours: neither tag has omitempty, and Create and Update send the struct as the body. That encoding/json writes a nil pointer and a nil slice as null and an empty non-nil slice as [] is Go standard-library behaviour, which no source here states. What the API does with a null workingHours on update is not established."
     },
     "approval-status-values": {
       "statement": "A privileged approval's status is one of INVALID, ACTIVE, FUTURE or EXPIRED in the specification.",
@@ -549,7 +573,7 @@
       ]
     },
     "credential-move": {
-      "statement": "POST /credential/{id}/move has no request body and returns 204; the destination is the targetMicrotenantId query parameter, where 0 means the Default microtenant. The Python SDK raises an error when target_microtenant_id is falsy; the Go SDK appends the parameter only when the string is non-empty. The contract also takes an optional source microtenantId query parameter. The Python SDK forwards microtenant_id as microtenantId; Go's CredentialMove has no per-call source parameter and ignores the service's microtenant, so the source microtenantId reaches the request only from the ZPA_MICROTENANT_ID environment variable or the client's configured microtenant.",
+      "statement": "POST /credential/{id}/move has no request body and returns 204; the destination is the targetMicrotenantId query parameter, where 0 means the Default microtenant. The Python SDK raises an error when target_microtenant_id is falsy; the Go SDK appends the parameter only when the string is non-empty. The contract also takes an optional microtenantId query parameter. The Python SDK forwards microtenant_id as microtenantId; Go's CredentialMove has no per-call microtenantId parameter and ignores the service's microtenant, so microtenantId reaches the request only from the ZPA_MICROTENANT_ID environment variable or the client's configured microtenant.",
       "conditions": "Added the source microtenantId parameter (a legacy divergence the earlier statement lost); the Go part follows the OneAPI client's NewRequestDo, which injects microtenantId from the body, then the environment variable, then the client config, and CredentialMove passes no options and no body.",
       "tier": "A",
       "evidence": [
@@ -677,7 +701,8 @@
             "Username and password must be provided for USERNAME_PASSWORD type.",
             "Username and private_key must be provided for SSH_KEY type.",
             "elif credential_type == \"PASSWORD\":",
-            "Password must be provided for PASSWORD type."
+            "Password must be provided for PASSWORD type.",
+            "if not is_valid_ssh_key(private_key): raise ValueError(\"Invalid SSH key format.\")"
           ],
           "after": "def add_credential(self, **kwargs)"
         },
@@ -687,7 +712,8 @@
           "quotes": [
             "r\"-----BEGIN OPENSSH PRIVATE KEY-----\",",
             "r\"-----BEGIN RSA PRIVATE KEY-----\",",
-            "r\"-----BEGIN EC PRIVATE KEY-----\","
+            "r\"-----BEGIN EC PRIVATE KEY-----\",",
+            "return any(re.search(pattern, private_key) for pattern in ssh_key_patterns)"
           ],
           "after": "def is_valid_ssh_key(private_key: str) -> bool:"
         }

@@ -184,7 +184,7 @@
       ]
     },
     "go-reorder-calls": {
-      "statement": "The Go SDK has two reorder calls: `Reorder`, which moves one rule with a PUT to `.../rule/{ruleId}/reorder/{newOrder}`, and `BulkReorder`, which takes a map of rule ID to order and PUTs to the policy set's `reorder` endpoint.",
+      "statement": "The Go SDK's policysetcontrollerv2 package has two reorder calls: `Reorder`, which moves one rule with a PUT to `.../rule/{ruleId}/reorder/{newOrder}`, and `BulkReorder`, which takes a map of rule ID to order and PUTs to the policy set's `reorder` endpoint.",
       "tier": "A",
       "evidence": [
         {
@@ -202,7 +202,8 @@
             "path := fmt.Sprintf(mgmtConfigV1+service.Client.GetCustomerID()+\"/policySet/%s/reorder\", policySet.ID) // Create a new PUT request resp, err = service.Client.NewRequestDo(ctx, \"PUT\", path,"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n '^func.*Reorder' zscaler/zpa/services/policysetcontrollerv2/policysetcontrollerv2.go` at v3.8.58 returns two lines, `func Reorder(` and `func BulkReorder(`. The v1 policysetcontroller package has its own `Reorder` and `BulkReorder`, which this claim does not cover."
     },
     "python-reorder-rule": {
       "statement": "The Python SDK has `reorder_rule(policy_type, rule_id, rule_order)`, which PUTs to `.../rule/{rule_id}/reorder/{rule_order}` for the access, timeout, client forwarding, isolation, inspection, redirection, credential, capabilities and siem policy types.",

@@ -218,8 +218,41 @@
           "expect": {
             "url": "https://api.zsapi.net/aisecurity/airt"
           }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1agents/get/x-zscaler-source-info",
+          "expect": {
+            "title": "AI Infrastructure"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1v1~1assets~1agents/get/servers/[description=Production]",
+          "expect": {
+            "url": "https://api.zsapi.net/aisecurity/aispm"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1api~1v2~1ai-app~1test-integration~1agentforce/post/x-zscaler-source-info",
+          "expect": {
+            "title": "AI Red Teaming"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/ai-security.openapi.json",
+          "pointer": "/paths/~1api~1v2~1ai-app~1test-integration~1agentforce/post/servers/[description=AI Red Teaming Service]",
+          "expect": {
+            "url": "https://api.zsapi.net/aisecurity/airt"
+          }
         }
-      ]
+      ],
+      "conditions": "Tally over the capture: `jq -c '[.paths[][] | [.servers[].url, .[\"x-zscaler-source-info\"].title]] | group_by(.) | map([.[0], length])' automate-zscaler/openapi/ai-security.openapi.json` returns two groups and no others: 97 operations whose one server is https://api.zsapi.net/aisecurity/airt and whose source is AI Red Teaming, and 17 whose one server is https://api.zsapi.net/aisecurity/aispm and whose source is AI Infrastructure (114 in all); `/info/x-zscaler-source-info` has two entries."
     },
     "red-teaming-api": {
       "statement": "AI Red Teaming is the testing side of the family and AI Guard the runtime side: the product page describes Red Teaming as automated vulnerability assessment with prebuilt probes, and its 97 API operations (AI apps and integration tests, probes, test runs, scheduled tests, reports, remediation) are generated in the aisec surface.",

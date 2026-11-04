@@ -53,7 +53,7 @@
   ],
   "claims": {
     "marshals-caller-struct": {
-      "statement": "ZIA updates go through an `updateGeneric`, the OneAPI client's in `ziarequests.go` or, when the legacy client is configured, its own copy in `zia/v2_client.go`. Both serialize the caller's struct directly with `json.Marshal`, so each field's JSON tag alone decides whether it is sent.",
+      "statement": "ZIA updates go through an `updateGeneric`, the OneAPI client's in `ziarequests.go` or, when the legacy client is configured, its own copy in `zia/v2_client.go`. Both serialize the caller's struct directly with `json.Marshal`.",
       "tier": "A",
       "evidence": [
         {
@@ -90,9 +90,25 @@
             "v3.8.45",
             "HEAD"
           ],
+          "after": "func (c *Client) UpdateWithPut(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
           "quotes": [
+            "if c.oauth2Credentials.UseLegacyClient {",
             "return c.oauth2Credentials.LegacyClient.ZiaClient.UpdateWithPut(ctx, removeOneApiEndpointPrefix(endpoint), o) } return c.updateGeneric(ctx, endpoint, o, \"PUT\", contentTypeJSON)",
             "return c.oauth2Credentials.LegacyClient.ZiaClient.Update(ctx, removeOneApiEndpointPrefix(endpoint), o) } return c.updateGeneric(ctx, endpoint, o, \"PATCH\", \"application/merge-patch+json\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/v2_client.go",
+          "at": [
+            "v3.8.44",
+            "v3.8.45",
+            "HEAD"
+          ],
+          "after": "func (c *Client) UpdateWithPut(ctx context.Context, endpoint string, o interface{}) (interface{}, error) {",
+          "quotes": [
+            "return c.updateGeneric(ctx, endpoint, o, \"PUT\", \"application/json\")",
+            "return c.updateGeneric(ctx, endpoint, o, \"PATCH\", \"application/merge-patch+json\")"
           ]
         }
       ]
@@ -133,9 +149,22 @@
       ]
     },
     "settings-bools-fixed-3-8-45": {
-      "statement": "The advanced URL and cloud-app settings booleans were tagged `omitempty` through v3.8.44. From v3.8.45 they are always sent, except `blockSkype` (and the `safeSearchApps` list), because, in the SDK maintainers' words, dropping a false from the body would leave the setting enabled.",
+      "statement": "The advanced URL and cloud-app settings booleans were tagged `omitempty` from v3.0.0 through v3.8.44. From v3.8.45 they are always sent, except `blockSkype` (and the `safeSearchApps` list), because, in the SDK maintainers' words, dropping a false from the body would leave the setting enabled.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
+          "at": [
+            "v3.0.0",
+            "v3.8.44"
+          ],
+          "quotes": [
+            "EnableDynamicContentCat bool `json:\"enableDynamicContentCat,omitempty\"`",
+            "EnableChatGptPrompt bool `json:\"enableChatGptPrompt,omitempty\"`",
+            "EnableCIPACompliance bool `json:\"enableCIPACompliance,omitempty\"`"
+          ]
+        },
         {
           "source": "sdk-go",
           "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
@@ -143,7 +172,7 @@
             "v3.8.44"
           ],
           "quotes": [
-            "EnableDynamicContentCat bool `json:\"enableDynamicContentCat,omitempty\"`"
+            "ZveloDbLookupDisabled bool `json:\"zveloDbLookupDisabled,omitempty\"`"
           ]
         },
         {
@@ -162,6 +191,7 @@
           ]
         }
       ],
+      "conditions": "Every boolean, not only the quoted ones: for each of the 91 v3 release tags from v3.0.0 through v3.8.44, `git show <tag>:zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go`, cut to the `URLAdvancedPolicySettings` struct and filtered with `grep ' bool ' | grep -v omitempty`, returns nothing (the struct has 20 bool fields at v3.0.0 and 28 at v3.8.44).",
       "upstream": [
         {
           "status": "fixed",

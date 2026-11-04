@@ -92,7 +92,7 @@
   ],
   "claims": {
     "default-window": {
-      "statement": "The contract's report reads default to the last 2 hours when no time range is given; the descriptions say so for, among others, the device list, the device applications, the health metrics, the user list and the active geolocations.",
+      "statement": "Most of the contract's report reads say in their descriptions that they default to the last 2 hours when no time range is given, among them the device list, the device applications, the health metrics, the user list and the active geolocations.",
       "tier": "A",
       "evidence": [
         {
@@ -135,7 +135,8 @@
             "description": "Gets the list of all active geolocations for the time range specified. If not specified, the endpoint defaults to the last 2 hours. The state and city data is retrieved only for the US."
           }
         }
-      ]
+      ],
+      "conditions": "Tally over the capture: `jq '[.paths[][] | objects | select((.tags // []) | index(\"Reports\")) | (.description | test(\"defaults to the last 2 hours\"))] | group_by(.) | map([.[0], length])' automate-zscaler/openapi/zdx.openapi.json` returns 18 operations tagged Reports whose description says the endpoint defaults to the last 2 hours and 2 that do not: GET /v1/apps gives each application's score \"(default for the last 2 hours)\" and GET /v1/apps/{id} its score \"(for the last 2 hours)\"."
     },
     "paging": {
       "statement": "The device list, user list and application-user list take an `offset` and a `limit` that defaults to 1000, and return a `next_offset` that must be entered in the next request to get the next batch.",

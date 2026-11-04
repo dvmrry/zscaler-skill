@@ -301,7 +301,7 @@
           "source": "zscaler-help",
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
-            "the Zscaler service only exports visible columns. It exports up to 100K lines of data at a time.",
+            "You can either download the list of transactions as a CSV file or keep it displayed on your screen. When you download the list, the Zscaler service only exports visible columns. It exports up to 100K lines of data at a time.",
             "The limit for the number of times you can export is 20 requests/hour."
           ]
         }
@@ -364,7 +364,7 @@
       ]
     },
     "web-nss-cloud-app-fields": {
-      "statement": "The Web NSS CSV carries cloud application fields appname, appclass and app_risk_score, and prompt_req, the prompt entered by the user in a generative AI application.",
+      "statement": "The web NSS feed output format includes the cloud application fields appname, appclass and app_risk_score, and prompt_req, the prompt entered by the user in a generative AI application.",
       "tier": "A",
       "evidence": [
         {
@@ -382,6 +382,7 @@
     "web-appclass-vocabulary": {
       "statement": "The Web NSS appclass examples are Administration, Collaboration and Web Mail, drawn from the Cloud App Control Policy page; Administration and Web Mail are not among the eight SaaS Security log categories (Collaboration, CRM, Email, File, Gen AI, ITSM, Public Cloud Storage and Repository).",
       "tier": "A",
+      "conditions": "Tally over the capture: `jq -r '.blocks[] | (.heading // .item // .text // \"\") | select(test(\"Columns$\"))' about-saas-security-insights-logs.json` returns exactly the eight quoted headings.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -395,6 +396,7 @@
           "source": "zscaler-help",
           "path": "about-saas-security-insights-logs.json",
           "quotes": [
+            "Each application category has its own set of columns.",
             "Collaboration Columns",
             "CRM Columns",
             "Email Columns",

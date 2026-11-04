@@ -150,6 +150,14 @@
           "quotes": [
             "you must configure the client application to send a POST request along with the required parameters to Authentication Service's token endpoint: https://<vanity-domain>.zslogin.net/oauth2/v1/token, where <vanity-domain> refers to the domain assigned to your organization."
           ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/getting-started.json",
+          "after": "where <vanity-domain> refers to the domain assigned to your organization.",
+          "quotes": [
+            "You must use your tenant's vanity domain in this URL (e.g., acme.zslogin.net)."
+          ]
         }
       ]
     },
@@ -381,8 +389,16 @@
         {
           "source": "sdk-go",
           "path": "zscaler/oneapiclient.go",
+          "after": "func Authenticate(",
           "quotes": [
-            "data.Set(\"audience\", \"https://api.zscaler.com\")",
+            "data.Set(\"client_secret\", creds.ClientSecret)",
+            "data.Set(\"audience\", \"https://api.zscaler.com\")"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/oneapiclient.go",
+          "quotes": [
             "\"audience\":              {\"https://api.zscaler.com\"},",
             "\"client_assertion\":      {assertion},"
           ]
@@ -402,10 +418,19 @@
             "elif \"BEGIN PRIVATE KEY\" in private_key:",
             "# **Assume it's a file path and read the private key**",
             "logging.info(\"Using private key from file.\")",
+            "private_key_obj = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())",
             "MIN_RSA_KEY_SIZE: int = 2048",
             "if key_size < MIN_RSA_KEY_SIZE:",
             "ValueError: If the key size is below the minimum requirement",
             "validate_rsa_key_strength(private_key_obj)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_oauth_client.py",
+          "after": "validate_rsa_key_strength(private_key_obj)",
+          "quotes": [
+            "response: requests.Response = requests.post(auth_url, data=form_data, headers=headers, proxies=proxies)"
           ]
         }
       ]

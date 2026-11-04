@@ -56,12 +56,13 @@
     "validator-omits-brave": {
       "statement": "Before v4.8.9 the provider's `user_agent_types` validator accepted OPERA, FIREFOX, MSIE, MSEDGE, CHROME, SAFARI, MSCHREDGE and OTHER, and omitted BRAVE. v4.8.9 adds BRAVE to the list (#607).",
       "tier": "A",
-      "conditions": "Changed upstream in v4.8.9 (checked 2026-10-18): previously \"In v4.8.8 the provider's `user_agent_types` validator accepts OPERA, FIREFOX, MSIE, MSEDGE, CHROME, SAFARI, MSCHREDGE and OTHER, and omits BRAVE.\"",
+      "conditions": "Changed upstream in v4.8.9 (checked 2026-10-18): previously \"In v4.8.8 the provider's `user_agent_types` validator accepts OPERA, FIREFOX, MSIE, MSEDGE, CHROME, SAFARI, MSCHREDGE and OTHER, and omits BRAVE.\" Range: `git -C vendor/terraform-provider-zia grep -n 'supportedUserAgentTypes = ' <tag> -- zia/validator.go` over every tag first matches at v2.7.0, and every tag from v2.7.0 to v4.8.8 lists the same eight values without BRAVE.",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/validator.go",
           "at": [
+            "v2.7.0",
             "v4.8.8"
           ],
           "quotes": [
@@ -128,16 +129,18 @@
     "header-profile-accepts-brave": {
       "statement": "Up to v4.8.12 the `user_agent` criterion of `zia_http_header_profile` was validated against a list that includes BRAVE. v4.8.13 makes `user_agent` a free custom user agent string, for use when `user_agent_bitmap` is OTHER, and the list (still including BRAVE) validates `user_agent_bitmap` (#613).",
       "tier": "A",
-      "conditions": "Changed upstream in v4.8.13 (checked 2026-10-18): previously \"The `user_agent` criterion of `zia_http_header_profile` is validated against a list that does include BRAVE.\" That `user_agent` has no validator at v4.8.13 rests on reading its schema entry, which has Type, Optional and Description only.",
+      "conditions": "Changed upstream in v4.8.13 (checked 2026-10-18): previously \"The `user_agent` criterion of `zia_http_header_profile` is validated against a list that does include BRAVE.\" That `user_agent` has no validator at v4.8.13 rests on reading its schema entry, which has Type, Optional and Description only. Range start: `git -C vendor/terraform-provider-zia grep -c 'The user agent evaluated by the criteria.' <tag> -- zia/resource_zia_http_header_profile.go` over every tag first matches at v4.7.26 (the file's first release) and last at v4.8.12, and every tag in that range has this `ValidateFunc` list, BRAVE included, after that description.",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_http_header_profile.go",
           "at": [
+            "v4.7.26",
             "v4.8.8",
             "v4.8.12"
           ],
           "quotes": [
+            "ValidateFunc: validation.StringInSlice([]string{ \"OPERA\", \"FIREFOX\", \"MSIE\", \"MSEDGE\", \"CHROME\", \"SAFARI\", \"OTHER\", \"MSCHREDGE\", \"BRAVE\", }, false),",
             "\"BRAVE\","
           ],
           "after": "Description: \"The user agent evaluated by the criteria.\","
@@ -227,7 +230,7 @@
       ]
     },
     "issue-606-report": {
-      "statement": "Provider issue #606 reported that the ZIA API returned BRAVE in `user_agent_types` for existing rules and that `terraform plan` then failed with the validator error on a list of eight values ending in OTHER; a repository member closed it as completed on 2026-10-01 saying v4.8.9 resolved it.",
+      "statement": "Provider issue #606 reported that the ZIA API returned BRAVE in `user_agent_types` for existing rules and that `terraform plan` then failed with the validator error on a list of eight values ending in OTHER. It was closed as completed on 2026-10-01, the day a repository member commented that the latest version, v4.8.9, resolved it.",
       "tier": "A",
       "evidence": [
         {

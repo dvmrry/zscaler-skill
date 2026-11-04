@@ -126,7 +126,7 @@
       ]
     },
     "doc-example-wrong-type": {
-      "statement": "The provider's documentation page for `ztc_ip_source_groups` shows its create example as `resource \"zia_ip_source_groups\"`, the ZIA provider's resource type.",
+      "statement": "The provider's documentation page for `ztc_ip_source_groups` shows its create example as `resource \"zia_ip_source_groups\"`, a type the provider does not register (it registers the resource as `ztc_ip_source_groups`).",
       "tier": "A",
       "evidence": [
         {
@@ -135,8 +135,16 @@
           "quotes": [
             "resource \"zia_ip_source_groups\" \"this\" {"
           ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "ztc/provider.go",
+          "quotes": [
+            "\"ztc_ip_source_groups\": resourceIPSourceGroups(),"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (type not registered): `grep -rlF 'zia_ip_source_groups' ztc` at v0.2.0 returns no files; the name occurs only under docs/ and examples/."
     },
     "doc-arguments-wrong": {
       "statement": "The same page's Argument Reference lists `name` as optional ('The name of the IP source group to be exported') and `id`, while the resource schema requires `name` and `ip_addresses`.",
@@ -161,7 +169,7 @@
       ]
     },
     "zia-data-source-example": {
-      "statement": "The provider's `basic_forward_method_zia.tf` example looks up a source IP group with the ZIA provider's `zia_ip_source_groups` data source and passes its ID to `src_ip_groups` of a `ztc_traffic_forwarding_rule`.",
+      "statement": "The provider's `basic_forward_method_zia.tf` example looks up a source IP group with a `zia_ip_source_groups` data source and passes its ID to `src_ip_groups` of a `ztc_traffic_forwarding_rule`.",
       "tier": "A",
       "evidence": [
         {
@@ -172,12 +180,13 @@
             "src_ip_groups { id = [data.zia_ip_source_groups.this.id] }"
           ]
         }
-      ]
+      ],
+      "conditions": "The example does not say which provider supplies that data source. `grep -rlF zia_ip_source_groups` over the ZIA provider at v4.8.17 returns nothing; its provider.go registers the source IP group data source as `zia_firewall_filtering_ip_source_groups`."
     },
     "zia-ids-accepted": {
-      "statement": "The example implies that the ID of a source IP group read through ZIA is a valid source IP group reference on a Cloud Connector forwarding rule.",
+      "statement": "The example implies that the ID of a source IP group read through a `zia_ip_source_groups` data source, a name that points at ZIA, is a valid source IP group reference on a Cloud Connector forwarding rule.",
       "tier": "B",
-      "conditions": "Inferred from the provider example and from the help placing the page under Internet Access resources; no source states that ZIA and Cloud Connector share the group objects.",
+      "conditions": "Inferred from the provider example and from the help placing the page under Internet Access resources. The example names no provider for the data source, and the ZIA provider registers its source IP group data source under another name (zia-data-source-example), so that the group is read through ZIA rests on the `zia_` name alone. No source states that ZIA and Cloud Connector share the group objects.",
       "derived_from": [
         "zia-data-source-example",
         "cloud-connector.source-ip-groups:help-page-ipv4-tab"

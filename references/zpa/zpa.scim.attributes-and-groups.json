@@ -43,7 +43,7 @@
     },
     {
       "label": "What cannot be authored.",
-      "text": "{{read-only-objects}}"
+      "text": "{{read-only-objects}} {{read-not-authored}}"
     },
     {
       "label": "IdPs.",
@@ -117,7 +117,7 @@
       ]
     },
     "groups-from-idp": {
-      "statement": "SCIM groups are groups configured in the IdP that are pulled into Private Access when SCIM is enabled, and the SCIM Groups page lists the groups synced to Private Access over SCIM by the IdP.",
+      "statement": "SCIM groups are configured in the IdP and pulled into Private Access when SCIM is enabled (the help page calls them attributes configured in the IdP), and the SCIM Groups page lists the groups synced to Private Access over SCIM by the IdP.",
       "tier": "A",
       "evidence": [
         {
@@ -131,7 +131,7 @@
       ]
     },
     "read-only-objects": {
-      "statement": "SCIM groups and attributes are read in Private Access rather than authored there: the API resources for them are described as read resources, the SCIM Attributes page is a read-only table, and Private Access does not support custom SCIM attributes.",
+      "statement": "The SCIM group and SCIM attribute API resources are described as allowing you to read them, the SCIM Attributes page is a read-only table, and Private Access does not support custom SCIM attributes; SCIM groups are pulled in from the IdP when SCIM is enabled.",
       "tier": "A",
       "evidence": [
         {
@@ -159,6 +159,14 @@
           ]
         }
       ]
+    },
+    "read-not-authored": {
+      "statement": "So SCIM groups and attributes are read in Private Access rather than authored there.",
+      "tier": "B",
+      "derived_from": [
+        "read-only-objects"
+      ],
+      "conditions": "Follows from read-only-objects: the legacy API page describes the SCIM group and SCIM attribute API resources only as letting you read them, the SCIM Attributes page is a read-only table with no custom attributes, and SCIM groups are pulled in from the IdP. No source states that Private Access offers no way to create or change them."
     },
     "group-page-fields": {
       "statement": "For each SCIM group the console shows the time of its last action (Last Updated), an Internal Group ID, the SCIM Group Name as identified by the IdP, the IdP SCIM Group ID, and the total and active user counts.",

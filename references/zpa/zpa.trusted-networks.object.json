@@ -154,7 +154,7 @@
       ]
     },
     "api-operations": {
-      "statement": "The documented operations are a v2 GET of all trusted networks and a v1 GET of one trusted network by `id`.",
+      "statement": "The OpenAPI document's trusted network operations are a v2 GET of all trusted networks and a v1 GET of one trusted network by `id`; the help page documents the same single fetch.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks"
@@ -183,7 +183,8 @@
             "Send a GET request to the following endpoint in the trusted-network-controller: /mgmtconfig/v1/admin/customers/{customerId}/network/{id}."
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: over automate-zscaler/openapi/zpa.openapi.json in the capture of 2026-09-07, `jq -r '.paths | to_entries[] | select(.key|test(\"/network\")) | \"\\(.key) \\(.value|keys)\"'` returns two paths, `/mgmtconfig/v1/admin/customers/{customerId}/network/{id}` with `[\"get\"]` and `/mgmtconfig/v2/admin/customers/{customerId}/network` with `[\"get\"]`. The help page also documents v1 list and search calls on `/mgmtconfig/v1/admin/customers/{customerId}/network` (see paging), which the OpenAPI document does not carry."
     },
     "no-client-writes": {
       "statement": "The Go and Python SDKs only read trusted networks, and the Terraform provider has a `zpa_trusted_network` data source and no resource.",
@@ -307,7 +308,7 @@
       ]
     },
     "data-source-targets": {
-      "statement": "The provider documents the trusted network data source as the way to reference a trusted network in an access, forwarding, inspection or isolation policy and in a service edge group.",
+      "statement": "The provider documents that the trusted network data source can be referenced within an access, forwarding, inspection or isolation policy and a service edge group.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks"

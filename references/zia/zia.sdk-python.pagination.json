@@ -132,8 +132,8 @@
           "path": "zscaler/oneapi_response.py",
           "quotes": [
             "# For ZIA/ZCC with paginated responses (dict with \"list\" field):",
-            "if self._pages_fetched == 1: # First page - continue if we got any results has_next = bool(self._list)",
-            "if self._limit: has_next = len(self._list) >= self._limit else: # No explicit limit set - assume more pages exist if we got results",
+            "if self._pages_fetched == 1: # First page - continue if we got any results has_next = bool(self._list) else: # Subsequent pages - if no explicit limit, use heuristic based on results returned",
+            "if self._limit: has_next = len(self._list) >= self._limit else: # No explicit limit set - assume more pages exist if we got results # This may result in one extra empty API call, but respects API defaults has_next = bool(self._list)",
             "# If we got results, try one more page. The next call will return empty and stop."
           ]
         }
@@ -154,7 +154,7 @@
       ]
     },
     "pagination-fix-history": {
-      "statement": "The Python changelog records several ZIA pagination fixes: wrong page parameter names (PR 393), has_next returning True forever on flat-list responses (PR 426), and has_next returning False after the first page on flat-list endpoints (PR 478).",
+      "statement": "The Python changelog records several pagination fixes: ZIA pagination using the wrong page parameter names (PR 393), has_next returning True forever on flat-list responses (PR 426), and ZIA has_next returning False after the first page on flat-list endpoints (PR 478).",
       "tier": "A",
       "evidence": [
         {

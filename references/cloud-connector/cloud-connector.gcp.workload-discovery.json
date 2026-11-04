@@ -115,7 +115,7 @@
           "path": "cbc-configuring-workload-discovery-workloads-google-cloud-platform.json",
           "quotes": [
             "The Zscaler workload discovery service uses the Google Cloud Asset Inventory searchAllResources API, which enforces rate limits per Google Cloud project.",
-            "configure the tools to use a different quota (consumer) project than the project that the workload discovery service uses."
+            "If you use additional internal or third-party tools that also call this API, configure the tools to use a different quota (consumer) project than the project that the workload discovery service uses. Using separate projects prevents shared rate-limit contention"
           ]
         }
       ]
@@ -179,14 +179,16 @@
       ]
     },
     "project-discovery": {
-      "statement": "The service enumerates the projects the granted roles authorize, using resourcemanager.projects.list, then uses Compute Engine and other APIs to retrieve VM metadata, map tags for policy and keep an inventory in the Zscaler cloud.",
+      "statement": "The service enumerates the projects that the roles or permissions granted to its service account authorize, using resourcemanager.projects.list, then uses Compute Engine and other APIs to retrieve VM metadata, map tags for policy and keep an inventory in the Zscaler cloud.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "cbc-configuring-workload-discovery-workloads-google-cloud-platform.json",
           "quotes": [
+            "The workload discovery service can enumerate projects that you authorize by the roles or permissions you granted the service account at the organization, folder, or project level.",
             "It uses the resourcemanager.projects.list role to identify all onboarded projects, and it enables polling and metadata retrieval across multiple projects.",
+            "After discovering projects, the workload discovery service uses Compute Engine and other service APIs to:",
             "- Retrieve VM and workload metadata. - Map tags for security policy enforcement. - Maintain an up-to-date inventory in the Zscaler cloud."
           ]
         }

@@ -145,7 +145,7 @@
       ]
     },
     "tunnel1-device-firewall": {
-      "statement": "For Client Connector traffic on Z-Tunnel 1.0 (which sends all proxy-aware traffic or port 80 and 443 traffic, depending on the forwarding profile configuration), the block belongs on the device firewall: UDP 80 and 443.",
+      "statement": "If only Client Connector traffic on Z-Tunnel 1.0 (which sends all proxy-aware traffic or port 80 and 443 traffic, depending on the forwarding profile configuration) is sent to Zscaler, or for remote users, the help says to create a block rule on the device firewall for UDP 80 and 443.",
       "tier": "A",
       "evidence": [
         {
@@ -165,12 +165,13 @@
       ]
     },
     "tunnel1-udp-leaves": {
-      "statement": "So under Z-Tunnel 1.0, or any TCP 80 and 443 only forwarding, QUIC UDP does not reach Zscaler at all: it leaves the device directly and is neither inspected nor blocked by a Zscaler Firewall Filtering rule.",
+      "statement": "So when the only traffic sent to Zscaler is Client Connector traffic on Z-Tunnel 1.0, or TCP 80 and 443 over a tunnel, QUIC UDP does not reach Zscaler at all, and no Zscaler Firewall Filtering rule inspects or blocks it.",
       "tier": "B",
       "derived_from": [
-        "tunnel1-device-firewall"
+        "tunnel1-device-firewall",
+        "tcp-only-branch"
       ],
-      "conditions": "Inference from Help directing the block to the device or branch firewall; the legacy phrasing \"egresses outside the tunnel\" is not in a source."
+      "conditions": "Inference from Help directing the block to the device firewall when only Z-Tunnel 1.0 traffic is sent to Zscaler (tunnel1-device-firewall) and to the branch firewall when only TCP 80 and 443 go over the tunnel (tcp-only-branch); the legacy phrasing \"egresses outside the tunnel\" is not in a source."
     },
     "tcp-only-branch": {
       "statement": "If only TCP 80 and 443 go over the tunnel to Zscaler, QUIC is blocked on the branch firewall.",

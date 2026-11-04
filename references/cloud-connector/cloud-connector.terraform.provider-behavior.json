@@ -303,7 +303,7 @@
       ]
     },
     "multiline-normalizer-doubles-dollar": {
-      "statement": "The multi-line text normalizer trims every line, doubles every `$` (`$` becomes `$$`), and appends a newline. The inverse helper `unescapeTerraformVariables` is defined next to it.",
+      "statement": "The multi-line text normalizer trims every line, doubles every `$` (`$` becomes `$$`), and appends a newline. The inverse helper `unescapeTerraformVariables`, which converts `$$` back to `$`, is defined in the same file.",
       "tier": "A",
       "evidence": [
         {
@@ -317,7 +317,7 @@
             "lines := strings.Split(str, \"\\n\") for i := range lines { lines[i] = strings.TrimSpace(lines[i]) }",
             "escapedStr = strings.ReplaceAll(escapedStr, \"$\", \"$$\")",
             "return escapedStr + \"\\n\"",
-            "func unescapeTerraformVariables(val string) string {"
+            "func unescapeTerraformVariables(val string) string { // Convert `$$` back to `$` for the API return strings.ReplaceAll(val, \"$$\", \"$\")"
           ],
           "after": "func normalizeMultiLineString(val interface{}) string {"
         }
@@ -368,9 +368,8 @@
             "HEAD"
           ],
           "quotes": [
-            "if newText == \"\" { return true }"
-          ],
-          "after": "func noChangeInMultiLineText(k, oldText, newText string, d *schema.ResourceData) bool {"
+            "func noChangeInMultiLineText(k, oldText, newText string, d *schema.ResourceData) bool { if newText == \"\" { return true }"
+          ]
         }
       ],
       "upstream": [
@@ -481,7 +480,7 @@
         "shared.sdk-go.zero-value-writes:ztw-writes-marshal-caller-struct",
         "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
       ],
-      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -n -i 'nw_application_groups\\|NwApplicationGroups'` over non-test files under ztc/ finds this resource only on the request-builder line (the other hit is the detach callback in resource_ztc_network_services_groups.go). Whether an omitted `nwApplicationGroups` leaves the stored association untouched or clears it on a full update is server behavior (gap omitted-nw-application-groups).",
+      "conditions": "Absence claim from a search: at v0.2.0 and HEAD, `git grep -n -i 'nw_application_groups\\|NwApplicationGroups'` over non-test files under ztc/ finds this resource only on the request-builder line (the other hit is the detach callback in resource_ztc_network_services_groups.go). Whether an omitted `nwApplicationGroups` leaves the stored association untouched or clears it on a full update is server behavior (gap omitted-nw-application-groups). The SDK's forwarding rule create sends the struct through `CreateResource` (quoted) and its update through `UpdateWithPutResource`, both of which marshal the caller's struct (ztw-writes-marshal-caller-struct), and the field is a plain slice with no MarshalJSON of its own.",
       "gaps": [
         "omitted-nw-application-groups"
       ],
@@ -519,7 +518,8 @@
             "HEAD"
           ],
           "quotes": [
-            "NwApplicationGroups []common.IDNameExtensions `json:\"nwApplicationGroups,omitempty\"`"
+            "NwApplicationGroups []common.IDNameExtensions `json:\"nwApplicationGroups,omitempty\"`",
+            "resp, err := service.Client.CreateResource(ctx, forwardingRulesEndpoint, *rules)"
           ]
         }
       ],
@@ -659,7 +659,7 @@
             "HEAD"
           ],
           "quotes": [
-            "respErr.Response.StatusCode == 404"
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 404 {"
           ],
           "after": "func resourceLocationTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {"
         },
@@ -671,7 +671,7 @@
             "HEAD"
           ],
           "quotes": [
-            "respErr.Response.StatusCode == 404"
+            "if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.Response.StatusCode == 404 {"
           ]
         },
         {
@@ -913,7 +913,8 @@
         {
           "status": "unfiled"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n 'log_info_type\\|LogInfoType' ztc/resource_ztc_public_cloud_info.go` at v0.2.0 returns one line, the schema declaration inside `account_details`. The data source (ztc/data_source_ztc_public_cloud_info.go) does read `resp.AccountDetails.LogInfoType`, and the Go SDK's account details struct has `LogInfoType` (`json:\"logInfoType,omitempty\"`) at v3.8.58, so only the resource drops it."
     },
     "edge-connector-group-dns-ip-panic-fixed": {
       "statement": "The provider's 0.2.0 changelog records a fix for a panic of the `ztc_edge_connector_group` data source on the attribute type of `ec_instances.0.dns_ip`.",
@@ -925,6 +926,13 @@
           "after": "## 0.2.0 (June 29, 2026)",
           "quotes": [
             "Fixed `ztc_edge_connector_group` panic with attribute type `ec_instances.0.dns_ip`"
+          ]
+        },
+        {
+          "source": "tf-ztc",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Data Source ``ztc_edge_connector_group`` - Retrieves Edge Connector Group information"
           ]
         }
       ]

@@ -75,7 +75,7 @@
       ]
     },
     {
-      "do": "Whether a block made only of empty strings and false values is treated as unknown rather than as a configured object.",
+      "do": "Whether a block made only of zero values is treated as unknown rather than as a configured object.",
       "uses": [
         "lss-empty-config-becomes-a-block",
         "app-connector-assistant-version-always-a-block",
@@ -412,7 +412,7 @@
       ]
     },
     "lss-empty-config-becomes-a-block": {
-      "statement": "`flattenLSSConfig` returns a one-element list unconditionally, so a non-nil but empty `config` object becomes a `config` block of empty strings and false booleans. The sibling `flattenLSSPolicyRule` does check for nil and returns nothing, so the two nested objects of one response are treated differently.",
+      "statement": "`flattenLSSConfig` returns a one-element list unconditionally, so a non-nil but empty `config` object becomes a `config` block of zero values. The sibling `flattenLSSPolicyRule` does check for nil and returns nothing, so the two nested objects of one response are treated differently.",
       "tier": "A",
       "evidence": [
         {
@@ -437,6 +437,18 @@
           "after": "func flattenLSSPolicyRule(",
           "quotes": [
             "if policySetRules == nil { return nil }"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/data_source_zpa_lss_config_controller.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "quotes": [
+            "if err := d.Set(\"config\", flattenLSSConfig(resp.LSSConfig)); err != nil {",
+            "if err := d.Set(\"policy_rule\", flattenLSSPolicyRule(resp.PolicyRule)); err != nil {"
           ]
         }
       ],
@@ -682,6 +694,17 @@
           "quotes": [
             "SessionPersistence bool `json:\"sessionPersistence\"` BrowserInBrowser bool `json:\"browserInBrowser\"` PersistIsolationBar bool `json:\"persistIsolationBar\"` Translate bool `json:\"translate\"` ZGPU bool `json:\"zgpu,omitempty\"` ForwardToZia *ForwardToZia `json:\"forwardToZia,omitempty\"` }"
           ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/cloudbrowserisolation/cbiprofilecontroller/cbiprofilecontroller.go",
+          "at": [
+            "v3.8.42",
+            "HEAD"
+          ],
+          "quotes": [
+            "type DebugMode struct { Allowed bool `json:\"allowed,omitempty\"` FilePassword string `json:\"filePassword,omitempty\"` }"
+          ]
         }
       ],
       "conditions": "Whether the API returns `{}` for an unconfigured object is a server question (gap api-omits-nested-objects). The reader cannot clear a block on a later read, but a data source reads into fresh state, so the stale-state variant in the audit lead is not claimed.",
@@ -865,6 +888,7 @@
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_microtenant_controller.go",
           "at": [
+            "v4.0.0",
             "v4.4.10",
             "v4.4.14"
           ],
@@ -878,6 +902,7 @@
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_microtenant_controller.go",
           "at": [
+            "v4.0.0",
             "v4.4.10",
             "v4.4.14"
           ],
@@ -905,6 +930,10 @@
         {
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "at": [
+            "v4.4.15",
+            "HEAD"
+          ],
           "quotes": [
             "result[0][\"operation_type\"] = userResource.OperationType",
             "result[0][\"modified_by\"] = userResource.ModifiedBy"
@@ -914,6 +943,10 @@
         {
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "at": [
+            "v4.4.15",
+            "HEAD"
+          ],
           "quotes": [
             "\"modified_by\": {"
           ],
@@ -922,6 +955,10 @@
         {
           "source": "tf-zpa",
           "path": "zpa/data_source_zpa_microtenant_controller.go",
+          "at": [
+            "v4.4.15",
+            "HEAD"
+          ],
           "quotes": [
             "\"phone_number\": { Type: schema.TypeString,",
             "\"pin_session\": { Type: schema.TypeBool,",

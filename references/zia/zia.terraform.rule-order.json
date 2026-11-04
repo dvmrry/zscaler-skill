@@ -139,9 +139,9 @@
       ]
     },
     "list-error-then-panic": {
-      "statement": "Before v4.8.11, if listing the existing rules failed during an update, the error was only logged and the code read the last element of whatever came back: if the first page failed, the list was empty and the index panicked; if a later page failed, the rule was parked using a partial list. v4.8.11 returns the list error from the update before the index is read (#610). From v4.8.14 the update no longer indexes the last element: the end of the list comes from `endOfList`, which starts at order 1, and the list is read only when `rank` changed, with a failed read returned as an error.",
+      "statement": "Before v4.8.11, if listing the existing rules failed during an update, the error was only logged and the code read the last element of whatever came back: if the first page failed, the list was empty and the index panicked; if a later page failed, the rule was parked using a partial list. v4.8.11 returns the list error from the update before the index is read (#610). From v4.8.14 the update no longer indexes the last element: the end of the list comes from `endOfList`, which starts at order 1, and that end-of-list read is made only when `rank` changed, with a failed read returned as an error.",
       "tier": "A",
-      "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"If listing the existing rules fails during an update, the error is only logged and the code reads the last element of whatever came back: if the first page failed, the list is empty and the index panics; if a later page failed, the rule is parked using a partial list.\"",
+      "conditions": "Changed upstream in v4.8.11 (checked 2026-10-18): previously \"If listing the existing rules fails during an update, the error is only logged and the code reads the last element of whatever came back: if the first page failed, the list is empty and the index panics; if a later page failed, the rule is parked using a partial list.\" At v4.8.14, `grep -c '\\[len('` over zia/resource_zia_url_filtering_rules.go returns 0, where `grep -c -F 'existingRules[len(existingRules)-1]'` returns 1 at v4.8.13.",
       "evidence": [
         {
           "source": "tf-zia",
@@ -203,10 +203,23 @@
         },
         {
           "source": "tf-zia",
+          "path": "zia/resource_zia_url_filtering_rules.go",
+          "at": [
+            "v4.8.14"
+          ],
+          "after": "func resourceURLFilteringRulesUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "err := updateOrderedRule(d, known,",
+            "func() (OrderRule, error) { return urlFilteringEndPosition(ctx, service) },"
+          ]
+        },
+        {
+          "source": "tf-zia",
           "path": "zia/common.go",
           "quotes": [
             "last := 1 for _, o := range orders { if o > last { last = o } } return OrderRule{Order: last, Rank: 7}",
-            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly } if !d.HasChange(\"rank\") { return ruleUpdateInPlace } return ruleUpdateMoveToEnd"
+            "if !d.HasChangesExcept(\"order\") { return ruleUpdateOrderOnly } if !d.HasChange(\"rank\") { return ruleUpdateInPlace } return ruleUpdateMoveToEnd",
+            "case ruleUpdateMoveToEnd: return writeAtFreshPosition(func(bool) (OrderRule, error) { return end() }, write)"
           ],
           "at": [
             "v4.8.14"
@@ -277,7 +290,8 @@
           ],
           "quotes": [
             "var reorderTickInterval = 30 * time.Second",
-            "time.Sleep(reorderTickInterval / 2)"
+            "ticker := time.NewTicker(reorderTickInterval)",
+            "default: time.Sleep(reorderTickInterval / 2)"
           ]
         },
         {
@@ -382,7 +396,7 @@
           "path": "zia/common.go",
           "quotes": [
             "cyclePuts += putsIssued if putsIssued == 0 && skipped == 0 && puterrs == 0 && cyclePuts == 0 {",
-            "if cleanPass { cleanPasses++ if cleanPasses >= 2 {"
+            "if cleanPass { cleanPasses++ if cleanPasses >= 2 { log.Printf(\"[INFO] reorder complete for %s: %d rules\", resourceType, size) return } } else { cleanPasses = 0 }"
           ],
           "after": "func reorderAll(",
           "at": [
@@ -572,7 +586,7 @@
       "conditions": "Chain of evidence: the reorder worker cannot report a failure, gives up without an error and converges on registered rules only (the claims derived from). Not observed on a tenant."
     },
     "defers-batch-when-targets-exceed-orderable": {
-      "statement": "From v4.8.15, before it judges a pass, the worker counts the registered rules whose declared order exceeds the number of rules with an API order of 1 or more. If there are any it logs the deferral and returns without issuing order PUTs, so later creates can extend the list.",
+      "statement": "From v4.8.15, after reading current positions and before moving any rule, the worker counts the registered rules whose declared order exceeds the number of rules with an API order of 1 or more. If there are any it logs the deferral and returns without issuing order PUTs, so later creates can extend the list.",
       "tier": "A",
       "gaps": [
         "unreachable-target-deferral-effect"
@@ -587,6 +601,8 @@
           ],
           "after": "func reorderAll(",
           "quotes": [
+            "count := 0 for _, c := range current { if c.Order >= 1 { count++ } }",
+            "deferred := 0 for _, v := range sorted { if v.Order.Order > count { deferred++ } } if deferred > 0 {",
             "log.Printf(\"[INFO] reorderAll: deferring placement for %s: %d declared orders exceed the current %d orderable rules; releasing this batch without order PUTs so later creates can extend the list\", resourceType, deferred, count) return revision"
           ]
         },
@@ -616,6 +632,7 @@
           ],
           "after": "func reorderAll(",
           "quotes": [
+            "if err := updateOrder(c.id, c.target); err != nil { log.Printf(\"[ERROR] reorderAll: PUT for rule %d failed in %s: %v\", c.id, resourceType, err) puterrs++ return }",
             "// The move shifts the rules between the two positions; keep // this pass's view in step so the following rules are compared // against where they are now, not where they were when the list // was read.",
             "applyMove(current, c.id, c.target)",
             "// Phase 1: leave the longest run of rules already in the right // relative order where they are, and move only the others."
@@ -701,6 +718,19 @@
           ],
           "at": [
             "v4.8.14"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "docs/guides/troubleshooting.md",
+          "at": [
+            "v4.8.13"
+          ],
+          "after": "### Error: `INVALID_INPUT_ARGUMENT` `Rule is not allowed at order N` after deleting a rule",
+          "quotes": [
+            "This happens when a rule is deleted and the order of the remaining rules is changed in the same apply.",
+            "**Solution**: Delete the rule on its own first, then adjust the remaining orders in a separate apply:",
+            "terraform apply -target=zia_firewall_filtering_rule.example"
           ]
         },
         {

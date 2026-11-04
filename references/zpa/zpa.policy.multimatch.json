@@ -65,7 +65,7 @@
       ]
     },
     {
-      "do": "If the request port is not defined on the most specific segment, check whether traffic is dropped at the client, where it never reaches policy or the diagnostics.",
+      "do": "If the request port is not defined on the most specific segment under Exact Match, check whether traffic is dropped at the client, where it is not sent to the Private Access cloud and is not visible in the diagnostics.",
       "uses": [
         "port-mismatch-dropped",
         "carved-out-by-default"
@@ -142,13 +142,14 @@
       ]
     },
     "port-mismatch-dropped": {
-      "statement": "When the more specific segment lacks the requested port, the access is dropped at the client level, traffic is not sent to the Private Access cloud, and the attempt is not visible in the diagnostics.",
+      "statement": "Under Exact Match, the default application match behavior, when the more specific segment lacks the requested port, the access is dropped at the client level, traffic is not sent to the Private Access cloud, and the attempt is not visible in the diagnostics.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "zpa-using-app-segment-multimatch.json",
           "quotes": [
+            "The default behavior of Private Access is to perform an exact match of applications.",
             "the destination address maps to the more specific application segment, which is Server1_AS.",
             "However, the Server1_AS application segment does not have TCP port 3389 configured, resulting in failed access.",
             "the attempt to access server1.example.com on TCP port 3389 is dropped at the client level, traffic is not sent to the Private Access cloud, and logs aren't visible in the diagnostics."

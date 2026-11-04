@@ -184,6 +184,7 @@
     "update-needs-id": {
       "statement": "Update is a PUT to `edit` with the ID in the body: the Go SDK refuses to send an update without an ID, and the Python SDK sends whatever keyword arguments it is given without checking for one.",
       "tier": "A",
+      "conditions": "Absence claim (Python checks no ID): `sed -n '/def update_trusted_network/,/create_request/p' zscaler/zcc/trusted_networks.py | grep -n -E '\\bid\\b|raise|\\bif\\b'` at v1.11.3-1-g4f8f54df returns two lines, both in the docstring example (`id='545845',` and `>>> if error:`); the code before `create_request` sets the method and URL, then `body = {}` and `body.update(kwargs)`.",
       "binds": [
         "zcc/trusted-networks#id"
       ],
@@ -219,6 +220,13 @@
       "statement": "The Python SDK's add and update send the caller's keyword arguments, with keys camel-cased by the request executor (apart from a set of snake_case keys kept for web policies), rather than the model's full field set, so unset criteria are absent from the body rather than sent empty.",
       "tier": "A",
       "evidence": [
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zcc/trusted_networks.py",
+          "quotes": [
+            "self._zcc_base_endpoint = \"/zcc/papi/public/v1\""
+          ]
+        },
         {
           "source": "sdk-python",
           "path": "zscaler/zcc/trusted_networks.py",

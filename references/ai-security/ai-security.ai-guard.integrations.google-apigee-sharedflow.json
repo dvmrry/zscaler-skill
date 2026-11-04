@@ -169,6 +169,7 @@
           "quotes": [
             "mapIdentifier=\"aiguard-config\"",
             "<ExpiryTimeInSecs>300</ExpiryTimeInSecs>",
+            "<Scope>environment</Scope>",
             "<Get assignTo=\"aiguard.token\">",
             "<Key><Parameter>aiguard_api_key</Parameter></Key>",
             "<Get assignTo=\"aiguard.policyId\">",
@@ -184,7 +185,8 @@
             "aiguardCloud ............ cloud region: us1 (default), us2, eu1, eu2"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -rln KeyValueMapOperations Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle` at v0.2.0-11-g70d5c9c returns only policies/KVM-GetAIGuardConfig.xml, and `grep -rn '<Parameter>'` over the bundle returns only its `aiguard_api_key` and `aiguard_policy_id` keys."
     },
     "dialects": {
       "statement": "The flow classifies a request as `mcp` (JSON-RPC method `tools/call`), `gemini` (path containing generateContent), `llm` (paths ending /chat/completions, /responses or /v1/messages, or an Anthropic rawPredict on Vertex) or `unknown`; any non-POST request and any count-tokens call is unknown.",
@@ -200,7 +202,8 @@
             "if (/\\/chat\\/completions$/.test(path) || /\\/responses$/.test(path) ||",
             "if (path.indexOf('count-tokens') !== -1) { return 'unknown'; }",
             "if ((path.indexOf(':rawpredict') !== -1 || path.indexOf(':streamrawpredict') !== -1) &&\n        path.indexOf('/anthropic/') !== -1) {",
-            "Claude on Vertex is\n    // invoked via :rawPredict / :streamRawPredict on a publishers/anthropic model"
+            "Claude on Vertex is\n    // invoked via :rawPredict / :streamRawPredict on a publishers/anthropic model",
+            "scans through the same \"llm\" path."
           ]
         },
         {
@@ -217,6 +220,14 @@
             "return 'llm';"
           ],
           "after": "/\\/v1\\/messages$/.test(path)"
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "after": "path.indexOf('/anthropic/') !== -1) {",
+          "quotes": [
+            "return 'llm';"
+          ]
         }
       ]
     },
@@ -329,13 +340,14 @@
       "conditions": "Follows from the newest-turn extraction; the code comment states the assumption that prior turns were scanned when new, which holds only when every turn passed through this flow."
     },
     "inline-tools": {
-      "statement": "The response scan includes the argument values of tool calls the model emits (Gemini functionCall, OpenAI tool_calls and Responses function_call, Anthropic tool_use, and streamed tool-call arguments) whatever `scanTools` says; with `scanTools` on, the prompt scan also includes Gemini functionResponse, Anthropic tool_result and OpenAI tool-role results.",
+      "statement": "The response scan includes the argument values of tool calls the model emits (Gemini functionCall, OpenAI tool_calls and Responses function_call, Anthropic tool_use, and streamed tool-call arguments) whatever `scanTools` says; with `scanTools` on, the prompt scan also includes Gemini functionResponse and, unless the flow has flagged the request as coming from the agent harness (`aiguard.isCC`), Anthropic tool_result and OpenAI tool-role results.",
       "tier": "A",
       "evidence": [
         {
           "source": "zguard-integrations",
           "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js",
           "quotes": [
+            "var isCC      = context.getVariable('aiguard.isCC') === 'true';",
             "var vals = aiguardCollectJoined(parts[j].functionCall.args);   // inline tool-call scan",
             "} else if (p.functionResponse && scanTools) {",
             "else if (blk.type === 'tool_use') { sb.push(aiguardCollectJoined(blk.input)); usedToolCall = true; }  // inline tool-call scan",
@@ -345,8 +357,16 @@
             "sb.push(parsed ? aiguardCollectJoined(parsed) : toolArgs);",
             "} else if (blk.type === 'tool_result' && scanTools && !isCC) {"
           ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/detect-context.js",
+          "quotes": [
+            "aiguard.isCC        \"true\"/\"false\"  — request came from the agent harness"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n scanTools Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/extract-content.js` at v0.2.0-11-g70d5c9c finds it at its read and in three branches, all in the prompt extractors (Gemini functionResponse, Anthropic tool_result, OpenAI tool role); no response extractor tests it."
     },
     "sse-response": {
       "statement": "The response leg reassembles a streamed (SSE or JSON-array) response before scanning it, and a blocked streaming request gets an SSE refusal that completes the stream; the README notes tokens already emitted upstream cannot be recalled.",
@@ -532,9 +552,17 @@
         },
         {
           "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/policies/SC-AIGuardExecutePolicy.xml",
+          "quotes": [
+            "<ServiceCallout continueOnError=\"true\" enabled=\"true\" name=\"SC-AIGuardExecutePolicy\">"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
           "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/process-verdict.js",
           "quotes": [
             "if (scStatus !== 200 || !aiguardHasVerdict(action)) {",
+            "else { buildFailClosed(); }",
             "if (failOpen) { context.setVariable('aiguard.outcome', 'allow'); }",
             "// ALLOW, and DETECT which is monitor-only: reported, not enforced."
           ]
@@ -551,6 +579,14 @@
           "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/process-verdict.js",
           "quotes": [
             "} else if (action === 'BLOCK') {"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/sharedflow/ZSCALER-AIGUARD/sharedflowbundle/resources/jsc/aiguard-lib.js",
+          "after": "function aiguardNormalizeAction(action) {",
+          "quotes": [
+            "return '';"
           ]
         }
       ]
@@ -620,7 +656,9 @@
             "put(JSON.stringify({ jsonrpc: '2.0', error: { code: -32603, message: msg } }),\n            200, 'application/json');",
             "if (bs && bs !== 'native' && /^[0-9]+$/.test(String(bs))) { eff = parseInt(bs, 10); }",
             "if (failOpen) { context.setVariable('aiguard.outcome', 'allow'); }",
-            "var bs = context.getVariable('aiguard.cfg.blockStatus');"
+            "var bs = context.getVariable('aiguard.cfg.blockStatus');",
+            "if (status === 200 && ctype !== 'text/event-stream') {",
+            "fail-closed (status 500) is untouched since the override only fires on 200."
           ]
         }
       ]

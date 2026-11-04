@@ -47,7 +47,7 @@
     },
     {
       "label": "State routes.",
-      "text": "{{provisioning-state}} {{federation-state}} {{federation-state-status-meaning}} {{delete-provisioning}}"
+      "text": "{{provisioning-state}} {{federation-state}} {{federation-state-status-meaning}} {{pause-is-inactive}} {{delete-provisioning}}"
     },
     {
       "label": "Read routes.",
@@ -82,7 +82,7 @@
       ]
     },
     {
-      "do": "Whether the `microtenantId` query parameter is sent and what omitting it does.",
+      "do": "Whether the `microtenantId` query parameter is sent on an application federation or tenant federation operation, and what omitting it does there.",
       "uses": [
         "microtenant-id-optional",
         "zpa.microtenants.api-scoping:omitted-scope-defaults-default"
@@ -591,7 +591,7 @@
       ]
     },
     "federation-state-status-meaning": {
-      "statement": "The federation-state `status` path parameter is documented as ACTIVE (i.e., Active) or INACTIVE (i.e., Pause), so the console's Pause corresponds to INACTIVE.",
+      "statement": "The federation-state `status` path parameter is documented as ACTIVE (i.e., Active) or INACTIVE (i.e., Pause).",
       "tier": "A",
       "evidence": [
         {
@@ -602,6 +602,23 @@
             "description": "The federation status is ACTIVE (i.e., Active) or INACTIVE (i.e., Pause).",
             "name": "status"
           }
+        }
+      ]
+    },
+    "pause-is-inactive": {
+      "statement": "The console's Pause status for a federated partner corresponds to the API's INACTIVE.",
+      "tier": "B",
+      "derived_from": [
+        "federation-state-status-meaning"
+      ],
+      "conditions": "Follows from federation-state-status-meaning: the API description glosses INACTIVE as \"(i.e., Pause)\", and the Federated Partners help page lists the console statuses as Active, Pause or Terminate. Neither source states that pausing a partner in the console sends INACTIVE to this route, and no request was observed.",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zpa-about-federated-partners.json",
+          "quotes": [
+            "Status: The status of the federated partner (i.e., Active, Pause, or Terminate)."
+          ]
         }
       ]
     }

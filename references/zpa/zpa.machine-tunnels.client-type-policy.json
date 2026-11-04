@@ -271,7 +271,7 @@
       ]
     },
     "tf-v2-client-types": {
-      "statement": "The provider's v2 policy rule validation accepts twelve client type values, the eleven above plus `zpn_client_type_zia_inspection`.",
+      "statement": "The provider's v2 policy rule validation accepts twelve client type values: the eleven the v1 `validateOperand` accepts plus `zpn_client_type_zia_inspection`.",
       "tier": "A",
       "binds": [
         "zpa/client-types#zpn_client_type_machine_tunnel",
@@ -289,6 +289,15 @@
         },
         {
           "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "quotes": [
+            "if id != \"zpn_client_type_zapp\" &&\nid != \"zpn_client_type_exporter\" &&\nid != \"zpn_client_type_exporter_noauth\" &&\nid != \"zpn_client_type_ip_anchoring\" &&\nid != \"zpn_client_type_browser_isolation\" &&\nid != \"zpn_client_type_machine_tunnel\" &&",
+            "id != \"zpn_client_type_machine_tunnel\" &&\nid != \"zpn_client_type_edge_connector\" &&\nid != \"zpn_client_type_slogger\" &&\nid != \"zpn_client_type_branch_connector\" &&\nid != \"zpn_client_type_zapp_partner\" &&\nid != \"zpn_client_type_vdi\" {"
+          ],
+          "after": "func validateOperand(ctx context.Context, operand policysetcontroller.Operands, zClient *Client, microtenantID string) error {"
+        },
+        {
+          "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_rule_v2.go",
           "after": "func resourcePolicyAccessV2Create(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
@@ -298,7 +307,7 @@
       ]
     },
     "tf-lss-validator": {
-      "statement": "The provider's twelve-value `supportedClientTypes` map is consulted when validating log receiver filters (the `zpn_auth_log` and `zpn_trans_log` source types); the v1 policy rule validator (`ValidateConditions`, which calls `validateOperand` for each operand) and the v2 validator (`ValidatePolicyRuleConditions`) check client types against their own lists.",
+      "statement": "The provider's twelve-value `supportedClientTypes` map is consulted when validating log receiver filters (the `zpn_auth_log` and `zpn_trans_log` source types); the v1 policy rule validator (`ValidateConditions`, which runs `validateOperands` on each condition, and so `validateOperand` on each operand) and the v2 validator (`ValidatePolicyRuleConditions`) check client types against their own lists.",
       "tier": "A",
       "binds": [
         "zpa/client-types#zpn_client_type_machine_tunnel",
@@ -311,7 +320,7 @@
           "quotes": [
             "var supportedClientTypes = map[string]struct{}{\n\"zpn_client_type_exporter\": {},\n\"zpn_client_type_exporter_noauth\": {},\n\"zpn_client_type_machine_tunnel\": {},\n\"zpn_client_type_edge_connector\": {},\n\"zpn_client_type_zia_inspection\": {},\n\"zpn_client_type_vdi\": {},",
             "\"zpn_client_type_vdi\": {},\n\"zpn_client_type_zapp\": {},\n\"zpn_client_type_slogger\": {},\n\"zpn_client_type_browser_isolation\": {},\n\"zpn_client_type_ip_anchoring\": {},\n\"zpn_client_type_zapp_partner\": {},\n\"zpn_client_type_branch_connector\": {},\n}",
-            "case \"zpn_auth_log\":\nvalidObjectTypes = validObjectTypesForAuthLog\ncase \"zpn_trans_log\":\nvalidObjectTypes = validObjectTypesForTransLog",
+            "case \"zpn_auth_log\":\nvalidObjectTypes = validObjectTypesForAuthLog\ncase \"zpn_trans_log\":\nvalidObjectTypes = validObjectTypesForTransLog\ndefault:\nreturn fmt.Errorf(\"invalid source_log_type: %s\", sourceLogType)\n}",
             "if _, exists := supportedClientTypes[value]; !exists {"
           ]
         },
@@ -338,7 +347,15 @@
           "path": "zpa/common.go",
           "after": "func ValidateConditions(ctx context.Context, conditions []policysetcontroller.Conditions, zClient *Client, microtenantID string) error {",
           "quotes": [
-            "if err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {"
+            "if err := validateOperands(ctx, condition.Operands, zClient, microtenantID); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/common.go",
+          "after": "func validateOperands(ctx context.Context, operands []policysetcontroller.Operands, zClient *Client, microtenantID string) error {",
+          "quotes": [
+            "for _, operand := range operands {\nif err := validateOperand(ctx, operand, zClient, microtenantID); err != nil {"
           ]
         },
         {

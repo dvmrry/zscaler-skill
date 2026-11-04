@@ -380,14 +380,14 @@
       ]
     },
     "windows-app-flag": {
-      "statement": "A global advanced setting, enforce_surrogate_ip_for_windows_app, is described by the provider as enforcing Surrogate IP authentication for Windows app traffic.",
+      "statement": "The provider's advanced settings resource has `enforce_surrogate_ip_for_windows_app`, described as enforcing Surrogate IP authentication for Windows app traffic.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_advanced_settings.go",
           "quotes": [
-            "Enforce Surrogate IP authentication for Windows app traffic"
+            "\"enforce_surrogate_ip_for_windows_app\": { Type: schema.TypeBool, Optional: true, Computed: true, Description: \"Enforce Surrogate IP authentication for Windows app traffic\","
           ]
         }
       ],
@@ -426,7 +426,8 @@
           ],
           "after": "CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {"
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n \"checkSurrogateIPDependencies\\|CustomizeDiff\" zia/resource_zia_location_management.go` at v4.8.17 returns the one CustomizeDiff, the calls in create and update, and the definition, and `grep -rln checkSurrogateIPDependencies zia/` returns only that file. The CustomizeDiff's only live check is exclude_from_manual_groups against static_location_groups; its dynamic-group check is commented out."
     },
     "fixed-site-recommendation": {
       "statement": "The ZIA traffic forwarding reference architecture recommends enabling Surrogate IP for all fixed site locations and for all transparent forwarding types.",

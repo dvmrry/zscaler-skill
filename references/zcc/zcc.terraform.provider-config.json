@@ -119,8 +119,17 @@
             "Cloud:            getStringValue(data.ZscalerCloud, \"ZSCALER_CLOUD\"),",
             "HTTPProxy:        getStringValue(data.HTTPProxy, \"ZSCALER_HTTP_PROXY\"),"
           ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider_configure.go",
+          "after": "func getStringValue(value types.String, envVar string) string {",
+          "quotes": [
+            "if !value.IsNull() && !value.IsUnknown() { return value.ValueString() } return os.Getenv(envVar)"
+          ]
         }
-      ]
+      ],
+      "conditions": "The six are all of the provider's string arguments: `grep -c \"schema.StringAttribute{\" internal/framework/provider.go` at v0.1.2-beta.3-1-g11d461c returns 6 (client_id, client_secret, private_key, vanity_domain, zscaler_cloud, http_proxy)."
     },
     "auth-combination": {
       "statement": "The client is built only from a client ID and a vanity domain together with either a client secret or a private key; otherwise configuration fails with 'invalid authentication configuration: missing required parameters'. The cloud is passed only when set.",
@@ -179,6 +188,37 @@
             "RequestTimeout:   getIntValue(data.RequestTimeout, 240),",
             "MinWait:          getIntValue(data.MinWaitSeconds, 2),",
             "MaxWait:          getIntValue(data.MaxWaitSeconds, 10),"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider_configure.go",
+          "after": "func getIntValue(value types.Int64, defaultValue int) int {",
+          "quotes": [
+            "if !value.IsNull() && !value.IsUnknown() { return int(value.ValueInt64())"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/provider_configure.go",
+          "quotes": [
+            "zccClient, err := client.NewClient(config)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "after": "func NewClient(config *Config) (*Client, error) {",
+          "quotes": [
+            "v3Client, err := zscalerSDKV3Client(config)"
+          ]
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/client/client.go",
+          "after": "func zscalerSDKV3Client(c *Config) (*zscaler.Client, error) {",
+          "quotes": [
+            "applyDefaults(c)"
           ]
         },
         {

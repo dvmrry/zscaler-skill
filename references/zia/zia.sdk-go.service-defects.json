@@ -86,7 +86,7 @@
       ]
     },
     {
-      "do": "For an import by name, whether any listed DC exclusion lacks a dcName.",
+      "do": "For an import by name, whether a DC exclusion listed ahead of the match lacks a dcName.",
       "uses": [
         "dc-exclusion-name-lookup-nil-deref"
       ]
@@ -94,7 +94,7 @@
   ],
   "claims": {
     "update-admin-user-zero-result": {
-      "statement": "`UpdateAdminUser` asserts the helper's response to the value type `AdminUsers`, but the update helper builds its response object with `reflect.New`, which is a pointer. The assertion fails, its failure is discarded, and the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever the server returned.",
+      "statement": "`UpdateAdminUser` asserts the helper's response to the value type `AdminUsers`, but the update helper builds its response object with `reflect.New`, which is a pointer. The assertion fails, its failure is discarded, and when the update call succeeds the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever body the server returned.",
       "tier": "A",
       "evidence": [
         {
@@ -339,7 +339,7 @@
       ]
     },
     "url-filtering-get-fallback-swallows-error": {
-      "statement": "For an ISOLATE rule whose GET by ID returned no `cbiProfile`, `Get` calls `GetAll` to fill it in. If `GetAll` fails, the error is not examined and the incomplete rule is returned with a nil error; the same happens if the rule is absent from the list.",
+      "statement": "For an ISOLATE rule whose GET by ID returned no `cbiProfile` but a non-zero `cbiProfileId`, `Get` calls `GetAll` to fill it in. If `GetAll` fails, the error is not examined and the incomplete rule is returned with a nil error; the same happens if the rule is absent from the list.",
       "tier": "A",
       "evidence": [
         {
@@ -489,7 +489,7 @@
       ]
     },
     "dc-exclusion-name-lookup-nil-deref": {
-      "statement": "`dc_exclusions.GetByName` dereferences `DcName.Name` on every item, but `DcName` is a pointer tagged `omitempty`. One listed exclusion without `dcName` makes the lookup panic instead of returning an error. The provider's importer calls it for any ID that is not an integer.",
+      "statement": "`dc_exclusions.GetByName` loops over the listed exclusions and dereferences `DcName.Name` on each until it finds a match, but `DcName` is a pointer tagged `omitempty`. A listed exclusion without `dcName` ahead of the match makes the lookup panic instead of returning an error. The provider's importer calls it for any ID that is not an integer.",
       "tier": "A",
       "evidence": [
         {
@@ -501,7 +501,9 @@
           ],
           "quotes": [
             "DcName      *common.IDNameExtensions `json:\"dcName,omitempty\"`",
-            "if strings.EqualFold(dcExclusions[i].DcName.Name, dcName) {"
+            "for i := range dcExclusions {",
+            "if strings.EqualFold(dcExclusions[i].DcName.Name, dcName) {",
+            "return &dcExclusions[i], nil"
           ]
         },
         {

@@ -204,6 +204,7 @@
           "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
           "quotes": [
             "mgmtConfigV1         = \"/zpa/mgmtconfig/v1/admin/customers/\"",
+            "mgmtConfigV2 = \"/zpa/mgmtconfig/v2/admin/customers/\"",
             "func Update(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup)"
           ]
         },
@@ -266,7 +267,8 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
           "at": [
-            "v4.4.11"
+            "v4.4.11",
+            "v4.4.13"
           ],
           "quotes": [
             "segmentgroup.UpdateV2(ctx, service, id, &req)",
@@ -278,7 +280,8 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
           "at": [
-            "v4.4.11"
+            "v4.4.11",
+            "v4.4.13"
           ],
           "quotes": [
             "Applications:  expandSegmentGroupApplications(d.Get(\"applications\").([]interface{})),"
@@ -296,6 +299,15 @@
             "// never sent: membership is managed through segment_group_id on",
             "req := segmentgroup.SegmentGroupV2Update{ Name: d.Get(\"name\").(string), Description: d.Get(\"description\").(string), Enabled: d.Get(\"enabled\").(bool), MicroTenantID: d.Get(\"microtenant_id\").(string), }",
             "// Only the segment group's own settings are sent. The application list is"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/segmentgroup/zpa_segment_group.go",
+          "after": "func UpdateV2(ctx context.Context, service *zscaler.Service, segmentGroupId string, segmentGroupRequest *SegmentGroup) (*http.Response, error) {",
+          "quotes": [
+            "path := fmt.Sprintf(\"%v/%v\", mgmtConfigV2+service.Client.GetCustomerID()+segmentGroupEndpoint, segmentGroupId)",
+            "resp, err := service.Client.NewRequestDo(ctx, \"PUT\", path, common.Filter{MicroTenantID: service.MicroTenantID()}, segmentGroupRequest, nil)"
           ]
         },
         {
@@ -370,14 +382,15 @@
       ]
     },
     "tf-resource-schema": {
-      "statement": "The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of objects with a single `id` attribute; an `enabled` left out is sent as false. Before v4.4.14 only each application's ID was sent on every write; v4.4.14 deprecates `applications`, sends the application IDs only on create, never sends them on update, and rejects adding or removing applications on an existing group at plan time (#695).",
+      "statement": "The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of objects with a single `id` attribute; an `enabled` left out is sent as false. Before v4.4.14 every write, create and update, built each application from its `id` alone; v4.4.14 deprecates `applications`, sends the application IDs only on create, never sends them on update, and rejects adding or removing applications on an existing group at plan time (#695).",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
           "at": [
-            "v4.4.11"
+            "v4.4.11",
+            "v4.4.13"
           ],
           "quotes": [
             "Enabled: d.Get(\"enabled\").(bool),",
@@ -389,7 +402,8 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_segment_group.go",
           "at": [
-            "v4.4.11"
+            "v4.4.11",
+            "v4.4.13"
           ],
           "quotes": [
             "req := expandSegmentGroup(d)"
@@ -433,7 +447,12 @@
             "req := expandSegmentGroup(d)",
             "segmentgroup.Create(ctx, service, &req)"
           ],
-          "after": "func resourceSegmentGroupCreate("
+          "after": "func resourceSegmentGroupCreate(",
+          "at": [
+            "v4.4.11",
+            "v4.4.13",
+            "HEAD"
+          ]
         },
         {
           "source": "tf-zpa",
@@ -471,7 +490,7 @@
           ]
         }
       ],
-      "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false, and only each application's ID is sent on write.\""
+      "conditions": "Changed upstream in v4.4.14 (checked 2026-10-18): previously \"The Terraform resource takes a required `name` and optional `description`, `enabled`, `microtenant_id` and an `applications` list of `{id}` objects; an `enabled` left out is sent as false, and only each application's ID is sent on write.\" At v4.4.11, v4.4.12 and v4.4.13, `git show <tag>:zpa/resource_zpa_segment_group.go` has `req := expandSegmentGroup(d)` in both create and update, and the expander builds each application as `segmentgroup.Application{ID: ...}`. On the wire each application object also carried the zero values of the SDK `Application` fields tagged without omitempty (`doubleEncrypt`, `enabled`, `ipAnchored`, `name`, `passiveHealthEnabled`), at SDK v3.8.47 and v3.8.52, the go.mod pins of provider v4.4.11 and v4.4.13."
     },
     "tf-import": {
       "statement": "A segment group can be imported into Terraform by ID or by name.",

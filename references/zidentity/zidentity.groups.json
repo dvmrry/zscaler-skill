@@ -62,7 +62,7 @@
     },
     {
       "label": "Entitlement flags.",
-      "text": "{{entitlement-flags}} {{no-status-flag}} A user record does carry one: [[zidentity.users:status]]."
+      "text": "{{entitlement-flags}} {{no-status-flag}} A user record does carry a status: [[zidentity.users:status]]."
     },
     {
       "label": "Membership.",
@@ -167,6 +167,7 @@
           "path": "automate-zscaler/openapi/zid.openapi.json",
           "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/source/allOf/[title=SourceType]",
           "expect": {
+            "description": "The various sources from which an entity can originate.<li> <strong>UI</strong>: Resource was created or managed via a user interface. <li> <strong>API</strong>: Resource was created or managed through API calls.<li><strong>SCIM</strong>:  Resource was provisioned via System for Cross-domain Identity Management (SCIM). <li><strong>JIT</strong>: Resource was created or updated via Just-in-Time (JIT).",
             "enum": [
               "UI",
               "API",
@@ -349,7 +350,7 @@
       ]
     },
     "no-status-flag": {
-      "statement": "The group record in the API reference has no status or enabled field.",
+      "statement": "The group record in the API reference has no group status or enabled flag (no `status`, `enabled`, `disabled` or `isEnabled`); its only `...Enabled` booleans, `adminEntitlementEnabled` and `serviceEntitlementEnabled`, say whether the group supports admin or service entitlements.",
       "tier": "A",
       "evidence": [
         {
@@ -362,8 +363,60 @@
             "disabled",
             "isEnabled"
           ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/allOf/[title=GroupProfilePubReqDto]/properties",
+          "expect_absent": [
+            "status",
+            "enabled",
+            "disabled",
+            "isEnabled"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}/put/responses/200/content/application~1json/schema/properties",
+          "expect_absent": [
+            "status",
+            "enabled",
+            "disabled",
+            "isEnabled"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups~1{id}/put/responses/200/content/application~1json/schema/allOf/[title=GroupProfilePubReqDto]/properties",
+          "expect_absent": [
+            "status",
+            "enabled",
+            "disabled",
+            "isEnabled"
+          ]
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/adminEntitlementEnabled",
+          "expect": {
+            "description": "Whether the group supports admin entitlements.",
+            "type": "boolean"
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zid.openapi.json",
+          "pointer": "/paths/~1groups/post/responses/201/content/application~1json/schema/properties/serviceEntitlementEnabled",
+          "expect": {
+            "description": "Whether the group supports service entitlements.",
+            "type": "boolean"
+          }
         }
-      ]
+      ],
+      "conditions": "Absence claim (only two `...Enabled` booleans): `jq -c '.paths[\"/groups\"].post.responses[\"201\"].content[\"application/json\"].schema as $s | [($s.properties|keys), ($s.allOf|map(.title, (.properties|keys)))]'` on automate-zscaler/openapi/zid.openapi.json returns the record's members adminEntitlementEnabled, id, idp, isDynamicGroup, serviceEntitlementEnabled and source, plus description and name in its GroupProfilePubReqDto part; the same query on the `/groups/{id}` PUT 200 schema returns the same members."
     }
   },
   "gaps": {

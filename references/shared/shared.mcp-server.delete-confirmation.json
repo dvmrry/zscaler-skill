@@ -149,6 +149,16 @@
             "# fall through to the mutation.",
             "\"The operation was NOT performed. Please retry.\""
           ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/security/elicitation.py",
+          "after": "def interpret_confirmation",
+          "quotes": [
+            "if chosen == _APPROVE_CHOICE:",
+            "logger.info(\"Declined via elicitation (chose %r): %s\", chosen, tool_name)",
+            "return f\"Cancelled by user. {summary} was NOT performed.\""
+          ]
         }
       ]
     },
@@ -194,6 +204,7 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/security/elicitation.py",
           "quotes": [
+            "Create a short-lived, single-use HMAC token bound to tool_name + params.",
             "Tokens expire after ``ZSCALER_MCP_CONFIRMATION_TTL`` seconds (default 300) and",
             "\"Confirmation token does not match the submitted parameters. \"",
             "\"Confirmation token has already been used. \"",
@@ -298,6 +309,7 @@
           "quotes": [
             "**This is required for multi-replica HTTP write",
             "**Sticky sessions do NOT rescue the second case on ``2026-07-28``.**",
+            "and that handler never sets a\n    session id at all: a ``2026-07-28`` request is a self-contained POST.",
             "A shared key ring is the only mechanism that"
           ]
         },

@@ -142,7 +142,7 @@
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
             "type SCIMUser struct { Schemas []string `json:\"schemas,omitempty\"` ID string `json:\"id,omitempty\"` UserName string `json:\"userName,omitempty\"` DisplayName string `json:\"displayName,omitempty\"`",
-            "EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"` Meta *Meta `json:\"meta,omitempty\"` }",
+            "DisplayName string `json:\"displayName,omitempty\"` EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"` Meta *Meta `json:\"meta,omitempty\"` }",
             "type EnterpriseUser struct { Department string `json:\"department,omitempty\"` }"
           ]
         }
@@ -166,8 +166,10 @@
           "path": "zscaler/zia/services/scim_api/scim_user_api.go",
           "quotes": [
             "func GetAllUsers(ctx context.Context, service *zscaler.ScimZIAService) ([]SCIMGroup, *http.Response, error) {",
+            "return common.GetAllPagesScimPostWithSearch[SCIMGroup]( ctx, service.Client, \"/Users/.search\",",
             "type SCIMUser struct { Schemas []string `json:\"schemas,omitempty\"` ID string `json:\"id,omitempty\"` UserName string `json:\"userName,omitempty\"`",
-            "EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"`"
+            "EnterpriseExtension *EnterpriseUser `json:\"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User,omitempty\"`",
+            "type EnterpriseUser struct { Department string `json:\"department,omitempty\"` }"
           ]
         },
         {

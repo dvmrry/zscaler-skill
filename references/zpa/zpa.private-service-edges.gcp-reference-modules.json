@@ -265,7 +265,7 @@
       ]
     },
     "zones-az-count": {
-      "statement": "The examples create zonal groups in the first az_count available zones of the region (az_count defaults to 1 and is validated between 1 and 3), or in the distinct zones listed in the zones variable when it is non-empty, in which case the example's tfvars comment says az_count is ignored.",
+      "statement": "The examples create zonal groups in the first az_count available zones of the region (az_count defaults to 1 and is validated between 1 and 3), or in the distinct zones listed in the zones variable when it is non-empty, in which case each example's tfvars comment says az_count is ignored.",
       "tier": "A",
       "evidence": [
         {
@@ -287,6 +287,29 @@
         {
           "source": "tfmod-gcp-zpa-service-edge",
           "path": "examples/base_pse/terraform.tfvars",
+          "quotes": [
+            "By setting zone names here, Terraform will ignore any value set for variable az_count."
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/variables.tf",
+          "quotes": [
+            "default     = 1",
+            "(var.az_count >= 1 && var.az_count <= 3)"
+          ],
+          "after": "variable \"az_count\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/main.tf",
+          "quotes": [
+            "zones_list = length(var.zones) == 0 ? slice(data.google_compute_zones.available.names, 0, var.az_count) : distinct(var.zones)"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/terraform.tfvars",
           "quotes": [
             "By setting zone names here, Terraform will ignore any value set for variable az_count."
           ]
@@ -333,7 +356,7 @@
       ]
     },
     "image-pinned": {
-      "statement": "The examples look up a specific named image, zpa-service-edge-el9-2024-08, in the Google Marketplace project mpi-zpa-gcp-marketplace when use_zscaler_image is true (the default), although a variable description in the same module says templates always pull the latest from Google Marketplace.",
+      "statement": "The examples look up a specific named image, zpa-service-edge-el9-2024-08, in the Google Marketplace project mpi-zpa-gcp-marketplace when use_zscaler_image is true (the default), although the image_name variable description in each example and in the VM module says templates always pull the latest from Google Marketplace.",
       "tier": "A",
       "evidence": [
         {
@@ -347,11 +370,21 @@
         },
         {
           "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/main.tf",
+          "quotes": [
+            "project = \"mpi-zpa-gcp-marketplace\"",
+            "name    = \"zpa-service-edge-el9-2024-08\"",
+            "count   = var.use_zscaler_image ? 1 : 0"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
           "path": "modules/terraform-zspse-vm-gcp/variables.tf",
           "quotes": [
             "Ideally all VMs should be on the same Image as templates always pull the latest from Google Marketplace.",
             "Custom image name to be used for deploying Service Edge appliances."
-          ]
+          ],
+          "after": "variable \"image_name\" {"
         },
         {
           "source": "tfmod-gcp-zpa-service-edge",
@@ -360,6 +393,30 @@
             "default     = true"
           ],
           "after": "variable \"use_zscaler_image\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/variables.tf",
+          "quotes": [
+            "default     = true"
+          ],
+          "after": "variable \"use_zscaler_image\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/base_pse/variables.tf",
+          "quotes": [
+            "Ideally all VMs should be on the same Image as templates always pull the latest from Google Marketplace."
+          ],
+          "after": "variable \"image_name\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/variables.tf",
+          "quotes": [
+            "Ideally all VMs should be on the same Image as templates always pull the latest from Google Marketplace."
+          ],
+          "after": "variable \"image_name\" {"
         }
       ]
     },
@@ -381,6 +438,18 @@
           "source": "tfmod-gcp-zpa-service-edge",
           "path": "examples/base_pse/main.tf",
           "quotes": [
+            "image_selected = try(data.google_compute_image.service_edge[0].self_link, data.google_compute_image.rhel_9_latest[0].self_link)",
+            "user_data            = var.use_zscaler_image == true ? local.pseuserdata : local.rhel9userdata"
+          ]
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/main.tf",
+          "quotes": [
+            "family  = \"rhel-9\"",
+            "project = \"rhel-cloud\"",
+            "baseurl=https://yum.private.zscaler.com/yum/el9",
+            "yum install zpa-service-edge -y",
             "image_selected = try(data.google_compute_image.service_edge[0].self_link, data.google_compute_image.rhel_9_latest[0].self_link)",
             "user_data            = var.use_zscaler_image == true ? local.pseuserdata : local.rhel9userdata"
           ]
@@ -515,7 +584,8 @@
           "path": "modules/terraform-zpa-service-edge-group/main.tf",
           "quotes": [
             "for_each = var.zpa_trusted_network_name != \"\" ? [var.zpa_trusted_network_name] : []",
-            "name  = var.zpa_trusted_network_name"
+            "id = [data.zpa_trusted_network.zpa_trusted_network[0].id]",
+            "data \"zpa_trusted_network\" \"zpa_trusted_network\" {\n  count = var.zpa_trusted_network_name != \"\" ? 1 : 0\n  name  = var.zpa_trusted_network_name"
           ]
         },
         {
@@ -632,7 +702,7 @@
           "path": "modules/terraform-zspse-bastion-gcp/main.tf",
           "quotes": [
             "#Ephemeral IP",
-            "ports    = [\"22\"]",
+            "allow {\n    protocol = \"tcp\"\n    ports    = [\"22\"]",
             "source_ranges           = var.bastion_ssh_allow_ip"
           ]
         }
@@ -645,6 +715,16 @@
         {
           "source": "tfmod-gcp-zpa-service-edge",
           "path": "examples/base_pse/variables.tf",
+          "quotes": [
+            "default     = \"zspse\"",
+            "length(var.name_prefix) <= 12",
+            "can(regex(\"^[a-z][a-z0-9-]+$\", var.name_prefix))"
+          ],
+          "after": "variable \"name_prefix\" {"
+        },
+        {
+          "source": "tfmod-gcp-zpa-service-edge",
+          "path": "examples/pse/variables.tf",
           "quotes": [
             "default     = \"zspse\"",
             "length(var.name_prefix) <= 12",

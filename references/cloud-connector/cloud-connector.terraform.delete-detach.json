@@ -34,7 +34,7 @@
     },
     {
       "label": "Which rules are swept.",
-      "text": "{{helper-sweeps-forwarding-rules-only}} {{rule-types-are-separate-endpoints}} {{dns-rules-reference-ip-groups}} {{ip-group-delete-follows-detach}} {{ip-group-references-in-dns-rules-not-detached}}"
+      "text": "{{helper-sweeps-forwarding-rules-only}} {{rule-types-are-separate-endpoints}} {{forwarding-list-excludes-other-rule-types}} {{dns-rules-reference-ip-groups}} {{ip-group-delete-follows-detach}} {{ip-group-references-in-dns-rules-not-detached}}"
     },
     {
       "label": "Network service groups.",
@@ -145,7 +145,7 @@
       "conditions": "Absence claim from a search: `git -C vendor/terraform-provider-ztc grep -n 'GetAll' v0.2.0 -- ztc/utils.go` returns one line, the `forwarding_rules.GetAll` call in `DetachRuleIDNameExtensions` quoted here; the quoted function body makes no other list call, and no DNS rule or log rule package is referenced in that file."
     },
     "rule-types-are-separate-endpoints": {
-      "statement": "In the Go SDK, forwarding rules, DNS rules and log rules are three separate endpoints, so listing forwarding rules does not return the other two rule types.",
+      "statement": "In the Go SDK, forwarding rules, DNS rules and log rules use three separate endpoints: `/ztw/api/v1/ecRules/ecRdr`, `/ztw/api/v1/ecRules/ecDns` and `/ztw/api/v1/ecRules/self`.",
       "tier": "A",
       "evidence": [
         {
@@ -182,6 +182,14 @@
           ]
         }
       ]
+    },
+    "forwarding-list-excludes-other-rule-types": {
+      "statement": "So listing forwarding rules does not return DNS or log rules.",
+      "tier": "B",
+      "derived_from": [
+        "rule-types-are-separate-endpoints"
+      ],
+      "conditions": "Follows from rule-types-are-separate-endpoints: the SDK reads each rule type from its own path. That a list of `/ecRules/ecRdr` holds only forwarding rules is server behavior that no source states; it rests on the three paths being distinct collections."
     },
     "helper-label-selects-nothing": {
       "statement": "The `resource` string a caller passes to the helper is used only in a log line. Which field is swept is decided entirely by the getter and setter closures.",
@@ -464,7 +472,7 @@
       "tier": "B",
       "derived_from": [
         "helper-sweeps-forwarding-rules-only",
-        "rule-types-are-separate-endpoints",
+        "forwarding-list-excludes-other-rule-types",
         "dns-rules-reference-ip-groups",
         "ip-group-delete-follows-detach"
       ],

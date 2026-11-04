@@ -67,7 +67,7 @@
           "source": "mcp-server",
           "path": "docs/guides/toolsets.md",
           "quotes": [
-            "### ZMS — Microsegmentation"
+            "### ZMS — Microsegmentation | Toolset | Tools | Members | |---|---|---| | `zms` | 20 | `zms_get_agent_connection_status_statistics`"
           ]
         }
       ]
@@ -105,7 +105,8 @@
           "quotes": [
             "if not any([name, category]): return None",
             "from zscaler.zms.models.inputs import AppCatalogFilter, StringExpression"
-          ]
+          ],
+          "after": "def _build_filter(name: Optional[str], category: Optional[str]):"
         },
         {
           "source": "sdk-python",
@@ -114,7 +115,8 @@
             "class AppCatalogQueryFilter: \"\"\" Filter for app catalog queries."
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -rn AppCatalogFilter zscaler --include='*.py'` over the Python SDK at v1.11.3-1-g4f8f54df returns nothing, and `grep -n 'class AppCatalog' zscaler/zms/models/inputs.py` returns two classes, `AppCatalogQueryFilter` and `AppCatalogQueryOrderBy`."
     },
     "app-catalog-filter-fails": {
       "statement": "A `zms_list_app_catalog` call with a name or category filter fails with an import error before any request is sent; an unfiltered call works.",

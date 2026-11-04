@@ -57,13 +57,13 @@
           "path": "zscaler/oneapi_response.py",
           "after": "def next(self) -> Tuple[Optional[List[Any]], \"ZscalerAPIResponse\", Optional[Exception]]:",
           "quotes": [
-            "raise StopIteration(\"No more pages available.\")",
+            "if not self.has_next(): raise StopIteration(\"No more pages available.\")",
             "if not results:",
-            "return None, self, None",
-            "if not self.has_next():"
+            "return None, self, None"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no other StopIteration): `grep -rn StopIteration zscaler/` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns one source line, oneapi_response.py's `raise StopIteration(\"No more pages available.\")` directly under `if not self.has_next():` in `next()`; `_fetch_next_page` and `has_next` raise nothing."
     },
     "next-is-get": {
       "statement": "The SDK's next-page request is always a GET built from the response's URL, headers and query parameters; the request it builds has no body key.",

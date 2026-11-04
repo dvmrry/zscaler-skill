@@ -183,7 +183,15 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/common/common.go",
-          "after": "Build pagination struct with search filter (already converted to filter format)",
+          "after": "func GetAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, filters Filter) ([]T, *http.Response, error) {",
+          "quotes": [
+            "totalPages, result, resp, err := getAllPagesGenericWithCustomFilters[T](ctx, client, relativeURL, 1, DefaultPageSize, filters)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/common/common.go",
+          "after": "func getAllPagesGenericWithCustomFilters[T any](ctx context.Context, client *zscaler.Client, relativeURL string, page, pageSize int, filters Filter) (int, []T, *http.Response, error) { var paged struct {",
           "quotes": [
             "resp, err := client.NewRequestDo(ctx, \"GET\", relativeURL, pagination, nil, &paged)"
           ]
@@ -207,7 +215,9 @@
           "after": "def get_global_policy_rules(self, guest_id: str, query_params=None)",
           "quotes": [
             "http_method = \"get\".upper()",
-            "Returns the rules/policyType/GLOBAL_POLICY/guest for policy_set (raw response, no model)."
+            "Returns the rules/policyType/GLOBAL_POLICY/guest for policy_set (raw response, no model).",
+            "api_url = format_url(f\"\"\" {self._zpa_base_endpoint} /policySet/rules/policyType/GLOBAL_POLICY/guest/{guest_id} \"\"\")",
+            "response, error = self._request_executor.execute(request) if error: return (None, response, error) return (response, response, None)"
           ]
         }
       ]
@@ -238,7 +248,7 @@
             "v3.8.52"
           ],
           "quotes": [
-            "# 3.8.52 (October 5, 2026)"
+            "# Changelog # 3.8.52 (October 5, 2026)"
           ]
         },
         {
@@ -258,7 +268,7 @@
             "v3.8.53"
           ],
           "quotes": [
-            "# 3.8.53 (October 7, 2026)"
+            "# Changelog # 3.8.53 (October 7, 2026)"
           ]
         },
         {
@@ -278,7 +288,7 @@
             "v3.8.54"
           ],
           "quotes": [
-            "# 3.8.54 (October 8, 2026)"
+            "# Changelog # 3.8.54 (October 8, 2026)"
           ]
         },
         {
@@ -299,7 +309,7 @@
             "v3.8.55"
           ],
           "quotes": [
-            "# 3.8.55 (October 8, 2026)"
+            "# Changelog # 3.8.55 (October 8, 2026)"
           ]
         },
         {
@@ -322,7 +332,7 @@
             "v3.8.56"
           ],
           "quotes": [
-            "# 3.8.56 (Unreleased)"
+            "# Changelog # 3.8.56 (Unreleased)"
           ]
         },
         {
@@ -332,7 +342,7 @@
             "v3.8.57"
           ],
           "quotes": [
-            "# 3.8.57 (October 29, 2026)"
+            "# Changelog # 3.8.57 (October 29, 2026)"
           ]
         },
         {
@@ -343,7 +353,7 @@
             "HEAD"
           ],
           "quotes": [
-            "# 3.8.58 (Unreleased)"
+            "# Changelog # 3.8.58 (Unreleased)"
           ]
         }
       ],

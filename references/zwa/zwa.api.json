@@ -104,11 +104,19 @@
         },
         {
           "source": "sdk-python",
+          "path": "zscaler/zwa/audit_logs.py",
+          "quotes": [
+            "self._zwa_base_endpoint = \"/zwa/dlp/v1\""
+          ]
+        },
+        {
+          "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
-            "endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
+            "if self.use_legacy_client: endpoint = self.remove_oneapi_endpoint_prefix(endpoint)",
             "base_url = self.zwa_legacy_client.get_base_url(endpoint)",
-            "\"/zdx\", \"/zwa\","
+            "\"/zdx\", \"/zwa\",",
+            "for prefix in prefixes: if endpoint.startswith(prefix): return endpoint[len(prefix) :]"
           ]
         },
         {
@@ -116,7 +124,7 @@
           "path": "zscaler/zwa/legacy.py",
           "quotes": [
             "self.url = f\"https://api.{self._env_cloud}.zsworkflow.net\"",
-            "return self.url"
+            "def get_base_url(self, endpoint): return self.url"
           ],
           "after": "def __init__("
         }
@@ -164,14 +172,26 @@
         {
           "source": "sdk-python",
           "path": "zscaler/oneapi_client.py",
+          "after": "def zwa(self):",
           "quotes": [
+            "if self.use_legacy_client:",
             "return self._require_legacy_client(\"ZWA\", self.zwa_legacy_client)",
-            "self._zwa = ZWAService(self)"
+            "self._zwa = ZWAService(self)",
+            "return self._zwa"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "after": "def _require_legacy_client(",
+          "quotes": [
+            "return client"
           ]
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zwa/legacy.py",
+          "after": "class LegacyZWAClientHelper:",
           "quotes": [
             "def audit_logs(self) -> \"AuditLogsAPI\":",
             "def dlp_incidents(self) -> \"DLPIncidentsAPI\":"
@@ -242,6 +262,8 @@
           "quotes": [
             "ZWA_API_KEY_ID = \"ZWA_API_KEY_ID\"",
             "ZWA_API_SECRET = \"ZWA_API_SECRET\"",
+            "ZWAAPIKeyID  string     `yaml:\"key_id\" envconfig:\"ZWA_API_KEY_ID\"`",
+            "ZWAAPISecret string     `yaml:\"key_secret\" envconfig:\"ZWA_API_SECRET\"`",
             "envconfig:\"ZWA_CLOUD\"",
             "if cfg.ZWA.Client.ZWACloud != \"\" {",
             "rawBaseURL = fmt.Sprintf(\"https://api.%s.zsworkflow.net\", cfg.ZWA.Client.ZWACloud)",

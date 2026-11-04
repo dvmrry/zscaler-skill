@@ -107,7 +107,7 @@
       ]
     },
     "return-values": {
-      "statement": "In a PAC file for a browser or the ZIA-hosted PAC service, a return statement takes one of two values, DIRECT (bypass the proxy and go to the destination) or PROXY (send the request to a proxy), written in uppercase inside quotation marks and followed by a semicolon.",
+      "statement": "Zscaler's Writing a PAC File article says a return statement accepts one of two values, DIRECT (bypass the proxy and go to the destination) or PROXY (send the request to a proxy), written in uppercase inside quotation marks and followed by a semicolon.",
       "tier": "A",
       "evidence": [
         {
@@ -162,6 +162,7 @@
             "If port 9400 is blocked at the user's end for outbound traffic, do not add the proxy entry for the port to the PAC file.",
             "Port 9443 can be used for remote users who need the service to proxy and inspect HTTPS transactions.",
             "Port 9480 can be used to exempt authentication for traffic that is destined for Public Service Edges from a known location.",
+            "Remote users can use this port to forward traffic to Zscaler.",
             "However, they are forced to authenticate because Zscaler does not accept unauthenticated traffic from unregistered IP addresses or unknown locations."
           ]
         }
@@ -208,7 +209,9 @@
           "source": "zscaler-help",
           "path": "writing-pac-file.json",
           "quotes": [
-            "insert a variable that uses a regular expression immediately preceding the isInNet() argument to restrict the result just to IP addresses.",
+            "If you try to reach a host by a domain name, such as https://zscaler.com, your browser must perform a DNS lookup for it.",
+            "To avoid this and to avoid placing an undue strain on the name server, insert a variable that uses a regular expression immediately preceding the isInNet() argument to restrict the result just to IP addresses.",
+            "the result is only used if the host is an IP address in one of the networks specified in the nested IF argument.",
             "var bypassHosts = /(remote\\.mydomain\\.com|mail\\.mydomain\\.com)/; if (bypassHosts.test(host)) { return \"DIRECT\"; }",
             "Using the JavaScript test (host) function, any host you enter here returns DIRECT and does not require a DNS lookup."
           ]
@@ -216,16 +219,16 @@
       ]
     },
     "serial-execution": {
-      "statement": "Execution speed depends on how the arguments are built, not on file length, because PAC files execute serially: avoid excessive exclusions and put high-probability checks, such as private IP address lookups, at the beginning.",
+      "statement": "Execution speed depends on how the arguments are built, not on file length; PAC files execute serially, so the vendor advises avoiding excessive exclusions and putting high-probability checks, such as private IP address lookups, at the beginning.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "best-practices-writing-pac-files.json",
           "quotes": [
-            "The speed of file execution depends on the way arguments are constructed in the PAC file, not on the total length of the file. PAC files execute commands serially.",
+            "The speed of file execution depends on the way arguments are constructed in the PAC file, not on the total length of the file. PAC files execute commands serially. Therefore:",
             "Do not use excessive exclusion functions, as this might cause slowness.",
-            "For example, private IP address lookups should be at the beginning."
+            "Place arguments or exceptions that have a high probability of being executed at the beginning of the file. For example, private IP address lookups should be at the beginning."
           ]
         }
       ]

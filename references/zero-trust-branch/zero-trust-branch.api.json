@@ -243,10 +243,12 @@
           "source": "sdk-python",
           "path": "zscaler/ztb/legacy.py",
           "quotes": [
+            "_env_base = \"ZTB\"",
             "self.env_cloud = cloud or kw.get(\"cloud\") or os.getenv(f\"{self._env_base}_CLOUD\")",
             "if not self.env_cloud:",
             "raise ValueError( f\"Cloud environment must be set via the 'cloud' argument or the \"",
-            "# --- URL construction ---"
+            "# --- URL construction ---",
+            "kw.get(\"override_url\") or os.getenv(f\"{self._env_base}_OVERRIDE_URL\")"
           ]
         },
         {
@@ -255,6 +257,14 @@
           "quotes": [
             "class LegacyZTBClient(Client):",
             "cloud = config.get(\"cloud\", os.getenv(\"ZTB_CLOUD\"))"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_client.py",
+          "after": "class LegacyZTBClient(Client):",
+          "quotes": [
+            "legacy_helper = LegacyZTBClientHelper( api_key=api_key, cloud=cloud,"
           ]
         }
       ]
@@ -323,7 +333,7 @@
           "after": "def _prepare_body(self, endpoint, body):",
           "quotes": [
             "# Ensure ZTB remains snake_case without affecting other services",
-            "if self.use_legacy_client and self.ztb_legacy_client:",
+            "if self.use_legacy_client and self.ztb_legacy_client: return body  # Do not convert anything, just return as-is",
             "# Special handling for ZTB endpoints - keep snake_case format",
             "if \"/ztb/\" in endpoint:",
             "return body  # Do not convert ZTB requests to camelCase"
@@ -359,7 +369,18 @@
             "_DEFAULT_GET_LIMIT = 5",
             "_DEFAULT_POST_PUT_DELETE_LIMIT = 5",
             "_DEFAULT_GET_FREQ = 1",
-            "_DEFAULT_POST_PUT_DELETE_FREQ = 1"
+            "_DEFAULT_POST_PUT_DELETE_FREQ = 1",
+            "get_freq=_DEFAULT_GET_FREQ,",
+            "post_put_delete_freq=_DEFAULT_POST_PUT_DELETE_FREQ,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/ratelimiter/ratelimiter.py",
+          "quotes": [
+            "now = time.time()",
+            "if now - oldest_request < self.get_freq:",
+            "if now - oldest_request < self.post_put_delete_freq:"
           ]
         }
       ]

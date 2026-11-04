@@ -162,7 +162,7 @@
       ]
     },
     "audit-input": {
-      "statement": "The MCP audit search tool's input model, `AuditSearchInput` (a `WindowInput` with its `days` lookback), takes `object_id` as a string and filters on operation type, object type, object name, object ID, visibility and modifying user ID, plus page and size, which the tool sends as query parameters; the model has no entry ID, customer ID or sort fields.",
+      "statement": "The MCP audit search tool's input model, `AuditSearchInput` (a `WindowInput` with its `days` lookback), takes `object_id` as a string and filters on operation type, object type, object name, object ID, visibility and modifying user ID, plus page and size; the tool sends page and size as query parameters and the filters as keyword arguments. The model has no entry ID, customer ID or sort fields.",
       "tier": "A",
       "evidence": [
         {
@@ -174,7 +174,8 @@
             "object_id: Annotated[Optional[str], Field(default=None, description=\"Filter by object ID.\")] = ( None ) visibility: Annotated[ Optional[str], Field(default=None, description=\"Filter by visibility: Customer or Root.\") ] = None",
             "modified_by_user_id: Annotated[ Optional[str], Field(default=None, description=\"Filter by the modifying user ID.\") ] = None page: Annotated[ Optional[int], Field(default=None, ge=0, description=\"Page number (0-based).\") ] = None",
             "size: Annotated[ Optional[int], Field(default=None, ge=1, le=100, description=\"Page size (1-100).\") ] = None class AuditMetadataInput(BaseModel):",
-            "query_params=_body((\"page\", args.page), (\"size\", args.size)),"
+            "query_params=_body((\"page\", args.page), (\"size\", args.size)),",
+            "**_body( (\"operation_type\", args.operation_type), (\"object_type\", args.object_type), (\"object_name\", args.object_name), (\"object_id\", args.object_id), (\"visibility\", args.visibility), (\"modified_by_user_id\", args.modified_by_user_id), ),"
           ]
         },
         {
@@ -184,7 +185,8 @@
             "so callers only need to say \"how far back\". \"\"\" days: Annotated[ int, Field( default=7, ge=1, le=365, description=( \"Lookback window in DAYS. Resolves to a [now - days, now] \" \"epoch-seconds range on the server. Default 7.\" ), ), ] = 7 def as_dict("
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no other fields): `awk '/^class AuditSearchInput\\(WindowInput\\):/{f=1;next} /^class /{f=0} f' src/zscaler_mcp/tools/zcell/audit_data_handling.py | grep -cE '^\\s{4}\\w+:'` in vendor/zscaler-mcp-server at v0.15.4 returns 8 (operation_type, object_type, object_name, object_id, visibility, modified_by_user_id, page, size), and `WindowInput` in _common.py declares only `days`."
     },
     "audit-returns-full": {
       "statement": "The audit search tool passes each `AuditDataHandling` entry the SDK's `list_audit_customers_search` returns to `shape_many` with no shaper, which preserves every attribute of every record, and the SDK audit model's request format includes `oldData` and `newData`.",
@@ -243,7 +245,8 @@
             "policy_id=args.policy_id, query_params=_query((\"page\", args.page), (\"size\", args.size))"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (only three fields): `awk '/^class AnomalyPolicyLogsInput\\(BaseModel\\):/{f=1;next} /^class /{f=0} f' src/zscaler_mcp/tools/zcell/anomaly_policy.py | grep -cE '^\\s{4}\\w+:'` in vendor/zscaler-mcp-server at v0.15.4 returns 3 (policy_id, page, size)."
     },
     "prompts": {
       "statement": "Three ZCell prompts are registered: `zcell_investigate_sim` (an ICCID, and a lookback defaulting to 7 days), `zcell_audit_data_usage` (lookback default 30 days, optional country) and `zcell_review_anomaly_policies` (lookback default 30 days, optional policy type); the anomaly review's workflow inventories the policies, gets the location groups of geofencing policies and lists each policy's violations and logs with the read-only `zcell_*` tools.",
@@ -280,7 +283,8 @@
             "`zcell_list_anomaly_policy_logs(policy_id=<id>)`"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: at v0.15.4, `grep -rn --include='*.py' 'name=\"zcell_' src/zscaler_mcp/prompts` returns three lines, one each in catalog/zcell/audit_data_usage.py, investigate_sim.py and review_anomaly_policies.py, and `grep -rn --include='*.py' 'service=\"zcell\"' src/zscaler_mcp/prompts` returns the same three files. Prompt discovery imports only the `zscaler_mcp.prompts.catalog` package (prompts/discovery.py), and `grep -rn 'add_prompt' src` returns one line, server.py's `server.add_prompt(build_function_prompt(prompt_spec))` over the prompts that registry holds."
     },
     "prompt-gating": {
       "statement": "The server offers a service's prompts when at least one of that service's tools survived tool filtering.",

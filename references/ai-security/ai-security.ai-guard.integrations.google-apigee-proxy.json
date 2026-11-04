@@ -87,6 +87,16 @@
         },
         {
           "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/KVM-GetConfig.xml",
+          "quotes": [
+            "<Get assignTo=\"private.vertex.project\">",
+            "<Key><Parameter>vertex_project</Parameter></Key>",
+            "<Get assignTo=\"private.vertex.model\">",
+            "<Key><Parameter>vertex_model</Parameter></Key>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
           "path": "Google/apigee/apiproxy/proxies/default.xml",
           "quotes": [
             "<PreFlow name=\"PreFlow\">",
@@ -141,6 +151,22 @@
         },
         {
           "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardExecutePolicy.xml",
+          "quotes": [
+            "<Timeout>5000</Timeout>",
+            "<URL>https://api.{aiguard.cloud}.zseclipse.net/v1/detection/execute-policy</URL>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/SC-AIGuardResponseScan.xml",
+          "quotes": [
+            "<Timeout>6000</Timeout>",
+            "<URL>https://api.{aiguard.cloud}.zseclipse.net/v1/detection/resolve-and-execute-policy</URL>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
           "path": "Google/apigee/apiproxy/policies/SC-AIGuardResponseExecutePolicy.xml",
           "quotes": [
             "<Timeout>6000</Timeout>",
@@ -152,12 +178,21 @@
           "path": "Google/apigee/apiproxy/proxies/default.xml",
           "quotes": [
             "<Condition>(aiguard.prompt.present = \"true\") and (aiguard.policy.id = \"\")</Condition>",
-            "<Condition>(aiguard.prompt.present = \"true\") and (aiguard.policy.id != \"\")</Condition>"
+            "<Condition>(aiguard.prompt.present = \"true\") and (aiguard.policy.id != \"\")</Condition>",
+            "<Condition>(aiguard.response.present = \"true\") and (aiguard.policy.id = \"\")</Condition>",
+            "<Condition>(aiguard.response.present = \"true\") and (aiguard.policy.id != \"\")</Condition>"
           ]
         },
         {
           "source": "zguard-integrations",
           "path": "Google/apigee/apiproxy/policies/AM-AIGuardRequest.xml",
+          "quotes": [
+            "<Header name=\"Authorization\">Bearer {private.aiguard.apikey}</Header>"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "Google/apigee/apiproxy/policies/AM-AIGuardResponseRequest.xml",
           "quotes": [
             "<Header name=\"Authorization\">Bearer {private.aiguard.apikey}</Header>"
           ]
@@ -242,7 +277,8 @@
           "source": "zguard-integrations",
           "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
           "quotes": [
-            "if (obj.contents && Array.isArray(obj.contents)) {"
+            "if (obj.contents && Array.isArray(obj.contents)) {",
+            "for (var i = 0; i < obj.contents.length; i++) {"
           ]
         },
         {
@@ -252,7 +288,8 @@
             "Both fall back to the raw body if it will not parse"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -c role Google/apigee/apiproxy/resources/jsc/scan-prompt.js` at v0.2.0-11-g70d5c9c returns 0, so no part is filtered by role; `grep -n '= body'` on the same file returns one line, the `prompt = body;` inside the catch, the only place the raw body becomes the prompt."
     },
     "no-text-passes": {
       "statement": "A request body that parses as JSON but has no Gemini text parts (an OpenAI-, Anthropic- or MCP-shaped body, image-only parts, or only a `systemInstruction`) is forwarded to Vertex without a prompt scan.",
@@ -300,6 +337,8 @@
             "var sessionId = context.getVariable('request.header.X-Session-ID') || context.getVariable('messageid');",
             "context.setVariable('aiguard.session.id', sessionId);",
             "var payload = {\n  content: prompt,\n  direction: 'IN'\n};",
+            "// Get configuration. The policy id comes from the KVM only: letting a caller",
+            "var policyId = context.getVariable('private.aiguard.policyid') || '';",
             "if (policyId && policyId.length > 0) {",
             "context.setVariable('aiguard.request.payload', JSON.stringify(payload));"
           ]
@@ -323,6 +362,7 @@
           "path": "Google/apigee/apiproxy/resources/jsc/scan-prompt.js",
           "quotes": [
             "var user = context.getVariable('aiguardUser') || '';",
+            "if (user.length > 0) {",
             "payload.user = String(user);"
           ]
         },
@@ -331,10 +371,12 @@
           "path": "Google/apigee/apiproxy/resources/jsc/scan-response.js",
           "quotes": [
             "var user = context.getVariable('aiguardUser') || '';",
+            "if (user.length > 0) {",
             "payload.user = String(user);"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -rn -i session Google/apigee/apiproxy` at v0.2.0-11-g70d5c9c returns three lines: scan-prompt.js reads `X-Session-ID` into `sessionId` and stores it as `aiguard.session.id`, and scan-response.js reads `aiguard.session.id` back into `sessionId`. No payload field and no AssignMessage policy uses it."
     },
     "api-transaction-id": {
       "statement": "Because the proxy sends no `transactionId`, the transaction ID it returns in its block headers and body is the one AI Guard put in the verdict, not one the gateway chose.",
@@ -452,7 +494,9 @@
           "source": "zguard-integrations",
           "path": "Google/apigee/apiproxy/proxies/default.xml",
           "quotes": [
-            "<Condition>(private.aiguard.apikey is null) or (private.aiguard.apikey = \"\")</Condition>"
+            "<!-- Step 2: Refuse to run unscanned if there is no API key to scan with -->",
+            "<Condition>(private.aiguard.apikey is null) or (private.aiguard.apikey = \"\")</Condition>",
+            "<!-- Step 3: Extract prompt from request -->"
           ]
         },
         {

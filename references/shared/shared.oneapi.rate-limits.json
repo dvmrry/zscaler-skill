@@ -124,6 +124,7 @@
           "path": "automate-zscaler/rate-limiting-zdx.json",
           "quotes": [
             "every endpoint is called from a specific IP address and the rate limit is dependent on the Tier Level.",
+            "| Tier Level | Number of Licenses | Requests/second | Requests/minute | Requests/hour | Requests/day |",
             "| 1 | 5,000 | 5 | 30 | 1,000 | 10,000 |",
             "| 2 | 20,000 | 5 | 60 | 3,000 | 15,000 |",
             "| 3 | 100,000 | 5 | 120 | 6,000 | 30,000 |",
@@ -173,6 +174,7 @@
           "path": "automate-zscaler/rate-limiting-cloud-branch-connector.json",
           "quotes": [
             "Every endpoint has a weight, and every weight has a default rate limit.",
+            "| Weight | Typical Assignment | Requests/second | Requests/minute | Requests/hour |",
             "| Heavy | DELETE | - | 1 | 40 |",
             "| Medium | POST, PUT | 1 | - | 400 |",
             "| Light | GET | 2 | - | 1,000 |",
@@ -197,13 +199,15 @@
       ]
     },
     "bi-tiers": {
-      "statement": "Business Insights has two tiers: Heavy, 1 per second and 400 per hour, for Custom Applications and Report Configurations create, get, update and delete; Light, 2 per second and 1,000 per hour, for listing and downloading reports.",
+      "statement": "Business Insights sets rate limits by endpoint tier: Heavy, 1 per second and 400 per hour, for Custom Applications and Report Configurations create, get, update and delete; Light, 2 per second and 1,000 per hour, for listing and downloading reports.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "automate-zscaler/rate-limiting-bi.json",
           "quotes": [
+            "The Business Insights API endpoints are subjected to different rate limits based on the endpoint tier:",
+            "| Tier | Requests/Second | Requests/Hour | Applies To |",
             "| Heavy | 1 | 400 | Custom Applications: Create, Get, Update, Delete; Report Configurations: Create, Get, Update, Delete |",
             "| Light | 2 | 1,000 | Reports: List All Reports, Download a Report |"
           ]
@@ -302,7 +306,7 @@
       ]
     },
     "go-client-limiters": {
-      "statement": "The Go SDK's OneAPI client throttles on the client side with a limiter per service: ZIA and ZTW, each at 20 GET and 10 POST/PUT/DELETE calls per 10 seconds. At v3.8.55 both had hourly caps of 950 GET, 950 POST/PUT and 380 DELETE per method; at v3.8.58 ZIA's hourly caps are per endpoint (method plus path, IDs normalized) at 950 GET, 380 POST/PUT and 380 DELETE, while ZTW keeps the per-method 950, 950 and 380. ZPA has 20 GET and 10 POST/PUT/DELETE calls per 10 seconds; ZCC 100 calls per hour and 3 per day for downloadDevices; and a default limiter covers other paths.",
+      "statement": "The Go SDK's OneAPI client throttles on the client side with a limiter per service: ZIA and ZTW, each at 20 GET and 10 POST/PUT/DELETE calls per 10 seconds. At v3.8.55 both had hourly caps of 950 GET, 950 POST/PUT and 380 DELETE per method; at v3.8.58 ZIA's hourly caps are per endpoint (method plus path, IDs normalized) at 950 GET, 380 POST/PUT and 380 DELETE, while ZTW keeps the per-method 950, 950 and 380. ZPA has 20 GET and 10 POST/PUT/DELETE calls per 10 seconds. ZCC and ZDX each get a limiter built as `NewRateLimiter(100, 3, 3600, 86400)`, whose arguments set 100 GET calls per 3,600 seconds and 3 POST/PUT/DELETE calls per 86,400 seconds whatever the path; its comment says 'downloadDevices: 3 per day', but `DownloadDevices` sends a GET. ZIdentity paths (prefix `ziam`), `/admin` paths and any path no service prefix matches use a default limiter, `NewRateLimiter(2, 1, 1, 1)`.",
       "tier": "A",
       "evidence": [
         {
@@ -351,7 +355,40 @@
           "quotes": [
             "zpaRateLimiter := rl.NewRateLimiter(20, 10, 10, 10) // GET: 20 per 10s, POST/PUT/DELETE: 10 per 10s",
             "zccRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
-            "defaultRateLimiter := rl.NewRateLimiter(2, 1, 1, 1) // Default limits"
+            "defaultRateLimiter := rl.NewRateLimiter(2, 1, 1, 1) // Default limits",
+            "zdxRateLimiter := rl.NewRateLimiter(100, 3, 3600, 86400) // General: 100 per hour, downloadDevices: 3 per day",
+            "cfg.HTTPClient = getHTTPClient(cfg.Logger, defaultRateLimiter, cfg)",
+            "service, err := detectServiceType(endpoint) if err != nil { return client.oauth2Credentials.HTTPClient }",
+            "return client.oauth2Credentials.ZDXHTTPClient",
+            "return client.oauth2Credentials.HTTPClient // Use default client for ZIdentity admin endpoints",
+            "return \"\", fmt.Errorf(\"unsupported service\")",
+            "if strings.HasPrefix(path, \"ziam\") { return \"ziam\", nil",
+            "} else if strings.HasPrefix(endpoint, \"/admin\") { return \"admin\", nil"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "quotes": [
+            "func NewRateLimiter(getLimit, postPutDeleteLimit, getFreq, postPutDeleteFreq int) *RateLimiter {",
+            "// created with NewRateLimiterWithEndpointHourly; other limiters behave as Wait."
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "ratelimiter/limiter.go",
+          "at": [
+            "v3.8.55"
+          ],
+          "quotes": [
+            "shouldWait, delay = rlt.Limiter.Wait(req.Method)"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/download_devices/download_devices.go",
+          "quotes": [
+            "resp, err := service.Client.NewZccRequestDo(ctx, \"GET\", downloadDevicesEndpoint, queryParams, nil, nil)"
           ]
         }
       ]

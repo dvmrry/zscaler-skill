@@ -362,12 +362,19 @@
       ]
     },
     "cfn-support-ip": {
-      "statement": "The templates carry 199.168.148.101/32 as the TCP/12002 support rule's address; the macro resolves the address of remotesupport.<cloud>.net, reads the cloud name from the provisioning URL, and rewrites the rule's CidrIp.",
+      "statement": "The Starter and autoscaling templates carry 199.168.148.101/32 as the TCP/12002 support rule's address; the macro resolves the address of remotesupport.<cloud>.net, reads the cloud name from the provisioning URL, and rewrites the rule's CidrIp.",
       "tier": "A",
       "evidence": [
         {
           "source": "cft-aws-cloud-connector",
           "path": "cloudformation-templates/zs_cc_cf_template_simple.yaml",
+          "quotes": [
+            "MgmtEgressRuleTcp12002: Condition: CreateZsSupportRule Type: AWS::EC2::SecurityGroupEgress Properties: Description: \"Recommended: CC Mgmt outbound Zscaler Remote Support TCP/12002\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"tcp\" FromPort: 12002 ToPort: 12002 CidrIp: 199.168.148.101/32"
+          ]
+        },
+        {
+          "source": "cft-aws-cloud-connector",
+          "path": "cloudformation-templates/zs_cc_cf_template_asg_gwlb.yaml",
           "quotes": [
             "MgmtEgressRuleTcp12002: Condition: CreateZsSupportRule Type: AWS::EC2::SecurityGroupEgress Properties: Description: \"Recommended: CC Mgmt outbound Zscaler Remote Support TCP/12002\" GroupId: !Ref MgmtSecurityGroup IpProtocol: \"tcp\" FromPort: 12002 ToPort: 12002 CidrIp: 199.168.148.101/32"
           ]

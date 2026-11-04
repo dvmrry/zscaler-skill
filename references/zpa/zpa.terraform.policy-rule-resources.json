@@ -145,6 +145,7 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
           "quotes": [
+            "the top-level `operator` argument.** This joins the separate `conditions` blocks to each other.",
             "**Only `AND` is supported at this level**;",
             "sending `OR` returns the API error `operator.or.not.supported.policy.rule`",
             "if you omit it, ZPA sets it to `AND` automatically"
@@ -334,7 +335,7 @@
           ]
         }
       ],
-      "conditions": "Statement changed from \"optional on the policy rule resources\": the schema makes policy_set_id Optional+Computed only on the v1 resources and Computed-only on the v2, capabilities, credential, portal and browser protection rules, so it is now scoped and the docs statement is attributed to the docs."
+      "conditions": "Statement changed from \"optional on the policy rule resources\": the schema makes policy_set_id Optional+Computed only on the v1 resources and Computed-only on the v2, capabilities, credential, portal and browser protection rules, so it is now scoped and the docs statement is attributed to the docs. At v4.4.16, `ls zpa/resource_zpa_policy_*_v2.go` returns six files (access, browser protection, forwarding, inspection, isolation and timeout rules), each quoted above with a Computed-only `policy_set_id`, and `grep -n '\"zpa_policy[a-z_]*_v2\"' zpa/provider.go` returns five registrations (access, isolation, inspection, forwarding, timeout); the browser protection rule registers as `zpa_policy_browser_protection_rule`."
     },
     "timeout-v1-seconds-v2-strings": {
       "statement": "The v1 timeout rule takes reauth_timeout and reauth_idle_timeout in seconds, where -1 means Never for reauth_timeout and Default for the idle timeout, and the v2 rule takes strings with a unit such as Days, with Never allowed and a minimum interval of 10 minutes.",
@@ -444,12 +445,13 @@
             "This is for specifying the policy criteria. Supported values: `SAML`"
           ]
         }
-      ]
+      ],
+      "conditions": "At v4.4.16, `grep -n 'object_type' docs/resources/zpa_policy_capabilities_rule.md` returns the two example lines (`SAML`, `SCIM_GROUP`), the `operands` lines that name `object_type` as a supported member, and four `object_type` schema lines: `APP` and `APP_GROUP`, `SCIM_GROUP`, `SCIM` and `SAML`; no other object type is documented."
     },
     "credential-rule-console-first": {
       "statement": "A credential rule needs a first conditions block with object_type CONSOLE referencing PRA console IDs; the other documented conditions are SAML, SCIM_GROUP and SCIM.",
       "tier": "A",
-      "conditions": "Extended after verification: the doc also lists SCIM, which the statement omitted.",
+      "conditions": "Extended after verification: the doc also lists SCIM, which the statement omitted. Every member: `grep -n 'Supported values: `' docs/resources/zpa_policy_credential_rule.md` in vendor/terraform-provider-zpa at v4.4.16 returns four lines, the object_type values CONSOLE, SAML, SCIM_GROUP and SCIM; the example's object_type lines are CONSOLE, SAML and SCIM_GROUP.",
       "evidence": [
         {
           "source": "tf-zpa",
@@ -489,9 +491,9 @@
       ]
     },
     "rule-type-object-types": {
-      "statement": "The rule-type docs list these operand object types: portal access rules PRIVILEGE_PORTAL, SCIM_GROUP, SCIM, SAML and COUNTRY_CODE; browser protection rules APP, APP_GROUP, USER_PORTAL, CLIENT_TYPE, SCIM_GROUP, SCIM and SAML; redirection rules CLIENT_TYPE, IDP, SAML, SCIM, SCIM_GROUP and COUNTRY_CODE; and the v2 isolation rule APP, APP_GROUP, CLIENT_TYPE, EDGE_CONNECTOR_GROUP, IDP, PLATFORM, SCIM_GROUP, SCIM, SAML, CHROME_ENTERPRISE and CHROME_POSTURE_PROFILE (eleven types at v4.4.16; up to v4.4.15 its doc listed MACHINE_GRP, POSTURE and TRUSTED_NETWORK too).",
+      "statement": "The rule-type docs list these operand object types: portal access rules PRIVILEGE_PORTAL, SCIM_GROUP, SCIM, SAML and COUNTRY_CODE; browser protection rules APP, APP_GROUP, USER_PORTAL, CLIENT_TYPE, SCIM_GROUP, SCIM and SAML; redirection rules CLIENT_TYPE, IDP, SAML, SCIM, SCIM_GROUP and COUNTRY_CODE; and the v2 isolation rule APP, APP_GROUP, CLIENT_TYPE, EDGE_CONNECTOR_GROUP, IDP, PLATFORM, SCIM_GROUP, SCIM, SAML, CHROME_ENTERPRISE and CHROME_POSTURE_PROFILE (eleven types at v4.4.16; up to v4.4.15 its doc listed MACHINE_GRP, POSTURE and TRUSTED_NETWORK instead of IDP).",
       "tier": "A",
-      "conditions": "Corrected after verification: the v2 isolation doc lists 11 object types at v4.4.16 and listed 13 up to v4.4.15, not only the two Chrome types, and the browser protection doc also lists SAML, SCIM and SCIM_GROUP; the word \"narrow\" was dropped. Re-quoted for v4.4.15, whose redirection rule doc lists IDP, SAML, SCIM and SCIM_GROUP as well; up to v4.4.14 it listed CLIENT_TYPE and COUNTRY_CODE. Re-quoted for v4.4.16, whose isolation v2 doc dropped MACHINE_GRP, POSTURE and TRUSTED_NETWORK to match the resource schema.",
+      "conditions": "Corrected after verification: the v2 isolation doc lists 11 object types at v4.4.16 and listed 13 up to v4.4.15, not only the two Chrome types, and the browser protection doc also lists SAML, SCIM and SCIM_GROUP; the word \"narrow\" was dropped. Re-quoted for v4.4.15, whose redirection rule doc lists IDP, SAML, SCIM and SCIM_GROUP as well; up to v4.4.14 it listed CLIENT_TYPE and COUNTRY_CODE. Re-quoted for v4.4.16, whose isolation v2 doc dropped MACHINE_GRP, POSTURE and TRUSTED_NETWORK to match the resource schema. Release search: for every tag of vendor/terraform-provider-zpa that has docs/resources/zpa_policy_isolation_rule_v2.md (94 tags, v3.2.0 through v4.4.16), `git show <tag>:docs/resources/zpa_policy_isolation_rule_v2.md | grep -c` finds MACHINE_GRP, `POSTURE` and TRUSTED_NETWORK at all 93 tags from v3.2.0 through v4.4.15 and none of them at v4.4.16, and finds `IDP` only at v4.4.16.",
       "evidence": [
         {
           "source": "tf-zpa",
@@ -623,7 +625,7 @@
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_inspection_rule.md",
           "quotes": [
-            "An inspection profile is required if the `action` is set to `INSPECT`",
+            "`zpn_inspection_profile_id` (String) An inspection profile is required if the `action` is set to `INSPECT`",
             "The supported actions for a policy inspection rule are: `BYPASS_INSPECT`, or `INSPECT`"
           ]
         },
@@ -639,7 +641,7 @@
     "edge-vs-branch-connector-group-validators": {
       "statement": "The primary operand validator resolves EDGE_CONNECTOR_GROUP IDs against the cloud connector group getter. Up to v4.4.15 it had no BRANCH_CONNECTOR_GROUP case; at v4.4.16 it has one that requires lhs `\"id\"` and looks the rhs up nowhere. BRANCH_CONNECTOR_GROUP is a distinct object type, checked only for a nonempty value in the resource-level validator and mapped in the v1-to-v2 operand aggregation.",
       "tier": "A",
-      "conditions": "The v4.4.15 absence of a BRANCH_CONNECTOR_GROUP case rests on the case list of the primary validator read in full at that tag (the first evidence item); the v4.4.16 case is quoted in the item after the v2 validator quote.",
+      "conditions": "The v4.4.15 absence of a BRANCH_CONNECTOR_GROUP case rests on the case list of the primary validator read in full at that tag (the first evidence item); the v4.4.16 case is quoted in the item after the v2 validator quote. `git show <tag>:zpa/common.go | awk '/^func validateOperand\\(/,/^}/' | grep -c BRANCH_CONNECTOR_GROUP` returns 0 at v4.0.0, v4.4.14 and v4.4.15, and 1 at v4.4.16.",
       "evidence": [
         {
           "source": "tf-zpa",
@@ -653,7 +655,7 @@
             "case \"APP\":",
             "case \"APP_GROUP\":",
             "case \"IDP\":",
-            "case \"EDGE_CONNECTOR_GROUP\":",
+            "case \"EDGE_CONNECTOR_GROUP\": return customValidate(operand, []string{\"id\"}, \"cloud connector group ID\", Getter(func(id string) error { _, _, err := cloud_connector_group.Get(ctx, zClient.Service, id)",
             "case \"CLIENT_TYPE\":",
             "case \"MACHINE_GRP\":",
             "case \"POSTURE\":",
@@ -665,7 +667,6 @@
             "case \"COUNTRY_CODE\":",
             "case \"RISK_FACTOR_TYPE\":",
             "case \"CHROME_ENTERPRISE\":",
-            "_, _, err := cloud_connector_group.Get(ctx, zClient.Service, id)",
             "default: return fmt.Errorf(\"[WARN] invalid operand object type %s\", operand.ObjectType)"
           ],
           "after": "func validateOperand("
@@ -849,8 +850,17 @@
             "state_reason": "completed",
             "closed_at": "2026-07-24"
           }
+        },
+        {
+          "source": "tf-zpa",
+          "path": "CHANGELOG.md",
+          "quotes": [
+            "Added support to attribute `devicePosture_failure_notification_enabled` on resources `zpa_policy_access_rule_v2` and `zpa_policy_access_rule`."
+          ],
+          "after": "## 4.4.9 (July 24, 2026)"
         }
-      ]
+      ],
+      "conditions": "At v4.4.8, `git show v4.4.8:zpa/resource_zpa_policy_access_rule.go | grep -c device_posture_failure` returns 0; at v4.4.9 it returns 2."
     }
   },
   "gaps": {

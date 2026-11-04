@@ -228,7 +228,7 @@
           "path": "zscaler/zpa/microtenants.py",
           "after": "def delete_microtenant(self, microtenant_id: str) -> int:",
           "quotes": [
-            "http_method = \"delete\".upper()",
+            ">>> zpa.microtenants.delete_microtenant('99999')\n\"\"\"\nhttp_method = \"delete\".upper()\napi_url = format_url(f\"\"\"\n{self._zpa_base_endpoint}\n/microtenants/{microtenant_id}\n\"\"\")\n\n# Create the request",
             "return (None, response, None)",
             "request, error = self._request_executor.create_request(http_method, api_url)\nif error:\nreturn (None, None, error)\n# Execute the request\nresponse, error = self._request_executor.execute(request)\nif error:\nreturn (None, response, error)\nreturn (None, response, None)"
           ]
@@ -238,7 +238,7 @@
           "path": "zscaler/zpa/services/microtenants/microtenants.go",
           "after": "func Delete(ctx context.Context, service *zscaler.Service, microTenantID string)",
           "quotes": [
-            "resp, err := service.Client.NewRequestDo(ctx, \"DELETE\", relativeURL, nil, nil, nil)",
+            "(*http.Response, error) {\nrelativeURL := fmt.Sprintf(\"%s/%s\", mgmtConfig+service.Client.GetCustomerID()+microtenantsEndpoint, microTenantID)\nresp, err := service.Client.NewRequestDo(ctx, \"DELETE\", relativeURL, nil, nil, nil)",
             "if err != nil {\nreturn nil, err\n}\n\nreturn resp, nil\n}"
           ]
         }

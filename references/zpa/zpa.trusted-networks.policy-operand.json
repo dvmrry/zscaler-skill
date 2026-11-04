@@ -96,7 +96,7 @@
         },
         {
           "source": "zscaler-help",
-          "path": "configuring-appprotection-policies.json",
+          "path": "configuring-access-policies.json",
           "quotes": [
             "If you added multiple trusted networks to the policy rule, Private Access uses an OR Boolean operator between them."
           ]
@@ -202,10 +202,11 @@
             "\"zpa_policy_isolation_rule_v2\": resourcePolicyIsolationRuleV2(), \"zpa_policy_inspection_rule_v2\": resourcePolicyInspectionRuleV2(),"
           ]
         }
-      ]
+      ],
+      "conditions": "Release search: for each tag of vendor/terraform-provider-zpa, `git show <tag>:docs/resources/zpa_policy_isolation_rule.md | grep -c -F '[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``'` returns 1 at all 93 tags from v3.2.0 (the doc's first release) through v4.4.15 and 0 at v4.4.16."
     },
     "operand-v2": {
-      "statement": "In v2 policy rule resources the trusted network operand has `entry_values` whose `lhs` is the trusted network's `network_id` and whose `rhs` is documented as `\"true\"` or `\"false\"`.",
+      "statement": "In the v2 access, forwarding and inspection rule docs (`zpa_policy_access_rule_v2`, `zpa_policy_forwarding_rule_v2`, `zpa_policy_inspection_rule_v2`) the trusted network operand has `entry_values` whose `lhs` is the trusted network's `network_id` and whose `rhs` is documented as `\"true\"` or `\"false\"`.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks#networkId"
@@ -214,6 +215,26 @@
         {
           "source": "tf-zpa",
           "path": "docs/resources/zpa_policy_access_rule_v2.md",
+          "quotes": [
+            "- `entry_values` (Block Set)",
+            "`lhs` (String) -  The Trusted Network `network_id` value.",
+            "- `rhs` (String) - Supported values: `\"true\"` or `\"false\"`"
+          ],
+          "after": "`object_type` (String) This is for specifying the policy criteria. Supported values: `TRUSTED_NETWORK`"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_forwarding_rule_v2.md",
+          "quotes": [
+            "- `entry_values` (Block Set)",
+            "`lhs` (String) -  The Trusted Network `network_id` value.",
+            "- `rhs` (String) - Supported values: `\"true\"` or `\"false\"`"
+          ],
+          "after": "`object_type` (String) This is for specifying the policy criteria. Supported values: `TRUSTED_NETWORK`"
+        },
+        {
+          "source": "tf-zpa",
+          "path": "docs/resources/zpa_policy_inspection_rule_v2.md",
           "quotes": [
             "- `entry_values` (Block Set)",
             "`lhs` (String) -  The Trusted Network `network_id` value.",
@@ -314,10 +335,11 @@
             "Policy rule resources: the supported `object_type` values and the LHS/RHS tables now match the resource schemas, and each v1 page lists the same object types as its v2 counterpart."
           ]
         }
-      ]
+      ],
+      "conditions": "Release search: in vendor/terraform-provider-zpa, per-tag `git show <tag>:<file> | grep -c -F` finds the TRUSTED_NETWORK row (`[TRUSTED_NETWORK](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network) | ``network_id``') in docs/resources/zpa_policy_isolation_rule.md and 'Supported values: `TRUSTED_NETWORK`' in docs/resources/zpa_policy_isolation_rule_v2.md at all 93 tags from v3.2.0 through v4.4.15, and neither at v4.4.16, the release at which the quotes without `at` are anchored."
     },
     "v1-lookup": {
-      "statement": "For v1 policy rule resources that accept the operand, the provider looks the `lhs` up by `networkId` through the SDK's GetByNetID, so a value that is not a known `networkId` fails validation, and it requires `rhs` to be exactly `\"true\"`.",
+      "statement": "For the v1 policy rule resources that accept the operand (access, forwarding and inspection), the provider looks the `lhs` up by `networkId` through the SDK's GetByNetID, so a value that is not a known `networkId` fails validation, and it requires `rhs` to be exactly `\"true\"`.",
       "tier": "A",
       "binds": [
         "zpa/trusted-networks#networkId"
@@ -326,8 +348,9 @@
         {
           "source": "tf-zpa",
           "path": "zpa/common.go",
+          "after": "func validateOperand(",
           "quotes": [
-            "_, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)"
+            "case \"TRUSTED_NETWORK\": if operand.LHS == \"\" { return lhsWarn(operand.ObjectType, \"valid trusted network ID\", operand.LHS, nil) } _, _, err := trustednetwork.GetByNetID(ctx, zClient.Service, operand.LHS)"
           ]
         },
         {
@@ -356,6 +379,30 @@
         },
         {
           "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{",
+          "quotes": [
+            "\"TRUSTED_NETWORK\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_rule.go",
+          "after": "func resourcePolicyAccessCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
+          "quotes": [
+            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{",
+          "quotes": [
+            "\"TRUSTED_NETWORK\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_forwarding_rule.go",
           "after": "func resourcePolicyForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
@@ -365,25 +412,17 @@
         {
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
+          "after": "\"conditions\": GetPolicyConditionsSchema([]string{",
+          "quotes": [
+            "\"TRUSTED_NETWORK\","
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_policy_access_inspection_rule.go",
           "after": "func resourcePolicyInspectionRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
           "quotes": [
             "if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {"
-          ]
-        },
-        {
-          "source": "tf-zpa",
-          "path": "zpa/resource_zpa_policy_access_isolation_rule.go",
-          "after": "func resourcePolicyIsolationRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
-          "quotes": [
-            "if err := ValidateConditions(ctx, req.Conditions, zClient, GetString(d.Get(\"microtenant_id\"))); err != nil {"
-          ]
-        },
-        {
-          "source": "tf-zpa",
-          "path": "zpa/resource_zpa_policy_access_timeout_rule.go",
-          "after": "func resourcePolicyTimeoutRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {",
-          "quotes": [
-            "if err := ValidateConditions(ctx, req.Conditions, zClient, microTenantID); err != nil {"
           ]
         },
         {
@@ -400,7 +439,8 @@
             "return fmt.Errorf(\"[WARN] when operand object type is %v LHS must be %#v value is \\\"%v\\\", %v\", objType, expected, lhs, err)"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence search for the list: `git grep -l '\"TRUSTED_NETWORK\"' v4.4.16 -- 'zpa/resource_zpa_policy_*.go'` in the provider returns, among the v1 resources, only `resource_zpa_policy_access_rule.go`, `resource_zpa_policy_access_forwarding_rule.go` and `resource_zpa_policy_access_inspection_rule.go`; the other matches are their `_v2` resources and two unit tests, and the isolation and timeout rule resources do not name the operand."
     },
     "v2-no-lookup": {
       "statement": "For v2 policy rule resources the provider requires a non-empty `lhs` and an `rhs` of `\"true\"` or `\"false\"`, and does not look the `lhs` up.",

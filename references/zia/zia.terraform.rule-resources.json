@@ -173,17 +173,18 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_firewall_filtering_rules.go",
           "quotes": [
-            "if err := validateFirewallRule(*rule); err != nil {",
+            "if err := validateFirewallRule(*rule); err != nil { return diag.FromErr(err) }",
             "if rule.Predefined { return diag.FromErr(fmt.Errorf(\"deletion of predefined rule '%s' is not allowed\", rule.Name))"
           ]
         },
         {
           "source": "tf-zia",
           "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "after": "func validateFirewallRule(req filteringrules.FirewallFilteringRules) error {",
           "quotes": [
-            "if req.Name == \"Office 365 One Click Rule\" || req.Name == \"UCaaS One Click Rule\" {",
-            "if req.Name == \"Block All IPv6\" || req.Name == \"Block malicious IPs and domains\" {",
-            "req.Name == \"Default Firewall Filtering Rule\""
+            "if req.Name == \"Office 365 One Click Rule\" || req.Name == \"UCaaS One Click Rule\" { return fmt.Errorf(\"deletion of the predefined rule '%s' is not allowed\", req.Name) }",
+            "if req.Name == \"Block All IPv6\" || req.Name == \"Block malicious IPs and domains\" { return fmt.Errorf(\"deletion of the predefined rule '%s' is not allowed\", req.Name) }",
+            "if req.Name == \"Default Firewall Filtering Rule\" { return fmt.Errorf(\"deletion of the predefined rule '%s' is not allowed\", req.Name) }"
           ]
         }
       ]

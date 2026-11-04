@@ -346,7 +346,7 @@
       ]
     },
     "self-check": {
-      "statement": "Running `python3 .codex/hooks/aiguard_utils.py` prints where `.env` was searched, the resolved settings, and the result of a live test scan.",
+      "statement": "Running `python3 .codex/hooks/aiguard_utils.py` prints where `.env` was searched, the resolved settings (whether the API key is set, the cloud, the timeout and the policy ID) and, when the API key is set, the result of a live test scan; without a key it reports that the hooks will fail closed.",
       "tier": "A",
       "evidence": [
         {
@@ -355,6 +355,18 @@
           "quotes": [
             "Diagnose configuration: where .env was looked for, what was found, and whether",
             "a live scan succeeds. Run with: python3 .codex/hooks/aiguard_utils.py"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "OpenAI/codex-hooks/.codex/hooks/aiguard_utils.py",
+          "after": "def _self_check() -> int:",
+          "quotes": [
+            "print(f\"AIGUARD_CLOUD   : {config['cloud']}\")",
+            "print(f\"AIGUARD_TIMEOUT : {config['timeout']}\")",
+            "if not key:",
+            "print(\"\\nRESULT: hooks will fail closed and block every prompt.\")",
+            "print(\"\\nRunning a live test scan...\")"
           ]
         }
       ]
@@ -388,6 +400,7 @@
           "source": "zguard-integrations",
           "path": "OpenAI/codex-hooks/README.md",
           "quotes": [
+            "Requires the `hooks` feature, which is stable and enabled by default on current Codex versions.",
             "The flag is named `hooks`; older documentation calling it `codex_hooks` is out of date."
           ]
         },

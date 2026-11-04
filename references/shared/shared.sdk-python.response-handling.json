@@ -27,7 +27,7 @@
     },
     {
       "label": "Key casing.",
-      "text": "{{response-keys-camel-cased}} Where a product's models then look up snake_case keys, the multi-word fields come back empty: [[zcc.sdk-python.wire-keys:response-keys-camel-cased]], [[zidentity.sdk-python:form-response-camel]], [[zdx.sdk-python.response-models:multiword-attrs-lost]]."
+      "text": "{{response-keys-camel-cased}} Where a product's models then look up snake_case keys, multi-word fields come back empty unless FIELD_EXCEPTIONS yields their key: [[zcc.sdk-python.wire-keys:response-keys-camel-cased]], [[zidentity.sdk-python:form-response-camel]], [[zdx.sdk-python.response-models:multiword-attrs-lost]]."
     },
     {
       "label": "Models.",
@@ -67,9 +67,20 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_object.py",
           "quotes": [
-            "if val is None:",
-            "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val",
             "The keys are in camelCase as expected by the API."
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_object.py",
+          "after": "def as_dict(self) -> Dict[str, Any]:",
+          "quotes": [
+            "for key, val in self.request_format().items():",
+            "if val is None:\n                continue",
+            "result[to_snake_case(key)] = formatted_list",
+            "result[to_snake_case(key)] = val.as_dict()",
+            "result[to_snake_case(key)] = convert_keys_to_snake_case(val)",
+            "# Otherwise it's a simple type (string, int, etc.) else: result[to_snake_case(key)] = val"
           ]
         }
       ]
@@ -83,11 +94,27 @@
           "path": "zscaler/oneapi_response.py",
           "quotes": [
             "class ZscalerAPIResponse:",
-            "self._status = res_details.status_code if res_details and hasattr(res_details, \"status_code\") else None",
             "def get_status(self) -> Optional[int]:"
           ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def __init__(",
+          "quotes": [
+            "self._status = res_details.status_code if res_details and hasattr(res_details, \"status_code\") else None"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def get_status(self) -> Optional[int]:",
+          "quotes": [
+            "return self._status"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (one assignment): `grep -rnE '\\._status\\s*=' zscaler/ --include='*.py'` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns one line, the constructor's `self._status = res_details.status_code ...` in oneapi_response.py."
     },
     "no-status-code-attr": {
       "statement": "`ZscalerAPIResponse` defines no `status_code` attribute or property of its own, so callers read the status through `get_status()`.",

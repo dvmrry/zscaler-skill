@@ -115,6 +115,7 @@
     "downloads-raise": {
       "statement": "`download_devices`, `download_service_status` and `download_disable_reasons` return the file name they wrote, defaulting to a timestamped name, and raise an exception on any failure instead of returning an error value.",
       "tier": "A",
+      "conditions": "Absence claim (no other exit): `grep -nE '^\\s*(return|raise)\\b|^    def ' zscaler/zcc/devices.py` at v1.11.3-1-g4f8f54df shows that in each of the three functions the only `return` is `return filename`, and every other exit is a `raise`: ValueError for an invalid os_type or registration_type (download_devices and download_service_status), `raise error` for an executor error, and Exception for a failed request creation, a missing response or an unexpected content type. None of the three has a `try` outside its docstring example.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -135,6 +136,7 @@
             "raise Exception(\"Error creating request for downloading devices.\")",
             "raise error",
             "raise Exception(\"Invalid response content type or unexpected response format.\")",
+            "with open(filename, \"wb\") as f:",
             "return filename"
           ]
         },
@@ -148,6 +150,7 @@
             "raise Exception(\"Error creating request for downloading service status.\")",
             "raise error",
             "raise Exception(\"Invalid response content type or unexpected response format.\")",
+            "with open(filename, \"wb\") as f:",
             "return filename"
           ]
         },
@@ -161,6 +164,7 @@
             "raise Exception(\"Error creating request for downloading disable reasons report.\")",
             "raise error",
             "raise Exception(\"Invalid response content type or unexpected response format.\")",
+            "with open(filename, \"wb\") as f:",
             "return filename"
           ]
         }
@@ -240,6 +244,22 @@
           "after": "# ZCC can return either a single object or a list of objects",
           "quotes": [
             "self._list = [self._body]"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "quotes": [
+            "self._type = data_type"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def get_results(self) -> List[Any]:",
+          "quotes": [
+            "if self._service_type == \"zcc\" and self._type:",
+            "return [self._type(item) for item in self._list if isinstance(item, dict)]"
           ]
         }
       ]
@@ -323,7 +343,9 @@
           "path": "zscaler/zcc/admin_user.py",
           "after": "def sync_zia_zdx_admin_users(self) -> APIResult[dict]:",
           "quotes": [
-            "result.append((self.form_response_body(item)))"
+            "result = []",
+            "result.append((self.form_response_body(item)))",
+            "return (result, response, None)"
           ]
         },
         {
@@ -331,7 +353,9 @@
           "path": "zscaler/zcc/admin_user.py",
           "after": "def sync_zpa_admin_users(self) -> APIResult[dict]:",
           "quotes": [
-            "result.append((self.form_response_body(item)))"
+            "result = []",
+            "result.append((self.form_response_body(item)))",
+            "return (result, response, None)"
           ]
         },
         {
@@ -341,6 +365,14 @@
             "result[_to_camel(key)] = val"
           ],
           "after": "def form_response_body(body: Union[Dict[str, Any], List[Any], Any]) -> Union[Dict[str, Any], List[Any], Any]:"
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/api_client.py",
+          "after": "def _to_camel(key: Any) -> Any:",
+          "quotes": [
+            "return to_lower_camel_case(key)"
+          ]
         }
       ]
     },
@@ -373,7 +405,8 @@
             "result = TrustedNetworks(self.form_response_body(response.get_body()))"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `awk '/def add_trusted_network/,/def update_trusted_network/' zscaler/zcc/trusted_networks.py | grep -n \"create_request(\\|\\.execute(\\|list_by_company\\|get_trusted\\|list_trusted\"` at v1.11.3-1-g4f8f54df returns one `create_request` and one `execute` (the create); the result is then built from `response.get_body()` and returned."
     },
     "add-result-has-no-id": {
       "statement": "The recorded v1 create response carries only `conditionType` and `active`, so the object `add_trusted_network` returns has no ID or name of the new network.",

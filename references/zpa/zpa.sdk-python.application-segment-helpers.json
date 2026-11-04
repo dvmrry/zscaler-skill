@@ -74,7 +74,7 @@
   ],
   "claims": {
     "id-lists-add-update": {
-      "statement": "`add_segment` and `update_segment` turn `server_group_ids` into a `serverGroups` list with transform_common_id_fields and coerce_ids=False, so the ID strings are sent as given; since v1.11.1 this is the only mapping and `server_group_ids=None` is treated as not supplied, where up to v1.10.0 each method first built `serverGroups` in its own loop, which raised TypeError on None (#575). `clientless_app_ids` is taken out before that call: `add_segment` renames it to `clientlessApps` as given and `update_segment` pops it for a Browser Access lookup.",
+      "statement": "`add_segment` and `update_segment` turn `server_group_ids` into a `serverGroups` list with transform_common_id_fields and coerce_ids=False, so the ID strings are sent as given; since v1.11.1 this is the only mapping and `server_group_ids=None` is treated as not supplied, where up to v1.11.0 each method first built `serverGroups` in its own loop, which raised TypeError on None (#575). `clientless_app_ids` is taken out before that call: `add_segment` renames it to `clientlessApps` as given and `update_segment` pops it for a Browser Access lookup.",
       "tier": "A",
       "conditions": "Changed upstream in v1.11.1 (checked 2026-10-18): previously \"`add_segment` and `update_segment` turn `server_group_ids` and `clientless_app_ids` into `serverGroups` and `clientlessApps` lists with transform_common_id_fields and coerce_ids=False, so the ID strings are sent as given.\" The clientless_app_ids clause was also corrected: neither method lets transform_common_id_fields see that key.",
       "evidence": [
@@ -82,7 +82,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "at": [
-            "v1.10.0"
+            "v1.10.0",
+            "v1.11.0"
           ],
           "quotes": [
             "body[\"serverGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"server_group_ids\")]"
@@ -93,7 +94,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "at": [
-            "v1.10.0"
+            "v1.10.0",
+            "v1.11.0"
           ],
           "quotes": [
             "body[\"serverGroups\"] = [{\"id\": group_id} for group_id in body.pop(\"server_group_ids\")]"
@@ -120,8 +122,8 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
-            "body[\"clientlessApps\"] = body.pop(\"clientless_app_ids\")",
-            "transform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
+            "body = kwargs",
+            "if \"clientless_app_ids\" in body:\nbody[\"clientlessApps\"] = body.pop(\"clientless_app_ids\")\n\ntransform_common_id_fields(self.reformat_params, kwargs, body, coerce_ids=False)"
           ],
           "after": "def add_segment(self, **kwargs)"
         },
@@ -129,6 +131,7 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/application_segment.py",
           "quotes": [
+            "body = kwargs",
             "clientless_apps = body.pop(\"clientless_app_ids\")",
             "segments_list, _, err = app_segment_api.get_segments_by_type(application_type=\"BROWSER_ACCESS\")"
           ],

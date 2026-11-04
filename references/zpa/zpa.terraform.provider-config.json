@@ -163,12 +163,13 @@
         {
           "source": "tf-zpa",
           "path": "CHANGELOG.md",
+          "after": "## 4.4.11 (August 18, 2026)",
           "quotes": [
-            "## 4.4.11 (August 18, 2026)",
-            "the provider attribute `skip_credentials_validation` (env var `ZSCALER_SKIP_CREDENTIALS_VALIDATION`)"
+            "Added ([Issue #684](https://github.com/zscaler/terraform-provider-zpa/issues/684)) the provider attribute `skip_credentials_validation` (env var `ZSCALER_SKIP_CREDENTIALS_VALIDATION`)"
           ]
         }
-      ]
+      ],
+      "conditions": "Release check: `git show <tag>:zpa/provider.go | grep -c skip_credentials_validation` in vendor/terraform-provider-zpa returns 0 at v4.4.10 and 12 at v4.4.11."
     },
     "skip-flag-env-fallback": {
       "statement": "The provider reads the explicit skip_credentials_validation value with d.GetOk and consults ZSCALER_SKIP_CREDENTIALS_VALIDATION only when GetOk reports the value as not set.",
@@ -316,8 +317,9 @@
         {
           "source": "tf-zpa",
           "path": "zpa/provider.go",
+          "after": "\"zpa_cloud\": {",
           "quotes": [
-            "if strings.HasPrefix(v, \"https://\") {",
+            "if strings.HasPrefix(v, \"https://\") { return }",
             "return validation.StringInSlice([]string{\"PRODUCTION\", \"ZPATWO\", \"BETA\", \"GOV\", \"GOVUS\", \"PREVIEW\", \"DEV\", \"QA\", \"QA2\"}, true)(val, key)"
           ]
         }

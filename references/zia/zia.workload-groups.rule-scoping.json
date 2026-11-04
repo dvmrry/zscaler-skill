@@ -385,7 +385,7 @@
       ]
     },
     "tf-maxitems-255": {
-      "statement": "The Terraform provider's `workload_groups` schema on rules allows up to 255 items (`MaxItems`).",
+      "statement": "The Terraform provider's `workload_groups` schema allows up to 255 items (`MaxItems`) on each rule resource that declares it: URL filtering, firewall filtering, SSL inspection, DLP web and traffic capture rules.",
       "tier": "A",
       "binds": [
         "zia/url-filtering-rules",
@@ -408,8 +408,37 @@
           "quotes": [
             "\"workload_groups\": setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
           ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_firewall_filtering_rules.go",
+          "quotes": [
+            "\"workload_groups\": setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_ssl_inspection_rules.go",
+          "quotes": [
+            "\"workload_groups\": setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_dlp_web_rules.go",
+          "quotes": [
+            "\"workload_groups\": setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/resource_zia_traffic_capture_rules.go",
+          "quotes": [
+            "\"workload_groups\": setIdNameSchemaCustom(255, \"The list of preconfigured workload groups to which the policy must be applied\")"
+          ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (no other resource declares it): `grep -n '\"workload_groups\": ' zia/resource_*.go` at v4.8.17 returns exactly five schema lines, in the URL filtering, firewall filtering, SSL inspection, DLP web and traffic capture rule resources, each `setIdNameSchemaCustom(255, ...)`."
     },
     "org-limit-1024": {
       "statement": "The ZIA ranges and limitations table lists 1,024 workload group entries (the row carries no per-organization qualifier).",

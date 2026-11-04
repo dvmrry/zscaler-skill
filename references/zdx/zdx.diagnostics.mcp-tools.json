@@ -169,10 +169,43 @@
         {
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zdx/list_deep_traces.py",
+          "after": "def zdx_list_device_deep_traces(args: ListDeviceTracesInput) -> list[dict[str, Any]]:",
           "quotes": [
             "rows.extend(t.as_dict() for t in traces)",
+            "return shape_many(rows)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zdx/list_deep_traces.py",
+          "after": "def zdx_get_device_deep_trace(args: TraceInput) -> dict[str, Any]:",
+          "quotes": [
             "raw = result[0].as_dict() if result and len(result) > 0 else {}",
             "return shape_one(raw)"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/shaping/helpers.py",
+          "after": "def shape_many(",
+          "quotes": [
+            "return [shape_one(item, shaper) for item in raw_items]"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/shaping/helpers.py",
+          "after": "def shape_one(",
+          "quotes": [
+            "record = _as_record(raw)\n    if shaper is None:\n        return record"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/shaping/helpers.py",
+          "after": "def _as_record(raw: Any) -> dict[str, Any]:",
+          "quotes": [
+            "if isinstance(raw, dict):\n        return dict(raw)"
           ]
         }
       ]

@@ -83,7 +83,8 @@
           "source": "zguard-integrations",
           "path": "AWS/bedrock-agentcore/README.md",
           "quotes": [
-            "**You place the calls.** Unlike the SDK hooks, nothing is automatic beyond the tools you wrap with `guard_tool`. A leg you do not call is a leg not scanned."
+            "**You place the calls.** Unlike the SDK hooks, nothing is automatic beyond the tools you wrap with `guard_tool`. A leg you do not call is a leg not scanned.",
+            "`scan_tool_output()` before the result re-enters the model"
           ]
         }
       ]
@@ -135,7 +136,9 @@
           "source": "zguard-integrations",
           "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
           "quotes": [
+            "# Drop a receiver (self/cls) so a bound object's repr --",
             "if first in (\"self\", \"cls\"):",
+            "tool_input.pop(first, None)",
             "items = list(fn(*args, **kwargs))"
           ]
         },
@@ -240,6 +243,18 @@
             "AI Guard scans a single string",
             "else json.dumps(value, ensure_ascii=False, sort_keys=True))",
             "tool_event[\"output\"] = tool_output"
+          ]
+        },
+        {
+          "source": "zguard-integrations",
+          "path": "AWS/bedrock-agentcore/aiguard_agentcore.py",
+          "after": "def _tool_leg(self, leg, tool_name, tool_input, tool_output,",
+          "quotes": [
+            "\"metadata\": {",
+            "\"ecosystem\": TOOL_ECOSYSTEM,",
+            "\"server_name\": server_name,",
+            "\"tool_invoked\": tool_name,",
+            "\"input\": tool_input if tool_input is not None else {},"
           ]
         },
         {

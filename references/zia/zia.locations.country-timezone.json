@@ -101,7 +101,7 @@
       "conditions": "Derived from one country's prefixed values against its unprefixed neighbor; the full list was not audited."
     },
     "validators-removed": {
-      "statement": "Terraform 4.7.18 (April 17, 2026) removed `country` and `tz` validation from `zia_location_management` \"to align with recent API changes\"; the schema entries are commented out in the source, so the provider no longer rejects either value at plan time.",
+      "statement": "Terraform 4.7.18 (April 17, 2026) removed `country` and `tz` validation from `zia_location_management` \"to align with recent API changes\"; the schema entries that used the validating helpers are commented out in the source and both attributes are now plain optional strings, so the provider no longer validates either value.",
       "tier": "A",
       "evidence": [
         {
@@ -117,14 +117,33 @@
           "path": "zia/resource_zia_location_management.go",
           "quotes": [
             "// \"country\": getLocationManagementCountries(),",
-            "// \"tz\": getLocationManagementTimeZones(),"
+            "// \"tz\": getLocationManagementTimeZones(),",
+            "\"country\": { Type: schema.TypeString, Optional: true, Computed: true, Description: \"IP ports that are associated with the location.\", },",
+            "\"tz\": { Type: schema.TypeString, Optional: true, Computed: true, Description: \"Timezone of the location. If not specified, it defaults to GMT.\", },"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "after": "func getLocationManagementCountries() *schema.Schema {",
+          "quotes": [
+            "ValidateDiagFunc: validateLocationManagementCountries(),"
+          ]
+        },
+        {
+          "source": "tf-zia",
+          "path": "zia/common.go",
+          "after": "func getLocationManagementTimeZones() *schema.Schema {",
+          "quotes": [
+            "ValidateDiagFunc: validateLocationManagementTimeZones(),"
           ]
         }
       ],
       "gaps": [
         "write-form-today",
         "read-form"
-      ]
+      ],
+      "conditions": "Absence claim: `grep -rn 'getLocationManagementCountries\\|getLocationManagementTimeZones' zia/` at v4.8.17 returns the two helper definitions in common.go and the two commented-out schema lines in resource_zia_location_management.go, so no live schema entry uses the validating helpers."
     },
     "python-sdk-passes-through": {
       "statement": "The Python SDK's location model copies `tz` and `country` from its input config and into the request unchanged.",
@@ -144,12 +163,13 @@
       ]
     },
     "check-which-layer-rejects": {
-      "statement": "Before 4.7.18 a Terraform value outside the validator enum failed at plan time; from 4.7.18 a rejected write comes from the ZIA API itself.",
+      "statement": "Before 4.7.18 the provider validated `country` and `tz`, so a value outside its validator enum was rejected by the provider; from 4.7.18 the provider validates neither, so a rejected write comes from the ZIA API itself.",
       "tier": "B",
       "derived_from": [
-        "validators-removed"
+        "validators-removed",
+        "validator-enum-prefixed"
       ],
-      "conditions": "Derived from the removal of the plan-time validator; the API's error text was not captured, so which form it asks for is unknown."
+      "conditions": "Derived from the removal of the validating helpers (validators-removed) and the enum lookup in the provider's validator source (validator-enum-prefixed). That the rejection came at plan time, before any call to the API, rests on Terraform running a schema's ValidateDiagFunc while validating the configuration, which is terraform-plugin-sdk behavior no registered source states. The API's error text was not captured, so which form it asks for is unknown."
     }
   },
   "gaps": {

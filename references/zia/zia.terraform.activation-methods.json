@@ -75,6 +75,7 @@
           "path": "docs/index.md",
           "quotes": [
             "Activation is a tenant-wide operation, not a per-resource one.",
+            "A single activation call publishes every pending change in the tenant",
             "regardless of how many resources Terraform created, updated, or deleted"
           ]
         }
@@ -240,13 +241,14 @@
       "conditions": "Inferred from the activator being a separate call after the apply and the platform behavior being outside the provider's control."
     },
     "one-apply-per-tenant": {
-      "statement": "A tenant has a single configuration-change lock and a single activation queue, so plans can run in parallel (reads do not take the lock) but only one write-bearing apply should run against a tenant at a time, with CI concurrency keyed on the tenant.",
+      "statement": "A tenant has a single configuration-change lock and a single activation queue, so plans can run in parallel (reads do not take the lock) but only one apply should run against a tenant at a time, with CI concurrency keyed on the tenant.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
+            "because a ZIA tenant has a single configuration-change lock and a single activation queue regardless of how state is split",
             "**Apply one configuration at a time** against a given tenant."
           ]
         },

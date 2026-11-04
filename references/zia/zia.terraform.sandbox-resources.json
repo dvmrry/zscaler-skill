@@ -76,7 +76,8 @@
             "\"zia_sandbox_file_submission\": resourceSandboxSubmission(),"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -c Importer zia/resource_zia_sandbox_submission.go` returns 0 at v4.8.3 and at v4.8.17."
     },
     "submission-delete-state-only": {
       "statement": "Deleting `zia_sandbox_file_submission` only clears it from state, since the API has no DELETE method.",
@@ -120,8 +121,7 @@
           "source": "tf-zia",
           "path": "zia/resource_zia_sandbox_submission.go",
           "quotes": [
-            "\"submit\",",
-            "\"discan\","
+            "ValidateFunc: validation.StringInSlice([]string{ \"submit\", \"discan\", }, false),"
           ],
           "after": "\"submission_method\": {"
         },
@@ -145,7 +145,8 @@
             "Zscaler Cloud Sandbox is a subscription service and requires additional license.",
             "You can submit up to 100 files per day",
             "each file is limited to a size of 400 MB",
-            "You can get the Sandbox report 10 minutes after a file is sent for analysis."
+            "You can get the Sandbox report 10 minutes after a file is sent for analysis.",
+            "After files are sent for analysis, you must use GET /sandbox/report/{md5Hash} in order to retrieve the verdict."
           ]
         }
       ]

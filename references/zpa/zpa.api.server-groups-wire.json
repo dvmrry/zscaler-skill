@@ -359,20 +359,23 @@
           "source": "sdk-python",
           "path": "zscaler/zpa/servers.py",
           "quotes": [
+            "http_method = \"put\".upper()",
             "body = {}",
-            "body.update(kwargs)"
+            "body.update(kwargs)",
+            "request, error = self._request_executor.create_request(http_method, api_url, body, {}, params)"
           ],
           "after": "def update_server(self, server_id: str, **kwargs)"
         },
         {
           "source": "sdk-python",
           "path": "zscaler/zpa/server_groups.py",
+          "after": "def update_group(self, group_id: str, **kwargs)",
           "quotes": [
             "existing_group, _, err = self.get_group(group_id)"
           ]
         }
       ],
-      "conditions": "Whether the API treats an omitted field in a PUT as unchanged or as cleared is not established here."
+      "conditions": "Whether the API treats an omitted field in a PUT as unchanged or as cleared is not established here. Absence claim (no read first): `grep -n 'get_server(' zscaler/zpa/servers.py` at v1.11.3-1-g4f8f54df returns only get_server's definition and its docstring example, and `grep -n 'self\\.get' zscaler/zpa/servers.py` returns nothing."
     },
     "config-space-values": {
       "statement": "The API document gives configSpace on a server group and on an application server the values DEFAULT and SIEM. The Go ServerGroup type sends it only when non-empty, the Python AppServers model reads a missing configSpace as DEFAULT, and the Python ServerGroup model reads it as None.",
@@ -451,6 +454,20 @@
         },
         {
           "source": "sdk-go",
+          "path": "zscaler/zpa/services/servergroup/zpa_server_group.go",
+          "quotes": [
+            "AppConnectorGroups []appconnectorgroup.AppConnectorGroup `json:\"appConnectorGroups\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
+          "quotes": [
+            "AppServerGroup []AppServerGroup `json:\"serverGroups,omitempty\"`"
+          ]
+        },
+        {
+          "source": "sdk-go",
           "path": "zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go",
           "quotes": [
             "DynamicDiscovery bool `json:\"dynamicDiscovery,omitempty\"`",
@@ -494,7 +511,7 @@
           ]
         }
       ],
-      "conditions": "Absence in the Go type and the Python model is read from the full struct and model source at the pin (git grep -i passive over the servergroup Go package and the Python server_group model finds nothing). The server group weight set through an application segment is a separate mapping, see zpa.server-groups.multiple-on-segment."
+      "conditions": "Absence claim: `grep -in 'passive\\|weight' zscaler/zpa/services/appconnectorgroup/zpa_app_connector_group.go` at Go SDK v3.8.58 returns nothing, and `grep -in passive zscaler/zpa/models/server_group.py` at Python SDK v1.11.3-1-g4f8f54df returns nothing. The server group weight set through an application segment is a separate mapping, see zpa.server-groups.multiple-on-segment."
     },
     "extranet-dto-go-fields": {
       "statement": "The Go ExtranetDTO has locationDTO, locationGroupDTO, ziaErName and zpnErId, all tagged omitempty, and no id, ziaErId or timestamp members.",
@@ -514,9 +531,8 @@
         {
           "source": "sdk-go",
           "path": "zscaler/zpa/services/common/common.go",
-          "after": "type ExtranetDTO struct {",
           "quotes": [
-            "LocationDTO []LocationDTO `json:\"locationDTO,omitempty\"` LocationGroupDTO []LocationGroupDTO `json:\"locationGroupDTO,omitempty\"` ZiaErName string `json:\"ziaErName,omitempty\"` ZpnErID string `json:\"zpnErId,omitempty\"` }"
+            "type ExtranetDTO struct { LocationDTO []LocationDTO `json:\"locationDTO,omitempty\"` LocationGroupDTO []LocationGroupDTO `json:\"locationGroupDTO,omitempty\"` ZiaErName string `json:\"ziaErName,omitempty\"` ZpnErID string `json:\"zpnErId,omitempty\"` }"
           ]
         }
       ]

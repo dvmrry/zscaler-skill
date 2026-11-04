@@ -119,6 +119,7 @@
       "do": "Whether an SSL/TLS inspection rule for the device's platform inspects the destination, or a Do Not Inspect rule or custom exemption category matches it.",
       "uses": [
         "enable-per-platform",
+        "zia.ssl-inspection.criteria:platforms-values",
         "diag-do-not-inspect",
         "exempt-how"
       ]
@@ -155,7 +156,7 @@
       ]
     },
     "enable-per-platform": {
-      "statement": "The service must be enabled to perform SSL inspection for Client Connector users on each relevant platform, in the SSL/TLS inspection policy.",
+      "statement": "The service must be enabled to perform SSL inspection for Client Connector users on each relevant platform; the page refers to Configuring SSL/TLS Inspection Policy for more.",
       "tier": "A",
       "evidence": [
         {
@@ -224,7 +225,7 @@
       ]
     },
     "vendor-bypass-lists": {
-      "statement": "Apple recommends bypassing specific iOS URLs from SSL inspection, and Google recommends bypassing specific URLs; both publish the lists.",
+      "statement": "Apple recommends bypassing specific iOS URLs from SSL inspection, and Google recommends bypassing specific URLs from SSL inspection; the page refers readers to the Apple Support page and to Chrome Enterprise and Education Help.",
       "tier": "A",
       "evidence": [
         {
@@ -240,10 +241,11 @@
     "three-conditions": {
       "statement": "SSL inspection works without disrupting a Client Connector user only when three things line up: the forwarding profile sends the traffic to ZIA, an SSL/TLS inspection rule for the device's platform inspects it, and the device, and the application, trusts the root the service signs with.",
       "tier": "B",
-      "conditions": "Combines the forwarding, policy and certificate requirements stated separately in the sources.",
+      "conditions": "Combines the forwarding, policy and certificate requirements stated separately in the sources. That the per-platform enablement is an SSL/TLS inspection rule matching the device's platform rests on the rules' `platforms` criterion (zia.ssl-inspection.criteria:platforms-values); the Client Connector page itself only refers to Configuring SSL/TLS Inspection Policy.",
       "derived_from": [
         "zcc.forwarding-profiles:purpose",
         "enable-per-platform",
+        "zia.ssl-inspection.criteria:platforms-values",
         "zia.ssl-inspection.certificates:root-must-be-trusted"
       ]
     },

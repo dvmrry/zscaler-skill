@@ -38,7 +38,7 @@
     },
     {
       "label": "API filters.",
-      "text": "{{download-filters}} {{registration-type-codes}} The OS codes are in [[zcc.api.conventions:os-type-codes]]."
+      "text": "{{download-filters}} {{registration-type-codes}} The OS codes the contract gives for `osType` on the remove endpoints are in [[zcc.api.conventions:os-type-codes]]."
     },
     {
       "label": "Allowance.",
@@ -90,6 +90,8 @@
           "source": "zscaler-help",
           "path": "about-enrolled-devices.json",
           "quotes": [
+            "On the Device Management page (Infrastructure > Client Connector > Device Overview), you can do the following:",
+            "Export the device fingerprint as a CSV file for all enrolled devices.",
             "Device Details (All Fields): Includes fields such as manufacturer, model, username, machine hostname, UDID, etc.",
             "Disable Reasons: Displays the reasons a service was disabled up to the 5 most recent times the service was disabled.",
             "Service Status: The status of Internet & SaaS, Private Access, and Digital Experience (ZDX). Can be in an On, Off, or Error state.",
@@ -220,10 +222,21 @@
           "path": "zscaler/utils.py",
           "after": "def zcc_param_mapper(func):",
           "quotes": [
+            "query_params.get(\"start_date\") or query_params.get(\"startDate\") or body.get(\"start_date\") or body.get(\"startDate\")",
             "mapped_params[\"startDate\"] = validate_and_format_date(start_date)",
-            "mapped_params[\"Time-Zone\"] = validate_time_zone(time_zone)",
+            "end_date = query_params.get(\"end_date\") or query_params.get(\"endDate\") or body.get(\"end_date\") or body.get(\"endDate\")",
             "mapped_params[\"endDate\"] = validate_and_format_date(end_date)",
+            "query_params.get(\"time_zone\") or query_params.get(\"Time-Zone\") or body.get(\"time_zone\") or body.get(\"Time-Zone\")",
+            "mapped_params[\"Time-Zone\"] = validate_time_zone(time_zone)",
             "query_params.update(mapped_params)"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/utils.py",
+          "after": "def validate_and_format_date(date_str: str) -> str:",
+          "quotes": [
+            "return parsed_date.strftime(\"%Y-%m-%d %H:%M:%S GMT\")"
           ]
         }
       ]

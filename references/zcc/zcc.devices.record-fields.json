@@ -333,6 +333,7 @@
     "python-details-extra-keys": {
       "statement": "The Python `DeviceDetails` model reads keys that neither the details contract nor the Go struct has, among them `serialNumber`, the per-service `ziaEnabled`/`ziaHealth`/`zpaHealth`/`zdxHealth`, `zdEnabled`, `zdHealth`, `zdLastSeenTime`, `zdpEnabled`, `zdpHealth`, `zdpVersion`, `zdpLastSeenTime`, `deviceTrust`, `antiTamperingStatus`, `expectedZCCVersion`, `zccUpgradeStatus`, `deviceOtpArray` and `logFetchInfo`.",
       "tier": "A",
+      "conditions": "Absence claim (the Go half): `grep -rnIE 'json:\"(serialNumber|ziaEnabled|ziaHealth|zpaHealth|zdxHealth|zdEnabled|zdHealth|zdLastSeenTime|zdpEnabled|zdpHealth|zdpVersion|zdpLastSeenTime|deviceTrust|antiTamperingStatus|expectedZCCVersion|zccUpgradeStatus|deviceOtpArray|logFetchInfo)[\",]' zscaler/zcc` in the Go SDK at v3.8.58 returns nothing. The contract half is pinned by the `expect_absent` pointer.",
       "evidence": [
         {
           "source": "sdk-python",
@@ -408,7 +409,7 @@
     "details-extra-keys-recorded": {
       "statement": "A recorded `getDeviceDetails` response carries keys that only the Python model reads, among them `serialNumber`, `ziaEnabled`, `deviceTrust` and `logFetchInfo`, and also `lastLocationSourceUsed`, which neither SDK models.",
       "tier": "A",
-      "conditions": "Added per verifier from recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette). Absence claim: `grep -rniI \"lastLocationSourceUsed\\|last_location_source\" zscaler/zcc` in the Python SDK (at v1.11.3-1-g4f8f54df) and in the Go SDK (at v3.8.58) returned nothing, so neither models the key.",
+      "conditions": "Added per verifier from recorded data: one test tenant, recorded with SDK 1.9.13 (Python SDK cassette). Absence claim: `grep -rniI \"lastLocationSourceUsed\\|last_location_source\" zscaler/zcc` in the Python SDK (at v1.11.3-1-g4f8f54df) and in the Go SDK (at v3.8.58) returned nothing, so neither models the key. `grep -rnIE 'json:\"(serialNumber|ziaEnabled|deviceTrust|logFetchInfo)[\",]' zscaler/zcc` in the Go SDK at v3.8.58 returns nothing, so the Go `DeviceDetails` struct (which ends at `ZappArch`) carries none of the four.",
       "evidence": [
         {
           "source": "sdk-python",

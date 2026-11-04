@@ -58,7 +58,7 @@
     },
     {
       "label": "ZIA paging.",
-      "text": "The ZIA helper stops the same way, covered for URL Filtering in [[zia.url-filtering.list-pagination]]. {{zia-readallpages-extra-request}}"
+      "text": "The ZIA helper stops the same way, covered for URL Filtering in [[zia.url-filtering.list-pagination]]. {{zia-readallpages-extra-request}} {{zia-readallpages-extra-request-empty}}"
     },
     {
       "label": "ZCC forwarding profiles.",
@@ -118,7 +118,8 @@
           "path": "zscaler/zcc/services/common/common.go",
           "quotes": [
             "DefaultPageSize = 50",
-            "MaxPageSize     = 5000"
+            "MaxPageSize     = 5000",
+            "// DO NOT use this for v1 endpoints — those return a bare JSON array and the // existing ReadAllPages helper is the correct call."
           ]
         },
         {
@@ -411,7 +412,8 @@
             "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -rn 'ReadAllPagesV2\\[' zscaler/` over vendor/zscaler-sdk-go at v3.8.58, excluding _test.go files, returns the definition in zcc/services/common/common.go and three callers, trusted_network_v2, notification_template and zia_posture, each passing `common.DefaultPageSize`; `awk '/^func ReadPageV2\\[/,/^}/' zscaler/zcc/services/common/common.go | grep -c 'MaxPageSize\\|clampPageSize'` at v3.8.58 returns 0."
     },
     "zcc-skip-advances-by-requested-size": {
       "statement": "The ZCC v2 helper advances `Skip` by the page size it asked for, after a page that is neither empty, short against `Limit`, nor past `Total`. It never advances by the returned `Count` or `Limit`.",
@@ -515,9 +517,20 @@
             "HEAD"
           ],
           "quotes": [
-            "const pageSize = 1000",
+            "const pageSize = 1000"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/common/common.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T) error {",
+          "quotes": [
             "err := client.ReadResource(ctx, fmt.Sprintf(\"%s&pageSize=%d&page=%d\", endpoint, pageSize, page), &pageItems)",
-            "if len(pageItems) < pageSize {"
+            "if len(pageItems) < pageSize {\n\t\t\tbreak\n\t\t}"
           ]
         },
         {
@@ -559,7 +572,7 @@
       ]
     },
     "zia-readallpages-extra-request": {
-      "statement": "Apart from a request error, the ZIA helper ends only on a page shorter than its page size. When the last page is exactly full (the total is a multiple of the page size), it requests one more page, an extra API call that returns nothing new.",
+      "statement": "Apart from a request error, the ZIA helper ends only on a page shorter than its page size. When the last page is exactly full (the total is a multiple of the page size), it requests one more page.",
       "tier": "A",
       "evidence": [
         {
@@ -578,6 +591,14 @@
           "after": "func ReadAllPages[T any](ctx context.Context, client *zscaler.Client, endpoint string, list *[]T, customPageSize ...int) error {"
         }
       ]
+    },
+    "zia-readallpages-extra-request-empty": {
+      "statement": "That request is an extra API call that returns nothing new, presumably an empty page, which then ends the loop.",
+      "tier": "B",
+      "derived_from": [
+        "zia-readallpages-extra-request"
+      ],
+      "conditions": "Follows from zia-readallpages-extra-request: the loop appends every page it reads and stops only on a page shorter than its page size, so a full last page is followed by one more request. That this request comes back empty rests on how the ZIA API answers a page past the end, which no source in the SDK states."
     },
     "zcc-forwarding-profile-single-request": {
       "statement": "The ZCC forwarding-profile list call makes one GET to `listByCompany` with optional `page` and `pageSize` and returns that single response; it does not walk pages. The provider's Read, and its post-create and post-update lookups, call it with no page or page size.",
@@ -740,10 +761,22 @@
           ],
           "quotes": [
             "if _, parseErr := strconv.ParseInt(id, 10, 64); parseErr == nil {",
-            "resource.ImportStatePassthroughID(ctx, path.Root(\"id\"), req, resp)",
+            "resource.ImportStatePassthroughID(ctx, path.Root(\"id\"), req, resp) return }",
             "posture, err := zia_posture.GetByName(ctx, service, id)"
           ],
           "after": "func (r *ZIAPostureResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {"
+        },
+        {
+          "source": "tf-zcc",
+          "path": "internal/framework/resources/zia_posture.go",
+          "at": [
+            "v0.1.0-beta.1",
+            "HEAD"
+          ],
+          "after": "func (r *ZIAPostureResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {",
+          "quotes": [
+            "posture, err := zia_posture.Get(ctx, service, id)"
+          ]
         },
         {
           "source": "sdk-go",
@@ -755,7 +788,8 @@
           "quotes": [
             "postures, err := GetAll(ctx, service, &GetAllFilterOptions{Keyword: postureName})",
             "if strings.EqualFold(posture.Name, postureName) {",
-            "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
+            "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)",
+            "err := service.Client.Read(ctx, fmt.Sprintf(\"%s/%d\", ziaPostureEndpointV2, postureID), &ziaPosture)"
           ]
         }
       ]
@@ -799,8 +833,30 @@
             "HEAD"
           ],
           "quotes": [
-            "ziaPostureEndpointV2 = \"/zcc/papi/public/v2/zia-posture-profiles\"",
-            "postures, err := GetAll(ctx, service, &GetAllFilterOptions{Keyword: postureName})",
+            "ziaPostureEndpointV2 = \"/zcc/papi/public/v2/zia-posture-profiles\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func GetByName(ctx context.Context, service *zscaler.Service, postureName string) (*ZIAPosture, error) {",
+          "quotes": [
+            "postures, err := GetAll(ctx, service, &GetAllFilterOptions{Keyword: postureName})"
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zcc/services/zia_posture/zia_posture.go",
+          "at": [
+            "v3.8.37",
+            "HEAD"
+          ],
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service, opts *GetAllFilterOptions) ([]ZIAPosture, error) {",
+          "quotes": [
             "return common.ReadAllPagesV2[ZIAPosture](ctx, service.Client, ziaPostureEndpointV2, params, common.DefaultPageSize)"
           ]
         }

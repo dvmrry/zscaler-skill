@@ -99,9 +99,13 @@
   ],
   "checks": [
     {
-      "do": "Which toggle's wording matches the user's symptom, and whether that toggle is set to Block.",
+      "do": "Which toggle within the groups matches the user's symptom, and whether that toggle is set to Block.",
       "uses": [
-        "groups"
+        "groups",
+        "active-content",
+        "fraud",
+        "unauthorized-communication",
+        "xss"
       ]
     },
     {
@@ -114,13 +118,15 @@
   ],
   "claims": {
     "groups": {
-      "statement": "The Advanced Threats Policy tab has ten groups of toggles: Suspicious Content Protection (Page Risk), Botnet Protection, Malicious Active Content Protection, Fraud Protection, Unauthorized Communication Protection, Cross-Site Scripting (XSS) Protection, Suspicious Destinations Protection, P2P File Sharing Protection, P2P Anonymizer Protection and P2P VoIP Protection.",
+      "statement": "The Advanced Threats Policy tab lists ten groups of advanced threats to configure: Suspicious Content Protection (Page Risk), Botnet Protection, Malicious Active Content Protection, Fraud Protection, Unauthorized Communication Protection, Cross-Site Scripting (XSS) Protection, Suspicious Destinations Protection, P2P File Sharing Protection, P2P Anonymizer Protection and P2P VoIP Protection.",
       "tier": "A",
+      "conditions": "Narrowed per review: not every group is a set of toggles (Page Risk is a slider). Absence claim (no other group): `jq -r '.blocks[] | select(.item? and .depth==0 and (.item|test(\"[.:]\")|not)) | .item' configuring-advanced-threat-protection-policy.json` returns exactly these ten names; every other top-level item of the page is a sentence (an introduction, a note or a setting).",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "configuring-advanced-threat-protection-policy.json",
           "quotes": [
+            "On the Advanced Threats Policy tab, configure the following advanced threats:",
             "Suspicious Content Protection (Page RiskTM) - Set the slider",
             "Botnet Protection - Botnets are systems in which attackers",
             "Malicious Active Content Protection - The Zscaler service blocks access",
@@ -138,6 +144,7 @@
     "active-content": {
       "statement": "Malicious Active Content Protection has four Allow or Block toggles (Malicious Content & Sites for exploit kits, compromised websites and malicious advertising; Vulnerable ActiveX Controls; Browser Exploits; File Format Vulnerabilities for Office and PDF content) plus the Blocked Malicious URLs list.",
       "tier": "A",
+      "conditions": "Absence claim (no other toggle in the group): `jq -r --arg a 'Malicious Active Content Protection' --arg b 'Fraud Protection' '.blocks | (map(.item) | index($a)) as $i | (map(.item) | index($b)) as $j | .[$i+1:$j][] | .item' configuring-advanced-threat-protection-policy.json` returns six items: the group's introduction (\"The Zscaler service blocks access to websites ...\"), the four quoted \"Choose to Allow or Block\" items and Blocked Malicious URLs.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -202,6 +209,7 @@
     "unauthorized-communication": {
       "statement": "Unauthorized Communication Protection has four toggles: IRC Tunneling and SSH Tunneling (each tunneled over HTTP/S), Anonymizers, and WPAD Protocol, which covers use of the Web Proxy Auto-Discovery protocol from external sources.",
       "tier": "A",
+      "conditions": "Absence claim (no other toggle in the group): `jq -r --arg a 'Unauthorized Communication Protection' --arg b 'Cross-Site Scripting (XSS) Protection' '.blocks | (map(.item) | index($a)) as $i | (map(.item) | index($b)) as $j | .[$i+1:$j][] | .item' configuring-advanced-threat-protection-policy.json` returns five items: the group's introduction (\"Unauthorized communications refer to ...\") and the four quoted toggles, IRC Tunneling, SSH Tunneling, Anonymizers and WPAD Protocol.",
       "evidence": [
         {
           "source": "zscaler-help",
@@ -218,6 +226,7 @@
     "xss": {
       "statement": "XSS protection has two toggles: Cookie Stealing, for third-party sites that gather cookie information (often IPS signature-based and so high fidelity), and Potentially Malicious Requests, a type of cross-site scripting request.",
       "tier": "A",
+      "conditions": "Absence claim (no other toggle in the group): `jq -r --arg a 'Cross-Site Scripting (XSS) Protection' --arg b 'Suspicious Destinations Protection' '.blocks | (map(.item) | index($a)) as $i | (map(.item) | index($b)) as $j | .[$i+1:$j][] | .item' configuring-advanced-threat-protection-policy.json` returns three items: the group's introduction (ending \"XSS includes the following:\"), Cookie Stealing and Potentially Malicious Requests.",
       "evidence": [
         {
           "source": "zscaler-help",

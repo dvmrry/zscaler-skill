@@ -77,6 +77,7 @@
           "path": "zscaler/utils.py",
           "after": "def zdx_params(func):",
           "quotes": [
+            "# First, process shorthand parameters passed directly as keyword args.",
             "(\"since\", (\"from\", \"to\")),",
             "(\"search\", \"q\"),",
             "(\"location_id\", \"loc\"),",
@@ -89,7 +90,12 @@
             "(\"limit\", \"limit\"),  # New: int",
             "(\"offset\", \"offset\"),  # New: str (API-defined pagination)",
             "(\"expiry\", \"expiry\"),  # New: int",
-            "# Then, process shorthand parameters if provided within query_params itself."
+            "# Then, process shorthand parameters if provided within query_params itself.",
+            "value = query_params.pop(\"since\")",
+            "query_params[\"q\"] = query_params.pop(\"search\")",
+            "query_params[\"loc\"] = query_params.pop(\"location_id\")",
+            "query_params[\"dept\"] = query_params.pop(\"department_id\")",
+            "query_params[\"geo\"] = query_params.pop(\"geo_id\")"
           ]
         }
       ]

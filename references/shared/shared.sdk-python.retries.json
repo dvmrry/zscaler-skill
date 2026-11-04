@@ -74,9 +74,13 @@
           "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
+            "retry_limit_reset_header = (\n            headers.get(\"x-ratelimit-reset\")",
+            "retry_after = headers.get(\"Retry-After\") or headers.get(\"retry-after\")",
             "backoff = int(retry_after.strip(\"s\")) + 1",
+            "elif retry_limit_reset_header is not None:",
             "backoff = float(retry_limit_reset_header) + 1",
-            "return None, response, response.text, Exception(ERROR_MESSAGE_429_MISSING_DATE_X_RESET)"
+            "logger.error(\"Missing Retry-After and X-Rate-Limit-Reset headers.\")\n            return None",
+            "if backoff_seconds is None:\n                return None, response, response.text, Exception(ERROR_MESSAGE_429_MISSING_DATE_X_RESET)"
           ]
         }
       ]

@@ -211,14 +211,15 @@
       ]
     },
     "retry-after-transparent": {
-      "statement": "When ZIA answers HTTP 429, the provider waits the interval in the `Retry-After` header and retries the request transparently, so exceeding a rate limit costs a delay rather than a failed apply.",
+      "statement": "When ZIA answers HTTP 429, the provider waits the interval in the `Retry-After` header and retries the request transparently, so exceeding a rate limit costs a short delay rather than a failed apply.",
       "tier": "A",
       "evidence": [
         {
           "source": "tf-zia",
           "path": "docs/index.md",
           "quotes": [
-            "the provider waits the indicated interval and retries the request transparently"
+            "the provider waits the indicated interval and retries the request transparently",
+            "Exceeding a rate limit therefore costs a short delay rather than a failed apply, including on large bulk deployments."
           ]
         },
         {
@@ -338,7 +339,7 @@
       ]
     },
     "issue-598-put-bypassed-legacy-client": {
-      "statement": "Provider issue #598 reported that on v4.8.3 with ZSCALER_USE_LEGACY_CLIENT=true, `zia_url_filtering_and_cloud_app_settings` read through the legacy client but sent its PUT to the OneAPI host, which answered 401, because the resource called `service.Client.ExecuteRequest` directly instead of a method that checks `UseLegacyClient`. A repository member closed it as completed, asking the reporter to upgrade to v4.8.5 and saying the problem was largely due to upstream API changes; the reporter replied that they would test it the next morning.",
+      "statement": "Provider issue #598 reported that on v4.8.3 with ZSCALER_USE_LEGACY_CLIENT=true, `zia_url_filtering_and_cloud_app_settings` read through the legacy client but sent its PUT to the OneAPI host, which answered 401, because the resource called `service.Client.ExecuteRequest` directly instead of a method that checks `UseLegacyClient`. It was closed as completed on 2026-08-06; on 2026-08-07 a repository member's comment asked for an upgrade to the latest minor release, v4.8.5, saying the issue was largely due to upstream API changes, and a non-member replied that they would test in the morning.",
       "tier": "A",
       "evidence": [
         {
@@ -353,6 +354,7 @@
             "# zia_url_filtering_and_cloud_app_settings bypasses legacy client for PUT and returns 401",
             "This appears to be caused by the resource calling service.Client.ExecuteRequest(...) directly for its full-payload PUT:",
             "When ZSCALER_USE_LEGACY_CLIENT=true, both the GET and PUT requests should be routed through the legacy ZIA client.",
+            "Comment (NONE, 2026-08-07)",
             "Will do. I will test in the morning and I appreciate the help."
           ]
         },

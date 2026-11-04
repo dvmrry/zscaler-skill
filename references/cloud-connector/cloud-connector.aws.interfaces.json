@@ -103,7 +103,7 @@
       ]
     },
     "module-size-gating": {
-      "statement": "The reference CCVM module always creates interfaces at device indexes 0 and 1, creates indexes 2, 3 and 4 whenever `cc_instance_size` is not small, and creates index 5 only when it is large.",
+      "statement": "The reference CCVM module creates interfaces at device indexes 0 and 1 for every Cloud Connector whatever `cc_instance_size` is, indexes 2, 3 and 4 when `cc_instance_size` is not small, and index 5 only when it is large; all of these counts are also gated by `local.valid_cc_create`.",
       "tier": "A",
       "evidence": [
         {
@@ -226,6 +226,7 @@
         {
           "source": "tfmod-aws-cloud-connector",
           "path": "modules/terraform-zscc-asg-aws/main.tf",
+          "after": "resource \"aws_launch_template\" \"cc_launch_template\" {",
           "quotes": [
             "description = \"cc next hop forwarding interface\" device_index = 0",
             "description = \"cc management interface\" device_index = 1",

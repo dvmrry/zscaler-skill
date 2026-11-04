@@ -107,7 +107,7 @@
   ],
   "claims": {
     "update-admin-user-zero-result": {
-      "statement": "`UpdateAdminUser` in the ZTW package passes the admin user by value to the PUT helper, which builds its response object with `reflect.New` (a pointer), then asserts the response to the value type `AdminUsers`. The assertion fails, its failure is discarded, and the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever the server returned.",
+      "statement": "`UpdateAdminUser` in the ZTW package passes the admin user by value to the PUT helper, which builds its response object with `reflect.New` (a pointer), then asserts the response to the value type `AdminUsers`. The assertion fails, its failure is discarded, and whenever the PUT succeeds the function returns a pointer to a zero-value `AdminUsers` with a nil error, whatever body the server returned.",
       "tier": "A",
       "evidence": [
         {
@@ -378,7 +378,7 @@
           ]
         }
       ],
-      "conditions": "This is the ZTW instance of the routing defect described for ZCC in [[zcc.sdk-go.legacy-routing]]. Search: `git -C vendor/zscaler-sdk-go grep -n -E 'Client\\.(Read|Create|UpdateWithPut|Update|Delete)\\(' v3.8.40 -- zscaler/ztw` lists these call sites; the `...Resource` methods used by the other ZTW services were not listed. The list is not claimed to be exhaustive for the generic slice-payload and raw-payload methods.",
+      "conditions": "This is the ZTW instance of the routing defect described for ZCC in [[zcc.sdk-go.legacy-routing]]. Search: `git -C vendor/zscaler-sdk-go grep -n -E '[cC]lient\\.(Read|Create|UpdateWithPut|Update|Delete)\\(' v3.8.40 -- zscaler/ztw` returns 9 call sites, the same at v3.8.58: activation.go 1 (Read), provisioning_url.go 3 (Create, UpdateWithPut, Delete), workload_groups.go 4 (Read, Create, UpdateWithPut, Delete) and common.go 1 (`client.Read` in ReadPage), and `git grep 'common.ReadPage('` finds only zparesources.go; the `...Resource` methods used by the other ZTW services were not listed. The list is not claimed to be exhaustive for the generic slice-payload and raw-payload methods.",
       "upstream": [
         {
           "status": "unfiled",
@@ -462,7 +462,7 @@
       ]
     },
     "ztw-update-deref-after-ignored-assertion": {
-      "statement": "`forwarding_rules.Update` ignores the result of its type assertion and then reads the rule's ID. The shared update helper returns a nil result with a nil error for an empty reply body, so if the API answers the PUT with an empty body (for example 204 No Content) the call panics with a nil pointer dereference instead of returning an error.",
+      "statement": "`forwarding_rules.Update` ignores the result of its type assertion and then reads the rule's ID. On the OneAPI client the shared update helper returns a nil result with a nil error for an empty reply body, so if the API answers the PUT with an empty body (for example 204 No Content) the call panics with a nil pointer dereference instead of returning an error.",
       "tier": "A",
       "gaps": [
         "ztw-update-empty-reply"
@@ -772,9 +772,8 @@
             "HEAD"
           ],
           "quotes": [
-            "// Identifier that uniquely identifies an entity CloudProvider string `json:\"cloudProvider,omitempty\"` // Cloud meta information. CloudMeta CloudMeta `json:\"cloudMeta,omitempty\"` }"
-          ],
-          "after": "type VPCInfo struct {"
+            "type VPCInfo struct { // Identifier that uniquely identifies an entity CloudProvider string `json:\"cloudProvider,omitempty\"` // Cloud meta information. CloudMeta CloudMeta `json:\"cloudMeta,omitempty\"` }"
+          ]
         },
         {
           "source": "sdk-go",
@@ -784,9 +783,8 @@
             "HEAD"
           ],
           "quotes": [
-            "// Cloud meta identifier. Always set to \"1\". ID int `json:\"id,omitempty\"` // VPC/Vnet name. Name string `json:\"name,omitempty\"` }"
-          ],
-          "after": "type CloudMeta struct {"
+            "type CloudMeta struct { // Cloud meta identifier. Always set to \"1\". ID int `json:\"id,omitempty\"` // VPC/Vnet name. Name string `json:\"name,omitempty\"` }"
+          ]
         }
       ],
       "upstream": [

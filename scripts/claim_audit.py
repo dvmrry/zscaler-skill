@@ -8,7 +8,8 @@ flags it with high confidence, `borderline` when the only flags are low-confiden
 `covered`. On the 282-claim calibration set beside the rubric (2026-10-31): 1 of 176 overreach verdicts was wrong,
 1 of 191 overreach claims came out covered, and 32 claims were borderline, about half of them real. Between two full
 runs (2026-11-03) the verdict on an unchanged claim agreed 90% of the time, and only 69% of borderline claims stayed
-borderline: one run's flags are noisy, and a claim flagged in two runs is the one to act on first. Each quote is
+borderline, so one run's verdicts vary. A flag is still usually real: an Opus review of the 1,259 claims either run
+flagged found 97% of those flagged in both runs, and 88% of those flagged in one, needed a change. Each quote is
 shown with the headings or enclosing function above it, as a reader of the source would see it.
 
 Verdicts are kept in references/_meta/claim-audit.json, keyed by a hash of the statement and evidence, so a claim
@@ -445,7 +446,7 @@ def review(base: str | None, verdicts: tuple[str, ...]) -> str:
     if stale:
         out += [f"{stale} claim(s) changed since their audit have no current verdict: run the audit on them first.", ""]
     out += ["Each part in **bold** is one the audit's judges found no quote stating (borderline: only low-confidence flags,",
-            "about half of them real). Decide each: fine as written, narrow the statement, or add the quote that states it.", ""]
+            "most of them real). Decide each: fine as written, narrow the statement, or add the quote that states it.", ""]
     for cid, c, v, file in flagged:
         out += [f"### `{cid}` ({v['verdict']})", f"`{file}`", "", f"> {marked(c, v)}", ""]
         missing = [p for p in v.get("uncovered", []) if p not in c["statement"]]
@@ -495,7 +496,7 @@ def checklists(verdicts: tuple[str, ...], out: Path, sha: str | None = None, rep
     out.mkdir(parents=True, exist_ok=True)
     head = ("Each claim below was flagged by the claim audit: a part of its statement, in **bold** where it can be marked, "
             "that its judges did not find any quote stating. Borderline claims (unmarked) had only low-confidence flags, "
-            "about half of them real; *(overreach)* claims had a confident one. Each link opens the claim in "
+            "most of them real; *(overreach)* claims had a confident one. Each link opens the claim in "
             "its subject file, with its `evidence` quotes and any `conditions` just below; the rule is "
             f"[the audit rubric]({repo}/blob/{sha}/references/_meta/evals/claim-audit/rubric.md): every material part "
             "of the statement must be stated by a quote (an absence may rest on the search its conditions record). "

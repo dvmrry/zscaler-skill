@@ -541,11 +541,74 @@
         },
         {
           "source": "sdk-python",
+          "path": "zscaler/zia/ssl_inspection_rules.py",
+          "after": "def add_rule(",
+          "quotes": [
+            "road_warrior_for_kerberos (bool): The rule is applied to remote users that use PAC with Kerberos authentication.",
+            "body = kwargs"
+          ]
+        },
+        {
+          "source": "sdk-python",
           "path": "zscaler/request_executor.py",
           "quotes": [
             "body = convert_keys_to_camel_case(body)"
           ],
           "after": "# Preserve existing logic for other services"
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/post/requestBody/content/application~1json/schema/properties/action/properties",
+          "expect": {
+            "showEUN": {
+              "type": "boolean"
+            },
+            "showEUNATP": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/post/requestBody/content/application~1json/schema/properties/action/properties/decryptSubActions/properties",
+          "expect": {
+            "minClientTLSVersion": {
+              "enum": [
+                "CLIENT_TLS_1_0",
+                "CLIENT_TLS_1_1",
+                "CLIENT_TLS_1_2",
+                "CLIENT_TLS_1_3"
+              ],
+              "type": "string"
+            },
+            "minServerTLSVersion": {
+              "enum": [
+                "SERVER_TLS_1_0",
+                "SERVER_TLS_1_1",
+                "SERVER_TLS_1_2",
+                "SERVER_TLS_1_3"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        {
+          "source": "api-specs",
+          "path": "automate-zscaler/openapi/zia.openapi.json",
+          "pointer": "/paths/~1sslInspectionRules/post/requestBody/content/application~1json/schema/properties/action/properties/doNotDecryptSubActions/properties",
+          "expect": {
+            "minTLSVersion": {
+              "enum": [
+                "SERVER_TLS_1_0",
+                "SERVER_TLS_1_1",
+                "SERVER_TLS_1_2",
+                "SERVER_TLS_1_3"
+              ],
+              "type": "string"
+            }
+          }
         }
       ]
     },
@@ -642,7 +705,8 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/shaping/helpers.py",
           "quotes": [
-            "Nothing is dropped; the shaper can only ADD to or NORMALIZE the record,"
+            "Nothing is dropped; the shaper can only ADD to or NORMALIZE the record,",
+            "Shape a list, preserving every attribute of every record."
           ]
         },
         {
@@ -657,8 +721,17 @@
           "source": "sdk-python",
           "path": "zscaler/zia/models/ssl_inspection_rules.py",
           "quotes": [
-            "\"action\": self.action,",
-            "\"decryptSubActions\": (self.decrypt_sub_actions.request_format() if self.decrypt_sub_actions else None),"
+            "self.action = Action(config[\"action\"])",
+            "\"action\": self.action,"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/zia/models/ssl_inspection_rules.py",
+          "after": "class Action(ZscalerObject):",
+          "quotes": [
+            "\"decryptSubActions\": (self.decrypt_sub_actions.request_format() if self.decrypt_sub_actions else None),",
+            "\"doNotDecryptSubActions\": ("
           ]
         }
       ]
@@ -684,7 +757,7 @@
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/ssl_inspection.py",
           "quotes": [
-            "server-side search nor pagination, so the tool takes no filtering arguments."
+            "The ZIA SSL Inspection rules API returns a flat list — it exposes neither a server-side search nor pagination, so the tool takes no filtering arguments."
           ]
         },
         {

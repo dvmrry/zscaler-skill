@@ -132,11 +132,18 @@
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
           "quotes": [
-            "self._limit = self.validate_page_size(raw_page_size, service_type)",
             "validated_size = min(max(int(page_size), min_page_size), max_page_size)",
             "\"zcc\": {\"default\": 50, \"max\": 5000, \"min\": 1},",
             "def validate_page_size(self, page_size: Optional[int], service_type: str) -> Optional[int]:",
             "limits = self.SERVICE_PAGE_LIMITS.get(service_type, {}) max_page_size = limits.get(\"max\", 100) min_page_size = limits.get(\"min\", 1) validated_size = min(max(int(page_size), min_page_size), max_page_size) logger.debug(\"Validated page size: %d (user provided: %s)\", validated_size, page_size) return validated_size"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
+          "after": "def __init__(",
+          "quotes": [
+            "self._limit = self.validate_page_size(raw_page_size, service_type)"
           ]
         },
         {
@@ -162,8 +169,7 @@
           "path": "zscaler/request_executor.py",
           "after": "response_data = convert_keys_to_snake_case(response_data)",
           "quotes": [
-            "res_details=response,",
-            "response_body=response_body,"
+            "ZscalerAPIResponse( request_executor=self, req=request, res_details=response, response_body=response_body,"
           ]
         },
         {
@@ -195,7 +201,8 @@
             "self._params[\"page\"] = self._page"
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim: `grep -n '\\[\"pageSize\"\\]\\|\\[\"pagesize\"\\]\\|\\[\"page_size\"\\]\\|\\[\"limit\"\\]\\|\\[\"size\"\\]' zscaler/oneapi_response.py zscaler/request_executor.py` at v1.11.3-1-g4f8f54df returns four writes: in oneapi_response.py the ZIA `page_size` normalization and the ZIA next-page branch, in request_executor.py two in the ZPA branch of `_prepare_params`. None reaches ZCC, whose next page takes the \"ZPA/other\" branch that sets only `page`; `grep -rn 'page_size\\|pageSize\\|pagesize' zscaler/zcc/*.py` returns only docstring lines."
     },
     "zero-page-size": {
       "statement": "An explicit `page_size` of 0 is sent as `pageSize=0`, but the response object reads its limit with an `or` chain, so it treats 0 as no size given and pages as if the size were omitted.",
@@ -317,8 +324,17 @@
         {
           "source": "sdk-python",
           "path": "zscaler/oneapi_response.py",
+          "after": "def _has_next(self) -> bool:",
+          "quotes": [
+            "# For ZIA/ZCC with paginated responses (dict with \"list\" field):"
+          ]
+        },
+        {
+          "source": "sdk-python",
+          "path": "zscaler/oneapi_response.py",
           "after": "if self._pages_fetched == 1:",
           "quotes": [
+            "# First page - continue if we got any results",
             "has_next = bool(self._list)"
           ]
         },

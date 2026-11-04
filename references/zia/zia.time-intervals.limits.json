@@ -77,13 +77,14 @@
       ]
     },
     "times-per-rule-table": {
-      "statement": "The same table lists \"Times per Rule\" as 8 times on any policy.",
+      "statement": "The same table lists \"Times per Rule\" as 8 times, in its \"All Policy Rule Types\" group.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "ranges-limitations-zia.json",
           "quotes": [
+            "All Policy Rule Types:",
             "| Times per Rule | 8 times |"
           ]
         }
@@ -119,8 +120,16 @@
         {
           "source": "mcp-server",
           "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "after": "def zia_create_time_interval(args: CreateInput) -> dict[str, Any]:",
           "quotes": [
-            "name=args.name,"
+            "client = get_zscaler_client(service=\"zia\") interval, _, err = client.zia.time_intervals.add_time_intervals( name=args.name,"
+          ]
+        },
+        {
+          "source": "mcp-server",
+          "path": "src/zscaler_mcp/tools/zia/time_intervals.py",
+          "quotes": [
+            "class CreateInput(BaseModel): name: Annotated[str, Field(description=\"Interval name (ASCII letters/spaces only).\")]"
           ]
         }
       ]

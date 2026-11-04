@@ -232,9 +232,24 @@
       "derived_from": [
         "forwarding-resource-sends-no-type",
         "structs-differ",
+        "shared.sdk-go.zero-value-writes:ztw-writes-marshal-caller-struct",
         "shared.sdk-go.zero-value-writes:omitempty-drops-zero-values"
       ],
-      "conditions": "Follows from Go's encoding/json omitempty handling of empty strings; not run against the API."
+      "conditions": "Follows from the `dns_forwarding_gateway` package sending the struct through `CreateResource` on create and `UpdateWithPutResource` on update (quoted), which marshal the caller's struct (ztw-writes-marshal-caller-struct), and from Go's encoding/json omitempty handling of empty strings: both fields are plain strings, and the package defines no MarshalJSON. Not run against the API.",
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway/dns_forwarding_gateway.go",
+          "at": [
+            "v3.8.40",
+            "HEAD"
+          ],
+          "quotes": [
+            "resp, err := service.Client.CreateResource(ctx, dnsGatewayEndpoint, *rules)",
+            "resp, err := service.Client.UpdateWithPutResource(ctx, fmt.Sprintf(\"%s/%d\", dnsGatewayEndpoint, ruleID), *rules)"
+          ]
+        }
+      ]
     },
     "console-one-choice-per-slot": {
       "statement": "In the console each of the Primary DNS Server and Secondary DNS Server settings is one drop-down choice: a custom DNS server (an IPv4 address) or a LAN primary or secondary DNS server reference.",
@@ -256,6 +271,16 @@
             "Custom DNS Server: Enter an IP address of your choice. Zscaler only supports IPv4 addresses.",
             "LAN Primary DNS Server: Select the local area network (LAN) primary DNS server",
             "LAN Secondary DNS Server: Select the LAN secondary DNS server"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "cbc-configuring-dns-gateway.json",
+          "after": "Secondary DNS Server: From the drop-down menu, select a secondary DNS server:",
+          "quotes": [
+            "Custom DNS Server: Enter an IP address of your choice. Zscaler only supports IPv4 addresses.",
+            "LAN Primary DNS Server: Select the LAN primary DNS server to reference the secondary LAN DNS server",
+            "LAN Secondary DNS Server: Select the LAN secondary DNS server to reference the secondary LAN DNS server"
           ]
         }
       ]

@@ -126,11 +126,13 @@
     "scan-states": {
       "statement": "A scan shows one of three states: Scan Initialized (prerequisites verified), Running (initialization completed successfully, with the start time shown) and Scan Stopped (with the stop time and the reason shown).",
       "tier": "A",
+      "conditions": "Tally over the capture: `jq -r '.blocks | (map(.item) | index(\"Status: Displays the status of each scan.\")) as $i | .[$i:$i+5][] | \"\\(.depth) \\(.item)\"' about-saas-security-scan-configuration.json` shows the Status item at depth 1, exactly the three quoted states at depth 2 under it, and then the next field, Actions, at depth 1.",
       "evidence": [
         {
           "source": "zscaler-help",
           "path": "about-saas-security-scan-configuration.json",
           "quotes": [
+            "Status: Displays the status of each scan.",
             "Scan Initialized: When a scan is initialized, the necessary prerequisites for the scan are verified and evaluated to ensure readiness.",
             "Running: A scan starts running when the initialization is completed successfully. When the scan is running, the date and time the scan started are also displayed.",
             "Scan Stopped: When a scan stops, the date and time the scan stopped, and the reason are also displayed."
@@ -211,6 +213,7 @@
           "path": "understanding-saas-security-scan-schedules.json",
           "quotes": [
             "If you add a new policy rule or edit an existing policy rule while the scan is on, the scan uses this new date to determine how much data is considered active or historic.",
+            "On July 1, 2021, you add a new rule to the scan. All files created or modified after July 1, 2021 are active data files.",
             "Deleting a policy rule does not change the date the scan uses for active and historical data.",
             "The new or edited rule does not apply to the content that the scan already processed, and therefore this content is considered historical data."
           ]

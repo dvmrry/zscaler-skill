@@ -208,7 +208,7 @@
       ]
     },
     "main-update-builds-from-state": {
-      "statement": "The main application segment update builds its whole request from Terraform arguments. It reads the existing segment only to detect that it is gone, and ignores any other error from that read, discards the result, and sends the rebuilt struct as the PUT body. The SDK's `Update` sends the struct it is given and merges nothing.",
+      "statement": "The main application segment update builds its request from Terraform arguments: its expander reads the existing segment, but uses that segment's TCP and UDP port ranges only to choose between the two configured port-range forms. The update then reads the segment again only to detect that it is gone, ignores any other error from that read, discards the result, and sends the rebuilt struct as the PUT body. The SDK's `Update` sends the struct it is given and merges nothing.",
       "tier": "A",
       "evidence": [
         {
@@ -224,6 +224,22 @@
             "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil {",
             "if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {",
             "if _, _, err := applicationsegment.Get(ctx, service, id); err != nil { if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() { d.SetId(\"\") return nil } } if _, err := applicationsegment.Update(ctx, service, id, req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func expandApplicationSegmentRequest(",
+          "quotes": [
+            "resource, _, err := applicationsegment.Get(ctx, service, id)",
+            "remoteTCPAppPortRanges = resource.TCPPortRanges",
+            "remoteUDPAppPortRanges = resource.UDPPortRanges",
+            "if isSameSlice(TCPAppPortRange, TCPAppPortRanges) || isSameSlice(TCPAppPortRange, remoteTCPAppPortRanges) {",
+            "if isSameSlice(UDPAppPortRange, UDPAppPortRanges) || isSameSlice(UDPAppPortRange, remoteUDPAppPortRanges) {"
           ]
         },
         {
@@ -529,20 +545,27 @@
           ],
           "after": "func expandSRAApplicationSegment(",
           "quotes": [
-            "if _, found := currentHCLDomains[domain]; found {",
-            "ApplicationPort: pra.ApplicationPort,",
-            "ConnectionSecurity: pra.ConnectionSecurity,",
+            "if existing != nil {",
+            "if _, found := currentHCLDomains[domain]; found { app := applicationsegmentpra.AppsConfig{ AppID: pra.AppID, PRAAppID: pra.ID, Name: pra.Name, Enabled: pra.Enabled, AppTypes: []string{\"SECURE_REMOTE_ACCESS\"}, ApplicationPort: pra.ApplicationPort,",
+            "ApplicationPort: pra.ApplicationPort, ApplicationProtocol: pra.ApplicationProtocol, ConnectionSecurity: pra.ConnectionSecurity, Domain: pra.Domain, Description: pra.Description, } fullAppsConfig = append(fullAppsConfig, app) } else {",
             "if _, exists := existingDomains[app.Domain]; !exists {",
             "existingDomains[pra.Domain] = pra",
             "for _, app := range hclDefinedDto.AppsConfig { currentHCLDomains[app.Domain] = struct{}{} }",
-            "Name: pra.Name,",
-            "Enabled: pra.Enabled,",
-            "ApplicationProtocol: pra.ApplicationProtocol,",
-            "Domain: pra.Domain,",
-            "Description: pra.Description,",
-            "fullAppsConfig = append(fullAppsConfig, app) } else {",
             "if _, exists := existingDomains[app.Domain]; !exists { fullAppsConfig = append(fullAppsConfig, app) }",
             "details.CommonAppsDto.AppsConfig = fullAppsConfig"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_application_segment_pra.go",
+          "at": [
+            "v4.4.10",
+            "HEAD"
+          ],
+          "after": "func resourceApplicationSegmentPRAUpdate(",
+          "quotes": [
+            "req := expandSRAApplicationSegment(ctx, d, zClient, id, resp)",
+            "_, err = applicationsegmentpra.Update(ctx, service, id, &req)"
           ]
         }
       ],
@@ -725,7 +748,8 @@
           "status": "unfiled",
           "note": "Filing 11 (ZPA application segments) of the 2026-08 provider audit."
         }
-      ]
+      ],
+      "conditions": "Absence claim: `sed -n '/^func resourceApplicationSegmentCreate(/,/^}/p' zpa/resource_zpa_application_segment.go | grep -n 'defer\\|Delete'`, and the same for resourceApplicationSegmentUpdate, in vendor/terraform-provider-zpa return nothing at v4.4.10 and v4.4.16: neither function defers or calls a delete or revert."
     },
     "association-block-first-only": {
       "statement": "The helper that turns the `server_groups` argument into a request indexes only the first block (`blocks[0]`) and builds its server groups from the `id` set in that block; it returns only a slice, no error. The schema declares `server_groups` as an optional list with no item limit before its element.",
@@ -1181,7 +1205,8 @@
             "return diag.FromErr(fmt.Errorf(\"error updating application segment: %v\", err)) } return resourceApplicationSegmentPRARead(ctx, d, meta)"
           ]
         }
-      ]
+      ],
+      "conditions": "At v4.4.10 and v4.4.16, `awk '/^func resourceApplicationSegmentPRAUpdate\\(/,/^}/' zpa/resource_zpa_application_segment_pra.go | grep -n -E '==|!=|Equal|reflect|len\\(|HasChange'` returns only `microTenantID != \"\"` and four `err != nil` checks (the Get, setAppIDsInCommonAppsDto, validateAppPorts and the Update); nothing compares the configured nested apps with what was sent."
     },
     "server-groups-flatten-single-block": {
       "statement": "On read, the provider turns the server groups the API returns for a segment into one `server_groups` block whose `id` is a set of the non-empty group IDs, and into nothing when none has an ID; the base, Browser Access, PRA and Inspection segment resources all set `server_groups` this way.",
@@ -1222,13 +1247,13 @@
           "source": "tf-zpa",
           "path": "zpa/resource_zpa_application_segment_browser_access.go",
           "quotes": [
-            "flattenCommonAppServerGroupSimple(resp.AppServerGroups)"
+            "if err := d.Set(\"server_groups\", flattenCommonAppServerGroupSimple(resp.AppServerGroups)); err != nil {"
           ]
         }
       ]
     },
     "segment-group-membership-check": {
-      "statement": "The segment group resource's Read sets applications to the IDs of the applications the API returns for the group. Before v4.4.14 an update sent the configured applications list through UpdateV2. From v4.4.14 the argument is deprecated, the docs say to manage membership with segment_group_id on zpa_application_segment, and on an existing group the plan fails when the configured application IDs add to or remove from the IDs in state; the IDs are compared as sets, so order alone is not a change.",
+      "statement": "The segment group resource's Read sets applications to the IDs of the applications the API returns for the group. At v4.4.11 to v4.4.13 an update sent the configured applications list through UpdateV2. From v4.4.14 the argument is deprecated, the docs say to manage membership with segment_group_id on zpa_application_segment, and on an existing group the plan fails when the configured application IDs add to or remove from the IDs in state; the IDs are compared as sets, so order alone is not a change.",
       "tier": "A",
       "evidence": [
         {
@@ -1243,6 +1268,19 @@
           "quotes": [
             "req := expandSegmentGroup(d)",
             "if _, err := segmentgroup.UpdateV2(ctx, service, id, &req); err != nil {"
+          ]
+        },
+        {
+          "source": "tf-zpa",
+          "path": "zpa/resource_zpa_segment_group.go",
+          "at": [
+            "v4.4.11",
+            "v4.4.12",
+            "v4.4.13"
+          ],
+          "after": "func expandSegmentGroup(d *schema.ResourceData) segmentgroup.SegmentGroup {",
+          "quotes": [
+            "Applications: expandSegmentGroupApplications(d.Get(\"applications\").([]interface{})),"
           ]
         },
         {

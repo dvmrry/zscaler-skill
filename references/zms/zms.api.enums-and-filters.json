@@ -455,11 +455,12 @@
           "path": "zscaler/zms/models/inputs.py",
           "quotes": [
             "contains_any: Optional[List[str]] = None",
-            "return {\"containsAny\": self.contains_any}"
+            "if self.contains_any is not None: return {\"containsAny\": self.contains_any} return None"
           ],
           "after": "class StringArrayExpression:"
         }
-      ]
+      ],
+      "conditions": "Absence claim (no other operator): `awk '/^class StringArrayExpression:/{f=1;next} /^class |^@dataclass/{f=0} f' zscaler/zms/models/inputs.py | grep -c ': Optional\\['` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns 1 (`contains_any`), and `as_dict` returns either `{\"containsAny\": ...}` or None."
     },
     "resource-filter": {
       "statement": "`ResourceQueryFilter` filters on id, name, status, resourceType, cloudProvider, cloudRegion and platformOs.",
@@ -518,7 +519,7 @@
       ]
     },
     "app-catalog-filter": {
-      "statement": "`AppCatalogQueryFilter` filters only on id, name and category, narrower than the portal's application name, category, process, protocol and port filters.",
+      "statement": "`AppCatalogQueryFilter` filters only on id, name and category; the portal's Application Catalog page also filters by Process, Protocol and Port, which it lacks.",
       "tier": "A",
       "evidence": [
         {
@@ -533,10 +534,12 @@
           "source": "zscaler-help",
           "path": "about-application-catalog-microsegmentation.json",
           "quotes": [
+            "The Application Catalog page provides the following benefits and enables you to:",
             "Filter the information by Application Name, Application Category, Process, Protocol, and Port."
           ]
         }
-      ]
+      ],
+      "conditions": "Absence claim (only three fields): `awk '/^class AppCatalogQueryFilter:/{f=1;next} /^class |^@dataclass/{f=0} f' zscaler/zms/models/inputs.py | grep -c ': Optional\\['` in vendor/zscaler-sdk-python at v1.11.3-1-g4f8f54df returns 3 (id, name, category), and the class's `as_dict` maps only those three."
     },
     "tag-filters": {
       "statement": "Tag filters are `NamespaceFilter` (name, origin), `TagKeyFilter` (keyName, valueName) and `TagValueFilter` (name).",

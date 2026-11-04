@@ -303,7 +303,7 @@
       ]
     },
     "kerberos-pwd-read-only": {
-      "statement": "kerberosPwd is read-only and can be set only through the generateKerberosPassword API. The Python SDK's update still serializes kerberosPwd into the request body.",
+      "statement": "kerberosPwd is read-only and can be set only through the generateKerberosPassword API. The Python AuthenticationSettings model's request_format still maps kerberos_pwd to kerberosPwd, though update_authentication_settings sends the caller's keyword arguments as the body.",
       "tier": "A",
       "evidence": [
         {
@@ -324,7 +324,16 @@
         },
         {
           "source": "sdk-python",
+          "path": "zscaler/zia/authentication_settings.py",
+          "after": "def update_authentication_settings(self, **kwargs) -> APIResult[dict]:",
+          "quotes": [
+            "body = {} body.update(kwargs)"
+          ]
+        },
+        {
+          "source": "sdk-python",
           "path": "zscaler/zia/models/authentication_settings.py",
+          "after": "def request_format(self) -> Dict[str, Any]:",
           "quotes": [
             "\"kerberosPwd\": self.kerberos_pwd,"
           ]
